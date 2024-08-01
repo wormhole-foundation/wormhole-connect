@@ -160,6 +160,9 @@ export interface WormholeConnectConfig {
 
   // Override to load Redesign
   useRedesign?: boolean;
+
+  // Debugger flag: Jump to redeem view with pre-populated transaction data
+  redeemDebugger?: boolean;
 }
 
 // This is the exported config value used throughout the code base
@@ -229,6 +232,9 @@ export interface InternalConfig<N extends NetworkV2> {
 
   // Redesign flag
   useRedesign?: boolean;
+
+  // Debugger flag: Jump to redeem view with pre-populated transaction data
+  redeemDebugger?: boolean;
 }
 
 export type ExplorerConfig = {

@@ -7,7 +7,7 @@ import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
 import { isEmptyObject, usePrevious } from './utils';
-import { WormholeConnectConfig } from './config/types';
+import { Route, WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
 
@@ -17,7 +17,13 @@ import Redeem from './views/Redeem/Redeem';
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import WalletModal from './views/WalletModal';
+import {
+  setTxDetails,
+  setSendTx,
+  setRoute as setRedeemRoute,
+} from 'store/redeem';
 import { setRoute } from './store/router';
+import { setRoute as setTransferRoute } from 'store/transferInput';
 import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
@@ -98,6 +104,37 @@ function AppRouter(props: Props) {
       dispatch(setRoute('search'));
     }
   }, [hasExternalSearch, dispatch]);
+
+  // IMPORTANT: This is temporary code to enable easier debugging for Redeem view
+  useEffect(() => {
+    if (props.config?.redeemDebugger) {
+      dispatch(setTransferRoute(Route.Relay));
+      dispatch(
+        setTxDetails({
+          sendTx:
+            '0xe019ecbf9b29d041384dcf5154899e4818f10b8805bf75114c745ddebe9100bc',
+          sender: '0x49887A216375FDED17DC1aAAD4920c3777265614',
+          amount: '0.1',
+          recipient: '0x49887A216375FDED17DC1aAAD4920c3777265614',
+          toChain: 'polygon',
+          fromChain: 'ethereum',
+          tokenAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+          tokenKey: 'USDT',
+          tokenDecimals: 6,
+          receivedTokenKey: 'USDT',
+          receiveAmount: '',
+          receiveNativeAmount: 0,
+        }),
+      );
+      dispatch(
+        setSendTx(
+          '0xe019ecbf9b29d041384dcf5154899e4818f10b8805bf75114c745ddebe9100bc',
+        ),
+      );
+      dispatch(setRedeemRoute(route));
+      dispatch(setRoute('redeem'));
+    }
+  }, [props.config?.redeemDebugger]);
 
   const bridge = useMemo(() => {
     return props.config?.useRedesign ? <BridgeV2 /> : <Bridge />;
