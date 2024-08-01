@@ -13,8 +13,11 @@ import {
 
 import {
   clusterApiUrl,
+  Commitment,
   ConfirmOptions,
   Connection,
+  RpcResponseAndContext,
+  SignatureResult,
   Transaction,
 } from '@solana/web3.js';
 
@@ -26,12 +29,15 @@ import {
 import config from 'config';
 
 import {
-  createPriorityFeeInstructions,
   isVersionedTransaction,
   SolanaUnsignedTransaction,
+  determinePriorityFee,
 } from '@wormhole-foundation/sdk-solana';
 import { Network } from '@wormhole-foundation/sdk';
 import { TransactionMessage } from '@solana/web3.js';
+import { ComputeBudgetProgram } from '@solana/web3.js';
+import { TransactionInstruction } from '@solana/web3.js';
+import { VersionedTransaction } from '@solana/web3.js';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -69,52 +75,130 @@ export function fetchOptions() {
   };
 }
 
+// This function signs and sends the transaction while constantly checking for confirmation
+// and resending the transaction if it hasn't been confirmed after the specified interval
+// NOTE: The caller is responsible for simulating the transaction and setting any compute budget
+// or priority fee before calling this function
+// See https://docs.triton.one/chains/solana/sending-txs for more information
 export async function signAndSendTransaction(
   request: SolanaUnsignedTransaction<Network>,
   wallet: Wallet | undefined,
   options?: ConfirmOptions,
 ) {
-  if (!wallet || !wallet.signAndSendTransaction) {
-    throw new Error('wallet.signAndSendTransaction is undefined');
-  }
+  if (!wallet) throw new Error('Wallet not found');
+  if (!config.rpcs.solana) throw new Error('Solana RPC not found');
 
-  const tx = request.transaction.transaction;
-  if (config.rpcs.solana) {
-    const conn = new Connection(config.rpcs.solana);
-    if (isVersionedTransaction(tx)) {
-      const msg = TransactionMessage.decompile(tx.message);
-      const { blockhash } = await conn.getLatestBlockhash();
-      msg.recentBlockhash = blockhash;
-      const computeBudgetIx = await createPriorityFeeInstructions(
-        conn,
-        tx,
-        0.75,
-      );
-      msg.instructions.push(...computeBudgetIx);
-      tx.message = msg.compileToV0Message();
-      tx.sign(request.transaction.signers ?? []);
-    } else {
-      const { blockhash, lastValidBlockHeight } =
-        await conn.getLatestBlockhash();
-      tx.recentBlockhash = blockhash;
-      tx.lastValidBlockHeight = lastValidBlockHeight;
-      const computeBudgetIx = await createPriorityFeeInstructions(
-        conn,
-        tx,
-        0.75,
-      );
-      tx.add(...computeBudgetIx);
-      if (request.transaction.signers) {
-        tx.partialSign(...request.transaction.signers);
-      }
-    }
+  const commitment = options?.commitment ?? 'finalized';
+  const unsignedTx = request.transaction.transaction;
+  const connection = new Connection(config.rpcs.solana);
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash(commitment);
+
+  if (isVersionedTransaction(unsignedTx)) {
+    const message = TransactionMessage.decompile(unsignedTx.message);
+    message.recentBlockhash = blockhash;
+    message.instructions.push(
+      ...(await createPriorityFeeInstructions(connection, unsignedTx)),
+    );
+    unsignedTx.message = message.compileToV0Message();
+    unsignedTx.sign(request.transaction.signers ?? []);
   } else {
-    throw new Error('Need Solana RPC');
+    unsignedTx.recentBlockhash = blockhash;
+    unsignedTx.lastValidBlockHeight = lastValidBlockHeight;
+    unsignedTx.add(
+      ...(await createPriorityFeeInstructions(connection, unsignedTx)),
+    );
+    if (request.transaction.signers) {
+      unsignedTx.partialSign(...request.transaction.signers);
+    }
   }
 
-  return await (wallet as SolanaWallet).signAndSendTransaction({
-    // TODO: VersionedTransaction is supported, but the interface needs to be updated
-    transaction: tx as Transaction,
-    options,
-  });
+  let confirmTransactionPromise: Promise<
+    RpcResponseAndContext<SignatureResult>
+  > | null = null;
+  let confirmedTx: RpcResponseAndContext<SignatureResult> | null = null;
+  let txSendAttempts = 1;
+  let signature = '';
+  // TODO: VersionedTransaction is supported, but the interface needs to be updated
+  const tx = await wallet.signTransaction(unsignedTx as Transaction);
+  const serializedTx = tx.serialize();
+  const sendOptions = {
+    skipPreflight: true,
+    maxRetries: 0,
+    preFlightCommitment: commitment, // See PR and linked issue for why setting this matters: https://github.com/anza-xyz/agave/pull/483
+  };
+  signature = await connection.sendRawTransaction(serializedTx, sendOptions);
+  confirmTransactionPromise = connection.confirmTransaction(
+    {
+      signature,
+      blockhash,
+      lastValidBlockHeight,
+    },
+    commitment,
+  );
+
+  // This loop will break once the transaction has been confirmed or the block height is exceeded.
+  // An exception will be thrown if the block height is exceeded by the confirmTransactionPromise.
+  // The transaction will be resent if it hasn't been confirmed after the interval.
+  const txRetryInterval = 5000;
+  while (!confirmedTx) {
+    confirmedTx = await Promise.race([
+      confirmTransactionPromise,
+      new Promise<null>((resolve) =>
+        setTimeout(() => {
+          resolve(null);
+        }, txRetryInterval),
+      ),
+    ]);
+    if (confirmedTx) {
+      break;
+    }
+    console.log(
+      `Tx not confirmed after ${
+        txRetryInterval * txSendAttempts++
+      }ms, resending`,
+    );
+    try {
+      await connection.sendRawTransaction(serializedTx, sendOptions);
+    } catch (e) {
+      console.error('Failed to resend transaction:', e);
+    }
+  }
+
+  if (confirmedTx.value.err) {
+    throw new Error(`Transaction failed: ${confirmedTx.value.err}`);
+  }
+
+  return signature;
+}
+
+// this will throw if the simulation fails
+async function createPriorityFeeInstructions(
+  connection: Connection,
+  transaction: Transaction | VersionedTransaction,
+  commitment?: Commitment,
+) {
+  const response = await (isVersionedTransaction(transaction)
+    ? connection.simulateTransaction(transaction, {
+        commitment,
+        replaceRecentBlockhash: true,
+      })
+    : connection.simulateTransaction(transaction));
+  if (response.value.err) {
+    throw new Error(`Simulation failed: ${response.value.err}`);
+  }
+  const instructions: TransactionInstruction[] = [];
+  if (response.value?.unitsConsumed) {
+    instructions.push(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        // Set compute budget to 120% of the units used in the simulated transaction
+        units: response.value.unitsConsumed * 1.2,
+      }),
+    );
+  }
+  const priorityFee = await determinePriorityFee(connection, transaction, 0.75);
+  instructions.push(
+    ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }),
+  );
+  return instructions;
 }
