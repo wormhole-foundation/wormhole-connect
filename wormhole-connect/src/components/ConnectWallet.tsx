@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
@@ -91,19 +91,28 @@ function ConnectWallet(props: Props) {
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
+  const { manualAddressTarget } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
-  const connect = async (popupState?: any) => {
-    if (disabled) return;
-    if (popupState) popupState.close();
-    dispatch(setWalletModal(type));
-  };
+  const connect = useCallback(
+    (popupState?: any) => {
+      if (disabled) return;
+      if (popupState) popupState.close();
+      if (manualAddressTarget) {
+        dispatch(setManualAddressTarget(false));
+      }
+      dispatch(setWalletModal(type));
+    },
+    [disabled, manualAddressTarget],
+  );
 
-  const copy = async (popupState: any) => {
-    await copyTextToClipboard(wallet.address);
+  const copy = (popupState: any) => {
+    copyTextToClipboard(wallet.address);
     popupState.close();
   };
 
-  const disconnectWallet = async () => {
+  const disconnectWallet = () => {
     dispatch(disconnectFromStore(type));
     dispatch(setManualAddressTarget(false));
   };
