@@ -240,12 +240,12 @@ export const signAndSendTransaction = async (
     return tx;
   } else if (chainConfig.context === Context.SOLANA) {
     const { signAndSendTransaction } = await import('utils/wallet/solana');
-    const tx = await signAndSendTransaction(
+    const signature = await signAndSendTransaction(
       request as SolanaUnsignedTransaction<Network>,
       wallet,
       options,
     );
-    return tx.id;
+    return signature;
   } else if (chainConfig.context === Context.SUI) {
     const { signAndSendTransaction } = await import('utils/wallet/sui');
     const tx = await signAndSendTransaction(

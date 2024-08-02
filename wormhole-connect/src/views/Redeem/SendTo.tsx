@@ -182,14 +182,6 @@ function SendTo() {
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
-
-      //txId = await RouteOperator.redeem(
-      //  routeName,
-      //  txData.toChain,
-      //  receipt,
-      //  wallet.address,
-      //);
-
       if (!routes.isManual(route)) {
         throw new Error('Route is not manual');
       }
@@ -199,12 +191,13 @@ function SendTo() {
         {},
         TransferWallet.RECEIVING,
       );
-      let receipt = routeContext.receipt;
-      receipt = await route.complete(signer, receipt!);
+      const receipt = await route.complete(signer, routeContext.receipt!);
       if (!isRedeemed(receipt)) {
         throw new Error('Transfer not redeemed');
       }
-      txId = receipt.destinationTxs?.[0]?.txid || '';
+      if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
+        txId = receipt.destinationTxs[receipt.destinationTxs.length - 1].txid;
+      }
 
       config.triggerEvent({
         type: 'transfer.redeem.start',
