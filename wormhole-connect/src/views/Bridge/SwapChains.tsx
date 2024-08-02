@@ -30,11 +30,11 @@ const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
 function SwapChains() {
   const dispatch = useDispatch();
 
-  const { isTransactionInProgress, fromChain, toChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { isTransactionInProgress, manualAddressTarget, fromChain, toChain } =
+    useSelector((state: RootState) => state.transferInput);
 
   const canSwap =
+    !manualAddressTarget &&
     fromChain &&
     !config.chains[fromChain]?.disabledAsDestination &&
     toChain &&
