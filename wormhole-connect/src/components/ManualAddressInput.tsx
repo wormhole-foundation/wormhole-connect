@@ -54,7 +54,13 @@ export const ManualAddressInput = (props: ManualAddressInputProps) => {
             label="Wallet Address"
           />
         </FormControl>
-        <Button onClick={handleManualConnect}>CONNECT</Button>
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={handleManualConnect}
+        >
+          CONNECT
+        </Button>
       </Box>
     </FormGroup>
   );
