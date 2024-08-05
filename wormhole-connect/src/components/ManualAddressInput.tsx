@@ -57,6 +57,7 @@ export const ManualAddressInput = (props: ManualAddressInputProps) => {
         <Button
           color="primary"
           variant="contained"
+          disabled={!address}
           onClick={handleManualConnect}
         >
           CONNECT
