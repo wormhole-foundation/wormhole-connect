@@ -83,7 +83,9 @@ function SendTo() {
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
-
+  const { manualAddressTarget } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const transferDestInfo = useSelector(
     (state: RootState) => state.redeem.transferDestInfo,
   );
@@ -324,6 +326,7 @@ function SendTo() {
       ? 'Error please retry . . .'
       : 'Claim below';
   const showSwitchToManualClaim =
+    !manualAddressTarget &&
     !transferComplete &&
     (routeName === Route.Relay || isPorticoRoute(routeName as Route));
   let manualClaimTitle = '';
