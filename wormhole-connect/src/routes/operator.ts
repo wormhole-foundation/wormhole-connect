@@ -94,7 +94,9 @@ export class Operator {
       // Check if is Ntt Route (NttRelay or NttManual)
       const connection = solanaContext().connection;
       if (!connection) throw new Error('Connection not found');
-      const tx = await connection.getParsedTransaction(txHash);
+      const tx = await connection.getParsedTransaction(txHash, {
+        maxSupportedTransactionVersion: 0,
+      });
       if (!tx) throw new Error('Transaction not found');
       if (
         tx.transaction.message.instructions.some((ix) =>
