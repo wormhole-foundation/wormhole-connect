@@ -30,6 +30,7 @@ import { useExternalSearch } from 'hooks/useExternalSearch';
 import internalConfig from 'config';
 
 import BridgeV2 from 'views/v2/Bridge';
+import RedeemV2 from 'views/v2/Redeem';
 import { RouteContext } from 'contexts/RouteContext';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -122,8 +123,12 @@ function AppRouter(props: Props) {
           tokenKey: 'USDT',
           tokenDecimals: 6,
           receivedTokenKey: 'USDT',
-          receiveAmount: '',
-          receiveNativeAmount: 0,
+          receiveAmount: '0.03003',
+          receiveNativeAmount: 0.01,
+          relayerFee: {
+            fee: 0.006997,
+            tokenKey: 'USDT',
+          },
         }),
       );
       dispatch(
@@ -140,6 +145,10 @@ function AppRouter(props: Props) {
     return props.config?.useRedesign ? <BridgeV2 /> : <Bridge />;
   }, [props.config?.useRedesign]);
 
+  const redeem = useMemo(() => {
+    return props.config?.useRedesign ? <RedeemV2 /> : <Redeem />;
+  }, [props.config?.useRedesign]);
+
   const walletSelector = useMemo(() => {
     return props.config?.useRedesign || !showWalletModal ? null : (
       <WalletModal type={showWalletModal} />
@@ -150,7 +159,7 @@ function AppRouter(props: Props) {
     <div className={classes.appContent}>
       {walletSelector}
       {route === 'bridge' && bridge}
-      {route === 'redeem' && <Redeem />}
+      {route === 'redeem' && redeem}
       {route === 'search' && <TxSearch />}
       {route === 'terms' && <Terms />}
       {route === 'faq' && <FAQ />}

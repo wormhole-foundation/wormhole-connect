@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react';
-import { makeStyles } from 'tss-react/mui';
-import config from 'config';
-import { joinClass } from 'utils/style';
-
 import { useTheme } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import { makeStyles } from 'tss-react/mui';
+
 import PageHeader from 'components/PageHeader';
-import PoweredByIcon from 'icons/PoweredBy';
 import { Alignment } from 'components/Header';
-import FooterNavBar from 'components/FooterNavBar';
+import config from 'config';
+import PoweredByIcon from 'icons/PoweredBy';
+import { joinClass } from 'utils/style';
+import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles()((_theme) => ({
     justifyContent: 'center',
     width: '100%',
   },
-  bridgeContent: {
+  container: {
     margin: 'auto',
     maxWidth: '650px',
   },
@@ -64,11 +65,21 @@ const Redeem = () => {
     );
   }, []);
 
-  return (
-    <div className={joinClass([classes.bridgeContent, classes.spacer])}>
-      {header}
-      {config.showHamburgerMenu ? null : <FooterNavBar />}
+  // Header showing the status of the transaction
+  const statusHeader = useMemo(() => {
+    return <Stack>Transaction submitted</Stack>;
+  }, []);
 
+  const etaProgress = useMemo(() => {
+    return <>[ETA progress bar]</>;
+  }, []);
+
+  return (
+    <div className={joinClass([classes.container, classes.spacer])}>
+      {header}
+      {statusHeader}
+      {etaProgress}
+      <TransactionDetails />
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>

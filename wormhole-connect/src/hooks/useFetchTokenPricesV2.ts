@@ -9,9 +9,11 @@ const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
 const useFetchTokenPricesV2 = (): {
   prices: TokenPrices;
   error: string;
+  isFetching: boolean;
 } => {
   const [prices, setPrices] = useState({});
   const [error, setError] = useState('');
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,6 +31,8 @@ const useFetchTokenPricesV2 = (): {
     });
 
     const fetchTokenPrices = async () => {
+      setIsFetching(true);
+
       try {
         // Make API call to fetch token prices
         // In the case the user https://apiguide.coingecko.com/getting-started/getting-started#id-2.-making-api-request
@@ -52,6 +56,8 @@ const useFetchTokenPricesV2 = (): {
         if (!cancelled) {
           setError(`Error fetching token prices: ${error}`);
         }
+      } finally {
+        setIsFetching(false);
       }
     };
 
@@ -65,6 +71,7 @@ const useFetchTokenPricesV2 = (): {
   return {
     prices,
     error,
+    isFetching,
   };
 };
 

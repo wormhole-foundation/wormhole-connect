@@ -30,6 +30,12 @@ export function trimAddress(address: string, max = 6): string {
   );
 }
 
+export function trimTxHash(txHash: string, max = 6): string {
+  const start = txHash.slice(0, max);
+  const end = txHash.slice(txHash.length - 4, txHash.length);
+  return `${start}...${end}`;
+}
+
 export function displayAddress(chain: ChainName, address: string): string {
   if (isEvmChain(chain)) {
     return trimAddress(convertAddress(address));
