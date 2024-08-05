@@ -87,7 +87,7 @@ const DestinationQueued = () => {
       const toConfig = config.chains[txData.toChain]!;
       if (isEvmChain(txData.toChain)) {
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
-        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
+        await registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
       const signer = await SDKv2Signer.fromChainV1(
         txData.toChain,

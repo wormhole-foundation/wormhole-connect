@@ -180,7 +180,7 @@ function SendTo() {
         typeof chainConfig.chainId === 'number'
       ) {
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
-        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
+        await registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
       if (!routes.isManual(route)) {
         throw new Error('Route is not manual');
