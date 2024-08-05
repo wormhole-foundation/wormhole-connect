@@ -19,6 +19,9 @@ function BridgeComplete() {
   const transferDestInfo = useSelector(
     (state: RootState) => state.redeem.transferDestInfo,
   );
+  const { manualAddressTarget } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const theme: any = useTheme();
   const toLink = () => {
     if (typeof window !== 'undefined') {
@@ -51,7 +54,7 @@ function BridgeComplete() {
           {!!config.cta && (
             <div>Click the button below to begin using your new assets.</div>
           )}
-          <AddToWallet />
+          {!manualAddressTarget ? <AddToWallet /> : null}
         </>
       </InputContainer>
       <Spacer />
