@@ -14,6 +14,7 @@ export interface TransferDetails {
   toChain: ChainName | ChainId;
   txId?: string;
   USDAmount?: number;
+  amount?: number;
 }
 
 export type TransferEventType =
