@@ -266,6 +266,10 @@ function Send(props: { valid: boolean }) {
     );
   }, [sending]);
 
+  useEffect(() => {
+    setSendError('');
+  }, [receiving.address, receiving.name, props.valid]);
+
   const showWarning = useMemo(() => {
     if (!route) return false;
     const r = RouteOperator.getRoute(route);
