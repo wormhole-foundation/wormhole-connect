@@ -108,6 +108,7 @@ function Send(props: { valid: boolean }) {
       toToken: getTokenDetails(destToken),
       fromChain: fromChain!,
       toChain: toChain!,
+      amount: Number(amount),
       USDAmount: getUSDAmount({ token, amount }),
     };
 
