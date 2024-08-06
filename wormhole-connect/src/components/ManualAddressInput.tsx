@@ -27,7 +27,14 @@ export const ManualAddressInput = (props: ManualAddressInputProps) => {
   };
 
   const handleManualConnect = () => {
-    props.handleManualConnect(address);
+    let formattedAddress = address;
+    // This regex is used to check if the address is in the format of chainName:0x...
+    // example: bnb:0x8C...7aa
+    const regex = /(.*):0x/;
+    if (regex.test(formattedAddress)) {
+      formattedAddress = formattedAddress.replace(regex, '0x');
+    }
+    props.handleManualConnect(formattedAddress);
   };
 
   return (
