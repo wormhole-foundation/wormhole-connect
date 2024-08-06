@@ -85,7 +85,7 @@ function ExplorerLink({
 }
 
 function ConnectWallet(props: Props) {
-  const { disabled = false, type } = props;
+  const { disabled = false, type, side } = props;
   const { classes } = useStyles({ disabled });
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -99,7 +99,7 @@ function ConnectWallet(props: Props) {
     (popupState?: any) => {
       if (disabled) return;
       if (popupState) popupState.close();
-      if (manualAddressTarget) {
+      if (side === 'destination' && manualAddressTarget) {
         dispatch(setManualAddressTarget(false));
       }
       dispatch(setWalletModal(type));
@@ -114,7 +114,7 @@ function ConnectWallet(props: Props) {
 
   const disconnectWallet = () => {
     dispatch(disconnectFromStore(type));
-    dispatch(setManualAddressTarget(false));
+    if (side === 'destination') dispatch(setManualAddressTarget(false));
   };
 
   if (wallet && wallet.address) {
