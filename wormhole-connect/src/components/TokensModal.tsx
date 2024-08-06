@@ -343,11 +343,14 @@ function TokensModal(props: Props) {
   const displayedTokens = useMemo(() => {
     if (!search) return tokens;
     return tokens.filter((c) => {
-      const symbol = c.symbol.toLowerCase();
-      return (
-        symbol.includes(search) ||
-        (c.tokenId && c.tokenId.address.toLowerCase().includes(search))
-      );
+      const tokenCriterias = [
+        c.symbol.toLowerCase(),
+        c.tokenId?.address?.toLowerCase?.(),
+        ...Object.values(c.foreignAssets || {}).map((foreignAsset) =>
+          foreignAsset.address.toLowerCase(),
+        ),
+      ].filter(Boolean);
+      return tokenCriterias.some((criteria) => criteria?.includes(search));
     });
   }, [tokens, search]);
 
