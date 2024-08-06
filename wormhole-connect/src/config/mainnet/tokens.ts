@@ -1035,7 +1035,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDT,
     tokenId: {
       chain: 'avalanche',
-      address: '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7',
+      address: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
     },
     coinGeckoId: 'tether',
     color: '#ffffff',
