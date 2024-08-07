@@ -192,6 +192,12 @@ const parseTokenBridgeReceipt = async (
     txData.tokenKey = tokenV1.key;
     txData.receivedTokenKey = tokenV1.key;
     txData.receiveAmount = txData.amount;
+    txData.relayerFee = {
+      fee: Number(
+        amount.fmt(payload.payload.targetRelayerFee, Math.min(8, decimals)),
+      ),
+      tokenKey: tokenV1.key,
+    };
   }
 
   if (payload.to) {

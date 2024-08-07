@@ -193,9 +193,6 @@ export function buildConfig(
 
     // Render Redesign views
     useRedesign: customConfig?.useRedesign,
-
-    // Debugger flag: Jump to redeem view with pre-populated transaction data
-    redeemDebugger: customConfig?.redeemDebugger,
   };
 }
 

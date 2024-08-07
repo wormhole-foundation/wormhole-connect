@@ -50,7 +50,7 @@ const TransactionDetails = () => {
     useFetchTokenPricesV2();
 
   const sentAmount = useMemo(() => {
-    if (!sender || !tokenKey || !fromChain) {
+    if (!tokenKey || !fromChain || !amount) {
       return <></>;
     }
 
@@ -64,6 +64,8 @@ const TransactionDetails = () => {
       true,
     );
 
+    const senderAddress = sender ? trimAddress(sender) : '';
+
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
         <TokenIcon icon={sourceTokenConfig.icon} height={32} />
@@ -75,9 +77,7 @@ const TransactionDetails = () => {
             {isFetchingTokenPrices ? (
               <CircularProgress size={14} />
             ) : (
-              `${usdAmount} \u2022 ${
-                sourceChainConfig.displayName
-              } ${trimAddress(sender)}`
+              `${usdAmount} \u2022 ${sourceChainConfig.displayName} ${senderAddress}`
             )}
           </Typography>
         </Stack>
@@ -86,7 +86,7 @@ const TransactionDetails = () => {
   }, [amount, fromChain, isFetchingTokenPrices, sender, tokenKey, tokenPrices]);
 
   const receivedAmount = useMemo(() => {
-    if (!recipient || !receivedTokenKey || !toChain) {
+    if (!receivedTokenKey || !toChain || !receiveAmount) {
       return <></>;
     }
 
@@ -100,6 +100,8 @@ const TransactionDetails = () => {
       true,
     );
 
+    const recipientAddress = recipient ? trimAddress(recipient) : '';
+
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
         <TokenIcon icon={destTokenConfig.icon} height={32} />
@@ -111,9 +113,7 @@ const TransactionDetails = () => {
             {isFetchingTokenPrices ? (
               <CircularProgress size={14} />
             ) : (
-              `${usdAmount} \u2022 ${destChainConfig.displayName} ${trimAddress(
-                recipient,
-              )}`
+              `${usdAmount} \u2022 ${destChainConfig.displayName} ${recipientAddress}`
             )}
           </Typography>
         </Stack>
