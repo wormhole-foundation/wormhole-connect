@@ -51,6 +51,10 @@ import {
   getUnsignedMessageFromCosmos,
 } from './utils';
 import { TokenPrices } from 'store/tokenPrices';
+import {
+  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+  RouteAvailability,
+} from 'routes/abstracts';
 
 export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -76,6 +80,23 @@ export class CosmosGatewayRoute extends BaseRoute {
       isGatewayChain(config.wh.toChainId(sourceChain)) ||
       isGatewayChain(config.wh.toChainId(destChain))
     );
+  }
+
+  async isRouteAvailable(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    manualAddress?: boolean,
+  ): Promise<RouteAvailability> {
+    // this route is not available if the target addres is manual
+    if (manualAddress)
+      return {
+        isAvailable: false,
+        reason: REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+      };
+    return { isAvailable: true };
   }
 
   async computeReceiveAmount(

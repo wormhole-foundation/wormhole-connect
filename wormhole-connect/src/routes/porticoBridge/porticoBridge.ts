@@ -63,6 +63,10 @@ import {
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { estimateAverageGasFee } from 'utils/gas';
+import {
+  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+  RouteAvailability,
+} from 'routes/abstracts';
 
 export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -152,6 +156,23 @@ export abstract class PorticoBridge extends BaseRoute {
       return false;
     }
     return true;
+  }
+
+  async isRouteAvailable(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    manualAddress?: boolean,
+  ): Promise<RouteAvailability> {
+    // this route is not available if the target addres is manual
+    if (manualAddress)
+      return {
+        isAvailable: false,
+        reason: REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+      };
+    return { isAvailable: true };
   }
 
   async computeSwapAmounts(
