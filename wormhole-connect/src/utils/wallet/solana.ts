@@ -178,6 +178,13 @@ async function createPriorityFeeInstructions(
   transaction: Transaction | VersionedTransaction,
   commitment?: Commitment,
 ) {
+  if (isVersionedTransaction(transaction)) {
+    // This is required for versioned transactions - simulateTransaction throws
+    // if recentBlockhash is an empty string.
+    const { blockhash } = await connection.getLatestBlockhash(commitment);
+    transaction.message.recentBlockhash = blockhash;
+  }
+
   const response = await (isVersionedTransaction(transaction)
     ? connection.simulateTransaction(transaction, {
         commitment,

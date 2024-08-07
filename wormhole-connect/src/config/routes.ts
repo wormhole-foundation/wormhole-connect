@@ -107,4 +107,12 @@ export const RoutesConfig: {
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  [Route.Mayan]: {
+    route: Route.Mayan,
+    name: 'Mayan Swap',
+    providedBy: 'Mayan Finance',
+    link: 'https://mayan.finance/',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
 };

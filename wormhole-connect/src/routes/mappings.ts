@@ -4,6 +4,7 @@ import {
   nttAutomaticRoute,
   nttManualRoute,
 } from '@wormhole-foundation/sdk-route-ntt';
+import { MayanRoute } from '@mayanfinance/wormhole-sdk-route';
 
 // IMPORTANT: These imports are necessary to register the protocol layouts and implementations
 import '@wormhole-foundation/sdk-definitions-ntt';
@@ -29,6 +30,8 @@ export function getRoute(route: Route): SDKv2Route {
       return new SDKv2Route(nttManualRoute(getNttConfig()), route);
     case Route.NttRelay:
       return new SDKv2Route(nttAutomaticRoute(getNttConfig()), route);
+    case Route.Mayan:
+      return new SDKv2Route(MayanRoute, route);
     default:
       throw new Error(`Unsupported route: ${route}`);
   }
