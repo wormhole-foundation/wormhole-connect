@@ -5,6 +5,7 @@ import { LINK } from 'utils/style';
 import config from 'config';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { TransferSide } from 'config/types';
+import { isEvmChain } from 'utils/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   link: {
@@ -45,7 +46,11 @@ function ExplorerLink(props: ExplorerLinkProps) {
           ? `${chainConfig.explorerUrl}txs/${props.txHash}`
           : `${chainConfig.explorerUrl}transactions/${props.txHash}`;
     } else {
-      explorerLink = `${chainConfig.explorerUrl}tx/${props.txHash}`;
+      let txHash = props.txHash;
+      if (isEvmChain(chainConfig.key)) {
+        txHash = txHash.startsWith('0x') ? txHash : '0x' + txHash;
+      }
+      explorerLink = `${chainConfig.explorerUrl}tx/${txHash}`;
     }
   } else if (props.type === 'address') {
     if (chainConfig.key === 'aptos') {

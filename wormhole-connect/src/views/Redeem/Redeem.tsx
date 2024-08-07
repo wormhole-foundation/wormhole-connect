@@ -20,6 +20,7 @@ import config from 'config';
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 
 import useTrackTransfer from 'hooks/useTrackTransfer';
+import useFetchRedeemTx from 'hooks/useFetchRedeemTx';
 
 function Redeem({
   txData,
@@ -149,6 +150,7 @@ function Redeem({
 
   // useDeliveryStatus();
   useTrackTransfer();
+  useFetchRedeemTx();
 
   return txData?.fromChain ? (
     <div
