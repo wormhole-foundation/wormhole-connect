@@ -38,10 +38,6 @@ import { BaseRoute } from '../bridge';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { isTBTCCanonicalChain } from './utils';
 import { isGatewayChain } from 'utils/cosmos';
-import {
-  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
-  RouteAvailability,
-} from 'routes/abstracts';
 
 const THRESHOLD_ARBITER_FEE = 0;
 const THRESHOLD_NONCE = 0;
@@ -115,23 +111,6 @@ export class TBTCRoute extends BaseRoute {
       return false;
     }
     return true;
-  }
-
-  async isRouteAvailable(
-    sourceToken: string,
-    destToken: string,
-    amount: string,
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
-    manualAddress?: boolean,
-  ): Promise<RouteAvailability> {
-    // this route is not available if the target addres is manual
-    if (manualAddress)
-      return {
-        isAvailable: false,
-        reason: REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
-      };
-    return { isAvailable: true };
   }
 
   async computeReceiveAmount(

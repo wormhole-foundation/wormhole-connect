@@ -50,7 +50,6 @@ export abstract class RouteAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-    manualAddress?: boolean,
   ): Promise<RouteAvailability>;
 
   public abstract isSupportedChain(chain: ChainName): boolean;

@@ -221,7 +221,6 @@ export class Operator {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-    manualAddress?: boolean,
   ): Promise<RouteAvailability> {
     if (!config.routes.includes(route)) {
       return { isAvailable: false };
@@ -234,7 +233,6 @@ export class Operator {
       amount,
       sourceChain,
       destChain,
-      manualAddress,
     );
   }
   allSupportedChains(): ChainName[] {

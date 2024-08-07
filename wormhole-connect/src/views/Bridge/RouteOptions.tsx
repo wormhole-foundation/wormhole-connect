@@ -23,12 +23,12 @@ import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
-import {
-  REASON_AMOUNT_TOO_LOW,
-  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
-  isNttRoute,
-} from 'routes';
+import { isNttRoute, RouteAvailability } from 'routes';
 import { getNttDisplayName } from 'utils/ntt';
+
+export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
+export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
+  'Manual address not supported';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -196,14 +196,13 @@ const getEstimatedTime = (chain?: ChainName) => {
 function RouteOption(props: {
   route: RouteData;
   disabled: boolean;
-  reason?: string;
+  automatic: boolean;
 }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, toChain, fromChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { token, destToken, amount, toChain, fromChain, manualAddressTarget } =
+    useSelector((state: RootState) => state.transferInput);
 
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
@@ -280,34 +279,28 @@ function RouteOption(props: {
   );
   const routeName = props.route.route;
 
-  const route = useMemo(() => {
-    return RouteOperator.getRoute(routeName);
-  }, [routeName]);
-
-  const isAutomatic = useMemo(
-    () =>
-      route.AUTOMATIC_DEPOSIT ||
-      (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
-      isPorticoRoute(route.TYPE),
-    [route, toChain],
-  );
-
   const displayName = isNttRoute(routeName)
     ? getNttDisplayName(fromTokenConfig, toTokenConfig) || props.route.name
     : props.route.name;
-  let tooltipText = '';
-  switch (props.reason) {
-    case REASON_MANUAL_ADDRESS_NOT_SUPPORTED:
-      tooltipText =
-        'This route is not available when sending to a manual address';
-      break;
-    case REASON_AMOUNT_TOO_LOW:
-      tooltipText =
-        'Not enough funds on the source chain for automatic redemption';
-      break;
-    default:
-      break;
-  }
+
+  const tooltipText = useMemo(() => {
+    if (manualAddressTarget && !props.automatic) {
+      return 'This route is not available when sending to a manual address';
+    }
+    if (props.disabled) {
+      return 'Not enough funds on the source chain for automatic redemption';
+    }
+  }, [manualAddressTarget, props]);
+
+  const reason = useMemo(() => {
+    if (manualAddressTarget && !props.automatic) {
+      return REASON_MANUAL_ADDRESS_NOT_SUPPORTED;
+    }
+    if (props.disabled) {
+      return REASON_AMOUNT_TOO_LOW;
+    }
+  }, [manualAddressTarget, props]);
+
   return (
     fromTokenConfig &&
     toTokenConfig && (
@@ -321,8 +314,8 @@ function RouteOption(props: {
           <div className={classes.routeLeft}>
             <div className={classes.routeTitle}>
               {displayName}
-              {/* TODO: isAutomatic to route and use transfer parameters to decide */}
-              {isAutomatic ? (
+              {/* TODO: automatic to route and use transfer parameters to decide */}
+              {props.automatic ? (
                 <Chip
                   label="Receive tokens automatically"
                   color="success"
@@ -362,7 +355,7 @@ function RouteOption(props: {
           <div className={classes.routeRight}>
             {props.disabled ? (
               <>
-                <div>{props.reason}</div>
+                <div>{reason}</div>
               </>
             ) : (
               <>
@@ -424,7 +417,6 @@ function RouteOptions() {
           debouncedAmount,
           fromChain,
           toChain,
-          manualAddressTarget,
         );
 
         const supported = await RouteOperator.isRouteSupported(
@@ -448,21 +440,35 @@ function RouteOptions() {
     return () => {
       isActive = false;
     };
-  }, [
-    dispatch,
-    token,
-    destToken,
-    debouncedAmount,
-    fromChain,
-    toChain,
-    manualAddressTarget,
-  ]);
+  }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
     const routes = routeStates.filter((rs) => rs.supported);
     return routes;
   }, [routeStates]);
+
+  const isValidRouteName = (routeName: string): routeName is Route =>
+    routeName in RoutesConfig;
+
+  const isAutomatic = (routeName: string) => {
+    if (isValidRouteName(routeName)) {
+      const route = RouteOperator.getRoute(routeName);
+      return (
+        route.AUTOMATIC_DEPOSIT ||
+        (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
+        isPorticoRoute(route.TYPE)
+      );
+    }
+    return false;
+  };
+
+  const isDisabled = useCallback(
+    (routeName: string, availability: RouteAvailability) =>
+      !availability.isAvailable ||
+      (manualAddressTarget && !isAutomatic(routeName)),
+    [manualAddressTarget],
+  );
 
   return allRoutes && allRoutes.length > 0 ? (
     <BridgeCollapse
@@ -479,11 +485,12 @@ function RouteOptions() {
         {allRoutes.map(({ name, availability }) => {
           return {
             key: name,
-            disabled: !availability.isAvailable,
+            // TODO update it
+            disabled: isDisabled(name, availability),
             child: (
               <RouteOption
-                disabled={!availability.isAvailable}
-                reason={availability?.reason || ''}
+                disabled={isDisabled(name, availability)}
+                automatic={isAutomatic(name)}
                 route={RoutesConfig[name as Route]}
               />
             ),
