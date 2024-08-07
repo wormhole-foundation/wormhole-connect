@@ -15,7 +15,11 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route, TokenConfig, Network as NetworkV1 } from 'config/types';
 import { BigNumber } from 'ethers';
-import { RouteAvailability, RouteAbstract } from 'routes/abstracts';
+import {
+  RouteAvailability,
+  RouteAbstract,
+  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+} from 'routes/abstracts';
 import {
   RelayerFee,
   SignedMessage,
@@ -216,8 +220,14 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
+    manualAddress?: boolean,
   ): Promise<RouteAvailability> {
-    // TODO
+    // this route is not available if the target addres is manual
+    if (manualAddress)
+      return {
+        isAvailable: false,
+        reason: REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+      };
     return { isAvailable: true };
   }
 
