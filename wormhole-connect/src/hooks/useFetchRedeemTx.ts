@@ -20,7 +20,7 @@ const useFetchRedeemTx = (): void => {
   useEffect(() => {
     if (
       !receipt ||
-      receipt.state < TransferState.Attested ||
+      receipt.state < TransferState.DestinationInitiated ||
       'originTxs' in receipt === false ||
       receipt.originTxs.length === 0
     ) {
@@ -30,9 +30,12 @@ const useFetchRedeemTx = (): void => {
     let isActive = true;
 
     const fetchRedeemTx = async () => {
+      // TODO: remove once this is published: https://github.com/wormhole-foundation/wormhole-sdk-ts/pull/661
       const wormholeApi = config.wormholeApi.replace(/\/$/, '');
+
       const { txid } = receipt.originTxs[receipt.originTxs.length - 1];
-      while (isActive) {
+      let retry = 0;
+      while (isActive && retry < 10) {
         try {
           const vaa = await api.getVaaByTxHash(wormholeApi, txid);
           if (vaa) {
@@ -53,6 +56,7 @@ const useFetchRedeemTx = (): void => {
           console.warn(e);
         }
         await sleep(10_000);
+        retry++;
       }
     };
 
