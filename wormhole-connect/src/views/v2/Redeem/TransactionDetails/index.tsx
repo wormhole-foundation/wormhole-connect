@@ -170,13 +170,13 @@ const TransactionDetails = () => {
   }, [isFetchingTokenPrices, receivedTokenKey, relayerFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
-    if (!receivedTokenKey) {
+    if (!receivedTokenKey || !receiveNativeAmount) {
       return <></>;
     }
 
     const destChainConfig = config.chains[toChain];
 
-    if (!destChainConfig || !receiveNativeAmount) {
+    if (!destChainConfig) {
       return <></>;
     }
 

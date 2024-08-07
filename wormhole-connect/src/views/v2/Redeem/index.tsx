@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { TransferState } from '@wormhole-foundation/sdk';
 import { makeStyles } from 'tss-react/mui';
 
@@ -141,8 +142,19 @@ const Redeem = () => {
   }, [isTxAttested, isTxComplete, receiveAmount, recipient]);
 
   const etaProgress = useMemo(() => {
+    if (isTxComplete) {
+      return (
+        <Stack>
+          <CheckCircleOutlineIcon
+            htmlColor="#C1BBF6"
+            sx={{ width: '104px', height: '104px' }}
+          />
+        </Stack>
+      );
+    }
+
     return <>[ETA progress bar]</>;
-  }, []);
+  }, [isTxComplete]);
 
   const handleManualClaim = useCallback(async () => {
     setIsClaimInProgress(true);
