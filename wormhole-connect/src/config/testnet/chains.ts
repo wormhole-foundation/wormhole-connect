@@ -101,6 +101,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: Icon.KLAY,
     maxBlockSearch: 2000,
   },
+  // TODO: SDKV2 - re-enable cosmos chains once cosmos gateway route is implemented
   //Sei: {
   //  ...chains.Sei!,
   //  displayName: 'Sei',

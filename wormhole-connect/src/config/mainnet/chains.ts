@@ -125,6 +125,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
+  // TODO: SDKV2 - re-enable cosmos chains once cosmos gateway route is implemented
   //Osmosis: {
   //  ...chains.Osmosis!,
   //  displayName: 'Osmosis',
