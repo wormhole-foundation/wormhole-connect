@@ -70,7 +70,6 @@ export class SDKv2Signer<N extends Network, C extends Chain>
       );
       txHashes.push(txId);
     }
-    console.log(txHashes);
     return txHashes;
   }
 

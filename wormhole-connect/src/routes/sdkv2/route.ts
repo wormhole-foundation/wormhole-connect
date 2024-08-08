@@ -9,6 +9,7 @@ import {
   TokenId as TokenIdV2,
   TransferState,
   TransactionId,
+  isNative,
 } from '@wormhole-foundation/sdk';
 import { ChainId, ChainName, TokenId as TokenIdV1 } from 'sdklegacy';
 import { Route, TokenConfig } from 'config/types';
@@ -26,7 +27,13 @@ import { SDKv2Signer } from './signer';
 
 import { amount } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
-import { calculateUSDPrice, getDisplayName, getWrappedToken } from 'utils';
+import {
+  calculateUSDPrice,
+  getDisplayName,
+  getGasToken,
+  getWrappedToken,
+  getWrappedTokenId,
+} from 'utils';
 import { TransferWallet } from 'utils/wallet';
 import { RelayerFee } from 'store/relay';
 import { toFixedDecimals } from 'utils/balance';
@@ -111,34 +118,17 @@ export class SDKv2Route {
     );
 
     const toTokenSupported = !!supportedDestinationTokens.find((tokenId) => {
-      // TODO: SDKV2
-      // `tokenId.address` is a `UniversalAddress`, while `toTokenIdV2.address` is a `NativeAddress<C>`.
-      // To compare these two, we must convert the `UniversalAddress` to a `NativeAddress<C>` (or vice versa).
-      // In the case of Sui, this conversion requires looking up the address from the token bridge contract,
-      // which stores them in a map. Ideally, the SDK should provide a generic method for this conversion
-      // applicable to all chains.
-      if (
-        this.IS_TOKEN_BRIDGE_ROUTE &&
-        sourceToken === 'SUI' &&
-        destToken === 'SUI' &&
-        supportedDestinationTokens.length === 1 &&
-        toChain.chain === 'Sui' &&
-        toTokenIdV2.chain === 'Sui'
-      ) {
-        return true;
+      let _toTokenIdV2 = toTokenIdV2;
+      if (this.IS_TOKEN_BRIDGE_ROUTE && isNative(toTokenIdV2.address)) {
+        // the SDK does not return the dest token with its address set to 'native'
+        // so we need to get the wrapped token address and compare that
+        const gasToken = getWrappedTokenId(getGasToken(toChainV1));
+        _toTokenIdV2 = config.sdkConverter.tokenIdV2(
+          toChainV1,
+          gasToken.address,
+        );
       }
-      // TODO: same issue as above for Aptos
-      if (
-        this.IS_TOKEN_BRIDGE_ROUTE &&
-        sourceToken === 'APT' &&
-        destToken === 'APT' &&
-        supportedDestinationTokens.length === 1 &&
-        toChain.chain === 'Aptos' &&
-        toTokenIdV2.chain === 'Aptos'
-      ) {
-        return true;
-      }
-      return isSameToken(tokenId, toTokenIdV2);
+      return isSameToken(tokenId, _toTokenIdV2);
     });
 
     const isSupported =
@@ -224,6 +214,12 @@ export class SDKv2Route {
   ): Promise<TokenConfig[]> {
     if (!fromChainV1 || !toChainV1 || !sourceToken) return [];
 
+    if (this.IS_TOKEN_BRIDGE_ROUTE) {
+      if (this.isIlliquidDestToken(sourceToken, toChainName(toChainV1))) {
+        return [];
+      }
+    }
+
     const fromChain = await this.getV2ChainContext(fromChainV1);
     const toChain = await this.getV2ChainContext(toChainV1);
     const sourceTokenV2 = config.sdkConverter.toTokenIdV2(
@@ -297,7 +293,6 @@ export class SDKv2Route {
     }
 
     const quote = await route.quote(req, validationResult.params);
-    console.log('Got quote', quote);
 
     return [route, quote, req];
   }
@@ -334,7 +329,6 @@ export class SDKv2Route {
     const destChainV2 = (await this.getV2ChainContext(destChainV1)).context;
 
     const wh = await getWormholeContextV2();
-    console.log(sourceTokenV2, destTokenV2, sourceChainV2, destChainV2);
     const req = await routes.RouteTransferRequest.create(
       wh,
       /* @ts-ignore */
@@ -345,7 +339,6 @@ export class SDKv2Route {
       sourceChainV2,
       destChainV2,
     );
-    console.log(req);
     return req;
   }
 
@@ -357,8 +350,6 @@ export class SDKv2Route {
     toChainV1: ChainName | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
-    console.log(sourceToken, fromChainV1, destToken, toChainV1);
-
     if (isNaN(amountIn)) {
       return 0;
     }
@@ -412,8 +403,6 @@ export class SDKv2Route {
     toChainV1: ChainName | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<routes.QuoteResult<any>> {
-    console.log(sourceToken, fromChainV1, destToken, toChainV1);
-
     if (!fromChainV1 || !toChainV1)
       throw new Error('Need both chains to get a quote from SDKv2');
 
@@ -493,8 +482,6 @@ export class SDKv2Route {
       {},
       TransferWallet.SENDING,
     );
-
-    console.log(signer);
 
     let receipt = await route.initiate(
       req,
@@ -580,7 +567,9 @@ export class SDKv2Route {
     return {
       title,
       value: `${
-        !isNaN(amount) ? Number(toFixedDecimals(amount.toString(), 6)) : '0'
+        !isNaN(amount)
+          ? Number(toFixedDecimals(amount.toFixed(18).toString(), 6))
+          : '0'
       } ${getDisplayName(token)}`,
       valueUSD: calculateUSDPrice(amount, tokenPrices, token),
     };
@@ -660,12 +649,35 @@ export class SDKv2Route {
   async resumeIfManual(tx: TransactionId): Promise<routes.Receipt | null> {
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
-    // TODO SDK: the NttRelay check is a hack until `FinalizableRoute` has the `resume` method
-    if (routes.isManual(route) || this.TYPE === Route.NttRelay) {
-      // @ts-ignore
+    if (routes.isManual(route) || routes.isFinalizable(route)) {
       return route.resume(tx);
     } else {
       return null;
     }
+  }
+
+  // Prevent receiving illiquid wormhole-wrapped tokens
+  // This is not a perfect solution or an exhaustive list of all illiquid tokens,
+  // but it should cover the most common cases
+  isIlliquidDestToken(token: TokenConfig, toChain: ChainName): boolean {
+    const { symbol, nativeChain } = token;
+
+    // Unless these tokens are bridged from Ethereum or sent back to their native chain, they are illiquid
+    if (['ETH', 'WETH', 'wstETH', 'USDT', 'USDC'].includes(symbol)) {
+      if (nativeChain !== 'ethereum' && nativeChain !== toChain) {
+        return true;
+      }
+    }
+
+    // These chains have a native bridge to/from Ethereum, so receiving wormhole-wrapped ETH is not necessary
+    if (
+      ['ETH', 'WETH'].includes(symbol) &&
+      nativeChain === 'ethereum' &&
+      (['scroll', 'blast', 'xlayer'] as ChainName[]).includes(toChain)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 }
