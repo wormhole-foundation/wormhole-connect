@@ -16,7 +16,7 @@ import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
-import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
+import useComputeQuote from 'hooks/useComputeQuote';
 import { useGasSlider } from 'hooks/useGasSlider';
 import RouteOperator from 'routes/operator';
 import {
@@ -87,7 +87,7 @@ const ReviewTransaction = (props: Props) => {
   const { sending: sendingWallet, receiving: receivingWallet } = wallet;
 
   const relay = useSelector((state: RootState) => state.relay);
-  const { relayerFee, toNativeToken } = relay;
+  const { receiveNativeAmt, relayerFee, toNativeToken } = relay;
 
   const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
     destChain,
@@ -98,7 +98,7 @@ const ReviewTransaction = (props: Props) => {
   });
 
   // Compute the native gas to receive
-  const { receiveNativeAmt, isFetching: isFetchingQuote } = useComputeQuoteV2({
+  const { isFetching: isFetchingQuote } = useComputeQuote({
     sourceChain,
     destChain,
     sourceToken,
@@ -330,7 +330,7 @@ const ReviewTransaction = (props: Props) => {
       />
       <Collapse in={showGasSlider}>
         <GasSlider
-          destinationGasDrop={receiveNativeAmt}
+          destinationGasDrop={receiveNativeAmt || 0}
           disabled={isGasSliderDisabled}
         />
       </Collapse>

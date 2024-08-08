@@ -50,7 +50,7 @@ const TransactionDetails = () => {
     useFetchTokenPricesV2();
 
   const sentAmount = useMemo(() => {
-    if (!tokenKey || !fromChain || !amount) {
+    if (!tokenKey || !fromChain) {
       return <></>;
     }
 
@@ -86,7 +86,7 @@ const TransactionDetails = () => {
   }, [amount, fromChain, isFetchingTokenPrices, sender, tokenKey, tokenPrices]);
 
   const receivedAmount = useMemo(() => {
-    if (!receivedTokenKey || !toChain || !receiveAmount) {
+    if (!receivedTokenKey || !toChain) {
       return <></>;
     }
 

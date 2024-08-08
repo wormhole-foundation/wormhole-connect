@@ -23,7 +23,7 @@ import PoweredByIcon from 'icons/PoweredBy';
 import { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
-import { useComputeQuote } from 'hooks/useComputeQuote';
+import useComputeQuote from 'hooks/useComputeQuote';
 import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import { useGasSlider } from 'hooks/useGasSlider';

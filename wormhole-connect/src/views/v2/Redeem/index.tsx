@@ -17,6 +17,7 @@ import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
 import RouteOperator from 'routes/operator';
 import { setRoute } from 'store/router';
+import { displayAddress } from 'utils';
 import { joinClass } from 'utils/style';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
 
@@ -81,7 +82,7 @@ const Redeem = () => {
     (state: RootState) => state.redeem,
   );
 
-  const { recipient, receiveAmount } = useSelector(
+  const { recipient, receiveAmount, receivedTokenKey, toChain } = useSelector(
     (state: RootState) => state.redeem.txData,
   )!;
 
@@ -99,13 +100,14 @@ const Redeem = () => {
     return route.AUTOMATIC_DEPOSIT;
   }, [routeName]);
 
-  const isLoading = useMemo(() => {
-    if (isAutomaticRoute) {
-      return !isTxComplete;
-    }
+  // Overall loading indicator until the transaction is completed
+  // const isLoading = useMemo(() => {
+  //   if (isAutomaticRoute) {
+  //     return !isTxComplete;
+  //   }
 
-    return !isTxComplete && isClaimInProgress;
-  }, [isAutomaticRoute, isClaimInProgress, isTxComplete]);
+  //   return !isTxComplete && isClaimInProgress;
+  // }, [isAutomaticRoute, isClaimInProgress, isTxComplete]);
 
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
@@ -135,11 +137,23 @@ const Redeem = () => {
     if (isTxComplete) {
       return <Stack>Transaction complete</Stack>;
     } else if (isTxAttested) {
-      return <Stack>{`${receiveAmount} received at ${recipient}`}</Stack>;
+      return (
+        <Stack>{`${receiveAmount} ${receivedTokenKey} received at ${displayAddress(
+          toChain,
+          recipient,
+        )}`}</Stack>
+      );
     }
 
     return <Stack>Transaction submitted</Stack>;
-  }, [isTxAttested, isTxComplete, receiveAmount, recipient]);
+  }, [
+    isTxAttested,
+    isTxComplete,
+    receiveAmount,
+    receivedTokenKey,
+    recipient,
+    toChain,
+  ]);
 
   const etaProgress = useMemo(() => {
     if (isTxComplete) {
@@ -182,21 +196,16 @@ const Redeem = () => {
 
     return (
       <Button
-        disabled={isLoading}
         variant="primary"
         className={classes.actionButton}
         onClick={() => {
           dispatch(setRoute('bridge'));
         }}
       >
-        {isLoading ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Typography textTransform="none">Start a new transaction</Typography>
-        )}
+        <Typography textTransform="none">Start a new transaction</Typography>
       </Button>
     );
-  }, [isAutomaticRoute, isClaimInProgress, isLoading, isTxComplete]);
+  }, [isAutomaticRoute, isClaimInProgress, isTxComplete]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>

@@ -25,7 +25,7 @@ import { TransferWallet } from 'utils/wallet';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import useComputeDestinationTokensV2 from 'hooks/useComputeDestinationTokensV2';
 import useComputeFees from 'hooks/useComputeFees';
-import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
+import useComputeQuote from 'hooks/useComputeQuote';
 import useComputeSourceTokensV2 from 'hooks/useComputeSourceTokensV2';
 import {
   selectFromChain,
@@ -176,7 +176,7 @@ const Bridge = () => {
   });
 
   // Compute the quotes for this route
-  const { isFetching: isFetchingQuote } = useComputeQuoteV2({
+  const { isFetching: isFetchingQuote } = useComputeQuote({
     sourceChain,
     destChain,
     sourceToken,

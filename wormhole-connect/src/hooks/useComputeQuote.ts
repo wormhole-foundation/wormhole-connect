@@ -1,11 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  setReceiveAmount,
-  setFetchingReceiveAmount,
-  setReceiveAmountError,
-} from 'store/transferInput';
+import { setReceiveAmount, setReceiveAmountError } from 'store/transferInput';
 
 import type { Route } from 'config/types';
 import type { ChainName } from 'sdklegacy';
@@ -25,7 +21,11 @@ type Props = {
   toNativeToken: number;
 };
 
-export const useComputeQuote = (props: Props): void => {
+type returnProps = {
+  isFetching: boolean;
+};
+
+const useComputeQuote = (props: Props): returnProps => {
   const {
     sourceChain,
     destChain,
@@ -37,6 +37,8 @@ export const useComputeQuote = (props: Props): void => {
   } = props;
 
   const dispatch = useDispatch();
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (
@@ -53,7 +55,7 @@ export const useComputeQuote = (props: Props): void => {
     let isActive = true;
     const computeQuote = async () => {
       try {
-        dispatch(setFetchingReceiveAmount());
+        setIsFetching(true);
 
         const parsedAmount = Number.parseFloat(amount);
         if (Number.isNaN(parsedAmount)) {
@@ -79,6 +81,7 @@ export const useComputeQuote = (props: Props): void => {
             dispatch(setReceiveNativeAmt(0));
             dispatch(setRelayerFee(undefined));
           }
+          setIsFetching(false);
           return;
         }
 
@@ -124,6 +127,8 @@ export const useComputeQuote = (props: Props): void => {
           dispatch(setReceiveNativeAmt(0));
           dispatch(setRelayerFee(undefined));
         }
+      } finally {
+        setIsFetching(false);
       }
     };
 
@@ -142,4 +147,10 @@ export const useComputeQuote = (props: Props): void => {
     sourceChain,
     dispatch,
   ]);
+
+  return {
+    isFetching,
+  };
 };
+
+export default useComputeQuote;
