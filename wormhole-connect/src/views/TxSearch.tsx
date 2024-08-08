@@ -18,7 +18,7 @@ import Search from 'components/Search';
 import Button from 'components/Button';
 import Spacer from 'components/Spacer';
 import AlertBanner from 'components/AlertBanner';
-import { setToChain } from 'store/transferInput';
+import { setToChain, showManualAddressInput } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
 import { useExternalSearch } from 'hooks/useExternalSearch';
 
@@ -93,6 +93,8 @@ function TxSearch() {
         state.chain as ChainName,
       );
       setError('');
+      // disable manual address input if the entry point is the recovery flow
+      dispatch(showManualAddressInput(false));
       dispatch(setTxDetails(message));
       dispatch(setIsResumeTx(true)); // To avoid send transfer.success event in Resume Transaction case
       dispatch(setRedeemRoute(route));

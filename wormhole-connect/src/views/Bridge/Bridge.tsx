@@ -16,6 +16,7 @@ import {
   getNativeVersionOfToken,
   setFetchingReceiveAmount,
   setReceiveAmountError,
+  showManualAddressInput,
 } from 'store/transferInput';
 import config from 'config';
 import { TokenConfig } from 'config/types';
@@ -297,6 +298,11 @@ function Bridge() {
     portico,
     dispatch,
   ]);
+
+  // reset manual input to the config value if the entry point is the bridge flow
+  useEffect(() => {
+    dispatch(showManualAddressInput(!!config.manualTargetAddress));
+  }, [dispatch]);
 
   // Route specific hooks
   usePorticoSwapInfo();
