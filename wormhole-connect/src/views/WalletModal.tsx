@@ -12,6 +12,7 @@ import {
   WalletData,
   getWalletOptions,
   connectWallet,
+  getWalletConnection,
 } from 'utils/wallet';
 import { CENTER } from 'utils/style';
 
@@ -97,6 +98,8 @@ type GetWalletsResult = {
 };
 
 type GetWallets = GetWalletsLoading | GetWalletsError | GetWalletsResult;
+
+const MANUAL_WALLET_NAME = 'Manual Wallet';
 
 function WalletsModal(props: Props) {
   const theme: any = useTheme();
@@ -196,8 +199,13 @@ function WalletsModal(props: Props) {
     } else {
       dispatch(setWalletModal(false));
     }
-    // we are closing modal without connecting a wallet, so we need to reset manual address target
-    dispatch(setManualAddressTarget(false));
+    if (
+      getWalletConnection(TransferWallet.RECEIVING)?.getName() !==
+      MANUAL_WALLET_NAME
+    ) {
+      // we are closing modal without connecting a wallet, so we need to reset manual address target
+      dispatch(setManualAddressTarget(false));
+    }
   };
 
   const renderContent = (): JSX.Element => {
@@ -235,7 +243,7 @@ function WalletsModal(props: Props) {
 
   const handleManualConnect = (address: string) => {
     connect({
-      name: 'Manual Wallet',
+      name: MANUAL_WALLET_NAME,
       type: config.chains[toChain!]!.context,
       icon: '',
       isReady: true,
@@ -243,13 +251,13 @@ function WalletsModal(props: Props) {
         connect: async () => ['connected'],
         getIcon: () => WalletImg,
         getUrls: async () => '',
-        getName: () => 'Manual Wallet',
+        getName: () => MANUAL_WALLET_NAME,
         disconnect: async () => true,
         getAddress: () => address,
         getAddresses: () => [address],
         getBalance: async () => '0',
         isConnected: () => true,
-        setMainAddress: (addr: string) => '',
+        setMainAddress: () => '',
         on: () => {
           /* noop */
         },
