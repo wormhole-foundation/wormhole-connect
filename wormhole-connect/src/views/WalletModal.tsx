@@ -196,6 +196,8 @@ function WalletsModal(props: Props) {
     } else {
       dispatch(setWalletModal(false));
     }
+    // we are closing modal without connecting a wallet, so we need to reset manual address target
+    dispatch(setManualAddressTarget(false));
   };
 
   const renderContent = (): JSX.Element => {
