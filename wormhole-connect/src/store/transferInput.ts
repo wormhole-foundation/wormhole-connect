@@ -131,6 +131,7 @@ export interface TransferInputState {
   allSupportedDestTokens: TokenConfig[];
   supportedDestTokens: TokenConfig[];
   manualAddressTarget: boolean;
+  showManualAddressInput: boolean;
 }
 
 // This is a function because config might have changed since we last cleared this store
@@ -172,6 +173,7 @@ function getInitialState(): TransferInputState {
     allSupportedDestTokens: [],
     supportedDestTokens: [],
     manualAddressTarget: false,
+    showManualAddressInput: config.manualTargetAddress || false,
   };
 }
 
@@ -480,6 +482,12 @@ export const transferInputSlice = createSlice({
     ) => {
       state.manualAddressTarget = payload;
     },
+    showManualAddressInput: (
+      state: TransferInputState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.showManualAddressInput = payload;
+    },
   },
 });
 
@@ -568,6 +576,7 @@ export const {
   setSupportedSourceTokens,
   swapChains,
   setManualAddressTarget,
+  showManualAddressInput,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;

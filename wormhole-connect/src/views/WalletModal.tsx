@@ -12,6 +12,7 @@ import {
   WalletData,
   getWalletOptions,
   connectWallet,
+  getWalletConnection,
 } from 'utils/wallet';
 import { CENTER } from 'utils/style';
 
@@ -98,12 +99,14 @@ type GetWalletsResult = {
 
 type GetWallets = GetWalletsLoading | GetWalletsError | GetWalletsResult;
 
+const MANUAL_WALLET_NAME = 'Manual Wallet';
+
 function WalletsModal(props: Props) {
   const theme: any = useTheme();
   const { classes } = useStyles(theme);
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
-  const { fromChain, toChain } = useSelector(
+  const { fromChain, toChain, showManualAddressInput } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -196,6 +199,13 @@ function WalletsModal(props: Props) {
     } else {
       dispatch(setWalletModal(false));
     }
+    if (
+      getWalletConnection(TransferWallet.RECEIVING)?.getName() !==
+      MANUAL_WALLET_NAME
+    ) {
+      // we are closing modal without connecting a wallet, so we need to reset manual address target
+      dispatch(setManualAddressTarget(false));
+    }
   };
 
   const renderContent = (): JSX.Element => {
@@ -233,7 +243,7 @@ function WalletsModal(props: Props) {
 
   const handleManualConnect = (address: string) => {
     connect({
-      name: 'Manual Wallet',
+      name: MANUAL_WALLET_NAME,
       type: config.chains[toChain!]!.context,
       icon: '',
       isReady: true,
@@ -244,13 +254,13 @@ function WalletsModal(props: Props) {
         },
         getIcon: () => WalletImg,
         getUrls: async () => '',
-        getName: () => 'Manual Wallet',
+        getName: () => MANUAL_WALLET_NAME,
         disconnect: async () => dispatch(setManualAddressTarget(false)),
         getAddress: () => address,
         getAddresses: () => [address],
         getBalance: async () => '0',
         isConnected: () => true,
-        setMainAddress: (addr: string) => '',
+        setMainAddress: () => '',
         on: () => {
           /* noop */
         },
@@ -269,8 +279,7 @@ function WalletsModal(props: Props) {
       <Header text={isManual ? 'Manual Input' : 'Connect wallet'} size={28} />
 
       <Spacer height={16} />
-      {props.type === TransferWallet.RECEIVING &&
-      config?.manualTargetAddress ? (
+      {props.type === TransferWallet.RECEIVING && showManualAddressInput ? (
         <>
           <FormGroup>
             <FormControlLabel
