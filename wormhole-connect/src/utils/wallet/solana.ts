@@ -94,17 +94,29 @@ export async function signAndSendTransaction(
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);
 
+  const computeBudgetIxFilter = (ix) =>
+    ix.programId.toString() !== 'ComputeBudget111111111111111111111111111111';
+
   if (isVersionedTransaction(unsignedTx)) {
     const message = TransactionMessage.decompile(unsignedTx.message);
     message.recentBlockhash = blockhash;
+
+    // Remove existing compute budget instructions if they were added by the SDK
+    message.instructions = message.instructions.filter(computeBudgetIxFilter);
     message.instructions.push(
       ...(await createPriorityFeeInstructions(connection, unsignedTx)),
     );
+
     unsignedTx.message = message.compileToV0Message();
     unsignedTx.sign(request.transaction.signers ?? []);
   } else {
     unsignedTx.recentBlockhash = blockhash;
     unsignedTx.lastValidBlockHeight = lastValidBlockHeight;
+
+    // Remove existing compute budget instructions if they were added by the SDK
+    unsignedTx.instructions = unsignedTx.instructions.filter(
+      computeBudgetIxFilter,
+    );
     unsignedTx.add(
       ...(await createPriorityFeeInstructions(connection, unsignedTx)),
     );
