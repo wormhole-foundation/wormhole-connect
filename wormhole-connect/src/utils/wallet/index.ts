@@ -27,6 +27,11 @@ import { AssetInfo } from './evm';
 import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { RoutesConfig } from 'config/routes';
+import RouteOperator from 'routes/operator';
+import { isGatewayChain } from 'utils/cosmos';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { Route } from 'config/types';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -359,4 +364,19 @@ export const getWalletOptions = async (
     }
   }
   return [];
+};
+
+export const isValidRouteName = (routeName: string): routeName is Route =>
+  routeName in RoutesConfig;
+
+export const isAutomatic = (routeName: string, toChain?: ChainName) => {
+  if (isValidRouteName(routeName)) {
+    const route = RouteOperator.getRoute(routeName);
+    return (
+      route.AUTOMATIC_DEPOSIT ||
+      (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
+      isPorticoRoute(route.TYPE)
+    );
+  }
+  return false;
 };

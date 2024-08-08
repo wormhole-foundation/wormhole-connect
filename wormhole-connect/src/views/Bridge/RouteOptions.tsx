@@ -19,12 +19,12 @@ import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
-import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 import { isNttRoute, RouteAvailability } from 'routes';
 import { getNttDisplayName } from 'utils/ntt';
+import { isAutomatic } from 'utils/wallet';
 
 export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
 export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
@@ -268,7 +268,6 @@ function RouteOption(props: {
     fromChain,
     portico,
     data,
-    manualAddressTarget,
   ]);
   const fromTokenConfig = config.tokens[token];
   const fromTokenIcon = fromTokenConfig && (
@@ -393,25 +392,10 @@ function RouteOptions() {
     manualAddressTarget,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const isValidRouteName = (routeName: string): routeName is Route =>
-    routeName in RoutesConfig;
-
-  const isAutomatic = (routeName: string) => {
-    if (isValidRouteName(routeName)) {
-      const route = RouteOperator.getRoute(routeName);
-      return (
-        route.AUTOMATIC_DEPOSIT ||
-        (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
-        isPorticoRoute(route.TYPE)
-      );
-    }
-    return false;
-  };
-
   const isDisabled = useCallback(
     (routeName: string, availability: RouteAvailability) =>
       !availability.isAvailable ||
-      (manualAddressTarget && !isAutomatic(routeName)),
+      (manualAddressTarget && !isAutomatic(routeName || '', toChain)),
     [manualAddressTarget, toChain],
   );
 

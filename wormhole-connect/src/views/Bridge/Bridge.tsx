@@ -49,7 +49,7 @@ import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import NttInboundCapacityWarning from './NttInboundCapacityWarning';
 import { isNttRoute } from 'routes/utils';
-import { useConnectToLastUsedWallet } from 'utils/wallet';
+import { isAutomatic, useConnectToLastUsedWallet } from 'utils/wallet';
 import { USDTBridge } from 'routes/porticoBridge/usdtBridge';
 
 const useStyles = makeStyles()((_theme) => ({
@@ -102,6 +102,7 @@ function Bridge() {
     route,
     isTransactionInProgress,
     amount,
+    manualAddressTarget,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -327,7 +328,9 @@ function Bridge() {
 
   const showRouteValidation =
     !!fromChain && !!toChain && !!token && !!destToken && !!amount;
-
+  const manualAddressTargetValidation = manualAddressTarget
+    ? manualAddressTarget && isAutomatic(route || '', toChain)
+    : true;
   const pageHeader = getPageHeader();
 
   return (
@@ -348,7 +351,9 @@ function Bridge() {
       />
 
       <RouteOptions />
-      <Collapse in={valid && showValidationState}>
+      <Collapse
+        in={valid && showValidationState && manualAddressTargetValidation}
+      >
         <div className={classes.spacer}>
           <Collapse
             in={showGasSlider}
