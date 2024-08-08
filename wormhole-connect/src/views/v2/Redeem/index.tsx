@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -155,20 +156,58 @@ const Redeem = () => {
     toChain,
   ]);
 
-  const etaProgress = useMemo(() => {
-    if (isTxComplete) {
-      return (
-        <Stack>
-          <CheckCircleOutlineIcon
-            htmlColor="#C1BBF6"
-            sx={{ width: '104px', height: '104px' }}
-          />
-        </Stack>
-      );
-    }
+  // Percent passed compared to the ETA
+  const etaProgressPercent = useMemo(() => {
+    return 40;
+  }, []);
 
-    return <>[ETA progress bar]</>;
-  }, [isTxComplete]);
+  const etaCircle = useMemo(() => {
+    return (
+      <>
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+          {isTxComplete ? (
+            <CheckCircleOutlineIcon
+              htmlColor="#C1BBF6"
+              sx={{ width: '120px', height: '120px' }}
+            />
+          ) : (
+            <>
+              <CircularProgress
+                size="120px"
+                sx={{
+                  color: '#C1BBF6',
+                }}
+                variant="determinate"
+                value={etaProgressPercent}
+              />
+              <Box
+                sx={{
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  right: 0,
+                  position: 'absolute',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Stack>
+                  <Typography
+                    color={theme.palette.text.secondary}
+                    fontSize={14}
+                  >
+                    ETA 10:00
+                  </Typography>
+                  <Typography fontSize={24}>07:35</Typography>
+                </Stack>
+              </Box>
+            </>
+          )}
+        </Box>
+      </>
+    );
+  }, [etaProgressPercent, isTxComplete]);
 
   const handleManualClaim = useCallback(async () => {
     setIsClaimInProgress(true);
@@ -211,7 +250,7 @@ const Redeem = () => {
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
       {statusHeader}
-      {etaProgress}
+      {etaCircle}
       <TransactionDetails />
       {actionButton}
       <div className={classes.poweredBy}>
