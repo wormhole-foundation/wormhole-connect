@@ -268,6 +268,7 @@ function RouteOption(props: {
     fromChain,
     portico,
     data,
+    manualAddressTarget,
   ]);
   const fromTokenConfig = config.tokens[token];
   const fromTokenIcon = fromTokenConfig && (
@@ -391,14 +392,41 @@ function RouteOptions() {
     amount,
     manualAddressTarget,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const isValidRouteName = (routeName: string): routeName is Route =>
+    routeName in RoutesConfig;
+
+  const isAutomatic = (routeName: string) => {
+    if (isValidRouteName(routeName)) {
+      const route = RouteOperator.getRoute(routeName);
+      return (
+        route.AUTOMATIC_DEPOSIT ||
+        (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
+        isPorticoRoute(route.TYPE)
+      );
+    }
+    return false;
+  };
+
+  const isDisabled = useCallback(
+    (routeName: string, availability: RouteAvailability) =>
+      !availability.isAvailable ||
+      (manualAddressTarget && !isAutomatic(routeName)),
+    [manualAddressTarget, toChain],
+  );
+
   const onSelect = useCallback(
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
         const route = routeStates.find((rs) => rs.name === value);
-        if (route?.availability.isAvailable) dispatch(setTransferRoute(value));
+        if (route?.name && !isDisabled(route?.name, route?.availability)) {
+          dispatch(setTransferRoute(value));
+        } else {
+          dispatch(setTransferRoute());
+        }
       }
     },
-    [routeStates, dispatch],
+    [routeStates, manualAddressTarget, dispatch],
   );
   const [debouncedAmount] = useDebounce(amount, 500);
 
@@ -442,33 +470,17 @@ function RouteOptions() {
     };
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
+  useEffect(() => {
+    const routeState = routeStates?.find((rs) => rs.name === route);
+    if (routeState && isDisabled(routeState.name, routeState?.availability))
+      dispatch(setTransferRoute());
+  }, [manualAddressTarget, toChain, fromChain, dispatch]);
+
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
     const routes = routeStates.filter((rs) => rs.supported);
     return routes;
   }, [routeStates]);
-
-  const isValidRouteName = (routeName: string): routeName is Route =>
-    routeName in RoutesConfig;
-
-  const isAutomatic = (routeName: string) => {
-    if (isValidRouteName(routeName)) {
-      const route = RouteOperator.getRoute(routeName);
-      return (
-        route.AUTOMATIC_DEPOSIT ||
-        (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
-        isPorticoRoute(route.TYPE)
-      );
-    }
-    return false;
-  };
-
-  const isDisabled = useCallback(
-    (routeName: string, availability: RouteAvailability) =>
-      !availability.isAvailable ||
-      (manualAddressTarget && !isAutomatic(routeName)),
-    [manualAddressTarget],
-  );
 
   return allRoutes && allRoutes.length > 0 ? (
     <BridgeCollapse

@@ -253,6 +253,7 @@ function WalletsModal(props: Props) {
         },
       } as any as Wallet,
     } as WalletData);
+    dispatch(setManualAddressTarget(true));
   };
 
   const [isManual, setIsManual] = useState(false);
