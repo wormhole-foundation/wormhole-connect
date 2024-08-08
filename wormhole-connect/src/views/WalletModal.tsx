@@ -103,7 +103,7 @@ function WalletsModal(props: Props) {
   const { classes } = useStyles(theme);
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
-  const { fromChain, toChain } = useSelector(
+  const { fromChain, toChain, showManualAddressInput } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -266,8 +266,7 @@ function WalletsModal(props: Props) {
       <Header text={isManual ? 'Manual Input' : 'Connect wallet'} size={28} />
 
       <Spacer height={16} />
-      {props.type === TransferWallet.RECEIVING &&
-      config?.manualTargetAddress ? (
+      {props.type === TransferWallet.RECEIVING && showManualAddressInput ? (
         <>
           <FormGroup>
             <FormControlLabel
