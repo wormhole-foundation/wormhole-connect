@@ -238,7 +238,10 @@ function WalletsModal(props: Props) {
       icon: '',
       isReady: true,
       wallet: {
-        connect: async () => ['connected'],
+        connect: async () => {
+          dispatch(setManualAddressTarget(true));
+          return ['connected'];
+        },
         getIcon: () => WalletImg,
         getUrls: async () => '',
         getName: () => 'Manual Wallet',
@@ -253,7 +256,6 @@ function WalletsModal(props: Props) {
         },
       } as any as Wallet,
     } as WalletData);
-    dispatch(setManualAddressTarget(true));
   };
 
   const [isManual, setIsManual] = useState(false);
