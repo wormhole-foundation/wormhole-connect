@@ -248,11 +248,14 @@ function WalletsModal(props: Props) {
       icon: '',
       isReady: true,
       wallet: {
-        connect: async () => ['connected'],
+        connect: async () => {
+          dispatch(setManualAddressTarget(true));
+          return ['connected'];
+        },
         getIcon: () => WalletImg,
         getUrls: async () => '',
         getName: () => MANUAL_WALLET_NAME,
-        disconnect: async () => true,
+        disconnect: async () => dispatch(setManualAddressTarget(false)),
         getAddress: () => address,
         getAddresses: () => [address],
         getBalance: async () => '0',

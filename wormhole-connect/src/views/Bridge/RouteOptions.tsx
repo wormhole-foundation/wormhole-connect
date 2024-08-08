@@ -19,12 +19,12 @@ import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
-import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 import { isNttRoute, RouteAvailability } from 'routes';
 import { getNttDisplayName } from 'utils/ntt';
+import { isAutomatic } from 'utils/route';
 
 export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
 export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
@@ -391,14 +391,26 @@ function RouteOptions() {
     amount,
     manualAddressTarget,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const isDisabled = useCallback(
+    (routeName: string, availability: RouteAvailability) =>
+      !availability.isAvailable ||
+      (manualAddressTarget && !isAutomatic(routeName || '', toChain)),
+    [manualAddressTarget, toChain],
+  );
+
   const onSelect = useCallback(
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
         const route = routeStates.find((rs) => rs.name === value);
-        if (route?.availability.isAvailable) dispatch(setTransferRoute(value));
+        if (route?.name && !isDisabled(route?.name, route?.availability)) {
+          dispatch(setTransferRoute(value));
+        } else {
+          dispatch(setTransferRoute());
+        }
       }
     },
-    [routeStates, dispatch],
+    [routeStates, manualAddressTarget, dispatch],
   );
   const [debouncedAmount] = useDebounce(amount, 500);
 
@@ -442,33 +454,17 @@ function RouteOptions() {
     };
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
+  useEffect(() => {
+    const routeState = routeStates?.find((rs) => rs.name === route);
+    if (routeState && isDisabled(routeState.name, routeState?.availability))
+      dispatch(setTransferRoute());
+  }, [manualAddressTarget, toChain, fromChain, dispatch]);
+
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
     const routes = routeStates.filter((rs) => rs.supported);
     return routes;
   }, [routeStates]);
-
-  const isValidRouteName = (routeName: string): routeName is Route =>
-    routeName in RoutesConfig;
-
-  const isAutomatic = (routeName: string) => {
-    if (isValidRouteName(routeName)) {
-      const route = RouteOperator.getRoute(routeName);
-      return (
-        route.AUTOMATIC_DEPOSIT ||
-        (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
-        isPorticoRoute(route.TYPE)
-      );
-    }
-    return false;
-  };
-
-  const isDisabled = useCallback(
-    (routeName: string, availability: RouteAvailability) =>
-      !availability.isAvailable ||
-      (manualAddressTarget && !isAutomatic(routeName)),
-    [manualAddressTarget],
-  );
 
   return allRoutes && allRoutes.length > 0 ? (
     <BridgeCollapse
