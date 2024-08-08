@@ -49,8 +49,9 @@ import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import NttInboundCapacityWarning from './NttInboundCapacityWarning';
 import { isNttRoute } from 'routes/utils';
-import { isAutomatic, useConnectToLastUsedWallet } from 'utils/wallet';
+import { useConnectToLastUsedWallet } from 'utils/wallet';
 import { USDTBridge } from 'routes/porticoBridge/usdtBridge';
+import { isAutomatic } from 'utils/route';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {

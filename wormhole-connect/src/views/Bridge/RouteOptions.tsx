@@ -24,7 +24,7 @@ import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 import { isNttRoute, RouteAvailability } from 'routes';
 import { getNttDisplayName } from 'utils/ntt';
-import { isAutomatic } from 'utils/wallet';
+import { isAutomatic } from 'utils/route';
 
 export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
 export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
