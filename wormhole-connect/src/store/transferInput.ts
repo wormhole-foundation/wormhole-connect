@@ -520,6 +520,7 @@ export const selectChain = async (
       type,
       error: 'Wallet disconnected, please connect a supported wallet',
     };
+    dispatch(setManualAddressTarget(false));
     dispatch(setWalletError(payload));
   }
 

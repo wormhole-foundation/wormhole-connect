@@ -242,7 +242,7 @@ function WalletsModal(props: Props) {
         getIcon: () => WalletImg,
         getUrls: async () => '',
         getName: () => 'Manual Wallet',
-        disconnect: async () => true,
+        disconnect: async () => dispatch(setManualAddressTarget(false)),
         getAddress: () => address,
         getAddresses: () => [address],
         getBalance: async () => '0',

@@ -27,7 +27,6 @@ import { AssetInfo } from './evm';
 import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setManualAddressTarget } from 'store/transferInput';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -99,7 +98,6 @@ export const connectWallet = async (
   wallet.on('disconnect', () => {
     wallet.removeAllListeners();
     dispatch(clearWallet(type));
-    dispatch(setManualAddressTarget(false));
     localStorage.removeItem(`wormhole-connect:wallet:${context}`);
   });
 
@@ -112,7 +110,6 @@ export const connectWallet = async (
 
     if (shouldDisconnect) {
       wallet.disconnect();
-      dispatch(setManualAddressTarget(false));
     }
   });
 
@@ -135,9 +132,6 @@ export const connectLastUsedWallet = async (
     if (lastUsedWallet === 'WalletConnect' && type === TransferWallet.RECEIVING)
       return;
 
-    if (lastUsedWallet !== 'Manual Wallet') {
-      dispatch(setManualAddressTarget(false));
-    }
     const options = await getWalletOptions(chainConfig);
     const wallet = options.find((w) => w.name === lastUsedWallet);
     if (wallet) {
