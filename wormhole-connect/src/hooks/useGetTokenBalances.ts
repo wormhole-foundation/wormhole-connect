@@ -110,7 +110,6 @@ const useGetTokenBalances = (
                 tokenAddresses.push(address);
               }
             } catch (e) {
-              // TODO SDKV2 SUI ISNT WORKING
               console.error(e);
             }
           }
