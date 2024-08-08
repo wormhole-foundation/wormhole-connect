@@ -6,7 +6,7 @@ import { setReceiveAmount, setReceiveAmountError } from 'store/transferInput';
 import type { Route } from 'config/types';
 import type { ChainName } from 'sdklegacy';
 import { getRoute } from 'routes/mappings';
-import { setReceiveNativeAmt, setRelayerFee } from 'store/relay';
+import { setReceiveNativeAmt, setRelayerFee, setEta } from 'store/relay';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
 import config from 'config';
@@ -80,6 +80,7 @@ const useComputeQuote = (props: Props): returnProps => {
             dispatch(setReceiveAmountError(quote.error.message));
             dispatch(setReceiveNativeAmt(0));
             dispatch(setRelayerFee(undefined));
+            dispatch(setEta(0));
           }
           setIsFetching(false);
           return;
@@ -119,6 +120,10 @@ const useComputeQuote = (props: Props): returnProps => {
           } else {
             dispatch(setRelayerFee(undefined));
           }
+
+          if (quote.eta) {
+            dispatch(setEta(quote.eta));
+          }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
@@ -126,6 +131,7 @@ const useComputeQuote = (props: Props): returnProps => {
           dispatch(setReceiveAmountError(e.message));
           dispatch(setReceiveNativeAmt(0));
           dispatch(setRelayerFee(undefined));
+          dispatch(setEta(0));
         }
       } finally {
         setIsFetching(false);

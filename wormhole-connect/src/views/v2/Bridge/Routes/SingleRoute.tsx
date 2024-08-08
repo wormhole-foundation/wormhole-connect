@@ -13,7 +13,6 @@ import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-import useComputeFees from 'hooks/useComputeFees';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import RouteOperator from 'routes/operator';
@@ -62,21 +61,9 @@ const SingleRoute = (props: Props) => {
 
   const { name, route } = props.config;
 
-  // Compute the estiamted time for this route
-  const { estimatedTime, isFetching: isFetchingEstimatedTime } = useComputeFees(
-    {
-      sourceChain,
-      destChain,
-      sourceToken,
-      destToken,
-      amount,
-      route,
-      toNativeToken,
-    },
-  );
-
   // Compute the quotes for this route
   const {
+    eta: estimatedTime,
     receiveAmount,
     relayerFee,
     isFetching: isFetchingQuote,
@@ -149,20 +136,23 @@ const SingleRoute = (props: Props) => {
   }, [destChain, isFetchingQuote, props.destinationGasDrop]);
 
   const timeToDestination = useMemo(() => {
+    const etaMins = Math.floor((estimatedTime as number) / 60000);
+    const etaSecs = (estimatedTime as number) % 60000;
+
     return (
       <>
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Time to destination
         </Typography>
 
-        {isFetchingEstimatedTime ? (
+        {isFetchingQuote ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>{estimatedTime}</Typography>
+          <Typography fontSize={14}>{`${etaMins}m ${etaSecs}s`}</Typography>
         )}
       </>
     );
-  }, [estimatedTime, isFetchingEstimatedTime]);
+  }, [estimatedTime, isFetchingQuote]);
 
   const showWarning = useMemo(() => {
     if (!props.config.route) {

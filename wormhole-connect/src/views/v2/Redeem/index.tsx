@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -65,6 +66,8 @@ const Redeem = () => {
   const { classes } = useStyles();
   const theme = useTheme();
 
+  const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
+
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
 
   // Start tracking changes in the transaction
@@ -79,13 +82,29 @@ const Redeem = () => {
     [routeContext.receipt],
   );
 
-  const { transferComplete: isTxComplete, route: routeName } = useSelector(
-    (state: RootState) => state.redeem,
-  );
+  const {
+    transferComplete: isTxComplete,
+    route: routeName,
+    timestamp: txTimestamp,
+  } = useSelector((state: RootState) => state.redeem);
 
   const { recipient, receiveAmount, receivedTokenKey, toChain } = useSelector(
     (state: RootState) => state.redeem.txData,
   )!;
+
+  // Initialize the countdown with 0, 0 as we might not have eta or txTimestamp yet
+  const { seconds, minutes, isRunning, restart } = useTimer({
+    expiryTimestamp: new Date(),
+    autoStart: false,
+  });
+
+  useEffect(() => {
+    if (!txTimestamp || !eta) {
+      return;
+    }
+
+    restart(new Date(txTimestamp + eta), true);
+  }, [eta, txTimestamp]);
 
   const isAutomaticRoute = useMemo(() => {
     if (!routeName) {
@@ -156,12 +175,25 @@ const Redeem = () => {
     toChain,
   ]);
 
-  // Percent passed compared to the ETA
-  const etaProgressPercent = useMemo(() => {
-    return 40;
-  }, []);
+  const etaDisplay = useMemo(() => {
+    if (!eta) {
+      return <CircularProgress size={14} />;
+    }
+
+    const etaMins = Math.floor(eta / (1000 * 60));
+    const etaSecs = eta % (1000 * 60);
+
+    return `${etaMins < 10 ? `0${etaMins}` : etaMins}:${
+      etaSecs < 10 ? `0${etaSecs}` : etaSecs
+    }`;
+  }, [eta]);
 
   const etaCircle = useMemo(() => {
+    const counter = !isRunning
+      ? null
+      : `${minutes < 10 ? `0${minutes}` : minutes}:${
+          seconds < 10 ? `0${seconds}` : seconds
+        }`;
     return (
       <>
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -173,12 +205,11 @@ const Redeem = () => {
           ) : (
             <>
               <CircularProgress
-                size="120px"
+                size={120}
                 sx={{
                   color: '#C1BBF6',
                 }}
-                variant="determinate"
-                value={etaProgressPercent}
+                thickness={2}
               />
               <Box
                 sx={{
@@ -197,9 +228,9 @@ const Redeem = () => {
                     color={theme.palette.text.secondary}
                     fontSize={14}
                   >
-                    ETA 10:00
+                    ETA {etaDisplay}
                   </Typography>
-                  <Typography fontSize={24}>07:35</Typography>
+                  <Typography fontSize={24}>{counter}</Typography>
                 </Stack>
               </Box>
             </>
@@ -207,7 +238,7 @@ const Redeem = () => {
         </Box>
       </>
     );
-  }, [etaProgressPercent, isTxComplete]);
+  }, [eta, etaDisplay, isRunning, isTxComplete, minutes, seconds]);
 
   const handleManualClaim = useCallback(async () => {
     setIsClaimInProgress(true);

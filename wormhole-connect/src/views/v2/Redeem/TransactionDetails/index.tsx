@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { CircularProgress, useTheme } from '@mui/material';
@@ -44,6 +44,7 @@ const TransactionDetails = () => {
     receiveAmount,
     receiveNativeAmount,
     relayerFee,
+    eta,
   } = useSelector((state: RootState) => state.redeem.txData)!;
 
   const { prices: tokenPrices, isFetching: isFetchingTokenPrices } =
@@ -223,6 +224,29 @@ const TransactionDetails = () => {
     );
   }, [sendTx]);
 
+  const etaDisplay = useMemo(() => {
+    let etaMarkup: string | ReactNode = <CircularProgress size={14} />;
+
+    if (eta) {
+      const etaMins = Math.floor(eta / (1000 * 60));
+      const etaSecs = eta % (1000 * 60);
+      etaMarkup = `${etaMins}m ${etaSecs}s`;
+    }
+
+    return (
+      <Stack direction="row" justifyContent="space-between">
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
+          Time to destination
+        </Typography>
+        {!eta ? (
+          <CircularProgress size={14} />
+        ) : (
+          <Typography fontSize={14}>{etaMarkup}</Typography>
+        )}
+      </Stack>
+    );
+  }, [eta]);
+
   return (
     <div className={classes.container}>
       <Card className={classes.card}>
@@ -242,9 +266,7 @@ const TransactionDetails = () => {
           >
             {bridgeFee}
             {destinationGas}
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              Time to destination
-            </Typography>
+            {etaDisplay}
           </Stack>
         </CardContent>
         <Divider flexItem sx={{ margin: '0 16px', opacity: '50%' }} />

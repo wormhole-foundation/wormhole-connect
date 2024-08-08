@@ -11,6 +11,7 @@ export interface RelayState {
   receiveNativeAmt: number | undefined;
   relayerFee: RelayerFee | undefined;
   receiverNativeBalance: string | undefined;
+  eta: number;
 }
 
 const initialState: RelayState = {
@@ -19,6 +20,7 @@ const initialState: RelayState = {
   receiveNativeAmt: undefined,
   relayerFee: undefined,
   receiverNativeBalance: '',
+  eta: 0,
 };
 
 export const relaySlice = createSlice({
@@ -49,6 +51,9 @@ export const relaySlice = createSlice({
     ) => {
       state.receiverNativeBalance = payload;
     },
+    setEta: (state: RelayState, { payload }: PayloadAction<number>) => {
+      state.eta = payload;
+    },
     // clear relay state
     clearRelay: (state: RelayState) => {
       Object.keys(state).forEach((key) => {
@@ -64,6 +69,7 @@ export const {
   setReceiveNativeAmt,
   setRelayerFee,
   setReceiverNativeBalance,
+  setEta,
 } = relaySlice.actions;
 
 export default relaySlice.reducer;

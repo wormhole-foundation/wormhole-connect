@@ -39,6 +39,7 @@ const useTrackTransfer = (): void => {
             if (!isActive) {
               break;
             }
+
             if (currentReceipt.state !== receipt.state) {
               routeContext.setReceipt(currentReceipt);
               console.log('Updated receipt:', currentReceipt.state);

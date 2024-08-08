@@ -20,6 +20,7 @@ export interface RedeemState {
   transferDestInfo: TransferDestInfo | undefined;
   deliveryStatus: DeliveryStatus | undefined;
   isResumeTx: boolean;
+  timestamp: number;
 }
 
 const initialState: RedeemState = {
@@ -33,6 +34,7 @@ const initialState: RedeemState = {
   transferDestInfo: undefined,
   deliveryStatus: undefined,
   isResumeTx: false,
+  timestamp: 0,
 };
 
 export const redeemSlice = createSlice({
@@ -96,6 +98,9 @@ export const redeemSlice = createSlice({
     ) => {
       state.isResumeTx = payload;
     },
+    setTimestamp: (state: RedeemState, { payload }: PayloadAction<number>) => {
+      state.timestamp = payload;
+    },
   },
 });
 
@@ -111,6 +116,7 @@ export const {
   setRoute,
   setDeliveryStatus,
   setIsResumeTx,
+  setTimestamp,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

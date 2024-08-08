@@ -22,9 +22,10 @@ type Props = {
 };
 
 type returnProps = {
+  eta: Number;
+  isFetching: boolean;
   receiveAmount: string;
   receiveAmountError: string;
-  isFetching: boolean;
   receiveNativeAmt: number;
   relayerFee: number;
 };
@@ -40,9 +41,10 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
     toNativeToken,
   } = props;
 
+  const [eta, setEta] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
   const [receiveAmount, setReceiveAmount] = useState('');
   const [receiveAmountError, setReceiveAmountError] = useState('');
-  const [isFetching, setIsFetching] = useState(false);
   const [receiveNativeAmt, setReceiveNativeAmt] = useState(0);
   const [relayerFee, setRelayerFee] = useState(0);
 
@@ -88,6 +90,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
 
         if (!quote.success) {
           if (!cancelled) {
+            setEta(0);
             setReceiveAmountError(quote.error.message);
             setReceiveNativeAmt(0);
             setRelayerFee(0);
@@ -118,9 +121,14 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
           } else {
             setRelayerFee(0);
           }
+
+          if (quote.eta) {
+            setEta(quote.eta);
+          }
         }
       } catch (e: unknown) {
         if (!cancelled && e instanceof Error) {
+          setEta(0);
           setReceiveAmountError(e.message);
           setReceiveNativeAmt(0);
           setRelayerFee(0);
@@ -146,9 +154,10 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
   ]);
 
   return {
+    eta,
+    isFetching,
     receiveAmount,
     receiveAmountError,
-    isFetching,
     receiveNativeAmt,
     relayerFee,
   };
