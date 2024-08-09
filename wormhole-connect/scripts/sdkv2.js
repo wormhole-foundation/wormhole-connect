@@ -88,8 +88,6 @@ function linkLocalSdkPackages(dir) {
   execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
 }
 
-execSync(`rm -rf wormhole-connect/node_modules/@wormhole-foundation`);
-
 function progressBar(completed, total) {
   const percentage = Math.round((completed / total) * 100);
   const barLength = 50;
