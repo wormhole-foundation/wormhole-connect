@@ -55,7 +55,6 @@ for (const name in sdkPackages) {
   if (name.includes('examples')) {
     continue;
   }
-  //console.log(`running npm link ${sdkPackages[name]}`);
   execSync('npm link', { cwd: sdkPackages[name] });
   progress += 1;
   progressBar(progress, total);
