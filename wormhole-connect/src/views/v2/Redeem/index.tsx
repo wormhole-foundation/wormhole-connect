@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material';
@@ -69,6 +75,7 @@ const Redeem = () => {
   const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
 
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
+  const [etaExpired, setEtaExpired] = useState(false);
 
   // Start tracking changes in the transaction
   useTrackTransfer();
@@ -96,6 +103,7 @@ const Redeem = () => {
   const { seconds, minutes, isRunning, restart } = useTimer({
     expiryTimestamp: new Date(),
     autoStart: false,
+    onExpire: () => setEtaExpired(true),
   });
 
   useEffect(() => {
@@ -176,24 +184,43 @@ const Redeem = () => {
   ]);
 
   const etaDisplay = useMemo(() => {
-    if (!eta) {
-      return <CircularProgress size={14} />;
+    if (etaExpired) {
+      return (
+        <Stack>
+          <Typography color={theme.palette.text.secondary} fontSize={14}>
+            Any time now!
+          </Typography>
+        </Stack>
+      );
     }
 
-    const etaMins = Math.floor(eta / (1000 * 60));
-    const etaSecs = eta % (1000 * 60);
+    const counter = isRunning
+      ? `${minutes < 10 ? `0${minutes}` : minutes}:${
+          seconds < 10 ? `0${seconds}` : seconds
+        }`
+      : null;
 
-    return `${etaMins < 10 ? `0${etaMins}` : etaMins}:${
-      etaSecs < 10 ? `0${etaSecs}` : etaSecs
-    }`;
-  }, [eta]);
+    let etaElement: string | ReactNode = <CircularProgress size={14} />;
+
+    if (eta) {
+      const etaMins = Math.floor(eta / (1000 * 60));
+      const etaSecs = eta % (1000 * 60);
+      etaElement = `${etaMins < 10 ? `0${etaMins}` : etaMins}:${
+        etaSecs < 10 ? `0${etaSecs}` : etaSecs
+      }`;
+    }
+
+    return (
+      <Stack>
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
+          ETA {etaElement}
+        </Typography>
+        <Typography fontSize={24}>{counter}</Typography>
+      </Stack>
+    );
+  }, [eta, etaExpired, isRunning, minutes, seconds]);
 
   const etaCircle = useMemo(() => {
-    const counter = !isRunning
-      ? null
-      : `${minutes < 10 ? `0${minutes}` : minutes}:${
-          seconds < 10 ? `0${seconds}` : seconds
-        }`;
     return (
       <>
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -223,22 +250,14 @@ const Redeem = () => {
                   justifyContent: 'center',
                 }}
               >
-                <Stack>
-                  <Typography
-                    color={theme.palette.text.secondary}
-                    fontSize={14}
-                  >
-                    ETA {etaDisplay}
-                  </Typography>
-                  <Typography fontSize={24}>{counter}</Typography>
-                </Stack>
+                {etaDisplay}
               </Box>
             </>
           )}
         </Box>
       </>
     );
-  }, [eta, etaDisplay, isRunning, isTxComplete, minutes, seconds]);
+  }, [etaDisplay, isTxComplete]);
 
   const handleManualClaim = useCallback(async () => {
     setIsClaimInProgress(true);
@@ -251,12 +270,17 @@ const Redeem = () => {
       return (
         <Button
           className={classes.actionButton}
-          disabled={isClaimInProgress}
+          disabled={isClaimInProgress || !isTxAttested}
           variant="primary"
           onClick={handleManualClaim}
         >
-          {isClaimInProgress ? (
-            <CircularProgress size={24} />
+          {isClaimInProgress || !isTxAttested ? (
+            <Stack direction="row" alignItems="center">
+              <CircularProgress size={24} />
+              <Typography marginLeft="4px" textTransform="none">
+                Transfer in progress
+              </Typography>
+            </Stack>
           ) : (
             <Typography textTransform="none">Claim</Typography>
           )}
@@ -275,7 +299,7 @@ const Redeem = () => {
         <Typography textTransform="none">Start a new transaction</Typography>
       </Button>
     );
-  }, [isAutomaticRoute, isClaimInProgress, isTxComplete]);
+  }, [isAutomaticRoute, isClaimInProgress, isTxAttested, isTxComplete]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>

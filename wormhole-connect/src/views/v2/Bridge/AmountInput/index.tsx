@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { useDebounce } from 'use-debounce';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -137,6 +138,9 @@ const AmountInput = (props: Props) => {
     [sourceToken, destToken, sourceChain, destChain, amount, tokenBalance],
   );
 
+  // Debouncing validation to prevent false-positive results while user is still typing
+  const [debouncedValidationResult] = useDebounce(validationResult, 300);
+
   const onAmountChange = useCallback((e: any) => {
     setTokenAmount(e.target.value);
     dispatch(setAmount(e.target.value));
@@ -154,7 +158,7 @@ const AmountInput = (props: Props) => {
             disabled={isInputDisabled}
             inputProps={{
               style: {
-                color: validationResult
+                color: debouncedValidationResult
                   ? theme.palette.error.main
                   : theme.palette.text.primary,
                 fontSize: 24,
@@ -191,8 +195,8 @@ const AmountInput = (props: Props) => {
       </Card>
       <AlertBannerV2
         error
-        content={validationResult}
-        show={!!validationResult}
+        content={debouncedValidationResult}
+        show={!!debouncedValidationResult}
       />
     </div>
   );
