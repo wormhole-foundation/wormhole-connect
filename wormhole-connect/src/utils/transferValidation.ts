@@ -25,6 +25,9 @@ import { DataWrapper } from 'store/helpers';
 import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
 import { isNttRoute } from 'routes';
+import { isValidAddress } from './wallet/validAddress';
+
+export const MANUAL_WALLET_NAME = 'Manual Wallet';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -146,6 +149,11 @@ export const validateWallet = async (
     const isSanctioned = await checkAddressIsSanctioned(wallet.address);
     if (isSanctioned)
       return 'This address is sanctioned, bridging is not available';
+    // Validate wallet addres when is manual wallet
+    if (chain && wallet.name === MANUAL_WALLET_NAME) {
+      const isValid = await isValidAddress(wallet.address, chain);
+      if (!isValid) return 'Invalid address';
+    }
   } catch (e) {
     // TODO: how do we want to handle if we get an error from the API?
     console.error(e);
