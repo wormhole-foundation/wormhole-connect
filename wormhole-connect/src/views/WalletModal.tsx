@@ -24,13 +24,11 @@ import WalletIcons from 'icons/WalletIcons';
 import Search from 'components/Search';
 import AlertBanner from 'components/AlertBanner';
 import { FormControlLabel, FormGroup, Switch } from '@mui/material';
-
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
-import WalletImg from '../wallet.svg';
 import { setManualAddressTarget } from 'store/transferInput';
 import { ManualAddressInput } from 'components/ManualAddressInput';
-import { MANUAL_WALLET_NAME } from 'utils/transferValidation';
-
+import { MANUAL_WALLET_NAME, ManualWallet } from 'utils/wallet/manual';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { isEvmChain } from 'utils/sdk';
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
     position: 'relative',
@@ -241,30 +239,16 @@ function WalletsModal(props: Props) {
   };
 
   const handleManualConnect = (address: string) => {
+    const wallet = new ManualWallet(address);
+    wallet.on('connect', () => dispatch(setManualAddressTarget(true)));
+    wallet.on('disconnect', () => dispatch(setManualAddressTarget(false)));
     connect({
-      name: MANUAL_WALLET_NAME,
-      type: config.chains[toChain!]!.context,
+      name: wallet.getName(),
+      type: isEvmChain(toChain!) ? Context.ETH : Context.OTHER,
       icon: '',
       isReady: true,
-      wallet: {
-        connect: async () => {
-          dispatch(setManualAddressTarget(true));
-          return ['connected'];
-        },
-        getIcon: () => WalletImg,
-        getUrls: async () => '',
-        getName: () => MANUAL_WALLET_NAME,
-        disconnect: async () => dispatch(setManualAddressTarget(false)),
-        getAddress: () => address,
-        getAddresses: () => [address],
-        getBalance: async () => '0',
-        isConnected: () => true,
-        setMainAddress: () => '',
-        on: () => {
-          /* noop */
-        },
-      } as any as Wallet,
-    } as WalletData);
+      wallet,
+    });
   };
 
   const [isManual, setIsManual] = useState(false);
