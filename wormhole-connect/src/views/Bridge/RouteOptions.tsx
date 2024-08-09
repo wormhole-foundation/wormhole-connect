@@ -486,7 +486,7 @@ function RouteOptions() {
             child: (
               <RouteOption
                 disabled={isDisabled(name, availability)}
-                automatic={isAutomatic(name)}
+                automatic={isAutomatic(name, toChain)}
                 route={RoutesConfig[name as Route]}
               />
             ),
