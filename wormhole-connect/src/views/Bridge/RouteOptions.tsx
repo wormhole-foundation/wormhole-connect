@@ -478,7 +478,7 @@ function RouteOptions() {
       controlStyle={CollapseControlStyle.None}
     >
       <Options active={route} onSelect={onSelect} collapsable collapsed={false}>
-        {allRoutes.map(({ name, availability }) => {
+        {allRoutes.map(({ name, availability }, idx: number) => {
           return {
             key: name,
             // TODO update it

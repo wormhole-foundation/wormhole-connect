@@ -528,9 +528,6 @@ export const selectChain = async (
       type,
       error: 'Wallet disconnected, please connect a supported wallet',
     };
-    if (type === TransferWallet.RECEIVING) {
-      dispatch(setManualAddressTarget(false));
-    }
     dispatch(setWalletError(payload));
   }
 
