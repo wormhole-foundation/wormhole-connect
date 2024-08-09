@@ -15,6 +15,19 @@ const PrimaryButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
   },
 }));
 
+const ErrorButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
+  color: '#17171D',
+  backgroundColor: '#F16576',
+  '&:hover': {
+    backgroundColor: '#F16576',
+  },
+  '&:disabled': {
+    backgroundColor: '#F16576',
+    color: '#17171D',
+    opacity: '40%',
+  },
+}));
+
 type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
 
 /**
@@ -28,6 +41,8 @@ const Button = (props: Props) => {
 
   if (variant === 'primary') {
     return <PrimaryButton variant="contained" {...rest} />;
+  } else if (variant === 'error') {
+    return <ErrorButton variant="contained" {...rest} />;
   }
 
   return <MUIButton {...rest} />;

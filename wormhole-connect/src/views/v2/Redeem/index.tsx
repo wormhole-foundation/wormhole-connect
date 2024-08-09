@@ -12,6 +12,7 @@ import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
 import { Context } from 'sdklegacy';
 
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import PageHeader from 'components/PageHeader';
 import { Alignment } from 'components/Header';
 import Button from 'components/v2/Button';
@@ -399,7 +400,7 @@ const Redeem = () => {
         <Button
           className={classes.actionButton}
           disabled={isClaimInProgress || !isTxAttested}
-          variant="primary"
+          variant={!!claimError ? 'error' : 'primary'}
           onClick={handleManualClaim}
         >
           {isClaimInProgress || !isTxAttested ? (
@@ -436,6 +437,7 @@ const Redeem = () => {
       {etaCircle}
       <TransactionDetails />
       {actionButton}
+      <AlertBannerV2 error content={claimError} show={!!claimError} />
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
