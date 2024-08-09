@@ -12,6 +12,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 
 import {
+  AddressLookupTableAccount,
   clusterApiUrl,
   Commitment,
   ConfirmOptions,
@@ -98,7 +99,18 @@ export async function signAndSendTransaction(
     ix.programId.toString() !== 'ComputeBudget111111111111111111111111111111';
 
   if (isVersionedTransaction(unsignedTx)) {
-    const message = TransactionMessage.decompile(unsignedTx.message);
+    const luts = (
+      await Promise.all(
+        unsignedTx.message.addressTableLookups.map((acc) =>
+          connection.getAddressLookupTable(acc.accountKey),
+        ),
+      )
+    )
+      .map((lut) => lut.value)
+      .filter((lut) => lut !== null) as AddressLookupTableAccount[];
+    const message = TransactionMessage.decompile(unsignedTx.message, {
+      addressLookupTableAccounts: luts,
+    });
     message.recentBlockhash = blockhash;
 
     // Remove existing compute budget instructions if they were added by the SDK
@@ -107,7 +119,7 @@ export async function signAndSendTransaction(
       ...(await createPriorityFeeInstructions(connection, unsignedTx)),
     );
 
-    unsignedTx.message = message.compileToV0Message();
+    unsignedTx.message = message.compileToV0Message(luts);
     unsignedTx.sign(request.transaction.signers ?? []);
   } else {
     unsignedTx.recentBlockhash = blockhash;
