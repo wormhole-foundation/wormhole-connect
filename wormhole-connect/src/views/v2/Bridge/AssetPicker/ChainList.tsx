@@ -43,6 +43,7 @@ const useStyles = makeStyles()((theme) => ({
     position: 'sticky',
     top: 0,
     background: (theme.palette as unknown as WormholeConnectTheme)?.modal?.background,
+    zIndex: 1,
   }
 }));
 
