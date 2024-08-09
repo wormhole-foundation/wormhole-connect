@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material';
@@ -13,8 +7,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { TransferState } from '@wormhole-foundation/sdk';
+import { isRedeemed, routes, TransferState } from '@wormhole-foundation/sdk';
+import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
+import { Context } from 'sdklegacy';
 
 import PageHeader from 'components/PageHeader';
 import { Alignment } from 'components/Header';
@@ -24,9 +20,17 @@ import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
 import RouteOperator from 'routes/operator';
+import { SDKv2Signer } from 'routes/sdkv2/signer';
+import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { setRoute } from 'store/router';
 import { displayAddress } from 'utils';
+import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
+import {
+  TransferWallet,
+  registerWalletSigner,
+  switchChain,
+} from 'utils/wallet';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
 
 import type { RootState } from 'store';
@@ -74,6 +78,7 @@ const Redeem = () => {
 
   const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
 
+  const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
 
@@ -95,9 +100,18 @@ const Redeem = () => {
     timestamp: txTimestamp,
   } = useSelector((state: RootState) => state.redeem);
 
-  const { recipient, receiveAmount, receivedTokenKey, toChain } = useSelector(
-    (state: RootState) => state.redeem.txData,
-  )!;
+  const {
+    fromChain,
+    recipient,
+    receiveAmount,
+    receivedTokenKey,
+    toChain,
+    tokenKey,
+  } = useSelector((state: RootState) => state.redeem.txData)!;
+
+  const receivingWallet = useSelector(
+    (state: RootState) => state.wallet.receiving,
+  );
 
   // Initialize the countdown with 0, 0 as we might not have eta or txTimestamp yet
   const { seconds, minutes, isRunning, restart } = useTimer({
@@ -259,10 +273,124 @@ const Redeem = () => {
     );
   }, [etaDisplay, isTxComplete]);
 
-  const handleManualClaim = useCallback(async () => {
+  const isConnectedToReceivingWallet = useMemo(() => {
+    if (!recipient) {
+      return false;
+    }
+
+    const walletAddress = receivingWallet.address.toLowerCase();
+    const walletCurrentAddress = receivingWallet.currentAddress.toLowerCase();
+    const recipientAddress = recipient.toLowerCase();
+
+    // Connected wallet should be the current recipient wallet
+    return (
+      walletAddress === walletCurrentAddress &&
+      walletAddress === recipientAddress
+    );
+  }, [receivingWallet, recipient]);
+
+  const handleManualClaim = async () => {
     setIsClaimInProgress(true);
-    setIsClaimInProgress(false);
-  }, []);
+    setClaimError('');
+
+    if (!routeName) {
+      throw new Error('Unknown route, can not claim');
+    }
+
+    const transferDetails = {
+      route: routeName,
+      fromToken: getTokenDetails(tokenKey),
+      toToken: getTokenDetails(receivedTokenKey),
+      fromChain: fromChain,
+      toChain: toChain,
+    };
+
+    config.triggerEvent({
+      type: 'transfer.redeem.initiate',
+      details: transferDetails,
+    });
+
+    if (!isConnectedToReceivingWallet) {
+      setClaimError('Not connected to the receiving wallet');
+      throw new Error('Not connected to the receiving wallet');
+    }
+
+    const chainConfig = config.chains[toChain]!;
+
+    if (!chainConfig) {
+      setClaimError('Your claim has failed, please try again');
+      throw new Error('invalid destination chain');
+    }
+
+    const route = routeContext.route!;
+
+    let txId: string | undefined;
+
+    try {
+      if (
+        chainConfig!.context === Context.ETH &&
+        typeof chainConfig.chainId === 'number'
+      ) {
+        await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
+        await registerWalletSigner(toChain, TransferWallet.RECEIVING);
+      }
+
+      if (!routes.isManual(route)) {
+        throw new Error('Route is not manual');
+      }
+
+      const signer = await SDKv2Signer.fromChainV1(
+        toChain,
+        receivingWallet.address,
+        {},
+        TransferWallet.RECEIVING,
+      );
+
+      const receipt = await route.complete(signer, routeContext.receipt!);
+
+      if (!isRedeemed(receipt)) {
+        throw new Error('Transfer not redeemed');
+      }
+
+      if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
+        txId = receipt.destinationTxs[receipt.destinationTxs.length - 1].txid;
+      }
+
+      config.triggerEvent({
+        type: 'transfer.redeem.start',
+        details: transferDetails,
+      });
+
+      setIsClaimInProgress(false);
+      setClaimError('');
+    } catch (e: any) {
+      const [uiError, transferError] = interpretTransferError(e, toChain);
+
+      setClaimError(uiError);
+
+      config.triggerEvent({
+        type: 'transfer.redeem.error',
+        details: transferDetails,
+        error: transferError,
+      });
+
+      setIsClaimInProgress(false);
+      console.error(e);
+    }
+    if (txId !== undefined) {
+      dispatch(setRedeemTx(txId));
+
+      // Transfer may require an additional step if this is a finalizable route
+      if (!routes.isFinalizable(route)) {
+        dispatch(setTransferComplete(true));
+      }
+
+      config.triggerEvent({
+        type: 'transfer.redeem.success',
+        details: transferDetails,
+      });
+    }
+  };
 
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
