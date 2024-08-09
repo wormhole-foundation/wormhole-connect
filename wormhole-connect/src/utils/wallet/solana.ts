@@ -216,7 +216,11 @@ async function createPriorityFeeInstructions(
       })
     : connection.simulateTransaction(transaction));
   if (response.value.err) {
-    throw new Error(`Simulation failed: ${response.value.err}`);
+    throw new Error(
+      `Simulation failed: ${JSON.stringify(response.value.err)}\nLogs:\n${(
+        response.value.logs || []
+      ).join('\n  ')}`,
+    );
   }
   const instructions: TransactionInstruction[] = [];
   if (response.value?.unitsConsumed) {
