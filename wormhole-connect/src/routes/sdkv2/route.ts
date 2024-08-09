@@ -46,16 +46,10 @@ export class SDKv2Route {
 
   constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
     this.TYPE = routeType;
-    // TODO: get this info from the SDK
-    if (routeType === Route.Relay) {
-      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
-      this.AUTOMATIC_DEPOSIT = true;
-    } else if (routeType === Route.NttRelay) {
-      this.AUTOMATIC_DEPOSIT = true;
-    } else if (routeType === Route.CCTPRelay) {
-      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
-      this.AUTOMATIC_DEPOSIT = true;
-    }
+
+    this.AUTOMATIC_DEPOSIT = rc.IS_AUTOMATIC;
+    this.NATIVE_GAS_DROPOFF_SUPPORTED = rc.NATIVE_GAS_DROPOFF_SUPPORTED;
+
     this.IS_TOKEN_BRIDGE_ROUTE =
       this.TYPE === Route.Bridge ||
       this.TYPE === Route.Relay ||
