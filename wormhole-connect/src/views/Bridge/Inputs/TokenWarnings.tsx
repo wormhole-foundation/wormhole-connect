@@ -104,6 +104,7 @@ function TokenWarnings() {
     foreignAsset,
     associatedTokenAddress,
     route,
+    manualAddressTarget,
   } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
@@ -149,7 +150,7 @@ function TokenWarnings() {
     return () => {
       active = false;
     };
-  }, [toChain, tokenConfig, route, destTokenConfig, dispatch]);
+  }, [toChain, tokenConfig, route, destTokenConfig, receiving, dispatch]);
 
   // the associated token account address is deterministic, so we still
   // need to check if there is an account created for that address
@@ -307,9 +308,14 @@ function TokenWarnings() {
   );
 
   let content;
-  if (!foreignAsset) {
+
+  if (!foreignAsset && !manualAddressTarget) {
     content = noForeignAssetWarning;
-  } else if (toChain === 'solana' && route !== Route.Relay) {
+  } else if (
+    toChain === 'solana' &&
+    route !== Route.Relay &&
+    !manualAddressTarget
+  ) {
     content = noAssociatedTokenAccount;
   } else if (usdcAndNoCCTP) {
     content = warningNoCCTPOption;

@@ -442,7 +442,6 @@ function RouteOptions() {
 
         routes.push({ name: r, supported, availability: available });
       }
-
       if (isActive) {
         dispatch(setRoutes(routes));
       }
@@ -456,6 +455,13 @@ function RouteOptions() {
 
   useEffect(() => {
     const routeState = routeStates?.find((rs) => rs.name === route);
+    if (!routeState) {
+      const first = routeStates?.find(
+        (rs) => rs.supported && !isDisabled(rs.name, rs.availability),
+      );
+      if (first) dispatch(setTransferRoute(first.name as Route));
+      return;
+    }
     if (routeState && isDisabled(routeState.name, routeState?.availability))
       dispatch(setTransferRoute());
   }, [manualAddressTarget, toChain, fromChain, dispatch]);
