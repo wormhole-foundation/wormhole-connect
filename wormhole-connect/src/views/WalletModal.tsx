@@ -29,6 +29,7 @@ import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import WalletImg from '../wallet.svg';
 import { setManualAddressTarget } from 'store/transferInput';
 import { ManualAddressInput } from 'components/ManualAddressInput';
+import { MANUAL_WALLET_NAME } from 'utils/transferValidation';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -98,8 +99,6 @@ type GetWalletsResult = {
 };
 
 type GetWallets = GetWalletsLoading | GetWalletsError | GetWalletsResult;
-
-const MANUAL_WALLET_NAME = 'Manual Wallet';
 
 function WalletsModal(props: Props) {
   const theme: any = useTheme();
