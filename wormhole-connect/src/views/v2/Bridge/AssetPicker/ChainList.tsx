@@ -21,6 +21,7 @@ import { isDisabledChain } from 'store/transferInput';
 
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
+import { WormholeConnectTheme } from 'theme';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -33,6 +34,16 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: 14,
     marginBottom: '8px',
   },
+  searchList: {
+    maxHeight: 240,
+    overflow: 'auto',
+    paddingTop: 0,
+  },
+  searchBar: {
+    position: 'sticky',
+    top: 0,
+    background: (theme.palette as unknown as WormholeConnectTheme)?.modal?.background,
+  }
 }));
 
 type Props = {
@@ -136,11 +147,11 @@ const ChainList = (props: Props) => {
             ?.toLowerCase()
             .includes(chainSearchQuery.toLowerCase());
         })
-      : topChains;
+      : props.chainList;
 
     return (
-      <List>
-        <ListItem>
+      <List className={classes.searchList}>
+        <ListItem className={classes.searchBar}>
           <TextField
             autoFocus
             fullWidth
