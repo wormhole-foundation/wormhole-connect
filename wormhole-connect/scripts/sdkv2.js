@@ -3,6 +3,17 @@ const path = require('path');
 
 const WORK_ROOT = process.env['WORK_ROOT'];
 
+const thirdPartyPkgs = {
+  '@mayanfinance/wormhole-sdk-route': 'wormhole-sdk-route',
+  '@wormhole-foundation/sdk-definitions-ntt':
+    'example-native-token-transfers/sdk/definitions',
+  '@wormhole-foundation/sdk-route-ntt':
+    'example-native-token-transfers/sdk/route',
+  '@wormhole-foundation/sdk-solana-ntt':
+    'example-native-token-transfers/solana',
+  '@wormhole-foundation/sdk-evm-ntt': 'example-native-token-transfers/evm/ts',
+};
+
 if (!WORK_ROOT) {
   console.error(
     'Please export a WORK_ROOT env var containing the absolute path to a directory containing the following repos:\n- wormhole-sdk-ts\n- example-native-token-transfers',
@@ -11,12 +22,13 @@ if (!WORK_ROOT) {
 }
 
 const SDK_PATH = path.join(WORK_ROOT, 'wormhole-sdk-ts');
-const NTT_SDK_PATH = path.join(
-  WORK_ROOT,
-  'example-native-token-transfers/sdk/definitions',
-);
 
-if (!SDK_PATH) throw new Error('Please set SDK_PATH in your environment');
+let sdkPackages = {};
+
+for (let packageName in thirdPartyPkgs) {
+  const packageDir = thirdPartyPkgs[packageName];
+  sdkPackages[packageName] = path.join(WORK_ROOT, packageDir);
+}
 
 const { execSync } = require('child_process');
 
@@ -29,35 +41,40 @@ const { version, workspaces } = JSON.parse(
   fs.readFileSync(sdkPackageJsonPath, 'utf8'),
 );
 
-let sdkPackages = {};
-
 for (const workspace of workspaces) {
   if (workspace.includes('examples')) continue;
   const workspacePackageJson = path.join(SDK_PATH, workspace, 'package.json');
   const { name } = JSON.parse(fs.readFileSync(workspacePackageJson));
   sdkPackages[name] = path.join(SDK_PATH, workspace);
-
-  console.log(`linking ${name}`);
-  execSync('npm link', { cwd: sdkPackages[name] });
 }
 
-//sdkPackages['@wormhole-foundation/sdk-definitions-ntt'] = NTT_SDK_PATH;
+const total = Object.keys(sdkPackages).length * 2;
+let progress = 0;
 
-execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
-  cwd: path.join(__dirname, '../'),
-});
+for (const name in sdkPackages) {
+  if (name.includes('examples')) {
+    continue;
+  }
+  execSync('npm link', { cwd: sdkPackages[name] });
+  progress += 1;
+  progressBar(progress, total);
+}
 
 for (const name in sdkPackages) {
   if (name.includes('examples')) {
     continue;
   }
   linkLocalSdkPackages(sdkPackages[name]);
+  progress += 1;
+  progressBar(progress, total);
 }
+
+execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
+  cwd: path.join(__dirname, '../'),
+});
 
 function linkLocalSdkPackages(dir) {
   let packageJson = JSON.parse(fs.readFileSync(path.join(dir, 'package.json')));
-  packageJson.overrides = packageJson.overrides || {};
-
   let keys = [];
 
   for (let key in packageJson.dependencies) {
@@ -66,9 +83,15 @@ function linkLocalSdkPackages(dir) {
     }
   }
 
-  console.log(`npm link ${keys.join(' ')}`);
+  if (keys.length === 0) return;
 
   execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
 }
 
-execSync(`rm -rf wormhole-connect/node_modules/@wormhole-foundation`);
+function progressBar(completed, total) {
+  const percentage = Math.round((completed / total) * 100);
+  const barLength = 50;
+  const filledLength = Math.round((barLength * percentage) / 100);
+  const bar = '░'.repeat(filledLength) + '-'.repeat(barLength - filledLength);
+  process.stdout.write(`\rLinking... [${bar}] ${percentage}%`);
+}
