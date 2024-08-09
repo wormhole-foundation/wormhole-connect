@@ -300,7 +300,7 @@ function RouteOption(props: {
       return REASON_AMOUNT_TOO_LOW;
     }
   }, [manualAddressTarget, props]);
-
+  const Icon = useCallback(() => props.route.icon(), [props]);
   return (
     fromTokenConfig &&
     toTokenConfig && (
@@ -341,7 +341,7 @@ function RouteOption(props: {
               />
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
               <Tag
-                icon={props.route.icon()}
+                icon={<Icon />}
                 text={props.route.routePath || props.route.providedBy}
               />
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
