@@ -139,7 +139,7 @@ const AmountInput = (props: Props) => {
   );
 
   // Debouncing validation to prevent false-positive results while user is still typing
-  const [debouncedValidationResult] = useDebounce(validationResult, 300);
+  const [debouncedValidationResult] = useDebounce(validationResult, 500);
 
   const onAmountChange = useCallback((e: any) => {
     setTokenAmount(e.target.value);
