@@ -18,11 +18,17 @@ const useTrackTransfer = (): void => {
 
     const track = async () => {
       const { route, receipt } = routeContext;
+
       if (!route || !receipt) {
         return;
       }
+
       let stateChanged = false;
+
       while (isActive && !isCompleted(receipt) && !stateChanged) {
+        console.log(`Current state: ${receipt.state}`);
+        console.log(receipt);
+
         try {
           // We need to consume all of the values the track generator yields in case any of them
           // update the receipt state.
@@ -30,8 +36,6 @@ const useTrackTransfer = (): void => {
           // and break out of the loop.
           // The hook will then be re-run and the new receipt will be used to continue tracking
           // unless the transfer is completed.
-          console.log(`Current state: ${receipt.state}`);
-          console.log(receipt);
           for await (const currentReceipt of route.track(
             receipt,
             TRACK_TIMEOUT,
@@ -42,14 +46,18 @@ const useTrackTransfer = (): void => {
 
             if (currentReceipt.state !== receipt.state) {
               routeContext.setReceipt(currentReceipt);
+
               console.log('Updated receipt:', currentReceipt.state);
+
               if (isCompleted(currentReceipt)) {
                 dispatch(setTransferComplete(true));
+
                 const lastTx = currentReceipt.destinationTxs?.slice(-1)[0];
                 if (lastTx) {
                   dispatch(setRedeemTx(lastTx.txid));
                 }
               }
+
               stateChanged = true;
               break;
             }
