@@ -1,17 +1,12 @@
+// TODO: remove this shit
 import { Network } from './types';
 import { Domain, MultiProvider } from './multi-provider';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
-import {
-  AnyContext,
-  ChainId,
-  ChainName,
-  Context,
-  TokenId,
-  WormholeConfig,
-} from './types';
+import { AnyContext, Context, TokenId, WormholeConfig } from './types';
 import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
+import { Chain } from '@wormhole-foundation/sdk';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -24,18 +19,18 @@ import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
  * @example
  * // Set up mainnet and then access contracts as below:
  * const context = new WormholeContext('MAINNET');
- * let bridge = context.mustGetBridge('ethereum');
+ * let bridge = context.mustGetBridge('Ethereum');
  *
  * // interact easily with any chain!
  * // supports EVM, Solana, Terra, etc
  * const tokenId = {
- *   chain: 'ethereum',
+ *   chain: 'Ethereum',
  *   address: '0x123...',
  * }
  * const receipt = context.send(
  *   tokenId,
  *   '10', // amount
- *   'ethereum', // sending chain
+ *   'Ethereum', // sending chain
  *   '0x789...', // sender address
  *   'moonbeam', // destination chain
  *   '0x789..., // recipient address on destination chain
@@ -65,7 +60,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    */
   registerProviders() {
     for (const network of Object.keys(this.conf.rpcs)) {
-      const n = network as ChainName;
+      const n = network as Chain;
       const chains =
         this.conf.env === 'mainnet'
           ? MAINNET_CHAINS
@@ -90,30 +85,12 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
-   * Converts to chain id
-   * @param nameOrId the chain name or chain id
-   * @returns the chain id
-   */
-  toChainId(nameOrId: string | number) {
-    return super.resolveDomain(nameOrId) as ChainId;
-  }
-
-  /**
-   * Converts to chain name
-   * @param nameOrId the chain name or chain id
-   * @returns the chain name
-   */
-  toChainName(nameOrId: string | number) {
-    return super.resolveDomainName(nameOrId) as ChainName;
-  }
-
-  /**
    * Returns the chain "context", i.e. the class with chain-specific logic and methods
    * @param chain the chain name or chain id
    * @returns the chain context class
    * @throws Errors if context is not found
    */
-  getContext(chain: ChainName | ChainId): AnyContext {
+  getContext(chain: Chain): AnyContext {
     // TODO SDKV2 REMOVE
     return this;
   }
@@ -126,7 +103,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @returns True if the transfer has been completed, otherwise false
    */
   async isTransferCompleted(
-    destChain: ChainName | ChainId,
+    destChain: Chain,
     signedVaa: string,
   ): Promise<boolean> {
     const context = this.getContext(destChain);
@@ -139,7 +116,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param address The address as a string
    * @returns The address as a 32-byte Wormhole address
    */
-  formatAddress(address: string, chain: ChainName | ChainId): any {
+  formatAddress(address: string, chain: Chain): any {
     const context = this.getContext(chain);
     return context.formatAddress(address);
   }
@@ -150,7 +127,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param address The 32-byte wormhole address
    * @returns The address in the blockchain specific format
    */
-  parseAddress(address: any, chain: ChainName | ChainId): string {
+  parseAddress(address: any, chain: Chain): string {
     const context = this.getContext(chain);
     return context.parseAddress(address);
   }
@@ -161,7 +138,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param chain The chain name or id
    * @returns The native token ID
    */
-  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+  async getWrappedNativeTokenId(chain: Chain): Promise<TokenId> {
     const context = this.getContext(chain);
     return await context.getWrappedNativeTokenId(chain);
   }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import type { ChainName, Context } from 'sdklegacy';
+import type { Context } from 'sdklegacy';
+import { Chain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { WalletData, getWalletOptions } from 'utils/wallet';
@@ -20,7 +21,7 @@ type GetWalletsResult = {
 type GetWallets = GetWalletsLoading | GetWalletsError | GetWalletsResult;
 
 type Props = {
-  chain: ChainName | undefined;
+  chain: Chain | undefined;
   supportedChains: Set<Context>;
 };
 

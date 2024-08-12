@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName, Context } from 'sdklegacy';
+import { Context } from 'sdklegacy';
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
-import { toChainId } from 'utils/sdk';
 import {
   switchChain,
   TransferWallet,
@@ -21,6 +20,7 @@ import {
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isNttRoute } from 'routes';
 import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
+import { Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
   lastUpdated: number;
@@ -30,16 +30,16 @@ export type Balances = { [key: string]: Balance };
 export type ChainBalances = {
   balances: Balances;
 };
-export type BalancesCache = { [key in ChainName]?: ChainBalances };
+export type BalancesCache = { [key in Chain]?: ChainBalances };
 type WalletAddress = string;
 export type WalletBalances = { [key: WalletAddress]: BalancesCache };
 
 export const formatBalance = (
-  chain: ChainName,
+  chain: Chain,
   token: TokenConfig,
   balance: bigint | null,
 ) => {
-  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
+  const decimals = getTokenDecimals(chain, token.tokenId);
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return formattedBalance;
@@ -49,7 +49,7 @@ export const formatBalance = (
 // returns token key
 export const getNativeVersionOfToken = (
   tokenSymbol: string,
-  chain: ChainName,
+  chain: Chain,
 ): string => {
   return (
     Object.entries(config.tokens)
@@ -62,7 +62,7 @@ export const getNativeVersionOfToken = (
 export const accessChainBalances = (
   balances: WalletBalances | undefined,
   walletAddress: WalletAddress | undefined,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
 ): ChainBalances | undefined => {
   if (!chain || !balances || !walletAddress) return undefined;
   const walletBalances = balances[walletAddress];
@@ -75,7 +75,7 @@ export const accessChainBalances = (
 export const accessBalance = (
   balances: WalletBalances | undefined,
   walletAddress: WalletAddress | undefined,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
   token: string,
 ): Balance | undefined => {
   const chainBalances = accessChainBalances(balances, walletAddress, chain);
@@ -110,8 +110,8 @@ export interface TransferInputState {
   showValidationState: boolean;
   validations: TransferValidations;
   routeStates: RouteState[] | undefined;
-  fromChain: ChainName | undefined;
-  toChain: ChainName | undefined;
+  fromChain: Chain | undefined;
+  toChain: Chain | undefined;
   token: string;
   destToken: string;
   amount: string;
@@ -331,14 +331,14 @@ export const transferInputSlice = createSlice({
     },
     setFromChain: (
       state: TransferInputState,
-      { payload }: PayloadAction<ChainName>,
+      { payload }: PayloadAction<Chain>,
     ) => {
       state.fromChain = payload;
       performModificationsIfFromChainChanged(state);
     },
     setToChain: (
       state: TransferInputState,
-      { payload }: PayloadAction<ChainName>,
+      { payload }: PayloadAction<Chain>,
     ) => {
       state.toChain = payload;
       performModificationsIfToChainChanged(state);
@@ -370,7 +370,7 @@ export const transferInputSlice = createSlice({
         payload,
       }: PayloadAction<{
         address: WalletAddress;
-        chain: ChainName;
+        chain: Chain;
         balances: Balances;
       }>,
     ) => {
@@ -475,9 +475,9 @@ export const transferInputSlice = createSlice({
   },
 });
 
-export const isDisabledChain = (chain: ChainName, wallet: WalletData) => {
+export const isDisabledChain = (chain: Chain, wallet: WalletData) => {
   // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-  if (wallet.name === 'OKX Wallet' && chain === 'evmos') {
+  if (wallet.name === 'OKX Wallet' && chain === 'Evmos') {
     return true;
   } else {
     return !walletAcceptedChains(wallet.type).includes(chain);
@@ -486,7 +486,7 @@ export const isDisabledChain = (chain: ChainName, wallet: WalletData) => {
 
 export const selectFromChain = async (
   dispatch: any,
-  chain: ChainName,
+  chain: Chain,
   wallet: WalletData,
 ) => {
   selectChain(TransferWallet.SENDING, dispatch, chain, wallet);
@@ -494,7 +494,7 @@ export const selectFromChain = async (
 
 export const selectToChain = async (
   dispatch: any,
-  chain: ChainName,
+  chain: Chain,
   wallet: WalletData,
 ) => {
   selectChain(TransferWallet.RECEIVING, dispatch, chain, wallet);
@@ -503,7 +503,7 @@ export const selectToChain = async (
 export const selectChain = async (
   type: TransferWallet,
   dispatch: any,
-  chain: ChainName,
+  chain: Chain,
   wallet: WalletData,
 ) => {
   if (isDisabledChain(chain, wallet)) {

@@ -6,18 +6,18 @@ import { BigNumber } from 'ethers';
 import { setReceiverNativeBalance } from 'store/transferInput';
 */
 
+import { Chain } from '@wormhole-foundation/sdk';
+
 import type { WalletData } from 'store/wallet';
-import type { ChainName } from 'sdklegacy';
 
 /* TODO SDKV2
 import { getTokenDecimals } from 'utils';
-import { toChainId } from 'utils/sdk';
 import { toDecimals } from 'utils/balance';
 */
 
 type Props = {
-  sourceChain: ChainName | undefined;
-  destChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
+  destChain: Chain | undefined;
   receiving: WalletData;
 };
 

@@ -8,6 +8,7 @@ import {
 import * as v2 from '@wormhole-foundation/sdk';
 import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
 import { getGasToken } from 'utils';
+import { Chain } from '@wormhole-foundation/sdk';
 
 // SDKConverter provides utility functions for converting core types between SDKv1 and SDKv2
 // This is only meant to be used while we transition to SDKv2
@@ -16,23 +17,6 @@ export class SDKConverter {
 
   constructor(wh: v1.WormholeContext) {
     this.wh = wh;
-  }
-
-  // Chain conversion
-
-  toChainIdV1(chain: v2.Chain) {
-    return v2.toChainId(chain) as v1.ChainId;
-  }
-
-  toChainNameV1(chain: v2.Chain) {
-    return this.wh.toChainName(this.toChainIdV1(chain));
-  }
-
-  toChainV2(chain: v1.ChainName | v1.ChainId): v2.Chain {
-    if (typeof chain !== 'number' && typeof chain !== 'string') {
-      throw new Error(JSON.stringify(chain));
-    }
-    return v2.toChain(this.wh.toChainId(chain));
   }
 
   // Network conversion
@@ -60,25 +44,19 @@ export class SDKConverter {
       return undefined;
     } else {
       return {
-        chain: this.toChainNameV1(token.chain),
+        chain: token.chain,
         address: token.address.toString(),
       };
     }
   }
 
-  toTokenIdV2(
-    token: v1.TokenId | TokenConfigV1,
-    chain?: v1.ChainName,
-  ): v2.TokenId {
+  toTokenIdV2(token: v1.TokenId | TokenConfigV1, chain?: Chain): v2.TokenId {
     if (this.isTokenConfigV1(token)) {
       if (chain && chain != token.nativeChain) {
         // Getting foreign address
         const foreignAsset = token.foreignAssets?.[chain];
         if (foreignAsset) {
-          return v2.Wormhole.tokenId(
-            this.toChainV2(chain),
-            foreignAsset.address,
-          );
+          return v2.Wormhole.tokenId(chain, foreignAsset.address);
         } else {
           throw new Error('no foreign asset');
         }
@@ -86,19 +64,15 @@ export class SDKConverter {
         // Getting native address
         const address = this.getNativeTokenAddressV2(token);
         if (!address) throw new Error('no address');
-        return v2.Wormhole.tokenId(this.toChainV2(token.nativeChain), address);
+        return v2.Wormhole.tokenId(token.nativeChain, address);
       }
     } else {
-      return v2.Wormhole.tokenId(this.toChainV2(token.chain), token.address);
+      return v2.Wormhole.tokenId(token.chain, token.address);
     }
   }
 
-  tokenIdV2<C extends v2.Chain>(
-    chain: v1.ChainName | v1.ChainId,
-    address: string,
-  ): v2.TokenId<C> {
-    const chainv2 = this.toChainV2(chain) as C;
-    return v2.Wormhole.tokenId(chainv2, address);
+  tokenIdV2<C extends Chain>(chain: C, address: string): v2.TokenId<C> {
+    return v2.Wormhole.tokenId(chain, address);
   }
 
   isTokenConfigV1(v: v1.TokenId | TokenConfigV1): v is TokenConfigV1 {
@@ -112,7 +86,7 @@ export class SDKConverter {
     tokenConfigs: TokenConfigV1[],
   ): TokenConfigV1 | undefined {
     const isNative = tokenId.address === 'native';
-    const chain = this.toChainNameV1(tokenId.chain);
+    const chain = tokenId.chain;
 
     for (const key in tokenConfigs) {
       const token = tokenConfigs[key];
@@ -135,29 +109,27 @@ export class SDKConverter {
     }
   }
 
-  async getTokenIdV2ForKey<C extends v2.Chain>(
+  async getTokenIdV2ForKey<C extends Chain>(
     key: string,
-    chain: v1.ChainName | v1.ChainId,
+    chain: C,
     tokenConfigs: TokensConfigV1,
   ): Promise<v2.TokenId<C> | undefined> {
     const tokenConfig = tokenConfigs[key];
     if (!tokenConfig) return undefined;
 
-    const chainName = this.wh.toChainName(chain);
-
-    if (tokenConfig.nativeChain === chainName) {
+    if (tokenConfig.nativeChain === chain) {
       const address = this.getNativeTokenAddressV2(tokenConfig);
       if (!address) return undefined;
-      return this.tokenIdV2(chainName, address);
+      return this.tokenIdV2(chain, address);
     } else {
       // For token bridge route, we might be trying to fetch a token's address on its
       // non-native chain.
       const foreignAddress = await getTokenBridgeWrappedTokenAddress(
         tokenConfigs[key],
-        this.toChainV2(chain),
+        chain,
       );
       if (!foreignAddress) return undefined;
-      return this.tokenIdV2(chainName, foreignAddress.toString());
+      return this.tokenIdV2(chain, foreignAddress.toString());
     }
   }
 

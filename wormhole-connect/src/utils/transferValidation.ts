@@ -1,6 +1,5 @@
 import { Dispatch, useEffect, useMemo } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -21,10 +20,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 import { DataWrapper } from 'store/helpers';
 import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
+import { Chain } from '@wormhole-foundation/sdk';
 
-export const validateFromChain = (
-  chain: ChainName | undefined,
-): ValidationErr => {
+export const validateFromChain = (chain: Chain | undefined): ValidationErr => {
   if (!chain) return 'Select a source chain';
   const chainConfig = config.chains[chain];
   if (!chainConfig) return 'Select a source chain';
@@ -32,8 +30,8 @@ export const validateFromChain = (
 };
 
 export const validateToChain = (
-  chain: ChainName | undefined,
-  fromChain: ChainName | undefined,
+  chain: Chain | undefined,
+  fromChain: Chain | undefined,
 ): ValidationErr => {
   if (!chain) return 'Select a destination chain';
   const chainConfig = config.chains[chain];
@@ -60,7 +58,7 @@ export const validateToChain = (
 
 export const validateToken = (
   token: string,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
 ): ValidationErr => {
   if (!token) return 'Select an asset';
   const tokenConfig = config.tokens[token];
@@ -76,7 +74,7 @@ export const validateToken = (
 
 export const validateDestToken = (
   token: string,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
   supportedTokens: TokenConfig[],
 ): ValidationErr => {
   if (!token) return 'Select an asset';
@@ -123,7 +121,7 @@ const checkAddressIsSanctioned = (address: string): boolean =>
 
 export const validateWallet = async (
   wallet: WalletData,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
 ): Promise<ValidationErr> => {
   if (!wallet.address) return 'Wallet not connected';
   try {
@@ -202,8 +200,8 @@ export const getIsAutomatic = (route: Route | undefined): boolean => {
 export const isCctp = (
   token: string,
   destToken: string,
-  fromChain: ChainName | undefined,
-  toChain: ChainName | undefined,
+  fromChain: Chain | undefined,
+  toChain: Chain | undefined,
 ): boolean => {
   const isUSDCToken =
     config.tokens[token]?.symbol === 'USDC' &&

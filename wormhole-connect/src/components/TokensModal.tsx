@@ -4,7 +4,6 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
-import { ChainName } from 'sdklegacy';
 import { AVAILABLE_MARKETS_URL } from 'config/constants';
 import config from 'config';
 import { TokenConfig } from 'config/types';
@@ -24,6 +23,7 @@ import Spacer from './Spacer';
 import Tabs from './Tabs';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { Balances } from 'store/transferInput';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -264,7 +264,7 @@ function DisplayTokens(props: DisplayTokensProps) {
 
 type Props = {
   open: boolean;
-  chain: ChainName | undefined;
+  chain: Chain | undefined;
   walletAddress: string | undefined;
   onSelect: (token: string) => any;
   onClose: any;
@@ -382,7 +382,7 @@ function TokensModal(props: Props) {
         } else {
           // if the chain is not canonical then only show the ethereum tBTC token
           // which is considered the canonical tBTC token
-          if (t.nativeChain !== 'ethereum') {
+          if (t.nativeChain !== 'Ethereum') {
             return false;
           }
         }

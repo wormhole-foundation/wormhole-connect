@@ -2,7 +2,6 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
-import type { ChainName } from 'sdklegacy';
 
 import config, { getWormholeContextV2 } from 'config';
 import { isValidTxId } from 'utils';
@@ -28,6 +27,7 @@ import { parseReceipt } from 'utils/sdkv2';
 import {
   TransferState,
   AttestedTransferReceipt,
+  Chain,
 } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
@@ -88,14 +88,14 @@ function TxSearch() {
     if (!state.tx || !state.chain) {
       return setError('Enter the source chain and transaction ID');
     }
-    if (!isValidTxId(state.chain, state.tx)) {
+    if (!isValidTxId(state.chain as Chain, state.tx)) {
       return setError('Invalid transaction ID');
     }
 
     setLoading(true);
 
     const resumeResult = await RouteOperator.resumeFromTx({
-      chain: config.sdkConverter.toChainV2(state.chain as ChainName),
+      chain: state.chain as Chain,
       txid: state.tx,
     });
 
@@ -133,7 +133,7 @@ function TxSearch() {
       dispatch(setIsResumeTx(true)); // To avoid send transfer.success event in Resume Transaction case
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      dispatch(setToChain(config.sdkConverter.toChainNameV1(receipt.to)));
+      dispatch(setToChain(receipt.to));
 
       routeContext.setRoute(sdkRoute);
       routeContext.setReceipt(receipt);
@@ -188,7 +188,7 @@ function TxSearch() {
               Select network
             </MenuItem>
             {config.chainsArr
-              .filter((chain) => chain.key !== 'wormchain')
+              .filter((chain) => chain.key !== 'Wormchain')
               .map((chain, i) => {
                 return (
                   <MenuItem value={chain.key} key={i + 1}>

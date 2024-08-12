@@ -44,7 +44,7 @@ const getWalletName = (wallet: Wallet) =>
 
 export function fetchOptions() {
   const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
-  const connection = new Connection(config.rpcs.solana || clusterApiUrl(tag));
+  const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
 
   return {
     ...getSolanaStandardWallets(connection).reduce((acc, w) => {
@@ -86,11 +86,11 @@ export async function signAndSendTransaction(
   options?: ConfirmOptions,
 ) {
   if (!wallet) throw new Error('Wallet not found');
-  if (!config.rpcs.solana) throw new Error('Solana RPC not found');
+  if (!config.rpcs.Solana) throw new Error('Solana RPC not found');
 
   const commitment = options?.commitment ?? 'finalized';
   const unsignedTx = request.transaction.transaction;
-  const connection = new Connection(config.rpcs.solana);
+  const connection = new Connection(config.rpcs.Solana);
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);
 

@@ -225,12 +225,12 @@ const ReviewTransaction = (props: Props) => {
           sender: sendingWallet.address,
           amount,
           recipient: receivingWallet.address,
-          toChain: config.sdkConverter.toChainNameV1(receipt.to),
-          fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+          toChain: receipt.to,
+          fromChain: receipt.from,
           tokenAddress: getWrappedToken(sourceTokenConfig).tokenId!.address,
           tokenKey: sourceTokenConfig.key,
           tokenDecimals: getTokenDecimals(
-            config.wh.toChainId(sourceChain),
+            sourceChain,
             getWrappedTokenId(sourceTokenConfig),
           ),
           receivedTokenKey: config.tokens[destToken].key, // TODO: possibly wrong (e..g if portico swap fails)

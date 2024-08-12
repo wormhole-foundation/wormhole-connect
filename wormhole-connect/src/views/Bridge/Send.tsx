@@ -187,12 +187,12 @@ function Send(props: { valid: boolean }) {
           sender: sending.address,
           amount,
           recipient: receiving.address,
-          toChain: config.sdkConverter.toChainNameV1(receipt.to),
-          fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+          toChain: receipt.to,
+          fromChain: receipt.from,
           tokenAddress: getWrappedToken(sendToken).tokenId!.address,
           tokenKey: sendToken.key,
           tokenDecimals: getTokenDecimals(
-            config.wh.toChainId(fromChain!),
+            fromChain!,
             getWrappedTokenId(sendToken),
           ),
           receivedTokenKey: config.tokens[destToken].key!, // TODO: possibly wrong (e..g if portico swap fails)
@@ -274,7 +274,7 @@ function Send(props: { valid: boolean }) {
     return !(
       r.AUTOMATIC_DEPOSIT ||
       (toChain && isGatewayChain(toChain)) ||
-      toChain === 'sei' ||
+      toChain === 'Sei' ||
       isPorticoRoute(r.TYPE)
     );
   }, [route, toChain]);

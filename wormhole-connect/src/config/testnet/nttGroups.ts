@@ -4,7 +4,7 @@ export const TESTNET_NTT_GROUPS: NttGroups = {
   USDC_NTT: {
     nttManagers: [
       {
-        chainName: 'fuji',
+        chainName: 'Avalanche',
         address: '0x22D00F8aCcC2da440c937104BA49AfD8261a660F',
         tokenKey: 'USDCavax',
         transceivers: [
@@ -15,7 +15,7 @@ export const TESTNET_NTT_GROUPS: NttGroups = {
         ],
       },
       {
-        chainName: 'alfajores',
+        chainName: 'Celo',
         address: '0xdc86639219fD880A30C71B58E1cfA2707B645516',
         tokenKey: 'USDCalfajores',
         transceivers: [

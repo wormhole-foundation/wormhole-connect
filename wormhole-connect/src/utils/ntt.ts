@@ -1,7 +1,7 @@
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import { Chain } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { NttManagerConfig, TokenConfig } from 'config/types';
-import { ChainName } from 'sdklegacy';
 import { isEqualCaseInsensitive } from 'utils';
 
 export const isNttToken = (token: TokenConfig): boolean => {
@@ -82,7 +82,7 @@ export const getNttGroupKey = (
 
 export const getNttGroupKeyByAddress = (
   managerAddress: string,
-  chainName: ChainName,
+  chainName: Chain,
 ): string | undefined => {
   return Object.entries(config.nttGroups).find(([, group]) =>
     group.nttManagers.some(
@@ -95,7 +95,7 @@ export const getNttGroupKeyByAddress = (
 
 export const getNttManagerConfigByAddress = (
   managerAddress: string,
-  chainName: ChainName,
+  chainName: Chain,
 ): NttManagerConfig | undefined => {
   return Object.values(config.nttGroups).flatMap((group) =>
     group.nttManagers.filter(
@@ -108,7 +108,7 @@ export const getNttManagerConfigByAddress = (
 
 export const getNttManagerConfigByGroupKey = (
   groupKey: string,
-  chainName: ChainName,
+  chainName: Chain,
 ): NttManagerConfig | undefined => {
   return config.nttGroups[groupKey]?.nttManagers.find(
     (manager) => manager.chainName === chainName,
@@ -117,7 +117,7 @@ export const getNttManagerConfigByGroupKey = (
 
 export const getNttTokenByGroupKey = (
   groupKey: string,
-  chainName: ChainName,
+  chainName: Chain,
 ): TokenConfig | undefined => {
   const manager = getNttManagerConfigByGroupKey(groupKey, chainName);
   if (!manager) return;
@@ -134,7 +134,7 @@ export function getNttConfig(): NttRoute.Config {
         const tokenAddress = config.tokens[manager.tokenKey]?.tokenId?.address;
         return tokenAddress
           ? {
-              chain: config.sdkConverter.toChainV2(manager.chainName),
+              chain: manager.chainName,
               token: tokenAddress,
               manager: manager.address,
               transceiver: manager.transceivers,

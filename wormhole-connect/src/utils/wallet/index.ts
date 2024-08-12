@@ -1,4 +1,4 @@
-import { ChainId, ChainName, Context, ChainConfig } from 'sdklegacy';
+import { Context, ChainConfig } from 'sdklegacy';
 import {
   NotSupported,
   Wallet,
@@ -45,9 +45,7 @@ const walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
-export const walletAcceptedChains = (
-  context: Context | undefined,
-): ChainName[] => {
+export const walletAcceptedChains = (context: Context | undefined): Chain[] => {
   if (!context) {
     return config.chainsArr.map((c) => c.key);
   }
@@ -62,7 +60,7 @@ export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
 
 export const connectWallet = async (
   type: TransferWallet,
-  chain: ChainName,
+  chain: Chain,
   walletInfo: WalletData,
   dispatch: Dispatch<any>,
 ) => {
@@ -127,7 +125,7 @@ export const connectWallet = async (
 // and connects to it automatically if it exists.
 export const connectLastUsedWallet = async (
   type: TransferWallet,
-  chain: ChainName,
+  chain: Chain,
   dispatch: Dispatch<any>,
 ) => {
   const chainConfig = config.chains[chain!]!;
@@ -168,7 +166,7 @@ export const swapWalletConnections = () => {
 };
 
 export const registerWalletSigner = async (
-  chain: ChainName | ChainId,
+  chain: Chain,
   type: TransferWallet,
 ) => {
   const w = walletConnection[type]! as any;
@@ -217,7 +215,7 @@ export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
 };
 
 export const signAndSendTransaction = async (
-  chain: ChainName,
+  chain: Chain,
   request: UnsignedTransaction<Network, Chain>,
   walletType: TransferWallet,
   options: any = {},
@@ -376,7 +374,7 @@ export const getWalletOptions = async (
     const seiOptions = await seiWallet.fetchOptions();
     return Object.values(mapWallets(seiOptions, Context.SEI));
   } else if (config.context === Context.COSMOS) {
-    if (config.key === 'evmos') {
+    if (config.key === 'Evmos') {
       const {
         wallets: { cosmosEvm },
       } = await import('utils/wallet/cosmos');
@@ -384,7 +382,7 @@ export const getWalletOptions = async (
       return Object.values(
         mapWallets(cosmosEvm, Context.COSMOS, ['OKX Wallet']),
       );
-    } else if (config.key === 'injective') {
+    } else if (config.key === 'Injective') {
       const {
         wallets: { cosmosEvm },
       } = await import('utils/wallet/cosmos');

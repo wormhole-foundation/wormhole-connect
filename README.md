@@ -66,7 +66,7 @@ import WormholeConnect, {
 } from '@wormhole-foundation/wormhole-connect';
 
 const config: WormholeConnectConfig = {
-  networks: ['ethereum', 'solana']
+  networks: ['Ethereum', 'Solana']
 };
 
 const theme: WormholeConnectPartialTheme = {
@@ -109,8 +109,8 @@ We strongly recommend that you configure your own custom RPC endpoints for each 
 ```ts
 const config: WormholeConnectConfig = {
   rpcs: {
-    solana: 'https://mainnet.helius-rpc.com/?api-key=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-    ethereum: 'https://rpc.ankr.com/eth/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    Solana: 'https://mainnet.helius-rpc.com/?api-key=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+    Ethereum: 'https://rpc.ankr.com/eth/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
   }
 }
 ```
@@ -181,7 +181,7 @@ You can provide a whitelist of networks to limit which ones Connect offers.
 
 ```ts
 const config: WormholeConnectConfig = {
-  networks: ['ethereum', 'solana']
+  networks: ['Ethereum', 'Solana']
 }
 ```
 
@@ -189,26 +189,26 @@ By default, it offers its full built-in list for both `mainnet` and `testnet`:
 
 | `mainnet` | `testnet` |
 | ---------- | ------------- |
-| ethereum | goerli, sepolia |
-| polygon | mumbai |
-| bsc | bsc |
-| avalanche | fuji |
-| celo | avalanche |
-| moonbeam | moonbasealpha |
-| solana | solana |
-| sui | sui |
-| aptos | aptos |
-| base | basegoerli, base_sepolia |
-| osmosis | osmosis |
-| evmos | evmos |
-| kujira | kujira |
-| injective | injective |
-| klaytn | klaytn |
-| arbitrum | arbitrumgoerli, arbitrum_sepolia |
-| optimism | optimismgoerli, optimism_sepolia |
-| scroll | scroll |
-| blast | blast |
-| xlayer | xlayer |
+| Ethereum | Sepolia |
+| Polygon | |
+| Bsc | Bsc |
+| Avalanche | Avalanche |
+| Celo | Celo |
+| Moonbeam | Moonbeam |
+| Solana | Solana |
+| Sui | Sui |
+| Aptos | Aptos |
+| Base | BaseSepolia |
+| Osmosis | Osmosis |
+| Evmos | Evmos |
+| Kujira | Kujira |
+| Injective | Injective |
+| Klaytn | Klaytn |
+| Arbitrum | ArbitrumSepolia |
+| Optimism | OptimismSepolia |
+| Scroll | Scroll |
+| Blast | Blast |
+| Xlayer | Xlayer |
 
 > Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 

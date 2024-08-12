@@ -10,15 +10,15 @@ for a full view of the supported config parameters.
 ```jsx
 import WormholeConnect, {
   WormholeConnectConfig,
-} from "@wormhole-foundation/wormhole-connect";
+} from '@wormhole-foundation/wormhole-connect';
 
 const config: WormholeConnectConfig = {
-  env: "mainnet",
-  networks: ["ethereum", "polygon", "solana"],
-  tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
+  env: 'mainnet',
+  networks: ['Ethereum', 'Polygon', 'Solana'],
+  tokens: ['ETH', 'WETH', 'MATIC', 'WMATIC'],
   rpcs: {
-    ethereum: "https://rpc.ankr.com/eth",
-    solana: "https://rpc.ankr.com/solana",
+    Ethereum: 'https://rpc.ankr.com/eth',
+    Solana: 'https://rpc.ankr.com/solana',
   },
 };
 
@@ -32,12 +32,12 @@ Create fully customized theme
 ```jsx
 import WormholeConnect, {
   WormholeConnectTheme,
-} from "@wormhole-foundation/wormhole-connect";
-import red from "@mui/material/colors/red";
-import lightblue from "@mui/material/colors/lightBlue";
-import grey from "@mui/material/colors/grey";
-import green from "@mui/material/colors/green";
-import orange from "@mui/material/colors/orange";
+} from '@wormhole-foundation/wormhole-connect';
+import red from '@mui/material/colors/red';
+import lightblue from '@mui/material/colors/lightBlue';
+import grey from '@mui/material/colors/grey';
+import green from '@mui/material/colors/green';
+import orange from '@mui/material/colors/orange';
 
 const customTheme: WormholeConnectTheme = {
   mode: 'dark',
@@ -45,10 +45,10 @@ const customTheme: WormholeConnectTheme = {
   secondary: grey,
   divider: 'rgba(255, 255, 255, 0.2)',
   background: {
-    default: "#232323",
+    default: '#232323',
   },
   text: {
-    primary: "#ffffff",
+    primary: '#ffffff',
     secondary: grey[500],
   },
   error: red,
@@ -57,34 +57,34 @@ const customTheme: WormholeConnectTheme = {
   warning: orange,
   button: {
     primary: 'rgba(255, 255, 255, 0.2)',
-    primaryText: "#ffffff",
+    primaryText: '#ffffff',
     disabled: 'rgba(255, 255, 255, 0.1)',
     disabledText: 'rgba(255, 255, 255, 0.4)',
     action: orange[300],
-    actionText: "#000000",
+    actionText: '#000000',
     hover: 'rgba(255, 255, 255, 0.7)',
   },
   options: {
-    hover: "#474747",
-    select: "#5b5b5b",
+    hover: '#474747',
+    select: '#5b5b5b',
   },
   card: {
-    background: "#333333",
-    secondary: "#474747",
-    elevation: "none",
+    background: '#333333',
+    secondary: '#474747',
+    elevation: 'none',
   },
   popover: {
-    background: "#1b2033",
+    background: '#1b2033',
     secondary: 'rgba(255, 255, 255, 0.5)',
-    elevation: "none",
+    elevation: 'none',
   },
   modal: {
-    background: "#474747",
+    background: '#474747',
   },
   font: {
     primary: 'Impact',
     header: 'Impact',
-  }
+  },
 };
 
 export default function App() {
@@ -94,80 +94,77 @@ export default function App() {
 
 ## More Configuration Options
 
-
 ### Whitelisting Tokens (`tokens`):
 
 You can provide a whitelist of tokens under `tokens`. By default, Connect will offer its full built-in list:
 
-| Mainnet | Testnet |
-| ----------- | -------- |
-| ETH | ETH, ETHsepolia |
-| WETH | WETH, WETHsepolia |
-| USDCeth | USDCeth |
-| WBTC | |
-| USDT | |
-| DAI | |
-| BUSD | |
-| MATIC | MATIC |
-| WMATIC | WMATIC |
-| USDCpolygon | |
-| BNB | BNB |
-| WBNB | WBNB |
-| USDCbnb | |
-| AVAX | AVAX |
-| WAVAX | WAVAX |
-| USDCavax | USDCavax |
-| FTM | FTM |
-| USDCfantom | USDCfantom |
-| WFTM | WFTM |
-| CELO | CELO |
-| GLMR | GLMR |
-| WGLMR | WGLMR |
-| SOL | WSOL |
-| PYTH | |
-| SUI | SUI |
-| USDCsol | |
-| APT | APT |
-| ETHarbitrum | ETHarbitrum, ETHarbitrum_sepolia |
-| WETHarbitrum | WETHarbitrum, WETHarbitrum_sepolia |
-| USDCarbitrum | USDCarbitrum|
-| ETHoptimism | ETHoptimism, ETHoptimism_sepolia |
-| WETHoptimism | WETHoptimism, WETHoptimism_sepolia |
-| USDCoptimism | USDCoptimism|
-| ETHbase | ETHbase, ETHbase_sepolia |
-| WETHbase | WETHbase, WETHbase_sepolia |
-| tBTC | tBTC |
-| tBTCpolygon | tBTCpolygon |
-| tBTCoptimism | tBTCoptimism |
-| tBTCarbitrum | tBTCarbitrum |
-| tBTCbase | tBTCbase |
-| tBTCsol | tBTCsol |
-| WETHpolygon | |
-| WETHbsc | |
-| wstETH | wstETH |
-| wstETHarbitrum | |
-| wstETHoptimism | |
-| wstETHpolygon | |
-| wstETHbase | |
+| Mainnet        | Testnet                            |
+| -------------- | ---------------------------------- |
+| ETH            | ETH, ETHsepolia                    |
+| WETH           | WETH, WETHsepolia                  |
+| USDCeth        | USDCeth                            |
+| WBTC           |                                    |
+| USDT           |                                    |
+| DAI            |                                    |
+| BUSD           |                                    |
+| MATIC          | MATIC                              |
+| WMATIC         | WMATIC                             |
+| USDCpolygon    |                                    |
+| BNB            | BNB                                |
+| WBNB           | WBNB                               |
+| USDCbnb        |                                    |
+| AVAX           | AVAX                               |
+| WAVAX          | WAVAX                              |
+| USDCavax       | USDCavax                           |
+| FTM            | FTM                                |
+| USDCfantom     | USDCfantom                         |
+| WFTM           | WFTM                               |
+| CELO           | CELO                               |
+| GLMR           | GLMR                               |
+| WGLMR          | WGLMR                              |
+| SOL            | WSOL                               |
+| PYTH           |                                    |
+| SUI            | SUI                                |
+| USDCsol        |                                    |
+| APT            | APT                                |
+| ETHarbitrum    | ETHarbitrum, ETHarbitrum_sepolia   |
+| WETHarbitrum   | WETHarbitrum, WETHarbitrum_sepolia |
+| USDCarbitrum   | USDCarbitrum                       |
+| ETHoptimism    | ETHoptimism, ETHoptimism_sepolia   |
+| WETHoptimism   | WETHoptimism, WETHoptimism_sepolia |
+| USDCoptimism   | USDCoptimism                       |
+| ETHbase        | ETHbase, ETHbase_sepolia           |
+| WETHbase       | WETHbase, WETHbase_sepolia         |
+| tBTC           | tBTC                               |
+| tBTCpolygon    | tBTCpolygon                        |
+| tBTCoptimism   | tBTCoptimism                       |
+| tBTCarbitrum   | tBTCarbitrum                       |
+| tBTCbase       | tBTCbase                           |
+| tBTCsol        | tBTCsol                            |
+| WETHpolygon    |                                    |
+| WETHbsc        |                                    |
+| wstETH         | wstETH                             |
+| wstETHarbitrum |                                    |
+| wstETHoptimism |                                    |
+| wstETHpolygon  |                                    |
+| wstETHbase     |                                    |
 
 ### Routes (`routes`)
 
 You can provide a whietlist of routes under `routes`. By default, Connect will offer its full built-in list:
 
-| Mainnet | Testnet |
-| -------- | ---------|
-| bridge | bridge |
-| relay | relay |
-| cctpManual | cctpManual |
-| cctpRelay | cctpRelay |
+| Mainnet       | Testnet       |
+| ------------- | ------------- |
+| bridge        | bridge        |
+| relay         | relay         |
+| cctpManual    | cctpManual    |
+| cctpRelay     | cctpRelay     |
 | cosmosGateway | cosmosGateway |
-| nttManual | nttManual |
-| nttRelay | nttRelay |
-| tbtc | tbtc |
-| ethBridge | |
-| wstETHBridge | |
-
-
+| nttManual     | nttManual     |
+| nttRelay      | nttRelay      |
+| tbtc          | tbtc          |
+| ethBridge     |               |
+| wstETHBridge  |               |
 
 ### Wallet Connect Project ID
 
@@ -181,12 +178,12 @@ By setting the `showHamburgerMenu` option to **false**, you can deactivate the h
 
 By setting the `showHamburgerMenu` option to **false**, you can use the `menu` array to add extra links.
 
-|property|description|
-|--|--|
-|`menu[].label`|link name to show up|
-|`menu[].href`|target url or urn|
-|`menu[].target`|anchor standard target, by default `_blank`|
-|`menu[].order`|order where the new item should be injected|
+| property        | description                                 |
+| --------------- | ------------------------------------------- |
+| `menu[].label`  | link name to show up                        |
+| `menu[].href`   | target url or urn                           |
+| `menu[].target` | anchor standard target, by default `_blank` |
+| `menu[].order`  | order where the new item should be injected |
 
 #### Sample configuration
 
@@ -212,18 +209,18 @@ If you have a CoinGecko API Plan, you can include the API key in the configurati
 
 Specify a set of extra networks to be displayed on the network selection modal, each of them linking to a different page/dApp/mobile app the user will be redirected to.
 
-|Property|description||
-|:--|:--|:--:|
-|`moreNetworks.href`| Default value for missing network hrefs | mandatory|
-|`moreNetworks.target`| Default value for missing network link targets | optional, defaults to `_self`
-|`moreNetworks.description` | Brief description that should be displayed as tooltip when the user hover an more network icon. Used as default for missing network descriptions | optional |
-|`moreNetworks.networks[].icon` | URL data encoded icon to display | mandatory|
-|`moreNetworks.networks[].href` | Network href to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting | optional |
-|`moreNetworks.networks[].label` | Display text | mandatory |
-|`moreNetworks.networks[].name` | Unique network key | optional, defaults to a snake_case version of the label |
-|`moreNetworks.networks[].description` | Description value | optional, defaults to `moreNetworks.description`|
-|`moreNetworks.networks[].target` | href target value | optional, defaults to `moreNetworks.target`|
-| `moreNetworks.networks[].showOpenInNewIcon` | Disable top right open in new icon | optional, defaults to **true** if target is `_blank` or **false** if target is `_self`|
+| Property                                    | description                                                                                                                                                           |                                                                                        |
+| :------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------: |
+| `moreNetworks.href`                         | Default value for missing network hrefs                                                                                                                               |                                       mandatory                                        |
+| `moreNetworks.target`                       | Default value for missing network link targets                                                                                                                        |                             optional, defaults to `_self`                              |
+| `moreNetworks.description`                  | Brief description that should be displayed as tooltip when the user hover an more network icon. Used as default for missing network descriptions                      |                                        optional                                        |
+| `moreNetworks.networks[].icon`              | URL data encoded icon to display                                                                                                                                      |                                       mandatory                                        |
+| `moreNetworks.networks[].href`              | Network href to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting |                                        optional                                        |
+| `moreNetworks.networks[].label`             | Display text                                                                                                                                                          |                                       mandatory                                        |
+| `moreNetworks.networks[].name`              | Unique network key                                                                                                                                                    |                optional, defaults to a snake_case version of the label                 |
+| `moreNetworks.networks[].description`       | Description value                                                                                                                                                     |                    optional, defaults to `moreNetworks.description`                    |
+| `moreNetworks.networks[].target`            | href target value                                                                                                                                                     |                      optional, defaults to `moreNetworks.target`                       |
+| `moreNetworks.networks[].showOpenInNewIcon` | Disable top right open in new icon                                                                                                                                    | optional, defaults to **true** if target is `_blank` or **false** if target is `_self` |
 
 ```json
 {
@@ -250,25 +247,21 @@ Specify a set of extra networks to be displayed on the network selection modal, 
 
 Show a special entry on the select tokens modal which redirects the user to a different page/dApp/mobile app.
 
-|Property|description||
-|:--|:--|:--:|
-|`moreTokens.label`| Display text | mandatory|
-|`moreTokens.href`| URL to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting | mandatory|
-|`moreTokens.target`| href target | optional, defaults to `_self`
+| Property            | description                                                                                                                                                  |                               |
+| :------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------: |
+| `moreTokens.label`  | Display text                                                                                                                                                 |           mandatory           |
+| `moreTokens.href`   | URL to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting |           mandatory           |
+| `moreTokens.target` | href target                                                                                                                                                  | optional, defaults to `_self` |
 
-
-### Explorer 
+### Explorer
 
 Enable explorer button to allow users to search for his transactions on a given explorer filtering by his wallet address
 
-|Property|description||
-|:--|:--|:--:|
-|`explorer.label`| Display text | optional, defaults to `Transactions`|
-|`explorer.href`| URL of the explorer, for instance https://wormholescan.com/. If present, the values `{:address}` is replaced with the connected wallet address| mandatory|
-|`explorer.target`| href target | optional, defaults to `_blank`
-
-
-
+| Property          | description                                                                                                                                    |                                      |
+| :---------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------: |
+| `explorer.label`  | Display text                                                                                                                                   | optional, defaults to `Transactions` |
+| `explorer.href`   | URL of the explorer, for instance https://wormholescan.com/. If present, the values `{:address}` is replaced with the connected wallet address |              mandatory               |
+| `explorer.target` | href target                                                                                                                                    |    optional, defaults to `_blank`    |
 
 ## Environment
 
@@ -287,7 +280,7 @@ This shows how to change which RPC provider Connect uses for a particular networ
 ```json
 {
   "rpcs": {
-    "solana": "https://rpc.ankr.com/solana/ee827255553bb0fa9e0aaeab27e988707e60ea06ae36be0658b778072e94979e"
+    "Solana": "https://rpc.ankr.com/solana/ee827255553bb0fa9e0aaeab27e988707e60ea06ae36be0658b778072e94979e"
   }
 }
 ```
@@ -307,15 +300,15 @@ for the type definition of `TokensConfig`.
 
 ```json
 {
-  "networks": ["solana", "ethereum"],
+  "networks": ["Solana", "Ethereum"],
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC", "BSKT"],
   "tokensConfig": {
     "BSKT": {
       "key": "BSKT",
       "symbol": "BSKT",
-      "nativeChain": "solana",
+      "nativeChain": "Solana",
       "tokenId": {
-        "chain": "solana",
+        "chain": "Solana",
         "address": "6gnCPhXtLnUD76HjQuSYPENLSZdG8RvDB1pTLM5aLSJA"
       },
       "coinGeckoId": "basket",
@@ -325,35 +318,35 @@ for the type definition of `TokensConfig`.
         "default": 5
       },
       "foreignAssets": {
-        "ethereum": {
+        "Ethereum": {
           "address": "0xbC0899E527007f1B8Ced694508FCb7a2b9a46F53",
           "decimals": 5
         },
-        "bsc": {
+        "Bsc": {
           "address": "0xaF42A5df3C1C1427DA8FC0326bD7b030A9367e78",
           "decimals": 5
         },
-        "polygon": {
+        "Polygon": {
           "address": "0x9a6a40CdF21a0AF417F1b815223FD92c85636c58",
           "decimals": 5
         },
-        "avalanche": {
+        "Avalanche": {
           "address": "0x6Ac048ae05E7E015accA2aA7Abd0Ec013e8E3a59",
           "decimals": 5
         },
-        "sui": {
+        "Sui": {
           "address": "0xd4d52a6bf452401c0c70a1d19ff6cec2933f22a548eae552f3e514f64f61703a::coin::COIN",
           "decimals": 5
         },
-        "arbitrum": {
+        "Arbitrum": {
           "address": "0xa3210cd727fE6DAf8386af5623ba51A367E46263",
           "decimals": 5
         },
-        "base": {
+        "Base": {
           "address": "0x7CCDbA6198db389cF37b714FD6573b73F3670236",
           "decimals": 5
         },
-        "celo": {
+        "Celo": {
           "address": "0x3fc50bc066aE2ee280876EeefADfdAbF6cA02894",
           "decimals": 5
         }

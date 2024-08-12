@@ -6,8 +6,8 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import config from 'config';
 
-import { ChainName, Context, ChainResourceMap } from 'sdklegacy';
-import { Network } from '@wormhole-foundation/sdk';
+import { Context, ChainResourceMap } from 'sdklegacy';
+import { Chain, Network } from '@wormhole-foundation/sdk';
 import {
   CosmwasmUnsignedTransaction,
   CosmwasmChains,
@@ -16,9 +16,9 @@ import {
 const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>
     Object.keys(map).reduce((acc, k) => {
-      const conf = config.chains[k as ChainName];
+      const conf = config.chains[k as Chain];
       if (conf?.chainId && conf?.context === Context.COSMOS) {
-        acc[conf.chainId] = map[k as ChainName]!;
+        acc[conf.chainId] = map[k as Chain]!;
       }
       return acc;
     }, {} as Record<string, string>);

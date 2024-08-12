@@ -1,6 +1,5 @@
 import { LinearProgress, linearProgressClasses } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import type { ChainName } from 'sdklegacy';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
@@ -9,6 +8,7 @@ import config from 'config';
 import { getCurrentBlock } from 'utils/sdk';
 import { RoutesConfig } from 'config/routes';
 import { RootState } from 'store';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }: any) => ({
   borderRadius: 5,
@@ -35,7 +35,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  chain: ChainName;
+  chain: Chain;
   blockHeight: number;
 };
 

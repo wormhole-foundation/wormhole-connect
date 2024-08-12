@@ -6,23 +6,20 @@ import {
   setDestToken,
   setSupportedDestTokens,
   setAllSupportedDestTokens,
-  //getNativeVersionOfToken,
 } from 'store/transferInput';
 
 import type { Route, TokenConfig } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 
-//import { isPorticoRoute } from 'routes/porticoBridge/utils';
-//import { ETHBridge } from 'routes/porticoBridge/ethBridge';
-//import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
 import RouteOperator from 'routes/operator';
+
+import { Chain } from '@wormhole-foundation/sdk';
 
 //import { getWrappedToken } from 'utils';
 
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   route: Route | undefined;
 };
 

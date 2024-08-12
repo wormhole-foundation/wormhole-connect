@@ -10,16 +10,16 @@ const context = new WormholeContext('MAINNET');
 // interact easily with any chain!
 // supports EVM, Solana, Terra, etc
 const tokenId = {
-  chain: 'ethereum',
+  chain: 'Ethereum',
   address: '0x123...',
 };
 
 const receipt = context.send(
   tokenId,
   '10', // amount
-  'ethereum', // sending chain
+  'Ethereum', // sending chain
   '0x789...', // sender address
-  'moonbeam', // destination chain
+  'Moonbeam', // destination chain
   '0x789...', // recipient address on destination chain
 );
 ```

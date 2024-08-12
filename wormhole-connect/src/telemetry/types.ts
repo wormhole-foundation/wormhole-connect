@@ -1,4 +1,4 @@
-import { ChainId, ChainName } from 'sdklegacy';
+import { Chain } from '@wormhole-foundation/sdk';
 import { Route } from 'config/types';
 import { TransferWallet } from 'utils/wallet';
 
@@ -10,8 +10,8 @@ export interface TransferDetails {
   route: Route;
   fromToken: TokenDetails;
   toToken: TokenDetails;
-  fromChain: ChainName | ChainId;
-  toChain: ChainName | ChainId;
+  fromChain: Chain;
+  toChain: Chain;
 }
 
 export type TransferEventType =
@@ -77,7 +77,7 @@ export interface ConnectWalletEvent {
   type: 'wallet.connect';
   details: {
     side: TransferWallet;
-    chain: ChainName;
+    chain: Chain;
     wallet: string;
   };
 }

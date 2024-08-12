@@ -1,16 +1,14 @@
 import { isEqualCaseInsensitive } from 'utils';
 import { BridgeDefaults, NttGroups, TokensConfig, ChainsConfig } from './types';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
 };
 
-export const populateRpcField = (
-  chainName: string,
-  rpc: string | undefined,
-) => {
+export const populateRpcField = (chain: Chain, rpc: string | undefined) => {
   if (!rpc) return {};
-  return { [chainName]: rpc };
+  return { [chain]: rpc };
 };
 
 /*

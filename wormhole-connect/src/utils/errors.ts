@@ -7,7 +7,8 @@ import {
   ERR_UNKNOWN,
   ERR_USER_REJECTED,
 } from 'telemetry/types';
-import { ChainName, InsufficientFundsForGasError } from 'sdklegacy';
+import { InsufficientFundsForGasError } from 'sdklegacy';
+import { Chain } from '@wormhole-foundation/sdk';
 //import { SWAP_ERROR } from 'routes/porticoBridge/consts';
 
 // TODO SDKV2
@@ -16,7 +17,7 @@ export const INSUFFICIENT_ALLOWANCE = 'Insufficient token allowance';
 
 export function interpretTransferError(
   e: any,
-  chain: ChainName,
+  chain: Chain,
 ): [string, TransferError] {
   // Fall-back values
   let uiErrorMessage = 'Error with transfer, please try again';

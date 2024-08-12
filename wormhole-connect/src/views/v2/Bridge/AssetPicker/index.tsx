@@ -18,10 +18,10 @@ import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
 
 import type { ChainConfig, TokenConfig } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 import type { WalletData } from 'store/wallet';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -50,13 +50,13 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  chain?: ChainName | undefined;
+  chain?: Chain | undefined;
   chainList?: Array<ChainConfig> | undefined;
   token?: string;
   tokenList?: Array<TokenConfig> | undefined;
   isFetching?: boolean;
   setToken: (value: string) => void;
-  setChain: (value: ChainName) => void;
+  setChain: (value: Chain) => void;
   wallet: WalletData;
 };
 

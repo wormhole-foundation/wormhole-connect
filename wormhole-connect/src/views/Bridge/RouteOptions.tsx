@@ -12,7 +12,6 @@ import { calculateUSDPrice, getDisplayName } from 'utils';
 import config from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
-import type { ChainName } from 'sdklegacy';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
@@ -21,7 +20,7 @@ import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
-import { finality, chainIdToChain } from '@wormhole-foundation/sdk';
+import { finality, Chain } from '@wormhole-foundation/sdk';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -174,12 +173,11 @@ function Tag(props: TagProps) {
   );
 }
 
-const getEstimatedTime = (chain?: ChainName) => {
+const getEstimatedTime = (chain?: Chain) => {
   if (!chain) return undefined;
-  const chainName = chainIdToChain(config.wh.toChainId(chain));
-  const chainFinality = finality.finalityThreshold.get(chainName);
+  const chainFinality = finality.finalityThreshold.get(chain);
   if (typeof chainFinality === 'undefined') return undefined;
-  const blockTime = finality.blockTime.get(chainName);
+  const blockTime = finality.blockTime.get(chain);
   if (blockTime === undefined) return undefined;
   return chainFinality === 0
     ? 'Instantly'
@@ -274,7 +272,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const isAutomatic = useMemo(
     () =>
       route.AUTOMATIC_DEPOSIT ||
-      (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
+      (toChain && (isGatewayChain(toChain) || toChain === 'Sei')) ||
       isPorticoRoute(route.TYPE),
     [route, toChain],
   );

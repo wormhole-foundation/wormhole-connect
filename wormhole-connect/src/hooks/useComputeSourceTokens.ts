@@ -5,14 +5,15 @@ import { useDispatch } from 'react-redux';
 import { setToken, setSupportedSourceTokens } from 'store/transferInput';
 
 import type { Route, TokenConfig } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 
 import RouteOperator from 'routes/operator';
 
+import { Chain } from '@wormhole-foundation/sdk';
+
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   destToken: string;
   route: Route | undefined;
 };

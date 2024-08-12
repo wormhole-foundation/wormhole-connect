@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
 
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { getRoute } from 'routes/mappings';
 import { getTokenDecimals } from 'utils';
-import { toChainId } from 'utils/sdk';
 import { toDecimals } from 'utils/balance';
 
 import type { Route } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   destToken: string;
   route: Route | undefined;
   amount: string;
@@ -113,7 +111,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
           if (quote.relayFee) {
             const { token, amount } = quote.relayFee;
             const feeToken = config.sdkConverter.toTokenIdV1(token);
-            const decimals = getTokenDecimals(toChainId(sourceChain), feeToken);
+            const decimals = getTokenDecimals(sourceChain, feeToken);
 
             setRelayerFee(
               Number.parseFloat(toDecimals(amount.amount, decimals, 6)),

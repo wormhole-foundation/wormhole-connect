@@ -89,7 +89,7 @@ const DestinationQueued = () => {
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
         await registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
-      const signer = await SDKv2Signer.fromChainV1(
+      const signer = await SDKv2Signer.fromChain(
         txData.toChain,
         wallet.address,
         {},

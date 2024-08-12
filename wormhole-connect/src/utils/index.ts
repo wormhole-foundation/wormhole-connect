@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { isHexString } from 'ethers';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
-import { TokenId, ChainName, ChainId, Context } from 'sdklegacy';
+import { TokenId, Context } from 'sdklegacy';
 
 import config from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain } from 'utils/sdk';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
+import { Chain } from '@wormhole-foundation/sdk';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -36,10 +37,10 @@ export function trimTxHash(txHash: string): string {
   return `${start}...${end}`;
 }
 
-export function displayAddress(chain: ChainName, address: string): string {
+export function displayAddress(chain: Chain, address: string): string {
   if (isEvmChain(chain)) {
     return trimAddress(convertAddress(address));
-  } else if (chain === 'solana') {
+  } else if (chain === 'Solana') {
     return trimAddress(address, 4);
   }
 
@@ -65,8 +66,8 @@ export function getChainByChainId(
   return config.chainsArr.filter((c) => chainId === c.chainId)[0];
 }
 
-export function getChainConfig(chain: ChainName | ChainId): ChainConfig {
-  const chainConfig = config.chains[config.wh.toChainName(chain)];
+export function getChainConfig(chain: Chain): ChainConfig {
+  const chainConfig = config.chains[chain];
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
   return chainConfig;
 }
@@ -106,19 +107,18 @@ export function getDisplayName(token: TokenConfig) {
   return token.displayName || token.symbol;
 }
 
-export function getGasToken(chain: ChainName | ChainId): TokenConfig {
+export function getGasToken(chain: Chain): TokenConfig {
   const gasToken = config.tokens[getChainConfig(chain).gasToken];
   if (!gasToken) throw new Error(`gas token not found for ${chain}`);
   return gasToken;
 }
 
 export function getTokenDecimals(
-  chain: ChainId,
+  chain: Chain,
   tokenId: TokenId | 'native' = 'native',
 ): number {
-  const chainName = config.wh.toChainName(chain);
-  const chainConfig = config.chains[chainName];
-  if (!chainConfig) throw new Error(`chain config for ${chainName} not found`);
+  const chainConfig = config.chains[chain];
+  if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
 
   if (tokenId === 'native') {
     return chainConfig.nativeTokenDecimals;
@@ -174,10 +174,10 @@ export function hexPrefix(hex: string) {
   return hex.startsWith('0x') ? hex : `0x${hex}`;
 }
 
-export function isValidTxId(chain: string, tx: string) {
-  if (chain === 'sui') {
+export function isValidTxId(chain: Chain, tx: string) {
+  if (chain === 'Sui') {
     return isValidTransactionDigest(tx);
-  } else if (isGatewayChain(chain as any) || chain === 'sei') {
+  } else if (isGatewayChain(chain as any) || chain === 'Sei') {
     return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;
@@ -229,10 +229,7 @@ export function isEqualCaseInsensitive(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-export const sortTokens = (
-  tokens: TokenConfig[],
-  chain: ChainName | ChainId,
-) => {
+export const sortTokens = (tokens: TokenConfig[], chain: Chain) => {
   const gasToken = getGasToken(chain);
   const wrappedGasToken = getWrappedToken(gasToken);
   return [...tokens].sort((a, b) => {

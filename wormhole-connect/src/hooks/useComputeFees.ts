@@ -1,21 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
+import { Chain, finality } from '@wormhole-foundation/sdk-base';
 
 import config from 'config';
 import RouteOperator from 'routes/operator';
 
 import type { Route } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 import type { RootState } from 'store';
 import { calculateUSDPrice } from 'utils';
 import { toFixedDecimals } from 'utils/balance';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   destToken: string;
   route: Route | undefined;
   amount: string;
@@ -56,19 +55,18 @@ const useComputeFees = (props: Props): returnProps => {
 
   const [isFetching, setIsFetching] = useState(false);
 
-  const getEstimatedTime = useCallback((chain?: ChainName) => {
+  const getEstimatedTime = useCallback((chain?: Chain) => {
     if (!chain) {
       return undefined;
     }
 
-    const chainName = chainIdToChain(config.wh.toChainId(chain));
-    const chainFinality = finality.finalityThreshold.get(chainName);
+    const chainFinality = finality.finalityThreshold.get(chain);
 
     if (typeof chainFinality === 'undefined') {
       return undefined;
     }
 
-    const blockTime = finality.blockTime.get(chainName);
+    const blockTime = finality.blockTime.get(chain);
 
     if (typeof blockTime === 'undefined') {
       return undefined;
