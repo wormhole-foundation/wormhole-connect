@@ -51,6 +51,7 @@ const TransactionDetails = () => {
   const { prices: tokenPrices, isFetching: isFetchingTokenPrices } =
     useFetchTokenPricesV2();
 
+  // Render details for the sent amount
   const sentAmount = useMemo(() => {
     if (!tokenKey || !fromChain) {
       return <></>;
@@ -87,6 +88,7 @@ const TransactionDetails = () => {
     );
   }, [amount, fromChain, isFetchingTokenPrices, sender, tokenKey, tokenPrices]);
 
+  // Render details for the received amount
   const receivedAmount = useMemo(() => {
     if (!receivedTokenKey || !toChain) {
       return <></>;
@@ -130,6 +132,7 @@ const TransactionDetails = () => {
     tokenPrices,
   ]);
 
+  // Vertical line that connects sender and receiver token icons
   const verticalConnector = useMemo(
     () => (
       <Stack

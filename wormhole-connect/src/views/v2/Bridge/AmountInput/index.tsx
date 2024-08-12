@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
@@ -69,6 +69,10 @@ const AmountInput = (props: Props) => {
   } = useSelector((state: RootState) => state.transferInput);
 
   const [tokenAmount, setTokenAmount] = useState(amount);
+  const [validationResult, setValidationResult] = useState('');
+
+  // Debouncing validation to prevent false-positive results while user is still typing
+  const [debouncedValidationResult] = useDebounce(validationResult, 500);
 
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
@@ -107,6 +111,26 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, balances, tokenBalance, sendingWallet.address]);
 
+  useEffect(() => {
+    // Validation for the amount value
+    const amountValidation = validateAmount(
+      tokenAmount,
+      tokenBalance,
+      getMaxAmt(route),
+      isCctp(sourceToken, destToken, sourceChain, destChain),
+    );
+
+    // Validation result is truty when there are errors
+    if (amountValidation) {
+      // Reset the amount value when there are errors
+      dispatch(setAmount(''));
+    } else {
+      dispatch(setAmount(tokenAmount));
+    }
+
+    setValidationResult(amountValidation);
+  }, [tokenAmount, validationResult]);
+
   const maxButton = useMemo(() => {
     return (
       <Button
@@ -116,7 +140,6 @@ const AmountInput = (props: Props) => {
           if (tokenBalance) {
             const trimmedTokenBalance = toFixedDecimals(`${tokenBalance}`, 6);
             setTokenAmount(trimmedTokenBalance);
-            dispatch(setAmount(trimmedTokenBalance));
           }
         }}
       >
@@ -127,24 +150,17 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
-  const validationResult = useMemo(
-    () =>
-      validateAmount(
-        amount,
-        tokenBalance,
-        getMaxAmt(route),
-        isCctp(sourceToken, destToken, sourceChain, destChain),
-      ),
-    [sourceToken, destToken, sourceChain, destChain, amount, tokenBalance],
+  // Update token amount in both local and Redux states
+  const onAmountChange = useCallback(
+    (e: any) => {
+      const { value } = e.target;
+
+      if (value !== tokenAmount) {
+        setTokenAmount(value);
+      }
+    },
+    [tokenAmount],
   );
-
-  // Debouncing validation to prevent false-positive results while user is still typing
-  const [debouncedValidationResult] = useDebounce(validationResult, 500);
-
-  const onAmountChange = useCallback((e: any) => {
-    setTokenAmount(e.target.value);
-    dispatch(setAmount(e.target.value));
-  }, []);
 
   return (
     <div className={classes.amountContainer}>
