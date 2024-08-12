@@ -22,7 +22,7 @@ type Props = {
 };
 
 type returnProps = {
-  eta: Number;
+  eta: number;
   isFetching: boolean;
   receiveAmount: string;
   receiveAmountError: string;

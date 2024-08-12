@@ -397,7 +397,7 @@ const Redeem = () => {
         <Button
           className={classes.actionButton}
           disabled={isClaimInProgress || !isTxAttested}
-          variant={!!claimError ? 'error' : 'primary'}
+          variant={claimError ? 'error' : 'primary'}
           onClick={handleManualClaim}
         >
           {isClaimInProgress || !isTxAttested ? (
