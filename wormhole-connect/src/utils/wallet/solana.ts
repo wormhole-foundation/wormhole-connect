@@ -18,6 +18,7 @@ import {
   ConfirmOptions,
   Connection,
   RpcResponseAndContext,
+  SimulatedTransactionResponse,
   SignatureResult,
   Transaction,
 } from '@solana/web3.js';
@@ -209,29 +210,52 @@ async function createPriorityFeeInstructions(
     transaction.message.recentBlockhash = blockhash;
   }
 
-  const response = await (isVersionedTransaction(transaction)
-    ? connection.simulateTransaction(transaction, {
-        commitment,
-        replaceRecentBlockhash: true,
-      })
-    : connection.simulateTransaction(transaction));
-  if (response.value.err) {
-    throw new Error(
-      `Simulation failed: ${JSON.stringify(response.value.err)}\nLogs:\n${(
-        response.value.logs || []
-      ).join('\n  ')}`,
-    );
+  let unitsUsed = 200_000;
+  let simulationAttempts = 0;
+
+  simulationLoop: while (simulationAttempts < 5) {
+    simulationAttempts++;
+    const response = await (isVersionedTransaction(transaction)
+      ? connection.simulateTransaction(transaction, {
+          commitment,
+          replaceRecentBlockhash: true,
+        })
+      : connection.simulateTransaction(transaction));
+
+    if (response.value.err) {
+      // In some cases which aren't deterministic, like a slippage error, we can retry the
+      // simulation a few times to get a successful response.
+      if (response.value.logs) {
+        for (const line of response.value.logs) {
+          if (line.includes('SlippageToleranceExceeded')) {
+            console.info('Slippage failure during simulation. Trying again.');
+            continue simulationLoop;
+          }
+        }
+      }
+
+      // Logs didn't match an error case we would retry; throw
+      throw new Error(
+        `Simulation failed: ${JSON.stringify(response.value.err)}\nLogs:\n${(
+          response.value.logs || []
+        ).join('\n  ')}`,
+      );
+    } else {
+      // Success case
+      unitsUsed = response.value.unitsConsumed;
+      break;
+    }
   }
+
   const instructions: TransactionInstruction[] = [];
-  if (response.value?.unitsConsumed) {
-    instructions.push(
-      ComputeBudgetProgram.setComputeUnitLimit({
-        // Set compute budget to 120% of the units used in the simulated transaction
-        units: response.value.unitsConsumed * 1.2,
-      }),
-    );
-  }
-  const priorityFee = await determinePriorityFee(connection, transaction, 0.75);
+  instructions.push(
+    ComputeBudgetProgram.setComputeUnitLimit({
+      // Set compute budget to 120% of the units used in the simulated transaction
+      units: unitsUsed * 1.2,
+    }),
+  );
+
+  const priorityFee = await determinePriorityFee(connection, transaction, 0.95);
   instructions.push(
     ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }),
   );
