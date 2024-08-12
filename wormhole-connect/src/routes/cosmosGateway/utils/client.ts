@@ -31,8 +31,8 @@ export async function getTmClient(
   // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
   let tmClient: TendermintClient;
   const tm37Client = await Tendermint37Client.connect(rpc);
-  const version = (await tm37Client.status()).nodeInfo.version;
-  if (version.startsWith('0.37.')) {
+  const version = (await tm37Client.status()).nodeInfo.version.split('.');
+  if (parseInt(version[1], 10) >= 37) {
     tmClient = tm37Client;
   } else {
     tm37Client.disconnect();
