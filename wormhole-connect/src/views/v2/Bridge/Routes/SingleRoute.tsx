@@ -17,6 +17,7 @@ import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import RouteOperator from 'routes/operator';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
+import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { Route } from 'config/types';
 import type { RouteData } from 'config/routes';
@@ -135,11 +136,8 @@ const SingleRoute = (props: Props) => {
     );
   }, [destChain, isFetchingQuote, props.destinationGasDrop]);
 
-  const timeToDestination = useMemo(() => {
-    const etaMins = Math.floor((estimatedTime as number) / 60000);
-    const etaSecs = (estimatedTime as number) % 60000;
-
-    return (
+  const timeToDestination = useMemo(
+    () => (
       <>
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Time to destination
@@ -148,11 +146,14 @@ const SingleRoute = (props: Props) => {
         {isFetchingQuote ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>{`${etaMins}m ${etaSecs}s`}</Typography>
+          <Typography fontSize={14}>
+            {millisToMinutesAndSeconds(estimatedTime)}
+          </Typography>
         )}
       </>
-    );
-  }, [estimatedTime, isFetchingQuote]);
+    ),
+    [estimatedTime, isFetchingQuote],
+  );
 
   const showWarning = useMemo(() => {
     if (!props.config.route) {

@@ -15,6 +15,7 @@ import { WORMSCAN } from 'config/constants';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import TokenIcon from 'icons/TokenIcons';
 import { calculateUSDPrice, trimAddress, trimTxHash } from 'utils';
+import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { RootState } from 'store';
 
@@ -228,9 +229,7 @@ const TransactionDetails = () => {
     let etaDisplay: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
-      const etaMins = Math.floor(eta / (1000 * 60));
-      const etaSecs = eta % (1000 * 60);
-      etaDisplay = `${etaMins}m ${etaSecs}s`;
+      etaDisplay = millisToMinutesAndSeconds(eta);
     }
 
     return (

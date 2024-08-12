@@ -28,6 +28,10 @@ import { displayAddress } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
 import {
+  millisToMinutesAndSeconds,
+  minutesAndSecondsWithPadding,
+} from 'utils/transferValidation';
+import {
   TransferWallet,
   registerWalletSigner,
   switchChain,
@@ -204,19 +208,13 @@ const Redeem = () => {
     }
 
     const counter = isRunning
-      ? `${minutes < 10 ? `0${minutes}` : minutes}:${
-          seconds < 10 ? `0${seconds}` : seconds
-        }`
+      ? minutesAndSecondsWithPadding(minutes, seconds)
       : null;
 
     let etaElement: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
-      const etaMins = Math.floor(eta / (1000 * 60));
-      const etaSecs = eta % (1000 * 60);
-      etaElement = `${etaMins < 10 ? `0${etaMins}` : etaMins}:${
-        etaSecs < 10 ? `0${etaSecs}` : etaSecs
-      }`;
+      etaElement = millisToMinutesAndSeconds(eta);
     }
 
     return (
