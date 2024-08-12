@@ -224,13 +224,13 @@ const TransactionDetails = () => {
     );
   }, [sendTx]);
 
-  const etaDisplay = useMemo(() => {
-    let etaMarkup: string | ReactNode = <CircularProgress size={14} />;
+  const timeToDestination = useMemo(() => {
+    let etaDisplay: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
       const etaMins = Math.floor(eta / (1000 * 60));
       const etaSecs = eta % (1000 * 60);
-      etaMarkup = `${etaMins}m ${etaSecs}s`;
+      etaDisplay = `${etaMins}m ${etaSecs}s`;
     }
 
     return (
@@ -241,7 +241,7 @@ const TransactionDetails = () => {
         {!eta ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>{etaMarkup}</Typography>
+          <Typography fontSize={14}>{etaDisplay}</Typography>
         )}
       </Stack>
     );
@@ -266,7 +266,7 @@ const TransactionDetails = () => {
           >
             {bridgeFee}
             {destinationGas}
-            {etaDisplay}
+            {timeToDestination}
           </Stack>
         </CardContent>
         <Divider flexItem sx={{ margin: '0 16px', opacity: '50%' }} />

@@ -121,8 +121,10 @@ const Redeem = () => {
     onExpire: () => setEtaExpired(true),
   });
 
+  // Side-effect to start the ETA timer when we have the ETA and tx timestamp
   useEffect(() => {
-    if (!txTimestamp || !eta) {
+    // Only start when we have the required values and if the timer hasn't been started yet
+    if (!txTimestamp || !eta || isRunning) {
       return;
     }
 
@@ -142,15 +144,6 @@ const Redeem = () => {
 
     return route.AUTOMATIC_DEPOSIT;
   }, [routeName]);
-
-  // Overall loading indicator until the transaction is completed
-  // const isLoading = useMemo(() => {
-  //   if (isAutomaticRoute) {
-  //     return !isTxComplete;
-  //   }
-
-  //   return !isTxComplete && isClaimInProgress;
-  // }, [isAutomaticRoute, isClaimInProgress, isTxComplete]);
 
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
@@ -198,6 +191,7 @@ const Redeem = () => {
     toChain,
   ]);
 
+  // Displays the ETA value and the countdown within the ETA circle
   const etaDisplay = useMemo(() => {
     if (etaExpired) {
       return (
@@ -235,6 +229,7 @@ const Redeem = () => {
     );
   }, [eta, etaExpired, isRunning, minutes, seconds]);
 
+  // Circular progress indicator component for ETA countdown
   const etaCircle = useMemo(() => {
     return (
       <>
@@ -274,6 +269,7 @@ const Redeem = () => {
     );
   }, [etaDisplay, isTxComplete]);
 
+  // Checks whether the receiving wallet is currently connected
   const isConnectedToReceivingWallet = useMemo(() => {
     if (!recipient) {
       return false;
@@ -290,6 +286,7 @@ const Redeem = () => {
     );
   }, [receivingWallet, recipient]);
 
+  // Callback for claim action in Manual route transactions
   const handleManualClaim = async () => {
     setIsClaimInProgress(true);
     setClaimError('');
