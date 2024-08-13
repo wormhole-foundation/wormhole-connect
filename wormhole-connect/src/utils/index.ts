@@ -30,8 +30,8 @@ export function trimAddress(address: string, max = 6): string {
   );
 }
 
-export function trimTxHash(txHash: string, max = 6): string {
-  const start = txHash.slice(0, max);
+export function trimTxHash(txHash: string): string {
+  const start = txHash.slice(0, 6);
   const end = txHash.slice(txHash.length - 4, txHash.length);
   return `${start}...${end}`;
 }

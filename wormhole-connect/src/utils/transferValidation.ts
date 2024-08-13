@@ -355,9 +355,9 @@ export const minutesAndSecondsWithPadding = (
   minutes: number,
   seconds: number,
 ) => {
-  const minutesDisp = `${minutes < 10 ? `0${minutes}` : minutes}`;
-  const secondsDisp = `${seconds < 10 ? `0${seconds}` : seconds}`;
-  return `${minutesDisp}:${secondsDisp}`;
+  const minsPadded = minutes.toString().padStart(2, '0');
+  const secsPadded = seconds.toString().padStart(2, '0');
+  return `${minsPadded}:${secsPadded}`;
 };
 
 export const millisToMinutesAndSeconds = (millis: number) => {
