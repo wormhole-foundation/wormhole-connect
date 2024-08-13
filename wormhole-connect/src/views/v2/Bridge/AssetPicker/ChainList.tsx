@@ -41,6 +41,13 @@ const useStyles = makeStyles()((theme) => ({
       border: '1px solid #C1BBF6',
     },
   },
+  chainItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
 }));
 
 type Props = {
@@ -127,12 +134,7 @@ const ChainList = (props: Props) => {
             key={chain.key}
             dense
             disabled={isDisabledChain(chain.key, props.wallet)}
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              paddingLeft: 0,
-              marginBottom: 1,
-            }}
+            className={classes.chainItem}
             onClick={() => {
               props.onChainSelect(chain.key);
               props.setShowSearch(false);
