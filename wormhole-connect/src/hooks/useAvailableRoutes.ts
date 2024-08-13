@@ -45,7 +45,7 @@ const useAvailableRoutes = (): void => {
             toChain,
           );
         } catch (e) {
-          console.log('Error when checking route is supported:', e, r);
+          console.error('Error when checking route is supported:', e, r);
         }
 
         // Check availability of a route only when it is supported
@@ -62,7 +62,7 @@ const useAvailableRoutes = (): void => {
               { nativeGas: toNativeToken },
             );
           } catch (e) {
-            console.log('Error when checking route is available:', e, r);
+            console.error('Error when checking route is available:', e, r);
           }
         }
 

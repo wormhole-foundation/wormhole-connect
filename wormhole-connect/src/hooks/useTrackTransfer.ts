@@ -26,9 +26,6 @@ const useTrackTransfer = (): void => {
       let stateChanged = false;
 
       while (isActive && !isCompleted(receipt) && !stateChanged) {
-        console.log(`Current state: ${receipt.state}`);
-        console.log(receipt);
-
         try {
           // We need to consume all of the values the track generator yields in case any of them
           // update the receipt state.
@@ -46,8 +43,6 @@ const useTrackTransfer = (): void => {
 
             if (currentReceipt.state !== receipt.state) {
               routeContext.setReceipt(currentReceipt);
-
-              console.log('Updated receipt:', currentReceipt.state);
 
               if (isCompleted(currentReceipt)) {
                 dispatch(setTransferComplete(true));
