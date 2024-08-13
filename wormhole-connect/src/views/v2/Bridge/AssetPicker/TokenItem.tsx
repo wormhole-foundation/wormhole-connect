@@ -1,13 +1,16 @@
+import React, { memo } from 'react';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import CircularProgress from '@mui/material/CircularProgress';
-import React, { memo } from 'react';
-import { makeStyles } from 'tss-react/mui';
-import TokenIcon from 'icons/TokenIcons';
 import Typography from '@mui/material/Typography';
-import { TokenConfig } from 'config/types';
-import config from 'config';
+import Link from '@mui/material/Link';
 import { useTheme } from '@mui/material';
+import OpenInNew from '@mui/icons-material/OpenInNew';
+import { makeStyles } from 'tss-react/mui';
+
+import TokenIcon from 'icons/TokenIcons';
+import { ChainConfig, TokenConfig } from 'config/types';
+import config from 'config';
 
 const useStyles = makeStyles()(() => ({
   tokenListItem: {
@@ -20,6 +23,11 @@ const useStyles = makeStyles()(() => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  addressLink: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    marginLeft: 4,
   },
 }));
 
@@ -35,8 +43,13 @@ function TokenItem(props: TokenItemProps) {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const nativeChainConfig = config.chains[props.token.nativeChain];
-  const nativeChain = nativeChainConfig?.displayName || '';
+  const chainConfig: ChainConfig | undefined =
+    config.chains[props.token.tokenId?.chain ?? ''];
+  const address = props.token.tokenId?.address;
+  const explorerURL = `${chainConfig?.explorerUrl}address/${address}`;
+  const addressDisplay = `${address?.slice(0, 4)}...${address?.slice(-4)}`;
+
+  const displayName = props.token.displayName ?? props.token.symbol;
 
   return (
     <ListItemButton
@@ -52,7 +65,19 @@ function TokenItem(props: TokenItemProps) {
         <div>
           <Typography fontSize={16}>{props.token.symbol}</Typography>
           <Typography fontSize={10} color={theme.palette.text.secondary}>
-            {nativeChain}
+            {displayName}
+            {!!address && (
+              <Link
+                onClick={(e) => e.stopPropagation()}
+                className={classes.addressLink}
+                href={explorerURL}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                {addressDisplay}
+                <OpenInNew sx={{ height: '8px', width: '12px' }} />
+              </Link>
+            )}
           </Typography>
         </div>
       </div>
