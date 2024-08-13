@@ -165,8 +165,8 @@ const AssetPicker = (props: Props) => {
           showSearch={showChainSearch}
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
-          onClick={(key: string) => {
-            props.setChain(key as ChainName);
+          onChainSelect={(key) => {
+            props.setChain(key);
           }}
         />
         {!showChainSearch && chainConfig && (
@@ -176,7 +176,7 @@ const AssetPicker = (props: Props) => {
             selectedChainConfig={chainConfig}
             selectedToken={props.token}
             wallet={props.wallet}
-            onClick={(key: string) => {
+            onSelectToken={(key: string) => {
               props.setToken(key);
               popupState.close();
             }}
