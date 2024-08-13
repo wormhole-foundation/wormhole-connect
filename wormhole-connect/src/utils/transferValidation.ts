@@ -161,7 +161,11 @@ export const validateWallet = async (
   if (wallet.currentAddress && wallet.currentAddress !== wallet.address)
     return 'Switch to connected wallet';
   const acceptedChains = walletAcceptedChains(wallet.type);
-  if (chain && !acceptedChains.includes(chain))
+  if (
+    chain &&
+    !acceptedChains.includes(chain) &&
+    wallet.name !== MANUAL_WALLET_NAME
+  )
     return `Connected wallet is not supported for ${chain}`;
   return '';
 };
