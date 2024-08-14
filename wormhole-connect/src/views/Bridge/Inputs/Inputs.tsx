@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import type { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { TransferSide } from 'config/types';
@@ -21,6 +20,7 @@ import Input from './Input';
 import Select from './Select';
 import Price from 'components/Price';
 import { getUSDFormat } from 'utils';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -114,7 +114,7 @@ type Props = {
   walletValidations: string[];
   inputValidations: string[];
   warning?: React.ReactNode | null;
-  chain: ChainName | undefined;
+  chain: Chain | undefined;
   chainValidation: ValidationErr;
   onChainClick: any;
   tokenInput: any;

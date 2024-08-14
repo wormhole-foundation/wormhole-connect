@@ -1,5 +1,4 @@
-/*import { PublicKey } from '@solana/web3.js';*/
-import { ChainId, ChainName, TokenId } from 'sdklegacy';
+import { TokenId } from 'sdklegacy';
 import { TransferInfo } from 'utils/sdkv2';
 
 import config from 'config';
@@ -11,7 +10,12 @@ import {
 } from './types';
 import { TokenPrices } from 'store/tokenPrices';
 
-import { Network, routes, TransactionId } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  Network,
+  routes,
+  TransactionId,
+} from '@wormhole-foundation/sdk';
 
 import { getRoute } from './mappings';
 import SDKv2Route from './sdkv2';
@@ -91,8 +95,8 @@ export class Operator {
     sourceToken: string,
     destToken: string,
     amount: string,
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
+    sourceChain: Chain,
+    destChain: Chain,
   ): Promise<boolean> {
     try {
       if (!config.routes.includes(route)) {
@@ -118,8 +122,8 @@ export class Operator {
     sourceToken: string,
     destToken: string,
     amount: string,
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
+    sourceChain: Chain,
+    destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<boolean> {
     if (!config.routes.includes(route)) {
@@ -137,15 +141,15 @@ export class Operator {
     );
   }
 
-  allSupportedChains(): ChainName[] {
-    const supported = new Set<ChainName>();
+  allSupportedChains(): Chain[] {
+    const supported = new Set<Chain>();
     for (const key in config.chains) {
-      const chainName = key as ChainName;
+      const chain = key as Chain;
       for (const route of config.routes) {
-        if (!supported.has(chainName)) {
-          const isSupported = this.isSupportedChain(route as Route, chainName);
+        if (!supported.has(chain)) {
+          const isSupported = this.isSupportedChain(route as Route, chain);
           if (isSupported) {
-            supported.add(chainName);
+            supported.add(chain);
           }
         }
       }
@@ -155,8 +159,8 @@ export class Operator {
 
   async allSupportedSourceTokens(
     destToken: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
+    sourceChain?: Chain,
+    destChain?: Chain,
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
@@ -182,8 +186,8 @@ export class Operator {
 
   async allSupportedDestTokens(
     sourceToken: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
+    sourceChain?: Chain,
+    destChain?: Chain,
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
@@ -207,7 +211,7 @@ export class Operator {
     return Object.values(supported);
   }
 
-  isSupportedChain(route: Route, chain: ChainName): boolean {
+  isSupportedChain(route: Route, chain: Chain): boolean {
     const r = this.getRoute(route);
     return r.isSupportedChain(chain);
   }
@@ -217,8 +221,8 @@ export class Operator {
     sendAmount: number,
     token: string,
     destToken: string,
-    sendingChain: ChainName | undefined,
-    recipientChain: ChainName | undefined,
+    sendingChain: Chain,
+    recipientChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
     const r = this.getRoute(route);
@@ -237,8 +241,8 @@ export class Operator {
     sendAmount: number,
     token: string,
     destToken: string,
-    sendingChain: ChainName | undefined,
-    recipientChain: ChainName | undefined,
+    sendingChain: Chain | undefined,
+    recipientChain: Chain | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
     const r = this.getRoute(route);
@@ -252,22 +256,13 @@ export class Operator {
     );
   }
 
-  async computeSendAmount(
-    route: Route,
-    receiveAmount: number | undefined,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<number> {
-    const r = this.getRoute(route);
-    return await r.computeSendAmount(receiveAmount, options);
-  }
-
   async validate(
     route: Route,
     token: TokenId | 'native',
     amount: string,
-    sendingChain: ChainName | ChainId,
+    sendingChain: Chain,
     senderAddress: string,
-    recipientChain: ChainName | ChainId,
+    recipientChain: Chain,
     recipientAddress: string,
     options: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<boolean> {
@@ -287,9 +282,9 @@ export class Operator {
     route: Route,
     token: TokenConfig,
     amount: string,
-    sendingChain: ChainName | ChainId,
+    sendingChain: Chain,
     senderAddress: string,
-    recipientChain: ChainName | ChainId,
+    recipientChain: Chain,
     recipientAddress: string,
     destToken: string,
     options?: routes.AutomaticTokenBridgeRoute.Options,
@@ -312,8 +307,8 @@ export class Operator {
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
-    sendingChain: ChainName | ChainId,
-    recipientChain: ChainName | ChainId,
+    sendingChain: Chain,
+    recipientChain: Chain,
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
@@ -340,7 +335,7 @@ export class Operator {
   async getForeignAsset(
     route: Route,
     tokenId: TokenId,
-    chain: ChainName | ChainId,
+    chain: Chain,
     destToken?: TokenConfig,
   ): Promise<string | null> {
     const r = this.getRoute(route);

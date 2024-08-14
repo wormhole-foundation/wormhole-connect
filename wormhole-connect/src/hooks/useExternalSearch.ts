@@ -1,11 +1,11 @@
-import { ChainName } from 'sdklegacy';
+import { Chain } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { useEffect, useState } from 'react';
 
 type ExternalSearch = {
   hasExternalSearch: boolean;
   txHash?: string;
-  chainName?: ChainName;
+  chainName?: Chain;
   clear: () => void;
 };
 
@@ -13,13 +13,13 @@ export function useExternalSearch(): ExternalSearch {
   const [hasExternalSearch, setHasExternalSearchtate] =
     useState<boolean>(false);
   const [txHash, setTxHash] = useState<string>();
-  const [chainName, setChainName] = useState<ChainName>();
+  const [chainName, setChainName] = useState<Chain>();
   useEffect(() => {
     if (config.searchTx?.chainName && config.searchTx?.txHash) {
-      const chainName = config.searchTx.chainName.toLowerCase() as ChainName;
+      const chainName = config.searchTx.chainName.toLowerCase() as Chain;
 
       const validChains = config.chainsArr
-        .filter((chain) => chain.key !== 'wormchain')
+        .filter((chain) => chain.key !== 'Wormchain')
         .map((chain) => chain.key);
 
       if (validChains.includes(chainName)) {

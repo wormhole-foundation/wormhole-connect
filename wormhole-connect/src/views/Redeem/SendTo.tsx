@@ -138,7 +138,7 @@ function SendTo() {
     return (
       route.AUTOMATIC_DEPOSIT ||
       isGatewayChain(txData.toChain) ||
-      txData.toChain === 'sei' ||
+      txData.toChain === 'Sei' ||
       isPorticoRoute(route.TYPE)
     );
   }, [routeName, txData]);
@@ -185,7 +185,7 @@ function SendTo() {
       if (!routes.isManual(route)) {
         throw new Error('Route is not manual');
       }
-      const signer = await SDKv2Signer.fromChainV1(
+      const signer = await SDKv2Signer.fromChain(
         txData.toChain,
         wallet.address,
         {},

@@ -1,7 +1,6 @@
 // Legacy SDK
 import {
   ChainConfig as BaseChainConfig,
-  ChainName,
   TokenId,
   ChainResourceMap,
   Context,
@@ -13,7 +12,7 @@ import {
 import {
   Network as NetworkV2,
   Wormhole as WormholeV2,
-  Chain as ChainV2,
+  Chain,
   TokenAddress as TokenAddressV2,
 } from '@wormhole-foundation/sdk';
 
@@ -79,11 +78,12 @@ export type SupportedRoutes = keyof typeof Route;
 export type Network = 'mainnet' | 'testnet' | 'devnet';
 
 // TODO: preference is fromChain/toChain, but want to keep backwards compatibility
+// TOOD: rename to fromChain/toChain
 export interface BridgeDefaults {
-  fromNetwork?: ChainName;
-  toNetwork?: ChainName;
+  fromNetwork?: Chain;
+  toNetwork?: Chain;
   token?: string;
-  requiredNetwork?: ChainName;
+  requiredNetwork?: Chain;
 }
 
 export interface ExtendedTransferDetails extends TransferDetails {
@@ -112,8 +112,7 @@ export interface WormholeConnectConfig {
   coinGeckoApiKey?: string;
 
   // White lists
-  networks?: ChainName[]; // TODO REMOVE; DEPRECATED
-  chains?: ChainName[]; // New name for this, consistent with SDKv2
+  chains?: Chain[];
   tokens?: string[];
 
   // Custom tokens
@@ -192,7 +191,6 @@ export interface InternalConfig<N extends NetworkV2> {
   tokensArr: TokenConfig[];
   wrappedTokenAddressCache: WrappedTokenAddressCache;
 
-  gasEstimates: GasEstimates;
   routes: string[];
 
   // Callbacks
@@ -277,7 +275,7 @@ type DecimalsMap = Partial<Record<Context, number>> & {
 export type TokenConfig = {
   key: string;
   symbol: string;
-  nativeChain: ChainName;
+  nativeChain: Chain;
   icon: Icon | string;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
@@ -286,7 +284,7 @@ export type TokenConfig = {
   wrappedAsset?: string;
   displayName?: string;
   foreignAssets?: {
-    [chainName in ChainName]?: {
+    [chain in Chain]?: {
       address: string;
       decimals: number;
     };
@@ -307,24 +305,10 @@ export interface ChainConfig extends BaseChainConfig {
 }
 
 export type ChainsConfig = {
-  [chain in ChainName]?: ChainConfig;
+  [chain in Chain]?: ChainConfig;
 };
 
-export type GasEstimatesByOperation = {
-  sendToken?: number;
-  sendNative?: number;
-  claim?: number;
-};
-
-export type GasEstimateOptions = keyof GasEstimatesByOperation;
-
-export type GasEstimates = {
-  [chain in ChainName]?: {
-    [route in Route]?: GasEstimatesByOperation;
-  };
-};
-
-export type RpcMapping = { [chain in ChainName]?: string };
+export type RpcMapping = { [chain in Chain]?: string };
 
 export type GuardianSetData = {
   index: number;
@@ -334,7 +318,6 @@ export type GuardianSetData = {
 export type NetworkData = {
   chains: ChainsConfig;
   tokens: TokensConfig;
-  gasEstimates: GasEstimates;
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
@@ -355,7 +338,7 @@ export type NttTransceiverConfig = {
 };
 
 export type NttManagerConfig = {
-  chainName: ChainName;
+  chainName: Chain; // TODO: rename
   address: string;
   tokenKey: string; // token key for the token this NTT manager has configured
   transceivers: NttTransceiverConfig[];
@@ -371,10 +354,10 @@ export type NttGroups = { [key: string]: NttGroup };
 // Token bridge foreign asset cache
 // Used in utils/sdkv2.ts
 
-type ForeignAssets<C extends ChainV2> = Record<string, TokenAddressV2<C>>;
+type ForeignAssets<C extends Chain> = Record<string, TokenAddressV2<C>>;
 
 export class WrappedTokenAddressCache {
-  caches: Partial<Record<ChainV2, ForeignAssets<ChainV2>>>;
+  caches: Partial<Record<Chain, ForeignAssets<Chain>>>;
 
   constructor(tokens: TokensConfig, converter: SDKConverter) {
     this.caches = {};
@@ -386,20 +369,21 @@ export class WrappedTokenAddressCache {
       if (token.foreignAssets) {
         for (const chain in token.foreignAssets) {
           const foreignAsset = tokens[key].foreignAssets![chain];
-          const chainV2 = converter.toChainV2(chain as ChainName);
-          const addr = WormholeV2.parseAddress(chainV2, foreignAsset.address);
-          this.set(key, chainV2, addr);
+          const addr = WormholeV2.parseAddress(
+            chain as Chain,
+            foreignAsset.address,
+          );
+          this.set(key, chain as Chain, addr);
         }
       }
 
       // Cache it on its native chain too
       if (token.tokenId) {
         try {
-          const nativeChainV2 = converter.toChainV2(token.nativeChain);
           this.set(
             key,
-            nativeChainV2,
-            WormholeV2.parseAddress(nativeChainV2, token.tokenId.address),
+            token.nativeChain,
+            WormholeV2.parseAddress(token.nativeChain, token.tokenId.address),
           );
         } catch (e) {
           console.error(`Error caching foreign asset`, token.tokenId, e);
@@ -408,13 +392,13 @@ export class WrappedTokenAddressCache {
     }
   }
 
-  get<C extends ChainV2>(tokenKey: string, chain: C): TokenAddressV2<C> | null {
+  get<C extends Chain>(tokenKey: string, chain: C): TokenAddressV2<C> | null {
     const chainCache = this.caches[chain] as ForeignAssets<C>;
     if (!chainCache) return null;
     return chainCache[tokenKey] || null;
   }
 
-  set<C extends ChainV2>(
+  set<C extends Chain>(
     tokenKey: string,
     chain: C,
     foreignAsset: TokenAddressV2<C>,

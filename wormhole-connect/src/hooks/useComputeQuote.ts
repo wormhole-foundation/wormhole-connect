@@ -4,17 +4,16 @@ import { useDispatch } from 'react-redux';
 import { setReceiveAmount, setReceiveAmountError } from 'store/transferInput';
 
 import type { Route } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 import { getRoute } from 'routes/mappings';
 import { setReceiveNativeAmt, setRelayerFee, setEta } from 'store/relay';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
 import config from 'config';
 
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   destToken: string;
   route: Route | undefined;
   amount: string;

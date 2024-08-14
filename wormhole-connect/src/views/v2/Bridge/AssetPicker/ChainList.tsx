@@ -11,11 +11,12 @@ import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import TokenIcon from 'icons/TokenIcons';
 
-import { ChainName } from 'sdklegacy';
 import { isDisabledChain } from 'store/transferInput';
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
+
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -54,7 +55,7 @@ type Props = {
   showSearch: boolean;
   setShowSearch: (value: boolean) => void;
   wallet: WalletData;
-  onChainSelect: (chain: ChainName) => void;
+  onChainSelect: (chain: Chain) => void;
 };
 
 const SHORT_LIST_SIZE = 5;

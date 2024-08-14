@@ -1,11 +1,11 @@
 import React from 'react';
-import type { ChainName } from 'sdklegacy';
 import { makeStyles } from 'tss-react/mui';
 import { LINK } from 'utils/style';
 import config from 'config';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { TransferSide } from 'config/types';
 import { isEvmChain } from 'utils/sdk';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   link: {
@@ -15,7 +15,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type ExplorerLinkProps = {
-  chain: ChainName;
+  chain: Chain;
   side: TransferSide;
   styles?: React.CSSProperties;
 } & (
@@ -32,15 +32,15 @@ function ExplorerLink(props: ExplorerLinkProps) {
   let explorerLink;
   if (props.type === 'tx') {
     // TODO: refactor and use a map instead
-    if (chainConfig.key === 'sui') {
+    if (chainConfig.key === 'Sui') {
       explorerLink = `${chainConfig.explorerUrl}txblock/${props.txHash}`;
-    } else if (chainConfig.key === 'aptos') {
+    } else if (chainConfig.key === 'Aptos') {
       explorerLink = `${chainConfig.explorerUrl}txn/${props.txHash}`;
-    } else if (chainConfig.key === 'sei') {
+    } else if (chainConfig.key === 'Sei') {
       explorerLink = `${chainConfig.explorerUrl}transaction/${props.txHash}`;
-    } else if (chainConfig.key === 'injective') {
+    } else if (chainConfig.key === 'Injective') {
       explorerLink = `${chainConfig.explorerUrl}transaction/${props.txHash}`;
-    } else if (chainConfig.key === 'osmosis') {
+    } else if (chainConfig.key === 'Osmosis') {
       explorerLink =
         config.network === 'testnet'
           ? `${chainConfig.explorerUrl}txs/${props.txHash}`
@@ -53,25 +53,25 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink = `${chainConfig.explorerUrl}tx/${txHash}`;
     }
   } else if (props.type === 'address') {
-    if (chainConfig.key === 'aptos') {
+    if (chainConfig.key === 'Aptos') {
       explorerLink = `${chainConfig.explorerUrl}account/${props.address}`;
     } else {
       explorerLink = `${chainConfig.explorerUrl}address/${props.address}`;
     }
   }
 
-  if (props.type === 'object' && chainConfig.key === 'sui') {
+  if (props.type === 'object' && chainConfig.key === 'Sui') {
     explorerLink = `${chainConfig.explorerUrl}object/${props.object}`;
   }
 
   if (!config.isMainnet) {
-    if (chainConfig.key === 'solana') {
+    if (chainConfig.key === 'Solana') {
       explorerLink += '?cluster=devnet';
     }
-    if (chainConfig.key === 'sui') {
+    if (chainConfig.key === 'Sui') {
       explorerLink += '?network=testnet';
     }
-    if (chainConfig.key === 'aptos') {
+    if (chainConfig.key === 'Aptos') {
       explorerLink += '?network=testnet';
     }
   }

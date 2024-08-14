@@ -3,7 +3,6 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux';
-import type { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { RootState } from 'store';
@@ -23,6 +22,7 @@ import Scroll from 'components/Scroll';
 import WalletIcon from 'icons/WalletIcons';
 import Search from 'components/Search';
 import AlertBanner from 'components/AlertBanner';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -72,7 +72,7 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   type: TransferWallet;
-  chain?: ChainName;
+  chain?: Chain;
   onClose?: () => any;
 };
 

@@ -335,7 +335,7 @@ const Redeem = () => {
         throw new Error('Route is not manual');
       }
 
-      const signer = await SDKv2Signer.fromChainV1(
+      const signer = await SDKv2Signer.fromChain(
         toChain,
         receivingWallet.address,
         {},

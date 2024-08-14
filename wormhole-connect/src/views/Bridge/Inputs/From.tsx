@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { ChainName } from 'sdklegacy';
 
 import { RootState } from 'store';
 import {
@@ -18,6 +17,7 @@ import AmountInput from './AmountInput';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import { Chain } from '@wormhole-foundation/sdk';
 
 function FromInputs() {
   const dispatch = useDispatch();
@@ -50,11 +50,11 @@ function FromInputs() {
   );
 
   const isDisabled = useCallback(
-    (chain: ChainName) => isDisabledChain(chain, wallet),
+    (chain: Chain) => isDisabledChain(chain, wallet),
     [wallet],
   );
 
-  const selectChain = async (chain: ChainName) => {
+  const selectChain = async (chain: Chain) => {
     await selectFromChain(dispatch, chain, wallet);
   };
 
@@ -65,8 +65,7 @@ function FromInputs() {
   // token input jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const chain =
-      config.chains[tokenConfig.nativeChain as ChainName]?.displayName;
+    const chain = config.chains[tokenConfig.nativeChain]?.displayName;
     return {
       icon: tokenConfig.icon,
       text: tokenConfig.symbol,

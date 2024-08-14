@@ -1,13 +1,9 @@
-import { MainnetChainId, MainnetChainName } from './config/MAINNET';
-import { TestnetChainId, TestnetChainName } from './config/TESTNET';
-import { DevnetChainId, DevnetChainName } from './config/DEVNET';
+import { Chain, ChainId } from '@wormhole-foundation/sdk';
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';
 
 export const NATIVE = 'native';
-// TODO: conditionally set these types
-export type ChainName = MainnetChainName | TestnetChainName | DevnetChainName;
-export type ChainId = MainnetChainId | TestnetChainId | DevnetChainId;
+
 export enum Context {
   ETH = 'Ethereum',
   TERRA = 'Terra',
@@ -23,37 +19,13 @@ export enum Context {
 }
 
 export type ChainResourceMap = {
-  [chain in ChainName]?: string;
+  [chain in Chain]?: string;
 };
-
-/*
- * TODO SDKV2
-export type Contracts = {
-  core?: string;
-  token_bridge?: string;
-  nft_bridge?: string;
-  relayer?: string;
-  cctpContracts?: {
-    cctpTokenMessenger: string;
-    cctpMessageTransmitter: string;
-    wormholeCCTP?: string;
-    wormholeCircleRelayer?: string;
-  };
-  suiOriginalTokenBridgePackageId?: string;
-  suiRelayerPackageId?: string;
-  seiTokenTranslator?: string;
-  ibcShimContract?: string;
-  tbtcGateway?: string;
-  portico?: string;
-  uniswapQuoterV2?: string;
-};
-*/
 
 export type ChainConfig = {
-  key: ChainName;
+  key: Chain;
   id: ChainId;
   context: Context;
-  //contracts: Contracts;
   finalityThreshold: number;
   nativeTokenDecimals: number;
   cctpDomain?: number;
@@ -68,27 +40,20 @@ export type WormholeConfig = {
   graphql: ChainResourceMap;
   wormholeHosts: string[];
   chains: {
-    [chain in ChainName]?: ChainConfig;
+    [chain in Chain]?: ChainConfig;
   };
 };
 
 export type Address = string;
 
 export type TokenId = {
-  chain: ChainName;
+  chain: Chain;
   address: string;
 };
 
 export type AnyContext = any;
 
 export type AnyContracts = any;
-
-export interface ParsedRelayerPayload {
-  relayerPayloadId: number;
-  to: string;
-  relayerFee: bigint;
-  toNativeTokenAmount: bigint;
-}
 
 export type TokenDetails = {
   symbol: string;

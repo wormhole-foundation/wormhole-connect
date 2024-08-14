@@ -1,34 +1,31 @@
-import { ChainId, ChainName, TokenId } from 'sdklegacy';
+import { TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';
-import { chainToPlatform } from '@wormhole-foundation/sdk';
+import { Chain, chainToPlatform } from '@wormhole-foundation/sdk';
 
 export enum PayloadType {
   Manual = 1,
   Automatic = 3,
 }
 
-export const formatAddress = (chain: ChainName | ChainId, address: string) => {
+export const formatAddress = (chain: Chain, address: string) => {
   const context = config.wh.getContext(chain);
   return context.formatAddress(address);
 };
 
-export const formatAssetAddress = (
-  chain: ChainName | ChainId,
-  address: string,
-) => {
+export const formatAssetAddress = (chain: Chain, address: string) => {
   const context = config.wh.getContext(chain);
   return context.formatAssetAddress(address);
 };
 
-export const parseAddress = (chain: ChainName | ChainId, address: string) => {
+export const parseAddress = (chain: Chain, address: string) => {
   const context = config.wh.getContext(chain);
   return context.parseAddress(address);
 };
 
 export const getRelayerFee = async (
-  sourceChain: ChainName | ChainId,
-  destChain: ChainName | ChainId,
+  sourceChain: Chain,
+  destChain: Chain,
   token: string,
 ) => {
   const context: any = config.wh.getContext(sourceChain);
@@ -39,7 +36,7 @@ export const getRelayerFee = async (
 };
 
 export const calculateMaxSwapAmount = async (
-  destChain: ChainName | ChainId,
+  destChain: Chain,
   token: TokenId,
   walletAddress: string,
 ) => {
@@ -52,12 +49,9 @@ export const calculateMaxSwapAmount = async (
   */
 };
 
-export const getCurrentBlock = async (
-  chain: ChainName | ChainId,
-): Promise<number> => {
-  const chainId = config.wh.toChainId(chain);
+export const getCurrentBlock = async (chain: Chain): Promise<number> => {
   const context: any = config.wh.getContext(chain);
-  return context.getCurrentBlock(chainId);
+  return context.getCurrentBlock(chain);
 };
 
 export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
@@ -70,17 +64,8 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
   return accepted;
 };
 
-export const isEvmChain = (chain: ChainName | ChainId) => {
-  const chainV2 = config.sdkConverter.toChainV2(chain);
-  return chainToPlatform.get(chainV2) === 'Evm';
-};
-
-export const toChainId = (chain: ChainName | ChainId) => {
-  return config.wh.toChainId(chain);
-};
-
-export const toChainName = (chain: ChainName | ChainId) => {
-  return config.wh.toChainName(chain);
+export const isEvmChain = (chain: Chain) => {
+  return chainToPlatform.get(chain) === 'Evm';
 };
 
 export enum DeliveryStatus {

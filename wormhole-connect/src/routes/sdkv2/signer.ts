@@ -8,54 +8,45 @@ import {
   TxHash,
 } from '@wormhole-foundation/sdk';
 //import { EvmUnsignedTransaction } from '@wormhole-foundation/sdk-evm';
-import { ChainId, ChainName } from 'sdklegacy';
-import config, { getWormholeContextV2 } from 'config';
+import { getWormholeContextV2 } from 'config';
 import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
 
 // Utility class that bridges between legacy Connect signer interface and SDKv2 signer interface
 export class SDKv2Signer<N extends Network, C extends Chain>
   implements SignAndSendSigner<N, C>
 {
-  _chainNameV1: ChainName;
+  _chain: Chain;
   _chainContextV2: ChainContext<N, C>;
   _address: string;
   _options: any;
   _walletType: TransferWallet;
 
   constructor(
-    chainNameV1: ChainName,
+    chain: Chain,
     chainContextV2: ChainContext<N, C>,
     address: string,
     options: any,
     walletType: TransferWallet,
   ) {
-    this._chainNameV1 = chainNameV1;
+    this._chain = chain;
     this._chainContextV2 = chainContextV2;
     this._address = address;
     this._options = options;
     this._walletType = walletType;
   }
 
-  static async fromChainV1<N extends Network, C extends Chain>(
-    chainV1: ChainName | ChainId,
+  static async fromChain<N extends Network, C extends Chain>(
+    chain: Chain,
     address: string,
     options: any,
     walletType: TransferWallet,
   ): Promise<SDKv2Signer<N, C>> {
     const wh = await getWormholeContextV2();
-    const chainNameV1 = config.wh.toChainName(chainV1);
-    const chainV2 = config.sdkConverter.toChainV2(chainV1) as Chain;
     const chainContextV2 = wh
-      .getPlatform(chainToPlatform(chainV2))
-      .getChain(chainV2) as ChainContext<N, C>;
+      .getPlatform(chainToPlatform(chain))
+      .getChain(chain) as ChainContext<N, C>;
 
-    return new SDKv2Signer(
-      chainNameV1,
-      chainContextV2,
-      address,
-      options,
-      walletType,
-    );
+    return new SDKv2Signer(chain, chainContextV2, address, options, walletType);
   }
 
   async signAndSend(txs: UnsignedTransaction<N, C>[]): Promise<TxHash[]> {
@@ -63,7 +54,7 @@ export class SDKv2Signer<N extends Network, C extends Chain>
 
     for (const tx of txs) {
       const txId = await signAndSendTransaction(
-        this._chainNameV1,
+        this._chain,
         tx,
         this._walletType,
         this._options,

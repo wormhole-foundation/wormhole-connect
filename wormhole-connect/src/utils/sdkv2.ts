@@ -16,7 +16,6 @@ import {
 } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { Route } from 'config/types';
-import { ChainName } from 'sdklegacy/types';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
@@ -33,8 +32,8 @@ export interface TransferInfo {
 
   amount: string;
 
-  toChain: ChainName;
-  fromChain: ChainName;
+  toChain: Chain;
+  fromChain: Chain;
 
   // Source token address
   tokenAddress: string;
@@ -145,8 +144,8 @@ const parseTokenBridgeReceipt = async (
   receipt: ReceiptWithAttestation<TokenBridge.TransferVAA>,
 ): Promise<TransferInfo> => {
   const txData: Partial<TransferInfo> = {
-    toChain: config.sdkConverter.toChainNameV1(receipt.to),
-    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+    toChain: receipt.to,
+    fromChain: receipt.from,
   };
 
   if ('originTxs' in receipt && receipt.originTxs.length > 0) {
@@ -178,7 +177,7 @@ const parseTokenBridgeReceipt = async (
       throw new Error('Unknown token');
     }
 
-    const fromChain = config.sdkConverter.toChainNameV1(receipt.from);
+    const fromChain = receipt.from;
     const fromChainConfig = config.chains[fromChain];
 
     const decimals =
@@ -208,12 +207,12 @@ const parseTokenBridgeReceipt = async (
 
   if (payload.to) {
     if (receipt.to === 'Solana') {
-      if (!config.rpcs.solana) {
+      if (!config.rpcs.Solana) {
         throw new Error('Missing Solana RPC');
       }
       // the recipient on the VAA is the ATA
       const ata = payload.to.address.toNative(receipt.to).toString();
-      const connection = new Connection(config.rpcs.solana);
+      const connection = new Connection(config.rpcs.Solana);
       try {
         const account = await splToken.getAccount(
           connection,
@@ -235,8 +234,8 @@ const parseCCTPReceipt = async (
   receipt: ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
 ): Promise<TransferInfo> => {
   const txData: Partial<TransferInfo> = {
-    toChain: config.sdkConverter.toChainNameV1(receipt.to),
-    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+    toChain: receipt.to,
+    fromChain: receipt.from,
   };
 
   if ('originTxs' in receipt && receipt.originTxs.length > 0) {
@@ -277,12 +276,12 @@ const parseCCTPReceipt = async (
 
   txData.sender = payload.messageSender.toNative(receipt.from).toString();
   if (receipt.to === 'Solana') {
-    if (!config.rpcs.solana) {
+    if (!config.rpcs.Solana) {
       throw new Error('Missing Solana RPC');
     }
     // the recipient on the VAA is the ATA
     const ata = payload.mintRecipient.toNative(receipt.to).toString();
-    const connection = new Connection(config.rpcs.solana);
+    const connection = new Connection(config.rpcs.Solana);
     try {
       const account = await splToken.getAccount(connection, new PublicKey(ata));
       txData.recipient = account.owner.toBase58();
@@ -358,8 +357,8 @@ const parseNttReceipt = (
     decimals: trimmedAmount.decimals,
   });
   return {
-    toChain: config.sdkConverter.toChainNameV1(receipt.to),
-    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+    toChain: receipt.to,
+    fromChain: receipt.from,
     sendTx,
     sender: payload.nttManagerPayload.sender.toNative(receipt.from).toString(),
     recipient: payload.nttManagerPayload.payload.recipientAddress

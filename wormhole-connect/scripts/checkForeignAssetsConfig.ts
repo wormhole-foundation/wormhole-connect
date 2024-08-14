@@ -18,13 +18,7 @@ console.warn = function (x: any, ...rest: any) {
   }
 };
 
-import {
-  ChainName,
-  /*
-   * TODO SDKV2
-  WormholeContext,
-  */
-} from '../src/sdklegacy';
+import { Chain } from '@wormhole-foundation/sdk';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';
@@ -51,7 +45,7 @@ const checkEnvConfig = async (
     await Promise.all(
       Object.keys(chainsConfig).map((unTypedChain) => {
         return (async () => {
-          const chain = unTypedChain as ChainName;
+          const chain = unTypedChain as Chain;
 
           const configForeignAddress = tokenConfig.foreignAssets?.[chain];
           if (chain === tokenConfig.nativeChain) {
@@ -61,7 +55,7 @@ const checkEnvConfig = async (
               );
             }
           } else if (tokenConfig.tokenId) {
-            let foreignAddress: string | null = null;
+            const foreignAddress: string | null = null;
             try {
               /*
                * TODO SDKV2

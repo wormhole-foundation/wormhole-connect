@@ -11,7 +11,7 @@ import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 
 import type { WormholeConnectConfig } from './config/types';
-import type { ChainName } from 'sdklegacy';
+import type { Chain } from '@wormhole-foundation/sdk';
 
 export default WormholeConnect;
 
@@ -19,7 +19,7 @@ export {
   MAINNET,
   TESTNET,
   WormholeConnectConfig,
-  ChainName,
+  Chain,
   dark,
   light,
   WormholeConnectPartialTheme,

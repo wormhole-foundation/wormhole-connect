@@ -16,7 +16,7 @@ export const getSeiChainId = (env: Network) =>
 export async function fetchOptions() {
   const seiWallets = getSupportedWallets({
     chainId: getSeiChainId(config.network) as SeiChainId,
-    rpcUrl: config.rpcs.sei || '',
+    rpcUrl: config.rpcs.Sei || '',
   });
 
   return seiWallets.reduce((obj: { [key: string]: SeiWallet }, value) => {

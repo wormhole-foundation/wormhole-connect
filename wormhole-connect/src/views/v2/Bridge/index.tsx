@@ -9,7 +9,6 @@ import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { Route } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 import type { RootState } from 'store';
 
 import RouteOperator from 'routes/operator';
@@ -43,6 +42,7 @@ import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapChains from 'views/v2/Bridge/SwapChains';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -253,7 +253,7 @@ const Bridge = () => {
           token={sourceToken}
           tokenList={supportedSourceTokens}
           isFetching={isFetchingSupportedSourceTokens}
-          setChain={(value: ChainName) => {
+          setChain={(value: Chain) => {
             selectFromChain(dispatch, value, sendingWallet);
           }}
           setToken={(value: string) => {
@@ -287,7 +287,7 @@ const Bridge = () => {
           token={destToken}
           tokenList={supportedDestTokens}
           isFetching={isFetchingSupportedDestTokens}
-          setChain={(value: ChainName) => {
+          setChain={(value: Chain) => {
             selectToChain(dispatch, value, receivingWallet);
           }}
           setToken={(value: string) => {

@@ -4,7 +4,7 @@ export const MAINNET_NTT_GROUPS: NttGroups = {
   FANTOM_USDC: {
     nttManagers: [
       {
-        chainName: 'ethereum',
+        chainName: 'Ethereum',
         address: '0xeBdCe9a913d9400EE75ef31Ce8bd34462D01a1c1',
         tokenKey: 'USDCeth',
         transceivers: [
@@ -15,7 +15,7 @@ export const MAINNET_NTT_GROUPS: NttGroups = {
         ],
       },
       {
-        chainName: 'fantom',
+        chainName: 'Fantom',
         address: '0x68dB2f05Aa2d77DEf981fd2be32661340c9222FB',
         tokenKey: 'USDCfantom',
         transceivers: [

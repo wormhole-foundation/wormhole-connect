@@ -4,8 +4,8 @@ import { ChainsConfig, Icon } from '../types';
 const { chains } = CONFIG.TESTNET;
 
 export const TESTNET_CHAINS: ChainsConfig = {
-  bsc: {
-    ...chains.bsc!,
+  Bsc: {
+    ...chains.Bsc!,
     displayName: 'BSC',
     explorerUrl: 'https://testnet.bscscan.com/',
     explorerName: 'BscScan',
@@ -15,8 +15,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  fuji: {
-    ...chains.fuji!,
+  Avalanche: {
+    ...chains.Avalanche!,
     displayName: 'Fuji',
     explorerUrl: 'https://testnet.avascan.info/blockchain/c/',
     explorerName: 'Avascan',
@@ -26,8 +26,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  fantom: {
-    ...chains.fantom!,
+  Fantom: {
+    ...chains.Fantom!,
     displayName: 'Fantom',
     explorerUrl: 'https://testnet.ftmscan.com/',
     explorerName: 'FtmScan',
@@ -37,8 +37,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  alfajores: {
-    ...chains.alfajores!,
+  Celo: {
+    ...chains.Celo!,
     displayName: 'Alfajores',
     explorerUrl: 'https://explorer.celo.org/alfajores/',
     explorerName: 'Celo Explorer',
@@ -48,8 +48,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  moonbasealpha: {
-    ...chains.moonbasealpha!,
+  Moonbeam: {
+    ...chains.Moonbeam!,
     displayName: 'Moonbase',
     explorerUrl: 'https://moonbase.moonscan.io/',
     explorerName: 'Moonscan',
@@ -59,8 +59,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  solana: {
-    ...chains.solana!,
+  Solana: {
+    ...chains.Solana!,
     displayName: 'Solana',
     explorerUrl: 'https://explorer.solana.com/',
     explorerName: 'Solana Explorer',
@@ -70,8 +70,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  sui: {
-    ...chains.sui!,
+  Sui: {
+    ...chains.Sui!,
     displayName: 'Sui',
     explorerUrl: 'https://explorer.sui.io/',
     explorerName: 'Sui Explorer',
@@ -81,8 +81,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 0,
   },
-  aptos: {
-    ...chains.aptos!,
+  Aptos: {
+    ...chains.Aptos!,
     displayName: 'Aptos',
     explorerUrl: 'https://explorer.aptoslabs.com/',
     explorerName: 'Aptos Explorer',
@@ -91,8 +91,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: Icon.APT,
     maxBlockSearch: 0,
   },
-  klaytn: {
-    ...chains.klaytn!,
+  Klaytn: {
+    ...chains.Klaytn!,
     displayName: 'Klaytn',
     explorerUrl: 'https://baobab.klaytnscope.com/',
     explorerName: 'Klaytn Scope',
@@ -101,8 +101,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: Icon.KLAY,
     maxBlockSearch: 2000,
   },
-  sei: {
-    ...chains.sei!,
+  Sei: {
+    ...chains.Sei!,
     displayName: 'Sei',
     explorerUrl: 'https://testnet.sei.explorers.guru/',
     explorerName: 'Sei Explorer',
@@ -112,8 +112,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  osmosis: {
-    ...chains.osmosis!,
+  Osmosis: {
+    ...chains.Osmosis!,
     displayName: 'Osmosis',
     explorerUrl: 'https://testnet.mintscan.io/osmosis-testnet/',
     explorerName: 'MintScan',
@@ -123,8 +123,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  wormchain: {
-    ...chains.wormchain!,
+  Wormchain: {
+    ...chains.Wormchain!,
     displayName: 'Wormchain',
     explorerUrl: '',
     explorerName: '',
@@ -134,8 +134,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  cosmoshub: {
-    ...chains.cosmoshub!,
+  Cosmoshub: {
+    ...chains.Cosmoshub!,
     displayName: 'Cosmoshub',
     explorerUrl: 'https://testnet.mintscan.io/cosmoshub-testnet/',
     explorerName: 'MintScan',
@@ -145,8 +145,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  evmos: {
-    ...chains.evmos!,
+  Evmos: {
+    ...chains.Evmos!,
     displayName: 'Evmos',
     explorerUrl: 'https://testnet.mintscan.io/evmos-testnet/',
     explorerName: 'MintScan',
@@ -156,8 +156,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  kujira: {
-    ...chains.kujira!,
+  Kujira: {
+    ...chains.Kujira!,
     displayName: 'Kujira',
     explorerUrl: 'https://finder.kujira.app/harpoon-4/',
     explorerName: 'Kujira Finder',
@@ -167,8 +167,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  sepolia: {
-    ...chains.sepolia!,
+  Sepolia: {
+    ...chains.Sepolia!,
     displayName: 'Sepolia',
     explorerUrl: 'https://sepolia.etherscan.io/',
     explorerName: 'Etherscan',
@@ -178,8 +178,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  arbitrum_sepolia: {
-    ...chains.arbitrum_sepolia!,
+  ArbitrumSepolia: {
+    ...chains.ArbitrumSepolia!,
     displayName: 'Arbitrum Sepolia',
     explorerUrl: 'https://sepolia.arbiscan.io/',
     explorerName: 'Etherscan',
@@ -189,8 +189,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  base_sepolia: {
-    ...chains.base_sepolia!,
+  BaseSepolia: {
+    ...chains.BaseSepolia!,
     displayName: 'Base Sepolia',
     explorerUrl: 'https://base-sepolia.blockscout.com/',
     explorerName: 'Etherscan',
@@ -200,8 +200,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  optimism_sepolia: {
-    ...chains.optimism_sepolia!,
+  OptimismSepolia: {
+    ...chains.OptimismSepolia!,
     displayName: 'Optimism Sepolia',
     explorerUrl: 'https://sepolia-optimistic.etherscan.io/',
     explorerName: 'Etherscan',
@@ -211,8 +211,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  injective: {
-    ...chains.injective!,
+  Injective: {
+    ...chains.Injective!,
     displayName: 'Injective',
     explorerUrl: 'https://testnet.explorer.injective.network',
     explorerName: 'Injective Explorer',
@@ -222,8 +222,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  scroll: {
-    ...chains.scroll!,
+  Scroll: {
+    ...chains.Scroll!,
     displayName: 'Scroll',
     explorerUrl: 'https://sepolia.scrollscan.dev/',
     explorerName: 'Scrollscan',
@@ -233,8 +233,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  blast: {
-    ...chains.blast!,
+  Blast: {
+    ...chains.Blast!,
     displayName: 'Blast',
     explorerUrl: 'https://testnet.blastscan.io/',
     explorerName: 'Blastscan',
@@ -244,8 +244,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  xlayer: {
-    ...chains.xlayer!,
+  Xlayer: {
+    ...chains.Xlayer!,
     displayName: 'X Layer',
     explorerUrl: 'https://www.okx.com/web3/explorer/xlayer-test/',
     explorerName: 'OKX Explorer',

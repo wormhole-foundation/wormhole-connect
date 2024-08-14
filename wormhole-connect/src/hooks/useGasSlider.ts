@@ -2,11 +2,12 @@ import config from 'config';
 import RouteOperator from 'routes/operator';
 import { getWrappedToken } from 'utils';
 
-import type { ChainName } from 'sdklegacy';
 import type { Route } from 'config/types';
 
+import { Chain } from '@wormhole-foundation/sdk';
+
 type Props = {
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   destToken: string;
   route: Route | undefined;
   valid: boolean;

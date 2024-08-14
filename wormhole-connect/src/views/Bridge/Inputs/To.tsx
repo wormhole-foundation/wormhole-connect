@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { ChainName } from 'sdklegacy';
 
 import { RootState } from 'store';
 import {
@@ -20,6 +19,7 @@ import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import { Chain } from '@wormhole-foundation/sdk';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -57,11 +57,11 @@ function ToInputs() {
   };
 
   const isDisabled = useCallback(
-    (chain: ChainName) => isDisabledChain(chain, receiving),
+    (chain: Chain) => isDisabledChain(chain, receiving),
     [receiving],
   );
 
-  const selectChain = async (chain: ChainName) => {
+  const selectChain = async (chain: Chain) => {
     await selectToChain(dispatch, chain, receiving);
   };
 
@@ -88,35 +88,6 @@ function ToInputs() {
     />
   );
 
-  // const computeSendAmount = async (value: number | string) => {
-  //   if (typeof value === 'number') {
-  //     dispatch(setReceiveAmount(`${value}`));
-  //   } else {
-  //     dispatch(setReceiveAmount(value));
-  //   }
-  //   const number = typeof value === 'number' ? value : Number.parseFloat(value);
-  //   dispatch(setReceiveAmount(`${number}`));
-  //   if (!route) {
-  //     dispatch(setReceiveAmount(`${value}`));
-  //     return;
-  //   }
-  //   const sendAmount = await RouteOperator.computeSendAmount(route, number, {
-  //     toNativeToken,
-  //   });
-  //   dispatch(setAmount(`${sendAmount}`));
-  // };
-
-  // const handleAmountChange = useCallback(computeSendAmount, [
-  //   route,
-  //   toNativeToken,
-  //   dispatch,
-  // ]);
-  // // if route changes, re-calculate the amount
-  // useEffect(() => {
-  //   if (!route) return;
-  //   computeSendAmount(receiveAmount);
-  // }, [route, receiveAmount]);
-  // TODO: get compute send amount working correctly again
   const handleAmountChange = () => {
     /* noop */
   };
