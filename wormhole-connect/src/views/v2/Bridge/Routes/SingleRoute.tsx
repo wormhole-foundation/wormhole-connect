@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { CircularProgress, useTheme } from '@mui/material';
-import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
@@ -14,13 +13,14 @@ import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
+import TokenIcon from 'icons/TokenIcons';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import RouteOperator from 'routes/operator';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
-import type { Route } from 'config/types';
 import type { RouteData } from 'config/routes';
+import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -60,7 +60,7 @@ const SingleRoute = (props: Props) => {
 
   const { prices: tokenPrices } = useFetchTokenPricesV2();
 
-  const { name, route } = props.config;
+  const { route: routeName } = props.config;
 
   // Compute the quotes for this route
   const {
@@ -74,9 +74,11 @@ const SingleRoute = (props: Props) => {
     sourceToken,
     destToken,
     amount,
-    route,
+    route: routeName,
     toNativeToken,
   });
+
+  const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
   const bridgeFee = useMemo(() => {
     const bridgePrice = calculateUSDPrice(
@@ -188,17 +190,36 @@ const SingleRoute = (props: Props) => {
     );
   }, [showWarning]);
 
-  const routeTitle = useMemo(() => {
+  const isAutomaticRoute = useMemo(() => {
+    if (!routeName) {
+      return false;
+    }
+
+    const route = RouteOperator.getRoute(routeName);
+
+    if (!route) {
+      return false;
+    }
+
+    return route.AUTOMATIC_DEPOSIT;
+  }, [routeName]);
+
+  const routeTitle = useMemo(
+    () => (isAutomaticRoute ? 'Automatic route' : 'Manual route'),
+    [isAutomaticRoute],
+  );
+
+  const routeCardHeader = useMemo(() => {
     return typeof receiveAmount === 'undefined' ? (
       <CircularProgress size={18} />
     ) : (
       <Typography>
-        {receiveAmount} {destToken}
+        {receiveAmount} {destTokenConfig.symbol}
       </Typography>
     );
   }, [receiveAmount, destToken]);
 
-  const routeSubHeader = useMemo(() => {
+  const routeCardSubHeader = useMemo(() => {
     if (typeof receiveAmount === 'undefined') {
       return <CircularProgress size={18} />;
     }
@@ -210,20 +231,20 @@ const SingleRoute = (props: Props) => {
     const receiveAmountPrice = calculateUSDPrice(
       receiveAmount,
       tokenPrices,
-      config.tokens[destToken],
+      destTokenConfig,
     );
 
     return <Typography>{receiveAmountPrice}</Typography>;
-  }, [destToken, receiveAmount, tokenPrices]);
+  }, [destTokenConfig, receiveAmount, tokenPrices]);
 
   if (isEmptyObject(props.config)) {
     return <></>;
   }
 
   return (
-    <div key={name} className={classes.container}>
+    <div key={routeName} className={classes.container}>
       <Typography fontSize={16} paddingBottom={0} width="100%" textAlign="left">
-        {props.title || name}
+        {props.title || routeTitle}
       </Typography>
       <Card
         className={classes.card}
@@ -237,13 +258,13 @@ const SingleRoute = (props: Props) => {
           disabled={!props.available}
           disableTouchRipple
           onClick={() => {
-            props.onSelect?.(route);
+            props.onSelect?.(routeName);
           }}
         >
           <CardHeader
-            avatar={<Avatar>{props.config.icon()}</Avatar>}
-            title={routeTitle}
-            subheader={routeSubHeader}
+            avatar={<TokenIcon icon={destTokenConfig.icon} height={36} />}
+            title={routeCardHeader}
+            subheader={routeCardSubHeader}
           />
           <CardContent>
             <Stack justifyContent="space-between">
