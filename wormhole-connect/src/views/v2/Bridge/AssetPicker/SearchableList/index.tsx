@@ -35,8 +35,11 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const [query, setQuery] = useState('');
 
   const filteredList = useMemo(() => {
-    if (!query && props.initialItems) return props.initialItems;
-    else return props.items.filter((item) => props.filterFn(item, query));
+    if (!query && props.initialItems) {
+      return props.initialItems;
+    } else {
+      return props.items.filter((item) => props.filterFn(item, query));
+    }
   }, [props.items, props.filterFn, query]);
 
   return (

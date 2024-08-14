@@ -36,8 +36,7 @@ function SwapChains() {
     !config.chains[toChain]?.disabledAsDestination;
 
   const swap = () => {
-    if (!canSwap) return;
-    if (isTransactionInProgress) return;
+    if (!canSwap || isTransactionInProgress) return;
     dispatch(swapChains());
     dispatch(swapWallets());
   };
