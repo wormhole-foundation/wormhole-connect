@@ -18,7 +18,6 @@ import {
   ConfirmOptions,
   Connection,
   RpcResponseAndContext,
-  SimulatedTransactionResponse,
   SignatureResult,
   Transaction,
 } from '@solana/web3.js';
@@ -242,7 +241,9 @@ async function createPriorityFeeInstructions(
       );
     } else {
       // Success case
-      unitsUsed = response.value.unitsConsumed;
+      if (response.value.unitsConsumed) {
+        unitsUsed = response.value.unitsConsumed;
+      }
       break;
     }
   }
