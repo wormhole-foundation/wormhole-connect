@@ -1,13 +1,14 @@
 import React from 'react';
-import config from 'config';
+
 import { useDispatch, useSelector } from 'react-redux';
+import IconButton from '@mui/material/IconButton';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import { makeStyles } from 'tss-react/mui';
+
+import config from 'config';
 import { RootState } from 'store';
 import { swapChains } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
-import { makeStyles } from 'tss-react/mui';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
-
-import IconButton from '@mui/material/IconButton';
 
 const useStyles = makeStyles()(() => ({
   swapButton: {

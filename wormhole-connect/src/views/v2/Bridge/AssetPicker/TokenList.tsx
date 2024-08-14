@@ -11,9 +11,8 @@ import config from 'config';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
-
-import SearchableList from './SearchableList';
-import TokenItem from './TokenItem';
+import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
+import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 
 const useStyles = makeStyles()((theme) => ({
   card: {

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { makeStyles } from 'tss-react/mui';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import List from '@mui/material/List';
@@ -10,14 +11,11 @@ import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import TokenIcon from 'icons/TokenIcons';
 
-import { makeStyles } from 'tss-react/mui';
-
+import { ChainName } from 'sdklegacy';
 import { isDisabledChain } from 'store/transferInput';
-
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
-import SearchableList from './SearchableList';
-import { ChainName } from 'sdklegacy';
+import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 
 const useStyles = makeStyles()((theme) => ({
   card: {

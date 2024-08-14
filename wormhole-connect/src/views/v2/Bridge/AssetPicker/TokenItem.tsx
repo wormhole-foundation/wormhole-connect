@@ -1,14 +1,15 @@
 import React, { memo } from 'react';
+import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import { useTheme } from '@mui/material';
-import OpenInNew from '@mui/icons-material/OpenInNew';
-import { makeStyles } from 'tss-react/mui';
 
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import TokenIcon from 'icons/TokenIcons';
+
 import { ChainConfig, TokenConfig } from 'config/types';
 import config from 'config';
 
@@ -75,7 +76,7 @@ function TokenItem(props: TokenItemProps) {
                 target="_blank"
               >
                 {addressDisplay}
-                <OpenInNew sx={{ height: '8px', width: '12px' }} />
+                <OpenInNewIcon sx={{ height: '8px', width: '12px' }} />
               </Link>
             )}
           </Typography>
