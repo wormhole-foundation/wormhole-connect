@@ -1,7 +1,7 @@
 import base58 from 'bs58';
 import * as ethers from 'ethers';
 import { AptosClient } from 'aptos';
-import { bech32 } from 'bech32';
+import * as bech32 from 'bech32';
 import { ChainName } from 'index';
 import { isEvmChain, toChainId } from 'utils/sdk';
 import { isGatewayChain } from '@wormhole-foundation/wormhole-connect-sdk';
