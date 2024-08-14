@@ -43,10 +43,12 @@ import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
+import SwapChains from 'views/v2/Bridge/SwapChains';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
     width: '100%',
+    position: 'relative',
   },
   assetPickerTitle: {
     color: theme.palette.text.secondary,
@@ -271,6 +273,7 @@ const Bridge = () => {
           }}
           wallet={sendingWallet}
         />
+        <SwapChains />
       </div>
     );
   }, [
