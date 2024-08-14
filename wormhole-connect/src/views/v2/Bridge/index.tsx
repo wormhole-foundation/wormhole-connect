@@ -20,7 +20,6 @@ import PoweredByIcon from 'icons/PoweredBy';
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import { TransferWallet } from 'utils/wallet';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import useComputeDestinationTokensV2 from 'hooks/useComputeDestinationTokensV2';
 import useComputeQuote from 'hooks/useComputeQuote';
@@ -33,7 +32,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
-import { useConnectToLastUsedWallet } from 'utils/wallet';
+import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
 import TokenWarnings from 'views/v2/Bridge/AssetPicker/TokenWarnings';
@@ -177,7 +176,13 @@ const Bridge = () => {
   });
 
   // Pre-fetch available routes
-  useAvailableRoutes();
+  useAvailableRoutes({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+  });
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
@@ -321,16 +326,6 @@ const Bridge = () => {
     );
   }, []);
 
-  const routeList = useMemo(() => {
-    if (!isValid) {
-      return <></>;
-    }
-
-    return (
-      <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
-    );
-  }, [isValid, selectedRoute]);
-
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
       return null;
@@ -417,7 +412,7 @@ const Bridge = () => {
       {destAssetPicker}
       <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
-      {routeList}
+      <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
       {walletConnector}
       {reviewTransactionButton}
       {config.showHamburgerMenu ? null : <FooterNavBar />}

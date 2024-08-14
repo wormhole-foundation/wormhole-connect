@@ -6,22 +6,29 @@ import { RouteState, setRoutes } from 'store/transferInput';
 import RouteOperator from 'routes/operator';
 import config from 'config';
 
+import type { ChainName } from 'sdklegacy';
 import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
-const useAvailableRoutes = (): void => {
+type Props = {
+  sourceChain: ChainName | undefined;
+  sourceToken: string;
+  destChain: ChainName | undefined;
+  destToken: string;
+  amount: string;
+};
+
+const useAvailableRoutes = (props: Props): void => {
   const dispatch = useDispatch();
 
-  const { token, destToken, fromChain, toChain, amount } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { sourceChain, sourceToken, destChain, destToken, amount } = props;
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const [debouncedAmount] = useDebounce(amount, 500);
 
   useEffect(() => {
-    if (!fromChain || !toChain || !token || !destToken) {
+    if (!sourceChain || !destChain || !sourceToken || !destToken) {
       return;
     }
 
@@ -38,11 +45,11 @@ const useAvailableRoutes = (): void => {
         try {
           supported = await RouteOperator.isRouteSupported(
             r,
-            token,
+            sourceToken,
             destToken,
             debouncedAmount,
-            fromChain,
-            toChain,
+            sourceChain,
+            destChain,
           );
         } catch (e) {
           console.error('Error when checking route is supported:', e, r);
@@ -54,11 +61,11 @@ const useAvailableRoutes = (): void => {
           try {
             available = await RouteOperator.isRouteAvailable(
               r,
-              token,
+              sourceToken,
               destToken,
               debouncedAmount,
-              fromChain,
-              toChain,
+              sourceChain,
+              destChain,
               { nativeGas: toNativeToken },
             );
           } catch (e) {
@@ -80,12 +87,11 @@ const useAvailableRoutes = (): void => {
       isActive = false;
     };
   }, [
-    dispatch,
-    token,
+    sourceToken,
     destToken,
     debouncedAmount,
-    fromChain,
-    toChain,
+    sourceChain,
+    destChain,
     toNativeToken,
   ]);
 };

@@ -362,11 +362,24 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
 
 function RouteOptions() {
   const dispatch = useDispatch();
-  const { isTransactionInProgress, route, routeStates } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    amount,
+    fromChain: sourceChain,
+    toChain: destChain,
+    token: sourceToken,
+    destToken,
+    isTransactionInProgress,
+    route,
+    routeStates,
+  } = useSelector((state: RootState) => state.transferInput);
 
-  useAvailableRoutes();
+  useAvailableRoutes({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+  });
 
   const onSelect = useCallback(
     (value: Route) => {

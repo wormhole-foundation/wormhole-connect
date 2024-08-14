@@ -60,7 +60,7 @@ const SingleRoute = (props: Props) => {
 
   const { prices: tokenPrices } = useFetchTokenPricesV2();
 
-  const { route: routeName } = props.config;
+  const { name, route: routeName } = props.config;
 
   // Compute the quotes for this route
   const {
@@ -242,7 +242,7 @@ const SingleRoute = (props: Props) => {
   }
 
   return (
-    <div key={routeName} className={classes.container}>
+    <div key={name} className={classes.container}>
       <Typography fontSize={16} paddingBottom={0} width="100%" textAlign="left">
         {props.title || routeTitle}
       </Typography>
