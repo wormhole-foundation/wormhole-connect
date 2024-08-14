@@ -1,47 +1,7 @@
+import { Chain } from '@wormhole-foundation/sdk';
 import { WormholeConfig, Context, ChainConfig } from '../types';
 
-/**
- * Testnet chain name to chain id mapping
- */
-export const TESTNET_CHAINS = {
-  Solana: 1,
-  Bsc: 4,
-  Avalanche: 6,
-  Fantom: 10,
-  Klaytn: 13,
-  Celo: 14,
-  Moonbeam: 16,
-  Injective: 19,
-  Sui: 21,
-  Aptos: 22,
-  Sei: 32,
-  Scroll: 34,
-  Blast: 36,
-  Xlayer: 37,
-  Wormchain: 3104,
-  Osmosis: 20,
-  Cosmoshub: 4000,
-  Evmos: 4001,
-  Kujira: 4002,
-  Sepolia: 10002,
-  ArbitrumSepolia: 10003,
-  BaseSepolia: 10004,
-  OptimismSepolia: 10005,
-} as const;
-
-/**
- * testnet chain name type
- */
-export type TestnetChainName = keyof typeof TESTNET_CHAINS;
-/**
- * testnet chain id type
- */
-export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];
-/**
- * chain name to contracts mapping
- */
-
-const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
+const TESTNET: { [chain in Chain]?: ChainConfig } = {
   Solana: {
     key: 'Solana',
     id: 1,
@@ -207,7 +167,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
-};
+} as const;
 
 /**
  * default testnet chain config

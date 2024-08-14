@@ -1,12 +1,11 @@
-// TODO: remove this shit
 import { Network } from './types';
 import { Domain, MultiProvider } from './multi-provider';
 
-import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
-import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
+import MAINNET_CONFIG from './config/MAINNET';
+import TESTNET_CONFIG from './config/TESTNET';
 import { AnyContext, Context, TokenId, WormholeConfig } from './types';
-import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
-import { Chain } from '@wormhole-foundation/sdk';
+import DEVNET_CONFIG from './config/DEVNET';
+import { Chain, toChainId } from '@wormhole-foundation/sdk';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -59,27 +58,17 @@ export class WormholeContext extends MultiProvider<Domain> {
    * Registers evm providers
    */
   registerProviders() {
-    for (const network of Object.keys(this.conf.rpcs)) {
-      const n = network as Chain;
-      const chains =
-        this.conf.env === 'mainnet'
-          ? MAINNET_CHAINS
-          : this.conf.env === 'devnet'
-          ? DEVNET_CHAINS
-          : TESTNET_CHAINS;
-      const chainConfig = (chains as any)[n];
-      if (!chainConfig) throw new Error(`invalid network name ${n}`);
+    for (const chain of Object.keys(this.conf.rpcs)) {
+      const chainId = toChainId(chain);
+      if (!chainId) throw new Error(`Unknown chain ${chain}`);
       // register domain
       this.registerDomain({
-        // @ts-ignore
-        domain: chainConfig,
-        name: network,
+        domain: chainId,
+        name: chain,
       });
       // register RPC provider
-      if (this.conf.rpcs[n]) {
-        if (this.conf.chains[n]?.context === Context.ETH) {
-          this.registerRpcProvider(network, this.conf.rpcs[n]!);
-        }
+      if (this.conf.chains[chain]?.context === Context.ETH) {
+        this.registerRpcProvider(chain, this.conf.rpcs[chain]);
       }
     }
   }

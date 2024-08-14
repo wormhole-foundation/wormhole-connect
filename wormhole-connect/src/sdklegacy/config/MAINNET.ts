@@ -1,51 +1,7 @@
+import { Chain } from '@wormhole-foundation/sdk';
 import { WormholeConfig, Context, ChainConfig } from '../types';
 
-// TODO: get rid of this?
-/**
- * Mainnet chain name to chain id mapping
- */
-export const MAINNET_CHAINS = {
-  Solana: 1,
-  Ethereum: 2,
-  Bsc: 4,
-  Polygon: 5,
-  Avalanche: 6,
-  Fantom: 10,
-  Klaytn: 13,
-  Celo: 14,
-  Moonbeam: 16,
-  Injective: 19,
-  Sui: 21,
-  Aptos: 22,
-  Arbitrum: 23,
-  Optimism: 24,
-  Base: 30,
-  Sei: 32,
-  Scroll: 34,
-  Blast: 36,
-  Xlayer: 37,
-  Wormchain: 3104,
-  Osmosis: 20,
-  Cosmoshub: 4000,
-  Evmos: 4001,
-  Kujira: 4002,
-} as const;
-
-// TODO: remove these
-/**
- * mainnet chain name type
- */
-export type MainnetChainName = keyof typeof MAINNET_CHAINS;
-/**
- * mainnet chain id type
- */
-export type MainnetChainId = (typeof MAINNET_CHAINS)[MainnetChainName];
-
-/**
- * chain name to contracts mapping
- */
-
-const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
+const MAINNET: { [chain in Chain]?: ChainConfig } = {
   Ethereum: {
     key: 'Ethereum',
     id: 2,
@@ -222,7 +178,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
-};
+} as const;
 
 /**
  * default mainnet chain config

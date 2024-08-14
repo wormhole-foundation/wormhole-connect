@@ -1,24 +1,7 @@
+import { Chain } from '@wormhole-foundation/sdk';
 import { ChainConfig, Context, WormholeConfig } from '../types';
 
-/**
- * devnet chain name to chain id mapping
- */
-export const DEVNET_CHAINS = {
-  Ethereum: 2,
-  Terra2: 18,
-  Osmosis: 20,
-  Wormchain: 3104,
-} as const;
-/**
- * devnet chain name type
- */
-export type DevnetChainName = keyof typeof DEVNET_CHAINS;
-/**
- * devnet chain id type
- */
-export type DevnetChainId = (typeof DEVNET_CHAINS)[DevnetChainName];
-
-const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
+const DEVNET: { [chain in Chain]?: ChainConfig } = {
   Ethereum: {
     key: 'Ethereum',
     id: 2,
@@ -47,7 +30,7 @@ const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
-};
+} as const;
 
 /**
  * default devnet chain config
