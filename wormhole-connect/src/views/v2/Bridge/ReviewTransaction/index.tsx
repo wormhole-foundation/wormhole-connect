@@ -16,13 +16,14 @@ import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
-import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
+import useComputeQuote from 'hooks/useComputeQuote';
 import { useGasSlider } from 'hooks/useGasSlider';
 import RouteOperator from 'routes/operator';
 import {
   setTxDetails,
   setSendTx,
   setRoute as setRedeemRoute,
+  setTimestamp,
 } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
@@ -87,7 +88,7 @@ const ReviewTransaction = (props: Props) => {
   const { sending: sendingWallet, receiving: receivingWallet } = wallet;
 
   const relay = useSelector((state: RootState) => state.relay);
-  const { relayerFee, toNativeToken } = relay;
+  const { receiveNativeAmt, relayerFee, toNativeToken, eta } = relay;
 
   const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
     destChain,
@@ -98,7 +99,7 @@ const ReviewTransaction = (props: Props) => {
   });
 
   // Compute the native gas to receive
-  const { receiveNativeAmt, isFetching: isFetchingQuote } = useComputeQuoteV2({
+  const { isFetching: isFetchingQuote } = useComputeQuote({
     sourceChain,
     destChain,
     sourceToken,
@@ -210,6 +211,9 @@ const ReviewTransaction = (props: Props) => {
         throw new Error("Can't find txid in receipt");
       }
 
+      // Set the start time of the transaction
+      dispatch(setTimestamp(Date.now()));
+
       // TODO: SDKV2 set the tx details using on-chain data
       // because they might be different than what we have in memory (relayer fee)
       // or we may not have all the data (e.g. block)
@@ -233,6 +237,7 @@ const ReviewTransaction = (props: Props) => {
           relayerFee,
           receiveAmount: receiveAmount.data || '',
           receiveNativeAmount: receiveNativeAmt,
+          eta,
         }),
       );
 
@@ -330,7 +335,7 @@ const ReviewTransaction = (props: Props) => {
       />
       <Collapse in={showGasSlider}>
         <GasSlider
-          destinationGasDrop={receiveNativeAmt}
+          destinationGasDrop={receiveNativeAmt || 0}
           disabled={isGasSliderDisabled}
         />
       </Collapse>

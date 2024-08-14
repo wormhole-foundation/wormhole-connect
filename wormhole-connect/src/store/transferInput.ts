@@ -303,6 +303,12 @@ export const transferInputSlice = createSlice({
       });
       state.showValidationState = showValidationState;
     },
+    setRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<Route>,
+    ) => {
+      state.route = payload;
+    },
     setRoutes: (
       state: TransferInputState,
       { payload }: PayloadAction<RouteState[]>,
@@ -528,6 +534,7 @@ export const selectChain = async (
 
 export const {
   setValidations,
+  setRoute,
   setRoutes,
   setToken,
   setDestToken,

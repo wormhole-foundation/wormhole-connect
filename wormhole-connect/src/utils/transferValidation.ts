@@ -351,8 +351,17 @@ export const useValidate = () => {
   }, [debouncedStateForValidation, dispatch]);
 };
 
+export const minutesAndSecondsWithPadding = (
+  minutes: number,
+  seconds: number,
+) => {
+  const minsPadded = minutes.toString().padStart(2, '0');
+  const secsPadded = seconds.toString().padStart(2, '0');
+  return `${minsPadded}:${secsPadded}`;
+};
+
 export const millisToMinutesAndSeconds = (millis: number) => {
   const minutes = Math.floor(millis / 60000);
   const seconds = Math.floor((millis % 60000) / 1000);
-  return `${minutes}m ${seconds}s`;
+  return minutesAndSecondsWithPadding(minutes, seconds);
 };

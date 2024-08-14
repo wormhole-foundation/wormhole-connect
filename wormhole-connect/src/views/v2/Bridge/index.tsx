@@ -24,8 +24,7 @@ import FooterNavBar from 'components/FooterNavBar';
 import { TransferWallet } from 'utils/wallet';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import useComputeDestinationTokensV2 from 'hooks/useComputeDestinationTokensV2';
-import useComputeFees from 'hooks/useComputeFees';
-import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
+import useComputeQuote from 'hooks/useComputeQuote';
 import useComputeSourceTokensV2 from 'hooks/useComputeSourceTokensV2';
 import {
   selectFromChain,
@@ -166,19 +165,8 @@ const Bridge = () => {
     route: selectedRoute,
   });
 
-  // Compute the fees for this route
-  const { isFetching: isFetchingFees } = useComputeFees({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-    route: selectedRoute,
-    toNativeToken,
-  });
-
   // Compute the quotes for this route
-  const { isFetching: isFetchingQuote } = useComputeQuoteV2({
+  const { isFetching: isFetchingQuote } = useComputeQuote({
     sourceChain,
     destChain,
     sourceToken,
@@ -380,13 +368,11 @@ const Bridge = () => {
       return null;
     }
 
-    const isFetching = isFetchingFees || isFetchingQuote;
-
     return (
       <Button
         variant="primary"
         className={classes.reviewTransaction}
-        disabled={!isValid || isFetching}
+        disabled={!isValid || isFetchingQuote}
         onClick={() => {
           if (
             routeStates &&
@@ -414,7 +400,6 @@ const Bridge = () => {
     selectedRoute,
     amount,
     routeStates,
-    isFetchingFees,
     isFetchingQuote,
   ]);
 

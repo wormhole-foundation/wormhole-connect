@@ -15,7 +15,7 @@ const parseConfig = (config: string): WormholeConnectConfig => {
         `(function() { return ${config} })()`,
       ) as WormholeConnectConfig;
     } catch (e) {
-      console.log('Failed to parse custom config: ', e, config);
+      console.error('Failed to parse custom config: ', e, config);
     }
   }
 

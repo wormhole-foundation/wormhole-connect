@@ -49,6 +49,9 @@ export interface TransferInfo {
   // Amount of native gas being received, in destination gas token units
   // For example 1.0 is 1.0 ETH, not 1 wei
   receiveNativeAmount?: number;
+
+  // ETA for the route this transfer was initiated on
+  eta?: number;
 }
 
 // This function has three levels of priority when fetching a token bridge
@@ -192,6 +195,15 @@ const parseTokenBridgeReceipt = async (
     txData.tokenKey = tokenV1.key;
     txData.receivedTokenKey = tokenV1.key;
     txData.receiveAmount = txData.amount;
+    txData.receiveNativeAmount = Number(
+      amount.fmt(payload.payload.toNativeTokenAmount, Math.min(8, decimals)),
+    );
+    txData.relayerFee = {
+      fee: Number(
+        amount.fmt(payload.payload.targetRelayerFee, Math.min(8, decimals)),
+      ),
+      tokenKey: tokenV1.key,
+    };
   }
 
   if (payload.to) {

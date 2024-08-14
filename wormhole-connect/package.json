@@ -64,6 +64,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
+    "react-timer-hook": "^3.0.7",
     "rpc-websockets": "^7.11.0",
     "sha3": "^2.1.4",
     "tss-react": "^4.7.7",

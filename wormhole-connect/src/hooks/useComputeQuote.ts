@@ -1,16 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  setReceiveAmount,
-  setFetchingReceiveAmount,
-  setReceiveAmountError,
-} from 'store/transferInput';
+import { setReceiveAmount, setReceiveAmountError } from 'store/transferInput';
 
 import type { Route } from 'config/types';
 import type { ChainName } from 'sdklegacy';
 import { getRoute } from 'routes/mappings';
-import { setReceiveNativeAmt, setRelayerFee } from 'store/relay';
+import { setReceiveNativeAmt, setRelayerFee, setEta } from 'store/relay';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
 import config from 'config';
@@ -25,7 +21,11 @@ type Props = {
   toNativeToken: number;
 };
 
-export const useComputeQuote = (props: Props): void => {
+type returnProps = {
+  isFetching: boolean;
+};
+
+const useComputeQuote = (props: Props): returnProps => {
   const {
     sourceChain,
     destChain,
@@ -37,6 +37,8 @@ export const useComputeQuote = (props: Props): void => {
   } = props;
 
   const dispatch = useDispatch();
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (
@@ -53,7 +55,7 @@ export const useComputeQuote = (props: Props): void => {
     let isActive = true;
     const computeQuote = async () => {
       try {
-        dispatch(setFetchingReceiveAmount());
+        setIsFetching(true);
 
         const parsedAmount = Number.parseFloat(amount);
         if (Number.isNaN(parsedAmount)) {
@@ -78,7 +80,9 @@ export const useComputeQuote = (props: Props): void => {
             dispatch(setReceiveAmountError(quote.error.message));
             dispatch(setReceiveNativeAmt(0));
             dispatch(setRelayerFee(undefined));
+            dispatch(setEta(0));
           }
+          setIsFetching(false);
           return;
         }
 
@@ -116,6 +120,10 @@ export const useComputeQuote = (props: Props): void => {
           } else {
             dispatch(setRelayerFee(undefined));
           }
+
+          if (quote.eta) {
+            dispatch(setEta(quote.eta));
+          }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
@@ -123,7 +131,10 @@ export const useComputeQuote = (props: Props): void => {
           dispatch(setReceiveAmountError(e.message));
           dispatch(setReceiveNativeAmt(0));
           dispatch(setRelayerFee(undefined));
+          dispatch(setEta(0));
         }
+      } finally {
+        setIsFetching(false);
       }
     };
 
@@ -142,4 +153,10 @@ export const useComputeQuote = (props: Props): void => {
     sourceChain,
     dispatch,
   ]);
+
+  return {
+    isFetching,
+  };
 };
+
+export default useComputeQuote;
