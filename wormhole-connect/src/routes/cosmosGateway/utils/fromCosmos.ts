@@ -16,7 +16,6 @@ import { IBC_MSG_TYPE, IBC_TIMEOUT_MILLIS, millisToNano } from './consts';
 import { getIbcDestinationChannel, getTranslatorAddress } from './contracts';
 import config from 'config';
 import { isGatewayChain } from '../../../utils/cosmos';
-import Long from 'long';
 
 export function buildFromCosmosPayloadMemo(
   recipientChainId: ChainId,
@@ -89,15 +88,11 @@ export async function fromCosmos(
       ...baseMsg,
       timeoutHeight: baseMsg.timeoutHeight
         ? {
-            revisionHeight: Long.fromNumber(
-              Number(baseMsg.timeoutHeight.revisionHeight),
-            ),
-            revisionNumber: Long.fromNumber(
-              Number(baseMsg.timeoutHeight.revisionNumber),
-            ),
+            revisionHeight: BigInt(baseMsg.timeoutHeight.revisionHeight),
+            revisionNumber: BigInt(baseMsg.timeoutHeight.revisionNumber),
           }
         : undefined,
-      timeoutTimestamp: Long.fromNumber(Number(baseMsg.timeoutTimestamp)),
+      timeoutTimestamp: BigInt(baseMsg.timeoutTimestamp),
     },
   };
 
