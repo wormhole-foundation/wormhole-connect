@@ -62,8 +62,6 @@ const AmountInput = (props: Props) => {
   const {
     fromChain: sourceChain,
     token: sourceToken,
-    toChain: destChain,
-    destToken,
     amount,
     route,
   } = useSelector((state: RootState) => state.transferInput);
