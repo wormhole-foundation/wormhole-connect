@@ -16,7 +16,7 @@ import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
 import { toFixedDecimals } from 'utils/balance';
-import { getMaxAmt, isCctp, validateAmount } from 'utils/transferValidation';
+import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
 
@@ -117,7 +117,6 @@ const AmountInput = (props: Props) => {
       tokenAmount,
       tokenBalance,
       getMaxAmt(route),
-      isCctp(sourceToken, destToken, sourceChain, destChain),
     );
 
     // Validation result is truty when there are errors
