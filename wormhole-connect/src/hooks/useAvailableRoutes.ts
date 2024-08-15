@@ -45,7 +45,7 @@ const useAvailableRoutes = (): void => {
             fromChain,
             toChain,
           );
-        } catch (e: any) {
+        } catch (e) {
           console.error('Error when checking route is supported:', e, r);
         }
 
@@ -62,6 +62,7 @@ const useAvailableRoutes = (): void => {
               toChain,
               { nativeGas: toNativeToken },
             );
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (e: any) {
             availabilityError = e.message;
             console.error('Error when checking route is available:', e, r);
