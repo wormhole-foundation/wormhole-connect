@@ -274,6 +274,7 @@ function WalletsModal(props: Props) {
               }
             />
           </FormGroup>
+          <Spacer height={6} />
         </>
       ) : (
         <></>
