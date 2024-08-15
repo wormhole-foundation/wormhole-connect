@@ -126,7 +126,7 @@ const AmountInput = (props: Props) => {
     }
 
     setValidationResult(amountValidation);
-  }, [tokenAmount, validationResult]);
+  }, [tokenAmount, tokenBalance, route, validationResult]);
 
   const maxButton = useMemo(() => {
     return (
