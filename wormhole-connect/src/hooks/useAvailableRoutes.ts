@@ -6,14 +6,14 @@ import { RouteState, setRoutes } from 'store/transferInput';
 import RouteOperator from 'routes/operator';
 import config from 'config';
 
-import type { ChainName } from 'sdklegacy';
+import type { Chain } from '@wormhole-foundation/sdk';
 import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
+  destChain: Chain | undefined;
   destToken: string;
   amount: string;
 };
