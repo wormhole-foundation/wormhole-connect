@@ -11,7 +11,7 @@ import {
 } from './types';
 import {
   mergeCustomTokensConfig,
-  mergeNttGroups,
+  mergeNttConfig,
   validateDefaults,
 } from './utils';
 import { wrapEventHandler } from './events';
@@ -177,10 +177,10 @@ export function buildConfig(
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
 
     // NTT config
-    nttGroups: mergeNttGroups(
+    nttConfig: mergeNttConfig(
       tokens,
-      networkData.nttGroups,
-      customConfig?.nttGroups,
+      networkData.nttConfig,
+      customConfig?.nttConfig,
     ),
 
     // Guardian Set

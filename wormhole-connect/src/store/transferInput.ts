@@ -19,7 +19,7 @@ import {
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isNttRoute } from 'routes';
-import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
+import { getNttConfigKey, getNttToken } from 'utils/ntt';
 import { Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
@@ -188,9 +188,9 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       }
     }
     if (isNttRoute(route) && destToken) {
-      const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
-      if (groupKey && fromChain) {
-        state.token = getNttTokenByGroupKey(groupKey, fromChain)?.key || '';
+      const cfgKey = getNttConfigKey(tokenConfig, config.tokens[destToken]);
+      if (cfgKey && fromChain) {
+        state.token = getNttToken(cfgKey, fromChain)?.key || '';
       } else {
         state.token = '';
       }
@@ -224,9 +224,9 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
       state.destToken = '';
     }
     if (isNttRoute(route) && token) {
-      const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
-      if (groupKey && toChain) {
-        state.destToken = getNttTokenByGroupKey(groupKey, toChain)?.key || '';
+      const cfgKey = getNttConfigKey(tokenConfig, config.tokens[token]);
+      if (cfgKey && toChain) {
+        state.destToken = getNttToken(cfgKey, toChain)?.key || '';
       } else {
         state.destToken = '';
       }
