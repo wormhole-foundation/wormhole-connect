@@ -136,10 +136,10 @@ const Bridge = () => {
 
     const routeState = routeStates?.find((rs) => rs.name === route);
 
-    if (routeState?.available && routeState?.supported && !selectedRoute) {
+    if (routeState?.supported && routeState?.available) {
       setSelectedRoute(route);
     }
-  }, [route, routeStates, selectedRoute]);
+  }, [route, routeStates]);
 
   // Compute and set source tokens
   const {
@@ -369,7 +369,7 @@ const Bridge = () => {
           ) {
             const route = routeStates.find((rs) => rs.name === selectedRoute);
 
-            if (route?.available) {
+            if (route?.supported && route?.available) {
               dispatch(setTransferRoute(selectedRoute));
               setWillReviewTransaction(true);
             }

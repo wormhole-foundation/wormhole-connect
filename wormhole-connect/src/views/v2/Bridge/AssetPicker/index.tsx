@@ -44,7 +44,7 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
   },
   disabled: {
-    opacity: '40%',
+    opacity: '0.4',
     cursor: 'not-allowed',
     clickEvent: 'none',
   },

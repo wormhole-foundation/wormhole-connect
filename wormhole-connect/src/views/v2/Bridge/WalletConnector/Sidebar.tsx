@@ -27,10 +27,10 @@ const useStyles = makeStyles()(() => ({
     width: '360px',
   },
   context: {
-    opacity: '0.6',
+    opacity: 0.6,
   },
   notInstalled: {
-    opacity: '60%',
+    opacity: 0.6,
   },
 }));
 
