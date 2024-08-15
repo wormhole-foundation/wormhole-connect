@@ -35,26 +35,15 @@ type Props = {
 const Routes = (props: Props) => {
   const { classes } = useStyles();
 
-  const {
-    fromChain: sourceChain,
-    toChain: destChain,
-    token: sourceToken,
-    destToken,
-    amount,
-    routeStates,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { amount, routeStates } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
 
-  useAvailableRoutes({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-  });
+  useAvailableRoutes();
 
   const supportedRoutes = useMemo(() => {
     if (!routeStates) {

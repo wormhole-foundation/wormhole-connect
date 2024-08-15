@@ -176,13 +176,7 @@ const Bridge = () => {
   });
 
   // Pre-fetch available routes
-  useAvailableRoutes({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-  });
+  useAvailableRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();

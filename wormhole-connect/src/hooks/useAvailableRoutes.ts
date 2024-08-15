@@ -6,29 +6,22 @@ import { RouteState, setRoutes } from 'store/transferInput';
 import RouteOperator from 'routes/operator';
 import config from 'config';
 
-import type { Chain } from '@wormhole-foundation/sdk';
 import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
-type Props = {
-  sourceChain: Chain | undefined;
-  sourceToken: string;
-  destChain: Chain | undefined;
-  destToken: string;
-  amount: string;
-};
-
-const useAvailableRoutes = (props: Props): void => {
+const useAvailableRoutes = (): void => {
   const dispatch = useDispatch();
 
-  const { sourceChain, sourceToken, destChain, destToken, amount } = props;
+  const { token, destToken, fromChain, toChain, amount } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const [debouncedAmount] = useDebounce(amount, 500);
 
   useEffect(() => {
-    if (!sourceChain || !destChain || !sourceToken || !destToken) {
+    if (!fromChain || !toChain || !token || !destToken) {
       return;
     }
 
@@ -45,11 +38,11 @@ const useAvailableRoutes = (props: Props): void => {
         try {
           supported = await RouteOperator.isRouteSupported(
             r,
-            sourceToken,
+            token,
             destToken,
             debouncedAmount,
-            sourceChain,
-            destChain,
+            fromChain,
+            toChain,
           );
         } catch (e) {
           console.error('Error when checking route is supported:', e, r);
@@ -61,11 +54,11 @@ const useAvailableRoutes = (props: Props): void => {
           try {
             available = await RouteOperator.isRouteAvailable(
               r,
-              sourceToken,
+              token,
               destToken,
               debouncedAmount,
-              sourceChain,
-              destChain,
+              fromChain,
+              toChain,
               { nativeGas: toNativeToken },
             );
           } catch (e) {
@@ -87,11 +80,12 @@ const useAvailableRoutes = (props: Props): void => {
       isActive = false;
     };
   }, [
-    sourceToken,
+    dispatch,
+    token,
     destToken,
     debouncedAmount,
-    sourceChain,
-    destChain,
+    fromChain,
+    toChain,
     toNativeToken,
   ]);
 };
