@@ -99,9 +99,7 @@ function ConnectWallet(props: Props) {
     (popupState?: any) => {
       if (disabled) return;
       if (popupState) popupState.close();
-      if (side === 'destination' && manualAddressTarget) {
-        dispatch(setManualAddressTarget(false));
-      }
+
       dispatch(setWalletModal(type));
     },
     [disabled, manualAddressTarget],
