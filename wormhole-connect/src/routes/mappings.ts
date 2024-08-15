@@ -27,8 +27,10 @@ export function getRoute(route: Route): SDKv2Route {
     case Route.CCTPRelay:
       return new SDKv2Route(routes.AutomaticCCTPRoute, route);
     case Route.NttManual:
+      /* @ts-ignore TODO remove */
       return new SDKv2Route(nttManualRoute(getNttConfig()), route);
     case Route.NttRelay:
+      /* @ts-ignore TODO remove */
       return new SDKv2Route(nttAutomaticRoute(getNttConfig()), route);
     case Route.Mayan:
       return new SDKv2Route(MayanRoute, route);
