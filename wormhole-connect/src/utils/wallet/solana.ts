@@ -28,6 +28,7 @@ import {
 } from '@xlabs-libs/wallet-aggregator-solana';
 
 import config from 'config';
+import { sleep } from 'utils';
 
 import {
   isVersionedTransaction,
@@ -228,6 +229,7 @@ async function createPriorityFeeInstructions(
         for (const line of response.value.logs) {
           if (line.includes('SlippageToleranceExceeded')) {
             console.info('Slippage failure during simulation. Trying again.');
+            sleep(1000);
             continue simulationLoop;
           }
         }
