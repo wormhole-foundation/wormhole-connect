@@ -79,8 +79,6 @@ export function fetchOptions() {
 
 // This function signs and sends the transaction while constantly checking for confirmation
 // and resending the transaction if it hasn't been confirmed after the specified interval
-// NOTE: The caller is responsible for simulating the transaction and setting any compute budget
-// or priority fee before calling this function
 // See https://docs.triton.one/chains/solana/sending-txs for more information
 export async function signAndSendTransaction(
   request: SolanaUnsignedTransaction<Network>,
@@ -113,6 +111,7 @@ export async function signAndSendTransaction(
       addressLookupTableAccounts: luts,
     });
     message.recentBlockhash = blockhash;
+    unsignedTx.message.recentBlockhash = blockhash;
 
     // Remove existing compute budget instructions if they were added by the SDK
     message.instructions = message.instructions.filter(computeBudgetIxFilter);
@@ -203,7 +202,10 @@ async function createPriorityFeeInstructions(
   transaction: Transaction | VersionedTransaction,
   commitment?: Commitment,
 ) {
-  if (isVersionedTransaction(transaction)) {
+  if (
+    isVersionedTransaction(transaction) &&
+    !transaction.message.recentBlockhash
+  ) {
     // This is required for versioned transactions - simulateTransaction throws
     // if recentBlockhash is an empty string.
     const { blockhash } = await connection.getLatestBlockhash(commitment);
