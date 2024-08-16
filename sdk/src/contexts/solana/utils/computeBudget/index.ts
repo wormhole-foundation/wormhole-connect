@@ -4,6 +4,7 @@ import {
   TransactionInstruction,
   PublicKey,
   ComputeBudgetProgram,
+  RecentPrioritizationFees,
 } from '@solana/web3.js';
 
 // Add priority fee according to 50th percentile of recent fees paid
@@ -108,9 +109,32 @@ async function determinePriorityFee(
   let fee = 1; // Set fee to 1 microlamport by default
 
   try {
-    const recentFeesResponse = await connection.getRecentPrioritizationFees({
-      lockedWritableAccounts,
-    });
+    const getRecentPrioritizationFeesByPercentile = async (): Promise<
+      RecentPrioritizationFees[]
+    > => {
+      /** regular method does not expose percentile args and connection _rcpRequest is private */
+      /* @ts-ignore */
+      const rpcRequest = connection._rpcRequest;
+      try {
+        const { result } = await rpcRequest('getRecentPrioritizationFees', [
+          lockedWritableAccounts.map((key) => key.toBase58()),
+          { percentile: 7500 },
+        ]);
+        return Array.isArray(result) ? result : [];
+      } catch {
+        return [];
+      }
+    };
+
+    /** tries both triton and regular at the same time to avoid latency when percentile is not supported */
+    const [tritonResponse, fallbackResponse] = await Promise.all([
+      getRecentPrioritizationFeesByPercentile(),
+      connection.getRecentPrioritizationFees({ lockedWritableAccounts }),
+    ]);
+
+    const recentFeesResponse = tritonResponse?.length
+      ? tritonResponse
+      : fallbackResponse;
 
     if (recentFeesResponse) {
       // Get 75th percentile fee paid in recent slots
