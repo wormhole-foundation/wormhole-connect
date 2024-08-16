@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import { makeStyles } from 'tss-react/mui';
@@ -8,6 +8,9 @@ import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
+import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
+import { CircularProgress, Link } from '@mui/material';
+import RouteOperator from 'routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -24,6 +27,15 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
     width: '100%',
   },
+  otherRoutesToggle: {
+    fontSize: 14,
+    color: '#C1BBF6',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -33,10 +45,11 @@ type Props = {
 
 const Routes = (props: Props) => {
   const { classes } = useStyles();
+  const [showAll, setShowAll] = useState(false);
 
-  const { amount, routeStates } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { amount, routeStates, fromChain, token, toChain, destToken } =
+    useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -52,13 +65,66 @@ const Routes = (props: Props) => {
     return routeStates.filter((rs) => rs.supported);
   }, [routeStates]);
 
+  const supportedRoutesNames = useMemo(
+    () => supportedRoutes.map((r) => r.name as Route),
+    [supportedRoutes],
+  );
+
+  const { quotesMap, isFetching } = useRoutesQuotesBulk(supportedRoutesNames, {
+    amount: Number.parseFloat(amount),
+    sourceChain: fromChain,
+    sourceToken: token,
+    destChain: toChain,
+    destToken,
+    nativeGas: toNativeToken,
+  });
+
   const walletsConnected = useMemo(
     () => !!sendingWallet.address && !!receivingWallet.address,
     [sendingWallet.address, receivingWallet.address],
   );
 
+  const sortedSupportedRoutes = useMemo(() => [...supportedRoutes].sort((routeA, routeB) => {
+    const quoteA = quotesMap[routeA.name as Route];
+    const quoteB = quotesMap[routeB.name as Route];
+    const routeConfigA = RouteOperator.getRoute(routeA.name as Route);
+    const routeConfigB = RouteOperator.getRoute(routeB.name as Route);
+
+    // 1. Prioritize automatic routes
+    if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
+      return -1;
+    } else if (!routeConfigA.AUTOMATIC_DEPOSIT && routeConfigB.AUTOMATIC_DEPOSIT) {
+      return 1;
+    }
+
+    if (quoteA && quoteB) {
+      // 2. Prioritize estimated time
+      if (quoteA.eta > quoteB.eta) {
+        return 1;
+      } else if (quoteA.eta < quoteB.eta) {
+        return -1;
+      }
+
+      // 3. Compare relay fees
+      if (quoteA.relayerFee > quoteB.relayerFee) {
+        return 1;
+      } else if (quoteA.relayerFee < quoteB.relayerFee) {
+        return -1;
+      }
+    }
+
+    // Don't swap when routes match by all criteria or don't have quotas
+    return 0;
+  }), [supportedRoutes, quotesMap]);
+
+  const renderRoutes = useMemo(() => showAll ? sortedSupportedRoutes : sortedSupportedRoutes.slice(0, 1), [showAll, sortedSupportedRoutes]);
+
   if (supportedRoutes.length === 0 || !walletsConnected) {
     return <></>;
+  }
+
+  if (isFetching) {
+    return <CircularProgress />;
   }
 
   if (walletsConnected && !(Number(amount) > 0)) {
@@ -73,7 +139,7 @@ const Routes = (props: Props) => {
 
   return (
     <>
-      {supportedRoutes.map(({ name, available, availabilityError }) => {
+      {renderRoutes.map(({ name, available, availabilityError }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
         return (
@@ -86,6 +152,11 @@ const Routes = (props: Props) => {
           />
         );
       })}
+      {sortedSupportedRoutes.length > 1 && (
+        <Link onClick={() => setShowAll(prev => !prev)} className={classes.otherRoutesToggle}>
+          {showAll ? 'Hide other routes' : 'View other routes'}
+        </Link>
+      )}
     </>
   );
 };
