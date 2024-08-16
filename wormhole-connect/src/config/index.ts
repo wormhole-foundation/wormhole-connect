@@ -144,6 +144,7 @@ export function buildConfig(
         Route.NttRelay,
         Route.CCTPManual,
         Route.CCTPRelay,
+        Route.Mayan,
       ].includes(r as Route),
     ),
 

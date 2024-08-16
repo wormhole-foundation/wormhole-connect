@@ -12,6 +12,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 
 import {
+  AddressLookupTableAccount,
   clusterApiUrl,
   Commitment,
   ConfirmOptions,
@@ -27,6 +28,7 @@ import {
 } from '@xlabs-libs/wallet-aggregator-solana';
 
 import config from 'config';
+import { sleep } from 'utils';
 
 import {
   isVersionedTransaction,
@@ -77,8 +79,6 @@ export function fetchOptions() {
 
 // This function signs and sends the transaction while constantly checking for confirmation
 // and resending the transaction if it hasn't been confirmed after the specified interval
-// NOTE: The caller is responsible for simulating the transaction and setting any compute budget
-// or priority fee before calling this function
 // See https://docs.triton.one/chains/solana/sending-txs for more information
 export async function signAndSendTransaction(
   request: SolanaUnsignedTransaction<Network>,
@@ -94,17 +94,41 @@ export async function signAndSendTransaction(
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);
 
+  const computeBudgetIxFilter = (ix) =>
+    ix.programId.toString() !== 'ComputeBudget111111111111111111111111111111';
+
   if (isVersionedTransaction(unsignedTx)) {
-    const message = TransactionMessage.decompile(unsignedTx.message);
+    const luts = (
+      await Promise.all(
+        unsignedTx.message.addressTableLookups.map((acc) =>
+          connection.getAddressLookupTable(acc.accountKey),
+        ),
+      )
+    )
+      .map((lut) => lut.value)
+      .filter((lut) => lut !== null) as AddressLookupTableAccount[];
+    const message = TransactionMessage.decompile(unsignedTx.message, {
+      addressLookupTableAccounts: luts,
+    });
     message.recentBlockhash = blockhash;
+    unsignedTx.message.recentBlockhash = blockhash;
+
+    // Remove existing compute budget instructions if they were added by the SDK
+    message.instructions = message.instructions.filter(computeBudgetIxFilter);
     message.instructions.push(
       ...(await createPriorityFeeInstructions(connection, unsignedTx)),
     );
-    unsignedTx.message = message.compileToV0Message();
+
+    unsignedTx.message = message.compileToV0Message(luts);
     unsignedTx.sign(request.transaction.signers ?? []);
   } else {
     unsignedTx.recentBlockhash = blockhash;
     unsignedTx.lastValidBlockHeight = lastValidBlockHeight;
+
+    // Remove existing compute budget instructions if they were added by the SDK
+    unsignedTx.instructions = unsignedTx.instructions.filter(
+      computeBudgetIxFilter,
+    );
     unsignedTx.add(
       ...(await createPriorityFeeInstructions(connection, unsignedTx)),
     );
@@ -178,25 +202,65 @@ async function createPriorityFeeInstructions(
   transaction: Transaction | VersionedTransaction,
   commitment?: Commitment,
 ) {
-  const response = await (isVersionedTransaction(transaction)
-    ? connection.simulateTransaction(transaction, {
-        commitment,
-        replaceRecentBlockhash: true,
-      })
-    : connection.simulateTransaction(transaction));
-  if (response.value.err) {
-    throw new Error(`Simulation failed: ${response.value.err}`);
+  if (
+    isVersionedTransaction(transaction) &&
+    !transaction.message.recentBlockhash
+  ) {
+    // This is required for versioned transactions - simulateTransaction throws
+    // if recentBlockhash is an empty string.
+    const { blockhash } = await connection.getLatestBlockhash(commitment);
+    transaction.message.recentBlockhash = blockhash;
   }
+
+  let unitsUsed = 200_000;
+  let simulationAttempts = 0;
+
+  simulationLoop: while (simulationAttempts < 5) {
+    simulationAttempts++;
+    const response = await (isVersionedTransaction(transaction)
+      ? connection.simulateTransaction(transaction, {
+          commitment,
+          replaceRecentBlockhash: true,
+        })
+      : connection.simulateTransaction(transaction));
+
+    if (response.value.err) {
+      // In some cases which aren't deterministic, like a slippage error, we can retry the
+      // simulation a few times to get a successful response.
+      if (response.value.logs) {
+        for (const line of response.value.logs) {
+          if (line.includes('SlippageToleranceExceeded')) {
+            console.info('Slippage failure during simulation. Trying again.');
+            sleep(1000);
+            continue simulationLoop;
+          }
+        }
+      }
+
+      // Logs didn't match an error case we would retry; throw
+      throw new Error(
+        `Simulation failed: ${JSON.stringify(response.value.err)}\nLogs:\n${(
+          response.value.logs || []
+        ).join('\n  ')}`,
+      );
+    } else {
+      // Success case
+      if (response.value.unitsConsumed) {
+        unitsUsed = response.value.unitsConsumed;
+      }
+      break;
+    }
+  }
+
   const instructions: TransactionInstruction[] = [];
-  if (response.value?.unitsConsumed) {
-    instructions.push(
-      ComputeBudgetProgram.setComputeUnitLimit({
-        // Set compute budget to 120% of the units used in the simulated transaction
-        units: response.value.unitsConsumed * 1.2,
-      }),
-    );
-  }
-  const priorityFee = await determinePriorityFee(connection, transaction, 0.75);
+  instructions.push(
+    ComputeBudgetProgram.setComputeUnitLimit({
+      // Set compute budget to 120% of the units used in the simulated transaction
+      units: unitsUsed * 1.2,
+    }),
+  );
+
+  const priorityFee = await determinePriorityFee(connection, transaction, 0.95);
   instructions.push(
     ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }),
   );
