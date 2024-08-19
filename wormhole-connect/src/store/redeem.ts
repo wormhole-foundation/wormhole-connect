@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransferInfo } from 'utils/sdkv2';
 import { TransferDestInfo } from 'routes';
-import { Route } from 'config/types';
 import { DeliveryStatus } from 'utils/sdk';
 
 export enum MessageType {
@@ -16,7 +15,7 @@ export interface RedeemState {
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   isInvalidVaa: boolean;
-  route: Route | undefined;
+  route?: string;
   transferDestInfo: TransferDestInfo | undefined;
   deliveryStatus: DeliveryStatus | undefined;
   isResumeTx: boolean;

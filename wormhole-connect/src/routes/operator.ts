@@ -1,34 +1,59 @@
-import { TokenId } from 'sdklegacy';
-import { TransferInfo } from 'utils/sdkv2';
-
 import config from 'config';
-import { TokenConfig, Route } from 'config/types';
-import {
-  TransferDisplayData,
-  TransferInfoBaseParams,
-  TransferDestInfo,
-} from './types';
-import { TokenPrices } from 'store/tokenPrices';
+import { TokenConfig } from 'config/types';
 
-import {
-  Chain,
-  Network,
-  routes,
-  TransactionId,
-} from '@wormhole-foundation/sdk';
+import { Chain, routes, TransactionId } from '@wormhole-foundation/sdk';
 
-import { getRoute } from './mappings';
 import SDKv2Route from './sdkv2';
-import { RelayerFee } from 'store/relay';
+
+import {
+  nttAutomaticRoute,
+  nttManualRoute,
+  NttRoute,
+} from '@wormhole-foundation/sdk-route-ntt';
 
 export interface TxInfo {
-  route: Route;
+  route: string;
   receipt: routes.Receipt;
 }
 
-export class Operator {
-  getRoute(route: Route): SDKv2Route {
-    return getRoute(route);
+type forEachCallback<T> = (name: string, route: SDKv2Route) => T;
+
+export const DEFAULT_ROUTES = [
+  routes.AutomaticCCTPRoute,
+  routes.CCTPRoute,
+  routes.AutomaticTokenBridgeRoute,
+  routes.TokenBridgeRoute,
+];
+
+export default class RouteOperator {
+  preference: string[];
+  routes: Record<string, SDKv2Route>;
+
+  constructor(routesConfig: routes.RouteConstructor<any>[] = DEFAULT_ROUTES) {
+    let routes = {};
+    let preference: string[] = [];
+    for (const rc of routesConfig) {
+      const name = rc.meta.name;
+      if (name === '') {
+        throw new Error(`Route has empty meta.name`);
+      } else if (name in routes) {
+        throw new Error(`Route has duplicate meta.name: ${name}`);
+      }
+      preference.push(name);
+      routes[name] = new SDKv2Route(rc);
+    }
+    this.routes = routes;
+    this.preference = preference;
+  }
+
+  get(name: string): SDKv2Route {
+    return this.routes[name];
+  }
+
+  async forEach<T>(callback: forEachCallback<T>): Promise<T[]> {
+    return Promise.all(
+      this.preference.map((name) => callback(name, this.routes[name])),
+    );
   }
 
   async resumeFromTx(tx: TransactionId): Promise<TxInfo | null> {
@@ -47,16 +72,15 @@ export class Operator {
       // Promise.race, because we only want to resolve under specific conditions.
       //
       // The assumption is that at most one route will produce a receipt.
-      const totalAttemptsToMake = config.routes.length;
+      const totalAttemptsToMake = Object.keys(this.routes).length;
       let failedAttempts = 0;
 
-      for (const route of config.routes) {
-        const r = this.getRoute(route as Route);
-
-        r.resumeIfManual(tx)
+      this.forEach((name, route) => {
+        route
+          .resumeIfManual(tx)
           .then((receipt) => {
             if (receipt !== null) {
-              resolve({ route: route as Route, receipt });
+              resolve({ route: name, receipt });
             } else {
               failedAttempts += 1;
             }
@@ -86,73 +110,22 @@ export class Operator {
               resolve(null);
             }
           });
-      }
+      });
     });
-  }
-
-  async isRouteSupported(
-    route: Route,
-    sourceToken: string,
-    destToken: string,
-    amount: string,
-    sourceChain: Chain,
-    destChain: Chain,
-  ): Promise<boolean> {
-    try {
-      if (!config.routes.includes(route)) {
-        return false;
-      }
-
-      const r = this.getRoute(route);
-      return await r.isRouteSupported(
-        sourceToken,
-        destToken,
-        amount,
-        sourceChain,
-        destChain,
-      );
-    } catch (e) {
-      // TODO is this the right place to try/catch these?
-      // or deeper inside SDKv2Route?
-      return false;
-    }
-  }
-  async isRouteAvailable(
-    route: Route,
-    sourceToken: string,
-    destToken: string,
-    amount: string,
-    sourceChain: Chain,
-    destChain: Chain,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<boolean> {
-    if (!config.routes.includes(route)) {
-      return false;
-    }
-
-    const r = this.getRoute(route);
-    return await r.isRouteAvailable(
-      sourceToken,
-      destToken,
-      amount,
-      sourceChain,
-      destChain,
-      options,
-    );
   }
 
   allSupportedChains(): Chain[] {
     const supported = new Set<Chain>();
     for (const key in config.chains) {
       const chain = key as Chain;
-      for (const route of config.routes) {
+      this.forEach(async (_name, route) => {
         if (!supported.has(chain)) {
-          const isSupported = this.isSupportedChain(route as Route, chain);
+          const isSupported = route.isSupportedChain(chain);
           if (isSupported) {
             supported.add(chain);
           }
         }
-      }
+      });
     }
     return Array.from(supported);
   }
@@ -163,11 +136,9 @@ export class Operator {
     destChain?: Chain,
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
-    for (const route of config.routes) {
-      const r = this.getRoute(route as Route);
-
+    await this.forEach(async (_name, route) => {
       try {
-        const sourceTokens = await r.supportedSourceTokens(
+        const sourceTokens = await route.supportedSourceTokens(
           config.tokensArr,
           destToken,
           sourceChain,
@@ -180,7 +151,7 @@ export class Operator {
       } catch (e) {
         console.error(e);
       }
-    }
+    });
     return Object.values(supported);
   }
 
@@ -190,11 +161,9 @@ export class Operator {
     destChain?: Chain,
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
-    for (const route of config.routes) {
-      const r = this.getRoute(route as Route);
-
+    await this.forEach(async (_name, route) => {
       try {
-        const destTokens = await r.supportedDestTokens(
+        const destTokens = await route.supportedDestTokens(
           config.tokensArr,
           sourceToken,
           sourceChain,
@@ -207,165 +176,19 @@ export class Operator {
       } catch (e) {
         console.error(e);
       }
-    }
+    });
     return Object.values(supported);
-  }
-
-  isSupportedChain(route: Route, chain: Chain): boolean {
-    const r = this.getRoute(route);
-    return r.isSupportedChain(chain);
-  }
-
-  async computeReceiveAmount(
-    route: Route,
-    sendAmount: number,
-    token: string,
-    destToken: string,
-    sendingChain: Chain,
-    recipientChain: Chain,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<number> {
-    const r = this.getRoute(route);
-    return await r.computeReceiveAmount(
-      sendAmount,
-      token,
-      destToken,
-      sendingChain,
-      recipientChain,
-      options,
-    );
-  }
-
-  async computeReceiveAmountWithFees(
-    route: Route,
-    sendAmount: number,
-    token: string,
-    destToken: string,
-    sendingChain: Chain | undefined,
-    recipientChain: Chain | undefined,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<number> {
-    const r = this.getRoute(route);
-    return await r.computeReceiveAmountWithFees(
-      sendAmount,
-      token,
-      destToken,
-      sendingChain,
-      recipientChain,
-      options,
-    );
-  }
-
-  async validate(
-    route: Route,
-    token: TokenId | 'native',
-    amount: string,
-    sendingChain: Chain,
-    senderAddress: string,
-    recipientChain: Chain,
-    recipientAddress: string,
-    options: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<boolean> {
-    const r = this.getRoute(route);
-    return await r.validate(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      options,
-    );
-  }
-
-  async send(
-    route: Route,
-    token: TokenConfig,
-    amount: string,
-    sendingChain: Chain,
-    senderAddress: string,
-    recipientChain: Chain,
-    recipientAddress: string,
-    destToken: string,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<[routes.Route<Network>, routes.Receipt]> {
-    const r = this.getRoute(route);
-    return await r.send(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      destToken,
-      options,
-    );
-  }
-
-  async getPreview(
-    route: Route,
-    token: TokenConfig,
-    destToken: TokenConfig,
-    amount: number,
-    sendingChain: Chain,
-    recipientChain: Chain,
-    sendingGasEst: string,
-    claimingGasEst: string,
-    receiveAmount: string,
-    tokenPrices: TokenPrices,
-    relayerFee?: RelayerFee,
-    receiveNativeAmt?: number,
-  ): Promise<TransferDisplayData> {
-    const r = this.getRoute(route);
-    return await r.getPreview(
-      token,
-      destToken,
-      amount,
-      sendingChain,
-      recipientChain,
-      sendingGasEst,
-      claimingGasEst,
-      receiveAmount,
-      tokenPrices,
-      relayerFee,
-      receiveNativeAmt,
-    );
-  }
-
-  async getForeignAsset(
-    route: Route,
-    tokenId: TokenId,
-    chain: Chain,
-    destToken?: TokenConfig,
-  ): Promise<string | null> {
-    const r = this.getRoute(route);
-    return r.getForeignAsset(tokenId, chain, destToken);
-  }
-
-  getTransferSourceInfo<T extends TransferInfoBaseParams>(
-    route: Route,
-    params: T,
-  ): Promise<TransferDisplayData> {
-    const r = this.getRoute(route);
-    return r.getTransferSourceInfo(params);
-  }
-
-  getTransferDestInfo<T extends TransferInfoBaseParams>(
-    route: Route,
-    params: T,
-  ): Promise<TransferDestInfo> {
-    const r = this.getRoute(route);
-    return r.getTransferDestInfo(params);
-  }
-
-  tryFetchRedeemTx(
-    route: Route,
-    txData: TransferInfo,
-  ): Promise<string | undefined> {
-    const r = this.getRoute(route);
-    return r.tryFetchRedeemTx(txData);
   }
 }
 
-const RouteOperator = new Operator();
-export default RouteOperator;
+// Convenience function for integrators when adding NTT routes to their config
+//
+// Example:
+//
+// routes: [
+//   ...DEFAULT_ROUTES,
+//   ...nttRoutes({ ... }),
+// ]
+export const nttRoutes = (nc: NttRoute.Config): routes.RouteConstructor[] => {
+  return [nttManualRoute(nc), nttAutomaticRoute(nc)];
+};

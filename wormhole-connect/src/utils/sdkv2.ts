@@ -15,7 +15,6 @@ import {
   CircleTransfer,
 } from '@wormhole-foundation/sdk';
 import config from 'config';
-import { Route } from 'config/types';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
@@ -110,26 +109,32 @@ type ReceiptWithAttestation<AT> =
 // `parseReceipt` is used when we resume a transaction to get the transaction details
 // from the VAA. Each protocol has different data in its VAAs and this parses them
 // into the common internal format used by Connect: `TransferInfo`
+//
+// TODO SDKV2 this should probably not live in Connect.
+// SDKV2 should provide a TransferInfo type and Routes should each be able to
+// parse their own attestation into this type.
+//
+// Connect should never have to look inside of an attestation - that's too low-level.
 export async function parseReceipt(
-  route: Route,
+  route: string,
   receipt: ReceiptWithAttestation<any>,
 ): Promise<TransferInfo | null> {
   switch (route) {
-    case Route.Bridge:
+    case 'ManualTokenBridge':
       return await parseTokenBridgeReceipt(
         receipt as ReceiptWithAttestation<TokenBridge.TransferVAA>,
       );
-    case Route.CCTPManual:
+    case 'ManualCCTP':
       return await parseCCTPReceipt(
         receipt as ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
       );
-    case Route.NttManual:
+    case 'ManualNtt':
       return parseNttReceipt(
         receipt as ReceiptWithAttestation<NttRoute.ManualAttestationReceipt> & {
           params: NttRoute.ValidatedParams;
         },
       );
-    case Route.NttRelay:
+    case 'AutomaticNtt':
       return parseNttReceipt(
         receipt as ReceiptWithAttestation<NttRoute.AutomaticAttestationReceipt> & {
           params: NttRoute.ValidatedParams;

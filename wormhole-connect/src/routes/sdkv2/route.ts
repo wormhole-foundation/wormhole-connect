@@ -12,7 +12,7 @@ import {
   isNative,
 } from '@wormhole-foundation/sdk';
 import { TokenId as TokenIdV1 } from 'sdklegacy';
-import { Route, TokenConfig } from 'config/types';
+import { TokenConfig } from 'config/types';
 import {
   TransferDestInfo,
   TransferDestInfoBaseParams,
@@ -39,22 +39,27 @@ import { toFixedDecimals } from 'utils/balance';
 
 // =^o^=
 export class SDKv2Route {
-  TYPE: Route;
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
   // TODO: remove this
   IS_TOKEN_BRIDGE_ROUTE = false;
 
-  constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
-    this.TYPE = routeType;
-
-    this.AUTOMATIC_DEPOSIT = rc.IS_AUTOMATIC;
-    this.NATIVE_GAS_DROPOFF_SUPPORTED = rc.NATIVE_GAS_DROPOFF_SUPPORTED;
-
-    this.IS_TOKEN_BRIDGE_ROUTE =
-      this.TYPE === Route.Bridge ||
-      this.TYPE === Route.Relay ||
-      this.TYPE === Route.CosmosGateway;
+  constructor(readonly rc: routes.RouteConstructor) {
+    // TODO: get this info from the SDK
+    if (rc.meta.name === 'AutomaticTokenBridge') {
+      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
+      this.AUTOMATIC_DEPOSIT = true;
+    } else if (rc.meta.name === 'AutomaticNtt') {
+      this.AUTOMATIC_DEPOSIT = true;
+    } else if (rc.meta.name === 'AutomaticCCTP') {
+      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
+      this.AUTOMATIC_DEPOSIT = true;
+    }
+    this.IS_TOKEN_BRIDGE_ROUTE = [
+      'ManualTokenBridge',
+      'AutomaticTokenBridge',
+      'CosmosGateway',
+    ].includes(rc.meta.name);
   }
 
   async getV2ChainContext<C extends Chain>(
@@ -584,7 +589,7 @@ export class SDKv2Route {
     params: T,
   ): Promise<TransferDestInfo> {
     const info: TransferDestInfo = {
-      route: this.TYPE,
+      route: this.rc.meta.name,
       displayData: [],
     };
     const txData = params.txData as TransferInfo;

@@ -11,7 +11,6 @@ import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from 'icons/TokenIcons';
-import RouteOperator from 'routes/operator';
 import MoreNetworkIcon from 'icons/MoreNetworkIcon';
 import { Chain } from '@wormhole-foundation/sdk';
 
@@ -99,7 +98,7 @@ function ChainsModal(props: Props) {
     }
   };
   const supportedChains = useMemo(() => {
-    const supported = RouteOperator.allSupportedChains();
+    const supported = config.routes.allSupportedChains();
     return chains.filter((chain) => {
       return supported.includes(chain.key);
     });

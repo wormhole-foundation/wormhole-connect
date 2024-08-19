@@ -1,5 +1,4 @@
 import { Chain } from '@wormhole-foundation/sdk';
-import { Route } from 'config/types';
 import { TransferWallet } from 'utils/wallet';
 
 export interface LoadEvent {
@@ -7,7 +6,7 @@ export interface LoadEvent {
 }
 
 export interface TransferDetails {
-  route: Route;
+  route: string;
   fromToken: TokenDetails;
   toToken: TokenDetails;
   fromChain: Chain;

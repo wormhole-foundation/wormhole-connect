@@ -18,7 +18,6 @@ import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
 import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
-import ValidationError from './ValidationError';
 import PoweredByIcon from 'icons/PoweredBy';
 import { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
@@ -143,14 +142,6 @@ function Bridge() {
       <FromInputs />
       <SwapChains />
       <ToInputs />
-
-      <ValidationError
-        forceShow={
-          !!fromChain && !!toChain && !!token && !!destToken && !!amount
-        } // show route validation
-        validations={[validations.route]}
-        margin="12px 0 0 0"
-      />
 
       <RouteOptions />
       <Collapse in={valid && showValidationState}>

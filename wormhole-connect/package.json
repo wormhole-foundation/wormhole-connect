@@ -17,6 +17,7 @@
     "dist"
   ],
   "dependencies": {
+    "@artursapek/vite-plugin-checker": "^0.7.3",
     "@coral-xyz/anchor": "^0.29.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",
@@ -123,8 +124,7 @@
     "typescript": "^5.3.3",
     "vite": "^5.3.1",
     "vite-bundle-visualizer": "^1.2.1",
-    "vite-plugin-checker": "^0.6.4",
-    "vite-plugin-dts": "^3.9.1",
+    "vite-plugin-dts": "^4.0.3",
     "vitest": "^1.5.0",
     "webpack-bundle-analyzer": "^4.9.1"
   },
@@ -154,6 +154,9 @@
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.0"
+    },
+    "vite-plugin-dts": {
+      "vue-tsc": "^2.0.0"
     }
   }
 }

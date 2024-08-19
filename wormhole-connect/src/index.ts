@@ -10,8 +10,10 @@ import { dark, light } from './theme';
 import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 
+import { DEFAULT_ROUTES, nttRoutes } from './routes/operator';
+
 import type { WormholeConnectConfig } from './config/types';
-import type { Chain } from '@wormhole-foundation/sdk';
+import type { Chain, routes } from '@wormhole-foundation/sdk';
 
 export default WormholeConnect;
 
@@ -22,6 +24,9 @@ export {
   Chain,
   dark,
   light,
+  DEFAULT_ROUTES,
+  nttRoutes,
+  routes,
   WormholeConnectPartialTheme,
   WormholeConnectTheme,
 };

@@ -18,7 +18,6 @@ import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
 import useComputeQuote from 'hooks/useComputeQuote';
 import { useGasSlider } from 'hooks/useGasSlider';
-import RouteOperator from 'routes/operator';
 import {
   setTxDetails,
   setSendTx,
@@ -187,17 +186,18 @@ const ReviewTransaction = (props: Props) => {
         details: transferDetails,
       });
 
-      const [sdkRoute, receipt] = await RouteOperator.send(
-        route,
-        sourceTokenConfig,
-        amount,
-        sourceChain,
-        sendingWallet.address,
-        destChain,
-        receivingWallet.address,
-        destToken,
-        { nativeGas: toNativeToken },
-      );
+      const [sdkRoute, receipt] = await config.routes
+        .get(route)
+        .send(
+          sourceTokenConfig,
+          amount,
+          sourceChain,
+          sendingWallet.address,
+          destChain,
+          receivingWallet.address,
+          destToken,
+          { nativeGas: toNativeToken },
+        );
 
       config.triggerEvent({
         type: 'transfer.start',
@@ -327,7 +327,7 @@ const ReviewTransaction = (props: Props) => {
         </IconButton>
       </div>
       <SingleRoute
-        config={RoutesConfig[route]}
+        route={RoutesConfig[route]}
         available={true}
         isSelected={false}
         destinationGasDrop={receiveNativeAmt}

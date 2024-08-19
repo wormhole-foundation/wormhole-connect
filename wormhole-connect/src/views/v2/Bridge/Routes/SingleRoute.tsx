@@ -15,12 +15,10 @@ import config from 'config';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import TokenIcon from 'icons/TokenIcons';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
-import RouteOperator from 'routes/operator';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { RouteData } from 'config/routes';
-import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -35,13 +33,13 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 type Props = {
-  config: RouteData;
+  route: RouteData;
   available: boolean;
   isSelected: boolean;
   error?: string;
   destinationGasDrop?: number;
   title?: string;
-  onSelect?: (route: Route) => void;
+  onSelect?: (route: string) => void;
 };
 
 const SingleRoute = (props: Props) => {
@@ -60,7 +58,7 @@ const SingleRoute = (props: Props) => {
 
   const { prices: tokenPrices } = useFetchTokenPricesV2();
 
-  const { name, route: routeName } = props.config;
+  const { name } = props.route;
 
   // Compute the quotes for this route
   const {
@@ -74,7 +72,7 @@ const SingleRoute = (props: Props) => {
     sourceToken,
     destToken,
     amount,
-    route: routeName,
+    route: name,
     toNativeToken,
   });
 
@@ -158,14 +156,14 @@ const SingleRoute = (props: Props) => {
   );
 
   const showWarning = useMemo(() => {
-    if (!props.config.route) {
+    if (!props.route) {
       return false;
     }
 
-    const routeConfig = RouteOperator.getRoute(props.config.route);
+    const routeConfig = config.routes.get(props.route.name);
 
     return !routeConfig.AUTOMATIC_DEPOSIT;
-  }, [props.config.route]);
+  }, [props.route.name]);
 
   const errorMessage = useMemo(() => {
     if (!props.error) {
@@ -212,30 +210,30 @@ const SingleRoute = (props: Props) => {
   }, [showWarning]);
 
   const isAutomaticRoute = useMemo(() => {
-    if (!routeName) {
+    if (!props.route.name) {
       return false;
     }
 
-    const route = RouteOperator.getRoute(routeName);
+    const route = config.routes.get(props.route.name);
 
     if (!route) {
       return false;
     }
 
     return route.AUTOMATIC_DEPOSIT;
-  }, [routeName]);
+  }, [props.route.name]);
 
   const providerText = useMemo(() => {
-    const { providedBy } = props.config;
-    let provider: string | undefined;
+    const { providedBy } = props.route;
+    let provider: string = '';
 
     // We are skipping the provider text (e.g. "via ...") for xLabs
     if (providedBy && !providedBy.toLowerCase().includes('xlabs')) {
-      provider = `via ${props.config.providedBy}`;
+      provider = `via ${props.route.providedBy}`;
     }
 
     return provider;
-  }, [props.config.providedBy]);
+  }, [props.route.providedBy]);
 
   const routeTitle = useMemo(
     () => (isAutomaticRoute ? 'Automatic route' : 'Manual route'),
@@ -289,7 +287,7 @@ const SingleRoute = (props: Props) => {
     return 'pointer';
   }, [props.available, props.onSelect]);
 
-  if (isEmptyObject(props.config)) {
+  if (isEmptyObject(props.route)) {
     return <></>;
   }
 
@@ -318,7 +316,7 @@ const SingleRoute = (props: Props) => {
           disabled={!props.available || typeof props.onSelect !== 'function'}
           disableTouchRipple
           onClick={() => {
-            props.onSelect?.(routeName);
+            props.onSelect?.(props.route.name);
           }}
         >
           <CardHeader

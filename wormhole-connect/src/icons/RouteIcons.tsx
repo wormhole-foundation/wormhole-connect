@@ -8,7 +8,6 @@ import WormholeIcon from './Routes/Wormhole';
 import XLabsIcon from './Routes/XLabs';
 // import HashflowIcon from './Routes/Hashflow';
 import CCTPIcon from './Routes/CCTP';
-import { Route } from 'config/types';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -22,23 +21,21 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   },
 }));
 
-export const getIcon = (route: Route) => {
+export const getIcon = (route: string) => {
   switch (route) {
-    case Route.Bridge: {
+    case 'ManualTokenBridge': {
       return WormholeIcon;
     }
-    case Route.Relay: {
+    case 'AutomaticTokenBridge': {
       return XLabsIcon;
     }
-    // case Route.Hashflow: {
-    //   return HashflowIcon;
-    // }
-    case Route.CCTPManual: {
+    case 'ManualCCTP': {
       return CCTPIcon;
     }
-    case Route.CCTPRelay: {
+    case 'AutomaticCCTP': {
       return CCTPIcon;
     }
+    /*
     case Route.TBTC: {
       return WormholeIcon;
     }
@@ -54,6 +51,7 @@ export const getIcon = (route: Route) => {
     case Route.NttRelay: {
       return WormholeIcon;
     }
+    */
     default: {
       return noIcon;
     }
@@ -61,7 +59,7 @@ export const getIcon = (route: Route) => {
 };
 
 type Props = {
-  route: Route;
+  route: string;
   height?: number;
 };
 

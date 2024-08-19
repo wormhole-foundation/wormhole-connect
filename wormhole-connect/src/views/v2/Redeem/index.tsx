@@ -20,7 +20,6 @@ import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
-import RouteOperator from 'routes/operator';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { setRoute } from 'store/router';
@@ -140,7 +139,7 @@ const Redeem = () => {
       return false;
     }
 
-    const route = RouteOperator.getRoute(routeName);
+    const route = config.routes.get(routeName);
 
     if (!route) {
       return false;

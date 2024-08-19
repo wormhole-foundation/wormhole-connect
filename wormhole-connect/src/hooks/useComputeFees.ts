@@ -3,9 +3,7 @@ import { useSelector } from 'react-redux';
 import { Chain, finality } from '@wormhole-foundation/sdk-base';
 
 import config from 'config';
-import RouteOperator from 'routes/operator';
 
-import type { Route } from 'config/types';
 import type { RootState } from 'store';
 import { calculateUSDPrice } from 'utils';
 import { toFixedDecimals } from 'utils/balance';
@@ -16,7 +14,7 @@ type Props = {
   sourceToken: string;
   destChain: Chain | undefined;
   destToken: string;
-  route: Route | undefined;
+  route?: string;
   amount: string;
   toNativeToken: number;
 };
@@ -90,15 +88,16 @@ const useComputeFees = (props: Props): returnProps => {
 
         const routeOptions = { nativeGas: toNativeToken };
 
-        const receiveAmount = await RouteOperator.computeReceiveAmountWithFees(
-          route,
-          Number.parseFloat(amount),
-          sourceToken,
-          destToken,
-          sourceChain,
-          destChain,
-          routeOptions,
-        );
+        const receiveAmount = await config.routes
+          .get(route)
+          .computeReceiveAmountWithFees(
+            Number.parseFloat(amount),
+            sourceToken,
+            destToken,
+            sourceChain,
+            destChain,
+            routeOptions,
+          );
 
         setIsFetching(false);
 

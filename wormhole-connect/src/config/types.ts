@@ -22,6 +22,9 @@ import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
+import { routes } from '@wormhole-foundation/sdk';
+import RouteOperator from 'routes/operator';
+
 export enum Icon {
   'AVAX' = 1,
   'BNB',
@@ -58,24 +61,8 @@ export enum Icon {
   'XLAYER',
 }
 
-export enum Route {
-  Bridge = 'bridge',
-  Relay = 'relay',
-  CosmosGateway = 'cosmosGateway',
-  CCTPManual = 'cctpManual',
-  CCTPRelay = 'cctpRelay',
-  TBTC = 'tbtc',
-  ETHBridge = 'ethBridge',
-  wstETHBridge = 'wstETHBridge',
-  NttManual = 'nttManual',
-  NttRelay = 'nttRelay',
-  Mayan = 'mayan',
-}
-
 // Used in bridging components
 export type TransferSide = 'source' | 'destination';
-
-export type SupportedRoutes = keyof typeof Route;
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';
 
@@ -102,7 +89,7 @@ export type ValidateTransferHandler = (
   transferDetails: ExtendedTransferDetails,
 ) => Promise<ValidateTransferResult>;
 
-// This is the integrator-provided JSON config
+// This is the integrator-provided config
 export interface WormholeConnectConfig {
   env?: Network; // TODO REMOVE; DEPRECATED
   network?: Network; // New name for this, consistent with SDKv2
@@ -138,7 +125,7 @@ export interface WormholeConnectConfig {
   showHamburgerMenu?: boolean;
   explorer?: ExplorerConfig;
   bridgeDefaults?: BridgeDefaults;
-  routes?: string[];
+  routes?: routes.RouteConstructor<any>[];
   cctpWarning?: {
     href: string;
   };
@@ -193,7 +180,7 @@ export interface InternalConfig<N extends NetworkV2> {
   tokensArr: TokenConfig[];
   wrappedTokenAddressCache: WrappedTokenAddressCache;
 
-  routes: string[];
+  routes: RouteOperator;
 
   // Callbacks
   triggerEvent: WormholeConnectEventHandler;
