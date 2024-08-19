@@ -162,6 +162,12 @@ function WalletsModal(props: Props) {
   const connect = async (walletInfo: WalletData) => {
     const chain = type === TransferWallet.SENDING ? fromChain : toChain;
     dispatch(setWalletModal(false));
+    if (
+      type === TransferWallet.RECEIVING &&
+      walletInfo.name !== MANUAL_WALLET_NAME
+    ) {
+      dispatch(setManualAddressTarget(false));
+    }
     if (props.onClose) props.onClose();
     await connectWallet(props.type, chain!, walletInfo, dispatch);
   };
@@ -240,6 +246,7 @@ function WalletsModal(props: Props) {
 
   const handleManualConnect = (address: string) => {
     const wallet = new ManualWallet(address);
+    dispatch(setManualAddressTarget(true));
     wallet.on('connect', () => dispatch(setManualAddressTarget(true)));
     wallet.on('disconnect', () => dispatch(setManualAddressTarget(false)));
     connect({
@@ -253,7 +260,6 @@ function WalletsModal(props: Props) {
 
   const [isManual, setIsManual] = useState(false);
   const toggleManual = () => {
-    dispatch(setManualAddressTarget(!isManual));
     setIsManual(!isManual);
   };
 
