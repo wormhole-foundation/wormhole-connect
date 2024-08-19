@@ -27,18 +27,18 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   link: {
     textDecoration: 'underline',
-    opacity: '0.8',
+    opacity: 0.8,
     padding: '4px 0',
     cursor: 'pointer',
     '&:hover': {
-      opacity: '1',
+      opacity: 1,
     },
   },
   disabled: {
     cursor: 'not-allowed',
-    opacity: '0.6',
+    opacity: 0.6,
     '&:hover': {
-      opacity: '0.6',
+      opacity: 0.6,
     },
   },
   inProgress: {

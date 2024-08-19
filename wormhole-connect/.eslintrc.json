@@ -14,19 +14,13 @@
     "comma-dangle": ["error", "always-multiline"],
     "semi": ["error", "always"],
 
-    "@typescript-eslint/no-explicit-any": "off",
-
-    "@typescript-eslint/explicit-module-boundary-types": ["error"],
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-
-    "@typescript-eslint/no-non-null-assertion": ["error"],
-    "@typescript-eslint/no-non-null-assertion": "off",
-
     "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }],
 
     "no-constant-condition": "off",
-
-    "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }]
+    "no-unused-vars": "off"
   }
 }

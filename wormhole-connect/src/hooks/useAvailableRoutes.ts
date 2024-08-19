@@ -34,6 +34,7 @@ const useAvailableRoutes = (): void => {
 
         let supported = false;
         let available = false;
+        let availabilityError = '';
 
         try {
           supported = await RouteOperator.isRouteSupported(
@@ -61,12 +62,19 @@ const useAvailableRoutes = (): void => {
               toChain,
               { nativeGas: toNativeToken },
             );
-          } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (e: any) {
+            availabilityError = 'Route is unavailable.';
             console.error('Error when checking route is available:', e, r);
           }
         }
 
-        routes.push({ name: r, supported, available });
+        routes.push({
+          name: r,
+          supported,
+          available,
+          availabilityError,
+        });
       }
 
       if (isActive) {

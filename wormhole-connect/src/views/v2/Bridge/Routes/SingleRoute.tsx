@@ -30,7 +30,6 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   card: {
     width: '100%',
-    cursor: 'pointer',
     maxWidth: '420px',
   },
 }));
@@ -39,6 +38,7 @@ type Props = {
   config: RouteData;
   available: boolean;
   isSelected: boolean;
+  error?: string;
   destinationGasDrop?: number;
   title?: string;
   onSelect?: (route: Route) => void;
@@ -165,12 +165,33 @@ const SingleRoute = (props: Props) => {
     const routeConfig = RouteOperator.getRoute(props.config.route);
 
     return !routeConfig.AUTOMATIC_DEPOSIT;
-  }, [props.config.route, destChain]);
+  }, [props.config.route]);
+
+  const errorMessage = useMemo(() => {
+    if (!props.error) {
+      return null;
+    }
+
+    return (
+      <>
+        <Divider flexItem sx={{ marginTop: '8px' }} />
+        <Stack direction="row" alignItems="center">
+          <WarningIcon htmlColor={theme.palette.error.main} />
+          <Stack sx={{ padding: '16px' }}>
+            <Typography color={theme.palette.error.main} fontSize={14}>
+              {props.error}
+            </Typography>
+          </Stack>
+        </Stack>
+      </>
+    );
+  }, [props.error]);
 
   const warningMessage = useMemo(() => {
     if (!showWarning) {
       return null;
     }
+
     return (
       <>
         <Divider flexItem sx={{ marginTop: '8px' }} />
@@ -252,6 +273,8 @@ const SingleRoute = (props: Props) => {
           border: props.isSelected
             ? '1px solid #C1BBF6'
             : '1px solid transparent',
+          cursor: props.available ? 'pointer' : 'not-allowed',
+          opacity: props.available ? 1 : 0.6,
         }}
       >
         <CardActionArea
@@ -274,6 +297,7 @@ const SingleRoute = (props: Props) => {
             <Stack direction="row" justifyContent="space-between">
               {timeToDestination}
             </Stack>
+            {errorMessage}
             {warningMessage}
           </CardContent>
         </CardActionArea>

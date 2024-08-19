@@ -74,13 +74,14 @@ const Routes = (props: Props) => {
 
   return (
     <>
-      {supportedRoutes.map(({ name, available }) => {
+      {supportedRoutes.map(({ name, available, availabilityError }) => {
         const routeConfig = RoutesConfig[name as Route];
         const isSelected = routeConfig.route === props.selectedRoute;
         return (
           <SingleRoute
             config={routeConfig}
             available={available}
+            error={availabilityError}
             isSelected={isSelected}
             onSelect={props.onRouteChange}
           />

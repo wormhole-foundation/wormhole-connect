@@ -175,7 +175,9 @@ export class SDKv2Route {
       console.error(`Error thrown in isRouteAvailable`, e);
       // TODO is this the right place to try/catch these?
       // or deeper inside SDKv2Route?
-      return false;
+
+      // Re-throw for the caller to handle and surface the error message
+      throw e;
     }
 
     return true;

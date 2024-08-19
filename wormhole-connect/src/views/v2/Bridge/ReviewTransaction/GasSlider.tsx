@@ -56,7 +56,7 @@ const StyledSlider = styled(Slider)<SliderProps>(
     '& .MuiSlider-rail': {
       height: '8px',
       backgroundColor: railColor,
-      opacity: '10%',
+      opacity: 0.1,
     },
     '& .MuiSlider-track': {
       height: '8px',
