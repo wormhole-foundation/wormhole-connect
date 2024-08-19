@@ -64,7 +64,7 @@ const useAvailableRoutes = (): void => {
             );
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (e: any) {
-            availabilityError = e.message;
+            availabilityError = 'Route is unavailable.';
             console.error('Error when checking route is available:', e, r);
           }
         }

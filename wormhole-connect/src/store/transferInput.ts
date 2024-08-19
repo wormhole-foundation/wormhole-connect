@@ -104,7 +104,7 @@ export type RouteState = {
   name: string;
   supported: boolean;
   available: boolean;
-  availabilityError: string;
+  availabilityError?: string;
 };
 
 export interface TransferInputState {
