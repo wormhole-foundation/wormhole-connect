@@ -27,8 +27,6 @@ import { AssetInfo } from './evm';
 import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setManualAddressTarget } from 'store/transferInput';
-import { MANUAL_WALLET_NAME } from './manual';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -137,9 +135,6 @@ export const connectLastUsedWallet = async (
     const options = await getWalletOptions(chainConfig);
     const wallet = options.find((w) => w.name === lastUsedWallet);
     if (wallet) {
-      if (wallet.name !== MANUAL_WALLET_NAME) {
-        dispatch(setManualAddressTarget(false));
-      }
       await connectWallet(type, chain, wallet, dispatch);
     }
   }

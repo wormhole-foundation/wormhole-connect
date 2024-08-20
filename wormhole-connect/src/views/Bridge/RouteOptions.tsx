@@ -4,7 +4,12 @@ import { makeStyles } from 'tss-react/mui';
 import { Chip, Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
-import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
+import {
+  RouteState,
+  setManualAddressTarget,
+  setRoutes,
+  setTransferRoute,
+} from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
@@ -25,6 +30,7 @@ import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 import { isNttRoute, RouteAvailability } from 'routes';
 import { getNttDisplayName } from 'utils/ntt';
 import { isAutomatic } from 'utils/route';
+import { MANUAL_WALLET_NAME } from 'utils/wallet/manual';
 
 export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
 export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
@@ -412,6 +418,8 @@ function RouteOptions() {
   );
   const [debouncedAmount] = useDebounce(amount, 500);
 
+  const { receiving } = useSelector((state: RootState) => state.wallet);
+
   useEffect(() => {
     let isActive = true;
 
@@ -463,6 +471,12 @@ function RouteOptions() {
       else dispatch(setTransferRoute());
     }
   }, [manualAddressTarget, toChain, fromChain, dispatch]);
+
+  useEffect(() => {
+    if (receiving.name !== MANUAL_WALLET_NAME) {
+      dispatch(setManualAddressTarget(false));
+    }
+  }, [receiving]);
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
