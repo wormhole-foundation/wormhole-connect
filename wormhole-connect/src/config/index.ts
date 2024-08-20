@@ -110,11 +110,11 @@ export function buildConfig(
 
     // White lists
     chains: networkData.chains,
-    chainsArr: Object.values(networkData.chains).filter((chain) => {
-      return customConfig?.networks
-        ? customConfig.networks!.includes(chain.key)
-        : true;
-    }),
+    chainsArr: !Array.isArray(customConfig?.networks)
+      ? Object.values(networkData.chains)
+      : customConfig.networks
+          .map((chainName) => networkData.chains[chainName]!)
+          .filter(Boolean),
     tokens,
     tokensArr: Object.values(tokens).filter((token) => {
       return customConfig?.tokens
