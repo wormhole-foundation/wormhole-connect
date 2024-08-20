@@ -11,7 +11,7 @@ import {
 
 import config from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';
-import { TokenConfig } from 'config/types';
+import { TokenConfig, Route } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
@@ -55,6 +55,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
   const { classes } = useStyles();
 
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const route = useSelector((state: RootState) => state.redeem.route)!;
   const receiverWallet = useSelector(
     (state: RootState) => state.wallet[TransferWallet.RECEIVING],
   );
@@ -76,7 +77,9 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
         address: address,
         symbol: token.symbol,
         decimals: getTokenDecimals(
-          config.wh.toChainId(txData.toChain),
+          config.wh.toChainId(
+            route === Route.Bridge ? txData.fromChain : txData.toChain,
+          ),
           token.tokenId || 'native',
         ),
         // evm chain id
