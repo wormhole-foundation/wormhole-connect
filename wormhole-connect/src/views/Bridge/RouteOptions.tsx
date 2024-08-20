@@ -405,8 +405,6 @@ function RouteOptions() {
         const route = routeStates.find((rs) => rs.name === value);
         if (route?.name && !isDisabled(route?.name, route?.availability)) {
           dispatch(setTransferRoute(value));
-        } else {
-          dispatch(setTransferRoute());
         }
       }
     },
@@ -454,16 +452,16 @@ function RouteOptions() {
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
   useEffect(() => {
-    const routeState = routeStates?.find((rs) => rs.name === route);
+    const routeState = routeStates?.find(
+      (rs) => rs.name === route && !isDisabled(rs.name, rs.availability),
+    );
     if (!routeState) {
-      const first = routeStates?.find(
+      const firstOption = routeStates?.find(
         (rs) => rs.supported && !isDisabled(rs.name, rs.availability),
       );
-      if (first) dispatch(setTransferRoute(first.name as Route));
-      return;
+      if (firstOption) dispatch(setTransferRoute(firstOption.name as Route));
+      else dispatch(setTransferRoute());
     }
-    if (routeState && isDisabled(routeState.name, routeState?.availability))
-      dispatch(setTransferRoute());
   }, [manualAddressTarget, toChain, fromChain, dispatch]);
 
   const allRoutes = useMemo(() => {

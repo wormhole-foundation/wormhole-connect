@@ -24,8 +24,9 @@ import { PorticoBridgeState } from 'store/porticoBridge';
 import { DataWrapper } from 'store/helpers';
 import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
-import { isNttRoute } from 'routes';
+import { isNttRoute, RouteAvailability } from 'routes';
 import { isValidAddress } from './wallet/validAddress';
+import { isAutomatic as automatic } from './route';
 
 export const MANUAL_WALLET_NAME = 'Manual Wallet';
 
@@ -293,6 +294,7 @@ export const validateAll = async (
     supportedDestTokens,
     routeStates,
     receiveAmount,
+    manualAddressTarget,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
@@ -304,8 +306,11 @@ export const validateAll = async (
     token,
   );
   const maxSendAmount = getMaxAmt(route);
+  const isDisabled = (routeName: string, availability: RouteAvailability) =>
+    !availability.isAvailable ||
+    (manualAddressTarget && !automatic(routeName || '', toChain));
   const availableRoutes = routeStates
-    ?.filter((rs) => rs.supported)
+    ?.filter((rs) => rs.supported && !isDisabled(rs.name, rs.availability))
     .map((val) => val.name);
   const isCctpTx = isCctp(token, destToken, toChain, fromChain);
   const baseValidations = {
