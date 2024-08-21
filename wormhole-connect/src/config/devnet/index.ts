@@ -6,7 +6,7 @@ import {
   DEVNET_RPC_MAPPING,
 } from './rpcs';
 import { DEVNET_TOKENS } from './tokens';
-import { DEVNET_NTT_GROUPS } from './nttGroups';
+import { DEVNET_NTT_CONFIG } from './nttConfig';
 
 export * from './chains';
 export * from './rpcs';
@@ -18,7 +18,7 @@ const DEVNET: NetworkData = {
   rpcs: DEVNET_RPC_MAPPING,
   rest: DEVNET_REST_MAPPING,
   graphql: DEVNET_GRAPHQL_MAPPING,
-  nttGroups: DEVNET_NTT_GROUPS,
+  nttConfig: DEVNET_NTT_CONFIG,
   guardianSet: {
     index: 0,
     keys: ['0x13947Bd48b18E53fdAeEe77F3473391aC727C638'],

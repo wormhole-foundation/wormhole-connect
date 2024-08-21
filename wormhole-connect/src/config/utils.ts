@@ -1,6 +1,6 @@
-import { isEqualCaseInsensitive } from 'utils';
-import { BridgeDefaults, NttGroups, TokensConfig, ChainsConfig } from './types';
+import { BridgeDefaults, TokensConfig, ChainsConfig } from './types';
 import { Chain } from '@wormhole-foundation/sdk';
+import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
@@ -87,59 +87,64 @@ export const mergeCustomTokensConfig = (
   return builtin;
 };
 
-export const mergeNttGroups = (
+export const mergeNttConfig = (
   tokens: TokensConfig,
-  builtin: NttGroups,
-  custom?: NttGroups,
+  builtin: NttRoute.Config,
+  custom?: NttRoute.Config,
 ) => {
   if (!custom) return builtin;
 
-  for (const key in custom) {
-    if (key in builtin) {
+  for (const key in custom.tokens) {
+    if (key in builtin.tokens) {
       console.warn(
-        `Skipping custom NTT group config for "${key}" because it conflicts with a built-in`,
+        `Skipping custom NTT config for "${key}" because it conflicts with a built-in`,
       );
       continue;
     }
 
-    const customGroup = custom[key];
-    // if any of the managers in the custom group exist in the built-in groups, skip
+    const tokenConfig = custom.tokens[key];
+    // if any of the managers in the custom config exist in the built-in config, skip
     if (
-      customGroup.nttManagers.some((manager) =>
-        Object.values(builtin).some((group) =>
-          group.nttManagers.some((builtinManager) =>
-            isEqualCaseInsensitive(builtinManager.address, manager.address),
+      tokenConfig.some(({ chain, manager }) =>
+        Object.values(builtin.tokens).some((builtinConfig) =>
+          builtinConfig.some(
+            (cfg) => chain === cfg.chain && manager === cfg.manager,
           ),
         ),
       )
     ) {
       console.warn(
-        `Skipping custom NTT group config for "${key}" because it conflicts with a built-in`,
+        `Skipping custom NTT config for "${key}" because it conflicts with a built-in`,
       );
       continue;
     }
 
-    // if any of the token keys in the custom group don't exist in the tokens config, skip
-    if (customGroup.nttManagers.some((manager) => !tokens[manager.tokenKey])) {
-      console.warn(
-        `Skipping custom NTT group config for "${key}" because it references a token that does not exist`,
-      );
-      continue;
-    }
-
-    // if any of the chain names in the custom group are duplicated, skip
+    // if any of the tokens in the custom config don't exist in the tokens config, skip
     if (
-      new Set(customGroup.nttManagers.map((manager) => manager.chainName))
-        .size !== customGroup.nttManagers.length
+      !tokenConfig.every(({ chain, token }) =>
+        Object.values(tokens).some(
+          (tk) => tk.nativeChain === chain && tk.tokenId?.address === token,
+        ),
+      )
     ) {
       console.warn(
-        `Skipping custom NTT group config for "${key}" because it contains duplicate chain names`,
+        `Skipping custom NTT config for "${key}" because it references a token that does not exist`,
       );
       continue;
     }
 
-    console.info(`Accepted custom NTT group config for "${key}"`);
-    builtin[key] = custom[key];
+    // if any of the chains in the custom config are duplicated, skip
+    if (
+      new Set(tokenConfig.map((cfg) => cfg.chain)).size !== tokenConfig.length
+    ) {
+      console.warn(
+        `Skipping custom NTT config for "${key}" because it contains duplicate chains`,
+      );
+      continue;
+    }
+
+    console.info(`Accepted custom NTT config for "${key}"`);
+    builtin.tokens[key] = tokenConfig;
   }
 
   return builtin;

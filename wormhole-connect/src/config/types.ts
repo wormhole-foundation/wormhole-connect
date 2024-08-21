@@ -20,6 +20,7 @@ import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
+import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
 export enum Icon {
   'AVAX' = 1,
@@ -156,7 +157,7 @@ export interface WormholeConnectConfig {
   wstETHBridgeMaxAmount?: number;
 
   // NTT config
-  nttGroups?: NttGroups;
+  nttConfig?: NttRoute.Config;
 
   // Override to load Redesign
   useRedesign?: boolean;
@@ -223,7 +224,8 @@ export interface InternalConfig<N extends NetworkV2> {
   wstETHBridgeMaxAmount: number;
 
   // NTT config
-  nttGroups: NttGroups;
+  nttConfig: NttRoute.Config;
+
   guardianSet: GuardianSetData;
 
   // Redesign flag
@@ -322,7 +324,7 @@ export type NetworkData = {
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
-  nttGroups: NttGroups;
+  nttConfig: NttRoute.Config;
   guardianSet: GuardianSetData;
 };
 
@@ -337,20 +339,6 @@ export type NttTransceiverConfig = {
   address: string;
   type: 'wormhole'; // only wormhole is supported for now
 };
-
-export type NttManagerConfig = {
-  chainName: Chain; // TODO: rename
-  address: string;
-  tokenKey: string; // token key for the token this NTT manager has configured
-  transceivers: NttTransceiverConfig[];
-  solanaQuoter?: string;
-};
-
-export type NttGroup = {
-  nttManagers: NttManagerConfig[];
-};
-
-export type NttGroups = { [key: string]: NttGroup };
 
 // Token bridge foreign asset cache
 // Used in utils/sdkv2.ts

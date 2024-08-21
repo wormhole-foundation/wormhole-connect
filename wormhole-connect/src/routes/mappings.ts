@@ -1,5 +1,6 @@
 import { Route } from 'config/types';
 import { routes } from '@wormhole-foundation/sdk';
+import config from 'config';
 import {
   nttAutomaticRoute,
   nttManualRoute,
@@ -13,7 +14,6 @@ import '@wormhole-foundation/sdk-solana-ntt';
 //
 
 import { SDKv2Route } from './sdkv2/route';
-import { getNttConfig } from 'utils/ntt';
 
 export function getRoute(route: Route): SDKv2Route {
   switch (route) {
@@ -27,11 +27,9 @@ export function getRoute(route: Route): SDKv2Route {
     case Route.CCTPRelay:
       return new SDKv2Route(routes.AutomaticCCTPRoute, route);
     case Route.NttManual:
-      /* @ts-ignore TODO remove */
-      return new SDKv2Route(nttManualRoute(getNttConfig()), route);
+      return new SDKv2Route(nttManualRoute(config.nttConfig), route);
     case Route.NttRelay:
-      /* @ts-ignore TODO remove */
-      return new SDKv2Route(nttAutomaticRoute(getNttConfig()), route);
+      return new SDKv2Route(nttAutomaticRoute(config.nttConfig), route);
     case Route.Mayan:
       return new SDKv2Route(MayanRoute, route);
     default:
