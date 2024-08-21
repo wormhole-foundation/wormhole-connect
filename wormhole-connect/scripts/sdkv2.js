@@ -12,6 +12,7 @@ const thirdPartyPkgs = {
   '@wormhole-foundation/sdk-solana-ntt':
     'example-native-token-transfers/solana',
   '@wormhole-foundation/sdk-evm-ntt': 'example-native-token-transfers/evm/ts',
+  ntt: 'example-native-token-transfers',
 };
 
 if (!WORK_ROOT) {
@@ -74,17 +75,8 @@ execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
 });
 
 function linkLocalSdkPackages(dir) {
-  let packageJson = JSON.parse(fs.readFileSync(path.join(dir, 'package.json')));
-  let keys = [];
-
-  for (let key in packageJson.dependencies) {
-    if (sdkPackages[key] !== undefined) {
-      keys.push(key);
-    }
-  }
-
+  let keys = Object.keys(sdkPackages);
   if (keys.length === 0) return;
-
   execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
 }
 
