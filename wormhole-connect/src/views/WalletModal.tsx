@@ -162,14 +162,17 @@ function WalletsModal(props: Props) {
   const connect = async (walletInfo: WalletData) => {
     const chain = type === TransferWallet.SENDING ? fromChain : toChain;
     dispatch(setWalletModal(false));
+    if (props.onClose) props.onClose();
+
+    await connectWallet(props.type, chain!, walletInfo, dispatch);
+
+    /** sets manual address to false only after successfully connecting a wallet */
     if (
       type === TransferWallet.RECEIVING &&
       walletInfo.name !== MANUAL_WALLET_NAME
     ) {
       dispatch(setManualAddressTarget(false));
     }
-    if (props.onClose) props.onClose();
-    await connectWallet(props.type, chain!, walletInfo, dispatch);
   };
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
