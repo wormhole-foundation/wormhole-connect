@@ -75,25 +75,12 @@ execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
 });
 
 function linkLocalSdkPackages(dir) {
-  let packageJson = JSON.parse(fs.readFileSync(path.join(dir, 'package.json')));
-  let keys = [];
-  console.log(packageJson);
-
-  for (let key in sdkPackages) {
-    if (sdkPackages[key] !== undefined) {
-      keys.push(key);
-    }
-  }
-
+  let keys = Object.keys(sdkPackages);
   if (keys.length === 0) return;
-
-  console.log(dir, keys);
-
   execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
 }
 
 function progressBar(completed, total) {
-  return;
   const percentage = Math.round((completed / total) * 100);
   const barLength = 50;
   const filledLength = Math.round((barLength * percentage) / 100);
