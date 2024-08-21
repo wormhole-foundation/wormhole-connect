@@ -167,6 +167,13 @@ const TESTNET: { [chain in Chain]?: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  Mantle: {
+    key: 'Mantle',
+    id: 35,
+    context: Context.ETH,
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
 } as const;
 
 /**
@@ -198,6 +205,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Scroll: 'https://rpc.ankr.com/scroll_sepolia_testnet',
     Blast: 'https://rpc.ankr.com/blast_testnet_sepolia',
     Xlayer: 'https://testrpc.xlayer.tech',
+    Mantle: 'https://rpc.sepolia.mantle.xyz',
   },
   rest: {
     Sei: 'https://rest.atlantic-2.seinetwork.io',

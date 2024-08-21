@@ -2802,4 +2802,31 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
+  MNT: {
+    key: 'MNT',
+    symbol: 'MNT',
+    nativeChain: 'Mantle',
+    icon: Icon.MANTLE,
+    coinGeckoId: 'mantle',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WMNT',
+  },
+  WMNT: {
+    key: 'WMNT',
+    symbol: 'WMNT',
+    nativeChain: 'Mantle',
+    icon: Icon.MANTLE,
+    tokenId: {
+      chain: 'Mantle',
+      address: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+    },
+    coinGeckoId: 'mantle',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };
