@@ -15,20 +15,21 @@ export const useFetchTokenPrices = (): void => {
     const controller = new AbortController();
     const signal = controller.signal;
 
-    const coingeckoIds = Object.values(config.tokens)
-      .filter((config) => !!config.coinGeckoId)
-      .map(({ coinGeckoId }) => coinGeckoId)
-      .join(',');
-
-    const headers = new Headers({
-      'Content-Type': 'application/json',
-      ...(config.coinGeckoApiKey
-        ? { 'x-cg-pro-api-key': config.coinGeckoApiKey }
-        : {}),
-    });
     const fetchTokenPrices = async () => {
       while (!cancelled) {
         try {
+          /** arbitrary delay to read from config mutable object after all sync and react's async processes affecting config have been queued  */
+          await sleep(10);
+          const headers = new Headers({
+            'Content-Type': 'application/json',
+            ...(config.coinGeckoApiKey
+              ? { 'x-cg-pro-api-key': config.coinGeckoApiKey }
+              : {}),
+          });
+          const coingeckoIds = Object.values(config.tokens)
+            .filter((config) => !!config.coinGeckoId)
+            .map(({ coinGeckoId }) => coinGeckoId)
+            .join(',');
           // Make API call to fetch token prices
           // In the case the user https://apiguide.coingecko.com/getting-started/getting-started#id-2.-making-api-request
           const res = await fetch(
