@@ -1,14 +1,12 @@
-import config from 'config';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+import config from 'config';
+import RouteOperator from 'routes/operator';
 import { setToken, setSupportedSourceTokens } from 'store/transferInput';
 
+import type { Chain } from '@wormhole-foundation/sdk';
 import type { Route, TokenConfig } from 'config/types';
-
-import RouteOperator from 'routes/operator';
-
-import { Chain } from '@wormhole-foundation/sdk';
 
 type Props = {
   sourceChain: Chain | undefined;
@@ -18,10 +16,16 @@ type Props = {
   route: Route | undefined;
 };
 
-export const useComputeSourceTokens = (props: Props): void => {
+type ReturnProps = {
+  isFetching: boolean;
+};
+
+const useComputeSourceTokens = (props: Props): ReturnProps => {
   const { sourceChain, destChain, sourceToken, destToken, route } = props;
 
   const dispatch = useDispatch();
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (!sourceChain) {
@@ -32,6 +36,9 @@ export const useComputeSourceTokens = (props: Props): void => {
 
     const computeSrcTokens = async () => {
       let supported: Array<TokenConfig> = [];
+
+      // Start fetching and setting all supported tokens
+      setIsFetching(true);
 
       try {
         supported = await RouteOperator.allSupportedSourceTokens(
@@ -54,6 +61,9 @@ export const useComputeSourceTokens = (props: Props): void => {
           dispatch(setToken(supported[0].key));
         }
       }
+
+      // Done fetching and setting all supported tokens
+      setIsFetching(false);
     };
 
     computeSrcTokens();
@@ -63,4 +73,8 @@ export const useComputeSourceTokens = (props: Props): void => {
     };
     // IMPORTANT: do not include token in dependency array
   }, [route, sourceChain, destToken, dispatch]);
+
+  return { isFetching };
 };
+
+export default useComputeSourceTokens;

@@ -258,13 +258,33 @@ const SingleRoute = (props: Props) => {
     return <Typography>{receiveAmountPrice}</Typography>;
   }, [destTokenConfig, receiveAmount, tokenPrices]);
 
+  // There are three states for the Card area cursor:
+  // 1- If not available in the first place, "not-allowed"
+  // 2- If available but no action hanler provided, fall back to default
+  // 3- Both available and there is an action handler, "pointer"
+  const cursor = useMemo(() => {
+    if (!props.available) {
+      return 'not-allowed';
+    } else if (typeof props.onSelect !== 'function') {
+      return 'auto';
+    }
+
+    return 'pointer';
+  }, [props.available, props.onSelect]);
+
   if (isEmptyObject(props.config)) {
     return <></>;
   }
 
   return (
     <div key={name} className={classes.container}>
-      <Typography fontSize={16} paddingBottom={0} width="100%" textAlign="left">
+      <Typography
+        fontSize={16}
+        paddingBottom={0}
+        marginBottom="8px"
+        width="100%"
+        textAlign="left"
+      >
         {props.title || routeTitle}
       </Typography>
       <Card
@@ -273,12 +293,12 @@ const SingleRoute = (props: Props) => {
           border: props.isSelected
             ? '1px solid #C1BBF6'
             : '1px solid transparent',
-          cursor: props.available ? 'pointer' : 'not-allowed',
+          cursor,
           opacity: props.available ? 1 : 0.6,
         }}
       >
         <CardActionArea
-          disabled={!props.available}
+          disabled={!props.available || typeof props.onSelect !== 'function'}
           disableTouchRipple
           onClick={() => {
             props.onSelect?.(routeName);
