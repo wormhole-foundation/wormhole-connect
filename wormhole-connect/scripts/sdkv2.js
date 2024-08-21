@@ -12,6 +12,7 @@ const thirdPartyPkgs = {
   '@wormhole-foundation/sdk-solana-ntt':
     'example-native-token-transfers/solana',
   '@wormhole-foundation/sdk-evm-ntt': 'example-native-token-transfers/evm/ts',
+  ntt: 'example-native-token-transfers',
 };
 
 if (!WORK_ROOT) {
@@ -76,8 +77,9 @@ execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
 function linkLocalSdkPackages(dir) {
   let packageJson = JSON.parse(fs.readFileSync(path.join(dir, 'package.json')));
   let keys = [];
+  console.log(packageJson);
 
-  for (let key in packageJson.dependencies) {
+  for (let key in sdkPackages) {
     if (sdkPackages[key] !== undefined) {
       keys.push(key);
     }
@@ -85,10 +87,13 @@ function linkLocalSdkPackages(dir) {
 
   if (keys.length === 0) return;
 
+  console.log(dir, keys);
+
   execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
 }
 
 function progressBar(completed, total) {
+  return;
   const percentage = Math.round((completed / total) * 100);
   const barLength = 50;
   const filledLength = Math.round((barLength * percentage) / 100);
