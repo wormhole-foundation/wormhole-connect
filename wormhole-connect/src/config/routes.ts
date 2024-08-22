@@ -2,61 +2,51 @@ import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
 // import HashflowIcon from '../icons/Routes/Hashflow';
 import CCTPIcon from '../icons/Routes/CCTP';
-import { Route } from './types';
 
 export type RouteData = {
-  route: Route;
-  name: string;
-  providedBy: string;
-  routePath?: string;
+  name: string; // Should match meta.name in RouteConstructor
+  displayName: string; // Human-readable name
+  providedBy?: string;
   link: string;
+  // TODO remove this once we've removed the old v1 views; v2 doesn't use it
   icon: () => JSX.Element;
+  // TODO remove this once we've removed the old v1 views; v2 doesn't use it
   pendingMessage: string;
 };
 
-export const RoutesConfig: {
-  [route in Route]: RouteData;
-} = {
-  [Route.Bridge]: {
-    route: Route.Bridge,
-    name: 'Manual Bridge',
-    providedBy: 'Wormhole',
+// TODO SDKV2 REMOVE THIS, WE SHOULDNT HAVE THIS KIND OF INFORMATION IN CONNECT
+export const RoutesConfig: Record<string, RouteData> = {
+  ManualTokenBridge: {
+    name: 'ManualTokenBridge',
+    displayName: 'Manual Bridge',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.Relay]: {
-    route: Route.Relay,
-    name: 'Automatic Bridge',
-    providedBy: 'xLabs',
+  AutomaticTokenBridge: {
+    name: 'AutomaticTokenBridge',
+    displayName: 'Automatic Bridge',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  // [Route.Hashflow]: {
-  //   route: Route.Hashflow,
-  //   name: 'Hashflow',
-  //   providedBy: 'Hashflow',
-  //   link: 'https://www.hashflow.com/',
-  //   icon: HashflowIcon,
-  //   pendingMessage: 'Waiting for Wormhole network consensus . . .',
-  // },
-  [Route.CCTPManual]: {
-    route: Route.CCTPManual,
-    name: 'Circle CCTP',
+  ManualCCTP: {
+    name: 'ManualCCTP',
+    displayName: 'Circle CCTP',
     providedBy: 'Circle',
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
     icon: CCTPIcon,
     pendingMessage: 'Waiting for Circle attestation . . .',
   },
-  [Route.CCTPRelay]: {
-    route: Route.CCTPRelay,
-    name: 'Circle CCTP',
+  AutomaticCCTP: {
+    name: 'AutomaticCCTP',
+    displayName: 'Circle CCTP',
     providedBy: 'Circle',
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
     icon: CCTPIcon,
     pendingMessage: 'Waiting for Circle attestation . . .',
   },
+  /*
   [Route.TBTC]: {
     route: Route.TBTC,
     name: 'tBTC',
@@ -77,7 +67,6 @@ export const RoutesConfig: {
     route: Route.ETHBridge,
     name: 'ETH Bridge',
     providedBy: 'xLabs',
-    routePath: 'Wormhole',
     link: 'https://xlabs.xyz',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
@@ -86,30 +75,28 @@ export const RoutesConfig: {
     route: Route.wstETHBridge,
     name: 'wstETH Bridge',
     providedBy: 'xLabs',
-    routePath: 'Wormhole',
     link: 'https://xlabs.xyz',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.NttManual]: {
-    route: Route.NttManual,
-    name: 'Native Token Transfer',
-    providedBy: 'Wormhole',
+  */
+  ManualNtt: {
+    name: 'ManualNtt',
+    displayName: 'Native Token Transfer',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.NttRelay]: {
-    route: Route.NttRelay,
-    name: 'Native Token Transfer',
-    providedBy: 'xLabs',
+  AutomaticNtt: {
+    name: 'AutomaticNtt',
+    displayName: 'Native Token Transfer',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.Mayan]: {
-    route: Route.Mayan,
-    name: 'Mayan Swap',
+  MayanSwap: {
+    name: 'MayanSwap',
+    displayName: 'Mayan Swap',
     providedBy: 'Mayan Finance',
     link: 'https://mayan.finance/',
     icon: XLabsIcon,

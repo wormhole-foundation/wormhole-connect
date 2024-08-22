@@ -5,7 +5,6 @@ import { Select, MenuItem, CircularProgress } from '@mui/material';
 
 import config, { getWormholeContextV2 } from 'config';
 import { isValidTxId } from 'utils';
-import RouteOperator from 'routes/operator';
 import {
   setRoute as setRedeemRoute,
   setIsResumeTx,
@@ -20,7 +19,6 @@ import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
 import { useExternalSearch } from 'hooks/useExternalSearch';
-import { getRoute } from 'routes/mappings';
 import { RouteContext } from 'contexts/RouteContext';
 
 import { parseReceipt } from 'utils/sdkv2';
@@ -94,7 +92,7 @@ function TxSearch() {
 
     setLoading(true);
 
-    const resumeResult = await RouteOperator.resumeFromTx({
+    const resumeResult = await config.routes.resumeFromTx({
       chain: state.chain as Chain,
       txid: state.tx,
     });
@@ -110,7 +108,7 @@ function TxSearch() {
     const { route } = resumeResult;
     let { receipt } = resumeResult;
     const wh = await getWormholeContextV2();
-    const sdkRoute = new (getRoute(route).rc)(wh);
+    const sdkRoute = new (config.routes.get(route).rc)(wh);
     setError('');
 
     // Track until we have an attestation

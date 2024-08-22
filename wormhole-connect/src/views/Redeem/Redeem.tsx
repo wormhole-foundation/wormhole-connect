@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Route } from 'config/types';
 import { RootState } from 'store';
 import {
   setInvalidVaa,
@@ -34,7 +33,7 @@ function Redeem({
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   isResumeTx: boolean;
-  route: Route | undefined;
+  route?: string;
 }) {
   // Warn user before closing tab if transaction is unredeemed
   useConfirmBeforeLeaving(!transferComplete);

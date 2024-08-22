@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Context } from 'sdklegacy';
 import config from 'config';
-import { Route, TokenConfig } from 'config/types';
+import { TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
 import {
@@ -18,8 +18,6 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute } from 'routes';
-import { getNttConfigKey, getNttToken } from 'utils/ntt';
 import { Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
@@ -93,9 +91,7 @@ export type TransferValidations = {
   token: ValidationErr;
   destToken: ValidationErr;
   amount: ValidationErr;
-  route: ValidationErr;
   toNativeToken: ValidationErr;
-  foreignAsset: ValidationErr;
   relayerFee: ValidationErr;
   receiveAmount: ValidationErr;
 };
@@ -117,7 +113,7 @@ export interface TransferInputState {
   destToken: string;
   amount: string;
   receiveAmount: DataWrapper<string>;
-  route: Route | undefined;
+  route?: string;
   balances: WalletBalances;
   foreignAsset: string;
   associatedTokenAddress: string;
@@ -142,11 +138,9 @@ function getInitialState(): TransferInputState {
       token: '',
       destToken: '',
       amount: '',
-      route: '',
       toNativeToken: '',
       sendingWallet: '',
       receivingWallet: '',
-      foreignAsset: '',
       relayerFee: '',
       receiveAmount: '',
     },
@@ -174,7 +168,7 @@ function getInitialState(): TransferInputState {
 }
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token, route, destToken } = state;
+  const { fromChain, token, route } = state;
   if (token) {
     const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
@@ -187,14 +181,7 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         state.amount = '';
       }
     }
-    if (isNttRoute(route) && destToken) {
-      const cfgKey = getNttConfigKey(tokenConfig, config.tokens[destToken]);
-      if (cfgKey && fromChain) {
-        state.token = getNttToken(cfgKey, fromChain)?.key || '';
-      } else {
-        state.token = '';
-      }
-    } else if (
+    if (
       tokenConfig.symbol === 'USDC' &&
       tokenConfig.nativeChain !== fromChain
     ) {
@@ -216,24 +203,14 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken, route, token } = state;
+  const { toChain, destToken, route } = state;
 
   if (destToken) {
     const tokenConfig = config.tokens[destToken];
     if (!toChain) {
       state.destToken = '';
     }
-    if (isNttRoute(route) && token) {
-      const cfgKey = getNttConfigKey(tokenConfig, config.tokens[token]);
-      if (cfgKey && toChain) {
-        state.destToken = getNttToken(cfgKey, toChain)?.key || '';
-      } else {
-        state.destToken = '';
-      }
-    } else if (
-      tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeChain !== toChain
-    ) {
+    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
     } else if (
       tokenConfig.symbol === 'tBTC' &&
@@ -263,6 +240,8 @@ const establishRoute = (state: TransferInputState) => {
     return;
   }
   const routeOrderOfPreference = [
+    /*
+     * TODO SDKV2
     Route.CosmosGateway,
     Route.CCTPRelay,
     Route.CCTPManual,
@@ -274,6 +253,7 @@ const establishRoute = (state: TransferInputState) => {
     Route.Relay,
     Route.Bridge,
     Route.Mayan,
+    */
   ];
   for (const r of routeOrderOfPreference) {
     const routeState = routeStates.find((rs) => rs.name === r);
@@ -307,7 +287,7 @@ export const transferInputSlice = createSlice({
     },
     setRoute: (
       state: TransferInputState,
-      { payload }: PayloadAction<Route>,
+      { payload }: PayloadAction<string>,
     ) => {
       state.route = payload;
     },
@@ -407,7 +387,7 @@ export const transferInputSlice = createSlice({
     },
     setTransferRoute: (
       state: TransferInputState,
-      { payload }: PayloadAction<Route | undefined>,
+      { payload }: PayloadAction<string | undefined>,
     ) => {
       if (!payload) {
         state.route = undefined;

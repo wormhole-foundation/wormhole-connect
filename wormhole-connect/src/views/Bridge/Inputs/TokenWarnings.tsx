@@ -15,8 +15,6 @@ import { joinClass } from 'utils/style';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
-import RouteOperator from 'routes/operator';
-import { Route } from '../../../config/types';
 import { isNttRoute } from 'routes';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -128,12 +126,9 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await RouteOperator.getForeignAsset(
-        route,
-        tokenId,
-        toChain,
-        destTokenConfig,
-      );
+      const address = await config.routes
+        .get(route)
+        .getForeignAsset(tokenId, toChain, destTokenConfig);
 
       if (!active) return;
       if (address) {
@@ -256,7 +251,8 @@ function TokenWarnings() {
     if (
       toChain === 'Solana' &&
       foreignAsset &&
-      route !== Route.TBTC &&
+      // TODO SDKV2
+      //route !== Route.TBTC &&
       !isNttRoute(route)
     ) {
       checkSolanaAssociatedTokenAccount();
@@ -315,7 +311,7 @@ function TokenWarnings() {
   let content;
   if (!foreignAsset) {
     content = noForeignAssetWarning;
-  } else if (toChain === 'Solana' && route !== Route.Relay) {
+  } else if (toChain === 'Solana' && route !== 'AutomaticTokenBridge') {
     content = noAssociatedTokenAccount;
   } else if (usdcAndNoCCTP) {
     content = warningNoCCTPOption;

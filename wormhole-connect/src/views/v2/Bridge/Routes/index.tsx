@@ -7,7 +7,6 @@ import { RoutesConfig } from 'config/routes';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
-import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -28,8 +27,8 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 type Props = {
-  selectedRoute: Route | undefined;
-  onRouteChange: (route: Route) => void;
+  selectedRoute?: string;
+  onRouteChange: (route: string) => void;
 };
 
 const Routes = (props: Props) => {
@@ -75,11 +74,11 @@ const Routes = (props: Props) => {
   return (
     <>
       {supportedRoutes.map(({ name, available, availabilityError }) => {
-        const routeConfig = RoutesConfig[name as Route];
-        const isSelected = routeConfig.route === props.selectedRoute;
+        const routeConfig = RoutesConfig[name];
+        const isSelected = routeConfig.name === props.selectedRoute;
         return (
           <SingleRoute
-            config={routeConfig}
+            route={routeConfig}
             available={available}
             error={availabilityError}
             isSelected={isSelected}

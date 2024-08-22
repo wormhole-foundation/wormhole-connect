@@ -6,7 +6,6 @@ import {
   MAINNET_RPC_MAPPING,
 } from './rpcs';
 import { MAINNET_TOKENS } from './tokens';
-import { MAINNET_NTT_CONFIG } from './nttConfig';
 
 export * from './chains';
 export * from './rpcs';
@@ -18,7 +17,6 @@ const MAINNET: NetworkData = {
   rpcs: MAINNET_RPC_MAPPING,
   rest: MAINNET_REST_MAPPING,
   graphql: MAINNET_GRAPHQL_MAPPING,
-  nttConfig: MAINNET_NTT_CONFIG,
   // From VAA https://wormholescan.io/#/tx/1/0000000000000000000000000000000000000000000000000000000000000004/18252082506122526004
   guardianSet: {
     index: 4,

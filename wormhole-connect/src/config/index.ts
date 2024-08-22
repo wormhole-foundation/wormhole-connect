@@ -3,17 +3,8 @@ import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import {
-  Network,
-  InternalConfig,
-  Route,
-  WrappedTokenAddressCache,
-} from './types';
-import {
-  mergeCustomTokensConfig,
-  mergeNttConfig,
-  validateDefaults,
-} from './utils';
+import { Network, InternalConfig, WrappedTokenAddressCache } from './types';
+import { mergeCustomTokensConfig, validateDefaults } from './utils';
 import { wrapEventHandler } from './events';
 
 import { SDKConverter } from './converter';
@@ -35,6 +26,7 @@ import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
+import RouteOperator from 'routes/operator';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -135,18 +127,7 @@ export function buildConfig(
       sdkConverter,
     ),
 
-    // TODO: routes that aren't supported yet are disabled
-    routes: (customConfig?.routes ?? Object.values(Route)).filter((r) =>
-      [
-        Route.Bridge,
-        Route.Relay,
-        Route.NttManual,
-        Route.NttRelay,
-        Route.CCTPManual,
-        Route.CCTPRelay,
-        Route.Mayan,
-      ].includes(r as Route),
-    ),
+    routes: new RouteOperator(customConfig?.routes),
 
     // UI details
     cta: customConfig?.cta,
@@ -175,13 +156,6 @@ export function buildConfig(
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
-
-    // NTT config
-    nttConfig: mergeNttConfig(
-      tokens,
-      networkData.nttConfig,
-      customConfig?.nttConfig,
-    ),
 
     // Guardian Set
     guardianSet: networkData.guardianSet,

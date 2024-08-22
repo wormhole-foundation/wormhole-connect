@@ -30,7 +30,6 @@ import {
   switchChain,
   TransferWallet,
 } from 'utils/wallet';
-import RouteOperator from 'routes/operator';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   setSendingGasEst,
@@ -43,7 +42,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
 import { isGatewayChain } from 'utils/cosmos';
 import { useDebounce } from 'use-debounce';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { interpretTransferError } from 'utils/errors';
 import { getTokenDetails } from 'telemetry';
 import { RouteContext } from 'contexts/RouteContext';
@@ -151,17 +149,18 @@ function Send(props: { valid: boolean }) {
       });
 
       console.log('sending');
-      const sendResult = await RouteOperator.send(
-        route,
-        sendToken,
-        `${amount}`,
-        fromChain!,
-        sending.address,
-        toChain!,
-        receiving.address,
-        destToken,
-        { nativeGas: toNativeToken },
-      );
+      const sendResult = await config.routes
+        .get(route)
+        .send(
+          sendToken,
+          `${amount}`,
+          fromChain!,
+          sending.address,
+          toChain!,
+          receiving.address,
+          destToken,
+          { nativeGas: toNativeToken },
+        );
       console.log('send done', sendResult);
 
       config.triggerEvent({
@@ -270,12 +269,15 @@ function Send(props: { valid: boolean }) {
 
   const showWarning = useMemo(() => {
     if (!route) return false;
-    const r = RouteOperator.getRoute(route);
+    const r = config.routes.get(route);
     return !(
-      r.AUTOMATIC_DEPOSIT ||
-      (toChain && isGatewayChain(toChain)) ||
-      toChain === 'Sei' ||
-      isPorticoRoute(r.TYPE)
+      (
+        r.AUTOMATIC_DEPOSIT ||
+        (toChain && isGatewayChain(toChain)) ||
+        toChain === 'Sei'
+      )
+      // TODO SDKV2
+      //isPorticoRoute(r.TYPE)
     );
   }, [route, toChain]);
 

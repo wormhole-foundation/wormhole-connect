@@ -8,9 +8,7 @@ import {
   setAllSupportedDestTokens,
 } from 'store/transferInput';
 
-import type { Route, TokenConfig } from 'config/types';
-
-import RouteOperator from 'routes/operator';
+import type { TokenConfig } from 'config/types';
 
 import { Chain } from '@wormhole-foundation/sdk';
 
@@ -18,7 +16,7 @@ type Props = {
   sourceChain: Chain | undefined;
   sourceToken: string;
   destChain: Chain | undefined;
-  route: Route | undefined;
+  route?: string;
 };
 
 type ReturnProps = {
@@ -46,7 +44,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
       setIsFetching(true);
 
       try {
-        supported = await RouteOperator.allSupportedDestTokens(
+        supported = await config.routes.allSupportedDestTokens(
           config.tokens[sourceToken],
           sourceChain,
           destChain,
@@ -67,8 +65,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
       }
 
       dispatch(setSupportedDestTokens(supported));
-
-      const allSupported = await RouteOperator.allSupportedDestTokens(
+      const allSupported = await config.routes.allSupportedDestTokens(
         undefined,
         sourceChain,
         destChain,

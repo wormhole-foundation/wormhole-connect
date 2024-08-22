@@ -3,11 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 
 import { RouteState, setRoutes } from 'store/transferInput';
-import RouteOperator from 'routes/operator';
-import config from 'config';
 
-import type { Route } from 'config/types';
 import type { RootState } from 'store';
+import config from 'config';
 
 const useAvailableRoutes = (): void => {
   const dispatch = useDispatch();
@@ -28,17 +26,14 @@ const useAvailableRoutes = (): void => {
     let isActive = true;
 
     const getAvailable = async () => {
-      const routes: RouteState[] = [];
-      for (const value of config.routes) {
-        const r = value as Route;
-
+      let routes: RouteState[] = [];
+      await config.routes.forEach(async (name, route) => {
         let supported = false;
         let available = false;
         let availabilityError = '';
 
         try {
-          supported = await RouteOperator.isRouteSupported(
-            r,
+          supported = await route.isRouteSupported(
             token,
             destToken,
             debouncedAmount,
@@ -46,15 +41,14 @@ const useAvailableRoutes = (): void => {
             toChain,
           );
         } catch (e) {
-          console.error('Error when checking route is supported:', e, r);
+          console.error('Error when checking route is supported:', e, name);
         }
 
         // Check availability of a route only when it is supported
         // Primary goal here is to prevent any unnecessary RPC calls
         if (supported) {
           try {
-            available = await RouteOperator.isRouteAvailable(
-              r,
+            available = await route.isRouteAvailable(
               token,
               destToken,
               debouncedAmount,
@@ -62,20 +56,21 @@ const useAvailableRoutes = (): void => {
               toChain,
               { nativeGas: toNativeToken },
             );
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } catch (e: any) {
+          } catch (e) {
             availabilityError = 'Route is unavailable.';
-            console.error('Error when checking route is available:', e, r);
+            console.error('Error when checking route is available:', e, name);
           }
         }
 
-        routes.push({
-          name: r,
-          supported,
-          available,
-          availabilityError,
-        });
-      }
+        routes.push({ name, supported, available, availabilityError });
+      });
+
+      // TODO figure out better approach to sorting routes... probably by ETA
+      routes = routes.sort((a, b) => {
+        const idxA = config.routes.preference.indexOf(a.name);
+        const idxB = config.routes.preference.indexOf(b.name);
+        return idxA - idxB;
+      });
 
       if (isActive) {
         dispatch(setRoutes(routes));

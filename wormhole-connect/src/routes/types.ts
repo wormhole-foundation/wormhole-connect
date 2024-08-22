@@ -1,4 +1,3 @@
-import { Route } from 'config/types';
 import { TransferInfo } from '../utils/sdkv2';
 import { TokenPrices } from 'store/tokenPrices';
 import { TokenId } from 'sdklegacy';
@@ -26,7 +25,7 @@ export interface NestedRow extends Row {
 }
 
 export type TransferDestInfo = {
-  route: Route;
+  route: string;
   displayData: TransferDisplayData;
 };
 

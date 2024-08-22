@@ -2,18 +2,17 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import config from 'config';
-import RouteOperator from 'routes/operator';
 import { setToken, setSupportedSourceTokens } from 'store/transferInput';
 
 import type { Chain } from '@wormhole-foundation/sdk';
-import type { Route, TokenConfig } from 'config/types';
+import type { TokenConfig } from 'config/types';
 
 type Props = {
   sourceChain: Chain | undefined;
   sourceToken: string;
   destChain: Chain | undefined;
   destToken: string;
-  route: Route | undefined;
+  route?: string;
 };
 
 type ReturnProps = {
@@ -41,7 +40,7 @@ const useComputeSourceTokens = (props: Props): ReturnProps => {
       setIsFetching(true);
 
       try {
-        supported = await RouteOperator.allSupportedSourceTokens(
+        supported = await config.routes.allSupportedSourceTokens(
           config.tokens[destToken],
           sourceChain,
           destChain,

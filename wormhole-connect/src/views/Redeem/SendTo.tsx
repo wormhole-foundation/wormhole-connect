@@ -17,7 +17,6 @@ import {
   setTransferComplete,
 } from 'store/redeem';
 import { displayAddress /*getWrappedTokenId*/ } from 'utils';
-import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -34,7 +33,6 @@ import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { isGatewayChain } from '../../utils/cosmos';
 import SwitchToManualClaim from './SwitchToManualClaim';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { getTokenDetails } from 'telemetry';
 import { interpretTransferError } from 'utils/errors';
 import { RouteContext } from 'contexts/RouteContext';
@@ -114,7 +112,7 @@ function SendTo() {
       }
       dispatch(setTransferDestInfo(undefined));
       try {
-        const info = await RouteOperator.getTransferDestInfo(routeName, {
+        const info = await config.routes.get(routeName).getTransferDestInfo({
           txData,
           tokenPrices: prices,
           receiveTx,
@@ -134,12 +132,13 @@ function SendTo() {
 
   const AUTOMATIC_DEPOSIT = useMemo(() => {
     if (!routeName) return false;
-    const route = RouteOperator.getRoute(routeName);
+    const route = config.routes.get(routeName);
     return (
       route.AUTOMATIC_DEPOSIT ||
       isGatewayChain(txData.toChain) ||
-      txData.toChain === 'Sei' ||
-      isPorticoRoute(route.TYPE)
+      txData.toChain === 'Sei'
+      //TODO SDKV2 remove???
+      //isPorticoRoute(route.TYPE)
     );
   }, [routeName, txData]);
 
