@@ -21,9 +21,9 @@ import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
-import useComputeDestinationTokensV2 from 'hooks/useComputeDestinationTokensV2';
+import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import useComputeQuote from 'hooks/useComputeQuote';
-import useComputeSourceTokensV2 from 'hooks/useComputeSourceTokensV2';
+import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
 import {
   selectFromChain,
   selectToChain,
@@ -123,6 +123,8 @@ const Bridge = () => {
     destToken,
     route,
     routeStates,
+    supportedDestTokens,
+    supportedSourceTokens,
     amount,
     validations,
   } = useSelector((state: RootState) => state.transferInput);
@@ -142,27 +144,23 @@ const Bridge = () => {
   }, [route, routeStates]);
 
   // Compute and set source tokens
-  const {
-    supportedTokens: supportedSourceTokens,
-    isFetching: isFetchingSupportedSourceTokens,
-  } = useComputeSourceTokensV2({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    route: selectedRoute,
-  });
+  const { isFetching: isFetchingSupportedSourceTokens } =
+    useComputeSourceTokens({
+      sourceChain,
+      destChain,
+      sourceToken,
+      destToken,
+      route: selectedRoute,
+    });
 
   // Compute and set destination tokens
-  const {
-    supportedTokens: supportedDestTokens,
-    isFetching: isFetchingSupportedDestTokens,
-  } = useComputeDestinationTokensV2({
-    sourceChain,
-    destChain,
-    sourceToken,
-    route: selectedRoute,
-  });
+  const { isFetching: isFetchingSupportedDestTokens } =
+    useComputeDestinationTokens({
+      sourceChain,
+      destChain,
+      sourceToken,
+      route: selectedRoute,
+    });
 
   // Compute the quotes for this route
   const { isFetching: isFetchingQuote } = useComputeQuote({

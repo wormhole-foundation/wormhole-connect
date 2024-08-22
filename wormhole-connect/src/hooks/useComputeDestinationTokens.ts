@@ -1,7 +1,7 @@
-import config from 'config';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+import config from 'config';
 import {
   setDestToken,
   setSupportedDestTokens,
@@ -14,8 +14,6 @@ import RouteOperator from 'routes/operator';
 
 import { Chain } from '@wormhole-foundation/sdk';
 
-//import { getWrappedToken } from 'utils';
-
 type Props = {
   sourceChain: Chain | undefined;
   sourceToken: string;
@@ -23,10 +21,16 @@ type Props = {
   route: Route | undefined;
 };
 
-export const useComputeDestinationTokens = (props: Props): void => {
+type ReturnProps = {
+  isFetching: boolean;
+};
+
+const useComputeDestinationTokens = (props: Props): ReturnProps => {
   const { sourceChain, destChain, sourceToken, route } = props;
 
   const dispatch = useDispatch();
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (!destChain) {
@@ -37,6 +41,9 @@ export const useComputeDestinationTokens = (props: Props): void => {
 
     const computeDestTokens = async () => {
       let supported: Array<TokenConfig> = [];
+
+      // Start fetching and setting all supported tokens
+      setIsFetching(true);
 
       try {
         supported = await RouteOperator.allSupportedDestTokens(
@@ -58,13 +65,20 @@ export const useComputeDestinationTokens = (props: Props): void => {
           supported = nativeTokens;
         }
       }
+
       dispatch(setSupportedDestTokens(supported));
+
       const allSupported = await RouteOperator.allSupportedDestTokens(
         undefined,
         sourceChain,
         destChain,
       );
+
       dispatch(setAllSupportedDestTokens(allSupported));
+
+      // Done fetching and setting all supported tokens
+      setIsFetching(false);
+
       if (destChain && supported.length === 1) {
         if (!canceled) {
           dispatch(setDestToken(supported[0].key));
@@ -97,4 +111,10 @@ export const useComputeDestinationTokens = (props: Props): void => {
       canceled = true;
     };
   }, [route, sourceToken, sourceChain, destChain, dispatch]);
+
+  return {
+    isFetching,
+  };
 };
+
+export default useComputeDestinationTokens;

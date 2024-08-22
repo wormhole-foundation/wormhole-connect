@@ -273,6 +273,7 @@ const establishRoute = (state: TransferInputState) => {
     Route.NttManual,
     Route.Relay,
     Route.Bridge,
+    Route.Mayan,
   ];
   for (const r of routeOrderOfPreference) {
     const routeState = routeStates.find((rs) => rs.name === r);
