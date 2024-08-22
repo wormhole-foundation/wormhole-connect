@@ -37,24 +37,28 @@ import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 // (They are meant to be used by the code passed into eval() below)
 /* @ts-ignore */
 import { DEFAULT_ROUTES, nttRoutes } from 'routes/operator';
-/* @ts-ignore */
-const AutomaticTokenBridgeRoute = routes.AutomaticTokenBridgeRoute;
-/* @ts-ignore */
-const AutomaticCCTPRoute = routes.AutomaticCCTPRoute;
-/* @ts-ignore */
-const TokenBridgeRoute = routes.TokenBridgeRoute;
-/* @ts-ignore */
-const ManualCCTPRoute = routes.ManualCCTPRoute;
-/* @ts-ignore */
-const testNttRoutesTestnet = () => nttRoute(NTT_TEST_CONFIG_TESTNET);
-/* @ts-ignore */
-const testNttRoutesMainnet = () => nttRoute(NTT_TEST_CONFIG_MAINNET);
-
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
 const parseConfig = (config: string): WormholeConnectConfig => {
   if (config) {
     try {
+      /* @ts-ignore */
+      window.DEFAULT_ROUTES = DEFAULT_ROUTES;
+      /* @ts-ignore */
+      window.nttRoutes = nttRoutes;
+      /* @ts-ignore */
+      window.AutomaticTokenBridgeRoute = routes.AutomaticTokenBridgeRoute;
+      /* @ts-ignore */
+      window.AutomaticCCTPRoute = routes.AutomaticCCTPRoute;
+      /* @ts-ignore */
+      window.TokenBridgeRoute = routes.TokenBridgeRoute;
+      /* @ts-ignore */
+      window.ManualCCTPRoute = routes.ManualCCTPRoute;
+      /* @ts-ignore */
+      window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
+      /* @ts-ignore */
+      window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
+
       return eval(
         `(function() { return ${config} })()`,
       ) as WormholeConnectConfig;
