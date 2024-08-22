@@ -6,6 +6,7 @@ import { RouteState, setRoutes } from 'store/transferInput';
 
 import type { RootState } from 'store';
 import config from 'config';
+import { getTokenDetails } from 'telemetry';
 
 const useAvailableRoutes = (): void => {
   const dispatch = useDispatch();
@@ -40,6 +41,15 @@ const useAvailableRoutes = (): void => {
             fromChain,
             toChain,
           );
+          if (supported && config.isRouteSupportedHandler) {
+            supported = await config.isRouteSupportedHandler({
+              route: name,
+              fromChain,
+              toChain,
+              fromToken: getTokenDetails(token),
+              toToken: getTokenDetails(destToken),
+            });
+          }
         } catch (e) {
           console.error('Error when checking route is supported:', e, name);
         }

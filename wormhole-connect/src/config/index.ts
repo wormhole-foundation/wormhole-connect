@@ -106,6 +106,7 @@ export function buildConfig(
     // Callbacks
     triggerEvent: wrapEventHandler(customConfig?.eventHandler),
     validateTransfer: customConfig?.validateTransferHandler,
+    isRouteSupportedHandler: customConfig?.isRouteSupportedHandler,
 
     // White lists
     chains: networkData.chains,
