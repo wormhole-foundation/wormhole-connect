@@ -31,6 +31,7 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
  *
  */
 import { routes } from '@wormhole-foundation/sdk';
+import { MayanRoute } from '@mayanfinance/wormhole-sdk-route';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 
 // Using ts-ignore on these because TypeScript is confused and thinks they're unused
@@ -54,6 +55,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.TokenBridgeRoute = routes.TokenBridgeRoute;
       /* @ts-ignore */
       window.ManualCCTPRoute = routes.ManualCCTPRoute;
+      /* @ts-ignore */
+      window.MayanRoute = MayanRoute;
       /* @ts-ignore */
       window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
       /* @ts-ignore */
@@ -190,6 +193,10 @@ function DemoApp() {
               </li>
               <li>
                 <pre>ManualCCTPRoute</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>MayanRoute</pre>
                 <i>{'RouteConstructor'}</i>
               </li>
               <li>
