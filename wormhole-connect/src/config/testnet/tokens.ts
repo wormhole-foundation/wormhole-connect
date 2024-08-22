@@ -80,6 +80,14 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/65A67BA10DE2378B32AC5A822321E370966D3D4E180DEFB4C3C5245B21088DDF',
         decimals: 8,
       },
+      Klaytn: {
+        address: '0xEFa3626825C33C4cd83850920Ad7Ac0a392E1faE',
+        decimals: 18,
+      },
+      Sepolia: {
+        address: '0x02CdD5eB55934663F0aD8fbA3516dC7DE4E22894',
+        decimals: 18,
+      },
     },
   },
   AVAX: {
@@ -161,6 +169,22 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/99EAD53D49EC7CC4E2E2EB26C22CF81C16727DF0C4BF7F7ACBF0D22D910DB5DE',
         decimals: 8,
       },
+      Blast: {
+        address: '0x74C6aA987658FcBaB9FdC2ee65f52Ddd5B2cEd95',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x10257392a2B5e3C4D4bEe1607650a1C0C738202a',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0x5Bd1ba0040C16b13894A6EbE3d55708c91eF08bb',
+        decimals: 18,
+      },
+      Xlayer: {
+        address: '0xb13a464ceE7455A9b2941bFAe1bB1eB5A6833867',
+        decimals: 18,
+      },
     },
   },
   USDCavax: {
@@ -205,7 +229,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
       Aptos: {
         address:
-          '0x02ef7697bdb33361ca39d228671203afc0dea3202e792d79d2072b761d87c834::coin::T',
+          '0x2ef7697bdb33361ca39d228671203afc0dea3202e792d79d2072b761d87c834::coin::T',
         decimals: 6,
       },
       Sei: {
@@ -309,6 +333,14 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/919D8F138B7E71BB067C7301AB5C2D48415E8C3A2D9187861245CEC668F88E3C',
         decimals: 8,
       },
+      Klaytn: {
+        address: '0x097c8878A0d852581Dc4D8820151094Ddd3663Ac',
+        decimals: 18,
+      },
+      Sepolia: {
+        address: '0x852132647d301B7EED02589B1dc73545E73c8596',
+        decimals: 18,
+      },
     },
   },
   CELO: {
@@ -376,6 +408,14 @@ export const TESTNET_TOKENS: TokensConfig = {
         address:
           'ibc/009206915358A002C852A2A2CBEDB8446D2D02E519C815087A01F8BDB4DF77BA',
         decimals: 8,
+      },
+      Klaytn: {
+        address: '0xC951826bbB310a8160BB78c2eEe6C98246292ba7',
+        decimals: 18,
+      },
+      Sepolia: {
+        address: '0x648f226f3bDcAEdc844622d604F76935DC05bC24',
+        decimals: 18,
       },
     },
   },
@@ -473,6 +513,10 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/7DB06BB67428510AFC3967DC90F5632C679D55D8C487A951A0EEC3160AF492A6',
         decimals: 8,
       },
+      Sepolia: {
+        address: '0x3F7CD70ECd402BBe71f45A95156A2CAC0d6A822E',
+        decimals: 18,
+      },
     },
   },
   SOL: {
@@ -552,6 +596,18 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/B5D53105A7AA2BEC4DA4B3304228F3856219AE7CF84A9023043C481629E3E319',
         decimals: 8,
       },
+      Klaytn: {
+        address: '0x48D99C16638E6FFD2ED60375cD35ef6c139e5f41',
+        decimals: 9,
+      },
+      Moonbeam: {
+        address: '0x5babD0d267Adf2081626654E51d1cABF8c477440',
+        decimals: 9,
+      },
+      Sepolia: {
+        address: '0x824CB8fC742F8D3300d29f16cA8beE94471169f5',
+        decimals: 9,
+      },
     },
   },
   USDCsol: {
@@ -596,7 +652,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     nativeChain: 'Sui',
     tokenId: {
       chain: 'Sui',
-      address: '0x2::Sui::Sui',
+      address: '0x2::sui::SUI',
     },
     icon: Icon.SUI,
     coinGeckoId: 'Sui',
@@ -655,6 +711,10 @@ export const TESTNET_TOKENS: TokensConfig = {
         address:
           'ibc/30778BA41ADF2D8A70B90DB53C2E0251731A40276EF6737215BB1A6ED9E90078',
         decimals: 8,
+      },
+      Klaytn: {
+        address: '0xbA5F07a20681Add3A396E7606c6DC9B03d71d28A',
+        decimals: 9,
       },
     },
   },
@@ -725,21 +785,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
-  OSMO: {
-    key: 'OSMO',
-    symbol: 'OSMO',
-    nativeChain: 'Osmosis',
-    tokenId: {
-      chain: 'Osmosis',
-      address: 'uosmo',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'osmosis',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
   tBTCsol: {
     key: 'tBTCsol',
     symbol: 'tBTC',
@@ -761,104 +806,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'sei1aj3uu9ejt8fk6rpjfhzluqnzqmv3enlndjmt8llkr7dn2dtz55xst4s3mn',
         decimals: 8,
       },
-    },
-  },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeChain: 'Sei',
-    tokenId: {
-      chain: 'Sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei-network',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-    foreignAssets: {
-      Bsc: {
-        address: '0x79A8FFFCED130314eCC8782C846c4d8d4867A900',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0xfe2eCDD1708aaebf1cF802C6124fAFb18B22dfEE',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0x832e8050D6c64724500DE9B0ffe1CAc6c570a26d',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x05Efb4aC79ef48a4830f517834c6f5f039F16832',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0x1EdDe35B7e058194B457B8621285EaFA710f01ea',
-        decimals: 6,
-      },
-      Solana: {
-        address: '8LFdfuhbfdH8oBzSKDgfPAxvLW24dCM9ttjBrBobURuk',
-        decimals: 6,
-      },
       Sui: {
         address:
-          '0x22c5cdaabaae4b6d3351f9bba9511b0aebb0662a6c209a360f0776e1e77a8438::coin::COIN',
-        decimals: 6,
+          '0xf350f67b93e88e82e1a341abed92fc2a525ea5d9422a67c3e8925aa592c8d294::coin::COIN',
+        decimals: 8,
       },
-      Aptos: {
-        address:
-          '0xcae0ba0b7a435730ab65f1c8357d213e5cf9d4b377b96761745a8edaf9c9df6d::coin::T',
-        decimals: 6,
-      },
-    },
-  },
-  ATOM: {
-    key: 'ATOM',
-    symbol: 'ATOM',
-    nativeChain: 'Cosmoshub',
-    tokenId: {
-      chain: 'Cosmoshub',
-      address: 'uatom',
-    },
-    icon: Icon.ATOM,
-    coinGeckoId: 'cosmos-hub',
-    color: '#6f7390',
-    decimals: {
-      default: 6,
-    },
-  },
-  EVMOS: {
-    key: 'EVMOS',
-    symbol: 'EVMOS',
-    nativeChain: 'Evmos',
-    tokenId: {
-      chain: 'Evmos',
-      address: 'atevmos',
-    },
-    icon: Icon.EVMOS,
-    coinGeckoId: 'evmos',
-    color: '#ed4e33',
-    decimals: {
-      Cosmos: 18,
-      Ethereum: 18,
-      default: 8,
-    },
-  },
-  KUJI: {
-    key: 'KUJI',
-    symbol: 'KUJI',
-    nativeChain: 'Kujira',
-    tokenId: {
-      chain: 'Kujira',
-      address: 'ukuji',
-    },
-    icon: Icon.KUJI,
-    coinGeckoId: 'kujira',
-    color: '#f51f1e',
-    decimals: {
-      default: 6,
     },
   },
   KLAY: {
@@ -895,6 +847,40 @@ export const TESTNET_TOKENS: TokensConfig = {
         address: '0x79D34FDb686B5D139949E4F92D83EEe376489176',
         decimals: 18,
       },
+      Aptos: {
+        address:
+          '0xa8ffe1ffe3057756019345cdf9cf3d1f1a3d9a355147dd9440878c448a057579::coin::T',
+        decimals: 8,
+      },
+      Celo: {
+        address: '0x8e50fC4b7F8B7018E72475f78C640F973218C8Cf',
+        decimals: 18,
+      },
+      Avalanche: {
+        address: '0x84f3298Bcc019BD5B995756494095e1Eb72B565C',
+        decimals: 18,
+      },
+      Solana: {
+        address: '6p7qTfX4tRFtQovxwT77Jn9HFQEV7nxLbux9C31Tgm23',
+        decimals: 8,
+      },
+      Fantom: {
+        address: '0x72A1C24dA7F08d11a7668E228Ec287Fc6ec16E48',
+        decimals: 18,
+      },
+      Sepolia: {
+        address: '0x142D0E977768cA4De6f2161D9E5B5C9F00435F9e',
+        decimals: 18,
+      },
+      Moonbeam: {
+        address: '0x6eFf019D79D4136e57A7FC141967F3D0AD41089a',
+        decimals: 18,
+      },
+      Sui: {
+        address:
+          '0xd4a59fb612b162df75a9d190c0f72098dcae883e88bd0eb28667c31f8208dc3c::coin::COIN',
+        decimals: 8,
+      },
     },
   },
   ETHsepolia: {
@@ -927,6 +913,36 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
+    foreignAssets: {
+      Solana: {
+        address: '6F5YWWrUMNpee8C6BDUc6DmRvYRMDDTgJHwKhbXuifWs',
+        decimals: 8,
+      },
+      Celo: {
+        address: '0x890ad4a7eD5bD08b7d6638515157dF3bF4BaD1Bc',
+        decimals: 18,
+      },
+      Bsc: {
+        address: '0x667a61Efa611399970AE927637dD6f9A16f51e40',
+        decimals: 18,
+      },
+      Moonbeam: {
+        address: '0xa7276055a1d45fB9982575411801e10ac9970Da8',
+        decimals: 18,
+      },
+      ArbitrumSepolia: {
+        address: '0x97Ee87C7Db6049669a518730a2Ee60d1Fc58844E',
+        decimals: 18,
+      },
+      Avalanche: {
+        address: '0x12bFE94230daaE3d48067577F45b7b031dD357f3',
+        decimals: 18,
+      },
+      Fantom: {
+        address: '0x7F96D67186561Aa17cEb699494E94bEE3F3499D4',
+        decimals: 18,
+      },
+    },
   },
   USDCsepolia: {
     key: 'USDCsepolia',
@@ -941,6 +957,46 @@ export const TESTNET_TOKENS: TokensConfig = {
     color: '#2774CA',
     decimals: {
       default: 6,
+    },
+    foreignAssets: {
+      Aptos: {
+        address:
+          '0x3f2912a313c5bea312dbf19f9080101d2e762df6546a6fe9f60a4de72c93d015::coin::T',
+        decimals: 6,
+      },
+      Solana: {
+        address: '23Adx8na44L3M1Nf9RrUpQPb41eufdRXKseg25FfcJtw',
+        decimals: 6,
+      },
+      Celo: {
+        address: '0xD6A34325e5F6BE27b7006bf06651444196Da579a',
+        decimals: 6,
+      },
+      Bsc: {
+        address: '0xb8850F591019F0794F813426d4A4A9b5fB8f23C8',
+        decimals: 6,
+      },
+      BaseSepolia: {
+        address: '0x3F872340B6A75397aa9b0A463000349962a8795D',
+        decimals: 6,
+      },
+      ArbitrumSepolia: {
+        address: '0x27B8F40Cf0915e729ae5A96970E91045Fe9724dF',
+        decimals: 6,
+      },
+      Fantom: {
+        address: '0xa686203C86140142230f44A724281E1BEd09c369',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x25f2a470a2e1E75DDAc40289AB277eDE4DD98aFa',
+        decimals: 6,
+      },
+      Sui: {
+        address:
+          '0x6529fef82a8a09470c550a3129bbd889030b62306f0c14161224b1a40ef1346f::coin::COIN',
+        decimals: 6,
+      },
     },
   },
   ETHarbitrum_sepolia: {
@@ -1035,20 +1091,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
-  },
-  INJ: {
-    key: 'INJ',
-    symbol: 'INJ',
-    nativeChain: 'Injective',
-    tokenId: {
-      chain: 'Injective',
-      address: 'inj',
-    },
-    icon: Icon.INJ,
-    coinGeckoId: 'injective-protocol',
-    color: '#24DAC6',
-    decimals: {
-      default: 18,
+    foreignAssets: {
+      ArbitrumSepolia: {
+        address: '0xa2610700cCA8361DECD27dB2564848C530f20813',
+        decimals: 18,
+      },
     },
   },
   ETHscroll: {
