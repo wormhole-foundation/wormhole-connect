@@ -11,6 +11,10 @@ import {
   NttRoute,
 } from '@wormhole-foundation/sdk-route-ntt';
 
+import '@wormhole-foundation/sdk-definitions-ntt';
+import '@wormhole-foundation/sdk-evm-ntt';
+import '@wormhole-foundation/sdk-solana-ntt';
+
 export interface TxInfo {
   route: string;
   receipt: routes.Receipt;
