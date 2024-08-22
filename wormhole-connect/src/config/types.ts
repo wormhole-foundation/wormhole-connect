@@ -20,7 +20,6 @@ import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
-import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
 import { routes } from '@wormhole-foundation/sdk';
 import RouteOperator from 'routes/operator';
@@ -143,9 +142,6 @@ export interface WormholeConnectConfig {
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
 
-  // NTT config
-  nttConfig?: NttRoute.Config;
-
   // Override to load Redesign
   useRedesign?: boolean;
 }
@@ -209,9 +205,6 @@ export interface InternalConfig<N extends NetworkV2> {
   // Route settings
   ethBridgeMaxAmount: number;
   wstETHBridgeMaxAmount: number;
-
-  // NTT config
-  nttConfig: NttRoute.Config;
 
   guardianSet: GuardianSetData;
 
@@ -311,7 +304,6 @@ export type NetworkData = {
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
-  nttConfig: NttRoute.Config;
   guardianSet: GuardianSetData;
 };
 

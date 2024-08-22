@@ -4,11 +4,7 @@ import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
 import { Network, InternalConfig, WrappedTokenAddressCache } from './types';
-import {
-  mergeCustomTokensConfig,
-  mergeNttConfig,
-  validateDefaults,
-} from './utils';
+import { mergeCustomTokensConfig, validateDefaults } from './utils';
 import { wrapEventHandler } from './events';
 
 import { SDKConverter } from './converter';
@@ -160,13 +156,6 @@ export function buildConfig(
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
-
-    // NTT config
-    nttConfig: mergeNttConfig(
-      tokens,
-      networkData.nttConfig,
-      customConfig?.nttConfig,
-    ),
 
     // Guardian Set
     guardianSet: networkData.guardianSet,

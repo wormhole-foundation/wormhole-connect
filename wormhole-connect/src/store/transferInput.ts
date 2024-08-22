@@ -18,8 +18,6 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute } from 'routes';
-import { getNttConfigKey, getNttToken } from 'utils/ntt';
 import { Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
@@ -170,7 +168,7 @@ function getInitialState(): TransferInputState {
 }
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token, route, destToken } = state;
+  const { fromChain, token, route } = state;
   if (token) {
     const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
@@ -183,14 +181,7 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         state.amount = '';
       }
     }
-    if (isNttRoute(route) && destToken) {
-      const cfgKey = getNttConfigKey(tokenConfig, config.tokens[destToken]);
-      if (cfgKey && fromChain) {
-        state.token = getNttToken(cfgKey, fromChain)?.key || '';
-      } else {
-        state.token = '';
-      }
-    } else if (
+    if (
       tokenConfig.symbol === 'USDC' &&
       tokenConfig.nativeChain !== fromChain
     ) {
@@ -212,24 +203,14 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken, route, token } = state;
+  const { toChain, destToken, route } = state;
 
   if (destToken) {
     const tokenConfig = config.tokens[destToken];
     if (!toChain) {
       state.destToken = '';
     }
-    if (isNttRoute(route) && token) {
-      const cfgKey = getNttConfigKey(tokenConfig, config.tokens[token]);
-      if (cfgKey && toChain) {
-        state.destToken = getNttToken(cfgKey, toChain)?.key || '';
-      } else {
-        state.destToken = '';
-      }
-    } else if (
-      tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeChain !== toChain
-    ) {
+    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
     } else if (
       tokenConfig.symbol === 'tBTC' &&
