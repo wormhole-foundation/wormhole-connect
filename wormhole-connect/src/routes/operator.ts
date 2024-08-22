@@ -34,8 +34,8 @@ export default class RouteOperator {
   routes: Record<string, SDKv2Route>;
 
   constructor(routesConfig: routes.RouteConstructor<any>[] = DEFAULT_ROUTES) {
-    let routes = {};
-    let preference: string[] = [];
+    const routes = {};
+    const preference: string[] = [];
     for (const rc of routesConfig) {
       const name = rc.meta.name;
       if (name === '') {
