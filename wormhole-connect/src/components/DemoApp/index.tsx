@@ -170,6 +170,41 @@ function DemoApp() {
               }}
               value={customConfigInput}
             />
+            Available exports:
+            <ul id="available-exports">
+              <li>
+                <pre>DEFAULT_ROUTES</pre>
+                <i>{'RouteConstructor[]'}</i>
+              </li>
+              <li>
+                <pre>AutomaticTokenBridgeRoute</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>TokenBridgeRoute</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>AutomaticCCTPRoute</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>ManualCCTPRoute</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>nttRoutes</pre>{' '}
+                <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
+              </li>
+              <li>
+                <pre>testNttRoutesMainnet</pre>
+                <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
+              </li>
+              <li>
+                <pre>testNttRoutesTestnet</pre>
+                <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
+              </li>
+            </ul>
           </div>
         ) : undefined}
       </article>

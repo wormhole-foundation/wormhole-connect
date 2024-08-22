@@ -38,6 +38,7 @@ header h1 {
   flex-direction: column;
   padding: 5px;
   height: 100%;
+  font-family: sans-serif;
 }
 
 #custom-config textarea {
@@ -51,4 +52,22 @@ header h1 {
 
 .custom-config-bubble {
   color: #1f75fe;
+}
+
+#available-exports li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#available-exports li pre {
+  margin: 0;
+  padding: 0;
+  display: inline;
+}
+
+#available-exports li i {
+  opacity: 0.5;
+  margin-left: 10px;
+  font-size: 14px;
 }
