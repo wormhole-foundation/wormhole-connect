@@ -38,6 +38,7 @@ import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
+import type { RouteQuote } from 'hooks/useRoutesQuotesBulk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -107,6 +108,17 @@ const ReviewTransaction = (props: Props) => {
     route,
     toNativeToken,
   });
+
+  const quote: RouteQuote = useMemo(
+    () => ({
+      error: '',
+      eta,
+      receiveAmount: receiveAmount.data ?? '',
+      receiveNativeAmount: receiveNativeAmt ?? 0,
+      relayerFee: relayerFee?.fee ?? 0,
+    }),
+    [eta, receiveAmount.data, receiveNativeAmt, relayerFee?.fee],
+  );
 
   const send = async () => {
     setSendError('');
@@ -332,6 +344,8 @@ const ReviewTransaction = (props: Props) => {
         isSelected={false}
         destinationGasDrop={receiveNativeAmt}
         title="You will receive"
+        quote={quote}
+        isFetchingQuote={isFetchingQuote}
       />
       <Collapse in={showGasSlider}>
         <GasSlider

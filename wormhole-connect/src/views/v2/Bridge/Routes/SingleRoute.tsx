@@ -12,7 +12,6 @@ import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import TokenIcon from 'icons/TokenIcons';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
@@ -20,6 +19,7 @@ import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
+import { RouteQuote } from 'hooks/useRoutesQuotesBulk';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -40,47 +40,28 @@ type Props = {
   destinationGasDrop?: number;
   title?: string;
   onSelect?: (route: string) => void;
+  quote?: RouteQuote;
+  isFetchingQuote: boolean;
 };
 
 const SingleRoute = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const {
-    fromChain: sourceChain,
-    token: sourceToken,
-    toChain: destChain,
-    destToken,
-    amount,
-  } = useSelector((state: RootState) => state.transferInput);
-
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { toChain: destChain, destToken } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { prices: tokenPrices } = useFetchTokenPricesV2();
 
   const { name } = props.route;
-
-  // Compute the quotes for this route
-  const {
-    eta: estimatedTime,
-    receiveAmount,
-    relayerFee,
-    isFetching: isFetchingQuote,
-  } = useComputeQuoteV2({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-    route: name,
-    toNativeToken,
-  });
+  const { quote, isFetchingQuote } = props;
 
   const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
   const bridgeFee = useMemo(() => {
     const bridgePrice = calculateUSDPrice(
-      relayerFee,
+      quote?.relayerFee,
       tokenPrices,
       config.tokens[destToken],
       true,
@@ -102,7 +83,7 @@ const SingleRoute = (props: Props) => {
         )}
       </Stack>
     );
-  }, [destToken, isFetchingQuote, relayerFee, tokenPrices]);
+  }, [destToken, isFetchingQuote, quote?.relayerFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!destChain || !props.destinationGasDrop) {
@@ -147,12 +128,12 @@ const SingleRoute = (props: Props) => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>
-            {millisToMinutesAndSeconds(estimatedTime)}
+            {millisToMinutesAndSeconds(quote?.eta ?? 0)}
           </Typography>
         )}
       </>
     ),
-    [estimatedTime, isFetchingQuote],
+    [quote?.eta, isFetchingQuote],
   );
 
   const showWarning = useMemo(() => {
@@ -259,17 +240,17 @@ const SingleRoute = (props: Props) => {
   );
 
   const routeCardHeader = useMemo(() => {
-    return typeof receiveAmount === 'undefined' ? (
+    return typeof quote?.receiveAmount === 'undefined' ? (
       <CircularProgress size={18} />
     ) : (
       <Typography>
-        {receiveAmount} {destTokenConfig.symbol}
+        {quote?.receiveAmount} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [receiveAmount, destToken]);
+  }, [quote?.receiveAmount, destToken]);
 
   const routeCardSubHeader = useMemo(() => {
-    if (typeof receiveAmount === 'undefined') {
+    if (typeof quote?.receiveAmount === 'undefined') {
       return <CircularProgress size={18} />;
     }
 
@@ -278,7 +259,7 @@ const SingleRoute = (props: Props) => {
     }
 
     const receiveAmountPrice = calculateUSDPrice(
-      receiveAmount,
+      quote?.receiveAmount,
       tokenPrices,
       destTokenConfig,
     );
@@ -289,7 +270,7 @@ const SingleRoute = (props: Props) => {
         color={theme.palette.text.secondary}
       >{`${receiveAmountPrice} ${providerText}`}</Typography>
     );
-  }, [destTokenConfig, providerText, receiveAmount, tokenPrices]);
+  }, [destTokenConfig, providerText, quote?.receiveAmount, tokenPrices]);
 
   // There are three states for the Card area cursor:
   // 1- If not available in the first place, "not-allowed"

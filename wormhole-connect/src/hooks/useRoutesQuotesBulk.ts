@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
-import type { Route } from 'config/types';
-import { getRoute } from 'routes/mappings';
 import { getTokenDecimals } from 'utils';
 import config from 'config';
 import { toDecimals } from 'utils/balance';
@@ -32,7 +30,10 @@ const defaultQuote: RouteQuote = {
   relayerFee: 0,
 };
 
-const useRoutesQuotesBulk = (routes: Route[], params: RoutesQuotesBulkParams) => {
+const useRoutesQuotesBulk = (
+  routes: string[],
+  params: RoutesQuotesBulkParams,
+) => {
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<RouteQuote[]>([]);
 
@@ -49,7 +50,7 @@ const useRoutesQuotesBulk = (routes: Route[], params: RoutesQuotesBulkParams) =>
     }
 
     const promises = routes.map((route) =>
-      getRoute(route).computeQuote(
+      config.routes.get(route).computeQuote(
         params.amount,
         params.sourceToken,
         params.destToken,
@@ -61,7 +62,7 @@ const useRoutesQuotesBulk = (routes: Route[], params: RoutesQuotesBulkParams) =>
 
     setIsFetching(true);
     Promise.allSettled(promises).then((results) => {
-      const quotes = results.map(result => {
+      const quotes = results.map((result) => {
         if (result.status === 'rejected') {
           return {
             ...defaultQuote,
@@ -76,8 +77,12 @@ const useRoutesQuotesBulk = (routes: Route[], params: RoutesQuotesBulkParams) =>
         }
 
         const quote = result.value;
-        const receiveAmount = sdkAmount.whole(quote.destinationToken.amount).toString();
-        const receiveNativeAmount = quote.destinationNativeGas ? sdkAmount.whole(quote.destinationNativeGas) : 0;
+        const receiveAmount = sdkAmount
+          .whole(quote.destinationToken.amount)
+          .toString();
+        const receiveNativeAmount = quote.destinationNativeGas
+          ? sdkAmount.whole(quote.destinationNativeGas)
+          : 0;
         const eta = quote.eta ?? 0;
         let relayerFee = 0;
 
@@ -85,7 +90,9 @@ const useRoutesQuotesBulk = (routes: Route[], params: RoutesQuotesBulkParams) =>
           const { token, amount } = quote.relayFee;
           const feeToken = config.sdkConverter.toTokenIdV1(token);
           const decimals = getTokenDecimals(params.sourceChain, feeToken);
-          relayerFee = Number.parseFloat(toDecimals(amount.amount, decimals, 6));
+          relayerFee = Number.parseFloat(
+            toDecimals(amount.amount, decimals, 6),
+          );
         }
 
         return {
@@ -115,10 +122,17 @@ const useRoutesQuotesBulk = (routes: Route[], params: RoutesQuotesBulkParams) =>
     params.nativeGas,
   ]);
 
-  const quotesMap = useMemo(() => routes.reduce((acc, route, index) => ({
-    ...acc,
-    [route]: quotes[index],
-  }), {} as Record<Route, RouteQuote | undefined>), [routes.join(), quotes]);
+  const quotesMap = useMemo(
+    () =>
+      routes.reduce(
+        (acc, route, index) => ({
+          ...acc,
+          [route]: quotes[index],
+        }),
+        {} as Record<string, RouteQuote | undefined>,
+      ),
+    [routes.join(), quotes],
+  );
 
   return {
     quotesMap,

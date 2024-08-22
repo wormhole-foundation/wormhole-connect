@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
+import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
 
 import { RoutesConfig } from 'config/routes';
@@ -9,8 +10,7 @@ import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
-import { CircularProgress, Link } from '@mui/material';
-import RouteOperator from 'routes/operator';
+import config from 'config';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -66,7 +66,7 @@ const Routes = (props: Props) => {
   }, [routeStates]);
 
   const supportedRoutesNames = useMemo(
-    () => supportedRoutes.map((r) => r.name as Route),
+    () => supportedRoutes.map((r) => r.name),
     [supportedRoutes],
   );
 
@@ -84,47 +84,53 @@ const Routes = (props: Props) => {
     [sendingWallet.address, receivingWallet.address],
   );
 
-  const sortedSupportedRoutes = useMemo(() => [...supportedRoutes].sort((routeA, routeB) => {
-    const quoteA = quotesMap[routeA.name as Route];
-    const quoteB = quotesMap[routeB.name as Route];
-    const routeConfigA = RouteOperator.getRoute(routeA.name as Route);
-    const routeConfigB = RouteOperator.getRoute(routeB.name as Route);
+  const sortedSupportedRoutes = useMemo(
+    () =>
+      [...supportedRoutes].sort((routeA, routeB) => {
+        const quoteA = quotesMap[routeA.name];
+        const quoteB = quotesMap[routeB.name];
+        const routeConfigA = config.routes.get(routeA.name);
+        const routeConfigB = config.routes.get(routeB.name);
 
-    // 1. Prioritize automatic routes
-    if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
-      return -1;
-    } else if (!routeConfigA.AUTOMATIC_DEPOSIT && routeConfigB.AUTOMATIC_DEPOSIT) {
-      return 1;
-    }
+        // 1. Prioritize automatic routes
+        if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
+          return -1;
+        } else if (
+          !routeConfigA.AUTOMATIC_DEPOSIT &&
+          routeConfigB.AUTOMATIC_DEPOSIT
+        ) {
+          return 1;
+        }
 
-    if (quoteA && quoteB) {
-      // 2. Prioritize estimated time
-      if (quoteA.eta > quoteB.eta) {
-        return 1;
-      } else if (quoteA.eta < quoteB.eta) {
-        return -1;
-      }
+        if (quoteA && quoteB) {
+          // 2. Prioritize estimated time
+          if (quoteA.eta > quoteB.eta) {
+            return 1;
+          } else if (quoteA.eta < quoteB.eta) {
+            return -1;
+          }
 
-      // 3. Compare relay fees
-      if (quoteA.relayerFee > quoteB.relayerFee) {
-        return 1;
-      } else if (quoteA.relayerFee < quoteB.relayerFee) {
-        return -1;
-      }
-    }
+          // 3. Compare relay fees
+          if (quoteA.relayerFee > quoteB.relayerFee) {
+            return 1;
+          } else if (quoteA.relayerFee < quoteB.relayerFee) {
+            return -1;
+          }
+        }
 
-    // Don't swap when routes match by all criteria or don't have quotas
-    return 0;
-  }), [supportedRoutes, quotesMap]);
+        // Don't swap when routes match by all criteria or don't have quotas
+        return 0;
+      }),
+    [supportedRoutes, quotesMap],
+  );
 
-  const renderRoutes = useMemo(() => showAll ? sortedSupportedRoutes : sortedSupportedRoutes.slice(0, 1), [showAll, sortedSupportedRoutes]);
+  const renderRoutes = useMemo(
+    () => (showAll ? sortedSupportedRoutes : sortedSupportedRoutes.slice(0, 1)),
+    [showAll, sortedSupportedRoutes],
+  );
 
   if (supportedRoutes.length === 0 || !walletsConnected) {
     return <></>;
-  }
-
-  if (isFetching) {
-    return <CircularProgress />;
   }
 
   if (walletsConnected && !(Number(amount) > 0)) {
@@ -142,18 +148,25 @@ const Routes = (props: Props) => {
       {renderRoutes.map(({ name, available, availabilityError }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
+        const quote = quotesMap[name];
         return (
           <SingleRoute
+            key={name}
             route={routeConfig}
             available={available}
             error={availabilityError}
             isSelected={isSelected}
             onSelect={props.onRouteChange}
+            quote={quote}
+            isFetchingQuote={isFetching}
           />
         );
       })}
       {sortedSupportedRoutes.length > 1 && (
-        <Link onClick={() => setShowAll(prev => !prev)} className={classes.otherRoutesToggle}>
+        <Link
+          onClick={() => setShowAll((prev) => !prev)}
+          className={classes.otherRoutesToggle}
+        >
           {showAll ? 'Hide other routes' : 'View other routes'}
         </Link>
       )}
