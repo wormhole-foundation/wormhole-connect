@@ -6,6 +6,50 @@ import WormholeConnect from '../../WormholeConnect';
 import { WormholeConnectConfig } from 'config/types';
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
 
+/*
+ *
+ * For the purposes of the DemoApp config sandbox, we expose the same exports
+ * that are available from the production @wormhole-foundation/wormhole-connect
+ * library.
+ *
+ * These can be referenced in the same way in the DemoApp sandbox so that the
+ * config works when it's copy and pasted into an actual integrator project.
+ *
+ * The exports are:
+ * - DEFAULT_ROUTES
+ * - nttRoutes
+ * - AutomaticTokenBridgeRoute
+ * - TokenBridgeRoute
+ * - AutomaticCCTPRoute
+ * - ManualCCTPRoute
+ *
+ * We also make the following test utilities available:
+ * - nttTestRoutesMainnet
+ * - nttTestRoutesTestnet
+ * These just call nttRoutes() with a working config so that we can
+ * easily test NTT in the DemoApp.
+ *
+ */
+import { routes } from '@wormhole-foundation/sdk';
+import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
+
+// Using ts-ignore on these because TypeScript is confused and thinks they're unused
+// (They are meant to be used by the code passed into eval() below)
+/* @ts-ignore */
+import { DEFAULT_ROUTES, nttRoutes } from 'routes/operator';
+/* @ts-ignore */
+const AutomaticTokenBridgeRoute = routes.AutomaticTokenBridgeRoute;
+/* @ts-ignore */
+const AutomaticCCTPRoute = routes.AutomaticCCTPRoute;
+/* @ts-ignore */
+const TokenBridgeRoute = routes.TokenBridgeRoute;
+/* @ts-ignore */
+const ManualCCTPRoute = routes.ManualCCTPRoute;
+/* @ts-ignore */
+const testNttRoutesTestnet = () => nttRoute(NTT_TEST_CONFIG_TESTNET);
+/* @ts-ignore */
+const testNttRoutesMainnet = () => nttRoute(NTT_TEST_CONFIG_MAINNET);
+
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
 const parseConfig = (config: string): WormholeConnectConfig => {
