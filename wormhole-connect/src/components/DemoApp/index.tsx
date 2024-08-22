@@ -33,16 +33,15 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
 import { routes } from '@wormhole-foundation/sdk';
 import { MayanRoute } from '@mayanfinance/wormhole-sdk-route';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
-
-// Using ts-ignore on these because TypeScript is confused and thinks they're unused
-// (They are meant to be used by the code passed into eval() below)
-/* @ts-ignore */
 import { DEFAULT_ROUTES, nttRoutes } from 'routes/operator';
+
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
 const parseConfig = (config: string): WormholeConnectConfig => {
   if (config) {
     try {
+      // Using ts-ignore on these because TypeScript is confused
+      // (They are meant to be used by the code passed into eval() below)
       /* @ts-ignore */
       window.DEFAULT_ROUTES = DEFAULT_ROUTES;
       /* @ts-ignore */
