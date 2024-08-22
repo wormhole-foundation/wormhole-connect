@@ -225,6 +225,18 @@ const SingleRoute = (props: Props) => {
     return route.AUTOMATIC_DEPOSIT;
   }, [routeName]);
 
+  const providerText = useMemo(() => {
+    const { providedBy } = props.config;
+    let provider: string | undefined;
+
+    // We are skipping the provider text (e.g. "via ...") for xLabs
+    if (providedBy && !providedBy.toLowerCase().includes('xlabs')) {
+      provider = `via ${props.config.providedBy}`;
+    }
+
+    return provider;
+  }, [props.config.providedBy]);
+
   const routeTitle = useMemo(
     () => (isAutomaticRoute ? 'Automatic route' : 'Manual route'),
     [isAutomaticRoute],
@@ -255,8 +267,13 @@ const SingleRoute = (props: Props) => {
       destTokenConfig,
     );
 
-    return <Typography>{receiveAmountPrice}</Typography>;
-  }, [destTokenConfig, receiveAmount, tokenPrices]);
+    return (
+      <Typography
+        fontSize={14}
+        color={theme.palette.text.secondary}
+      >{`${receiveAmountPrice} ${providerText}`}</Typography>
+    );
+  }, [destTokenConfig, providerText, receiveAmount, tokenPrices]);
 
   if (isEmptyObject(props.config)) {
     return <></>;
