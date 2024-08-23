@@ -1,24 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
-import InputAdornment from '@mui/material/InputAdornment';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import SearchIcon from '@mui/icons-material/Search';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
-import TokenIcon from 'icons/TokenIcons';
-
 import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
+import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
+import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -31,35 +25,31 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: 14,
     marginBottom: '8px',
   },
-  tokenListItem: {
+  tokenLoader: {
     display: 'flex',
     justifyContent: 'space-between',
   },
-  tokenDetails: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
+  tokenList: {
+    maxHeight: 340,
   },
 }));
 
 type Props = {
   tokenList?: Array<TokenConfig> | undefined;
+  isFetching?: boolean;
   selectedChainConfig?: ChainConfig | undefined;
   selectedToken?: string | undefined;
   wallet: WalletData;
-  onClick?: (key: string) => void;
+  onSelectToken: (key: string) => void;
 };
 
 const SHORT_LIST_SIZE = 5;
 
 const TokenList = (props: Props) => {
-  const [tokenSearchQuery, setTokenSearchQuery] = useState('');
-
   const { classes } = useStyles();
-
   const theme = useTheme();
 
-  const { isFetching, balances } = useGetTokenBalances(
+  const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
     props.wallet?.address || '',
     props.selectedChainConfig?.key,
     props.tokenList || [],
@@ -117,87 +107,53 @@ const TokenList = (props: Props) => {
     return tokens;
   }, [balances, props.tokenList]);
 
-  const searchList = useMemo(() => {
-    const tokens = tokenSearchQuery
-      ? props.tokenList?.filter((t: TokenConfig) => {
-          const query = tokenSearchQuery.toLowerCase();
-          return (
-            t.symbol?.toLowerCase().includes(query) ||
-            t.displayName?.toLowerCase().includes(query)
-          );
-        })
-      : topTokens;
+  const searchList = (
+    <SearchableList<TokenConfig>
+      searchPlaceholder="Search for a token"
+      className={classes.tokenList}
+      listTitle={
+        props.selectedChainConfig && (
+          <Typography fontSize={14} color={theme.palette.text.secondary}>
+            Tokens on {props.selectedChainConfig.displayName}
+          </Typography>
+        )
+      }
+      loading={
+        props.isFetching && (
+          <ListItemButton className={classes.tokenLoader} dense>
+            <CircularProgress />
+          </ListItemButton>
+        )
+      }
+      initialItems={topTokens}
+      items={props.tokenList ?? []}
+      filterFn={(token, query) => {
+        if (query.length === 0) return true;
+        const queryLC = query.toLowerCase();
+        return Boolean(
+          token.symbol?.toLowerCase().includes(queryLC) ||
+            token.displayName?.toLowerCase().includes(queryLC),
+        );
+      }}
+      renderFn={(token: TokenConfig) => {
+        const balance = balances?.[token.key]?.balance;
+        const disabled = !!props.wallet?.address && !!balances && !balance;
 
-    return (
-      <List>
-        <ListItem>
-          <TextField
-            autoFocus
-            fullWidth
-            inputProps={{
-              style: {
-                fontSize: 12,
-              },
+        return (
+          <TokenItem
+            key={token.key}
+            token={token}
+            disabled={disabled}
+            onClick={() => {
+              props.onSelectToken(token.key);
             }}
-            placeholder="Search for a token"
-            size="small"
-            variant="outlined"
-            onChange={(e) => setTokenSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
+            balance={balance ?? ''}
+            isFetchingBalance={isFetchingTokenBalances}
           />
-        </ListItem>
-        {props.selectedChainConfig && (
-          <ListItem>
-            <Typography
-              fontSize={14}
-              color={theme.palette.text.secondary}
-            >{`Tokens on ${props.selectedChainConfig.displayName}`}</Typography>
-          </ListItem>
-        )}
-        {tokens?.map((token: TokenConfig, i: number) => {
-          const nativeChainConfig = config.chains[token.nativeChain];
-          const nativeChain = nativeChainConfig?.displayName || '';
-          const balance = balances?.[token.key]?.balance;
-
-          return (
-            <ListItemButton
-              key={token.key}
-              className={classes.tokenListItem}
-              dense
-              disabled={!!props.wallet?.address && !!balances && !balance}
-              onClick={() => {
-                props.onClick?.(token.key);
-              }}
-            >
-              <div className={classes.tokenDetails}>
-                <ListItemIcon>
-                  <TokenIcon icon={token.icon} height={32} />
-                </ListItemIcon>
-                <div>
-                  <Typography fontSize={16}>{token.symbol}</Typography>
-                  <Typography
-                    fontSize={10}
-                    color={theme.palette.text.secondary}
-                  >
-                    {nativeChain}
-                  </Typography>
-                </div>
-              </div>
-              <Typography fontSize={14}>
-                {isFetching ? <CircularProgress size={24} /> : balance}
-              </Typography>
-            </ListItemButton>
-          );
-        })}
-      </List>
-    );
-  }, [isFetching, balances, tokenSearchQuery, topTokens]);
+        );
+      }}
+    />
+  );
 
   return (
     <Card className={classes.card} variant="elevation">

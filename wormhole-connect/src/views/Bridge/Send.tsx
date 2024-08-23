@@ -30,7 +30,6 @@ import {
   switchChain,
   TransferWallet,
 } from 'utils/wallet';
-import RouteOperator from 'routes/operator';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   setSendingGasEst,
@@ -43,7 +42,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
 import { isGatewayChain } from 'utils/cosmos';
 import { useDebounce } from 'use-debounce';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { interpretTransferError } from 'utils/errors';
 import { getTokenDetails } from 'telemetry';
 import { RouteContext } from 'contexts/RouteContext';
@@ -87,7 +85,6 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = wallet;
   const relay = useSelector((state: RootState) => state.relay);
   const { toNativeToken, relayerFee, receiveNativeAmt } = relay;
-  const portico = useSelector((state: RootState) => state.porticoBridge);
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -97,11 +94,7 @@ function Send(props: { valid: boolean }) {
 
   async function send() {
     setSendError('');
-    await validate(
-      { transferInput, relay, wallet, portico },
-      dispatch,
-      () => false,
-    );
+    await validate({ transferInput, relay, wallet }, dispatch, () => false);
     const valid = isTransferValid(validations);
     if (!valid || !route) return;
 
@@ -156,17 +149,18 @@ function Send(props: { valid: boolean }) {
       });
 
       console.log('sending');
-      const sendResult = await RouteOperator.send(
-        route,
-        sendToken,
-        `${amount}`,
-        fromChain!,
-        sending.address,
-        toChain!,
-        receiving.address,
-        destToken,
-        { nativeGas: toNativeToken },
-      );
+      const sendResult = await config.routes
+        .get(route)
+        .send(
+          sendToken,
+          `${amount}`,
+          fromChain!,
+          sending.address,
+          toChain!,
+          receiving.address,
+          destToken,
+          { nativeGas: toNativeToken },
+        );
       console.log('send done', sendResult);
 
       config.triggerEvent({
@@ -192,24 +186,16 @@ function Send(props: { valid: boolean }) {
           sender: sending.address,
           amount,
           recipient: receiving.address,
-          toChain: config.sdkConverter.toChainNameV1(receipt.to),
-          fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+          toChain: receipt.to,
+          fromChain: receipt.from,
           tokenAddress: getWrappedToken(sendToken).tokenId!.address,
-          tokenChain: config.sdkConverter.toChainNameV1(receipt.from),
-          tokenId: getWrappedTokenId(sendToken),
           tokenKey: sendToken.key,
           tokenDecimals: getTokenDecimals(
-            config.wh.toChainId(fromChain!),
+            fromChain!,
             getWrappedTokenId(sendToken),
           ),
           receivedTokenKey: config.tokens[destToken].key!, // TODO: possibly wrong (e..g if portico swap fails)
-          emitterAddress: undefined,
-          sequence: undefined,
-          block: 0,
-          gasFee: undefined,
-          payload: undefined,
-          inputData: undefined,
-          relayerFee: relayerFee?.toString() || '',
+          relayerFee,
           receiveAmount: receiveAmount.data || '',
           receiveNativeAmount: receiveNativeAmt,
         }),
@@ -283,12 +269,15 @@ function Send(props: { valid: boolean }) {
 
   const showWarning = useMemo(() => {
     if (!route) return false;
-    const r = RouteOperator.getRoute(route);
+    const r = config.routes.get(route);
     return !(
-      r.AUTOMATIC_DEPOSIT ||
-      (toChain && isGatewayChain(toChain)) ||
-      toChain === 'sei' ||
-      isPorticoRoute(r.TYPE)
+      (
+        r.AUTOMATIC_DEPOSIT ||
+        (toChain && isGatewayChain(toChain)) ||
+        toChain === 'Sei'
+      )
+      // TODO SDKV2
+      //isPorticoRoute(r.TYPE)
     );
   }, [route, toChain]);
 

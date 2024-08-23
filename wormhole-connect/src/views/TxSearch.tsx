@@ -2,12 +2,14 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
-import type { ChainName } from 'sdklegacy';
 
 import config, { getWormholeContextV2 } from 'config';
 import { isValidTxId } from 'utils';
-import RouteOperator from 'routes/operator';
-import { setRoute as setRedeemRoute, setIsResumeTx } from 'store/redeem';
+import {
+  setRoute as setRedeemRoute,
+  setIsResumeTx,
+  setTxDetails,
+} from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import PageHeader from 'components/PageHeader';
 import Search from 'components/Search';
@@ -17,8 +19,14 @@ import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
 import { useExternalSearch } from 'hooks/useExternalSearch';
-import { getRoute } from 'routes/mappings';
 import { RouteContext } from 'contexts/RouteContext';
+
+import { parseReceipt } from 'utils/sdkv2';
+import {
+  TransferState,
+  AttestedTransferReceipt,
+  Chain,
+} from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -78,65 +86,60 @@ function TxSearch() {
     if (!state.tx || !state.chain) {
       return setError('Enter the source chain and transaction ID');
     }
-    if (!isValidTxId(state.chain, state.tx)) {
+    if (!isValidTxId(state.chain as Chain, state.tx)) {
       return setError('Invalid transaction ID');
     }
-    try {
-      setLoading(true);
-      const { route, receipt } = await RouteOperator.getRouteFromTx(
-        state.tx,
-        config.sdkConverter.toChainV2(state.chain as ChainName),
+
+    setLoading(true);
+
+    const resumeResult = await config.routes.resumeFromTx({
+      chain: state.chain as Chain,
+      txid: state.tx,
+    });
+
+    if (resumeResult === null) {
+      setError(
+        'Transfer not found, check that you have the correct chain and transaction ID',
       );
-      const wh = await getWormholeContextV2();
-      const sdkRoute = new (getRoute(route).rc)(wh);
-      setError('');
-      // TODO: these details are a placeholder
-      // dispatch(setTxDetails(message));
-      //dispatch(
-      //  setTxDetails({
-      //    sendTx: txId,
-      //    sender: sending.address,
-      //    amount,
-      //    payloadID: sdkRoute.IS_AUTOMATIC ? 1 : 3, // TODO: don't need this
-      //    recipient: receiving.address,
-      //    toChain: config.sdkConverter.toChainNameV1(receipt.to),
-      //    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
-      //    tokenAddress: getWrappedToken(sendToken).tokenId!.address,
-      //    tokenChain: config.sdkConverter.toChainNameV1(receipt.from),
-      //    tokenId: getWrappedTokenId(sendToken),
-      //    tokenKey: sendToken.key,
-      //    tokenDecimals: getTokenDecimals(
-      //      config.wh.toChainId(fromChain!),
-      //      getWrappedTokenId(sendToken),
-      //    ),
-      //    receivedTokenKey: config.tokens[destToken].key!, // TODO: wrong
-      //    emitterAddress: undefined,
-      //    sequence: undefined,
-      //    block: 0,
-      //    gasFee: undefined,
-      //    payload: undefined,
-      //    inputData: undefined,
-      //    relayerPayloadId: undefined,
-      //    to: undefined,
-      //    relayerFee: undefined,
-      //    toNativeTokenAmount: undefined,
-      //  }),
-      //),
+      setLoading(false);
+      return;
+    }
+
+    const { route } = resumeResult;
+    let { receipt } = resumeResult;
+    const wh = await getWormholeContextV2();
+    const sdkRoute = new (config.routes.get(route).rc)(wh);
+    setError('');
+
+    // Track until we have an attestation
+    if (receipt.state < TransferState.Attested) {
+      for await (receipt of sdkRoute.track(receipt)) {
+        if (receipt.state >= TransferState.Attested) {
+          break;
+        }
+      }
+    }
+
+    const txDetails = await parseReceipt(
+      route,
+      receipt as AttestedTransferReceipt<any>,
+    );
+
+    if (txDetails) {
+      dispatch(setTxDetails(txDetails));
+
       dispatch(setIsResumeTx(true)); // To avoid send transfer.success event in Resume Transaction case
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      dispatch(setToChain(config.sdkConverter.toChainNameV1(receipt.to)));
+      dispatch(setToChain(receipt.to));
 
       routeContext.setRoute(sdkRoute);
       routeContext.setReceipt(receipt);
-    } catch (e) {
-      console.error(e);
-      setError(
-        'Bridge transaction not found, check that you have the correct chain and transaction ID',
-      );
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('Failed to parse receipt', receipt);
     }
+
+    setLoading(false);
   }
 
   const { hasExternalSearch, txHash, chainName, clear } = useExternalSearch();
@@ -183,7 +186,7 @@ function TxSearch() {
               Select network
             </MenuItem>
             {config.chainsArr
-              .filter((chain) => chain.key !== 'wormchain')
+              .filter((chain) => chain.key !== 'Wormchain')
               .map((chain, i) => {
                 return (
                   <MenuItem value={chain.key} key={i + 1}>

@@ -4,8 +4,8 @@ import { ChainsConfig, Icon } from '../types';
 const { chains } = CONFIG.DEVNET;
 
 export const DEVNET_CHAINS: ChainsConfig = {
-  ethereum: {
-    ...chains.ethereum!,
+  Ethereum: {
+    ...chains.Ethereum!,
     displayName: 'EVM',
     explorerUrl: '',
     explorerName: '',
@@ -15,8 +15,8 @@ export const DEVNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  osmosis: {
-    ...chains.osmosis!,
+  Osmosis: {
+    ...chains.Osmosis!,
     displayName: 'Osmosis',
     explorerUrl: '',
     explorerName: '',
@@ -26,8 +26,8 @@ export const DEVNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  wormchain: {
-    ...chains.wormchain!,
+  Wormchain: {
+    ...chains.Wormchain!,
     displayName: 'Wormchain',
     explorerUrl: '',
     explorerName: '',
@@ -37,8 +37,8 @@ export const DEVNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  terra2: {
-    ...chains.terra2!,
+  Terra2: {
+    ...chains.Terra2!,
     displayName: 'Terra',
     explorerUrl: '',
     explorerName: '',

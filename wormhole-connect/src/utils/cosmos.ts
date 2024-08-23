@@ -1,11 +1,8 @@
-import {
-  ChainName,
-  ChainId,
-  //isGatewayChain as isGatewayChainSdk,
-} from 'sdklegacy';
 //import config from 'config';
 
-export function isGatewayChain(chainId: ChainId | ChainName): boolean {
+import { Chain } from '@wormhole-foundation/sdk';
+
+export function isGatewayChain(chain: Chain): boolean {
   return false;
 
   /* TODO SDKV2

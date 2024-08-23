@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { ChainName, TokenId } from 'sdklegacy';
+import { TokenId } from 'sdklegacy';
 import { useEffect, useState } from 'react';
 import {
   accessBalance,
@@ -11,12 +11,12 @@ import {
 import config, { getWormholeContextV2 } from 'config';
 import { TokenConfig } from 'config/types';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
-import { getForeignTokenAddress } from 'utils/sdkv2';
-import { TokenAddress } from '@wormhole-foundation/sdk';
+import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
+import { Chain, TokenAddress } from '@wormhole-foundation/sdk';
 
 const useGetTokenBalances = (
   walletAddress: string,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
   tokens: TokenConfig[],
 ): { isFetching: boolean; balances: Balances } => {
   const [isFetching, setIsFetching] = useState(false);
@@ -72,9 +72,8 @@ const useGetTokenBalances = (
       if (needsUpdate.length > 0) {
         try {
           const wh = await getWormholeContextV2();
-          const chainV2 = config.sdkConverter.toChainV2(chain);
-          const platform = wh.getPlatform(chainToPlatform(chainV2));
-          const rpc = platform.getRpc(chainV2);
+          const platform = wh.getPlatform(chainToPlatform(chain));
+          const rpc = platform.getRpc(chain);
           const tokenIdMapping: Record<string, TokenConfig> = {};
           const tokenAddresses: string[] = [];
           for (const tokenConfig of needsUpdate) {
@@ -93,22 +92,23 @@ const useGetTokenBalances = (
                 tokenAddresses.push('native');
                 tokenIdMapping['native'] = tokenConfig;
               } else {
-                const foreignAddress = await getForeignTokenAddress(
-                  config.sdkConverter.toTokenIdV2(tokenConfig),
-                  chainV2,
+                const foreignAddress = await getTokenBridgeWrappedTokenAddress(
+                  tokenConfig,
+                  chain,
                 );
 
                 if (foreignAddress) {
                   address = foreignAddress.toString();
                 } else {
-                  console.error('no fa', tokenConfig);
+                  console.warn(
+                    `No foreign address for ${tokenConfig.key} on chain ${chain}`,
+                  );
                   continue;
                 }
                 tokenIdMapping[address] = tokenConfig;
                 tokenAddresses.push(address);
               }
             } catch (e) {
-              // TODO SDKV2 SUI ISNT WORKING
               console.error(e);
             }
           }
@@ -120,10 +120,10 @@ const useGetTokenBalances = (
           const result = await platform
             .utils()
             .getBalances(
-              chainV2,
+              chain,
               rpc,
               walletAddress,
-              tokenAddresses as TokenAddress<typeof chainV2>[],
+              tokenAddresses as TokenAddress<typeof chain>[],
             );
 
           for (const tokenAddress in result) {

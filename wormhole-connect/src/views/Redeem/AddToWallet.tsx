@@ -2,14 +2,8 @@ import { Link, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import type {
-  ChainName,
-  //SuiContext,
-  //WormholeContext,
-} from 'sdklegacy';
 
 import config from 'config';
-import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
@@ -29,7 +23,7 @@ import {
   isPorticoRoute,
   //isPorticoTransferDestInfo,
 } from 'routes/porticoBridge/utils';
-import { getForeignTokenAddress } from 'utils/sdkv2';
+import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -76,10 +70,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
       {
         address: address,
         symbol: token.symbol,
-        decimals: getTokenDecimals(
-          config.wh.toChainId(txData.toChain),
-          token.tokenId || 'native',
-        ),
+        decimals: getTokenDecimals(txData.toChain, token.tokenId || 'native'),
         // evm chain id
         chainId: evmChainId,
       },
@@ -108,7 +99,7 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
       </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        chain={'solana'}
+        chain={'Solana'}
         type={'address'}
         address={address}
         side="destination"
@@ -129,7 +120,7 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
       </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        chain={'sui'}
+        chain={'Sui'}
         type={'object'}
         object={address}
         side="destination"
@@ -150,7 +141,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
       </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        chain={'aptos'}
+        chain={'Aptos'}
         type={'address'}
         address={tokenAccount}
         side="destination"
@@ -193,17 +184,17 @@ function AddToWallet() {
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
 
-      const address = await getForeignTokenAddress(
-        config.sdkConverter.toTokenIdV2(wrapped.tokenId),
-        config.sdkConverter.toChainV2(txData.toChain),
+      const address = await getTokenBridgeWrappedTokenAddress(
+        wrapped,
+        txData.toChain,
       );
 
       if (!address) throw new Error('Failed to get foreign token address');
 
-      if (txData.toChain === 'sui' && address) {
+      if (txData.toChain === 'Sui' && address) {
         /*
         const context = config.wh.getContext(
-          'sui',
+          'Sui',
         ) as SuiContext<WormholeContext>;
         const metadata = await context.provider.getCoinMetadata({
           coinType: address.toString(),
@@ -222,23 +213,17 @@ function AddToWallet() {
     );
   }, [txData, route, transferDestInfo]);
 
-  const chainId = config.wh.toChainId(txData.toChain as ChainName);
+  const chain = txData.toChain;
 
   if (!targetToken || !targetAddress) return <></>;
 
-  if (isEvmChain(chainId)) {
+  if (isEvmChain(txData.toChain)) {
     return <AddToEVMWallet address={targetAddress} token={targetToken} />;
-  } else if (
-    chainId === MAINNET_CHAINS.solana?.id &&
-    targetToken.symbol !== 'WSOL'
-  ) {
+  } else if (chain === 'Solana' && targetToken.symbol !== 'WSOL') {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
-  } else if (chainId === MAINNET_CHAINS.sui?.id) {
+  } else if (chain === 'Sui') {
     return <AddToSuiWallet address={targetAddress} token={targetToken} />;
-  } else if (
-    chainId === MAINNET_CHAINS.aptos?.id &&
-    targetToken.symbol !== 'APT'
-  ) {
+  } else if (chain === 'Aptos' && targetToken.symbol !== 'APT') {
     return <AddToAptosWallet address={targetAddress} token={targetToken} />;
   }
 

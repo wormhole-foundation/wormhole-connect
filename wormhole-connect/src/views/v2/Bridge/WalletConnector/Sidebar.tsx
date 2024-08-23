@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,18 +19,18 @@ import { RootState } from 'store';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 
 import WalletIcon from 'icons/WalletIcons';
-import AlertBanner from 'components/AlertBanner';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
 
-const useStyles = makeStyles()((theme: any) => ({
+const useStyles = makeStyles()(() => ({
   drawer: {
     width: '360px',
   },
   context: {
-    opacity: '0.6',
+    opacity: 0.6,
   },
   notInstalled: {
-    opacity: '60%',
+    opacity: 0.6,
   },
 }));
 
@@ -45,8 +44,7 @@ type Props = {
 // for the selected source or destination chain.
 const WalletSidebar = (props: Props) => {
   const dispatch = useDispatch();
-  const theme: any = useTheme();
-  const { classes } = useStyles(theme);
+  const { classes } = useStyles();
 
   const { fromChain: sourceChain, toChain: destChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -137,9 +135,7 @@ const WalletSidebar = (props: Props) => {
       case 'loading':
         return <CircularProgress />;
       case 'error':
-        return (
-          <AlertBanner show={true} content={walletOptionsResult.error} error />
-        );
+        return <AlertBannerV2 error show content={walletOptionsResult.error} />;
       case 'result':
         if (walletOptionsResult.options?.length === 0) {
           return <></>;

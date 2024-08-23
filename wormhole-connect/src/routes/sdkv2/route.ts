@@ -8,50 +8,64 @@ import {
   isSameToken,
   TokenId as TokenIdV2,
   TransferState,
+  TransactionId,
+  isNative,
 } from '@wormhole-foundation/sdk';
-import { ChainId, ChainName, TokenId as TokenIdV1 } from 'sdklegacy';
-import { Route, TokenConfig } from 'config/types';
+import { TokenId as TokenIdV1 } from 'sdklegacy';
+import { TokenConfig } from 'config/types';
 import {
-  RelayerFee,
   TransferDestInfo,
   TransferDestInfoBaseParams,
   TransferDisplayData,
   TransferInfoBaseParams,
 } from 'routes/types';
 import { TokenPrices } from 'store/tokenPrices';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 
 import { SDKv2Signer } from './signer';
 
-import {
-  amount,
-  SourceInitiatedTransferReceipt,
-  SourceFinalizedTransferReceipt,
-} from '@wormhole-foundation/sdk';
+import { amount } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
-import { calculateUSDPrice, getDisplayName } from 'utils';
-import { toFixedDecimals } from 'utils/balance';
+import {
+  calculateUSDPrice,
+  getDisplayName,
+  getGasToken,
+  getWrappedToken,
+  getWrappedTokenId,
+} from 'utils';
 import { TransferWallet } from 'utils/wallet';
+import { RelayerFee } from 'store/relay';
+import { toFixedDecimals } from 'utils/balance';
 
+// =^o^=
 export class SDKv2Route {
-  TYPE: Route;
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
+  // TODO: remove this
+  IS_TOKEN_BRIDGE_ROUTE = false;
 
-  constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
-    this.TYPE = routeType;
+  constructor(readonly rc: routes.RouteConstructor) {
     // TODO: get this info from the SDK
-    if (routeType === Route.Relay) {
+    if (rc.meta.name === 'AutomaticTokenBridge') {
+      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
+      this.AUTOMATIC_DEPOSIT = true;
+    } else if (rc.meta.name === 'AutomaticNtt') {
+      this.AUTOMATIC_DEPOSIT = true;
+    } else if (rc.meta.name === 'AutomaticCCTP') {
       this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
       this.AUTOMATIC_DEPOSIT = true;
     }
+    this.IS_TOKEN_BRIDGE_ROUTE = [
+      'ManualTokenBridge',
+      'AutomaticTokenBridge',
+      'CosmosGateway',
+    ].includes(rc.meta.name);
   }
 
   async getV2ChainContext<C extends Chain>(
-    chainV1: ChainName | ChainId,
+    chain: C,
   ): Promise<{ chain: C; context: ChainContext<Network, C> }> {
     const wh = await getWormholeContextV2();
-    const chain = config.sdkConverter.toChainV2(chainV1) as C;
     const context = wh
       .getPlatform(chainToPlatform(chain))
       .getChain(chain) as ChainContext<Network, C>;
@@ -65,57 +79,51 @@ export class SDKv2Route {
     sourceToken: string,
     destToken: string,
     _amount: string, // Amount is validated later, when getting a quote
-    fromChainV1: ChainName | ChainId,
-    toChainV1: ChainName | ChainId,
+    fromChain: Chain,
+    toChain: Chain,
   ): Promise<boolean> {
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    const toChain = await this.getV2ChainContext(toChainV1);
+    const fromContext = await this.getV2ChainContext(fromChain);
+    const toContext = await this.getV2ChainContext(toChain);
 
     const supportedChains = this.rc.supportedChains(config.v2Network);
 
-    const fromChainSupported = supportedChains.includes(fromChain.chain);
-    const toChainSupported = supportedChains.includes(toChain.chain);
+    const fromChainSupported = supportedChains.includes(fromContext.chain);
+    const toChainSupported = supportedChains.includes(toContext.chain);
 
-    // Connect's old interface just accepts basic strings for tokens, eg 'WETH'.
-    // We need to identifying which token address this is actually referring to
-    // on the given chain by checking 'foreignAssets' key in token configs
-    const getTokenIdV2 = (
-      tokenKey: string,
-      chain: ChainName | ChainId,
-    ): TokenIdV2 | undefined => {
-      const tc = config.tokens[tokenKey];
-      const chainName = config.wh.toChainName(chain);
-      if (tc.nativeChain === chainName) {
-        return config.sdkConverter.toTokenIdV2(tc);
-      } else {
-        const foreignAddress = tc?.foreignAssets?.[chainName]?.address;
-        if (foreignAddress) {
-          return config.sdkConverter.tokenIdV2(chainName, foreignAddress);
-        } else {
-          return undefined;
-        }
-      }
-    };
-
-    const fromTokenIdV2 = getTokenIdV2(sourceToken, fromChainV1);
-    const toTokenIdV2 = getTokenIdV2(destToken, toChainV1);
+    const fromTokenIdV2 = await config.sdkConverter.getTokenIdV2ForKey(
+      sourceToken,
+      fromChain,
+      config.tokens,
+    );
+    const toTokenIdV2 = await config.sdkConverter.getTokenIdV2ForKey(
+      destToken,
+      toChain,
+      config.tokens,
+    );
 
     if (!fromTokenIdV2 || !toTokenIdV2) return false;
 
     const fromTokenSupported = !!(
-      await this.rc.supportedSourceTokens(fromChain.context)
+      await this.rc.supportedSourceTokens(fromContext.context)
     ).find((tokenId) => {
       return isSameToken(tokenId, fromTokenIdV2);
     });
 
-    const toTokenSupported = !!(
-      await this.rc.supportedDestinationTokens(
-        fromTokenIdV2,
-        fromChain.context,
-        toChain.context,
-      )
-    ).find((tokenId) => {
-      return isSameToken(tokenId, toTokenIdV2);
+    const supportedDestinationTokens = await this.rc.supportedDestinationTokens(
+      fromTokenIdV2,
+      fromContext.context,
+      toContext.context,
+    );
+
+    const toTokenSupported = !!supportedDestinationTokens.find((tokenId) => {
+      let _toTokenIdV2 = toTokenIdV2;
+      if (this.IS_TOKEN_BRIDGE_ROUTE && isNative(toTokenIdV2.address)) {
+        // the SDK does not return the dest token with its address set to 'native'
+        // so we need to get the wrapped token address and compare that
+        const gasToken = getWrappedTokenId(getGasToken(toChain));
+        _toTokenIdV2 = config.sdkConverter.tokenIdV2(toChain, gasToken.address);
+      }
+      return isSameToken(tokenId, _toTokenIdV2);
     });
 
     const isSupported =
@@ -124,22 +132,10 @@ export class SDKv2Route {
       fromTokenSupported &&
       toTokenSupported;
 
-    /*
-    if (!isSupported) {
-      console.log(`isSupported false for ${this.rc.meta.name}:
-        fromChain=${fromChain} ${fromChainSupported}
-        toChain=${toChain} ${toChainSupported}
-        fromToken=${sourceToken} ${fromTokenSupported}
-        toToken=${destToken} ${toTokenSupported}
-      `);
-    }
-    */
-
     return isSupported;
   }
 
-  isSupportedChain(chainV1: ChainName): boolean {
-    const chain = config.sdkConverter.toChainV2(chainV1);
+  isSupportedChain(chain: Chain): boolean {
     return this.rc.supportedChains(config.v2Network).includes(chain);
   }
 
@@ -147,8 +143,8 @@ export class SDKv2Route {
     sourceToken: string,
     destToken: string,
     amount: string,
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
+    sourceChain: Chain,
+    destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<boolean> {
     try {
@@ -156,7 +152,6 @@ export class SDKv2Route {
       if (!amount) return true;
       const wh = await getWormholeContextV2();
       const route = new this.rc(wh);
-      console.log(options);
       if (routes.isAutomatic(route)) {
         const req = await this.createRequest(
           amount,
@@ -182,84 +177,27 @@ export class SDKv2Route {
         return false;
       }
     } catch (e) {
-      console.error(e);
+      console.error(`Error thrown in isRouteAvailable`, e);
       // TODO is this the right place to try/catch these?
       // or deeper inside SDKv2Route?
-      return false;
+
+      // Re-throw for the caller to handle and surface the error message
+      throw e;
     }
 
     return true;
   }
 
-  async isSupportedSourceToken(
-    sourceToken?: TokenConfig | undefined,
-    _destToken?: TokenConfig | undefined,
-    fromChainV1?: ChainName | ChainId | undefined,
-    _destChain?: ChainName | ChainId | undefined,
-  ): Promise<boolean> {
-    if (!fromChainV1) return false;
-    if (!sourceToken) return false;
-
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    const tokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
-
-    try {
-      const supportedTokens = await this.rc.supportedSourceTokens(
-        fromChain.context,
-      );
-
-      return !!supportedTokens.find((tokenId) => {
-        return isSameToken(tokenId, tokenV2);
-      });
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  }
-
-  async isSupportedDestToken(
-    sourceToken?: TokenConfig | undefined,
-    destToken?: TokenConfig | undefined,
-    fromChainV1?: ChainName | ChainId | undefined,
-    toChainV1?: ChainName | ChainId | undefined,
-  ): Promise<boolean> {
-    if (!fromChainV1) return false;
-    if (!toChainV1) return false;
-    if (!sourceToken) return false;
-    if (!destToken) return false;
-
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    const toChain = await this.getV2ChainContext(toChainV1);
-    const destTokenV2 = config.sdkConverter.toTokenIdV2(destToken);
-    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
-
-    try {
-      return !!(
-        await this.rc.supportedDestinationTokens(
-          sourceTokenV2,
-          fromChain.context,
-          toChain.context,
-        )
-      ).find((tokenId) => {
-        return isSameToken(tokenId, destTokenV2);
-      });
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  }
-
-  // NOTE this method ignores the given TokenConfig array
   async supportedSourceTokens(
     tokens: TokenConfig[],
     _destToken?: TokenConfig | undefined,
-    fromChainV1?: ChainName | ChainId | undefined,
-    _destChain?: ChainName | ChainId | undefined,
+    fromChain?: Chain | undefined,
+    _destChain?: Chain | undefined,
   ): Promise<TokenConfig[]> {
-    if (!fromChainV1) return [];
+    if (!fromChain) return [];
 
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    return (await this.rc.supportedSourceTokens(fromChain.context))
+    const fromContext = await this.getV2ChainContext(fromChain);
+    return (await this.rc.supportedSourceTokens(fromContext.context))
       .map((t: TokenIdV2) => config.sdkConverter.findTokenConfigV1(t, tokens))
       .filter((tc) => tc != undefined) as TokenConfig[];
   }
@@ -267,22 +205,51 @@ export class SDKv2Route {
   async supportedDestTokens(
     tokens: TokenConfig[],
     sourceToken: TokenConfig | undefined,
-    fromChainV1?: ChainName | ChainId | undefined,
-    toChainV1?: ChainName | ChainId | undefined,
+    fromChain?: Chain | undefined,
+    toChain?: Chain | undefined,
   ): Promise<TokenConfig[]> {
-    if (!fromChainV1 || !toChainV1 || !sourceToken) return [];
+    if (!fromChain || !toChain || !sourceToken) return [];
 
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    const toChain = await this.getV2ChainContext(toChainV1);
-    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
+    if (this.IS_TOKEN_BRIDGE_ROUTE) {
+      if (this.isIlliquidDestToken(sourceToken, toChain)) {
+        return [];
+      }
+    }
 
-    return (
-      await this.rc.supportedDestinationTokens(
-        sourceTokenV2,
-        fromChain.context,
-        toChain.context,
-      )
-    )
+    const fromContext = await this.getV2ChainContext(fromChain);
+    const toContext = await this.getV2ChainContext(toChain);
+    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(
+      sourceToken,
+      fromChain,
+    );
+
+    const destTokenIds = await this.rc.supportedDestinationTokens(
+      sourceTokenV2,
+      fromContext.context,
+      toContext.context,
+    );
+
+    // TODO SDKV2 hack
+    //
+    // SDKv2 only returns token addresses, not metadata like names and logos.
+    //
+    // For custom tokens with no built-in foreign asset addresses, this means
+    // we can't match the result of supportedDestinationTokens back up to a TokenConfig
+    // to get its name and logo.
+    //
+    // Since token bridge only outputs the same token as you put in, we're just
+    // returning sourceToken here as a hack so that we can maintain the name and logo.
+    //
+    // A longer term solution to this might be to add methods to SDKv2 for fetching token
+    // metadata like name/logo and not relying on configuration for this at all. At that
+    // point all that would be required would be an address.
+    if (this.IS_TOKEN_BRIDGE_ROUTE) {
+      if (destTokenIds.length > 0) {
+        return [getWrappedToken(sourceToken)];
+      }
+    }
+
+    return destTokenIds
       .map((t: TokenIdV2): TokenConfig | undefined =>
         config.sdkConverter.findTokenConfigV1(t, tokens),
       )
@@ -293,8 +260,8 @@ export class SDKv2Route {
     amount: string,
     sourceTokenV1: string,
     destTokenV1: string,
-    sourceChainV1: ChainName | ChainId,
-    destChainV1: ChainName | ChainId,
+    sourceChain: Chain,
+    destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<
     [
@@ -307,8 +274,8 @@ export class SDKv2Route {
       amount,
       sourceTokenV1,
       destTokenV1,
-      sourceChainV1,
-      destChainV1,
+      sourceChain,
+      destChain,
     );
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
@@ -322,7 +289,6 @@ export class SDKv2Route {
     }
 
     const quote = await route.quote(req, validationResult.params);
-    console.log('Got quote', quote);
 
     return [route, quote, req];
   }
@@ -331,20 +297,20 @@ export class SDKv2Route {
     amount: string,
     sourceTokenV1: string,
     destTokenV1: string,
-    sourceChainV1: ChainName | ChainId,
-    destChainV1: ChainName | ChainId,
+    sourceChain: Chain,
+    destChain: Chain,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceTokenV2: TokenIdV2 | undefined =
-      config.sdkConverter.getTokenIdV2ForKey(
+      await config.sdkConverter.getTokenIdV2ForKey(
         sourceTokenV1,
-        sourceChainV1,
+        sourceChain,
         config.tokens,
       );
 
     const destTokenV2: TokenIdV2 | undefined =
-      config.sdkConverter.getTokenIdV2ForKey(
+      await config.sdkConverter.getTokenIdV2ForKey(
         destTokenV1,
-        destChainV1,
+        destChain,
         config.tokens,
       );
 
@@ -355,11 +321,10 @@ export class SDKv2Route {
       throw new Error(`Failed to find TokenId for ${destTokenV1}`);
     }
 
-    const sourceChainV2 = (await this.getV2ChainContext(sourceChainV1)).context;
-    const destChainV2 = (await this.getV2ChainContext(destChainV1)).context;
+    const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
+    const destContext = (await this.getV2ChainContext(destChain)).context;
 
     const wh = await getWormholeContextV2();
-    console.log(sourceTokenV2, destTokenV2, sourceChainV2, destChainV2);
     const req = await routes.RouteTransferRequest.create(
       wh,
       /* @ts-ignore */
@@ -367,10 +332,9 @@ export class SDKv2Route {
         source: sourceTokenV2,
         destination: destTokenV2,
       },
-      sourceChainV2,
-      destChainV2,
+      sourceContext,
+      destContext,
     );
-    console.log(req);
     return req;
   }
 
@@ -378,25 +342,23 @@ export class SDKv2Route {
     amountIn: number,
     sourceToken: string,
     destToken: string,
-    fromChainV1: ChainName | undefined,
-    toChainV1: ChainName | undefined,
+    fromChain: Chain | undefined,
+    toChain: Chain | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
-    console.log(sourceToken, fromChainV1, destToken, toChainV1);
-
     if (isNaN(amountIn)) {
       return 0;
     }
 
-    if (!fromChainV1 || !toChainV1)
+    if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
 
     const [, quote] = await this.getQuote(
       amountIn.toString(),
       sourceToken,
       destToken,
-      fromChainV1,
-      toChainV1,
+      fromChain,
+      toChain,
       options,
     );
 
@@ -411,11 +373,11 @@ export class SDKv2Route {
     amount: number,
     sourceToken: string,
     destToken: string,
-    fromChainV1: ChainName | undefined,
-    toChainV1: ChainName | undefined,
+    fromChain: Chain | undefined,
+    toChain: Chain | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
-    if (!fromChainV1 || !toChainV1)
+    if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
 
     // TODO handle fees?
@@ -423,8 +385,8 @@ export class SDKv2Route {
       amount,
       sourceToken,
       destToken,
-      fromChainV1,
-      toChainV1,
+      fromChain,
+      toChain,
       options,
     );
   }
@@ -433,21 +395,19 @@ export class SDKv2Route {
     amountIn: number,
     sourceToken: string,
     destToken: string,
-    fromChainV1: ChainName | undefined,
-    toChainV1: ChainName | undefined,
+    fromChain: Chain | undefined,
+    toChain: Chain | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<routes.QuoteResult<any>> {
-    console.log(sourceToken, fromChainV1, destToken, toChainV1);
-
-    if (!fromChainV1 || !toChainV1)
+    if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
 
     const [, quote] = await this.getQuote(
       amountIn.toString(),
       sourceToken,
       destToken,
-      fromChainV1,
-      toChainV1,
+      fromChain,
+      toChain,
       options,
     );
 
@@ -458,21 +418,12 @@ export class SDKv2Route {
     return quote;
   }
 
-  // Unused method, don't bother implementing
-  // TODO Get rid of this
-  public computeSendAmount(
-    receiveAmount: number | undefined,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<number> {
-    throw new Error('Method not implemented.');
-  }
-
   public validate(
     token: TokenIdV1 | 'native',
     amount: string,
-    sendingChain: ChainName | ChainId,
+    sendingChain: Chain,
     senderAddress: string,
-    recipientChain: ChainName | ChainId,
+    recipientChain: Chain,
     recipientAddress: string,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<boolean> {
@@ -492,24 +443,19 @@ export class SDKv2Route {
   async send(
     sourceToken: TokenConfig,
     amount: string,
-    fromChainV1: ChainName | ChainId,
+    fromChain: Chain,
     senderAddress: string,
-    toChainV1: ChainName | ChainId,
+    toChain: Chain,
     recipientAddress: string,
     destToken: string,
     options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<
-    [
-      routes.Route<Network>,
-      SourceInitiatedTransferReceipt | SourceFinalizedTransferReceipt<any>,
-    ]
-  > {
+  ): Promise<[routes.Route<Network>, routes.Receipt]> {
     const [route, quote, req] = await this.getQuote(
       amount.toString(),
       sourceToken.key,
       destToken,
-      fromChainV1,
-      toChainV1,
+      fromChain,
+      toChain,
       options,
     );
 
@@ -517,58 +463,50 @@ export class SDKv2Route {
       throw quote.error;
     }
 
-    const signer = await SDKv2Signer.fromChainV1(
-      fromChainV1,
+    const signer = await SDKv2Signer.fromChain(
+      fromChain,
       senderAddress,
-      options,
+      {},
       TransferWallet.SENDING,
     );
-
-    console.log(signer);
 
     let receipt = await route.initiate(
       req,
       signer,
       quote,
-      Wormhole.chainAddress(
-        config.sdkConverter.toChainV2(toChainV1),
-        recipientAddress,
-      ),
+      Wormhole.chainAddress(toChain, recipientAddress),
     );
 
-    // Wait for transfer to finish =^o^=
+    // Don't call track if the transfer is already in a final state
+    // since track can update the receipt to a different state
+    if (
+      receipt.state === TransferState.SourceInitiated ||
+      receipt.state === TransferState.SourceFinalized
+    ) {
+      return [route, receipt];
+    }
+
+    // Otherwise track the transfer until it reaches a final state
     for await (receipt of route.track(receipt, 120 * 1000)) {
-      console.log('Current Transfer State: ', TransferState[receipt.state]);
-      if (
-        receipt.state == TransferState.SourceInitiated ||
-        receipt.state == TransferState.SourceFinalized
-      ) {
+      if (receipt.state >= TransferState.SourceInitiated) {
         return [route, receipt];
       }
     }
 
-    throw new Error('Never got a SourceInitiate state in receipt');
-  }
-
-  public async redeem(
-    destChain: ChainName | ChainId,
-    messageInfo: any,
-    recipient: string,
-  ): Promise<string> {
-    throw new Error('Method not implemented.');
+    throw new Error('Never got a SourceInitiated state in receipt');
   }
 
   async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
-    sendingChain: ChainName | ChainId,
-    recipientChain: ChainName | ChainId,
+    sendingChain: Chain,
+    recipientChain: Chain,
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
     tokenPrices: TokenPrices,
-    relayerFee?: number,
+    relayerFee?: RelayerFee,
     receiveNativeAmt?: number,
   ): Promise<TransferDisplayData> {
     const displayData = [
@@ -576,19 +514,24 @@ export class SDKv2Route {
     ];
 
     if (relayerFee) {
+      const { fee, tokenKey } = relayerFee;
       displayData.push(
-        this.createDisplayItem('Relayer fee', relayerFee, token, tokenPrices),
+        this.createDisplayItem(
+          'Relayer fee',
+          fee,
+          config.tokens[tokenKey],
+          tokenPrices,
+        ),
       );
     }
 
     if (receiveNativeAmt) {
-      const destChainName = config.wh.toChainName(recipientChain);
       const destGasToken =
-        config.tokens[config.chains[destChainName]?.gasToken || ''];
+        config.tokens[config.chains[recipientChain]?.gasToken || ''];
       displayData.push(
         this.createDisplayItem(
           'Native gas on destination',
-          Number(toFixedDecimals(receiveNativeAmt.toString(), 6)),
+          receiveNativeAmt,
           destGasToken,
           tokenPrices,
         ),
@@ -606,7 +549,11 @@ export class SDKv2Route {
   ) {
     return {
       title,
-      value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(token)}`,
+      value: `${
+        !isNaN(amount)
+          ? Number(toFixedDecimals(amount.toFixed(18).toString(), 6))
+          : '0'
+      } ${getDisplayName(token)}`,
       valueUSD: calculateUSDPrice(amount, tokenPrices, token),
     };
   }
@@ -614,7 +561,7 @@ export class SDKv2Route {
   async getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData> {
-    const txData = params.txData as ParsedMessage;
+    const txData = params.txData as TransferInfo;
     const token = config.tokens[txData.tokenKey];
     const displayData = [
       this.createDisplayItem(
@@ -624,13 +571,13 @@ export class SDKv2Route {
         params.tokenPrices,
       ),
     ];
-    const relayerFee = Number.parseFloat(txData.relayerFee || '0');
-    if (relayerFee > 0) {
+    const { relayerFee } = txData;
+    if (relayerFee) {
       displayData.push(
         this.createDisplayItem(
           'Relayer fee',
-          relayerFee,
-          token,
+          relayerFee.fee,
+          config.tokens[relayerFee.tokenKey],
           params.tokenPrices,
         ),
       );
@@ -642,11 +589,11 @@ export class SDKv2Route {
     params: T,
   ): Promise<TransferDestInfo> {
     const info: TransferDestInfo = {
-      route: this.TYPE,
+      route: this.rc.meta.name,
       displayData: [],
     };
-    const txData = params.txData as ParsedMessage;
-    const token = config.tokens[txData.tokenKey];
+    const txData = params.txData as TransferInfo;
+    const token = config.tokens[txData.receivedTokenKey];
     if (txData.receiveAmount) {
       info.displayData.push(
         this.createDisplayItem(
@@ -670,45 +617,50 @@ export class SDKv2Route {
     return info;
   }
 
-  async getRelayerFee(
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
-    token: string,
-    destToken: string,
-    amount: string,
-  ): Promise<RelayerFee | null> {
-    const [, quote] = await this.getQuote(
-      amount,
-      token,
-      destToken,
-      sourceChain,
-      destChain,
-    );
-    if (!quote.success) {
-      throw quote.error;
-    }
-    if (!quote.relayFee) {
-      return null;
-    }
-    const { token: feeTokenV2, amount: feeAmount } = quote.relayFee;
-    const feeToken = config.sdkConverter.toTokenIdV1(feeTokenV2);
-    if (!feeToken) throw new Error('Failed to convert fee token');
-    const relayerFee = {
-      feeToken,
-      fee: BigInt(feeAmount.amount),
-    };
-    return relayerFee;
-  }
-
   async getForeignAsset(
     token: TokenIdV1,
-    chain: ChainName | ChainId,
+    chain: Chain,
     destToken?: TokenConfig | undefined,
   ): Promise<string | null> {
     return 'test';
   }
 
-  tryFetchRedeemTx(txData: ParsedMessage): Promise<string | undefined> {
+  tryFetchRedeemTx(txData: TransferInfo): Promise<string | undefined> {
     throw new Error('Method not implemented.');
+  }
+
+  async resumeIfManual(tx: TransactionId): Promise<routes.Receipt | null> {
+    const wh = await getWormholeContextV2();
+    const route = new this.rc(wh);
+    if (routes.isManual(route) || routes.isFinalizable(route)) {
+      return route.resume(tx);
+    } else {
+      return null;
+    }
+  }
+
+  // Prevent receiving illiquid wormhole-wrapped tokens
+  // This is not a perfect solution or an exhaustive list of all illiquid tokens,
+  // but it should cover the most common cases
+  isIlliquidDestToken(token: TokenConfig, toChain: Chain): boolean {
+    const { symbol, nativeChain } = token;
+
+    // Unless these tokens are bridged from Ethereum or sent back to their native chain, they are illiquid
+    if (['ETH', 'WETH', 'wstETH', 'USDT', 'USDC'].includes(symbol)) {
+      if (nativeChain !== 'Ethereum' && nativeChain !== toChain) {
+        return true;
+      }
+    }
+
+    // These chains have a native bridge to/from Ethereum, so receiving wormhole-wrapped ETH is not necessary
+    if (
+      ['ETH', 'WETH'].includes(symbol) &&
+      nativeChain === 'Ethereum' &&
+      (['Scroll', 'Blast', 'Xlayer'] as Chain[]).includes(toChain)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 }

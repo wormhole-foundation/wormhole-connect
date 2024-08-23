@@ -1,48 +1,43 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import { Route } from 'config/types';
 import { RootState } from 'store';
 import {
   setInvalidVaa,
   setIsVaaEnqueued,
   setTransferComplete,
 } from 'store/redeem';
-import { sleep } from 'utils';
-import { isNttRoute } from 'routes';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 
 import PageHeader from 'components/PageHeader';
 import Spacer from 'components/Spacer';
 import ChainsTag from './Tag';
 import Stepper from './Stepper';
-import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import config from 'config';
 // import useDeliveryStatus from 'hooks/useDeliveryStatus';
-import useCheckInboundQueuedTransfer from 'hooks/useCheckInboundQueuedTransfer';
 
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 
 import useTrackTransfer from 'hooks/useTrackTransfer';
+import useFetchRedeemTx from 'hooks/useFetchRedeemTx';
 
 function Redeem({
-  setIsVaaEnqueued,
   txData,
   transferComplete,
   isVaaEnqueued,
-  route,
 }: {
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
   setInvalidVaa: (invalidVaa: boolean) => void;
   setTransferComplete: any;
-  txData: ParsedMessage | undefined;
+  txData: TransferInfo | undefined;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   isResumeTx: boolean;
-  route: Route | undefined;
+  route?: string;
 }) {
   // Warn user before closing tab if transaction is unredeemed
   useConfirmBeforeLeaving(!transferComplete);
+  /*
 
   // check if VAA is enqueued
   useEffect(() => {
@@ -68,6 +63,7 @@ function Redeem({
     };
   }, [txData, route, setIsVaaEnqueued]);
 
+   */
   //// fetch the VAA
   //useEffect(() => {
   //  if (!route || !txData?.sendTx || transferComplete) {
@@ -151,9 +147,9 @@ function Redeem({
   //  };
   //}, [route, txData, transferComplete, setTransferComplete, signedMessage]);
 
-  useCheckInboundQueuedTransfer();
   // useDeliveryStatus();
   useTrackTransfer();
+  useFetchRedeemTx();
 
   return txData?.fromChain ? (
     <div
@@ -174,7 +170,6 @@ function Redeem({
 
       <ChainsTag />
       <Spacer />
-      <GovernorEnqueuedWarning show={isVaaEnqueued} chain={txData.fromChain} />
       <Stepper />
     </div>
   ) : (

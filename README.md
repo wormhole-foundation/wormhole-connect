@@ -66,7 +66,7 @@ import WormholeConnect, {
 } from '@wormhole-foundation/wormhole-connect';
 
 const config: WormholeConnectConfig = {
-  networks: ['ethereum', 'solana']
+  networks: ['Ethereum', 'Solana']
 };
 
 const theme: WormholeConnectPartialTheme = {
@@ -109,8 +109,8 @@ We strongly recommend that you configure your own custom RPC endpoints for each 
 ```ts
 const config: WormholeConnectConfig = {
   rpcs: {
-    solana: 'https://mainnet.helius-rpc.com/?api-key=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-    ethereum: 'https://rpc.ankr.com/eth/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    Solana: 'https://mainnet.helius-rpc.com/?api-key=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+    Ethereum: 'https://rpc.ankr.com/eth/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
   }
 }
 ```
@@ -131,20 +131,22 @@ See the "Arbitrary Token" example in [the config docs](https://docs.wormhole.com
 
 Please note you have to [register a token](https://portalbridge.com/advanced-tools/#/register) with the token bridge before you can use it in Connect.
 
-### Configuring Custom NTT (Native Token Transfer) Groups
-To configure custom NTT groups, include an `nttGroups` key in your configuration.
+### Configuring Custom NTT (Native Token Transfer) Tokens
+To configure a custom NTT token, include the `nttConfig` key in your configuration.
 
 ```ts
 const config: WormholeConnectConfig = {
-  nttGroups: {
-    // Your custom NTT groups go here
+  nttConfig: {
+    tokens: {
+      // Your custom NTT token configs go here
+    }
   }
 }
 ```
 
-For a practical example of how to structure your custom NTT groups, refer to the [nttGroups.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/testnet/nttGroups.ts) file.
+For a practical example of how to configure your custom NTT token, refer to the [nttConfig.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/testnet/nttConfig.ts) file.
 
-Please note that the `tokenKey` specified in your custom NTT group must correspond to an existing entry in the tokensConfig, whether it's a built-in or a custom token.
+Please note that the `token` address specified must correspond to an entry in the `tokensConfig`, whether it's a built-in or a custom token.
 
 ### Custom Theme
 
@@ -181,7 +183,7 @@ You can provide a whitelist of networks to limit which ones Connect offers.
 
 ```ts
 const config: WormholeConnectConfig = {
-  networks: ['ethereum', 'solana']
+  networks: ['Ethereum', 'Solana']
 }
 ```
 
@@ -189,26 +191,26 @@ By default, it offers its full built-in list for both `mainnet` and `testnet`:
 
 | `mainnet` | `testnet` |
 | ---------- | ------------- |
-| ethereum | goerli, sepolia |
-| polygon | mumbai |
-| bsc | bsc |
-| avalanche | fuji |
-| celo | avalanche |
-| moonbeam | moonbasealpha |
-| solana | solana |
-| sui | sui |
-| aptos | aptos |
-| base | basegoerli, base_sepolia |
-| osmosis | osmosis |
-| evmos | evmos |
-| kujira | kujira |
-| injective | injective |
-| klaytn | klaytn |
-| arbitrum | arbitrumgoerli, arbitrum_sepolia |
-| optimism | optimismgoerli, optimism_sepolia |
-| scroll | scroll |
-| blast | blast |
-| xlayer | xlayer |
+| Ethereum | Sepolia |
+| Polygon | |
+| Bsc | Bsc |
+| Avalanche | Avalanche |
+| Celo | Celo |
+| Moonbeam | Moonbeam |
+| Solana | Solana |
+| Sui | Sui |
+| Aptos | Aptos |
+| Base | BaseSepolia |
+| Osmosis | Osmosis |
+| Evmos | Evmos |
+| Kujira | Kujira |
+| Injective | Injective |
+| Klaytn | Klaytn |
+| Arbitrum | ArbitrumSepolia |
+| Optimism | OptimismSepolia |
+| Scroll | Scroll |
+| Blast | Blast |
+| Xlayer | Xlayer |
 
 > Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 

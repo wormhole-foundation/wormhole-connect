@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 import { TransferDestInfo } from 'routes';
-import { Route } from 'config/types';
 import { DeliveryStatus } from 'utils/sdk';
 
 export enum MessageType {
@@ -10,16 +9,17 @@ export enum MessageType {
 }
 
 export interface RedeemState {
-  txData?: ParsedMessage;
+  txData?: TransferInfo;
   sendTx: string;
   redeemTx: string;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   isInvalidVaa: boolean;
-  route: Route | undefined;
+  route?: string;
   transferDestInfo: TransferDestInfo | undefined;
   deliveryStatus: DeliveryStatus | undefined;
   isResumeTx: boolean;
+  timestamp: number;
 }
 
 const initialState: RedeemState = {
@@ -33,6 +33,7 @@ const initialState: RedeemState = {
   transferDestInfo: undefined,
   deliveryStatus: undefined,
   isResumeTx: false,
+  timestamp: 0,
 };
 
 export const redeemSlice = createSlice({
@@ -41,7 +42,7 @@ export const redeemSlice = createSlice({
   reducers: {
     setTxDetails: (
       state: RedeemState,
-      { payload }: PayloadAction<ParsedMessage>,
+      { payload }: PayloadAction<TransferInfo>,
     ) => {
       state.txData = payload;
     },
@@ -96,6 +97,9 @@ export const redeemSlice = createSlice({
     ) => {
       state.isResumeTx = payload;
     },
+    setTimestamp: (state: RedeemState, { payload }: PayloadAction<number>) => {
+      state.timestamp = payload;
+    },
   },
 });
 
@@ -111,6 +115,7 @@ export const {
   setRoute,
   setDeliveryStatus,
   setIsResumeTx,
+  setTimestamp,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

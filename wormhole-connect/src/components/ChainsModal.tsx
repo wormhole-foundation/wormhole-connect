@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { ChainConfig, ChainName } from 'sdklegacy';
+import { ChainConfig } from 'sdklegacy';
 import config from 'config';
 import { CENTER, joinClass } from 'utils/style';
 
@@ -11,8 +11,8 @@ import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from 'icons/TokenIcons';
-import RouteOperator from 'routes/operator';
 import MoreNetworkIcon from 'icons/MoreNetworkIcon';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   chainsContainer: {
@@ -70,9 +70,9 @@ type Props = {
   title: string;
   open: boolean;
   chains?: ChainConfig[];
-  isDisabled?: (chain: ChainName) => boolean;
+  isDisabled?: (chain: Chain) => boolean;
   onClose: () => any;
-  onSelect: (chain: ChainName) => any;
+  onSelect: (chain: Chain) => any;
   onMoreNetworkSelect?: (
     href: string,
     chainName: string,
@@ -98,7 +98,7 @@ function ChainsModal(props: Props) {
     }
   };
   const supportedChains = useMemo(() => {
-    const supported = RouteOperator.allSupportedChains();
+    const supported = config.routes.allSupportedChains();
     return chains.filter((chain) => {
       return supported.includes(chain.key);
     });
@@ -113,8 +113,8 @@ function ChainsModal(props: Props) {
     setSearch(e?.target.value.toLowerCase());
   };
 
-  const showChain = (chain: ChainName) => {
-    if (chain === 'wormchain') return false;
+  const showChain = (chain: Chain) => {
+    if (chain === 'Wormchain') return false;
     if (!search) return true;
     const chainConfig = config.chains[chain]!;
     const name = chainConfig.displayName.toLowerCase();
@@ -126,7 +126,7 @@ function ChainsModal(props: Props) {
     props.onClose();
   };
 
-  const handleSelect = (chain: ChainName) => {
+  const handleSelect = (chain: Chain) => {
     props.onSelect(chain);
     handleClose();
   };

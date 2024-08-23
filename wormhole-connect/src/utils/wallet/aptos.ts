@@ -69,7 +69,7 @@ export async function signAndSendTransaction(
   /*
    * TODO SDKV2
   const aptosClient = (
-    config.wh.getContext('aptos') as AptosContext<WormholeContext>
+    config.wh.getContext('Aptos') as AptosContext<WormholeContext>
   ).aptosClient;
   await aptosClient.waitForTransaction(tx.id);
   */

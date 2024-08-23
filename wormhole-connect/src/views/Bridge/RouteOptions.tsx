@@ -2,27 +2,22 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { Chip, Tooltip, useMediaQuery, useTheme } from '@mui/material';
-import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
-import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
+import { setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
-import RouteOperator from 'routes/operator';
 import { calculateUSDPrice, getDisplayName } from 'utils';
 import config from 'config';
-import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
-import type { ChainName } from 'sdklegacy';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
-import { isGatewayChain } from 'utils/cosmos';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
-import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
+import { finality, Chain } from '@wormhole-foundation/sdk';
+import useAvailableRoutes from 'hooks/useAvailableRoutes';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -174,12 +169,11 @@ function Tag(props: TagProps) {
   );
 }
 
-const getEstimatedTime = (chain?: ChainName) => {
+const getEstimatedTime = (chain?: Chain) => {
   if (!chain) return undefined;
-  const chainName = chainIdToChain(config.wh.toChainId(chain));
-  const chainFinality = finality.finalityThreshold.get(chainName);
+  const chainFinality = finality.finalityThreshold.get(chain);
   if (typeof chainFinality === 'undefined') return undefined;
-  const blockTime = finality.blockTime.get(chainName);
+  const blockTime = finality.blockTime.get(chain);
   if (blockTime === undefined) return undefined;
   return chainFinality === 0
     ? 'Instantly'
@@ -216,15 +210,16 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
       try {
         const routeOptions = { nativeGas: toNativeToken };
 
-        const receiveAmt = await RouteOperator.computeReceiveAmountWithFees(
-          props.route.route,
-          Number.parseFloat(amount),
-          token,
-          destToken,
-          fromChain,
-          toChain,
-          routeOptions,
-        );
+        const receiveAmt = await config.routes
+          .get(props.route.name)
+          .computeReceiveAmountWithFees(
+            Number.parseFloat(amount),
+            token,
+            destToken,
+            fromChain,
+            toChain,
+            routeOptions,
+          );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
           setReceiveAmtUSD(
@@ -265,19 +260,9 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const toTokenIcon = toTokenConfig && (
     <TokenIcon icon={toTokenConfig.icon} height={20} />
   );
-  const routeName = props.route.route;
-
   const route = useMemo(() => {
-    return RouteOperator.getRoute(routeName);
-  }, [routeName]);
-
-  const isAutomatic = useMemo(
-    () =>
-      route.AUTOMATIC_DEPOSIT ||
-      (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
-      isPorticoRoute(route.TYPE),
-    [route, toChain],
-  );
+    return config.routes.get(props.route.name);
+  }, [props.route.name]);
 
   return (
     fromTokenConfig &&
@@ -293,13 +278,13 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
           className={`${classes.route} ${
             props.disabled ? classes.disabled : ''
           }`}
-          data-testid={`route-option-${props.route.route}`}
+          data-testid={`route-option-${props.route.name}`}
         >
           <div className={classes.routeLeft}>
             <div className={classes.routeTitle}>
-              {props.route.name}
+              {props.route.displayName}
               {/* TODO: isAutomatic to route and use transfer parameters to decide */}
-              {isAutomatic ? (
+              {route.AUTOMATIC_DEPOSIT ? (
                 <Chip
                   label="Receive tokens automatically"
                   color="success"
@@ -324,10 +309,9 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                 colorFilled
               />
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
-              <Tag
-                icon={props.route.icon()}
-                text={props.route.routePath || props.route.providedBy}
-              />
+              {props.route.providedBy && (
+                <Tag icon={props.route.icon()} text={props.route.providedBy} />
+              )}
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
               <Tag
                 icon={toTokenIcon}
@@ -364,19 +348,14 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
 
 function RouteOptions() {
   const dispatch = useDispatch();
-  const {
-    isTransactionInProgress,
-    route,
-    routeStates,
-    token,
-    destToken,
-    fromChain,
-    toChain,
-    amount,
-  } = useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { isTransactionInProgress, route, routeStates } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
+  useAvailableRoutes();
+
   const onSelect = useCallback(
-    (value: Route) => {
+    (value: string) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
         const route = routeStates.find((rs) => rs.name === value);
         if (route?.available) dispatch(setTransferRoute(value));
@@ -384,56 +363,6 @@ function RouteOptions() {
     },
     [routeStates, dispatch],
   );
-  const [debouncedAmount] = useDebounce(amount, 500);
-
-  useEffect(() => {
-    let isActive = true;
-
-    if (!fromChain || !toChain || !token || !destToken) return;
-    const getAvailable = async () => {
-      const routes: RouteState[] = [];
-      for (const value of config.routes) {
-        const r = value as Route;
-        const available = await RouteOperator.isRouteAvailable(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-          { nativeGas: toNativeToken },
-        );
-
-        const supported = await RouteOperator.isRouteSupported(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-        );
-
-        routes.push({ name: r, supported, available });
-      }
-
-      if (isActive) {
-        dispatch(setRoutes(routes));
-      }
-    };
-    getAvailable();
-
-    return () => {
-      isActive = false;
-    };
-  }, [
-    dispatch,
-    token,
-    destToken,
-    debouncedAmount,
-    fromChain,
-    toChain,
-    toNativeToken,
-  ]);
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
@@ -459,10 +388,7 @@ function RouteOptions() {
             key: name,
             disabled: !available,
             child: (
-              <RouteOption
-                disabled={!available}
-                route={RoutesConfig[name as Route]}
-              />
+              <RouteOption disabled={!available} route={RoutesConfig[name]} />
             ),
           };
         })}

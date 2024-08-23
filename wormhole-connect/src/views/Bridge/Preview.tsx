@@ -5,7 +5,6 @@ import { useTheme } from '@mui/material/styles';
 import config from 'config';
 import { RootState } from 'store';
 import { TransferDisplayData } from 'routes';
-import RouteOperator from 'routes/operator';
 
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
@@ -46,20 +45,21 @@ function Preview(props: { collapsed: boolean }) {
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
 
-      const rows = await RouteOperator.getPreview(
-        route,
-        tokenConfig,
-        destTokenConfig,
-        Number.parseFloat(amount),
-        fromChain,
-        toChain,
-        gasEst.send,
-        gasEst.claim,
-        receiveAmount.data || '',
-        prices,
-        relayerFee,
-        receiveNativeAmt,
-      );
+      const rows = await config.routes
+        .get(route)
+        .getPreview(
+          tokenConfig,
+          destTokenConfig,
+          Number.parseFloat(amount),
+          fromChain,
+          toChain,
+          gasEst.send,
+          gasEst.claim,
+          receiveAmount.data || '',
+          prices,
+          relayerFee,
+          receiveNativeAmt,
+        );
 
       if (isActive) {
         setState({ rows });

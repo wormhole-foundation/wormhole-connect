@@ -1,41 +1,49 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useTheme } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import type { ChainName } from 'sdklegacy';
 import type { RootState } from 'store';
 
-import RouteOperator from 'routes/operator';
-
+import Button from 'components/v2/Button';
 import config from 'config';
 import { joinClass } from 'utils/style';
 import PoweredByIcon from 'icons/PoweredBy';
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import { TransferWallet } from 'utils/wallet';
-import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
-import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
+import useAvailableRoutes from 'hooks/useAvailableRoutes';
+import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
+import useComputeQuote from 'hooks/useComputeQuote';
+import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
 import {
   selectFromChain,
   selectToChain,
   setToken,
+  setTransferRoute,
   setDestToken,
 } from 'store/transferInput';
-import WalletConnector from './WalletConnector';
-import AssetPicker from './AssetPicker';
-import WalletController from './WalletConnector/Controller';
-import AmountInput from './AmountInput';
+import { isTransferValid, useValidate } from 'utils/transferValidation';
+import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
+import WalletConnector from 'views/v2/Bridge/WalletConnector';
+import AssetPicker from 'views/v2/Bridge/AssetPicker';
+import TokenWarnings from 'views/v2/Bridge/AssetPicker/TokenWarnings';
+import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
+import AmountInput from 'views/v2/Bridge/AmountInput';
+import Routes from 'views/v2/Bridge/Routes';
+import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
+import SwapChains from 'views/v2/Bridge/SwapChains';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
     width: '100%',
+    position: 'relative',
   },
   assetPickerTitle: {
     color: theme.palette.text.secondary,
@@ -66,6 +74,14 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
     marginTop: '24px',
   },
+  reviewTransaction: {
+    padding: '8px 16px',
+    backgroundColor: '#C1BBF6',
+    borderRadius: '8px',
+    margin: 'auto',
+    maxWidth: '420px',
+    width: '100%',
+  },
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -85,41 +101,90 @@ const Bridge = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   // Connected wallets, if any
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
 
+  const [selectedRoute, setSelectedRoute] = useState<string>();
+  const [willReviewTransaction, setWillReviewTransaction] = useState(false);
+
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+
   const {
-    supportedSourceTokens,
-    supportedDestTokens,
     fromChain: sourceChain,
     toChain: destChain,
     token: sourceToken,
     destToken,
     route,
+    routeStates,
+    supportedDestTokens,
+    supportedSourceTokens,
+    amount,
+    validations,
   } = useSelector((state: RootState) => state.transferInput);
 
+  // Set selectedRoute if the route is auto-selected
+  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
+  useEffect(() => {
+    if (!route) {
+      return;
+    }
+
+    const routeState = routeStates?.find((rs) => rs.name === route);
+
+    if (routeState?.supported && routeState?.available) {
+      setSelectedRoute(route);
+    }
+  }, [route, routeStates]);
+
   // Compute and set source tokens
-  useComputeSourceTokens({
+  const { isFetching: isFetchingSupportedSourceTokens } =
+    useComputeSourceTokens({
+      sourceChain,
+      destChain,
+      sourceToken,
+      destToken,
+      route: selectedRoute,
+    });
+
+  // Compute and set destination tokens
+  const { isFetching: isFetchingSupportedDestTokens } =
+    useComputeDestinationTokens({
+      sourceChain,
+      destChain,
+      sourceToken,
+      route: selectedRoute,
+    });
+
+  // Compute the quotes for this route
+  const { isFetching: isFetchingQuote } = useComputeQuote({
     sourceChain,
     destChain,
     sourceToken,
     destToken,
-    route,
+    amount,
+    route: selectedRoute,
+    toNativeToken,
   });
 
-  // Compute and set destination tokens
-  useComputeDestinationTokens({
-    sourceChain,
-    destChain,
-    sourceToken,
-    route,
-  });
+  // Pre-fetch available routes
+  useAvailableRoutes();
+
+  // Connect to any previously used wallets for the selected networks
+  useConnectToLastUsedWallet();
+
+  // Call to initiate transfer inputs validations
+  useValidate();
+
+  // Get input validation result
+  const isValid = useMemo(() => isTransferValid(validations), [validations]);
 
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
-    () => RouteOperator.allSupportedChains(),
+    () => config.routes.allSupportedChains(),
     [config.chainsArr],
   );
 
@@ -181,7 +246,8 @@ const Bridge = () => {
           chainList={supportedSourceChains}
           token={sourceToken}
           tokenList={supportedSourceTokens}
-          setChain={(value: ChainName) => {
+          isFetching={isFetchingSupportedSourceTokens}
+          setChain={(value: Chain) => {
             selectFromChain(dispatch, value, sendingWallet);
           }}
           setToken={(value: string) => {
@@ -189,6 +255,7 @@ const Bridge = () => {
           }}
           wallet={sendingWallet}
         />
+        <SwapChains />
       </div>
     );
   }, [
@@ -197,6 +264,7 @@ const Bridge = () => {
     sourceToken,
     supportedSourceTokens,
     sendingWallet,
+    isFetchingSupportedSourceTokens,
   ]);
 
   // Asset picker for the destination network and token
@@ -212,7 +280,8 @@ const Bridge = () => {
           chainList={supportedDestChains}
           token={destToken}
           tokenList={supportedDestTokens}
-          setChain={(value: ChainName) => {
+          isFetching={isFetchingSupportedDestTokens}
+          setChain={(value: Chain) => {
             selectToChain(dispatch, value, receivingWallet);
           }}
           setToken={(value: string) => {
@@ -228,6 +297,7 @@ const Bridge = () => {
     destToken,
     supportedDestTokens,
     receivingWallet,
+    isFetchingSupportedDestTokens,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -267,14 +337,73 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
+  // Review transaction button is shown only when everything is ready
+  const reviewTransactionButton = useMemo(() => {
+    if (
+      !sourceChain ||
+      !sourceToken ||
+      !destChain ||
+      !destToken ||
+      !sendingWallet.address ||
+      !receivingWallet.address ||
+      routeStates?.length === 0 ||
+      !(Number(amount) > 0)
+    ) {
+      return null;
+    }
+
+    return (
+      <Button
+        variant="primary"
+        className={classes.reviewTransaction}
+        disabled={!isValid || isFetchingQuote}
+        onClick={() => {
+          if (
+            routeStates &&
+            routeStates.some((rs) => rs.name === selectedRoute)
+          ) {
+            const route = routeStates.find((rs) => rs.name === selectedRoute);
+
+            if (route?.supported && route?.available) {
+              dispatch(setTransferRoute(selectedRoute));
+              setWillReviewTransaction(true);
+            }
+          }
+        }}
+      >
+        <Typography textTransform="none">
+          {mobile ? 'Review' : 'Review transaction'}
+        </Typography>
+      </Button>
+    );
+  }, [
+    sourceChain,
+    sourceToken,
+    destChain,
+    destToken,
+    selectedRoute,
+    amount,
+    routeStates,
+    isFetchingQuote,
+  ]);
+
+  if (willReviewTransaction) {
+    return (
+      <ReviewTransaction onClose={() => setWillReviewTransaction(false)} />
+    );
+  }
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       {header}
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
-      <AmountInput />
+      <TokenWarnings />
+      <AmountInput supportedSourceTokens={supportedSourceTokens} />
+      <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
       {walletConnector}
+      {reviewTransactionButton}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />

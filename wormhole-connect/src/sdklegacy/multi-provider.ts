@@ -48,12 +48,12 @@ type Provider = ethers.Provider;
  * @example
  * import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
  * const myApp = new MultiProvider<Domain>();
- * myApp.registerDomain({name: 'polygon', id: 50});
- * myApp.registerDomain({name: 'ethereum', id: 1});
- * myApp.registerRpcProvider('celo', 'https://forno.celo.org');
- * myApp.registerRpcProvider('ethereum', '...');
- * myApp.registerSigner('ethereum', someSigner);
- * myApp.registerSigner('polygon', someSigner);
+ * myApp.registerDomain({name: 'Polygon', id: 50});
+ * myApp.registerDomain({name: 'Ethereum', id: 1});
+ * myApp.registerRpcProvider('Celo', 'https://forno.celo.org');
+ * myApp.registerRpcProvider('Ethereum', '...');
+ * myApp.registerSigner('Ethereum', someSigner);
+ * myApp.registerSigner('Polygon', someSigner);
  */
 export class MultiProvider<T extends Domain> {
   protected domains: Map<string, T>;

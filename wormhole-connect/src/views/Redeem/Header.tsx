@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import type { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { displayAddress } from 'utils';
@@ -10,6 +9,7 @@ import TokenIcon from 'icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import ExplorerLink from './ExplorerLink';
 import { TransferSide } from 'config/types';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -35,8 +35,8 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  chain: ChainName;
-  address: string;
+  chain: Chain;
+  address?: string;
   txHash?: string;
   loading?: boolean;
   text?: string;
@@ -50,8 +50,12 @@ function Header(props: Props) {
     <div className={classes.header}>
       <div className={classes.left}>
         <TokenIcon icon={chainConfig.icon!} height={32} />
-        <div>{displayAddress(props.chain, props.address)}</div>
-        <WalletIcon />
+        {props.address && (
+          <>
+            <div>{displayAddress(props.chain, props.address)}</div>
+            <WalletIcon />
+          </>
+        )}
       </div>
       {props.loading ? (
         <CircularProgress size={26} />

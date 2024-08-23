@@ -5,12 +5,12 @@ import InputContainer from 'components/InputContainer';
 import { RenderRows } from 'components/RenderRows';
 import { RootState } from 'store';
 import { TransferDisplayData } from 'routes';
-import RouteOperator from 'routes/operator';
 
 import Header from './Header';
 import Confirmations from './Confirmations';
 import { RouteContext } from 'contexts/RouteContext';
 import { TransferState } from '@wormhole-foundation/sdk';
+import config from 'config';
 
 function SendFrom() {
   const { txData, route } = useSelector((state: RootState) => state.redeem);
@@ -27,10 +27,13 @@ function SendFrom() {
   useEffect(() => {
     if (!txData || !route) return;
 
-    RouteOperator.getTransferSourceInfo(route, {
-      txData,
-      tokenPrices: prices,
-    }).then((rows) => setRows(rows));
+    config.routes
+      .get(route)
+      .getTransferSourceInfo({
+        txData,
+        tokenPrices: prices,
+      })
+      .then((rows) => setRows(rows));
   }, [txData, route, data]);
 
   return (
@@ -45,7 +48,7 @@ function SendFrom() {
         <RenderRows rows={rows} />
       </InputContainer>
       {!isAttested && (
-        <Confirmations chain={txData!.fromChain} blockHeight={txData!.block} />
+        <Confirmations chain={txData!.fromChain} blockHeight={0} />
       )}
     </div>
   );

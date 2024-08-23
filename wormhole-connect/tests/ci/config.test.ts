@@ -23,7 +23,7 @@ envTests.forEach((env) => {
   describe(title, () => {
     test('chain gas tokens', () => {
       Object.entries(CHAINS)
-        .filter(([id]) => id !== 'wormchain')
+        .filter(([id]) => id !== 'Wormchain')
         .forEach(([_, { gasToken }]) => {
           const tokenConfig = TOKENS[gasToken];
           expect(tokenConfig).toBeTruthy();

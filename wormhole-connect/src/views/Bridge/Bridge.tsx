@@ -18,13 +18,12 @@ import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
 import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
-import ValidationError from './ValidationError';
 import PoweredByIcon from 'icons/PoweredBy';
 import { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
-import { useComputeQuote } from 'hooks/useComputeQuote';
-import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
+import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
+import useComputeQuote from 'hooks/useComputeQuote';
+import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import { useGasSlider } from 'hooks/useGasSlider';
 import { useConnectToLastUsedWallet } from 'utils/wallet';
@@ -74,10 +73,7 @@ function Bridge() {
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const { toNativeToken, relayerFee } = useSelector(
-    (state: RootState) => state.relay,
-  );
-  const portico = useSelector((state: RootState) => state.porticoBridge);
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
 
   // Warn user before closing tab if transaction has begun
@@ -114,15 +110,10 @@ function Bridge() {
     sourceToken: token,
     destToken,
     amount,
-    portico,
     route,
     toNativeToken,
-    relayerFee,
   });
 
-  // Route specific hooks
-  //usePorticoSwapInfo();
-  //usePorticoRelayerFee();
   useFetchTokenPrices();
   useConnectToLastUsedWallet();
 
@@ -151,14 +142,6 @@ function Bridge() {
       <FromInputs />
       <SwapChains />
       <ToInputs />
-
-      <ValidationError
-        forceShow={
-          !!fromChain && !!toChain && !!token && !!destToken && !!amount
-        } // show route validation
-        validations={[validations.route]}
-        margin="12px 0 0 0"
-      />
 
       <RouteOptions />
       <Collapse in={valid && showValidationState}>

@@ -1,35 +1,34 @@
-import config from 'config';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+import config from 'config';
 import {
   setDestToken,
   setSupportedDestTokens,
   setAllSupportedDestTokens,
-  //getNativeVersionOfToken,
 } from 'store/transferInput';
 
-import type { Route, TokenConfig } from 'config/types';
-import type { ChainName } from 'sdklegacy';
+import type { TokenConfig } from 'config/types';
 
-//import { isPorticoRoute } from 'routes/porticoBridge/utils';
-//import { ETHBridge } from 'routes/porticoBridge/ethBridge';
-//import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
-import RouteOperator from 'routes/operator';
-
-//import { getWrappedToken } from 'utils';
+import { Chain } from '@wormhole-foundation/sdk';
 
 type Props = {
-  sourceChain: ChainName | undefined;
+  sourceChain: Chain | undefined;
   sourceToken: string;
-  destChain: ChainName | undefined;
-  route: Route | undefined;
+  destChain: Chain | undefined;
+  route?: string;
 };
 
-export const useComputeDestinationTokens = (props: Props): void => {
+type ReturnProps = {
+  isFetching: boolean;
+};
+
+const useComputeDestinationTokens = (props: Props): ReturnProps => {
   const { sourceChain, destChain, sourceToken, route } = props;
 
   const dispatch = useDispatch();
+
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (!destChain) {
@@ -41,8 +40,11 @@ export const useComputeDestinationTokens = (props: Props): void => {
     const computeDestTokens = async () => {
       let supported: Array<TokenConfig> = [];
 
+      // Start fetching and setting all supported tokens
+      setIsFetching(true);
+
       try {
-        supported = await RouteOperator.allSupportedDestTokens(
+        supported = await config.routes.allSupportedDestTokens(
           config.tokens[sourceToken],
           sourceChain,
           destChain,
@@ -61,13 +63,19 @@ export const useComputeDestinationTokens = (props: Props): void => {
           supported = nativeTokens;
         }
       }
+
       dispatch(setSupportedDestTokens(supported));
-      const allSupported = await RouteOperator.allSupportedDestTokens(
+      const allSupported = await config.routes.allSupportedDestTokens(
         undefined,
         sourceChain,
         destChain,
       );
+
       dispatch(setAllSupportedDestTokens(allSupported));
+
+      // Done fetching and setting all supported tokens
+      setIsFetching(false);
+
       if (destChain && supported.length === 1) {
         if (!canceled) {
           dispatch(setDestToken(supported[0].key));
@@ -92,30 +100,6 @@ export const useComputeDestinationTokens = (props: Props): void => {
           dispatch(setDestToken(key));
         }
       }
-
-      /*
-      // If the source token is supported by a Portico bridge route,
-      // then select the native version on the dest chain
-      if (sourceToken && destChain && (!route || isPorticoRoute(route))) {
-        const tokenSymbol = config.tokens[sourceToken]?.symbol;
-        const porticoTokens = [
-          ...ETHBridge.SUPPORTED_TOKENS,
-          ...wstETHBridge.SUPPORTED_TOKENS,
-        ];
-        if (porticoTokens.includes(tokenSymbol)) {
-          const isTokenSupported =
-            sourceToken && supported.some((t) => t.key === sourceToken);
-          let key = getNativeVersionOfToken(tokenSymbol, destChain);
-          if (!key) {
-            const wrapped = getWrappedToken(config.tokens[sourceToken]);
-            key = getNativeVersionOfToken(wrapped.symbol, destChain);
-          }
-          if (!canceled && key && isTokenSupported) {
-            dispatch(setDestToken(key));
-          }
-        }
-      }
-      */
     };
 
     computeDestTokens();
@@ -124,4 +108,10 @@ export const useComputeDestinationTokens = (props: Props): void => {
       canceled = true;
     };
   }, [route, sourceToken, sourceChain, destChain, dispatch]);
+
+  return {
+    isFetching,
+  };
 };
+
+export default useComputeDestinationTokens;

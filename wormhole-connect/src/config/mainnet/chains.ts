@@ -4,8 +4,8 @@ import { ChainsConfig, Icon } from '../types';
 const { chains } = CONFIG.MAINNET;
 
 export const MAINNET_CHAINS: ChainsConfig = {
-  ethereum: {
-    ...chains.ethereum!,
+  Ethereum: {
+    ...chains.Ethereum!,
     displayName: 'Ethereum',
     explorerUrl: 'https://etherscan.io/',
     explorerName: 'Etherscan',
@@ -15,8 +15,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  bsc: {
-    ...chains.bsc!,
+  Bsc: {
+    ...chains.Bsc!,
     displayName: 'BSC',
     explorerUrl: 'https://bscscan.com/',
     explorerName: 'BscScan',
@@ -26,8 +26,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  polygon: {
-    ...chains.polygon!,
+  Polygon: {
+    ...chains.Polygon!,
     displayName: 'Polygon',
     explorerUrl: 'https://polygonscan.com/',
     explorerName: 'PolygonScan',
@@ -37,8 +37,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 1000,
   },
-  avalanche: {
-    ...chains.avalanche!,
+  Avalanche: {
+    ...chains.Avalanche!,
     displayName: 'Avalanche',
     explorerUrl: 'https://avascan.info/blockchain/c/',
     explorerName: 'Avascan',
@@ -48,8 +48,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  fantom: {
-    ...chains.fantom!,
+  Fantom: {
+    ...chains.Fantom!,
     displayName: 'Fantom',
     explorerUrl: 'https://ftmscan.com/',
     explorerName: 'FTMscan',
@@ -59,8 +59,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  celo: {
-    ...chains.celo!,
+  Celo: {
+    ...chains.Celo!,
     displayName: 'Celo',
     explorerUrl: 'https://explorer.celo.org/mainnet/',
     explorerName: 'Celo Explorer',
@@ -70,8 +70,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  moonbeam: {
-    ...chains.moonbeam!,
+  Moonbeam: {
+    ...chains.Moonbeam!,
     displayName: 'Moonbeam',
     explorerUrl: 'https://moonscan.io/',
     explorerName: 'Moonscan',
@@ -81,8 +81,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  solana: {
-    ...chains.solana!,
+  Solana: {
+    ...chains.Solana!,
     displayName: 'Solana',
     explorerUrl: 'https://explorer.solana.com/',
     explorerName: 'Solana Explorer',
@@ -92,8 +92,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  sui: {
-    ...chains.sui!,
+  Sui: {
+    ...chains.Sui!,
     displayName: 'Sui',
     explorerUrl: 'https://explorer.sui.io/',
     explorerName: 'Sui Explorer',
@@ -103,8 +103,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 0,
   },
-  aptos: {
-    ...chains.aptos!,
+  Aptos: {
+    ...chains.Aptos!,
     displayName: 'Aptos',
     explorerUrl: 'https://explorer.aptoslabs.com/',
     explorerName: 'Aptos Explorer',
@@ -114,8 +114,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  base: {
-    ...chains.base!,
+  Base: {
+    ...chains.Base!,
     displayName: 'Base',
     explorerUrl: 'https://basescan.org/',
     explorerName: 'BaseScan',
@@ -125,30 +125,31 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  osmosis: {
-    ...chains.osmosis!,
-    displayName: 'Osmosis',
-    explorerUrl: 'https://mintscan.io/osmosis/',
-    explorerName: 'MintScan',
-    gasToken: 'OSMO',
-    chainId: 'osmosis-1',
-    icon: Icon.OSMO,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  wormchain: {
-    ...chains.wormchain!,
-    displayName: 'Wormchain',
-    explorerUrl: '',
-    explorerName: '',
-    gasToken: 'WORM',
-    chainId: '',
-    icon: Icon.OSMO,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  arbitrum: {
-    ...chains.arbitrum!,
+  // TODO: SDKV2 - re-enable cosmos chains once cosmos gateway route is implemented
+  //Osmosis: {
+  //  ...chains.Osmosis!,
+  //  displayName: 'Osmosis',
+  //  explorerUrl: 'https://mintscan.io/osmosis/',
+  //  explorerName: 'MintScan',
+  //  gasToken: 'OSMO',
+  //  chainId: 'osmosis-1',
+  //  icon: Icon.OSMO,
+  //  automaticRelayer: false,
+  //  maxBlockSearch: 0,
+  //},
+  //Wormchain: {
+  //  ...chains.Wormchain!,
+  //  displayName: 'Wormchain',
+  //  explorerUrl: '',
+  //  explorerName: '',
+  //  gasToken: 'WORM',
+  //  chainId: '',
+  //  icon: Icon.OSMO,
+  //  automaticRelayer: false,
+  //  maxBlockSearch: 0,
+  //},
+  Arbitrum: {
+    ...chains.Arbitrum!,
     displayName: 'Arbitrum',
     explorerUrl: 'https://arbiscan.io/',
     explorerName: 'Arbitrum Explorer',
@@ -157,8 +158,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: Icon.ARBITRUM,
     maxBlockSearch: 2000,
   },
-  optimism: {
-    ...chains.optimism!,
+  Optimism: {
+    ...chains.Optimism!,
     displayName: 'Optimism',
     explorerUrl: 'https://optimistic.etherscan.io/',
     explorerName: 'Optimistic Etherscan',
@@ -167,8 +168,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: Icon.OPTIMISM,
     maxBlockSearch: 2000,
   },
-  klaytn: {
-    ...chains.klaytn!,
+  Klaytn: {
+    ...chains.Klaytn!,
     displayName: 'Klaytn',
     explorerUrl: 'https://klaytnscope.com/',
     explorerName: 'Klaytn Scope',
@@ -177,41 +178,41 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: Icon.KLAY,
     maxBlockSearch: 2000,
   },
-  evmos: {
-    ...chains.evmos!,
-    displayName: 'Evmos',
-    explorerUrl: 'https://www.mintscan.io/evmos/',
-    explorerName: 'MintScan',
-    gasToken: 'EVMOS',
-    chainId: 'evmos_9001-2',
-    icon: Icon.EVMOS,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  kujira: {
-    ...chains.kujira!,
-    displayName: 'Kujira',
-    explorerUrl: 'https://finder.kujira.app/kaiyo-1/',
-    explorerName: 'Kujira Finder',
-    gasToken: 'KUJI',
-    chainId: 'kaiyo-1',
-    icon: Icon.KUJI,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  injective: {
-    ...chains.injective!,
-    displayName: 'Injective',
-    explorerUrl: 'https://explorer.injective.network/',
-    explorerName: 'Injective Explorer',
-    gasToken: 'INJ',
-    chainId: 'injective-1',
-    icon: Icon.INJ,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  scroll: {
-    ...chains.scroll!,
+  //Evmos: {
+  //  ...chains.Evmos!,
+  //  displayName: 'Evmos',
+  //  explorerUrl: 'https://www.mintscan.io/evmos/',
+  //  explorerName: 'MintScan',
+  //  gasToken: 'EVMOS',
+  //  chainId: 'evmos_9001-2',
+  //  icon: Icon.EVMOS,
+  //  automaticRelayer: false,
+  //  maxBlockSearch: 0,
+  //},
+  //Kujira: {
+  //  ...chains.Kujira!,
+  //  displayName: 'Kujira',
+  //  explorerUrl: 'https://finder.kujira.app/kaiyo-1/',
+  //  explorerName: 'Kujira Finder',
+  //  gasToken: 'KUJI',
+  //  chainId: 'kaiyo-1',
+  //  icon: Icon.KUJI,
+  //  automaticRelayer: false,
+  //  maxBlockSearch: 0,
+  //},
+  //Injective: {
+  //  ...chains.Injective!,
+  //  displayName: 'Injective',
+  //  explorerUrl: 'https://explorer.injective.network/',
+  //  explorerName: 'Injective Explorer',
+  //  gasToken: 'INJ',
+  //  chainId: 'injective-1',
+  //  icon: Icon.INJ,
+  //  automaticRelayer: false,
+  //  maxBlockSearch: 0,
+  //},
+  Scroll: {
+    ...chains.Scroll!,
     displayName: 'Scroll',
     explorerUrl: 'https://scrollscan.com/',
     explorerName: 'Scrollscan',
@@ -221,8 +222,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  blast: {
-    ...chains.blast!,
+  Blast: {
+    ...chains.Blast!,
     displayName: 'Blast',
     explorerUrl: 'https://blastscan.io/',
     explorerName: 'Blastscan',
@@ -232,8 +233,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
-  xlayer: {
-    ...chains.xlayer!,
+  Xlayer: {
+    ...chains.Xlayer!,
     displayName: 'X Layer',
     explorerUrl: 'https://www.okx.com/web3/explorer/xlayer/',
     explorerName: 'OKX Explorer',

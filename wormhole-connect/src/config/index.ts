@@ -1,19 +1,10 @@
-import {
-  ChainName,
-  WormholeContext,
-  WormholeConfig,
-  ChainResourceMap,
-} from 'sdklegacy';
+import { WormholeContext, WormholeConfig, ChainResourceMap } from 'sdklegacy';
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import { Network, InternalConfig, Route, TokensConfig } from './types';
-import {
-  mergeCustomTokensConfig,
-  mergeNttGroups,
-  validateDefaults,
-} from './utils';
+import { Network, InternalConfig, WrappedTokenAddressCache } from './types';
+import { mergeCustomTokensConfig, validateDefaults } from './utils';
 import { wrapEventHandler } from './events';
 
 import { SDKConverter } from './converter';
@@ -23,16 +14,19 @@ import {
   Wormhole as WormholeV2,
   Network as NetworkV2,
   Token as TokenV2,
-  Chain as ChainV2,
   ChainTokens as ChainTokensV2,
   WormholeConfigOverrides as WormholeConfigOverridesV2,
+  Chain,
 } from '@wormhole-foundation/sdk';
+
+import '@wormhole-foundation/sdk/addresses';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
 import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
+import RouteOperator from 'routes/operator';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -63,7 +57,7 @@ export function buildConfig(
     customConfig?.rpcs,
   );
 
-  const wh = getWormholeContext(network, sdkConfig, tokens, rpcs);
+  const wh = getWormholeContext(network, sdkConfig, rpcs);
 
   if (customConfig?.bridgeDefaults) {
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
@@ -78,8 +72,6 @@ export function buildConfig(
 
     v2Network: sdkConverter.toNetworkV2(network),
 
-    // TODO remove either env or network from this
-    // some code uses lowercase, some uppercase... :(
     network,
     isMainnet: network === 'mainnet',
     // External resources
@@ -114,12 +106,13 @@ export function buildConfig(
     // Callbacks
     triggerEvent: wrapEventHandler(customConfig?.eventHandler),
     validateTransfer: customConfig?.validateTransferHandler,
+    isRouteSupportedHandler: customConfig?.isRouteSupportedHandler,
 
     // White lists
     chains: networkData.chains,
     chainsArr: Object.values(networkData.chains).filter((chain) => {
-      return customConfig?.networks
-        ? customConfig.networks!.includes(chain.key)
+      return customConfig?.chains
+        ? customConfig.chains.includes(chain.key)
         : true;
     }),
     tokens,
@@ -128,11 +121,14 @@ export function buildConfig(
         ? customConfig.tokens!.includes(token.key)
         : true;
     }),
-    gasEstimates: networkData.gasEstimates,
-    // TODO: disabling all routes except Bridge and Relay until they are fully implemented
-    routes: (customConfig?.routes ?? Object.values(Route)).filter((r) =>
-      [Route.Bridge, Route.Relay].includes(r as Route),
+
+    // For token bridge ^_^
+    wrappedTokenAddressCache: new WrappedTokenAddressCache(
+      tokens,
+      sdkConverter,
     ),
+
+    routes: new RouteOperator(customConfig?.routes),
 
     // UI details
     cta: customConfig?.cta,
@@ -162,13 +158,6 @@ export function buildConfig(
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
 
-    // NTT config
-    nttGroups: mergeNttGroups(
-      tokens,
-      networkData.nttGroups,
-      customConfig?.nttGroups,
-    ),
-
     // Guardian Set
     guardianSet: networkData.guardianSet,
 
@@ -185,25 +174,8 @@ export default config;
 export function getWormholeContext(
   network: Network,
   sdkConfig: WormholeConfig,
-  tokens: TokensConfig,
   rpcs: ChainResourceMap,
 ): WormholeContext {
-  /*
-  const foreignAssetCache = new ForeignAssetCache();
-  for (const { tokenId, foreignAssets } of Object.values(tokens)) {
-    if (tokenId && foreignAssets) {
-      for (const [foreignChain, { address }] of Object.entries(foreignAssets)) {
-        foreignAssetCache.set(
-          tokenId.chain,
-          tokenId.address,
-          foreignChain as ChainName,
-          address,
-        );
-      }
-    }
-  }
-  */
-
   const wh: WormholeContext = new WormholeContext(network, {
     ...sdkConfig,
     ...{ rpcs },
@@ -218,10 +190,9 @@ export function getDefaultWormholeContext(network: Network): WormholeContext {
     network
   ]!;
 
-  const { tokens } = networkData;
   const rpcs = Object.assign({}, sdkConfig.rpcs, networkData.rpcs);
 
-  return getWormholeContext(network, sdkConfig, tokens, rpcs);
+  return getWormholeContext(network, sdkConfig, rpcs);
 }
 
 export async function getWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
@@ -234,28 +205,22 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
   const v2Config: WormholeConfigOverridesV2<NetworkV2> = { chains: {} };
 
   for (const key in config.chains) {
-    const chainV1 = key as ChainName;
-    const chainConfigV1 = config.chains[chainV1]!;
+    const chain = key as Chain;
+    const chainConfigV1 = config.chains[chain]!;
 
     const chainContextV1 = chainConfigV1.context;
 
-    const chainV2 = config.sdkConverter.toChainV2(
-      chainV1 as ChainName,
-    ) as ChainV2;
-
-    const rpc = config.rpcs[chainV1];
+    const rpc = config.rpcs[chain];
     const tokenMap: ChainTokensV2 = {};
 
     for (const token of config.tokensArr) {
-      const nativeChainV2 = config.sdkConverter.toChainV2(token.nativeChain);
-
       const tokenV2: Partial<TokenV2> = {
         key: token.key,
-        chain: chainV2,
+        chain: chain,
         symbol: token.symbol,
       };
 
-      if (nativeChainV2 == chainV2) {
+      if (token.nativeChain === chain) {
         const decimals =
           token.decimals[chainContextV1] ?? token.decimals.default;
         if (!decimals) {
@@ -263,12 +228,13 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
         } else {
           tokenV2.decimals = decimals;
         }
-
-        tokenV2.address = token.tokenId?.address ?? 'native';
+        const address = config.sdkConverter.getNativeTokenAddressV2(token);
+        if (!address) throw new Error('Token must have address');
+        tokenV2.address = address;
       } else {
-        tokenV2.original = nativeChainV2;
+        tokenV2.original = token.nativeChain;
         if (token.foreignAssets) {
-          const fa = token.foreignAssets[chainV1]!;
+          const fa = token.foreignAssets[chain]!;
 
           if (!fa) {
             continue;
@@ -284,7 +250,7 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
       tokenMap[token.key] = tokenV2 as TokenV2;
     }
 
-    v2Config.chains![chainV2] = { rpc, tokenMap };
+    v2Config.chains![chain] = { rpc, tokenMap };
   }
 
   return await getWormholeV2(

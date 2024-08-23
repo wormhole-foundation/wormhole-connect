@@ -2,27 +2,22 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { Tooltip, useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
+import Button from 'components/v2/Button';
 import { RootState } from 'store';
+import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
 
 import { TransferSide } from 'config/types';
 import WalletSidebar from './Sidebar';
 
-type StyleProps = { disabled?: boolean };
-
-const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
+const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
     padding: '8px 16px',
     borderRadius: '8px',
-    backgroundColor: theme.palette.button.primary,
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    opacity: disabled ? 0.7 : 1.0,
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
@@ -56,7 +51,7 @@ const WalletConnector = (props: Props) => {
 
   const theme = useTheme();
 
-  const { classes } = useStyles({ disabled });
+  const { classes } = useStyles();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
@@ -76,30 +71,39 @@ const WalletConnector = (props: Props) => {
 
   const connected = useMemo(() => {
     return (
-      <Tooltip
-        title={
-          'Please enter amount and select a route to initiate the transaction'
-        }
-      >
-        <div className={classes.connected}>Connected</div>
-      </Tooltip>
+      <div className={classes.connected}>{`Connected to ${displayWalletAddress(
+        wallet.type,
+        wallet.address,
+      )}`}</div>
     );
   }, []);
 
   const disconnected = useMemo(() => {
     const button = (
-      <div
+      <Button
+        variant="primary"
         className={classes.connectWallet}
-        onClick={() => connectWallet()}
         data-testid={`${props.side}-section-connect-wallet-button`}
+        disabled={disabled}
+        sx={{
+          '&:disabled': {
+            cursor: 'not-allowed',
+            pointerEvents: 'all !important',
+          },
+        }}
+        onClick={() => connectWallet()}
       >
-        <div>{mobile ? 'Connect' : `Connect ${props.side} wallet`}</div>
-      </div>
+        <Typography textTransform="none">
+          {mobile ? 'Connect' : `Connect ${props.side} wallet`}
+        </Typography>
+      </Button>
     );
 
     if (disabled) {
       return (
-        <Tooltip title={'Please select a network first'}>{button}</Tooltip>
+        <Tooltip title={`Please select a ${props.side} network`}>
+          {button}
+        </Tooltip>
       );
     } else {
       return (

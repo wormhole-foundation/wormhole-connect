@@ -18,10 +18,11 @@ import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
 
 import type { ChainConfig, TokenConfig } from 'config/types';
-import type { ChainName } from 'sdklegacy';
 import type { WalletData } from 'store/wallet';
+import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
+import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -43,19 +44,20 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
   },
   disabled: {
-    opacity: '40%',
+    opacity: '0.4',
     cursor: 'not-allowed',
     clickEvent: 'none',
   },
 }));
 
 type Props = {
-  chain?: ChainName | undefined;
-  chainList?: Array<ChainConfig> | undefined;
+  chain?: Chain | undefined;
+  chainList: Array<ChainConfig>;
   token?: string;
   tokenList?: Array<TokenConfig> | undefined;
+  isFetching?: boolean;
   setToken: (value: string) => void;
-  setChain: (value: ChainName) => void;
+  setChain: (value: Chain) => void;
   wallet: WalletData;
 };
 
@@ -78,6 +80,18 @@ const AssetPicker = (props: Props) => {
       setTimeout(() => {
         setShowChainSearch(false);
       }, 300);
+    }
+  }, [popupState.isOpen]);
+
+  // Pre-selecting first allowed chain, when asset picker is opened
+  useEffect(() => {
+    if (popupState.isOpen && !props.chain) {
+      const firstAllowedChain = props.chainList.find(
+        (chain) => !isDisabledChain(chain.key, props.wallet),
+      );
+      if (firstAllowedChain) {
+        props.setChain(firstAllowedChain.key);
+      }
     }
   }, [popupState.isOpen]);
 
@@ -164,17 +178,18 @@ const AssetPicker = (props: Props) => {
           showSearch={showChainSearch}
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
-          onClick={(key: string) => {
-            props.setChain(key as ChainName);
+          onChainSelect={(key) => {
+            props.setChain(key);
           }}
         />
         {!showChainSearch && chainConfig && (
           <TokenList
             tokenList={props.tokenList}
+            isFetching={props.isFetching}
             selectedChainConfig={chainConfig}
             selectedToken={props.token}
             wallet={props.wallet}
-            onClick={(key: string) => {
+            onSelectToken={(key: string) => {
               props.setToken(key);
               popupState.close();
             }}

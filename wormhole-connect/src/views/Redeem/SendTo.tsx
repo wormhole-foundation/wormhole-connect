@@ -17,7 +17,6 @@ import {
   setTransferComplete,
 } from 'store/redeem';
 import { displayAddress /*getWrappedTokenId*/ } from 'utils';
-import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -34,7 +33,6 @@ import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { isGatewayChain } from '../../utils/cosmos';
 import SwitchToManualClaim from './SwitchToManualClaim';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { getTokenDetails } from 'telemetry';
 import { interpretTransferError } from 'utils/errors';
 import { RouteContext } from 'contexts/RouteContext';
@@ -114,7 +112,7 @@ function SendTo() {
       }
       dispatch(setTransferDestInfo(undefined));
       try {
-        const info = await RouteOperator.getTransferDestInfo(routeName, {
+        const info = await config.routes.get(routeName).getTransferDestInfo({
           txData,
           tokenPrices: prices,
           receiveTx,
@@ -134,12 +132,13 @@ function SendTo() {
 
   const AUTOMATIC_DEPOSIT = useMemo(() => {
     if (!routeName) return false;
-    const route = RouteOperator.getRoute(routeName);
+    const route = config.routes.get(routeName);
     return (
       route.AUTOMATIC_DEPOSIT ||
       isGatewayChain(txData.toChain) ||
-      txData.toChain === 'sei' ||
-      isPorticoRoute(route.TYPE)
+      txData.toChain === 'Sei'
+      //TODO SDKV2 remove???
+      //isPorticoRoute(route.TYPE)
     );
   }, [routeName, txData]);
 
@@ -172,6 +171,7 @@ function SendTo() {
       setClaimError('Your claim has failed, please try again');
       throw new Error('invalid destination chain');
     }
+    const route = routeContext.route!;
     let txId: string | undefined;
     try {
       if (
@@ -179,31 +179,24 @@ function SendTo() {
         typeof chainConfig.chainId === 'number'
       ) {
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
-        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
+        await registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
-
-      //txId = await RouteOperator.redeem(
-      //  routeName,
-      //  txData.toChain,
-      //  receipt,
-      //  wallet.address,
-      //);
-
-      const route = routeContext.route!;
       if (!routes.isManual(route)) {
         throw new Error('Route is not manual');
       }
-      const signer = await SDKv2Signer.fromChainV1(
+      const signer = await SDKv2Signer.fromChain(
         txData.toChain,
         wallet.address,
         {},
         TransferWallet.RECEIVING,
       );
-      const result = await route.complete(signer, routeContext.receipt!);
-      if (!isRedeemed(result)) {
+      const receipt = await route.complete(signer, routeContext.receipt!);
+      if (!isRedeemed(receipt)) {
         throw new Error('Transfer not redeemed');
       }
-      txId = result.destinationTxs?.[0]?.txid || '';
+      if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
+        txId = receipt.destinationTxs[receipt.destinationTxs.length - 1].txid;
+      }
 
       config.triggerEvent({
         type: 'transfer.redeem.start',
@@ -231,7 +224,10 @@ function SendTo() {
     }
     if (txId !== undefined) {
       dispatch(setRedeemTx(txId));
-      dispatch(setTransferComplete(true));
+      // transfer may require an additional step if this is a finalizable route
+      if (!routes.isFinalizable(route)) {
+        dispatch(setTransferComplete(true));
+      }
 
       config.triggerEvent({
         type: 'transfer.redeem.success',

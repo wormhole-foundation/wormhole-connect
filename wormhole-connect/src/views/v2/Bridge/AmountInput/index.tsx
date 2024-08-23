@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { useDebounce } from 'use-debounce';
+import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -10,9 +12,12 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
-
+import { toFixedDecimals } from 'utils/balance';
+import { getMaxAmt, validateAmount } from 'utils/transferValidation';
+import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
 
 const useStyles = makeStyles()((theme) => ({
@@ -31,30 +36,46 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  errorContainer: {
+    display: 'flex',
+    alignContent: 'center',
+    marginTop: '8px',
+  },
 }));
+
+type Props = {
+  supportedSourceTokens: Array<TokenConfig>;
+};
 
 /**
  * Renders the input control to set the transaction amount
  */
-const AmountInput = () => {
+const AmountInput = (props: Props) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const [amountValue, setAmountValue] = useState('');
+  const theme = useTheme();
 
   const { sending: sendingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
 
   const {
-    supportedSourceTokens,
     fromChain: sourceChain,
     token: sourceToken,
+    amount,
+    route,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const [tokenAmount, setTokenAmount] = useState(amount);
+  const [validationResult, setValidationResult] = useState('');
+
+  // Debouncing validation to prevent false-positive results while user is still typing
+  const [debouncedValidationResult] = useDebounce(validationResult, 500);
 
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
     sourceChain,
-    supportedSourceTokens || [],
+    props.supportedSourceTokens || [],
   );
 
   const tokenBalance = useMemo(
@@ -81,12 +102,31 @@ const AmountInput = () => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14} textAlign="right">
-            {tokenBalance}
+            {Number.parseFloat(toFixedDecimals(`${tokenBalance}`, 6))}
           </Typography>
         )}
       </Stack>
     );
   }, [isInputDisabled, balances, tokenBalance, sendingWallet.address]);
+
+  useEffect(() => {
+    // Validation for the amount value
+    const amountValidation = validateAmount(
+      tokenAmount,
+      tokenBalance,
+      getMaxAmt(route),
+    );
+
+    // Validation result is truty when there are errors
+    if (amountValidation) {
+      // Reset the amount value when there are errors
+      dispatch(setAmount(''));
+    } else {
+      dispatch(setAmount(tokenAmount));
+    }
+
+    setValidationResult(amountValidation);
+  }, [tokenAmount, tokenBalance, route, validationResult]);
 
   const maxButton = useMemo(() => {
     return (
@@ -95,7 +135,8 @@ const AmountInput = () => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            setAmountValue(tokenBalance);
+            const trimmedTokenBalance = toFixedDecimals(`${tokenBalance}`, 6);
+            setTokenAmount(trimmedTokenBalance);
           }
         }}
       >
@@ -105,6 +146,18 @@ const AmountInput = () => {
       </Button>
     );
   }, [isInputDisabled, tokenBalance]);
+
+  // Update token amount in both local and Redux states
+  const onAmountChange = useCallback(
+    (e: any) => {
+      const { value } = e.target;
+
+      if (value !== tokenAmount) {
+        setTokenAmount(value);
+      }
+    },
+    [tokenAmount],
+  );
 
   return (
     <div className={classes.amountContainer}>
@@ -118,6 +171,9 @@ const AmountInput = () => {
             disabled={isInputDisabled}
             inputProps={{
               style: {
+                color: debouncedValidationResult
+                  ? theme.palette.error.main
+                  : theme.palette.text.primary,
                 fontSize: 24,
                 height: '40px',
                 padding: '4px',
@@ -125,10 +181,15 @@ const AmountInput = () => {
             }}
             placeholder="0"
             variant="standard"
-            value={amountValue}
-            onChange={(e) => {
-              setAmountValue(e.target.value);
-              dispatch(setAmount(e.target.value));
+            value={tokenAmount}
+            onChange={onAmountChange}
+            onWheel={(e) => {
+              // IMPORTANT: We need to prevent the scroll behavior on number inputs.
+              // Otherwise it'll increase/decrease the value when user scrolls on the input control.
+              // See for details: https://github.com/mui/material-ui/issues/7960
+              if (e.target instanceof HTMLElement) {
+                e.target.blur();
+              }
             }}
             InputProps={{
               disableUnderline: true,
@@ -145,6 +206,11 @@ const AmountInput = () => {
           />
         </CardContent>
       </Card>
+      <AlertBannerV2
+        error
+        content={debouncedValidationResult}
+        show={!!debouncedValidationResult}
+      />
     </div>
   );
 };

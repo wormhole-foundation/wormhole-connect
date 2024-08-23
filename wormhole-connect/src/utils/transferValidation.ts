@@ -1,9 +1,8 @@
 import { Dispatch, useEffect, useMemo } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { ChainName } from 'sdklegacy';
 
 import config from 'config';
-import { Route, TokenConfig } from 'config/types';
+import { TokenConfig } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { RootState } from 'store';
 import {
@@ -16,17 +15,13 @@ import {
 import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
 import { walletAcceptedChains } from './wallet';
-import RouteOperator from '../routes/operator';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { PorticoBridgeState } from 'store/porticoBridge';
 import { DataWrapper } from 'store/helpers';
 import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
+import { Chain } from '@wormhole-foundation/sdk';
 
-export const validateFromChain = (
-  chain: ChainName | undefined,
-): ValidationErr => {
+export const validateFromChain = (chain: Chain | undefined): ValidationErr => {
   if (!chain) return 'Select a source chain';
   const chainConfig = config.chains[chain];
   if (!chainConfig) return 'Select a source chain';
@@ -34,8 +29,8 @@ export const validateFromChain = (
 };
 
 export const validateToChain = (
-  chain: ChainName | undefined,
-  fromChain: ChainName | undefined,
+  chain: Chain | undefined,
+  fromChain: Chain | undefined,
 ): ValidationErr => {
   if (!chain) return 'Select a destination chain';
   const chainConfig = config.chains[chain];
@@ -62,7 +57,7 @@ export const validateToChain = (
 
 export const validateToken = (
   token: string,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
 ): ValidationErr => {
   if (!token) return 'Select an asset';
   const tokenConfig = config.tokens[token];
@@ -78,7 +73,7 @@ export const validateToken = (
 
 export const validateDestToken = (
   token: string,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
   supportedTokens: TokenConfig[],
 ): ValidationErr => {
   if (!token) return 'Select an asset';
@@ -125,7 +120,7 @@ const checkAddressIsSanctioned = (address: string): boolean =>
 
 export const validateWallet = async (
   wallet: WalletData,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
 ): Promise<ValidationErr> => {
   if (!wallet.address) return 'Wallet not connected';
   try {
@@ -153,71 +148,42 @@ export const validateToNativeAmt = (
   return '';
 };
 
-export const validateRoute = (
-  route: Route | undefined,
-  availableRoutes: string[] | undefined,
-): ValidationErr => {
-  if (!route || !availableRoutes || !availableRoutes.includes(route)) {
-    return 'No bridge or swap route available for selected tokens';
-  }
-  return '';
-};
-
-export const validateForeignAsset = (
-  destTokenAddr: string | undefined,
-): ValidationErr => {
-  if (!destTokenAddr) {
-    return 'No wrapped asset exists for this token';
-  }
-  return '';
-};
-
 export const validateRelayerFee = (
-  route: Route | undefined,
+  route: string,
   routeOptions: any,
 ): ValidationErr => {
   if (!route) return '';
-  if (isPorticoRoute(route) && routeOptions.relayerFee.error) {
-    return 'Error fetching relayer fee';
-  }
   return '';
 };
 
 export const validateReceiveAmount = (
-  route: Route | undefined,
+  route: string,
   receiveAmount: DataWrapper<string>,
   routeOptions: any,
 ): ValidationErr => {
   if (!route) return '';
-  if (
-    isPorticoRoute(route) &&
-    // the portico receive amount depends on the relayer fee
-    routeOptions.relayerFee.data &&
-    !routeOptions.swapAmounts.isFetching &&
-    receiveAmount.error
-  ) {
-    return receiveAmount.error;
-  }
   return '';
 };
 
-export const getMaxAmt = (route: Route | undefined): number => {
+export const getMaxAmt = (route?: string): number => {
   if (!route) return Infinity;
-  const r = RouteOperator.getRoute(route);
+  const r = config.routes.get(route);
+  if (!r) return Infinity;
   return r.getMaxSendAmount();
 };
 
-export const getIsAutomatic = (route: Route | undefined): boolean => {
+export const getIsAutomatic = (route?: string): boolean => {
   if (!route) return false;
-  const r = RouteOperator.getRoute(route);
+  const r = config.routes.get(route);
+  if (!r) return false;
   return r.AUTOMATIC_DEPOSIT;
 };
 
 export const isCctp = (
   token: string,
   destToken: string,
-  toChain: ChainName | undefined,
-  fromChain: ChainName | undefined,
+  fromChain: Chain | undefined,
+  toChain: Chain | undefined,
 ): boolean => {
   const isUSDCToken =
     config.tokens[token]?.symbol === 'USDC' &&
@@ -237,7 +203,6 @@ export const validateAll = async (
   transferData: TransferInputState,
   relayData: RelayState,
   walletData: WalletState,
-  porticoData: PorticoBridgeState,
 ): Promise<TransferValidations> => {
   const {
     fromChain,
@@ -246,11 +211,8 @@ export const validateAll = async (
     destToken,
     amount,
     balances,
-    foreignAsset,
     route,
     supportedDestTokens,
-    routeStates,
-    receiveAmount,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
@@ -262,10 +224,7 @@ export const validateAll = async (
     token,
   );
   const maxSendAmount = getMaxAmt(route);
-  const availableRoutes = routeStates
-    ?.filter((rs) => rs.supported)
-    .map((val) => val.name);
-  const isCctpTx = isCctp(token, destToken, toChain, fromChain);
+  const isCctpTx = isCctp(token, destToken, fromChain, toChain);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
@@ -279,27 +238,19 @@ export const validateAll = async (
       maxSendAmount,
       isCctpTx,
     ),
-    route: validateRoute(route, availableRoutes),
     toNativeToken: '',
-    foreignAsset: validateForeignAsset(foreignAsset),
     relayerFee: '',
     receiveAmount: '',
   };
 
   if (isAutomatic) {
-    if (route === Route.NttRelay) {
+    if (route === 'AutomaticNtt') {
       // Ntt does not support native gas drop-off
       return baseValidations;
     }
     return {
       ...baseValidations,
       toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
-    };
-  } else if (route && isPorticoRoute(route)) {
-    return {
-      ...baseValidations,
-      relayerFee: validateRelayerFee(route, porticoData),
-      receiveAmount: validateReceiveAmount(route, receiveAmount, porticoData),
     };
   } else {
     return baseValidations;
@@ -320,17 +271,15 @@ export const validate = async (
     transferInput,
     relay,
     wallet,
-    portico,
   }: {
     transferInput: TransferInputState;
     relay: RelayState;
     wallet: WalletState;
-    portico: PorticoBridgeState;
   },
   dispatch: Dispatch<AnyAction>,
   isCanceled: () => boolean,
 ) => {
-  const validations = await validateAll(transferInput, relay, wallet, portico);
+  const validations = await validateAll(transferInput, relay, wallet);
 
   // if all fields are filled out, show validations
   const showValidationState =
@@ -358,10 +307,9 @@ export const useValidate = () => {
   const transferInput = useSelector((state: RootState) => state.transferInput);
   const relay = useSelector((state: RootState) => state.relay);
   const wallet = useSelector((state: RootState) => state.wallet);
-  const portico = useSelector((state: RootState) => state.porticoBridge);
   const stateForValidation = useMemo(
-    () => ({ transferInput, relay, wallet, portico }),
-    [transferInput, relay, wallet, portico],
+    () => ({ transferInput, relay, wallet }),
+    [transferInput, relay, wallet],
   );
   const [debouncedStateForValidation] = useDebounce(
     stateForValidation,
@@ -376,8 +324,17 @@ export const useValidate = () => {
   }, [debouncedStateForValidation, dispatch]);
 };
 
+export const minutesAndSecondsWithPadding = (
+  minutes: number,
+  seconds: number,
+) => {
+  const minsPadded = minutes.toString().padStart(2, '0');
+  const secsPadded = seconds.toString().padStart(2, '0');
+  return `${minsPadded}:${secsPadded}`;
+};
+
 export const millisToMinutesAndSeconds = (millis: number) => {
   const minutes = Math.floor(millis / 60000);
   const seconds = Math.floor((millis % 60000) / 1000);
-  return `${minutes}m ${seconds}s`;
+  return minutesAndSecondsWithPadding(minutes, seconds);
 };

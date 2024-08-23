@@ -15,8 +15,6 @@ import { joinClass } from 'utils/style';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
-import RouteOperator from 'routes/operator';
-import { Route } from '../../../config/types';
 import { isNttRoute } from 'routes';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -128,12 +126,9 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await RouteOperator.getForeignAsset(
-        route,
-        tokenId,
-        toChain,
-        destTokenConfig,
-      );
+      const address = await config.routes
+        .get(route)
+        .getForeignAsset(tokenId, toChain, destTokenConfig);
 
       if (!active) return;
       if (address) {
@@ -162,7 +157,7 @@ function TokenWarnings() {
         return false;
       }
       const tokenId =
-        getTokenById({ chain: 'solana', address: foreignAsset })?.tokenId ||
+        getTokenById({ chain: 'Solana', address: foreignAsset })?.tokenId ||
         getWrappedTokenId(tokenConfig);
       const account = await solanaContext().getAssociatedTokenAccount(
         tokenId,
@@ -193,7 +188,7 @@ function TokenWarnings() {
         'The token must be registered on Solana before an associated token account can be created',
       );
     const tokenId =
-      getTokenById({ chain: 'solana', address: foreignAsset })?.tokenId ||
+      getTokenById({ chain: 'Solana', address: foreignAsset })?.tokenId ||
       getWrappedTokenId(tokenConfig);
     const tx = await solanaContext().createAssociatedTokenAccount(
       tokenId,
@@ -202,7 +197,7 @@ function TokenWarnings() {
     );
     // if `tx` is null it means the account already exists
     if (!tx) return;
-    await signAndSendTransaction('solana', tx, TransferWallet.RECEIVING);
+    await signAndSendTransaction('Solana', tx, TransferWallet.RECEIVING);
 
     let accountExists = false;
     let retries = 0;
@@ -254,9 +249,10 @@ function TokenWarnings() {
     // The tBTC associated token account will be created if it doesn't exist in the redeem tx
     // The NTT ATA will be created if it doesn't exist in the redeem tx
     if (
-      toChain === 'solana' &&
+      toChain === 'Solana' &&
       foreignAsset &&
-      route !== Route.TBTC &&
+      // TODO SDKV2
+      //route !== Route.TBTC &&
       !isNttRoute(route)
     ) {
       checkSolanaAssociatedTokenAccount();
@@ -315,7 +311,7 @@ function TokenWarnings() {
   let content;
   if (!foreignAsset) {
     content = noForeignAssetWarning;
-  } else if (toChain === 'solana' && route !== Route.Relay) {
+  } else if (toChain === 'Solana' && route !== 'AutomaticTokenBridge') {
     content = noAssociatedTokenAccount;
   } else if (usdcAndNoCCTP) {
     content = warningNoCCTPOption;

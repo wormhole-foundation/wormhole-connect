@@ -1,7 +1,6 @@
 // Legacy SDK
 import {
   ChainConfig as BaseChainConfig,
-  ChainName,
   TokenId,
   ChainResourceMap,
   Context,
@@ -13,12 +12,17 @@ import {
 import {
   Network as NetworkV2,
   Wormhole as WormholeV2,
+  Chain,
+  TokenAddress as TokenAddressV2,
 } from '@wormhole-foundation/sdk';
 
 import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
+
+import { routes } from '@wormhole-foundation/sdk';
+import RouteOperator from 'routes/operator';
 
 export enum Icon {
   'AVAX' = 1,
@@ -56,32 +60,18 @@ export enum Icon {
   'XLAYER',
 }
 
-export enum Route {
-  Bridge = 'bridge',
-  Relay = 'relay',
-  CosmosGateway = 'cosmosGateway',
-  CCTPManual = 'cctpManual',
-  CCTPRelay = 'cctpRelay',
-  TBTC = 'tbtc',
-  ETHBridge = 'ethBridge',
-  wstETHBridge = 'wstETHBridge',
-  NttManual = 'nttManual',
-  NttRelay = 'nttRelay',
-}
-
 // Used in bridging components
 export type TransferSide = 'source' | 'destination';
-
-export type SupportedRoutes = keyof typeof Route;
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';
 
 // TODO: preference is fromChain/toChain, but want to keep backwards compatibility
+// TOOD: rename to fromChain/toChain
 export interface BridgeDefaults {
-  fromNetwork?: ChainName;
-  toNetwork?: ChainName;
+  fromNetwork?: Chain;
+  toNetwork?: Chain;
   token?: string;
-  requiredNetwork?: ChainName;
+  requiredNetwork?: Chain;
 }
 
 export interface ExtendedTransferDetails extends TransferDetails {
@@ -98,7 +88,11 @@ export type ValidateTransferHandler = (
   transferDetails: ExtendedTransferDetails,
 ) => Promise<ValidateTransferResult>;
 
-// This is the integrator-provided JSON config
+export type IsRouteSupportedHandler = (
+  transferDetails: TransferDetails,
+) => Promise<boolean>;
+
+// This is the integrator-provided config
 export interface WormholeConnectConfig {
   env?: Network; // TODO REMOVE; DEPRECATED
   network?: Network; // New name for this, consistent with SDKv2
@@ -110,8 +104,7 @@ export interface WormholeConnectConfig {
   coinGeckoApiKey?: string;
 
   // White lists
-  networks?: ChainName[]; // TODO REMOVE; DEPRECATED
-  chains?: ChainName[]; // New name for this, consistent with SDKv2
+  chains?: Chain[];
   tokens?: string[];
 
   // Custom tokens
@@ -126,6 +119,7 @@ export interface WormholeConnectConfig {
   // Callbacks
   eventHandler?: WormholeConnectEventHandler;
   validateTransferHandler?: ValidateTransferHandler;
+  isRouteSupportedHandler?: IsRouteSupportedHandler;
 
   // UI details
   cta?: {
@@ -135,7 +129,7 @@ export interface WormholeConnectConfig {
   showHamburgerMenu?: boolean;
   explorer?: ExplorerConfig;
   bridgeDefaults?: BridgeDefaults;
-  routes?: string[];
+  routes?: routes.RouteConstructor<any>[];
   cctpWarning?: {
     href: string;
   };
@@ -152,9 +146,6 @@ export interface WormholeConnectConfig {
   // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
-
-  // NTT config
-  nttGroups?: NttGroups;
 
   // Override to load Redesign
   useRedesign?: boolean;
@@ -188,12 +179,14 @@ export interface InternalConfig<N extends NetworkV2> {
   chainsArr: ChainConfig[];
   tokens: TokensConfig;
   tokensArr: TokenConfig[];
-  gasEstimates: GasEstimates;
-  routes: string[];
+  wrappedTokenAddressCache: WrappedTokenAddressCache;
+
+  routes: RouteOperator;
 
   // Callbacks
   triggerEvent: WormholeConnectEventHandler;
   validateTransfer?: ValidateTransferHandler;
+  isRouteSupportedHandler?: IsRouteSupportedHandler;
 
   // UI details
   cta?: {
@@ -219,8 +212,6 @@ export interface InternalConfig<N extends NetworkV2> {
   ethBridgeMaxAmount: number;
   wstETHBridgeMaxAmount: number;
 
-  // NTT config
-  nttGroups: NttGroups;
   guardianSet: GuardianSetData;
 
   // Redesign flag
@@ -273,7 +264,7 @@ type DecimalsMap = Partial<Record<Context, number>> & {
 export type TokenConfig = {
   key: string;
   symbol: string;
-  nativeChain: ChainName;
+  nativeChain: Chain;
   icon: Icon | string;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
@@ -282,7 +273,7 @@ export type TokenConfig = {
   wrappedAsset?: string;
   displayName?: string;
   foreignAssets?: {
-    [chainName in ChainName]?: {
+    [chain in Chain]?: {
       address: string;
       decimals: number;
     };
@@ -303,24 +294,10 @@ export interface ChainConfig extends BaseChainConfig {
 }
 
 export type ChainsConfig = {
-  [chain in ChainName]?: ChainConfig;
+  [chain in Chain]?: ChainConfig;
 };
 
-export type GasEstimatesByOperation = {
-  sendToken?: number;
-  sendNative?: number;
-  claim?: number;
-};
-
-export type GasEstimateOptions = keyof GasEstimatesByOperation;
-
-export type GasEstimates = {
-  [chain in ChainName]?: {
-    [route in Route]?: GasEstimatesByOperation;
-  };
-};
-
-export type RpcMapping = { [chain in ChainName]?: string };
+export type RpcMapping = { [chain in Chain]?: string };
 
 export type GuardianSetData = {
   index: number;
@@ -330,11 +307,9 @@ export type GuardianSetData = {
 export type NetworkData = {
   chains: ChainsConfig;
   tokens: TokensConfig;
-  gasEstimates: GasEstimates;
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
-  nttGroups: NttGroups;
   guardianSet: GuardianSetData;
 };
 
@@ -350,16 +325,60 @@ export type NttTransceiverConfig = {
   type: 'wormhole'; // only wormhole is supported for now
 };
 
-export type NttManagerConfig = {
-  chainName: ChainName;
-  address: string;
-  tokenKey: string; // token key for the token this NTT manager has configured
-  transceivers: NttTransceiverConfig[];
-  solanaQuoter?: string;
-};
+// Token bridge foreign asset cache
+// Used in utils/sdkv2.ts
 
-export type NttGroup = {
-  nttManagers: NttManagerConfig[];
-};
+type ForeignAssets<C extends Chain> = Record<string, TokenAddressV2<C>>;
 
-export type NttGroups = { [key: string]: NttGroup };
+export class WrappedTokenAddressCache {
+  caches: Partial<Record<Chain, ForeignAssets<Chain>>>;
+
+  constructor(tokens: TokensConfig, converter: SDKConverter) {
+    this.caches = {};
+
+    // Pre-populate cache with values from built-in config
+    for (const key in tokens) {
+      const token = tokens[key];
+
+      if (token.foreignAssets) {
+        for (const chain in token.foreignAssets) {
+          const foreignAsset = tokens[key].foreignAssets![chain];
+          const addr = WormholeV2.parseAddress(
+            chain as Chain,
+            foreignAsset.address,
+          );
+          this.set(key, chain as Chain, addr);
+        }
+      }
+
+      // Cache it on its native chain too
+      if (token.tokenId) {
+        try {
+          this.set(
+            key,
+            token.nativeChain,
+            WormholeV2.parseAddress(token.nativeChain, token.tokenId.address),
+          );
+        } catch (e) {
+          console.error(`Error caching foreign asset`, token.tokenId, e);
+        }
+      }
+    }
+  }
+
+  get<C extends Chain>(tokenKey: string, chain: C): TokenAddressV2<C> | null {
+    const chainCache = this.caches[chain] as ForeignAssets<C>;
+    if (!chainCache) return null;
+    return chainCache[tokenKey] || null;
+  }
+
+  set<C extends Chain>(
+    tokenKey: string,
+    chain: C,
+    foreignAsset: TokenAddressV2<C>,
+  ) {
+    if (!this.caches[chain]) this.caches[chain] = {};
+    const chainCache = this.caches[chain]!;
+    chainCache[tokenKey] = foreignAsset;
+  }
+}

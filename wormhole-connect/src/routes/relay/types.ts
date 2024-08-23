@@ -1,5 +1,5 @@
 import { TokenPrices } from 'store/tokenPrices';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -8,7 +8,7 @@ export type RelayOptions = {
 };
 
 export interface TransferDestInfoParams {
-  txData: ParsedMessage;
+  txData: TransferInfo;
   tokenPrices: TokenPrices;
   receiveTx?: string;
   transferComplete?: boolean;

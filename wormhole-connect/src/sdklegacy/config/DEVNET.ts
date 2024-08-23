@@ -1,86 +1,36 @@
+import { Chain } from '@wormhole-foundation/sdk';
 import { ChainConfig, Context, WormholeConfig } from '../types';
 
-/**
- * devnet chain name to chain id mapping
- */
-export const DEVNET_CHAINS = {
-  ethereum: 2,
-  terra2: 18,
-  osmosis: 20,
-  wormchain: 3104,
-} as const;
-
-/**
- * devnet chain name type
- */
-export type DevnetChainName = keyof typeof DEVNET_CHAINS;
-/**
- * devnet chain id type
- */
-export type DevnetChainId = (typeof DEVNET_CHAINS)[DevnetChainName];
-
-const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
-  ethereum: {
-    key: 'ethereum',
+const DEVNET: { [chain in Chain]?: ChainConfig } = {
+  Ethereum: {
+    key: 'Ethereum',
     id: 2,
     context: Context.ETH,
-    /*
-     * TODO SDKV2
-    /*
-    contracts: {
-      core: '0xC89Ce4735882C9F0f0FE26686c53074E09B0D550',
-      token_bridge: '0x0290FB167208Af455bB137780163b7B7a9a10C16',
-    },
-    */
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
   },
-  osmosis: {
-    key: 'osmosis',
+  Osmosis: {
+    key: 'Osmosis',
     id: 20,
     context: Context.COSMOS,
-    /*
-     * TODO SDKV2
-    contracts: {
-      core: '',
-      token_bridge: '',
-    },
-     * /*
-    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
-  wormchain: {
+  Wormchain: {
     context: Context.COSMOS,
-    key: 'wormchain',
+    key: 'Wormchain',
     id: 3104,
-    /*
-     * TODO SDKV2
-    contracts: {
-      core: 'wormhole17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgshdnj3k',
-      token_bridge:
-        'wormhole1ghd753shjuwexxywmgs4xz7x2q732vcnkm6h2pyv9s6ah3hylvrqtm7t3h',
-      ibcShimContract:
-        'wormhole1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gq6n0sg2',
-    },
-    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
-  terra2: {
+  Terra2: {
     context: Context.COSMOS,
-    key: 'terra2',
+    key: 'Terra2',
     id: 18,
-    /*
-     * TODO SDKV2
-    contracts: {
-      ...CONTRACTS.DEVNET.terra2,
-    },
-    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
-};
+} as const;
 
 /**
  * default devnet chain config
@@ -88,10 +38,10 @@ const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
 const DEVNET_CONFIG: WormholeConfig = {
   env: 'devnet',
   rpcs: {
-    ethereum: 'http://localhost:8545',
-    wormchain: 'http://localhost:26659',
-    osmosis: 'http://localhost:33043',
-    terra2: 'http://localhost:26658',
+    Ethereum: 'http://localhost:8545',
+    Wormchain: 'http://localhost:26659',
+    Osmosis: 'http://localhost:33043',
+    Terra2: 'http://localhost:26658',
   },
   rest: {},
   graphql: {},

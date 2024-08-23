@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName, Context } from 'sdklegacy';
+import { Context } from 'sdklegacy';
 import config from 'config';
-import { Route, TokenConfig } from 'config/types';
+import { TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
-import { toChainId } from 'utils/sdk';
 import {
   switchChain,
   TransferWallet,
@@ -19,8 +18,7 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute } from 'routes';
-import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
+import { Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
   lastUpdated: number;
@@ -30,16 +28,16 @@ export type Balances = { [key: string]: Balance };
 export type ChainBalances = {
   balances: Balances;
 };
-export type BalancesCache = { [key in ChainName]?: ChainBalances };
+export type BalancesCache = { [key in Chain]?: ChainBalances };
 type WalletAddress = string;
 export type WalletBalances = { [key: WalletAddress]: BalancesCache };
 
 export const formatBalance = (
-  chain: ChainName,
+  chain: Chain,
   token: TokenConfig,
   balance: bigint | null,
 ) => {
-  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
+  const decimals = getTokenDecimals(chain, token.tokenId);
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return formattedBalance;
@@ -49,7 +47,7 @@ export const formatBalance = (
 // returns token key
 export const getNativeVersionOfToken = (
   tokenSymbol: string,
-  chain: ChainName,
+  chain: Chain,
 ): string => {
   return (
     Object.entries(config.tokens)
@@ -62,7 +60,7 @@ export const getNativeVersionOfToken = (
 export const accessChainBalances = (
   balances: WalletBalances | undefined,
   walletAddress: WalletAddress | undefined,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
 ): ChainBalances | undefined => {
   if (!chain || !balances || !walletAddress) return undefined;
   const walletBalances = balances[walletAddress];
@@ -75,7 +73,7 @@ export const accessChainBalances = (
 export const accessBalance = (
   balances: WalletBalances | undefined,
   walletAddress: WalletAddress | undefined,
-  chain: ChainName | undefined,
+  chain: Chain | undefined,
   token: string,
 ): Balance | undefined => {
   const chainBalances = accessChainBalances(balances, walletAddress, chain);
@@ -93,9 +91,7 @@ export type TransferValidations = {
   token: ValidationErr;
   destToken: ValidationErr;
   amount: ValidationErr;
-  route: ValidationErr;
   toNativeToken: ValidationErr;
-  foreignAsset: ValidationErr;
   relayerFee: ValidationErr;
   receiveAmount: ValidationErr;
 };
@@ -104,19 +100,20 @@ export type RouteState = {
   name: string;
   supported: boolean;
   available: boolean;
+  availabilityError?: string;
 };
 
 export interface TransferInputState {
   showValidationState: boolean;
   validations: TransferValidations;
   routeStates: RouteState[] | undefined;
-  fromChain: ChainName | undefined;
-  toChain: ChainName | undefined;
+  fromChain: Chain | undefined;
+  toChain: Chain | undefined;
   token: string;
   destToken: string;
   amount: string;
   receiveAmount: DataWrapper<string>;
-  route: Route | undefined;
+  route?: string;
   balances: WalletBalances;
   foreignAsset: string;
   associatedTokenAddress: string;
@@ -141,11 +138,9 @@ function getInitialState(): TransferInputState {
       token: '',
       destToken: '',
       amount: '',
-      route: '',
       toNativeToken: '',
       sendingWallet: '',
       receivingWallet: '',
-      foreignAsset: '',
       relayerFee: '',
       receiveAmount: '',
     },
@@ -173,7 +168,7 @@ function getInitialState(): TransferInputState {
 }
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token, route, destToken } = state;
+  const { fromChain, token, route } = state;
   if (token) {
     const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
@@ -186,14 +181,7 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         state.amount = '';
       }
     }
-    if (isNttRoute(route) && destToken) {
-      const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
-      if (groupKey && fromChain) {
-        state.token = getNttTokenByGroupKey(groupKey, fromChain)?.key || '';
-      } else {
-        state.token = '';
-      }
-    } else if (
+    if (
       tokenConfig.symbol === 'USDC' &&
       tokenConfig.nativeChain !== fromChain
     ) {
@@ -215,24 +203,14 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken, route, token } = state;
+  const { toChain, destToken, route } = state;
 
   if (destToken) {
     const tokenConfig = config.tokens[destToken];
     if (!toChain) {
       state.destToken = '';
     }
-    if (isNttRoute(route) && token) {
-      const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
-      if (groupKey && toChain) {
-        state.destToken = getNttTokenByGroupKey(groupKey, toChain)?.key || '';
-      } else {
-        state.destToken = '';
-      }
-    } else if (
-      tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeChain !== toChain
-    ) {
+    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
     } else if (
       tokenConfig.symbol === 'tBTC' &&
@@ -262,6 +240,8 @@ const establishRoute = (state: TransferInputState) => {
     return;
   }
   const routeOrderOfPreference = [
+    /*
+     * TODO SDKV2
     Route.CosmosGateway,
     Route.CCTPRelay,
     Route.CCTPManual,
@@ -272,6 +252,8 @@ const establishRoute = (state: TransferInputState) => {
     Route.NttManual,
     Route.Relay,
     Route.Bridge,
+    Route.Mayan,
+    */
   ];
   for (const r of routeOrderOfPreference) {
     const routeState = routeStates.find((rs) => rs.name === r);
@@ -303,6 +285,12 @@ export const transferInputSlice = createSlice({
       });
       state.showValidationState = showValidationState;
     },
+    setRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.route = payload;
+    },
     setRoutes: (
       state: TransferInputState,
       { payload }: PayloadAction<RouteState[]>,
@@ -325,14 +313,14 @@ export const transferInputSlice = createSlice({
     },
     setFromChain: (
       state: TransferInputState,
-      { payload }: PayloadAction<ChainName>,
+      { payload }: PayloadAction<Chain>,
     ) => {
       state.fromChain = payload;
       performModificationsIfFromChainChanged(state);
     },
     setToChain: (
       state: TransferInputState,
-      { payload }: PayloadAction<ChainName>,
+      { payload }: PayloadAction<Chain>,
     ) => {
       state.toChain = payload;
       performModificationsIfToChainChanged(state);
@@ -364,7 +352,7 @@ export const transferInputSlice = createSlice({
         payload,
       }: PayloadAction<{
         address: WalletAddress;
-        chain: ChainName;
+        chain: Chain;
         balances: Balances;
       }>,
     ) => {
@@ -399,7 +387,7 @@ export const transferInputSlice = createSlice({
     },
     setTransferRoute: (
       state: TransferInputState,
-      { payload }: PayloadAction<Route | undefined>,
+      { payload }: PayloadAction<string | undefined>,
     ) => {
       if (!payload) {
         state.route = undefined;
@@ -469,9 +457,9 @@ export const transferInputSlice = createSlice({
   },
 });
 
-export const isDisabledChain = (chain: ChainName, wallet: WalletData) => {
+export const isDisabledChain = (chain: Chain, wallet: WalletData) => {
   // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-  if (wallet.name === 'OKX Wallet' && chain === 'evmos') {
+  if (wallet.name === 'OKX Wallet' && chain === 'Evmos') {
     return true;
   } else {
     return !walletAcceptedChains(wallet.type).includes(chain);
@@ -480,7 +468,7 @@ export const isDisabledChain = (chain: ChainName, wallet: WalletData) => {
 
 export const selectFromChain = async (
   dispatch: any,
-  chain: ChainName,
+  chain: Chain,
   wallet: WalletData,
 ) => {
   selectChain(TransferWallet.SENDING, dispatch, chain, wallet);
@@ -488,7 +476,7 @@ export const selectFromChain = async (
 
 export const selectToChain = async (
   dispatch: any,
-  chain: ChainName,
+  chain: Chain,
   wallet: WalletData,
 ) => {
   selectChain(TransferWallet.RECEIVING, dispatch, chain, wallet);
@@ -497,7 +485,7 @@ export const selectToChain = async (
 export const selectChain = async (
   type: TransferWallet,
   dispatch: any,
-  chain: ChainName,
+  chain: Chain,
   wallet: WalletData,
 ) => {
   if (isDisabledChain(chain, wallet)) {
@@ -528,6 +516,7 @@ export const selectChain = async (
 
 export const {
   setValidations,
+  setRoute,
   setRoutes,
   setToken,
   setDestToken,
