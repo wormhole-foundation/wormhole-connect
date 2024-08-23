@@ -22,6 +22,11 @@ export type RouteQuote = {
   relayerFee: number;
 };
 
+type HookReturn = {
+  quotesMap: Record<string, RouteQuote | undefined>;
+  isFetching: boolean;
+};
+
 const defaultQuote: RouteQuote = {
   error: '',
   eta: 0,
@@ -33,7 +38,7 @@ const defaultQuote: RouteQuote = {
 const useRoutesQuotesBulk = (
   routes: string[],
   params: RoutesQuotesBulkParams,
-) => {
+): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<RouteQuote[]>([]);
 
@@ -50,14 +55,16 @@ const useRoutesQuotesBulk = (
     }
 
     const promises = routes.map((route) =>
-      config.routes.get(route).computeQuote(
-        params.amount,
-        params.sourceToken,
-        params.destToken,
-        params.sourceChain,
-        params.destChain,
-        { nativeGas: params.nativeGas },
-      ),
+      config.routes
+        .get(route)
+        .computeQuote(
+          params.amount,
+          params.sourceToken,
+          params.destToken,
+          params.sourceChain,
+          params.destChain,
+          { nativeGas: params.nativeGas },
+        ),
     );
 
     setIsFetching(true);
