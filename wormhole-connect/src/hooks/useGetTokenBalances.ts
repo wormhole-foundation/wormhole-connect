@@ -15,10 +15,7 @@ const CHAIN_MAX_TOKENS_PER_REQ = {
   klaytn: 10,
 } as Record<ChainName, number>;
 
-const splitArrayInChunks = <T>(
-  array: T[] = [],
-  chunkSize: number = Infinity,
-): T[][] =>
+const splitArrayInChunks = <T>(array: T[] = [], chunkSize = Infinity): T[][] =>
   array
     .map((_, i) =>
       i % chunkSize === 0 ? array.slice(i, i + chunkSize) : undefined,
