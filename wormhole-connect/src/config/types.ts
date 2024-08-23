@@ -58,6 +58,7 @@ export enum Icon {
   'SCROLL',
   'BLAST',
   'XLAYER',
+  'MANTLE',
 }
 
 // Used in bridging components

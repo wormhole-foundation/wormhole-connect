@@ -128,6 +128,13 @@ const MAINNET: { [chain in Chain]?: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  Mantle: {
+    key: 'Mantle',
+    id: 35,
+    context: Context.ETH,
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   Xlayer: {
     key: 'Xlayer',
     id: 37,
@@ -210,6 +217,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     Scroll: 'https://rpc.ankr.com/scroll',
     Blast: 'https://rpc.ankr.com/blast',
     Xlayer: 'https://rpc.xlayer.tech',
+    Mantle: 'https://rpc.mantle.xyz',
   },
   rest: {
     Sei: '',

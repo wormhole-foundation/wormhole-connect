@@ -74,10 +74,6 @@ export const mergeCustomTokensConfig = (
       );
       continue;
     }
-    if (customToken.foreignAssets) {
-      delete customToken.foreignAssets;
-      console.warn(`Ignoring custom token config "${key}" foreignAssets`);
-    }
 
     // Accept custom token config
     console.info(`Accepted custom token config for "${key}"`);

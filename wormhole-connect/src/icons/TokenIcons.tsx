@@ -89,6 +89,7 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.SCROLL]: SCROLL(),
   [Icon.BLAST]: BLAST(),
   [Icon.XLAYER]: <img src={chainToIcon('Xlayer')} />,
+  [Icon.MANTLE]: <img src={chainToIcon('Mantle')} />,
 };
 
 function isBuiltinIcon(icon?: Icon | string): icon is Icon {

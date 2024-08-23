@@ -18,12 +18,24 @@ console.warn = function (x: any, ...rest: any) {
   }
 };
 
-import { Chain } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  Network,
+  toNative,
+  UniversalAddress,
+  Wormhole,
+  wormhole,
+} from '@wormhole-foundation/sdk';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';
 import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
-import { ChainsConfig, TokensConfig, Network } from '../src/config/types';
+import { ChainsConfig, TokensConfig } from '../src/config/types';
+
+import evm from '@wormhole-foundation/sdk/evm';
+import solana from '@wormhole-foundation/sdk/solana';
+import aptos from '@wormhole-foundation/sdk/aptos';
+import sui from '@wormhole-foundation/sdk/sui';
 
 const WORMCHAIN_ERROR_MESSAGES = [
   '3104 RPC not configured',
@@ -39,13 +51,23 @@ const checkEnvConfig = async (
   chainsConfig: ChainsConfig,
 ) => {
   let recommendedUpdates: TokensConfig = {};
-  // TODO SDKV2
-  //const wh = new WormholeContext(env);
+  const wh = await wormhole(env, [evm, solana, aptos, sui]);
+
   for (const [tokenKey, tokenConfig] of Object.entries(tokensConfig)) {
+    const nativeChain = wh.getChain(tokenConfig.nativeChain);
+    const nativeTb = await nativeChain.getTokenBridge();
+    let universalAddress: UniversalAddress | null = null;
+    if (tokenConfig.tokenId) {
+      universalAddress = await nativeTb.getTokenUniversalAddress(
+        toNative(nativeChain.chain, tokenConfig.tokenId.address),
+      );
+    }
     await Promise.all(
       Object.keys(chainsConfig).map((unTypedChain) => {
         return (async () => {
           const chain = unTypedChain as Chain;
+          const context = await wh.getChain(chain);
+          const tb = await context.getTokenBridge();
 
           const configForeignAddress = tokenConfig.foreignAssets?.[chain];
           if (chain === tokenConfig.nativeChain) {
@@ -54,16 +76,15 @@ const checkEnvConfig = async (
                 `❌ Invalid native chain in foreign assets detected! Env: ${env}, Key ${tokenKey}, Chain: ${chain}`,
               );
             }
-          } else if (tokenConfig.tokenId) {
-            const foreignAddress: string | null = null;
+          } else if (universalAddress) {
+            let foreignAddress: string | null = null;
             try {
-              /*
-               * TODO SDKV2
-              foreignAddress = await wh.getForeignAsset(
-                tokenConfig.tokenId,
-                chain,
+              const token = Wormhole.tokenId(
+                nativeChain.chain,
+                universalAddress.toString(),
               );
-              */
+              const wrapped = await tb.getWrappedAsset(token);
+              foreignAddress = wrapped.toString();
             } catch (e: any) {
               if (
                 WORMCHAIN_ERROR_MESSAGES.includes(e?.message) ||
@@ -79,13 +100,10 @@ const checkEnvConfig = async (
             if (foreignAddress) {
               let foreignDecimals: number | undefined;
               try {
-                /*
-                 * TODO SDKV2
-                foreignDecimals = await wh.fetchTokenDecimals(
-                  tokenConfig.tokenId,
+                foreignDecimals = await wh.getDecimals(
                   chain,
+                  toNative(chain, foreignAddress),
                 );
-                */
               } catch (e: any) {
                 if (
                   /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||
@@ -139,7 +157,7 @@ const checkEnvConfig = async (
         })();
       }),
     );
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   const numUpdatesAvaialable = Object.keys(recommendedUpdates).length;
   if (numUpdatesAvaialable > 0) {
@@ -155,6 +173,6 @@ const checkEnvConfig = async (
 };
 
 (async () => {
-  await checkEnvConfig('testnet', TESTNET_TOKENS, TESTNET_CHAINS);
-  await checkEnvConfig('mainnet', MAINNET_TOKENS, MAINNET_CHAINS);
+  await checkEnvConfig('Testnet', TESTNET_TOKENS, TESTNET_CHAINS);
+  await checkEnvConfig('Mainnet', MAINNET_TOKENS, MAINNET_CHAINS);
 })();

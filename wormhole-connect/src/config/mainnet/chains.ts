@@ -244,4 +244,15 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  Mantle: {
+    ...chains.Mantle!,
+    displayName: 'Mantle',
+    explorerUrl: 'https://explorer.mantle.xyz/',
+    explorerName: 'Mantle Explorer',
+    gasToken: 'MNT',
+    chainId: 5000,
+    icon: Icon.MANTLE,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };

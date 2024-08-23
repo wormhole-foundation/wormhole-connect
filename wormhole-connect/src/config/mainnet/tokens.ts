@@ -100,6 +100,18 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/7D9D28CABB49A4BB1A50C3B7E4544BFDBC5DDFAEB84A7787755A34CE7196CE15',
         decimals: 8,
       },
+      Blast: {
+        address: '0xC09a79fCF76ab2917c685896E3693e04EEbab69C',
+        decimals: 18,
+      },
+      Mantle: {
+        address: '0x115Fcc627AcE0457fbeb7Af3b8BcAcE7Ff6211A4',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x98A8345bB9D3DDa9D808Ca1c9142a28F6b0430E1',
+        decimals: 18,
+      },
     },
   },
   USDCeth: {
@@ -187,6 +199,10 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/C5EADE2C526B9629D230AC02A97644984ACB7C2F9A6C85126D1025CB0DA42588',
         decimals: 6,
       },
+      Klaytn: {
+        address: '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
+        decimals: 6,
+      },
     },
   },
   WBTC: {
@@ -234,7 +250,7 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       Sui: {
         address:
-          '0x27792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN',
+          '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN',
         decimals: 8,
       },
       Aptos: {
@@ -272,6 +288,10 @@ export const MAINNET_TOKENS: TokensConfig = {
       Kujira: {
         address:
           'ibc/B2C7F21B604E3974A7DA5DAA9395905F2F3C85392F8A221CFDF62E4A9F4E48E4',
+        decimals: 8,
+      },
+      Klaytn: {
+        address: '0x981846bE8d2d697f4dfeF6689a161A25FfbAb8F9',
         decimals: 8,
       },
     },
@@ -356,6 +376,18 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/C9072A294F5649D64E87A6998DD750576881E454CACCDAF7376EFC0FA243808D',
         decimals: 6,
       },
+      Blast: {
+        address: '0x37C1dea9C51864cc6640FA9c09f4dac574b8285E',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2',
+        decimals: 6,
+      },
+      Xlayer: {
+        address: '0x5866709f926f26C5870191F40333ac462B917bC0',
+        decimals: 6,
+      },
     },
   },
   DAI: {
@@ -433,6 +465,19 @@ export const MAINNET_TOKENS: TokensConfig = {
         address:
           'ibc/3CE8A3DE4AE5AE2B4B8C03B2B227CC284732EDC849E506615FF2AA3D8EB1BAFC',
         decimals: 8,
+      },
+      Blast: {
+        address: '0x286ebE2BacB0EBeF746DBDA24dED0fc001c6d0F6',
+        decimals: 18,
+      },
+      Sui: {
+        address:
+          '0xc01c54cd767a60835bf100b0a8f7aae66ac9f4e374f76746af60f02493b6f2cf::coin::COIN',
+        decimals: 8,
+      },
+      Klaytn: {
+        address: '0xCB2C7998696Ef7a582dFD0aAFadCd008D03E791A',
+        decimals: 18,
       },
     },
   },
@@ -573,6 +618,26 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/03B6D1925A09B3033AA6FA8772202719ABDC51F8CC2A5C26D0A9B19832F2C023',
         decimals: 8,
       },
+      Blast: {
+        address: '0xE00CB9206aCF0413aa9Dc12F01A22BB5Dd7A2866',
+        decimals: 18,
+      },
+      Mantle: {
+        address: '0x1d15Dc3B3DB5A182eA8E3091F21EB0549d4a72E0',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x9858e5A4f8202baD619D4BD39382CA67F4CA0E63',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0x982D057feCD66c3af27b16EBC67C4db24810bcD8',
+        decimals: 18,
+      },
+      Xlayer: {
+        address: '0xc97E2b2d7730C34adC389563721d9dF52EDA4A2a',
+        decimals: 18,
+      },
     },
   },
   WETHpolygon: {
@@ -590,6 +655,62 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+    foreignAssets: {
+      Bsc: {
+        address: '0x1384284E16e3375522Be54F50909Bc52A69e90e4',
+        decimals: 18,
+      },
+      Solana: {
+        address: 'DQyeU3oFezEGia761GQ4iPcMCnxnH8fuLrmHZUvTYuby',
+        decimals: 8,
+      },
+      Aptos: {
+        address:
+          '0x2692323828f627a45a75a05eba8281dd46690c538b4f6ccb7a35ffe8199a28b7::coin::T',
+        decimals: 8,
+      },
+      Sui: {
+        address:
+          '0xa1ed6e76b06ff8f959cc479fbbd423820a3349dad8707b98ff4309c677fa20ad::coin::COIN',
+        decimals: 8,
+      },
+      Arbitrum: {
+        address: '0xd2b299eD76d1369Ac8762CFEc85245fFD302FC17',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0x32d222E1f6386B3dF7065d639870bE0ef76D3599',
+        decimals: 18,
+      },
+      Avalanche: {
+        address: '0x061FE51530768889dc20Ac7fCD29b5307b823395',
+        decimals: 18,
+      },
+      Optimism: {
+        address: '0x2740220fFa4b206280907ce12b7cDC57445f3B92',
+        decimals: 18,
+      },
+      Fantom: {
+        address: '0x1cAFd8d3301E4E54Fc1462E7117Eb678bF50C765',
+        decimals: 18,
+      },
+      Base: {
+        address: '0x7A79923734eDA9c7f7ff69ad9ec1e234F67E7CD6',
+        decimals: 18,
+      },
+      Moonbeam: {
+        address: '0xf1BB9A987B9edC360580b0c9F28069C808c2a7da',
+        decimals: 18,
+      },
+      Celo: {
+        address: '0x8Ed68859f162970258992168293232e3Bdd987d0',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x3eb25C7098AC38a852Cd2366161c5e216af50Df3',
+        decimals: 18,
+      },
     },
   },
   USDCpolygon: {
@@ -647,6 +768,18 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       Optimism: {
         address: '0xbB1EaB9Eb8fDf65F0E291D013DA07B4b65a27a01',
+        decimals: 6,
+      },
+      Solana: {
+        address: 'C321jHPwWBzgfSGndosDTp5pBsiXPyMU1irxKLVcedRB',
+        decimals: 6,
+      },
+      Ethereum: {
+        address: '0xFbcE0f9e92AD1003e893Ba647bC055D845aAa507',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x59AEaD999e018a00B162D34de7a81AFFAB88bAbB',
         decimals: 6,
       },
     },
@@ -740,6 +873,26 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x6A09fE65ACa27C12573F04aAFa290bD75497E1BC',
         decimals: 18,
       },
+      Blast: {
+        address: '0xdcd0Ec817d3ae2E82bCE8Cc9f92fFA7686A52160',
+        decimals: 18,
+      },
+      Mantle: {
+        address: '0x9a7E85260d6F5d3c3d2a1FdDc3D980DBC78e508d',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0xaC9C1E4787139aF4c751B1C0fadfb513C44Ed833',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0x5b0da0a36DC415714B53A4f24b56921332F42E7C',
+        decimals: 18,
+      },
+      Xlayer: {
+        address: '0x8bC46166E06122603bA10D2bCA63b75091c25cAe',
+        decimals: 18,
+      },
     },
   },
   USDCbnb: {
@@ -822,6 +975,10 @@ export const MAINNET_TOKENS: TokensConfig = {
         address:
           'ibc/B28ACEF11D063FA8B1DA73C2F7DA3A1CFCCBC13E96B671698D4860E9367B55BB',
         decimals: 8,
+      },
+      Klaytn: {
+        address: '0x01B342d26FEF5749E87CBe412e16163771b0277c',
+        decimals: 18,
       },
     },
   },
@@ -924,6 +1081,26 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/22B44C7369EED16089B9840ADE399B80D9483B4E459E67643C96C681D7C463D0',
         decimals: 8,
       },
+      Blast: {
+        address: '0x7D86F00026c2cD8137D60ae85d53c5E5a15B2481',
+        decimals: 18,
+      },
+      Mantle: {
+        address: '0x2cAb4233d42043AEBbbb1445af362Ef686f3C133',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x45830b92443a8f750247da2A76C85c70d0f1EBF3',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0xC043c8A3672f397e7b52bF0a04F47d6f1aA952Ed',
+        decimals: 18,
+      },
+      Xlayer: {
+        address: '0x5208Fb676B2DBab7aFaFB56e8997237F0ceECF71',
+        decimals: 18,
+      },
     },
   },
   USDCavax: {
@@ -1011,6 +1188,18 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xD83385fE100E20c269a5975D4Bf92525BcE09F87',
         decimals: 6,
       },
+      Blast: {
+        address: '0x3Db095413b5e1e5681c48028e31e8dc2505D8aD3',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x9C97D4c09679Dfd00A39681f6d3b61A285312B13',
+        decimals: 6,
+      },
+      Scroll: {
+        address: '0xbEFc3d0457fB88f82364Dd982F7BA195FEE96b74',
+        decimals: 6,
+      },
     },
   },
   WETHavax: {
@@ -1028,6 +1217,62 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+    foreignAssets: {
+      Aptos: {
+        address:
+          '0x25ff8e0c07552c392c9e5dd4c9c07cf0382765c1bca560e80b6296a702034219::coin::T',
+        decimals: 8,
+      },
+      Solana: {
+        address: 'F9B9qLwUN3TAWGV9EGsuzFzS2PxWvKAmLhvfeqYNaS7J',
+        decimals: 8,
+      },
+      Bsc: {
+        address: '0xBDfe278268524de38Da89B3023C1F49deBDFdA8A',
+        decimals: 18,
+      },
+      Sui: {
+        address:
+          '0xc1ea686a329e35808c61484d95904d50522f1d1616cab4b416d9cfa9b274bc6c::coin::COIN',
+        decimals: 8,
+      },
+      Base: {
+        address: '0xEfe64b52bc0bDfa109790736F25cefb79724adF0',
+        decimals: 18,
+      },
+      Arbitrum: {
+        address: '0xdF64fB41b7f45304a786695E0D5daD8d033C01eF',
+        decimals: 18,
+      },
+      Polygon: {
+        address: '0x2912b3a9586Fc2AB177dC869e878c688DAA7d06E',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0xD85a87Edbe9fB3Baf6a1Bbd1E46f1C04B291331d',
+        decimals: 18,
+      },
+      Optimism: {
+        address: '0xBe6EA3e70e2bbB0dbD093B657fbbc0DFF0BA67eC',
+        decimals: 18,
+      },
+      Moonbeam: {
+        address: '0x9C673c6b651D6FDEF57441125A6AC16b08bba939',
+        decimals: 18,
+      },
+      Celo: {
+        address: '0xDac2C97b5E64d7C79d040cd2906EBe02341F1Ab5',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x9971F9d9170D787C4e4E01c56E1BDB308291CacF',
+        decimals: 18,
+      },
+      Fantom: {
+        address: '0x86a09597fc91b116511B990D29CB46ddedC0fCb0',
+        decimals: 18,
+      },
     },
   },
   FTM: {
@@ -1124,6 +1369,26 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/397DFE63D87F6940ECA583DFF5461E48BF0BA6554CBBE70278E307DDFDC8E9D5',
         decimals: 8,
       },
+      Blast: {
+        address: '0xf1D0eEeB6B6B35dc7289E1AD5e523F68b82bd09A',
+        decimals: 18,
+      },
+      Mantle: {
+        address: '0x6BFDc59ECBC5503aE16F71851064597D0a75dA76',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0xF3AebeA789F30C22F3657F70f4CaA0f8b49ed676',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0x16f077e2e9bF99Adfb1FEEc8360ee002842C44A2',
+        decimals: 18,
+      },
+      Xlayer: {
+        address: '0x956b5E88c311b976C76CB415C7E030A5Af87373b',
+        decimals: 18,
+      },
     },
   },
   USDCfantom: {
@@ -1139,6 +1404,20 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#2774CA',
     decimals: {
       default: 6,
+    },
+    foreignAssets: {
+      Bsc: {
+        address: '0x521af8b1c43B503BE91F542d82EEFEabc0C93340',
+        decimals: 6,
+      },
+      Arbitrum: {
+        address: '0xF68734163731ad6A6108f76A8e09862C1d412B42',
+        decimals: 6,
+      },
+      Ethereum: {
+        address: '0xfcC349c14013EdeFAAcAE09Ba30F4ef2571b8D2c',
+        decimals: 6,
+      },
     },
   },
   CELO: {
@@ -1221,6 +1500,14 @@ export const MAINNET_TOKENS: TokensConfig = {
         address:
           'ibc/4ACD155D71182398277CBD2C630A7C8C5F0F16FFF77965FDE4C845A4CDE2D60C',
         decimals: 8,
+      },
+      Blast: {
+        address: '0x75345Cc6a3333cca03aCE2a28C7de328122Db3b1',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0xB2b5bC9bc872c7107CBC8E8e0E2805Db0ac4FBc2',
+        decimals: 18,
       },
     },
   },
@@ -1317,6 +1604,22 @@ export const MAINNET_TOKENS: TokensConfig = {
         address:
           'ibc/3D337ECC89A8421DD6F33C4B7DDE9D4A18D728A4A688BA30E41F466EC8DD3869',
         decimals: 8,
+      },
+      Blast: {
+        address: '0x43E43580A34c8FdD4694e1F9B5F9b1121a7044a5',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x52a4558f98dDc7cb40cd9114C005f0B9571258Fc',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0x2Aba1Ed24EaFC17F801b1A7dF1c3a06737F8aB72',
+        decimals: 18,
+      },
+      Xlayer: {
+        address: '0xE2a44Dad57004517738FbD84cdf09Bd1451b4e43',
+        decimals: 18,
       },
     },
   },
@@ -1426,6 +1729,26 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/A8B0B746B5AB736C2D8577259B510D56B8AF598008F68041E3D634BCDE72BE97',
         decimals: 8,
       },
+      Blast: {
+        address: '0xA5370b8e2413b23eA16F3B78D1d1ba3969678227',
+        decimals: 9,
+      },
+      Mantle: {
+        address: '0xDA03239f428c76A527e1ceCa0ecA6cC367A2D945',
+        decimals: 9,
+      },
+      Klaytn: {
+        address: '0xfAA03A2AC2d1B8481Ec3fF44A0152eA818340e6d',
+        decimals: 9,
+      },
+      Xlayer: {
+        address: '0x3a859D92da2E16Ad32C5C6F3ADAddFBa4dE3A47e',
+        decimals: 9,
+      },
+      Scroll: {
+        address: '0xCDf95E1F720caade4b1DC83ABfE15400D2a458AD',
+        decimals: 9,
+      },
     },
   },
   USDCsol: {
@@ -1501,6 +1824,14 @@ export const MAINNET_TOKENS: TokensConfig = {
       Osmosis: {
         address:
           'ibc/F08DE332018E8070CC4C68FE06E04E254F527556A614F5F8F9A68AF38D367E45',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0xa1a7feeD29EbFa38079D943486c23f401939Ce80',
+        decimals: 6,
+      },
+      Scroll: {
+        address: '0x883Ccb5aEfD0084f1e4D04b133675acd6D5F123F',
         decimals: 6,
       },
     },
@@ -1586,6 +1917,22 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/B1C287C2701774522570010EEBCD864BCB7AB714711B3AA218699FDD75E832F5',
         decimals: 8,
       },
+      Mantle: {
+        address: '0x9ef1BB6072d7d6B9C935d9c040133036aD532119',
+        decimals: 9,
+      },
+      Blast: {
+        address: '0x62c95Ffd6d2f893Ea2EF072d1EbBcb242a974b1A',
+        decimals: 9,
+      },
+      Klaytn: {
+        address: '0xB0B40516293e0204fB376A18aA230A210cbE0305',
+        decimals: 9,
+      },
+      Xlayer: {
+        address: '0xEa76dBFE6e449420f294e74E057518F750E99A16',
+        decimals: 9,
+      },
     },
   },
   APT: {
@@ -1663,6 +2010,18 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/A4D176906C1646949574B48C1928D475F2DF56DE0AC04E1C99B08F90BC21ABDE',
         decimals: 8,
       },
+      Blast: {
+        address: '0x2a3DdE20159FbDbC86f1da0e7a462711b610c815',
+        decimals: 8,
+      },
+      Klaytn: {
+        address: '0x68d5254007BE3a6d3d2A37e2C1ad3921D049F46D',
+        decimals: 8,
+      },
+      Xlayer: {
+        address: '0xEdF2AEaCE382A3c0722f110c4927d34b78bce34F',
+        decimals: 8,
+      },
     },
   },
   ETHarbitrum: {
@@ -1731,7 +2090,7 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       Aptos: {
         address:
-          '0x0e977796d7bfb3263609b90dffd264c7bd078ce35dac42b55302858d9fa3452b::coin::T',
+          '0xe977796d7bfb3263609b90dffd264c7bd078ce35dac42b55302858d9fa3452b::coin::T',
         decimals: 8,
       },
       Base: {
@@ -1755,6 +2114,10 @@ export const MAINNET_TOKENS: TokensConfig = {
         address:
           'ibc/9E2E7B4A53409267CD686F4EB67969C2602A0F5FF9BDB1082B00E71CC4815DDE',
         decimals: 8,
+      },
+      Klaytn: {
+        address: '0x3CF1751E32c4225CB12ba953786C260C2cE89008',
+        decimals: 18,
       },
     },
   },
@@ -1819,6 +2182,18 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x2228703672906fEe5eD681Ec28e42B4506b8c336',
         decimals: 6,
       },
+      Moonbeam: {
+        address: '0xbd2B6D665439514EEaA8519f4fE87CC8C46e9167',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x3d5973fF7288f47857dAa5a32C53976A9A968928',
+        decimals: 6,
+      },
+      Xlayer: {
+        address: '0xd53bD30985B4125fc561774e388d9f679BB84117',
+        decimals: 6,
+      },
     },
   },
   ETHoptimism: {
@@ -1866,7 +2241,7 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       Sui: {
         address:
-          '0xaab14ec22908de73d1b0619f5e03842398f8e68262981bd35ef44b42d22b23a::coin::COIN',
+          '0x0aab14ec22908de73d1b0619f5e03842398f8e68262981bd35ef44b42d22b23a::coin::COIN',
         decimals: 8,
       },
       Aptos: {
@@ -1905,6 +2280,10 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       Moonbeam: {
         address: '0xd4870F7F5AD8Ae5139E1a5D8AD4ac55204aE4490',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x4ab77AF7059435b71dBC3B7c5255983C8628eFdf',
         decimals: 18,
       },
     },
@@ -1971,23 +2350,20 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0x6037801f060f0f54b3817bca05e3c8b9b9ffaa2da8e93fd5b80fa662aa3c9e55::coin::COIN',
         decimals: 6,
       },
+      Solana: {
+        address: 'J8kcD4Wnd1ehne1dpL8WNtgZQR6Jpui2cTZcrmg5ybAa',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x7Ee2AB1443fDB59AECEa3aDD8F81296d68c2D1e3',
+        decimals: 6,
+      },
+      Ethereum: {
+        address: '0xe77C99b64414e0fd9aeEA48AFFBBD2E97A895020',
+        decimals: 6,
+      },
     },
   },
-  // SEI: {
-  //   key: 'SEI',
-  //   symbol: 'SEI',
-  //   nativeChain: 'Sei',
-  //   tokenId: {
-  //     chain: 'sei',
-  //     address: 'usei',
-  //   },
-  //   icon: Icon.SEI,
-  //   coinGeckoId: 'sei-network',
-  //   color: '#FFFFFF',
-  //   decimals: {
-  //     default: 6,
-  //   },
-  // },
   WETHbsc: {
     key: 'WETHbsc',
     symbol: 'WETH',
@@ -2003,6 +2379,62 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+    foreignAssets: {
+      Aptos: {
+        address:
+          '0xd9fc4259ec5def95477dba9f0861c2882d1f8bee9a4138b476dd0720a3444547::coin::T',
+        decimals: 8,
+      },
+      Solana: {
+        address: 'FzjTz2cD1DfqYvafrbHWZvf1dK9qjwXGLuaU7xYXQjxP',
+        decimals: 8,
+      },
+      Sui: {
+        address:
+          '0x5029d5a94429a73b8036cd67192d9c5e09bbc2c0fee942d50075a9edba66744f::coin::COIN',
+        decimals: 8,
+      },
+      Base: {
+        address: '0xf50509Bb6aF76E20c6E1eD493699c5f70764BcCC',
+        decimals: 18,
+      },
+      Arbitrum: {
+        address: '0x6478377A399bE8c92bD35254aA7bF287836de32e',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0x5DbBB101CDc29443d12055eCDDdD7ca037Dce721',
+        decimals: 18,
+      },
+      Fantom: {
+        address: '0xc511E3aec79CABD605021C237c475Ec553B002d4',
+        decimals: 18,
+      },
+      Celo: {
+        address: '0x09F236D3708894581b1Cf679e582ba9eA5BE16f0',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x4C07075BB44076106f3389766946b79784Fb5C58',
+        decimals: 18,
+      },
+      Avalanche: {
+        address: '0xf0e509144CfA602d0A5e8C75d76FF74077f52f2b',
+        decimals: 18,
+      },
+      Optimism: {
+        address: '0x8088Bc767c392b5769b94c9ec1D07c62874c8d5f',
+        decimals: 18,
+      },
+      Polygon: {
+        address: '0x2D291e940DbDdaa9E847Ba5cC49451575f086b27',
+        decimals: 18,
+      },
+      Moonbeam: {
+        address: '0xBefd7902B682938b29B3FD3D4AdECD9A984D5930',
+        decimals: 18,
+      },
     },
   },
   ETHbase: {
@@ -2086,6 +2518,14 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x3F369a664fa665e01e8EB9f20bFcE03A0CAb8971',
         decimals: 18,
       },
+      Mantle: {
+        address: '0x4a2176DE2Fb36485704965bd1Cc471854f21303B',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x7Bf9ad1D104dEAE4B59Ef1be6a273Cb46BA16362',
+        decimals: 18,
+      },
     },
   },
   USDCbase: {
@@ -2159,6 +2599,26 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0xfcc4fcd734d5b8578fb629d238d15264a49eca6165c7444c21feec3b4962eb88::coin::T',
         decimals: 6,
       },
+      Blast: {
+        address: '0x35a926D55A726cdF70Ac498972F22426363F3C77',
+        decimals: 6,
+      },
+      Mantle: {
+        address: '0x5D628a3285a10fdd93AEa704007957F294e05F91',
+        decimals: 6,
+      },
+      Ethereum: {
+        address: '0xc38261846c42C1E1D59E04dA675Eb1974E9cE7b1',
+        decimals: 6,
+      },
+      Klaytn: {
+        address: '0x0a2330c1C46E9A74e8651F7117a1264410eA3C88',
+        decimals: 6,
+      },
+      Scroll: {
+        address: '0x22C9bde4Ad49C4b6CCFB8D394B5ED42A57853d58',
+        decimals: 6,
+      },
     },
   },
   wstETHbase: {
@@ -2177,20 +2637,27 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
-  },
-  OSMO: {
-    key: 'OSMO',
-    symbol: 'OSMO',
-    nativeChain: 'Osmosis',
-    tokenId: {
-      chain: 'Osmosis',
-      address: 'uosmo',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'osmosis',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
+    foreignAssets: {
+      Arbitrum: {
+        address: '0x09E79693E44c8813A8CA25EeD7A40e5E24cD9c01',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0x187175c7a526f48c905202Bd2Bf8D25A457F479F',
+        decimals: 18,
+      },
+      Polygon: {
+        address: '0x95d4C8e851D9E8c6B92aa518474E991c373E9Fb2',
+        decimals: 18,
+      },
+      Optimism: {
+        address: '0x6ee40855c0BaB20585d17D2b9dd8d2Cd1cd41801',
+        decimals: 18,
+      },
+      Avalanche: {
+        address: '0x5e513CA12DbD8424bDFc5B50711dF4AE999a8C58',
+        decimals: 18,
+      },
     },
   },
   tBTC: {
@@ -2269,6 +2736,10 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xFaED7314060FCEc652ED91D9eac6c980DCA9D3B8',
         decimals: 18,
       },
+      Klaytn: {
+        address: '0xB66cF9b8887d677993368d9A5377bd6469a24818',
+        decimals: 18,
+      },
     },
   },
   tBTCpolygon: {
@@ -2334,6 +2805,14 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x2519010b6585247BcDC8BcDa5C8730Be754b8c76',
         decimals: 18,
       },
+      Solana: {
+        address: '32L9kyjJvrhUGrTjfDUGUxDFm3PqehbDNUiqbXP8EVd5',
+        decimals: 8,
+      },
+      Base: {
+        address: '0x629a4DF9F59B253f28b92CeC3F9e0BD19f62CE4c',
+        decimals: 18,
+      },
     },
   },
   tBTCarbitrum: {
@@ -2377,6 +2856,10 @@ export const MAINNET_TOKENS: TokensConfig = {
           'wormhole1q8ynvqvtw49ln73mn70v4me4q03fvvmhkf2lh4ueam5w4362s2asjmvxtd',
         decimals: 8,
       },
+      Solana: {
+        address: '3WPTVC1Nw9cXizYrTbQLVYvXUziH2CE9G3UnPu5M1ySM',
+        decimals: 8,
+      },
     },
   },
   tBTCbase: {
@@ -2397,6 +2880,14 @@ export const MAINNET_TOKENS: TokensConfig = {
     foreignAssets: {
       Ethereum: {
         address: '0x733F28B3e315046Db01dAbC292D6F0F7F26C4551',
+        decimals: 18,
+      },
+      Arbitrum: {
+        address: '0x761213993383aB05434f1D2f9CBc4c2246636532',
+        decimals: 18,
+      },
+      Klaytn: {
+        address: '0x0A8Ca0Ea298896a1c330B95fe7e99c33880111c0',
         decimals: 18,
       },
     },
@@ -2467,6 +2958,14 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xad80E1A9B5824234afA9dE1F3bbDb8a994796169',
         decimals: 18,
       },
+      Avalanche: {
+        address: '0x11449fd2F05D93827972b40adE96F6ffBE42E35a',
+        decimals: 18,
+      },
+      Fantom: {
+        address: '0x2a2Ec6Ad3e47C536F47934F63b95BD647F1C730E',
+        decimals: 18,
+      },
     },
   },
   wstETHarbitrum: {
@@ -2485,6 +2984,46 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
+    foreignAssets: {
+      Bsc: {
+        address: '0x159167e842C586a81f02E55bc043AC8EdB033E0b',
+        decimals: 18,
+      },
+      Aptos: {
+        address:
+          '0xd2ca17516bc4ca57c1c69577e0c9cc0129153286695b46b97f438ecc138c225e::coin::T',
+        decimals: 8,
+      },
+      Solana: {
+        address: '8wJakbZuv7WApfHmRo2sdkeQfu6hXqfEqjb7BYXDKpKe',
+        decimals: 8,
+      },
+      Sui: {
+        address:
+          '0xb607aed1c09e676384d14ae638dbcb08523fc691d309e71c856c7fdcb60d4430::coin::COIN',
+        decimals: 8,
+      },
+      Base: {
+        address: '0xbE3981b37CcE5eCb6925d2ad9D9E28dE7b165793',
+        decimals: 18,
+      },
+      Optimism: {
+        address: '0xEae5ccc3c36beF59f6794b467e7e228CB3720415',
+        decimals: 18,
+      },
+      Fantom: {
+        address: '0xf65BF40A3299Df500D440520dF7e6ce1BEa53E73',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0x906310cE867C22c5016248Bd791FA5dd162c9D6d',
+        decimals: 18,
+      },
+      Polygon: {
+        address: '0xcf0aa97c2fD78Ee0f0C3090B9EB65d2bd6C1D81a',
+        decimals: 18,
+      },
+    },
   },
   wstETHoptimism: {
     key: 'wstETHoptimism',
@@ -2501,6 +3040,28 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+    foreignAssets: {
+      Bsc: {
+        address: '0x1f29fAD000255BF49D72803b2A8FaC8e31947eF8',
+        decimals: 18,
+      },
+      Base: {
+        address: '0xBb0BeaB819dEAf091C193bE4bBEeA9D5b0F5227C',
+        decimals: 18,
+      },
+      Arbitrum: {
+        address: '0xf99C5EEd186601955a9a1027536D1b46b1f909F8',
+        decimals: 18,
+      },
+      Polygon: {
+        address: '0x9065e1D25E65F7A1D60bb6197154386B52faA469',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0xB3ceE6DCa1dD528CB7CC258e32D8B50ce9Ee46f5',
+        decimals: 18,
+      },
     },
   },
   wstETHpolygon: {
@@ -2519,37 +3080,27 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
-  },
-  EVMOS: {
-    key: 'EVMOS',
-    symbol: 'EVMOS',
-    nativeChain: 'Evmos',
-    tokenId: {
-      chain: 'Evmos',
-      address: 'aevmos',
-    },
-    icon: Icon.EVMOS,
-    coinGeckoId: 'evmos',
-    color: '#ed4e33',
-    decimals: {
-      Cosmos: 18,
-      Ethereum: 18,
-      default: 8,
-    },
-  },
-  KUJI: {
-    key: 'KUJI',
-    symbol: 'KUJI',
-    nativeChain: 'Kujira',
-    tokenId: {
-      chain: 'Kujira',
-      address: 'ukuji',
-    },
-    icon: Icon.KUJI,
-    coinGeckoId: 'kujira',
-    color: '#f51f1e',
-    decimals: {
-      default: 6,
+    foreignAssets: {
+      Base: {
+        address: '0xcB6D47199d60747152d7671D6497ce8D23cc1D75',
+        decimals: 18,
+      },
+      Arbitrum: {
+        address: '0x23D3901A635fDd98D8d6509bc0720281f80a8E6D',
+        decimals: 18,
+      },
+      Ethereum: {
+        address: '0x302F636d723c8Ed75C0d1E9D9C714009184C5624',
+        decimals: 18,
+      },
+      Optimism: {
+        address: '0x4fad81d2268a7D9E1e0fE7dB38af07FFFA0aA56E',
+        decimals: 18,
+      },
+      Celo: {
+        address: '0xA4c7302659eCF88a90e62e915Bd486E66B616A4C',
+        decimals: 18,
+      },
     },
   },
   KLAY: {
@@ -2637,6 +3188,18 @@ export const MAINNET_TOKENS: TokensConfig = {
           'wormhole1kyy876kye7k79fuzat532yyqkrzhlr6l7hc7lfa2rk5tygzhy00qrhjgkc',
         decimals: 8,
       },
+      Solana: {
+        address: '2b8fZGLBZjpxFugCdnJbbLLBYxvx23rsrsvLYYueiHb7',
+        decimals: 8,
+      },
+      Blast: {
+        address: '0x5F6fE613528df9AE4Bf6f667fbCB923263098617',
+        decimals: 18,
+      },
+      Scroll: {
+        address: '0xA55FB7A046454998b2f6d8D99Df5F0E108b38229',
+        decimals: 18,
+      },
     },
   },
   PYTH: {
@@ -2700,21 +3263,14 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0x9c6d76eb273e6b5ba2ec8d708b7fa336a5531f6be59f326b5be8d4d8b12348a4::coin::COIN',
         decimals: 6,
       },
-    },
-  },
-  INJ: {
-    key: 'INJ',
-    symbol: 'INJ',
-    nativeChain: 'Injective',
-    tokenId: {
-      chain: 'Injective',
-      address: 'inj',
-    },
-    icon: Icon.INJ,
-    coinGeckoId: 'injective-protocol',
-    color: '#24DAC6',
-    decimals: {
-      default: 18,
+      Moonbeam: {
+        address: '0x27cc3FDbDD1F415b09a41232D0fD71345DAB8030',
+        decimals: 6,
+      },
+      Xlayer: {
+        address: '0x057b766b3fB76527cf815c3b5C38Dfa8144335CF',
+        decimals: 6,
+      },
     },
   },
   ETHscroll: {
@@ -2744,6 +3300,12 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+    foreignAssets: {
+      Arbitrum: {
+        address: '0xAe81a542e20270b48Bd5297E3e0f280f79E46C42',
+        decimals: 18,
+      },
     },
   },
   ETHblast: {
@@ -2800,6 +3362,39 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  MNT: {
+    key: 'MNT',
+    symbol: 'MNT',
+    nativeChain: 'Mantle',
+    icon: Icon.MANTLE,
+    coinGeckoId: 'mantle',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WMNT',
+  },
+  WMNT: {
+    key: 'WMNT',
+    symbol: 'WMNT',
+    nativeChain: 'Mantle',
+    icon: Icon.MANTLE,
+    tokenId: {
+      chain: 'Mantle',
+      address: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+    },
+    coinGeckoId: 'mantle',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    foreignAssets: {
+      Optimism: {
+        address: '0xf704F6a3241609Cfb3E44Db1237E68EB6CaC7C04',
+        decimals: 18,
+      },
     },
   },
 };

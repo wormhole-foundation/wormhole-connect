@@ -256,4 +256,15 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  Mantle: {
+    ...chains.Mantle!,
+    displayName: 'Mantle',
+    explorerUrl: 'https://explorer.testnet.mantle.xyz/',
+    explorerName: 'Mantle Explorer',
+    gasToken: 'MNT',
+    chainId: 5003,
+    icon: Icon.MANTLE,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };

@@ -26,6 +26,7 @@ const {
   REACT_APP_SCROLL_RPC,
   REACT_APP_BLAST_RPC,
   REACT_APP_XLAYER_RPC,
+  REACT_APP_MANTLE_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -52,6 +53,7 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('Scroll', REACT_APP_SCROLL_RPC),
   ...populateRpcField('Blast', REACT_APP_BLAST_RPC),
   ...populateRpcField('Xlayer', REACT_APP_XLAYER_RPC),
+  ...populateRpcField('Mantle', REACT_APP_MANTLE_RPC),
 };
 
 export const MAINNET_REST_MAPPING = {
