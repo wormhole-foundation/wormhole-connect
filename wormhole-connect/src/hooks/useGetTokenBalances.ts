@@ -11,6 +11,20 @@ import {
 import config from 'config';
 import { TokenConfig } from 'config/types';
 
+const CHAIN_MAX_TOKENS_PER_REQ = {
+  klaytn: 10,
+} as Record<ChainName, number>;
+
+const splitArrayInChunks = <T>(
+  array: T[] = [],
+  chunkSize: number = Infinity,
+): T[][] =>
+  array
+    .map((_, i) =>
+      i % chunkSize === 0 ? array.slice(i, i + chunkSize) : undefined,
+    )
+    .filter((c) => c !== undefined) as T[][];
+
 const useGetTokenBalances = (
   walletAddress: string,
   chain: ChainName | undefined,
@@ -80,20 +94,30 @@ const useGetTokenBalances = (
           }
         }
       }
+
       if (needsUpdate.length > 0) {
+        const needsUpdateChunks = splitArrayInChunks(
+          needsUpdate,
+          CHAIN_MAX_TOKENS_PER_REQ[chain],
+        );
+
         try {
-          const result = await config.wh.getTokenBalances(
-            walletAddress,
-            needsUpdate.map((t) => t.tokenId),
-            chain,
+          await Promise.all(
+            needsUpdateChunks.map(async (needsUpdateChunk) => {
+              const result = await config.wh.getTokenBalances(
+                walletAddress,
+                needsUpdateChunk.map((t) => t.tokenId),
+                chain,
+              );
+              result.forEach((balance, i) => {
+                const token = needsUpdateChunk[i];
+                balances[token.key] = {
+                  balance: formatBalance(chain, token, balance),
+                  lastUpdated: now,
+                };
+              });
+            }),
           );
-          result.forEach((balance, i) => {
-            const token = needsUpdate[i];
-            balances[token.key] = {
-              balance: formatBalance(chain, token, balance),
-              lastUpdated: now,
-            };
-          });
           updateCache = true;
         } catch (e) {
           console.error('Failed to get token balances', e);
