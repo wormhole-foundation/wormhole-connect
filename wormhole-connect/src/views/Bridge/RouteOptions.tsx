@@ -7,6 +7,7 @@ import { RootState } from 'store';
 import {
   RouteState,
   setManualAddressTarget,
+  setResolvingRoutes,
   setRoutes,
   setTransferRoute,
 } from 'store/transferInput';
@@ -423,36 +424,44 @@ function RouteOptions() {
   useEffect(() => {
     let isActive = true;
 
-    if (!fromChain || !toChain || !token || !destToken) return;
-    const getAvailable = async () => {
+    const getAvailable = async (fromChain: ChainName, toChain: ChainName) => {
       const routes: RouteState[] = [];
       for (const value of config.routes) {
         const r = value as Route;
-        const available = await RouteOperator.isRouteAvailable(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-        );
-
-        const supported = await RouteOperator.isRouteSupported(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-        );
-
+        // don't await, we want to resolve all routes in parallel
+        const [available, supported] = await Promise.all([
+          RouteOperator.isRouteAvailable(
+            r,
+            token,
+            destToken,
+            debouncedAmount,
+            fromChain,
+            toChain,
+          ),
+          RouteOperator.isRouteSupported(
+            r,
+            token,
+            destToken,
+            debouncedAmount,
+            fromChain,
+            toChain,
+          ),
+        ]);
         routes.push({ name: r, supported, availability: available });
       }
       if (isActive) {
         dispatch(setRoutes(routes));
       }
+      dispatch(setResolvingRoutes(false));
     };
-    getAvailable();
+
+    if (!fromChain || !toChain || !token || !destToken) {
+      dispatch(setRoutes([])); // reset routes if we don't have all the info
+    } else {
+      dispatch(setRoutes([])); // defensive remove routes until we have all the info to decide if the routes are availables between renders
+      dispatch(setResolvingRoutes(true));
+      getAvailable(fromChain, toChain);
+    }
 
     return () => {
       isActive = false;

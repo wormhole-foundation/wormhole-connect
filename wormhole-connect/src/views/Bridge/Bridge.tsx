@@ -53,6 +53,7 @@ import { isNttRoute } from 'routes/utils';
 import { useConnectToLastUsedWallet } from 'utils/wallet';
 import { USDTBridge } from 'routes/porticoBridge/usdtBridge';
 import { isAutomatic } from 'utils/route';
+import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -105,6 +106,7 @@ function Bridge() {
     isTransactionInProgress,
     amount,
     manualAddressTarget,
+    resolvingRoutes,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -351,6 +353,13 @@ function Bridge() {
       <SwapChains />
       <ToInputs />
 
+      <AlertBanner
+        show={resolvingRoutes}
+        content="Resolving available routes..."
+        info
+        margin="0 0 16px 0"
+        testId="resolving-routes-message"
+      />
       <ValidationError
         forceShow={showRouteValidation}
         validations={[validations.route]}

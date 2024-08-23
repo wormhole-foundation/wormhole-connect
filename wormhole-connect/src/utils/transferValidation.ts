@@ -183,7 +183,9 @@ export const validateToNativeAmt = (
 export const validateRoute = (
   route: Route | undefined,
   availableRoutes: string[] | undefined,
+  resolvingRoutes = false,
 ): ValidationErr => {
+  if (resolvingRoutes) return '';
   if (!route || !availableRoutes || !availableRoutes.includes(route)) {
     return 'No bridge or swap route available for selected tokens';
   }
@@ -295,6 +297,7 @@ export const validateAll = async (
     routeStates,
     receiveAmount,
     manualAddressTarget,
+    resolvingRoutes,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
@@ -326,7 +329,7 @@ export const validateAll = async (
       maxSendAmount,
       isCctpTx,
     ),
-    route: validateRoute(route, availableRoutes),
+    route: validateRoute(route, availableRoutes, resolvingRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     relayerFee: '',
