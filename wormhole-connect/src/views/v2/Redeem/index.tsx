@@ -82,8 +82,6 @@ const Redeem = () => {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
-
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
@@ -109,17 +107,20 @@ const Redeem = () => {
     isResumeTx,
   } = useSelector((state: RootState) => state.redeem);
 
+  const { txData } = useSelector((state: RootState) => state.redeem);
+
   const isTxRefunded = routeContext.receipt?.state === TransferState.Refunded;
   const isTxFailed = routeContext.receipt?.state === TransferState.Failed;
 
   const {
-    fromChain,
     recipient,
-    receiveAmount,
-    receivedTokenKey,
     toChain,
+    fromChain,
     tokenKey,
-  } = useSelector((state: RootState) => state.redeem.txData)!;
+    receivedTokenKey,
+    receiveAmount,
+    eta = 0,
+  } = txData!;
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,

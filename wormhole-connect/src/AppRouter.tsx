@@ -24,6 +24,7 @@ import { useExternalSearch } from 'hooks/useExternalSearch';
 
 import BridgeV2 from 'views/v2/Bridge';
 import RedeemV2 from 'views/v2/Redeem';
+import TxHistory from 'views/v2/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -119,6 +120,7 @@ function AppRouter(props: Props) {
       {route === 'bridge' && bridge}
       {route === 'redeem' && redeem}
       {route === 'search' && <TxSearch />}
+      {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
       {route === 'faq' && <FAQ />}
     </div>
