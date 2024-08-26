@@ -61,7 +61,10 @@ function TokenItem(props: TokenItemProps) {
     : undefined;
   const addressDisplay = `${address?.slice(0, 4)}...${address?.slice(-4)}`;
 
-  const displayName = props.token.displayName ?? props.token.symbol;
+  let displayName = token.displayName ?? token.symbol;
+  if (chain !== token.nativeChain) {
+    displayName = `${'Wormhole-wrapped'} ${displayName}`;
+  }
 
   return (
     <ListItemButton
