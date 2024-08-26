@@ -2,6 +2,7 @@ import { Collapse } from '@mui/material';
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import AlertIcon from 'icons/Alert';
+import InfoIcon from 'icons/Info';
 import { OPACITY, joinClass } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -21,6 +22,9 @@ const useStyles = makeStyles()((theme: any) => ({
   warning: {
     backgroundColor: theme.palette.warning[500] + OPACITY[25],
   },
+  info: {
+    backgroundColor: theme.palette.info[500] + OPACITY[25],
+  },
 }));
 
 type Props = {
@@ -28,6 +32,7 @@ type Props = {
   content: React.ReactNode | undefined;
   warning?: boolean;
   error?: boolean;
+  info?: boolean;
   margin?: string;
   testId?: string;
 };
@@ -42,11 +47,12 @@ function AlertBanner(props: Props) {
           classes.base,
           !!props.warning && classes.warning,
           !!props.error && classes.error,
+          !!props.info && classes.info,
         ])}
         style={{ margin: props.margin || 0 }}
         data-testid={props.testId}
       >
-        <AlertIcon />
+        {props.info ? <InfoIcon /> : <AlertIcon />}
         {props.content}
       </div>
     </Collapse>

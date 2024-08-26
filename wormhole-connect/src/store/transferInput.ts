@@ -132,6 +132,7 @@ export interface TransferInputState {
   supportedDestTokens: TokenConfig[];
   manualAddressTarget: boolean;
   showManualAddressInput: boolean;
+  resolvingRoutes: boolean;
 }
 
 // This is a function because config might have changed since we last cleared this store
@@ -174,6 +175,7 @@ function getInitialState(): TransferInputState {
     supportedDestTokens: [],
     manualAddressTarget: false,
     showManualAddressInput: config.manualTargetAddress || false,
+    resolvingRoutes: false,
   };
 }
 
@@ -297,6 +299,12 @@ export const transferInputSlice = createSlice({
   name: 'transfer',
   initialState: getInitialState(),
   reducers: {
+    setResolvingRoutes(
+      state: TransferInputState,
+      { payload }: PayloadAction<boolean>,
+    ) {
+      state.resolvingRoutes = payload;
+    },
     // validations
     setValidations: (
       state: TransferInputState,
@@ -574,6 +582,7 @@ export const {
   swapChains,
   setManualAddressTarget,
   showManualAddressInput,
+  setResolvingRoutes,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;
