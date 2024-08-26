@@ -172,7 +172,7 @@ export const registerWalletSigner = async (
   const w = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
   const signer = await w.getSigner();
-  config.wh.registerSigner(chain, signer);
+  config.whLegacy.registerSigner(chain, signer);
 };
 
 export const switchChain = async (

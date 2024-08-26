@@ -54,7 +54,7 @@ export async function signAndSendTransaction(
   options: any, // TODO ?!?!!?!?
 ): Promise<string> {
   // TODO remove reliance on SDkv1 here (multi-provider)
-  const signer = config.wh.getSigner(chainName);
+  const signer = config.whLegacy.getSigner(chainName);
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
   const tx = await signer.sendTransaction(request.transaction);
