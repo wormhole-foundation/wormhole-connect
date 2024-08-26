@@ -37,7 +37,7 @@ const useStyles = makeStyles()((theme) => ({
 type Props = {
   tokenList?: Array<TokenConfig> | undefined;
   isFetching?: boolean;
-  selectedChainConfig?: ChainConfig | undefined;
+  selectedChainConfig: ChainConfig;
   selectedToken?: string | undefined;
   wallet: WalletData;
   onSelectToken: (key: string) => void;
@@ -51,7 +51,7 @@ const TokenList = (props: Props) => {
 
   const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
     props.wallet?.address || '',
-    props.selectedChainConfig?.key,
+    props.selectedChainConfig.key,
     props.tokenList || [],
   );
 
@@ -63,7 +63,7 @@ const TokenList = (props: Props) => {
       : undefined;
 
     const nativeTokenConfig = props.tokenList?.find(
-      (t) => t.key === selectedChainConfig?.gasToken,
+      (t) => t.key === selectedChainConfig.gasToken,
     );
 
     // First: Add previously selected token at the top of the list
@@ -112,11 +112,9 @@ const TokenList = (props: Props) => {
       searchPlaceholder="Search for a token"
       className={classes.tokenList}
       listTitle={
-        props.selectedChainConfig && (
-          <Typography fontSize={14} color={theme.palette.text.secondary}>
-            Tokens on {props.selectedChainConfig.displayName}
-          </Typography>
-        )
+        <Typography fontSize={14} color={theme.palette.text.secondary}>
+          Tokens on {props.selectedChainConfig.displayName}
+        </Typography>
       }
       loading={
         props.isFetching && (
@@ -143,6 +141,7 @@ const TokenList = (props: Props) => {
           <TokenItem
             key={token.key}
             token={token}
+            chain={props.selectedChainConfig.key}
             disabled={disabled}
             onClick={() => {
               props.onSelectToken(token.key);
