@@ -19,6 +19,7 @@ import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
+import { getTokenDecimals, getWrappedTokenId } from 'utils';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -183,10 +184,8 @@ const parseTokenBridgeReceipt = async (
     }
 
     const fromChain = receipt.from;
-    const fromChainConfig = config.chains[fromChain];
 
-    const decimals =
-      tokenV1!.decimals[fromChainConfig!.context] || tokenV1!.decimals.default;
+    const decimals = getTokenDecimals(fromChain, getWrappedTokenId(tokenV1));
 
     txData.tokenDecimals = decimals;
 
@@ -274,7 +273,10 @@ const parseCCTPReceipt = async (
   txData.tokenAddress = sourceTokenId.address.toString();
   txData.tokenKey = usdcLegacy.key;
 
-  const decimals = usdcLegacy.decimals.default;
+  const decimals = getTokenDecimals(
+    receipt.from,
+    getWrappedTokenId(usdcLegacy),
+  );
 
   txData.tokenDecimals = decimals;
   txData.amount = amount.display({

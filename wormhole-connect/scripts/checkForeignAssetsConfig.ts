@@ -98,38 +98,13 @@ const checkEnvConfig = async (
               }
             }
             if (foreignAddress) {
-              let foreignDecimals: number | undefined;
-              try {
-                foreignDecimals = await wh.getDecimals(
-                  chain,
-                  toNative(chain, foreignAddress),
-                );
-              } catch (e: any) {
-                if (
-                  /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||
-                  e?.message.includes("Can't fetch decimals") ||
-                  e?.message.includes('Bad status on response: 429')
-                ) {
-                  // denom trace not found means the asset has not yet been bridged to the target chain
-                  // so it should be skipped. Same for hitting request limits
-                } else {
-                  throw e;
-                }
-              }
               if (configForeignAddress) {
-                if (configForeignAddress.address !== foreignAddress) {
+                if (configForeignAddress !== foreignAddress) {
                   throw new Error(
-                    `❌ Invalid foreign address detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress.address}`,
-                  );
-                } else if (
-                  foreignDecimals &&
-                  configForeignAddress.decimals !== foreignDecimals
-                ) {
-                  throw new Error(
-                    `❌ Invalid foreign decimals detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignDecimals}, Received: ${configForeignAddress.decimals}`,
+                    `❌ Invalid foreign address detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress}`,
                   );
                 } else {
-                  // console.log('✅ Config matches');
+                  console.log('✅ Config matches');
                 }
               } else {
                 recommendedUpdates = {
@@ -138,10 +113,7 @@ const checkEnvConfig = async (
                     ...(recommendedUpdates[tokenKey] || {}),
                     foreignAssets: {
                       ...(recommendedUpdates[tokenKey]?.foreignAssets || {}),
-                      [chain]: {
-                        address: foreignAddress,
-                        decimals: foreignDecimals,
-                      },
+                      [chain]: foreignAddress,
                     },
                   },
                 };

@@ -56,7 +56,7 @@ export class SDKConverter {
         // Getting foreign address
         const foreignAsset = token.foreignAssets?.[chain];
         if (foreignAsset) {
-          return v2.Wormhole.tokenId(chain, foreignAsset.address);
+          return v2.Wormhole.tokenId(chain, foreignAsset);
         } else {
           throw new Error('no foreign asset');
         }
@@ -102,7 +102,7 @@ export class SDKConverter {
       } else {
         // Check foreign assets
         const fa = token.foreignAssets?.[chain];
-        if (fa && fa.address === tokenId.address.toString()) {
+        if (fa && fa === tokenId.address.toString()) {
           return token;
         }
       }

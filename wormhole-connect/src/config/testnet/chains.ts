@@ -12,7 +12,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'BNB',
     chainId: 97,
     icon: Icon.BSC,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Avalanche: {
@@ -23,7 +22,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'AVAX',
     chainId: 43113,
     icon: Icon.AVAX,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Fantom: {
@@ -34,7 +32,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'FTM',
     chainId: 4002,
     icon: Icon.FANTOM,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Celo: {
@@ -45,7 +42,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'CELO',
     chainId: 44787,
     icon: Icon.CELO,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Moonbeam: {
@@ -56,7 +52,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'GLMR',
     chainId: 1287,
     icon: Icon.GLMR,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Solana: {
@@ -67,7 +62,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'SOL',
     chainId: 0,
     icon: Icon.SOLANA,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Sui: {
@@ -78,7 +72,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'SUI',
     chainId: 0,
     icon: Icon.SUI,
-    automaticRelayer: true,
     maxBlockSearch: 0,
   },
   Aptos: {
@@ -110,7 +103,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'SEI',
   //  chainId: 0,
   //  icon: Icon.SEI,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Osmosis: {
@@ -121,7 +113,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'OSMO',
   //  chainId: 'osmo-test-5',
   //  icon: Icon.OSMO,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Wormchain: {
@@ -132,7 +123,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'WORM',
   //  chainId: 'wormchain-testnet-0',
   //  icon: Icon.OSMO,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Cosmoshub: {
@@ -143,7 +133,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'ATOM',
   //  chainId: 'theta-testnet-001',
   //  icon: Icon.ATOM,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Evmos: {
@@ -154,7 +143,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'EVMOS',
   //  chainId: 'evmos_9000-4',
   //  icon: Icon.EVMOS,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Kujira: {
@@ -165,7 +153,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'KUJI',
   //  chainId: 'harpoon-4',
   //  icon: Icon.KUJI,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   Sepolia: {
@@ -176,7 +163,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHsepolia',
     chainId: 11155111,
     icon: Icon.ETH,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   ArbitrumSepolia: {
@@ -187,7 +173,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHarbitrum_sepolia',
     chainId: 421614,
     icon: Icon.ARBITRUM,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   BaseSepolia: {
@@ -198,7 +183,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHbase_sepolia',
     chainId: 84532,
     icon: Icon.BASE,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   OptimismSepolia: {
@@ -209,7 +193,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHoptimism_sepolia',
     chainId: 11155420,
     icon: Icon.OPTIMISM,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   //Injective: {
@@ -220,7 +203,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
   //  gasToken: 'INJ',
   //  chainId: 'injective-888',
   //  icon: Icon.INJ,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   Scroll: {
@@ -231,7 +213,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHscroll',
     chainId: 534351,
     icon: Icon.SCROLL,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   Blast: {
@@ -242,7 +223,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHblast',
     chainId: 168587773,
     icon: Icon.BLAST,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   Xlayer: {
@@ -253,7 +233,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'OKB',
     chainId: 195,
     icon: Icon.XLAYER,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   Mantle: {
@@ -264,7 +243,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'MNT',
     chainId: 5003,
     icon: Icon.MANTLE,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
 };

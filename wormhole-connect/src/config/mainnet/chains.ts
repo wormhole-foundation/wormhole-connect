@@ -12,7 +12,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'ETH',
     chainId: 1,
     icon: Icon.ETH,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Bsc: {
@@ -23,7 +22,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'BNB',
     chainId: 56,
     icon: Icon.BSC,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Polygon: {
@@ -34,7 +32,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'MATIC',
     chainId: 137,
     icon: Icon.POLYGON,
-    automaticRelayer: true,
     maxBlockSearch: 1000,
   },
   Avalanche: {
@@ -45,7 +42,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'AVAX',
     chainId: 43114,
     icon: Icon.AVAX,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Fantom: {
@@ -56,7 +52,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'FTM',
     chainId: 250,
     icon: Icon.FANTOM,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Celo: {
@@ -67,7 +62,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'CELO',
     chainId: 42220,
     icon: Icon.CELO,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Moonbeam: {
@@ -78,7 +72,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'GLMR',
     chainId: 1284,
     icon: Icon.GLMR,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Solana: {
@@ -89,7 +82,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'SOL',
     chainId: 0,
     icon: Icon.SOLANA,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   Sui: {
@@ -100,7 +92,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'SUI',
     chainId: 0,
     icon: Icon.SUI,
-    automaticRelayer: true,
     maxBlockSearch: 0,
   },
   Aptos: {
@@ -111,7 +102,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'APT',
     chainId: 0,
     icon: Icon.APT,
-    automaticRelayer: false,
     maxBlockSearch: 0,
   },
   Base: {
@@ -122,7 +112,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHbase',
     chainId: 8453,
     icon: Icon.BASE,
-    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   // TODO: SDKV2 - re-enable cosmos chains once cosmos gateway route is implemented
@@ -134,7 +123,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
   //  gasToken: 'OSMO',
   //  chainId: 'osmosis-1',
   //  icon: Icon.OSMO,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Wormchain: {
@@ -145,7 +133,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
   //  gasToken: 'WORM',
   //  chainId: '',
   //  icon: Icon.OSMO,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   Arbitrum: {
@@ -186,7 +173,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
   //  gasToken: 'EVMOS',
   //  chainId: 'evmos_9001-2',
   //  icon: Icon.EVMOS,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Kujira: {
@@ -197,7 +183,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
   //  gasToken: 'KUJI',
   //  chainId: 'kaiyo-1',
   //  icon: Icon.KUJI,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   //Injective: {
@@ -208,7 +193,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
   //  gasToken: 'INJ',
   //  chainId: 'injective-1',
   //  icon: Icon.INJ,
-  //  automaticRelayer: false,
   //  maxBlockSearch: 0,
   //},
   Scroll: {
@@ -219,7 +203,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHscroll',
     chainId: 534352,
     icon: Icon.SCROLL,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   Blast: {
@@ -230,7 +213,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHblast',
     chainId: 81457,
     icon: Icon.BLAST,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   Xlayer: {
@@ -241,7 +223,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'OKB',
     chainId: 196,
     icon: Icon.XLAYER,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
   Mantle: {
@@ -252,7 +233,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'MNT',
     chainId: 5000,
     icon: Icon.MANTLE,
-    automaticRelayer: false,
     maxBlockSearch: 2000,
   },
 };

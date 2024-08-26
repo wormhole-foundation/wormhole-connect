@@ -27,6 +27,7 @@ import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 import RouteOperator from 'routes/operator';
+import { getTokenDecimals, getWrappedTokenId } from 'utils';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -206,9 +207,6 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
 
   for (const key in config.chains) {
     const chain = key as Chain;
-    const chainConfigV1 = config.chains[chain]!;
-
-    const chainContextV1 = chainConfigV1.context;
 
     const rpc = config.rpcs[chain];
     const tokenMap: ChainTokensV2 = {};
@@ -221,16 +219,10 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
       };
 
       if (token.nativeChain === chain) {
-        const decimals =
-          token.decimals[chainContextV1] ?? token.decimals.default;
-        if (!decimals) {
-          continue;
-        } else {
-          tokenV2.decimals = decimals;
-        }
         const address = config.sdkConverter.getNativeTokenAddressV2(token);
         if (!address) throw new Error('Token must have address');
         tokenV2.address = address;
+        tokenV2.decimals = token.decimals;
       } else {
         tokenV2.original = token.nativeChain;
         if (token.foreignAssets) {
@@ -239,8 +231,11 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
           if (!fa) {
             continue;
           } else {
-            tokenV2.address = fa.address;
-            tokenV2.decimals = fa.decimals;
+            tokenV2.address = fa;
+            tokenV2.decimals = getTokenDecimals(
+              chain,
+              getWrappedTokenId(token),
+            );
           }
         } else {
           continue;

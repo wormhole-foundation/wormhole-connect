@@ -12,7 +12,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     gasToken: 'ETH',
     chainId: 1,
     icon: Icon.ETH,
-    automaticRelayer: false,
     maxBlockSearch: 0,
   },
   Osmosis: {
@@ -23,7 +22,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     gasToken: 'OSMO',
     chainId: 'osmosis-1002',
     icon: Icon.OSMO,
-    automaticRelayer: false,
     maxBlockSearch: 0,
   },
   Wormchain: {
@@ -34,7 +32,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     gasToken: 'WORM',
     chainId: 'wormchain-1',
     icon: Icon.OSMO,
-    automaticRelayer: false,
     maxBlockSearch: 0,
   },
   Terra2: {
@@ -45,7 +42,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     gasToken: 'LUNA',
     chainId: 'localterra',
     icon: Icon.OSMO,
-    automaticRelayer: false,
     maxBlockSearch: 0,
   },
 };

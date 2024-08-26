@@ -8,7 +8,7 @@ import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain } from 'utils/sdk';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, chainToPlatform } from '@wormhole-foundation/sdk';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -121,7 +121,8 @@ export function getTokenDecimals(
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
 
   if (tokenId === 'native') {
-    return chainConfig.nativeTokenDecimals;
+    const { decimals } = getGasToken(chain);
+    return decimals;
   }
 
   const tokenConfig = getTokenById(tokenId);
@@ -129,8 +130,19 @@ export function getTokenDecimals(
     throw new Error('token config not found');
   }
 
-  const decimals = tokenConfig.decimals;
-  return decimals[chainConfig.context] || decimals.default;
+  const { nativeChain, decimals } = tokenConfig;
+
+  const platform = chainToPlatform(chain);
+  const tokenPlatform = chainToPlatform(nativeChain);
+
+  // If the token is native to the chain, return the token's decimals
+  if (platform === tokenPlatform) return decimals;
+
+  // Otherwise, return the minimum of the token's decimals and the platform's max decimals (token bridge)
+  // See: https://github.com/wormhole-foundation/wormhole/blob/main/whitepapers/0003_token_bridge.md#handling-of-token-amounts-and-decimals
+  const maxWrappedDecimals = platform === 'Evm' ? 18 : 8;
+
+  return Math.min(decimals, maxWrappedDecimals);
 }
 
 function fallbackCopyTextToClipboard(text: string) {
