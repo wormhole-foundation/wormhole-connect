@@ -75,12 +75,24 @@ const useAvailableRoutes = (): void => {
         routes.push({ name, supported, available, availabilityError });
       });
 
-      // TODO figure out better approach to sorting routes... probably by ETA
-      routes = routes.sort((a, b) => {
-        const idxA = config.routes.preference.indexOf(a.name);
-        const idxB = config.routes.preference.indexOf(b.name);
-        return idxA - idxB;
-      });
+      // If NTT or CCTP routes are available, then prioritize them over other routes
+      const preferredRoutes = routes.filter(
+        (route) =>
+          route.supported &&
+          ['ManualNtt', 'AutomaticNtt', 'ManualCCTP', 'AutomaticCCTP'].includes(
+            route.name,
+          ),
+      );
+      if (preferredRoutes.length > 0) {
+        routes = preferredRoutes;
+      } else {
+        // TODO figure out better approach to sorting routes... probably by ETA
+        routes = routes.sort((a, b) => {
+          const idxA = config.routes.preference.indexOf(a.name);
+          const idxB = config.routes.preference.indexOf(b.name);
+          return idxA - idxB;
+        });
+      }
 
       if (isActive) {
         dispatch(setRoutes(routes));

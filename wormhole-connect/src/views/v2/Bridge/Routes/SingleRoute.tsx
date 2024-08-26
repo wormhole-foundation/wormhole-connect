@@ -224,16 +224,34 @@ const SingleRoute = (props: Props) => {
   }, [props.route.name]);
 
   const providerText = useMemo(() => {
-    const { providedBy } = props.route;
-    let provider: string = '';
+    const { providedBy, name } = props.route;
 
+    const { symbol } = config.tokens[sourceToken];
+
+    let provider = '';
+
+    // Special case for Lido NTT
+    if (
+      name === 'AutomaticNtt' &&
+      symbol === 'wstETH' &&
+      ((sourceChain === 'Ethereum' && destChain === 'Bsc') ||
+        (sourceChain === 'Bsc' && destChain === 'Ethereum'))
+    ) {
+      provider = 'via NTT: Wormhole + Axelar';
+    }
     // We are skipping the provider text (e.g. "via ...") for xLabs
-    if (providedBy && !providedBy.toLowerCase().includes('xlabs')) {
+    else if (providedBy && !providedBy.toLowerCase().includes('xlabs')) {
       provider = `via ${props.route.providedBy}`;
     }
 
     return provider;
-  }, [props.route.providedBy]);
+  }, [
+    props.route.providedBy,
+    props.route.name,
+    sourceToken,
+    sourceChain,
+    destChain,
+  ]);
 
   const routeTitle = useMemo(
     () => (isAutomaticRoute ? 'Automatic route' : 'Manual route'),

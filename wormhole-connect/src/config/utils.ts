@@ -50,10 +50,9 @@ export const mergeCustomTokensConfig = (
   if (!custom) return builtin;
 
   const builtinTokens = Object.values(builtin);
-  const builtinSymbols = builtinTokens.map((tk) => tk.symbol);
   const builtinKeys = builtinTokens.map((tk) => tk.key);
 
-  for (const key in custom) {
+  customTokensLoop: for (const key in custom) {
     // Verify that custom token config does not conflict with any built-in tokens
     const customToken = custom[key];
     if (key in builtin) {
@@ -62,11 +61,17 @@ export const mergeCustomTokensConfig = (
       );
       continue;
     }
-    if (builtinSymbols.includes(customToken.symbol)) {
-      console.warn(
-        `Skipping custom token config for "${key}" because its symbol "${customToken.symbol}" conflicts with a built-in`,
-      );
-      continue;
+    // Verify that custom token config (chain, symbol) tuple does not conflict with any built-in tokens
+    for (const bt of Object.values(builtin)) {
+      if (
+        bt.nativeChain === customToken.nativeChain &&
+        bt.symbol === customToken.symbol
+      ) {
+        console.warn(
+          `Skipping custom token config for "${key}" because its symbol "${customToken.symbol}" and chain ${customToken.nativeChain} conflicts with a built-in`,
+        );
+        continue customTokensLoop;
+      }
     }
     if (builtinKeys.includes(customToken.key)) {
       console.warn(
