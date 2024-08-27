@@ -54,8 +54,7 @@ const useComputeQuote = (props: Props): returnProps => {
       try {
         setIsFetching(true);
 
-        const parsedAmount = Number.parseFloat(amount);
-        if (Number.isNaN(parsedAmount)) {
+        if (Number.isNaN(Number.parseFloat(amount))) {
           dispatch(setReceiveAmount('0'));
           dispatch(setReceiveNativeAmt(0));
           dispatch(setRelayerFee(undefined));
@@ -64,7 +63,7 @@ const useComputeQuote = (props: Props): returnProps => {
 
         const r = config.routes.get(route);
         const quote = await r.computeQuote(
-          parsedAmount,
+          amount,
           sourceToken,
           destToken,
           sourceChain,

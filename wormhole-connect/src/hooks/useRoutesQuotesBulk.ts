@@ -10,24 +10,24 @@ type RoutesQuotesBulkParams = {
   sourceToken: string;
   destChain: Chain | undefined;
   destToken: string;
-  amount: number;
+  amount: string;
   nativeGas: number;
 };
 
-export type RouteQuote = {
-  error: string;
-  eta: number;
+export type ParsedQuote = {
+  error?: string;
+  eta?: number;
   receiveAmount: string;
   receiveNativeAmount: number;
-  relayerFee: number;
+  relayerFee?: number;
 };
 
 type HookReturn = {
-  quotesMap: Record<string, RouteQuote | undefined>;
+  quotesMap: Record<string, ParsedQuote | undefined>;
   isFetching: boolean;
 };
 
-const defaultQuote: RouteQuote = {
+const defaultQuote: ParsedQuote = {
   error: '',
   eta: 0,
   receiveAmount: '',
@@ -40,7 +40,7 @@ const useRoutesQuotesBulk = (
   params: RoutesQuotesBulkParams,
 ): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
-  const [quotes, setQuotes] = useState<RouteQuote[]>([]);
+  const [quotes, setQuotes] = useState<ParsedQuote[]>([]);
 
   useEffect(() => {
     let unmounted = false;
@@ -90,8 +90,8 @@ const useRoutesQuotesBulk = (
         const receiveNativeAmount = quote.destinationNativeGas
           ? sdkAmount.whole(quote.destinationNativeGas)
           : 0;
-        const eta = quote.eta ?? 0;
-        let relayerFee = 0;
+        const eta = quote.eta;
+        let relayerFee: number | undefined = undefined;
 
         if (quote.relayFee && params.sourceChain) {
           const { token, amount } = quote.relayFee;
@@ -103,7 +103,6 @@ const useRoutesQuotesBulk = (
         }
 
         return {
-          error: '',
           receiveAmount,
           receiveNativeAmount,
           eta,
@@ -136,7 +135,7 @@ const useRoutesQuotesBulk = (
           ...acc,
           [route]: quotes[index],
         }),
-        {} as Record<string, RouteQuote | undefined>,
+        {} as Record<string, ParsedQuote | undefined>,
       ),
     [routes.join(), quotes],
   );

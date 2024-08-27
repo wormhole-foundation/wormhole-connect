@@ -38,7 +38,7 @@ import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
-import type { RouteQuote } from 'hooks/useRoutesQuotesBulk';
+import type { ParsedQuote } from 'hooks/useRoutesQuotesBulk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -109,9 +109,8 @@ const ReviewTransaction = (props: Props) => {
     toNativeToken,
   });
 
-  const quote: RouteQuote = useMemo(
+  const quote: ParsedQuote = useMemo(
     () => ({
-      error: '',
       eta,
       receiveAmount: receiveAmount.data ?? '',
       receiveNativeAmount: receiveNativeAmt ?? 0,

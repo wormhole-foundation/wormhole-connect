@@ -19,7 +19,7 @@ import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
-import { RouteQuote } from 'hooks/useRoutesQuotesBulk';
+import { ParsedQuote } from 'hooks/useRoutesQuotesBulk';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -40,7 +40,7 @@ type Props = {
   destinationGasDrop?: number;
   title?: string;
   onSelect?: (route: string) => void;
-  quote?: RouteQuote;
+  quote?: ParsedQuote;
   isFetchingQuote: boolean;
 };
 

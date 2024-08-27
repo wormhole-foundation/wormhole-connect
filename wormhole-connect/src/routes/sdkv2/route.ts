@@ -392,7 +392,7 @@ export class SDKv2Route {
   }
 
   async computeQuote(
-    amountIn: number,
+    amountIn: string,
     sourceToken: string,
     destToken: string,
     fromChain: Chain | undefined,
@@ -403,7 +403,7 @@ export class SDKv2Route {
       throw new Error('Need both chains to get a quote from SDKv2');
 
     const [, quote] = await this.getQuote(
-      amountIn.toString(),
+      amountIn,
       sourceToken,
       destToken,
       fromChain,

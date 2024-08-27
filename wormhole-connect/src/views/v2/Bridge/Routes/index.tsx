@@ -71,7 +71,7 @@ const Routes = (props: Props) => {
   );
 
   const { quotesMap, isFetching } = useRoutesQuotesBulk(supportedRoutesNames, {
-    amount: Number.parseFloat(amount),
+    amount,
     sourceChain: fromChain,
     sourceToken: token,
     destChain: toChain,
@@ -102,20 +102,29 @@ const Routes = (props: Props) => {
           return 1;
         }
 
-        if (quoteA && quoteB) {
-          // 2. Prioritize estimated time
+        // 2. Prioritize estimated time
+        if (quoteA?.eta && quoteB?.eta) {
           if (quoteA.eta > quoteB.eta) {
             return 1;
           } else if (quoteA.eta < quoteB.eta) {
             return -1;
           }
+        }
 
-          // 3. Compare relay fees
+        // 3. Compare relay fees
+        if (quoteA?.relayerFee && quoteB?.relayerFee) {
           if (quoteA.relayerFee > quoteB.relayerFee) {
             return 1;
           } else if (quoteA.relayerFee < quoteB.relayerFee) {
             return -1;
           }
+        }
+
+        // 4. Prioritize routes with quotes
+        if (quoteA && !quoteB) {
+          return -1;
+        } else if (!quoteA && quoteB) {
+          return 1;
         }
 
         // Don't swap when routes match by all criteria or don't have quotas
