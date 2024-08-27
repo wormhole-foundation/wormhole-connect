@@ -337,55 +337,41 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
+  const showReviewTransactionButton =
+    sourceChain &&
+    sourceToken &&
+    destChain &&
+    destToken &&
+    sendingWallet.address &&
+    receivingWallet.address &&
+    selectedRoute &&
+    Number(amount) > 0;
+
   // Review transaction button is shown only when everything is ready
-  const reviewTransactionButton = useMemo(() => {
-    if (
-      !sourceChain ||
-      !sourceToken ||
-      !destChain ||
-      !destToken ||
-      !sendingWallet.address ||
-      !receivingWallet.address ||
-      !selectedRoute ||
-      !(Number(amount) > 0)
-    ) {
-      return null;
-    }
+  const reviewTransactionButton = (
+    <Button
+      variant="primary"
+      className={classes.reviewTransaction}
+      disabled={!isValid || isFetchingQuote}
+      onClick={() => {
+        if (
+          routeStates &&
+          routeStates.some((rs) => rs.name === selectedRoute)
+        ) {
+          const route = routeStates.find((rs) => rs.name === selectedRoute);
 
-    return (
-      <Button
-        variant="primary"
-        className={classes.reviewTransaction}
-        disabled={!isValid || isFetchingQuote}
-        onClick={() => {
-          if (
-            routeStates &&
-            routeStates.some((rs) => rs.name === selectedRoute)
-          ) {
-            const route = routeStates.find((rs) => rs.name === selectedRoute);
-
-            if (route?.supported && route?.available) {
-              dispatch(setTransferRoute(selectedRoute));
-              setWillReviewTransaction(true);
-            }
+          if (route?.supported && route?.available) {
+            dispatch(setTransferRoute(selectedRoute));
+            setWillReviewTransaction(true);
           }
-        }}
-      >
-        <Typography textTransform="none">
-          {mobile ? 'Review' : 'Review transaction'}
-        </Typography>
-      </Button>
-    );
-  }, [
-    sourceChain,
-    sourceToken,
-    destChain,
-    destToken,
-    selectedRoute,
-    amount,
-    routeStates,
-    isFetchingQuote,
-  ]);
+        }
+      }}
+    >
+      <Typography textTransform="none">
+        {mobile ? 'Review' : 'Review transaction'}
+      </Typography>
+    </Button>
+  );
 
   if (willReviewTransaction) {
     return (
@@ -403,7 +389,7 @@ const Bridge = () => {
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
       <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
       {walletConnector}
-      {reviewTransactionButton}
+      {showReviewTransactionButton ? reviewTransactionButton : null}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
