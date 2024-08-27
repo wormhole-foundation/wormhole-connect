@@ -103,8 +103,19 @@ export function getTokenById(tokenId: TokenId): TokenConfig | undefined {
   );
 }
 
-export function getDisplayName(token: TokenConfig) {
-  return token.displayName || token.symbol;
+export function getDisplayName(token: TokenConfig, chain: Chain): string {
+  const isWrapped = chain !== token.nativeChain;
+  const baseName = token.displayName ?? token.symbol;
+
+  if (!isWrapped) {
+    return baseName;
+  }
+
+  const prefix = isFrankensteinToken(token, chain)
+    ? `Wormhole-wrapped ${token.nativeChain} `
+    : 'Wormhole-wrapped ';
+
+  return `${prefix}${baseName}`;
 }
 
 export function getGasToken(chain: Chain): TokenConfig {
@@ -346,4 +357,22 @@ export const getExplorerUrl = (chain: Chain, address: string) => {
   }
 
   return explorerUrl;
+};
+
+// Frankenstein tokens are wormhole-wrapped tokens that are not native to the chain
+// and likely have no liquidity.
+// An example of a Frankenstein token is wormhole-wrapped Arbitrum WETH on Solana.
+// However wormhole-wrapped Ethereum WETH on Solana is not a Frankenstein token.
+export const isFrankensteinToken = (token: TokenConfig, chain: Chain) => {
+  const { nativeChain, symbol } = token;
+
+  if (symbol === 'USDC' && nativeChain === 'Ethereum' && chain === 'Fantom') {
+    return true;
+  }
+
+  return (
+    nativeChain !== chain &&
+    !(['Ethereum', 'Sepolia'] as Chain[]).includes(nativeChain) &&
+    ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC'].includes(symbol)
+  );
 };

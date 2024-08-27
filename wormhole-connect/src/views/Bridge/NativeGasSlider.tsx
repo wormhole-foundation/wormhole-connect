@@ -156,7 +156,7 @@ function NativeGasSlider(props: { disabled: boolean }) {
           <div className={classes.container}>
             <div>
               Would you like to receive some native gas token (
-              {getDisplayName(nativeGasToken)})?
+              {getDisplayName(nativeGasToken, toChain!)})?
             </div>
 
             <div>
@@ -180,7 +180,7 @@ function NativeGasSlider(props: { disabled: boolean }) {
                     <TokenIcon icon={nativeGasToken.icon} height={16} />
                     <div>
                       {toFixedDecimals(receiveNativeAmt?.toString() || '0', 6)}{' '}
-                      {getDisplayName(nativeGasToken)}
+                      {getDisplayName(nativeGasToken, toChain!)}
                     </div>
                   </div>
                   <Price textAlign="right">{nativeGasPrice}</Price>
@@ -192,7 +192,7 @@ function NativeGasSlider(props: { disabled: boolean }) {
                       height={16}
                     />
                     {toFixedDecimals(receiveAmount?.data || '0', 6)}{' '}
-                    {getDisplayName((sendingToken as TokenConfig)!)}
+                    {getDisplayName(sendingToken as TokenConfig, toChain!)}
                   </div>
                   <Price textAlign="right">{tokenPrice}</Price>
                 </div>

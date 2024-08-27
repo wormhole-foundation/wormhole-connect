@@ -402,7 +402,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHsepolia: {
     key: 'ETHsepolia',
     symbol: 'ETH',
-    displayName: 'ETH (Sepolia)',
     nativeChain: 'Sepolia',
     icon: Icon.ETH,
     coinGeckoId: 'Ethereum',
@@ -413,7 +412,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHsepolia: {
     key: 'WETHsepolia',
     symbol: 'WETH',
-    displayName: 'WETH (Sepolia)',
     nativeChain: 'Sepolia',
     icon: Icon.ETH,
     tokenId: {
@@ -461,7 +459,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHarbitrum_sepolia: {
     key: 'ETHarbitrum_sepolia',
     symbol: 'ETH',
-    displayName: 'ETH (Arbitrum Sepolia)',
     nativeChain: 'ArbitrumSepolia',
     icon: Icon.ETH,
     coinGeckoId: 'Ethereum',
@@ -472,7 +469,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHarbitrum_sepolia: {
     key: 'WETHarbitrum_sepolia',
     symbol: 'WETH',
-    displayName: 'WETH (Arbitrum Sepolia)',
     nativeChain: 'ArbitrumSepolia',
     icon: Icon.ETH,
     tokenId: {
@@ -486,7 +482,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHbase_sepolia: {
     key: 'ETHbase_sepolia',
     symbol: 'ETH',
-    displayName: 'ETH (Base Sepolia)',
     nativeChain: 'BaseSepolia',
     icon: Icon.ETH,
     coinGeckoId: 'Ethereum',
@@ -497,7 +492,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHbase_sepolia: {
     key: 'WETHbase_sepolia',
     symbol: 'WETH',
-    displayName: 'WETH (Base Sepolia)',
     nativeChain: 'BaseSepolia',
     icon: Icon.ETH,
     tokenId: {
@@ -511,7 +505,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHoptimism_sepolia: {
     key: 'ETHoptimism_sepolia',
     symbol: 'ETH',
-    displayName: 'ETH (Optimism Sepolia)',
     nativeChain: 'OptimismSepolia',
     icon: Icon.ETH,
     coinGeckoId: 'Ethereum',
@@ -522,7 +515,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHoptimism_sepolia: {
     key: 'WETHoptimism_sepolia',
     symbol: 'WETH',
-    displayName: 'WETH (Optimism Sepolia)',
     nativeChain: 'OptimismSepolia',
     icon: Icon.ETH,
     tokenId: {
@@ -539,7 +531,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHscroll: {
     key: 'ETHscroll',
     symbol: 'ETH',
-    displayName: 'ETH (Scroll)',
     nativeChain: 'Scroll',
     icon: Icon.SCROLL,
     coinGeckoId: 'Ethereum',
@@ -549,7 +540,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHscroll: {
     key: 'WETHscroll',
     symbol: 'WETH',
-    displayName: 'WETH (Scroll)',
     nativeChain: 'Scroll',
     icon: Icon.SCROLL,
     tokenId: {
@@ -562,7 +552,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHblast: {
     key: 'ETHblast',
     symbol: 'ETH',
-    displayName: 'ETH (Blast)',
     nativeChain: 'Blast',
     icon: Icon.BLAST,
     coinGeckoId: 'Ethereum',
@@ -572,7 +561,6 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHblast: {
     key: 'WETHblast',
     symbol: 'WETH',
-    displayName: 'WETH (Blast)',
     nativeChain: 'Blast',
     icon: Icon.BLAST,
     tokenId: {

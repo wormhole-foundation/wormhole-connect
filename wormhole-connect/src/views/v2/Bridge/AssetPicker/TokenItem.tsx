@@ -13,7 +13,7 @@ import TokenIcon from 'icons/TokenIcons';
 import { TokenConfig } from 'config/types';
 
 import type { Chain } from '@wormhole-foundation/sdk';
-import { getExplorerUrl, getWrappedToken } from 'utils';
+import { getDisplayName, getExplorerUrl, getWrappedToken } from 'utils';
 
 const useStyles = makeStyles()(() => ({
   tokenListItem: {
@@ -57,10 +57,7 @@ function TokenItem(props: TokenItemProps) {
   const explorerURL = address ? getExplorerUrl(chain, address) : undefined;
   const addressDisplay = `${address?.slice(0, 4)}...${address?.slice(-4)}`;
 
-  let displayName = token.displayName ?? token.symbol;
-  if (chain !== token.nativeChain) {
-    displayName = `${'Wormhole-wrapped'} ${displayName}`;
-  }
+  const displayName = getDisplayName(token, chain);
 
   return (
     <ListItemButton

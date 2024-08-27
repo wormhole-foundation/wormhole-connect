@@ -305,7 +305,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
             <div className={classes.routePath}>
               <Tag
                 icon={fromTokenIcon}
-                text={getDisplayName(fromTokenConfig)}
+                text={getDisplayName(fromTokenConfig, toChain!)}
                 colorFilled
               />
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
@@ -315,7 +315,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
               <Tag
                 icon={toTokenIcon}
-                text={getDisplayName(toTokenConfig)}
+                text={getDisplayName(toTokenConfig, toChain!)}
                 colorFilled
               />
             </div>
@@ -328,7 +328,8 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
             ) : (
               <>
                 <div>
-                  {receiveAmt} {getDisplayName(config.tokens[destToken])}
+                  {receiveAmt}{' '}
+                  {getDisplayName(config.tokens[destToken], toChain!)}
                   <Price textAlign="right">{receiveAmtUSD}</Price>
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
