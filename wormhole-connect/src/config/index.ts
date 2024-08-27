@@ -162,7 +162,7 @@ export function buildConfig(
     guardianSet: networkData.guardianSet,
 
     // Render Redesign views
-    useRedesign: customConfig?.useRedesign,
+    useRedesign: customConfig?.useRedesign ?? true,
   };
 }
 
