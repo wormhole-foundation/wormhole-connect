@@ -346,7 +346,7 @@ const Bridge = () => {
       !destToken ||
       !sendingWallet.address ||
       !receivingWallet.address ||
-      routeStates?.length === 0 ||
+      !selectedRoute ||
       !(Number(amount) > 0)
     ) {
       return null;

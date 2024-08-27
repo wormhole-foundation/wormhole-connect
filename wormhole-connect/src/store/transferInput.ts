@@ -228,43 +228,6 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
   }
 };
 
-// This function was relocated from a useEffect in the Bridge component to avoid
-// the visual delay of two store updates.
-// At the time, the dependency array included:
-// [showValidationState, availableRoutes, fromChain, toChain, token, destToken, amount]
-// However, the only dependency appears to be `availableRoutes`.
-const establishRoute = (state: TransferInputState) => {
-  const { routeStates } = state;
-  if (!routeStates) {
-    state.route = undefined;
-    return;
-  }
-  const routeOrderOfPreference = [
-    /*
-     * TODO SDKV2
-    Route.CosmosGateway,
-    Route.CCTPRelay,
-    Route.CCTPManual,
-    Route.TBTC,
-    Route.ETHBridge,
-    Route.wstETHBridge,
-    Route.NttRelay,
-    Route.NttManual,
-    Route.Relay,
-    Route.Bridge,
-    Route.Mayan,
-    */
-  ];
-  for (const r of routeOrderOfPreference) {
-    const routeState = routeStates.find((rs) => rs.name === r);
-    if (routeState && routeState.supported && routeState.available) {
-      state.route = r;
-      return;
-    }
-  }
-  state.route = undefined;
-};
-
 export const transferInputSlice = createSlice({
   name: 'transfer',
   initialState: getInitialState(),
@@ -296,7 +259,6 @@ export const transferInputSlice = createSlice({
       { payload }: PayloadAction<RouteState[]>,
     ) => {
       state.routeStates = payload;
-      establishRoute(state);
     },
     // user input
     setToken: (
