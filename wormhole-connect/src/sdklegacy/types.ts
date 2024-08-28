@@ -27,8 +27,6 @@ export type ChainConfig = {
   id: ChainId;
   context: Context;
   finalityThreshold: number;
-  nativeTokenDecimals: number;
-  cctpDomain?: number;
   disabledAsSource?: boolean;
   disabledAsDestination?: boolean;
 };

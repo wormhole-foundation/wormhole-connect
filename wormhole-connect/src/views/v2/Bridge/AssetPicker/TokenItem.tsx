@@ -55,7 +55,7 @@ function TokenItem(props: TokenItemProps) {
   const address =
     chain === token.nativeChain
       ? token.tokenId?.address
-      : getWrappedToken(token)?.foreignAssets?.[chain]?.address;
+      : getWrappedToken(token)?.foreignAssets?.[chain];
   const explorerURL = address
     ? `${chainConfig?.explorerUrl}address/${address}`
     : undefined;

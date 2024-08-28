@@ -7,29 +7,25 @@ const DEVNET: { [chain in Chain]?: ChainConfig } = {
     id: 2,
     context: Context.ETH,
     finalityThreshold: 64,
-    nativeTokenDecimals: 18,
   },
-  Osmosis: {
-    key: 'Osmosis',
-    id: 20,
-    context: Context.COSMOS,
-    finalityThreshold: 0,
-    nativeTokenDecimals: 6,
-  },
-  Wormchain: {
-    context: Context.COSMOS,
-    key: 'Wormchain',
-    id: 3104,
-    finalityThreshold: 0,
-    nativeTokenDecimals: 6,
-  },
-  Terra2: {
-    context: Context.COSMOS,
-    key: 'Terra2',
-    id: 18,
-    finalityThreshold: 0,
-    nativeTokenDecimals: 6,
-  },
+  //Osmosis: {
+  //  key: 'Osmosis',
+  //  id: 20,
+  //  context: Context.COSMOS,
+  //  finalityThreshold: 0,
+  //},
+  //Wormchain: {
+  //  context: Context.COSMOS,
+  //  key: 'Wormchain',
+  //  id: 3104,
+  //  finalityThreshold: 0,
+  //},
+  //Terra2: {
+  //  context: Context.COSMOS,
+  //  key: 'Terra2',
+  //  id: 18,
+  //  finalityThreshold: 0,
+  //},
 } as const;
 
 /**

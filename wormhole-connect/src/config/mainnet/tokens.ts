@@ -8,10 +8,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -25,93 +22,32 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Bsc: {
-        address: '0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x11CD37bb86F65419713f30673A480EA33c826872',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x8b82A291F83ca07Af22120ABa21632088fC92931',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x2A126f043BDEBe5A0A9841c51915E562D9B07289',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xab3f0245B83feB11d15AAffeFD7AD465a59817eD',
-        decimals: 18,
-      },
-      Solana: {
-        address: '7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xcc8a89c8dce9693d354449f1f73e60e14e347417854f029db5bc8e7454008abb::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x71b35ECb35104773537f849FBC353F81303A5860',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0xD8369C2EDA18dD6518eABb1F85BD60606dEb39Ec',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xb47bC3ed6D70F04fe759b2529c9bc7377889678f',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole18csycs4vm6varkp00apuqlsm7v4twg8jsljk8wfdd7cghr7g4rtslwqndm',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/62F82550D0B96522361C89B0DA1119DE262FBDFB25E5502BC5101B5C0D0DBAAC',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/4442A8E0D487A49E76EA6606F5DADCF8D0DBDD8499112340C964970DB745EDA2',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/7D9D28CABB49A4BB1A50C3B7E4544BFDBC5DDFAEB84A7787755A34CE7196CE15',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0xC09a79fCF76ab2917c685896E3693e04EEbab69C',
-        decimals: 18,
-      },
-      Mantle: {
-        address: '0x115Fcc627AcE0457fbeb7Af3b8BcAcE7Ff6211A4',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x98A8345bB9D3DDa9D808Ca1c9142a28F6b0430E1',
-        decimals: 18,
-      },
+      Bsc: '0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA',
+      Polygon: '0x11CD37bb86F65419713f30673A480EA33c826872',
+      Avalanche: '0x8b82A291F83ca07Af22120ABa21632088fC92931',
+      Fantom: '0x2A126f043BDEBe5A0A9841c51915E562D9B07289',
+      Celo: '0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207',
+      Moonbeam: '0xab3f0245B83feB11d15AAffeFD7AD465a59817eD',
+      Solana: '7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs',
+      Sui: '0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN',
+      Aptos:
+        '0xcc8a89c8dce9693d354449f1f73e60e14e347417854f029db5bc8e7454008abb::coin::T',
+      Base: '0x71b35ECb35104773537f849FBC353F81303A5860',
+      Arbitrum: '0xD8369C2EDA18dD6518eABb1F85BD60606dEb39Ec',
+      Optimism: '0xb47bC3ed6D70F04fe759b2529c9bc7377889678f',
+      Wormchain:
+        'wormhole18csycs4vm6varkp00apuqlsm7v4twg8jsljk8wfdd7cghr7g4rtslwqndm',
+      Osmosis:
+        'ibc/62F82550D0B96522361C89B0DA1119DE262FBDFB25E5502BC5101B5C0D0DBAAC',
+      Evmos:
+        'ibc/4442A8E0D487A49E76EA6606F5DADCF8D0DBDD8499112340C964970DB745EDA2',
+      Kujira:
+        'ibc/7D9D28CABB49A4BB1A50C3B7E4544BFDBC5DDFAEB84A7787755A34CE7196CE15',
+      Blast: '0xC09a79fCF76ab2917c685896E3693e04EEbab69C',
+      Mantle: '0x115Fcc627AcE0457fbeb7Af3b8BcAcE7Ff6211A4',
+      Klaytn: '0x98A8345bB9D3DDa9D808Ca1c9142a28F6b0430E1',
     },
   },
   USDCeth: {
@@ -125,84 +61,30 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#ffffff',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Bsc: {
-        address: '0xB04906e95AB5D797aDA81508115611fee694c2b3',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0x4318CB63A2b8edf2De971E2F17F77097e499459D',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0xB24CA28D4e2742907115fECda335b40dbda07a4C',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0x2Ec752329c3EB419136ca5e4432Aa2CDb1eA23e6',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x37f750B7cC259A2f741AF45294f6a16572CF5cAd',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0x931715FEE2d06333043d11F658C8CE934aC61D0c',
-        decimals: 6,
-      },
-      Solana: {
-        address: 'A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea::coin::T',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xec267C53f53807c2337C257f8AC3Fc3cC07cc0ed',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0xC96F2715E2a242d50D1b0bC923dbe1740b8eCf18',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0x711e53D031ea9B0bb0C24dD506df11b41AEA419e',
-        decimals: 6,
-      },
-      Wormchain: {
-        address:
-          'wormhole1utjx3594tlvfw4375esgu72wa4sdgf0q7x4ye27husf5kvuzp5rsr72gdq',
-        decimals: 6,
-      },
-      Evmos: {
-        address:
-          'ibc/0C19171CDC59451F91D2749CDEA63355532DCD5D8904CCBAC4953290E16AB8FD',
-        decimals: 6,
-      },
-      Osmosis: {
-        address:
-          'ibc/6B99DB46AA9FF47162148C1726866919E44A6A5E0274B90912FD17E19A337695',
-        decimals: 6,
-      },
-      Kujira: {
-        address:
-          'ibc/C5EADE2C526B9629D230AC02A97644984ACB7C2F9A6C85126D1025CB0DA42588',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
-        decimals: 6,
-      },
+      Bsc: '0xB04906e95AB5D797aDA81508115611fee694c2b3',
+      Polygon: '0x4318CB63A2b8edf2De971E2F17F77097e499459D',
+      Avalanche: '0xB24CA28D4e2742907115fECda335b40dbda07a4C',
+      Fantom: '0x2Ec752329c3EB419136ca5e4432Aa2CDb1eA23e6',
+      Celo: '0x37f750B7cC259A2f741AF45294f6a16572CF5cAd',
+      Moonbeam: '0x931715FEE2d06333043d11F658C8CE934aC61D0c',
+      Solana: 'A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM',
+      Sui: '0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN',
+      Aptos:
+        '0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea::coin::T',
+      Base: '0xec267C53f53807c2337C257f8AC3Fc3cC07cc0ed',
+      Arbitrum: '0xC96F2715E2a242d50D1b0bC923dbe1740b8eCf18',
+      Optimism: '0x711e53D031ea9B0bb0C24dD506df11b41AEA419e',
+      Wormchain:
+        'wormhole1utjx3594tlvfw4375esgu72wa4sdgf0q7x4ye27husf5kvuzp5rsr72gdq',
+      Evmos:
+        'ibc/0C19171CDC59451F91D2749CDEA63355532DCD5D8904CCBAC4953290E16AB8FD',
+      Osmosis:
+        'ibc/6B99DB46AA9FF47162148C1726866919E44A6A5E0274B90912FD17E19A337695',
+      Kujira:
+        'ibc/C5EADE2C526B9629D230AC02A97644984ACB7C2F9A6C85126D1025CB0DA42588',
+      Klaytn: '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
     },
   },
   WBTC: {
@@ -216,84 +98,30 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'wrapped-bitcoin',
     color: '#ffffff',
-    decimals: {
-      default: 8,
-    },
+    decimals: 8,
     foreignAssets: {
-      Bsc: {
-        address: '0x43359676E1A3F9FbB5de095333f8e9c1B46dFA44',
-        decimals: 8,
-      },
-      Polygon: {
-        address: '0x5D49c278340655B56609FdF8976eb0612aF3a0C3',
-        decimals: 8,
-      },
-      Avalanche: {
-        address: '0x1C0e79C5292c59bbC13C9F9f209D204cf4d65aD6',
-        decimals: 8,
-      },
-      Fantom: {
-        address: '0x87e9E225aD8a0755B9958fd95BE43DD6A91FF3A7',
-        decimals: 8,
-      },
-      Celo: {
-        address: '0xd71Ffd0940c920786eC4DbB5A12306669b5b81EF',
-        decimals: 8,
-      },
-      Moonbeam: {
-        address: '0xE57eBd2d67B462E9926e04a8e33f01cD0D64346D',
-        decimals: 8,
-      },
-      Solana: {
-        address: '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xae478ff7d83ed072dbc5e264250e67ef58f57c99d89b447efd8a0a2e8b2be76e::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xE6396f780b543dF16ee3b784D789c75B68319db0',
-        decimals: 8,
-      },
-      Arbitrum: {
-        address: '0x397846a8078d4845c7f5c6Ca76aeBbcFDc044fAe',
-        decimals: 8,
-      },
-      Optimism: {
-        address: '0xB214C19d81c99E75e84706a3aa0A757319023e26',
-        decimals: 8,
-      },
-      Wormchain: {
-        address:
-          'wormhole1nz0r0au8aj6dc00wmm3ufy4g4k86rjzlr8wkf92cktdlps5lgfcqxnx9yk',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/46C5DA1CB61C5BAA8730ABA467ADD58DE0333B075CACE28BC87E64AE8C9CA051',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/E4CD61E1FA3EB04EF1BF924D676AB9FD55E84A0DCF4E78C11CCA0E14E5B42672',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/B2C7F21B604E3974A7DA5DAA9395905F2F3C85392F8A221CFDF62E4A9F4E48E4',
-        decimals: 8,
-      },
-      Klaytn: {
-        address: '0x981846bE8d2d697f4dfeF6689a161A25FfbAb8F9',
-        decimals: 8,
-      },
+      Bsc: '0x43359676E1A3F9FbB5de095333f8e9c1B46dFA44',
+      Polygon: '0x5D49c278340655B56609FdF8976eb0612aF3a0C3',
+      Avalanche: '0x1C0e79C5292c59bbC13C9F9f209D204cf4d65aD6',
+      Fantom: '0x87e9E225aD8a0755B9958fd95BE43DD6A91FF3A7',
+      Celo: '0xd71Ffd0940c920786eC4DbB5A12306669b5b81EF',
+      Moonbeam: '0xE57eBd2d67B462E9926e04a8e33f01cD0D64346D',
+      Solana: '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh',
+      Sui: '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN',
+      Aptos:
+        '0xae478ff7d83ed072dbc5e264250e67ef58f57c99d89b447efd8a0a2e8b2be76e::coin::T',
+      Base: '0xE6396f780b543dF16ee3b784D789c75B68319db0',
+      Arbitrum: '0x397846a8078d4845c7f5c6Ca76aeBbcFDc044fAe',
+      Optimism: '0xB214C19d81c99E75e84706a3aa0A757319023e26',
+      Wormchain:
+        'wormhole1nz0r0au8aj6dc00wmm3ufy4g4k86rjzlr8wkf92cktdlps5lgfcqxnx9yk',
+      Evmos:
+        'ibc/46C5DA1CB61C5BAA8730ABA467ADD58DE0333B075CACE28BC87E64AE8C9CA051',
+      Osmosis:
+        'ibc/E4CD61E1FA3EB04EF1BF924D676AB9FD55E84A0DCF4E78C11CCA0E14E5B42672',
+      Kujira:
+        'ibc/B2C7F21B604E3974A7DA5DAA9395905F2F3C85392F8A221CFDF62E4A9F4E48E4',
+      Klaytn: '0x981846bE8d2d697f4dfeF6689a161A25FfbAb8F9',
     },
   },
   USDT: {
@@ -307,87 +135,30 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'tether',
     color: '#ffffff',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Bsc: {
-        address: '0x524bC91Dc82d6b90EF29F76A3ECAaBAffFD490Bc',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0x9417669fBF23357D2774e9D421307bd5eA1006d2',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0x9d228444FC4B7E15A2C481b48E10247A03351FD8',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0x14BCb86aEed6a74D3452550a25D37f1c30AA0A66',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x617f3112bf5397D0467D315cC709EF968D9ba546',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0xc30E9cA94CF52f3Bf5692aaCF81353a27052c46f',
-        decimals: 6,
-      },
-      Solana: {
-        address: 'Dn4noZ5jgGfkntzcQSUZ8czkreiZ1ForXYoV2H8Dm7S1',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0xa2eda21a58856fda86451436513b867c97eecb4ba099da5775520e0f7492e852::coin::T',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xFf0C62A4979400841eFaA6faADb07Ac7d5C98b27',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0xE4728F3E48E94C6DA2B53610E677cc241DAFB134',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0xf6B4185FCf8aF291c0E3927fbEab7046b4f6A8CA',
-        decimals: 6,
-      },
-      Wormchain: {
-        address:
-          'wormhole1w27ekqvvtzfanfxnkw4jx2f8gdfeqwd3drkee3e64xat6phwjg0savgmhw',
-        decimals: 6,
-      },
-      Osmosis: {
-        address:
-          'ibc/2108F2D81CBE328F371AD0CEF56691B18A86E08C3651504E42487D9EE92DDE9C',
-        decimals: 6,
-      },
-      Evmos: {
-        address:
-          'ibc/C9072A294F5649D64E87A6998DD750576881E454CACCDAF7376EFC0FA243808D',
-        decimals: 6,
-      },
-      Blast: {
-        address: '0x37C1dea9C51864cc6640FA9c09f4dac574b8285E',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2',
-        decimals: 6,
-      },
-      Xlayer: {
-        address: '0x5866709f926f26C5870191F40333ac462B917bC0',
-        decimals: 6,
-      },
+      Bsc: '0x524bC91Dc82d6b90EF29F76A3ECAaBAffFD490Bc',
+      Polygon: '0x9417669fBF23357D2774e9D421307bd5eA1006d2',
+      Avalanche: '0x9d228444FC4B7E15A2C481b48E10247A03351FD8',
+      Fantom: '0x14BCb86aEed6a74D3452550a25D37f1c30AA0A66',
+      Celo: '0x617f3112bf5397D0467D315cC709EF968D9ba546',
+      Moonbeam: '0xc30E9cA94CF52f3Bf5692aaCF81353a27052c46f',
+      Solana: 'Dn4noZ5jgGfkntzcQSUZ8czkreiZ1ForXYoV2H8Dm7S1',
+      Sui: '0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN',
+      Aptos:
+        '0xa2eda21a58856fda86451436513b867c97eecb4ba099da5775520e0f7492e852::coin::T',
+      Base: '0xFf0C62A4979400841eFaA6faADb07Ac7d5C98b27',
+      Arbitrum: '0xE4728F3E48E94C6DA2B53610E677cc241DAFB134',
+      Optimism: '0xf6B4185FCf8aF291c0E3927fbEab7046b4f6A8CA',
+      Wormchain:
+        'wormhole1w27ekqvvtzfanfxnkw4jx2f8gdfeqwd3drkee3e64xat6phwjg0savgmhw',
+      Osmosis:
+        'ibc/2108F2D81CBE328F371AD0CEF56691B18A86E08C3651504E42487D9EE92DDE9C',
+      Evmos:
+        'ibc/C9072A294F5649D64E87A6998DD750576881E454CACCDAF7376EFC0FA243808D',
+      Blast: '0x37C1dea9C51864cc6640FA9c09f4dac574b8285E',
+      Klaytn: '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2',
+      Xlayer: '0x5866709f926f26C5870191F40333ac462B917bC0',
     },
   },
   DAI: {
@@ -401,84 +172,29 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'dai',
     color: '#FEFEFD',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Bsc: {
-        address: '0x3413a030EF81a3dD5a302F4B4D11d911e12ed337',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x732EB1747ecCFC431fF19bc359ffc83755B1918c',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xca319f81D147559e19A522A0a0310Dd43A96cA0F',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xEE786D3D73Ea645365c7248E4e40eDba08B1169F',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x97926a82930bb7B33178E3c2f4ED1BFDc91A9FBF',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x06e605775296e851FF43b4dAa541Bb0984E9D6fD',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x407a220699982ebb514568d007938d2447d33667e4418372ffec1ddb24491b6c::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x617Edadb51BfB43A44Bb91C7402129C23bA52381',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x5c4f2FEFB97F7DF09E762d95C83f0Ccf8bCe8234',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x098EA47D630b46df1E08e389e5e4466119c7dd30',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1chejx4qqtvwxy6684yrsmf6pylancxqhk3vsmtleg5ta3zrffljqfscg87',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/898ACF6F5DEBF535103BBD52E3E5B70A311AD097B198A152483F69290B4210C0',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/3CE8A3DE4AE5AE2B4B8C03B2B227CC284732EDC849E506615FF2AA3D8EB1BAFC',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0x286ebE2BacB0EBeF746DBDA24dED0fc001c6d0F6',
-        decimals: 18,
-      },
-      Sui: {
-        address:
-          '0xc01c54cd767a60835bf100b0a8f7aae66ac9f4e374f76746af60f02493b6f2cf::coin::COIN',
-        decimals: 8,
-      },
-      Klaytn: {
-        address: '0xCB2C7998696Ef7a582dFD0aAFadCd008D03E791A',
-        decimals: 18,
-      },
+      Bsc: '0x3413a030EF81a3dD5a302F4B4D11d911e12ed337',
+      Polygon: '0x732EB1747ecCFC431fF19bc359ffc83755B1918c',
+      Avalanche: '0xca319f81D147559e19A522A0a0310Dd43A96cA0F',
+      Fantom: '0xEE786D3D73Ea645365c7248E4e40eDba08B1169F',
+      Celo: '0x97926a82930bb7B33178E3c2f4ED1BFDc91A9FBF',
+      Moonbeam: '0x06e605775296e851FF43b4dAa541Bb0984E9D6fD',
+      Solana: 'EjmyN6qEC1Tf1JxiG1ae7UTJhUxSwk1TCWNWqxWV4J6o',
+      Aptos:
+        '0x407a220699982ebb514568d007938d2447d33667e4418372ffec1ddb24491b6c::coin::T',
+      Base: '0x617Edadb51BfB43A44Bb91C7402129C23bA52381',
+      Arbitrum: '0x5c4f2FEFB97F7DF09E762d95C83f0Ccf8bCe8234',
+      Optimism: '0x098EA47D630b46df1E08e389e5e4466119c7dd30',
+      Wormchain:
+        'wormhole1chejx4qqtvwxy6684yrsmf6pylancxqhk3vsmtleg5ta3zrffljqfscg87',
+      Osmosis:
+        'ibc/898ACF6F5DEBF535103BBD52E3E5B70A311AD097B198A152483F69290B4210C0',
+      Kujira:
+        'ibc/3CE8A3DE4AE5AE2B4B8C03B2B227CC284732EDC849E506615FF2AA3D8EB1BAFC',
+      Blast: '0x286ebE2BacB0EBeF746DBDA24dED0fc001c6d0F6',
+      Sui: '0xc01c54cd767a60835bf100b0a8f7aae66ac9f4e374f76746af60f02493b6f2cf::coin::COIN',
+      Klaytn: '0xCB2C7998696Ef7a582dFD0aAFadCd008D03E791A',
     },
   },
   BUSD: {
@@ -492,41 +208,17 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'binance-usd',
     color: '#F0B90B',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Bsc: {
-        address: '0x035de3679E692C471072d1A09bEb9298fBB2BD31',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x95ea750420da26bE1Ab0891e209e921bCd84763f',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x1dd42c0785ca90B677adc2ABad01dfc5ECcD0b4d',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xa2284e1F98E4d0B7Eb6a6b4f3C57f1b209C755F3',
-        decimals: 18,
-      },
-      Solana: {
-        address: '33fsBLA8djQm82RpHmE3SuVrPGtZBWNYExsEUeKX1HXX',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x77400d2f56a01bad2d7c8c6fa282f62647ce3c03f43f2a8742e47ea01a91e24a::coin::T',
-        decimals: 8,
-      },
-      Wormchain: {
-        address:
-          'wormhole1msyushf6d76u9wupuvm6jdvc0x4trmv5w5kxr0hyt7n9npp233usg7pkhm',
-        decimals: 8,
-      },
+      Bsc: '0x035de3679E692C471072d1A09bEb9298fBB2BD31',
+      Polygon: '0x95ea750420da26bE1Ab0891e209e921bCd84763f',
+      Celo: '0x1dd42c0785ca90B677adc2ABad01dfc5ECcD0b4d',
+      Moonbeam: '0xa2284e1F98E4d0B7Eb6a6b4f3C57f1b209C755F3',
+      Solana: '33fsBLA8djQm82RpHmE3SuVrPGtZBWNYExsEUeKX1HXX',
+      Aptos:
+        '0x77400d2f56a01bad2d7c8c6fa282f62647ce3c03f43f2a8742e47ea01a91e24a::coin::T',
+      Wormchain:
+        'wormhole1msyushf6d76u9wupuvm6jdvc0x4trmv5w5kxr0hyt7n9npp233usg7pkhm',
     },
   },
   MATIC: {
@@ -536,10 +228,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.POLYGON,
     coinGeckoId: 'matic-network',
     color: '#8247E5',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -553,91 +242,30 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'matic-network',
     color: '#8247E5',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x7c9f4C87d911613Fe9ca58b579f737911AAD2D43',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0xc836d8dC361E44DbE64c4862D55BA041F88Ddd39',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xf2f13f0B7008ab2FA4A2418F4ccC3684E49D20Eb',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xb88A6064B1F3FF5B9AE4A82fFD52560b0dF9FBD3',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x9C234706292b1144133ED509ccc5B3CD193BF712',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x82DbDa803bb52434B1f4F41A6F0Acb1242A7dFa3',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'Gz7VkD4MacbEB6yC5XD3HcumEiYx2EtDYYrfikGsvopG',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xdbe380b13a6d0f5cdedd58de8f04625263f113b3f9db32b3e1983f49e2841676::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x6781088e2a1629d38eda521467af4a8ca7bfa7e5516338017940389595c85c0f::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xc863399E5c5C4011B1DC3fB602902C77BA72B709',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x3ab0E28C3F56616aD7061b4db38aE337E3809AEA',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x8f02B6a32cebcAe44D2Fd17d87966f5B5dD14c6d',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1xmpenz0ykxfy8rxr3yc3d4dtqq4dpas4zz3xl6sh873us3vajlpszn4ph7',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/03B6D1925A09B3033AA6FA8772202719ABDC51F8CC2A5C26D0A9B19832F2C023',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0xE00CB9206aCF0413aa9Dc12F01A22BB5Dd7A2866',
-        decimals: 18,
-      },
-      Mantle: {
-        address: '0x1d15Dc3B3DB5A182eA8E3091F21EB0549d4a72E0',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x9858e5A4f8202baD619D4BD39382CA67F4CA0E63',
-        decimals: 18,
-      },
-      Scroll: {
-        address: '0x982D057feCD66c3af27b16EBC67C4db24810bcD8',
-        decimals: 18,
-      },
-      Xlayer: {
-        address: '0xc97E2b2d7730C34adC389563721d9dF52EDA4A2a',
-        decimals: 18,
-      },
+      Ethereum: '0x7c9f4C87d911613Fe9ca58b579f737911AAD2D43',
+      Bsc: '0xc836d8dC361E44DbE64c4862D55BA041F88Ddd39',
+      Avalanche: '0xf2f13f0B7008ab2FA4A2418F4ccC3684E49D20Eb',
+      Fantom: '0xb88A6064B1F3FF5B9AE4A82fFD52560b0dF9FBD3',
+      Celo: '0x9C234706292b1144133ED509ccc5B3CD193BF712',
+      Moonbeam: '0x82DbDa803bb52434B1f4F41A6F0Acb1242A7dFa3',
+      Solana: 'Gz7VkD4MacbEB6yC5XD3HcumEiYx2EtDYYrfikGsvopG',
+      Sui: '0xdbe380b13a6d0f5cdedd58de8f04625263f113b3f9db32b3e1983f49e2841676::coin::COIN',
+      Aptos:
+        '0x6781088e2a1629d38eda521467af4a8ca7bfa7e5516338017940389595c85c0f::coin::T',
+      Base: '0xc863399E5c5C4011B1DC3fB602902C77BA72B709',
+      Arbitrum: '0x3ab0E28C3F56616aD7061b4db38aE337E3809AEA',
+      Optimism: '0x8f02B6a32cebcAe44D2Fd17d87966f5B5dD14c6d',
+      Wormchain:
+        'wormhole1xmpenz0ykxfy8rxr3yc3d4dtqq4dpas4zz3xl6sh873us3vajlpszn4ph7',
+      Osmosis:
+        'ibc/03B6D1925A09B3033AA6FA8772202719ABDC51F8CC2A5C26D0A9B19832F2C023',
+      Blast: '0xE00CB9206aCF0413aa9Dc12F01A22BB5Dd7A2866',
+      Mantle: '0x1d15Dc3B3DB5A182eA8E3091F21EB0549d4a72E0',
+      Klaytn: '0x9858e5A4f8202baD619D4BD39382CA67F4CA0E63',
+      Scroll: '0x982D057feCD66c3af27b16EBC67C4db24810bcD8',
+      Xlayer: '0xc97E2b2d7730C34adC389563721d9dF52EDA4A2a',
     },
   },
   WETHpolygon: {
@@ -652,65 +280,22 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#D53424',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Bsc: {
-        address: '0x1384284E16e3375522Be54F50909Bc52A69e90e4',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'DQyeU3oFezEGia761GQ4iPcMCnxnH8fuLrmHZUvTYuby',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x2692323828f627a45a75a05eba8281dd46690c538b4f6ccb7a35ffe8199a28b7::coin::T',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xa1ed6e76b06ff8f959cc479fbbd423820a3349dad8707b98ff4309c677fa20ad::coin::COIN',
-        decimals: 8,
-      },
-      Arbitrum: {
-        address: '0xd2b299eD76d1369Ac8762CFEc85245fFD302FC17',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x32d222E1f6386B3dF7065d639870bE0ef76D3599',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x061FE51530768889dc20Ac7fCD29b5307b823395',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x2740220fFa4b206280907ce12b7cDC57445f3B92',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x1cAFd8d3301E4E54Fc1462E7117Eb678bF50C765',
-        decimals: 18,
-      },
-      Base: {
-        address: '0x7A79923734eDA9c7f7ff69ad9ec1e234F67E7CD6',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xf1BB9A987B9edC360580b0c9F28069C808c2a7da',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x8Ed68859f162970258992168293232e3Bdd987d0',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x3eb25C7098AC38a852Cd2366161c5e216af50Df3',
-        decimals: 18,
-      },
+      Bsc: '0x1384284E16e3375522Be54F50909Bc52A69e90e4',
+      Solana: 'DQyeU3oFezEGia761GQ4iPcMCnxnH8fuLrmHZUvTYuby',
+      Aptos:
+        '0x2692323828f627a45a75a05eba8281dd46690c538b4f6ccb7a35ffe8199a28b7::coin::T',
+      Sui: '0xa1ed6e76b06ff8f959cc479fbbd423820a3349dad8707b98ff4309c677fa20ad::coin::COIN',
+      Arbitrum: '0xd2b299eD76d1369Ac8762CFEc85245fFD302FC17',
+      Ethereum: '0x32d222E1f6386B3dF7065d639870bE0ef76D3599',
+      Avalanche: '0x061FE51530768889dc20Ac7fCD29b5307b823395',
+      Optimism: '0x2740220fFa4b206280907ce12b7cDC57445f3B92',
+      Fantom: '0x1cAFd8d3301E4E54Fc1462E7117Eb678bF50C765',
+      Base: '0x7A79923734eDA9c7f7ff69ad9ec1e234F67E7CD6',
+      Moonbeam: '0xf1BB9A987B9edC360580b0c9F28069C808c2a7da',
+      Celo: '0x8Ed68859f162970258992168293232e3Bdd987d0',
+      Klaytn: '0x3eb25C7098AC38a852Cd2366161c5e216af50Df3',
     },
   },
   USDCpolygon: {
@@ -724,64 +309,22 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Aptos: {
-        address:
-          '0xc5fd7820e9f053e6dd8e7dd8ca3ce8e9b10d200ba1692bdeb7a035217180ad4a::coin::T',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xFe1579BAc60363c8572CB30Bf4DD1Fd85811BBF8',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0x4415BfBDee669446550d55c749007EF60B520FC8',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0x5c8c9082401982e8c2519a5c12883a5475295bf5cec4a0a13c26d35dd9a20d73::coin::COIN',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0xe6d82Bbe75041E42E51d755e922cE1BA91af9c4d',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x42c76808f3179A091Ee007A2955aF2522978ADE7',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0xB4DcfD221048a1Dad989D39456BBd87762c26F06',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0xDb2d08f5A9C9ADBBA0DE5a69bbB1E9Ca03411692',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0x599ADB10E6A012dF34935D47407450f6D7170e3C',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0xbB1EaB9Eb8fDf65F0E291D013DA07B4b65a27a01',
-        decimals: 6,
-      },
-      Solana: {
-        address: 'C321jHPwWBzgfSGndosDTp5pBsiXPyMU1irxKLVcedRB',
-        decimals: 6,
-      },
-      Ethereum: {
-        address: '0xFbcE0f9e92AD1003e893Ba647bC055D845aAa507',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x59AEaD999e018a00B162D34de7a81AFFAB88bAbB',
-        decimals: 6,
-      },
+      Aptos:
+        '0xc5fd7820e9f053e6dd8e7dd8ca3ce8e9b10d200ba1692bdeb7a035217180ad4a::coin::T',
+      Base: '0xFe1579BAc60363c8572CB30Bf4DD1Fd85811BBF8',
+      Moonbeam: '0x4415BfBDee669446550d55c749007EF60B520FC8',
+      Sui: '0x5c8c9082401982e8c2519a5c12883a5475295bf5cec4a0a13c26d35dd9a20d73::coin::COIN',
+      Bsc: '0xe6d82Bbe75041E42E51d755e922cE1BA91af9c4d',
+      Celo: '0x42c76808f3179A091Ee007A2955aF2522978ADE7',
+      Fantom: '0xB4DcfD221048a1Dad989D39456BBd87762c26F06',
+      Avalanche: '0xDb2d08f5A9C9ADBBA0DE5a69bbB1E9Ca03411692',
+      Arbitrum: '0x599ADB10E6A012dF34935D47407450f6D7170e3C',
+      Optimism: '0xbB1EaB9Eb8fDf65F0E291D013DA07B4b65a27a01',
+      Solana: 'C321jHPwWBzgfSGndosDTp5pBsiXPyMU1irxKLVcedRB',
+      Ethereum: '0xFbcE0f9e92AD1003e893Ba647bC055D845aAa507',
+      Klaytn: '0x59AEaD999e018a00B162D34de7a81AFFAB88bAbB',
     },
   },
   BNB: {
@@ -791,10 +334,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.BNB,
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -808,91 +348,30 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x418D75f65a02b3D53B2418FB8E1fe493759c7605',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0xeCDCB5B88F8e3C15f95c720C51c71c9E2080525d',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x442F7f22b1EE2c842bEAFf52880d4573E9201158',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xc033551e05907Ddd643AE14b6D4a9CA72BfF509B',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xBf2554ce8A4D1351AFeB1aC3E5545AaF7591042d',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xE3b841C3f96e647E6dc01b468d6D0AD3562a9eeb',
-        decimals: 18,
-      },
-      Solana: {
-        address: '9gP2kCy3wA1ctvYWQk75guqXuHfrEomqydHLtcTCqiLa',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xb848cce11ef3a8f62eccea6eb5b35a12c4c2b1ee1af7755d02d7bd6218e8226f::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x6312bc0a484bc4e37013befc9949df2d7c8a78e01c6fe14a34018449d136ba86::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x7fdAa50d7399ac436943028edA6ed9a1BD89509f',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x7AF00405916D823eDb1121546EfA6F4972B51b84',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole169nr66h9gcsfljvsnxnqfjakskcjt6ac8f58wqjuagu79m540teqfvaal4',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/5394BB30B3C9BD1EE84C9531E5094DDE2490964F518CBE8A4C91F748CE559AF5',
-        decimals: 8,
-      },
-      Optimism: {
-        address: '0x6A09fE65ACa27C12573F04aAFa290bD75497E1BC',
-        decimals: 18,
-      },
-      Blast: {
-        address: '0xdcd0Ec817d3ae2E82bCE8Cc9f92fFA7686A52160',
-        decimals: 18,
-      },
-      Mantle: {
-        address: '0x9a7E85260d6F5d3c3d2a1FdDc3D980DBC78e508d',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0xaC9C1E4787139aF4c751B1C0fadfb513C44Ed833',
-        decimals: 18,
-      },
-      Scroll: {
-        address: '0x5b0da0a36DC415714B53A4f24b56921332F42E7C',
-        decimals: 18,
-      },
-      Xlayer: {
-        address: '0x8bC46166E06122603bA10D2bCA63b75091c25cAe',
-        decimals: 18,
-      },
+      Ethereum: '0x418D75f65a02b3D53B2418FB8E1fe493759c7605',
+      Polygon: '0xeCDCB5B88F8e3C15f95c720C51c71c9E2080525d',
+      Avalanche: '0x442F7f22b1EE2c842bEAFf52880d4573E9201158',
+      Fantom: '0xc033551e05907Ddd643AE14b6D4a9CA72BfF509B',
+      Celo: '0xBf2554ce8A4D1351AFeB1aC3E5545AaF7591042d',
+      Moonbeam: '0xE3b841C3f96e647E6dc01b468d6D0AD3562a9eeb',
+      Solana: '9gP2kCy3wA1ctvYWQk75guqXuHfrEomqydHLtcTCqiLa',
+      Sui: '0xb848cce11ef3a8f62eccea6eb5b35a12c4c2b1ee1af7755d02d7bd6218e8226f::coin::COIN',
+      Aptos:
+        '0x6312bc0a484bc4e37013befc9949df2d7c8a78e01c6fe14a34018449d136ba86::coin::T',
+      Base: '0x7fdAa50d7399ac436943028edA6ed9a1BD89509f',
+      Arbitrum: '0x7AF00405916D823eDb1121546EfA6F4972B51b84',
+      Wormchain:
+        'wormhole169nr66h9gcsfljvsnxnqfjakskcjt6ac8f58wqjuagu79m540teqfvaal4',
+      Osmosis:
+        'ibc/5394BB30B3C9BD1EE84C9531E5094DDE2490964F518CBE8A4C91F748CE559AF5',
+      Optimism: '0x6A09fE65ACa27C12573F04aAFa290bD75497E1BC',
+      Blast: '0xdcd0Ec817d3ae2E82bCE8Cc9f92fFA7686A52160',
+      Mantle: '0x9a7E85260d6F5d3c3d2a1FdDc3D980DBC78e508d',
+      Klaytn: '0xaC9C1E4787139aF4c751B1C0fadfb513C44Ed833',
+      Scroll: '0x5b0da0a36DC415714B53A4f24b56921332F42E7C',
+      Xlayer: '0x8bC46166E06122603bA10D2bCA63b75091c25cAe',
     },
   },
   USDCbnb: {
@@ -906,80 +385,28 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x7cd167B101D2808Cfd2C45d17b2E7EA9F46b74B6',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x4B3a922c773BDCF3BA8f1A4FDAc2029E1D0E9868',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x6145E8a910aE937913426BF32De2b26039728ACF',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x0FcbDAC44c67A43607D3E95886dB19871ADc985F',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x9d9abAE97a9344e3854527b4efbB366a1564bfEb',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x7f433E22366E03a3758CE22cCf82887d828078f8',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'FCqfQSujuPxy6V42UvafBhsysWtEq1vhjfMN1PUbgaxA',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x909cba62ce96d54de25bec9502de5ca7b4f28901747bbf96b76c2e63ec5f1cba::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x79a6ed7a0607fdad2d18d67d1a0e552d4b09ebce5951f1e5c851732c02437595::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x68E2b07F92ed506f92935d7359ECA84D5342dbb4',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x1a0590F951bc9C3818Ce75ba5Bbe92831b2cf57e',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x1C15057d1F3794C934a6cBC1f7EceE934050F219',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1g3acw7aumaj3r348cqn4kazrehlmn822w9p46sqwztnke27h3lysxj4ddr',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/8E08C01546EF346F7E9A3600DDBC88943ADF3B20A67F1F2DD7B83D85613BCCAB',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/B28ACEF11D063FA8B1DA73C2F7DA3A1CFCCBC13E96B671698D4860E9367B55BB',
-        decimals: 8,
-      },
-      Klaytn: {
-        address: '0x01B342d26FEF5749E87CBe412e16163771b0277c',
-        decimals: 18,
-      },
+      Ethereum: '0x7cd167B101D2808Cfd2C45d17b2E7EA9F46b74B6',
+      Polygon: '0x4B3a922c773BDCF3BA8f1A4FDAc2029E1D0E9868',
+      Avalanche: '0x6145E8a910aE937913426BF32De2b26039728ACF',
+      Fantom: '0x0FcbDAC44c67A43607D3E95886dB19871ADc985F',
+      Celo: '0x9d9abAE97a9344e3854527b4efbB366a1564bfEb',
+      Moonbeam: '0x7f433E22366E03a3758CE22cCf82887d828078f8',
+      Solana: 'FCqfQSujuPxy6V42UvafBhsysWtEq1vhjfMN1PUbgaxA',
+      Sui: '0x909cba62ce96d54de25bec9502de5ca7b4f28901747bbf96b76c2e63ec5f1cba::coin::COIN',
+      Aptos:
+        '0x79a6ed7a0607fdad2d18d67d1a0e552d4b09ebce5951f1e5c851732c02437595::coin::T',
+      Base: '0x68E2b07F92ed506f92935d7359ECA84D5342dbb4',
+      Arbitrum: '0x1a0590F951bc9C3818Ce75ba5Bbe92831b2cf57e',
+      Optimism: '0x1C15057d1F3794C934a6cBC1f7EceE934050F219',
+      Wormchain:
+        'wormhole1g3acw7aumaj3r348cqn4kazrehlmn822w9p46sqwztnke27h3lysxj4ddr',
+      Evmos:
+        'ibc/8E08C01546EF346F7E9A3600DDBC88943ADF3B20A67F1F2DD7B83D85613BCCAB',
+      Osmosis:
+        'ibc/B28ACEF11D063FA8B1DA73C2F7DA3A1CFCCBC13E96B671698D4860E9367B55BB',
+      Klaytn: '0x01B342d26FEF5749E87CBe412e16163771b0277c',
     },
   },
   AVAX: {
@@ -989,10 +416,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.AVAX,
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -1006,101 +430,34 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x85f138bfEE4ef8e540890CFb48F620571d67Eda3',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0x96412902aa9aFf61E13f085e70D3152C6ef2a817',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x358CE030DC6116Cc296E8B9F002728e65459C146',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xFFdb274b4909fC2efE26C8e4Ddc9fe91963cAA4d',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xd4937A95BeC789CC1AE1640714C61c160279B22F',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'KgV1GvrHQmRBY8sHQQeUKwTm2r2h8t4C8qt12Cw1HVE',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x1e8b532cca6569cab9f9b9ebc73f8c13885012ade714729aa3b450e0339ac766::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x5b1bbc25524d41b17a95dac402cf2f584f56400bf5cc06b53c36b331b1ec6e8f::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xc449A60A31E1eebFE83c42E9465fd4Dc318aE9a7',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x565609fAF65B92F7be02468acF86f8979423e514',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x8418C1d909842f458c9394886b83F19d62bF1A0D',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1ml922hnp59jtq9a87arekvx60ezehwlg2v3j5pduplwkenfa68ksgmzxwr',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/28E7241F6508EB4692C721E91201377323796EF2758CCD83D220A40EAD32601E',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/2EA2FE172078576E62DA20F14EEED12B26611D93150FE1D68E1AAE00479AC335',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/22B44C7369EED16089B9840ADE399B80D9483B4E459E67643C96C681D7C463D0',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0x7D86F00026c2cD8137D60ae85d53c5E5a15B2481',
-        decimals: 18,
-      },
-      Mantle: {
-        address: '0x2cAb4233d42043AEBbbb1445af362Ef686f3C133',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x45830b92443a8f750247da2A76C85c70d0f1EBF3',
-        decimals: 18,
-      },
-      Scroll: {
-        address: '0xC043c8A3672f397e7b52bF0a04F47d6f1aA952Ed',
-        decimals: 18,
-      },
-      Xlayer: {
-        address: '0x5208Fb676B2DBab7aFaFB56e8997237F0ceECF71',
-        decimals: 18,
-      },
+      Ethereum: '0x85f138bfEE4ef8e540890CFb48F620571d67Eda3',
+      Bsc: '0x96412902aa9aFf61E13f085e70D3152C6ef2a817',
+      Polygon: '0x7Bb11E7f8b10E9e571E5d8Eace04735fDFB2358a',
+      Fantom: '0x358CE030DC6116Cc296E8B9F002728e65459C146',
+      Celo: '0xFFdb274b4909fC2efE26C8e4Ddc9fe91963cAA4d',
+      Moonbeam: '0xd4937A95BeC789CC1AE1640714C61c160279B22F',
+      Solana: 'KgV1GvrHQmRBY8sHQQeUKwTm2r2h8t4C8qt12Cw1HVE',
+      Sui: '0x1e8b532cca6569cab9f9b9ebc73f8c13885012ade714729aa3b450e0339ac766::coin::COIN',
+      Aptos:
+        '0x5b1bbc25524d41b17a95dac402cf2f584f56400bf5cc06b53c36b331b1ec6e8f::coin::T',
+      Base: '0xc449A60A31E1eebFE83c42E9465fd4Dc318aE9a7',
+      Arbitrum: '0x565609fAF65B92F7be02468acF86f8979423e514',
+      Optimism: '0x8418C1d909842f458c9394886b83F19d62bF1A0D',
+      Wormchain:
+        'wormhole1ml922hnp59jtq9a87arekvx60ezehwlg2v3j5pduplwkenfa68ksgmzxwr',
+      Kujira:
+        'ibc/28E7241F6508EB4692C721E91201377323796EF2758CCD83D220A40EAD32601E',
+      Evmos:
+        'ibc/2EA2FE172078576E62DA20F14EEED12B26611D93150FE1D68E1AAE00479AC335',
+      Osmosis:
+        'ibc/22B44C7369EED16089B9840ADE399B80D9483B4E459E67643C96C681D7C463D0',
+      Blast: '0x7D86F00026c2cD8137D60ae85d53c5E5a15B2481',
+      Mantle: '0x2cAb4233d42043AEBbbb1445af362Ef686f3C133',
+      Klaytn: '0x45830b92443a8f750247da2A76C85c70d0f1EBF3',
+      Scroll: '0xC043c8A3672f397e7b52bF0a04F47d6f1aA952Ed',
+      Xlayer: '0x5208Fb676B2DBab7aFaFB56e8997237F0ceECF71',
     },
   },
   USDCavax: {
@@ -1114,92 +471,32 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Ethereum: {
-        address: '0x39EbF69137D98FB7659Ef8D4ea21ec26394389d7',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0xc88Dc63bf0c8c8198C97Db0945E3eF25Ca89A8e4',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0xAEA5CC14DefbC1b845FDE729E563B717Ee6825ae',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0xEfE7701cb2B80664385Be226d0300912CA92f66A',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x62FFf2D2D1692D52eAf043AeeC727F7918d269D3',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0xd4918c40cA9f02d42Cb53d06587aF42017Bc345D',
-        decimals: 6,
-      },
-      Solana: {
-        address: 'FHfba3ov5P3RjaiLVgh8FTv4oirxQDoVXuoUUDvHuXax',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0xe596782fbaebef51ae99ffac8731aed98a80642b9dc193ed659c97fbc2cc0f84::coin::COIN',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0x39d84c2af3b0c9895b45d4da098049e382c451ba63bec0ce0396ff7af4bb5dff::coin::T',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0x93e0FcbEd43CD6fC30DF00CcBD4669718dc74e77',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0x355f0a8a7ecAeD971b8Fbd50994558291ff2413a',
-        decimals: 6,
-      },
-      Wormchain: {
-        address:
-          'wormhole1gwm6mrnse9atzf4mer4dnrz64mp6pa75wpsxywu8gymt9fwsk46sfr372u',
-        decimals: 6,
-      },
-      Kujira: {
-        address:
-          'ibc/F9F41DB8DA49EA6AB9EB4B2C9E0ECDC2502ABDA2FE728B85994BF31240CBC163',
-        decimals: 6,
-      },
-      Evmos: {
-        address:
-          'ibc/39913E647C3549D663B1ED7F0745E1779515170C5215B98B2C8410B4C073AD30',
-        decimals: 6,
-      },
-      Osmosis: {
-        address:
-          'ibc/0B3C3D06228578334B66B57FBFBA4033216CEB8119B27ACDEE18D92DA5B28D43',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xD83385fE100E20c269a5975D4Bf92525BcE09F87',
-        decimals: 6,
-      },
-      Blast: {
-        address: '0x3Db095413b5e1e5681c48028e31e8dc2505D8aD3',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x9C97D4c09679Dfd00A39681f6d3b61A285312B13',
-        decimals: 6,
-      },
-      Scroll: {
-        address: '0xbEFc3d0457fB88f82364Dd982F7BA195FEE96b74',
-        decimals: 6,
-      },
+      Ethereum: '0x39EbF69137D98FB7659Ef8D4ea21ec26394389d7',
+      Bsc: '0xc88Dc63bf0c8c8198C97Db0945E3eF25Ca89A8e4',
+      Polygon: '0xAEA5CC14DefbC1b845FDE729E563B717Ee6825ae',
+      Fantom: '0xEfE7701cb2B80664385Be226d0300912CA92f66A',
+      Celo: '0x62FFf2D2D1692D52eAf043AeeC727F7918d269D3',
+      Moonbeam: '0xd4918c40cA9f02d42Cb53d06587aF42017Bc345D',
+      Solana: 'FHfba3ov5P3RjaiLVgh8FTv4oirxQDoVXuoUUDvHuXax',
+      Sui: '0xe596782fbaebef51ae99ffac8731aed98a80642b9dc193ed659c97fbc2cc0f84::coin::COIN',
+      Aptos:
+        '0x39d84c2af3b0c9895b45d4da098049e382c451ba63bec0ce0396ff7af4bb5dff::coin::T',
+      Arbitrum: '0x93e0FcbEd43CD6fC30DF00CcBD4669718dc74e77',
+      Optimism: '0x355f0a8a7ecAeD971b8Fbd50994558291ff2413a',
+      Wormchain:
+        'wormhole1gwm6mrnse9atzf4mer4dnrz64mp6pa75wpsxywu8gymt9fwsk46sfr372u',
+      Kujira:
+        'ibc/F9F41DB8DA49EA6AB9EB4B2C9E0ECDC2502ABDA2FE728B85994BF31240CBC163',
+      Evmos:
+        'ibc/39913E647C3549D663B1ED7F0745E1779515170C5215B98B2C8410B4C073AD30',
+      Osmosis:
+        'ibc/0B3C3D06228578334B66B57FBFBA4033216CEB8119B27ACDEE18D92DA5B28D43',
+      Base: '0xD83385fE100E20c269a5975D4Bf92525BcE09F87',
+      Blast: '0x3Db095413b5e1e5681c48028e31e8dc2505D8aD3',
+      Klaytn: '0x9C97D4c09679Dfd00A39681f6d3b61A285312B13',
+      Scroll: '0xbEFc3d0457fB88f82364Dd982F7BA195FEE96b74',
     },
   },
   WETHavax: {
@@ -1214,65 +511,22 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Aptos: {
-        address:
-          '0x25ff8e0c07552c392c9e5dd4c9c07cf0382765c1bca560e80b6296a702034219::coin::T',
-        decimals: 8,
-      },
-      Solana: {
-        address: 'F9B9qLwUN3TAWGV9EGsuzFzS2PxWvKAmLhvfeqYNaS7J',
-        decimals: 8,
-      },
-      Bsc: {
-        address: '0xBDfe278268524de38Da89B3023C1F49deBDFdA8A',
-        decimals: 18,
-      },
-      Sui: {
-        address:
-          '0xc1ea686a329e35808c61484d95904d50522f1d1616cab4b416d9cfa9b274bc6c::coin::COIN',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xEfe64b52bc0bDfa109790736F25cefb79724adF0',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0xdF64fB41b7f45304a786695E0D5daD8d033C01eF',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x2912b3a9586Fc2AB177dC869e878c688DAA7d06E',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0xD85a87Edbe9fB3Baf6a1Bbd1E46f1C04B291331d',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xBe6EA3e70e2bbB0dbD093B657fbbc0DFF0BA67eC',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x9C673c6b651D6FDEF57441125A6AC16b08bba939',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xDac2C97b5E64d7C79d040cd2906EBe02341F1Ab5',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x9971F9d9170D787C4e4E01c56E1BDB308291CacF',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x86a09597fc91b116511B990D29CB46ddedC0fCb0',
-        decimals: 18,
-      },
+      Aptos:
+        '0x25ff8e0c07552c392c9e5dd4c9c07cf0382765c1bca560e80b6296a702034219::coin::T',
+      Solana: 'F9B9qLwUN3TAWGV9EGsuzFzS2PxWvKAmLhvfeqYNaS7J',
+      Bsc: '0xBDfe278268524de38Da89B3023C1F49deBDFdA8A',
+      Sui: '0xc1ea686a329e35808c61484d95904d50522f1d1616cab4b416d9cfa9b274bc6c::coin::COIN',
+      Base: '0xEfe64b52bc0bDfa109790736F25cefb79724adF0',
+      Arbitrum: '0xdF64fB41b7f45304a786695E0D5daD8d033C01eF',
+      Polygon: '0x2912b3a9586Fc2AB177dC869e878c688DAA7d06E',
+      Ethereum: '0xD85a87Edbe9fB3Baf6a1Bbd1E46f1C04B291331d',
+      Optimism: '0xBe6EA3e70e2bbB0dbD093B657fbbc0DFF0BA67eC',
+      Moonbeam: '0x9C673c6b651D6FDEF57441125A6AC16b08bba939',
+      Celo: '0xDac2C97b5E64d7C79d040cd2906EBe02341F1Ab5',
+      Klaytn: '0x9971F9d9170D787C4e4E01c56E1BDB308291CacF',
+      Fantom: '0x86a09597fc91b116511B990D29CB46ddedC0fCb0',
     },
   },
   FTM: {
@@ -1282,10 +536,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.FANTOM,
     coinGeckoId: 'fantom',
     color: '#12B4EC',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -1299,96 +550,32 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'fantom',
     color: '#12B4EC',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x4cD2690d86284e044cb63E60F1EB218a825a7e92',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0xbF8413EE8612E0E4f66Aa63B5ebE27f3C5883d47',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x3726831304D77f585f1Aca9d9841cc3Ef80dAa62',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xd19abc09B7b36F7558929b97a866f499a26c2f83',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xd1A342eE2210238233a347FEd61EE7Faf9f251ce',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x609AedD990bf45926bca9E4eE988b4Fb98587D3A',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'DRQBDBEWmwWGK13fRTLhSPzjbvMSUavhV6nW4RUH8W6T',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x6081300950a4f1e2081580e919c210436a1bed49080502834950d31ee55a2396::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xd1aa2ff36a0e93e1b4e4fecdecf8bb95bc5de399061c5e84b515281f48718842::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x936Fa2DE8380Dc5BF34C80F1BaD53a9f3630263B',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x7f7dcDb91930033a4Eb269196EBb6fd5f0644E4B',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x0b0ecbe5C3995541876d27633B63296570FB34Af',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1e0cwfmla7exa578xddl87paxexw9ymwrzysfjms8c2mstxjkldlqn45jqa',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/9EFE5F5D75A87197DD257BA7A96A3BCCEC9DB59D257C742FB5AA9D3DF612D476',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/397DFE63D87F6940ECA583DFF5461E48BF0BA6554CBBE70278E307DDFDC8E9D5',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0xf1D0eEeB6B6B35dc7289E1AD5e523F68b82bd09A',
-        decimals: 18,
-      },
-      Mantle: {
-        address: '0x6BFDc59ECBC5503aE16F71851064597D0a75dA76',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0xF3AebeA789F30C22F3657F70f4CaA0f8b49ed676',
-        decimals: 18,
-      },
-      Scroll: {
-        address: '0x16f077e2e9bF99Adfb1FEEc8360ee002842C44A2',
-        decimals: 18,
-      },
-      Xlayer: {
-        address: '0x956b5E88c311b976C76CB415C7E030A5Af87373b',
-        decimals: 18,
-      },
+      Ethereum: '0x4cD2690d86284e044cb63E60F1EB218a825a7e92',
+      Bsc: '0xbF8413EE8612E0E4f66Aa63B5ebE27f3C5883d47',
+      Polygon: '0x3726831304D77f585f1Aca9d9841cc3Ef80dAa62',
+      Avalanche: '0xd19abc09B7b36F7558929b97a866f499a26c2f83',
+      Celo: '0xd1A342eE2210238233a347FEd61EE7Faf9f251ce',
+      Moonbeam: '0x609AedD990bf45926bca9E4eE988b4Fb98587D3A',
+      Solana: 'DRQBDBEWmwWGK13fRTLhSPzjbvMSUavhV6nW4RUH8W6T',
+      Sui: '0x6081300950a4f1e2081580e919c210436a1bed49080502834950d31ee55a2396::coin::COIN',
+      Aptos:
+        '0xd1aa2ff36a0e93e1b4e4fecdecf8bb95bc5de399061c5e84b515281f48718842::coin::T',
+      Base: '0x936Fa2DE8380Dc5BF34C80F1BaD53a9f3630263B',
+      Arbitrum: '0x7f7dcDb91930033a4Eb269196EBb6fd5f0644E4B',
+      Optimism: '0x0b0ecbe5C3995541876d27633B63296570FB34Af',
+      Wormchain:
+        'wormhole1e0cwfmla7exa578xddl87paxexw9ymwrzysfjms8c2mstxjkldlqn45jqa',
+      Evmos:
+        'ibc/9EFE5F5D75A87197DD257BA7A96A3BCCEC9DB59D257C742FB5AA9D3DF612D476',
+      Osmosis:
+        'ibc/397DFE63D87F6940ECA583DFF5461E48BF0BA6554CBBE70278E307DDFDC8E9D5',
+      Blast: '0xf1D0eEeB6B6B35dc7289E1AD5e523F68b82bd09A',
+      Mantle: '0x6BFDc59ECBC5503aE16F71851064597D0a75dA76',
+      Klaytn: '0xF3AebeA789F30C22F3657F70f4CaA0f8b49ed676',
+      Scroll: '0x16f077e2e9bF99Adfb1FEEc8360ee002842C44A2',
+      Xlayer: '0x956b5E88c311b976C76CB415C7E030A5Af87373b',
     },
   },
   USDCfantom: {
@@ -1402,22 +589,11 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Bsc: {
-        address: '0x521af8b1c43B503BE91F542d82EEFEabc0C93340',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0xF68734163731ad6A6108f76A8e09862C1d412B42',
-        decimals: 6,
-      },
-      Ethereum: {
-        address: '0xfcC349c14013EdeFAAcAE09Ba30F4ef2571b8D2c',
-        decimals: 6,
-      },
+      Bsc: '0x521af8b1c43B503BE91F542d82EEFEabc0C93340',
+      Arbitrum: '0xF68734163731ad6A6108f76A8e09862C1d412B42',
+      Ethereum: '0xfcC349c14013EdeFAAcAE09Ba30F4ef2571b8D2c',
     },
   },
   CELO: {
@@ -1431,84 +607,29 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'celo',
     color: '#35D07E',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x3294395e62F4eB6aF3f1Fcf89f5602D90Fb3Ef69',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0x2A335e327a55b177f5B40132fEC5D7298aa0D7e6',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x922F49a9911effc034eE756196E59BE7b90D43b3',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x494317B8521c5a5287a06DEE467dd6fe285dA4a8',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xF432490C6c96C9d3bF523a499a1CEaFd8208A373',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xc1a792041985F65c17Eb65E66E254DC879CF380b',
-        decimals: 18,
-      },
-      Solana: {
-        address: '9kvAcwQbqejuJMd59mKuw2bfSsLRaQ7zuvaTVHEeBBec',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xa198f3be41cda8c07b3bf3fee02263526e535d682499806979a111e88a5a8d0f::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xac0c3c35d50f6ef00e3b4db6998732fe9ed6331384925fe8ec95fcd7745a9112::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x74df3823aA29D278cAD0A3632fCB56C896a38eD4',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x4E51aC49bC5e2d87e0EF713E9e5AB2D71EF4F336',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x9b88D293b7a791E40d36A39765FFd5A1B9b5c349',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1kqey3a6k26kyensq7elcpx229tlj4d3qlshwhjq5xjm8dcdvu60qtef8k9',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/83300733052AB5F6E0F0C221E24189B6DF26CC94C73D2F44627627F9DEF4A9C8',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/4ACD155D71182398277CBD2C630A7C8C5F0F16FFF77965FDE4C845A4CDE2D60C',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0x75345Cc6a3333cca03aCE2a28C7de328122Db3b1',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0xB2b5bC9bc872c7107CBC8E8e0E2805Db0ac4FBc2',
-        decimals: 18,
-      },
+      Ethereum: '0x3294395e62F4eB6aF3f1Fcf89f5602D90Fb3Ef69',
+      Bsc: '0x2A335e327a55b177f5B40132fEC5D7298aa0D7e6',
+      Polygon: '0x922F49a9911effc034eE756196E59BE7b90D43b3',
+      Avalanche: '0x494317B8521c5a5287a06DEE467dd6fe285dA4a8',
+      Fantom: '0xF432490C6c96C9d3bF523a499a1CEaFd8208A373',
+      Moonbeam: '0xc1a792041985F65c17Eb65E66E254DC879CF380b',
+      Solana: '9kvAcwQbqejuJMd59mKuw2bfSsLRaQ7zuvaTVHEeBBec',
+      Sui: '0xa198f3be41cda8c07b3bf3fee02263526e535d682499806979a111e88a5a8d0f::coin::COIN',
+      Aptos:
+        '0xac0c3c35d50f6ef00e3b4db6998732fe9ed6331384925fe8ec95fcd7745a9112::coin::T',
+      Base: '0x74df3823aA29D278cAD0A3632fCB56C896a38eD4',
+      Arbitrum: '0x4E51aC49bC5e2d87e0EF713E9e5AB2D71EF4F336',
+      Optimism: '0x9b88D293b7a791E40d36A39765FFd5A1B9b5c349',
+      Wormchain:
+        'wormhole1kqey3a6k26kyensq7elcpx229tlj4d3qlshwhjq5xjm8dcdvu60qtef8k9',
+      Osmosis:
+        'ibc/83300733052AB5F6E0F0C221E24189B6DF26CC94C73D2F44627627F9DEF4A9C8',
+      Kujira:
+        'ibc/4ACD155D71182398277CBD2C630A7C8C5F0F16FFF77965FDE4C845A4CDE2D60C',
+      Blast: '0x75345Cc6a3333cca03aCE2a28C7de328122Db3b1',
+      Klaytn: '0xB2b5bC9bc872c7107CBC8E8e0E2805Db0ac4FBc2',
     },
   },
   GLMR: {
@@ -1518,10 +639,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.GLMR,
     coinGeckoId: 'moonbeam',
     color: '#e1147b',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -1535,92 +653,31 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'moonbeam',
     color: '#e1147b',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x93d3696A9F879b331f40CB5059e37015423A3Bd0',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0x1C063db3c621BF901FC6C1D03328b08b2F9bbfba',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0xcC48d6CF842083fEc0E01d913fB964b585975F05',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x375aA6C67BF499fBf01804A9f92C03c0776F372d',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xBF227E92D6754EB4BFE26C40cb299ff2809Da45f',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x383A5513AbE4Fe36e0E00d484F710148E348Aa9D',
-        decimals: 18,
-      },
-      Solana: {
-        address: '7ixSaXGsHAFy34wogPk2YXiUX3BMmQMFdercdaHLnBby',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x66f87084e49c38f76502d17f87d17f943f183bb94117561eb573e075fdc5ff75::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x7ab1283a7b13c4254d4e1f803d7ce6578442c1d7a40d0faee41cd48ba4884c8a::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xfdB7311BeC3b2CcCF8407d0585f81B97b3b5eff1',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x944C5b67a03e6Cb93Ae1E4B70081f13b04CDB6Bd',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xbffD46DFDb8d3a02b8D2E0F864a2cD712090a4D3',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1gzuv84xrwwhxhf0f62av279vfyrfrm7x58fcnadlr5m90gnx223ses2st0',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/0F2941B0168D8DB77DA1B6A2D3A95EC04026D3C97FA3BFE8FD1D5D3F983AA518',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/3D337ECC89A8421DD6F33C4B7DDE9D4A18D728A4A688BA30E41F466EC8DD3869',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0x43E43580A34c8FdD4694e1F9B5F9b1121a7044a5',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x52a4558f98dDc7cb40cd9114C005f0B9571258Fc',
-        decimals: 18,
-      },
-      Scroll: {
-        address: '0x2Aba1Ed24EaFC17F801b1A7dF1c3a06737F8aB72',
-        decimals: 18,
-      },
-      Xlayer: {
-        address: '0xE2a44Dad57004517738FbD84cdf09Bd1451b4e43',
-        decimals: 18,
-      },
+      Ethereum: '0x93d3696A9F879b331f40CB5059e37015423A3Bd0',
+      Bsc: '0x1C063db3c621BF901FC6C1D03328b08b2F9bbfba',
+      Polygon: '0xcC48d6CF842083fEc0E01d913fB964b585975F05',
+      Avalanche: '0x375aA6C67BF499fBf01804A9f92C03c0776F372d',
+      Fantom: '0xBF227E92D6754EB4BFE26C40cb299ff2809Da45f',
+      Celo: '0x383A5513AbE4Fe36e0E00d484F710148E348Aa9D',
+      Solana: '7ixSaXGsHAFy34wogPk2YXiUX3BMmQMFdercdaHLnBby',
+      Sui: '0x66f87084e49c38f76502d17f87d17f943f183bb94117561eb573e075fdc5ff75::coin::COIN',
+      Aptos:
+        '0x7ab1283a7b13c4254d4e1f803d7ce6578442c1d7a40d0faee41cd48ba4884c8a::coin::T',
+      Base: '0xfdB7311BeC3b2CcCF8407d0585f81B97b3b5eff1',
+      Arbitrum: '0x944C5b67a03e6Cb93Ae1E4B70081f13b04CDB6Bd',
+      Optimism: '0xbffD46DFDb8d3a02b8D2E0F864a2cD712090a4D3',
+      Wormchain:
+        'wormhole1gzuv84xrwwhxhf0f62av279vfyrfrm7x58fcnadlr5m90gnx223ses2st0',
+      Osmosis:
+        'ibc/0F2941B0168D8DB77DA1B6A2D3A95EC04026D3C97FA3BFE8FD1D5D3F983AA518',
+      Kujira:
+        'ibc/3D337ECC89A8421DD6F33C4B7DDE9D4A18D728A4A688BA30E41F466EC8DD3869',
+      Blast: '0x43E43580A34c8FdD4694e1F9B5F9b1121a7044a5',
+      Klaytn: '0x52a4558f98dDc7cb40cd9114C005f0B9571258Fc',
+      Scroll: '0x2Aba1Ed24EaFC17F801b1A7dF1c3a06737F8aB72',
+      Xlayer: '0xE2a44Dad57004517738FbD84cdf09Bd1451b4e43',
     },
   },
   SOL: {
@@ -1630,11 +687,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
-    decimals: {
-      Ethereum: 9,
-      Solana: 9,
-      default: 8,
-    },
+    decimals: 9,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -1648,107 +701,36 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
-    decimals: {
-      Ethereum: 9,
-      Solana: 9,
-      default: 8,
-    },
+    decimals: 9,
     foreignAssets: {
-      Ethereum: {
-        address: '0xD31a59c85aE9D8edEFeC411D448f90841571b89c',
-        decimals: 9,
-      },
-      Bsc: {
-        address: '0xfA54fF1a158B5189Ebba6ae130CEd6bbd3aEA76e',
-        decimals: 9,
-      },
-      Polygon: {
-        address: '0xd93f7E271cB87c23AaA73edC008A79646d1F9912',
-        decimals: 9,
-      },
-      Avalanche: {
-        address: '0xFE6B19286885a4F7F55AdAD09C3Cd1f906D2478F',
-        decimals: 9,
-      },
-      Fantom: {
-        address: '0xd99021C2A33e4Cf243010539c9e9b7c52E0236c1',
-        decimals: 9,
-      },
-      Celo: {
-        address: '0x4581E64115d46CcdeE65Be2336bEc86c9BA54C01',
-        decimals: 9,
-      },
-      Moonbeam: {
-        address: '0x99Fec54a5Ad36D50A4Bba3a41CAB983a5BB86A7d',
-        decimals: 9,
-      },
-      Sui: {
-        address:
-          '0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xdd89c0e695df0692205912fb69fc290418bed0dbe6e4573d744a6d5e6bab6c13::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x1C61629598e4a901136a81BC138E5828dc150d67',
-        decimals: 9,
-      },
-      Arbitrum: {
-        address: '0x2bcC6D6CdBbDC0a4071e48bb3B969b06B3330c07',
-        decimals: 9,
-      },
-      Optimism: {
-        address: '0xba1Cf949c382A32a09A17B2AdF3587fc7fA664f1',
-        decimals: 9,
-      },
-      Wormchain: {
-        address:
-          'wormhole1wn625s4jcmvk0szpl85rj5azkfc6suyvf75q6vrddscjdphtve8sca0pvl',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/E5CA126979E2FFB4C70C072F8094D07ECF27773B37623AD2BF7582AD0726F0F3',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/1E43D59E565D41FB4E54CA639B838FFD5BCFC20003D330A56CB1396231AA1CBA',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/4443218F584A7AB2DFBCF93872D6E5B6967A11C53515DDF45A2CF387C54BD73A',
-        decimals: 8,
-      },
-      Injective: {
-        address:
-          'ibc/A8B0B746B5AB736C2D8577259B510D56B8AF598008F68041E3D634BCDE72BE97',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0xA5370b8e2413b23eA16F3B78D1d1ba3969678227',
-        decimals: 9,
-      },
-      Mantle: {
-        address: '0xDA03239f428c76A527e1ceCa0ecA6cC367A2D945',
-        decimals: 9,
-      },
-      Klaytn: {
-        address: '0xfAA03A2AC2d1B8481Ec3fF44A0152eA818340e6d',
-        decimals: 9,
-      },
-      Xlayer: {
-        address: '0x3a859D92da2E16Ad32C5C6F3ADAddFBa4dE3A47e',
-        decimals: 9,
-      },
-      Scroll: {
-        address: '0xCDf95E1F720caade4b1DC83ABfE15400D2a458AD',
-        decimals: 9,
-      },
+      Ethereum: '0xD31a59c85aE9D8edEFeC411D448f90841571b89c',
+      Bsc: '0xfA54fF1a158B5189Ebba6ae130CEd6bbd3aEA76e',
+      Polygon: '0xd93f7E271cB87c23AaA73edC008A79646d1F9912',
+      Avalanche: '0xFE6B19286885a4F7F55AdAD09C3Cd1f906D2478F',
+      Fantom: '0xd99021C2A33e4Cf243010539c9e9b7c52E0236c1',
+      Celo: '0x4581E64115d46CcdeE65Be2336bEc86c9BA54C01',
+      Moonbeam: '0x99Fec54a5Ad36D50A4Bba3a41CAB983a5BB86A7d',
+      Sui: '0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN',
+      Aptos:
+        '0xdd89c0e695df0692205912fb69fc290418bed0dbe6e4573d744a6d5e6bab6c13::coin::T',
+      Base: '0x1C61629598e4a901136a81BC138E5828dc150d67',
+      Arbitrum: '0x2bcC6D6CdBbDC0a4071e48bb3B969b06B3330c07',
+      Optimism: '0xba1Cf949c382A32a09A17B2AdF3587fc7fA664f1',
+      Wormchain:
+        'wormhole1wn625s4jcmvk0szpl85rj5azkfc6suyvf75q6vrddscjdphtve8sca0pvl',
+      Kujira:
+        'ibc/E5CA126979E2FFB4C70C072F8094D07ECF27773B37623AD2BF7582AD0726F0F3',
+      Osmosis:
+        'ibc/1E43D59E565D41FB4E54CA639B838FFD5BCFC20003D330A56CB1396231AA1CBA',
+      Evmos:
+        'ibc/4443218F584A7AB2DFBCF93872D6E5B6967A11C53515DDF45A2CF387C54BD73A',
+      Injective:
+        'ibc/A8B0B746B5AB736C2D8577259B510D56B8AF598008F68041E3D634BCDE72BE97',
+      Blast: '0xA5370b8e2413b23eA16F3B78D1d1ba3969678227',
+      Mantle: '0xDA03239f428c76A527e1ceCa0ecA6cC367A2D945',
+      Klaytn: '0xfAA03A2AC2d1B8481Ec3fF44A0152eA818340e6d',
+      Xlayer: '0x3a859D92da2E16Ad32C5C6F3ADAddFBa4dE3A47e',
+      Scroll: '0xCDf95E1F720caade4b1DC83ABfE15400D2a458AD',
     },
   },
   USDCsol: {
@@ -1762,266 +744,93 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Ethereum: {
-        address: '0x41f7B8b9b897276b7AAE926a9016935280b44E97',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0x91Ca579B0D47E5cfD5D0862c21D5659d39C8eCf0',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0x576Cf361711cd940CD9C397BB98C4C896cBd38De',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0x0950Fc1AD509358dAeaD5eB8020a3c7d8b43b9DA',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0xb8398DA4FB3BC4306B9D9d9d13d9573e7d0E299f',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x8B6eef6C449D3Ac723a9C06a9eaE2dCd7d308BA9',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0x098d6eE48341D6a0a0A72dE5baaF80A10E0F6082',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0xb231fcda8bbddb31f2ef02e6161444aec64a514e2c89279584ac9806ce9cf037::coin::COIN',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0xc91d826e29a3183eb3b6f6aa3a722089fdffb8e9642b94c5fcd4c48d035c0080::coin::T',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0x3870546cfd600ba87e4180686d29dC993A45d3B7',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0x6F974A6dfD5B166731704Be226795901c45Bb815',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xe8CE40EBBB844142400D21558a2F1c9683d69139',
-        decimals: 6,
-      },
-      Wormchain: {
-        address:
-          'wormhole17fr8awnysyv3nt5je4strczdupssl8u9jqam890jfv72sh32yyqqhtg3ry',
-        decimals: 6,
-      },
-      Osmosis: {
-        address:
-          'ibc/F08DE332018E8070CC4C68FE06E04E254F527556A614F5F8F9A68AF38D367E45',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0xa1a7feeD29EbFa38079D943486c23f401939Ce80',
-        decimals: 6,
-      },
-      Scroll: {
-        address: '0x883Ccb5aEfD0084f1e4D04b133675acd6D5F123F',
-        decimals: 6,
-      },
+      Ethereum: '0x41f7B8b9b897276b7AAE926a9016935280b44E97',
+      Bsc: '0x91Ca579B0D47E5cfD5D0862c21D5659d39C8eCf0',
+      Polygon: '0x576Cf361711cd940CD9C397BB98C4C896cBd38De',
+      Avalanche: '0x0950Fc1AD509358dAeaD5eB8020a3c7d8b43b9DA',
+      Fantom: '0xb8398DA4FB3BC4306B9D9d9d13d9573e7d0E299f',
+      Celo: '0x8B6eef6C449D3Ac723a9C06a9eaE2dCd7d308BA9',
+      Moonbeam: '0x098d6eE48341D6a0a0A72dE5baaF80A10E0F6082',
+      Sui: '0xb231fcda8bbddb31f2ef02e6161444aec64a514e2c89279584ac9806ce9cf037::coin::COIN',
+      Aptos:
+        '0xc91d826e29a3183eb3b6f6aa3a722089fdffb8e9642b94c5fcd4c48d035c0080::coin::T',
+      Arbitrum: '0x3870546cfd600ba87e4180686d29dC993A45d3B7',
+      Optimism: '0x6F974A6dfD5B166731704Be226795901c45Bb815',
+      Base: '0xe8CE40EBBB844142400D21558a2F1c9683d69139',
+      Wormchain:
+        'wormhole17fr8awnysyv3nt5je4strczdupssl8u9jqam890jfv72sh32yyqqhtg3ry',
+      Osmosis:
+        'ibc/F08DE332018E8070CC4C68FE06E04E254F527556A614F5F8F9A68AF38D367E45',
+      Klaytn: '0xa1a7feeD29EbFa38079D943486c23f401939Ce80',
+      Scroll: '0x883Ccb5aEfD0084f1e4D04b133675acd6D5F123F',
     },
   },
   SUI: {
     key: 'SUI',
     symbol: 'SUI',
     nativeChain: 'Sui',
-    tokenId: {
-      chain: 'Sui',
-      address: '0x2::sui::SUI',
-    },
+    tokenId: { chain: 'Sui', address: '0x2::sui::SUI' },
     icon: Icon.SUI,
     coinGeckoId: 'sui',
     color: '#8457EF',
-    decimals: {
-      Ethereum: 9,
-      Sui: 9,
-      default: 8,
-    },
+    decimals: 9,
     foreignAssets: {
-      Ethereum: {
-        address: '0x84074EA631dEc7a4edcD5303d164D5dEa4c653D6',
-        decimals: 9,
-      },
-      Bsc: {
-        address: '0x8314f6Bf1B4dd8604A0fC33C84F9AF2fc07AABC8',
-        decimals: 9,
-      },
-      Polygon: {
-        address: '0x34bE049fEbfc6C64Ffd82Da08a8931A9a45f2cc8',
-        decimals: 9,
-      },
-      Avalanche: {
-        address: '0x1703CB0F762D2a435199B64Ea47E5349B7C17480',
-        decimals: 9,
-      },
-      Fantom: {
-        address: '0xC277423a21F6e32D886BF85Ef6cCB945d5D28347',
-        decimals: 9,
-      },
-      Celo: {
-        address: '0x1Cb9859B1A16A67ef83A0c7b9A21eeC17d9a97Dc',
-        decimals: 9,
-      },
-      Moonbeam: {
-        address: '0x484eCCE6775143D3335Ed2C7bCB22151C53B9F49',
-        decimals: 9,
-      },
-      Solana: {
-        address: 'G1vJEgzepqhnVu35BN4jrkv3wVwkujYWFFCxhbEZ1CZr',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xa72a97e872be9ee3d2f14d56fd511eb7e4a53f4055be3a267d8602e7685b41c0::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x36c6FBF7B49bF65f5F82b674af219C05b2a4aDD1',
-        decimals: 9,
-      },
-      Arbitrum: {
-        address: '0xCF79d86B8a830030aF6D835737d6eac3bE823fD7',
-        decimals: 9,
-      },
-      Optimism: {
-        address: '0x27A533e438892DA192725b4C9AcA51447F457212',
-        decimals: 9,
-      },
-      Wormchain: {
-        address:
-          'wormhole19hlynxzedrlqv99v6qscww7d3crhl86qtd0vprpltg5g9xx6jk9q6ya33y',
-        decimals: 8,
-      },
-      Kujira: {
-        address:
-          'ibc/EBA52E7239CC1BC7F8ECF4F41523B6DD477FF067FD953315704A9A4FD2131B48',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/B1C287C2701774522570010EEBCD864BCB7AB714711B3AA218699FDD75E832F5',
-        decimals: 8,
-      },
-      Mantle: {
-        address: '0x9ef1BB6072d7d6B9C935d9c040133036aD532119',
-        decimals: 9,
-      },
-      Blast: {
-        address: '0x62c95Ffd6d2f893Ea2EF072d1EbBcb242a974b1A',
-        decimals: 9,
-      },
-      Klaytn: {
-        address: '0xB0B40516293e0204fB376A18aA230A210cbE0305',
-        decimals: 9,
-      },
-      Xlayer: {
-        address: '0xEa76dBFE6e449420f294e74E057518F750E99A16',
-        decimals: 9,
-      },
+      Ethereum: '0x84074EA631dEc7a4edcD5303d164D5dEa4c653D6',
+      Bsc: '0x8314f6Bf1B4dd8604A0fC33C84F9AF2fc07AABC8',
+      Polygon: '0x34bE049fEbfc6C64Ffd82Da08a8931A9a45f2cc8',
+      Avalanche: '0x1703CB0F762D2a435199B64Ea47E5349B7C17480',
+      Fantom: '0xC277423a21F6e32D886BF85Ef6cCB945d5D28347',
+      Celo: '0x1Cb9859B1A16A67ef83A0c7b9A21eeC17d9a97Dc',
+      Moonbeam: '0x484eCCE6775143D3335Ed2C7bCB22151C53B9F49',
+      Solana: 'G1vJEgzepqhnVu35BN4jrkv3wVwkujYWFFCxhbEZ1CZr',
+      Aptos:
+        '0xa72a97e872be9ee3d2f14d56fd511eb7e4a53f4055be3a267d8602e7685b41c0::coin::T',
+      Base: '0x36c6FBF7B49bF65f5F82b674af219C05b2a4aDD1',
+      Arbitrum: '0xCF79d86B8a830030aF6D835737d6eac3bE823fD7',
+      Optimism: '0x27A533e438892DA192725b4C9AcA51447F457212',
+      Wormchain:
+        'wormhole19hlynxzedrlqv99v6qscww7d3crhl86qtd0vprpltg5g9xx6jk9q6ya33y',
+      Kujira:
+        'ibc/EBA52E7239CC1BC7F8ECF4F41523B6DD477FF067FD953315704A9A4FD2131B48',
+      Osmosis:
+        'ibc/B1C287C2701774522570010EEBCD864BCB7AB714711B3AA218699FDD75E832F5',
+      Mantle: '0x9ef1BB6072d7d6B9C935d9c040133036aD532119',
+      Blast: '0x62c95Ffd6d2f893Ea2EF072d1EbBcb242a974b1A',
+      Klaytn: '0xB0B40516293e0204fB376A18aA230A210cbE0305',
+      Xlayer: '0xEa76dBFE6e449420f294e74E057518F750E99A16',
     },
   },
   APT: {
     key: 'APT',
     symbol: 'APT',
     nativeChain: 'Aptos',
-    tokenId: {
-      chain: 'Aptos',
-      address: '0x1::aptos_coin::AptosCoin',
-    },
+    tokenId: { chain: 'Aptos', address: '0x1::aptos_coin::AptosCoin' },
     icon: Icon.APT,
     coinGeckoId: 'aptos',
     color: '#8457EF',
-    decimals: {
-      Ethereum: 8,
-      default: 8,
-    },
+    decimals: 8,
     foreignAssets: {
-      Ethereum: {
-        address: '0x8CDf7AF57E4c8B930e1B23c477c22f076530585e',
-        decimals: 8,
-      },
-      Bsc: {
-        address: '0x2Ba98cf7Edd2c5C794e21bc3Dc6973D3C2585eE3',
-        decimals: 8,
-      },
-      Polygon: {
-        address: '0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef',
-        decimals: 8,
-      },
-      Avalanche: {
-        address: '0x43c588459b3243fA541B98CC4B2E995b3de553A2',
-        decimals: 8,
-      },
-      Fantom: {
-        address: '0x3Cd9162Ca5256b8E26A0e3Ad14CCfF7C0Da0F174',
-        decimals: 8,
-      },
-      Celo: {
-        address: '0x89F2b718Ca518db39d377F0ABBa6B42582b549F7',
-        decimals: 8,
-      },
-      Moonbeam: {
-        address: '0x25331575641d35D9765e1934acC8F0991c58e904',
-        decimals: 8,
-      },
-      Solana: {
-        address: '6LNeTYMqtNm1pBFN8PfhQaoLyegAH8GD32WmHU9erXKN',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x3a5143bb1196e3bcdfab6203d1683ae29edd26294fc8bfeafe4aaa9d2704df37::coin::COIN',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x1d36126289Be1658297A35CC3EB2BB80A7D7A04b',
-        decimals: 8,
-      },
-      Arbitrum: {
-        address: '0x4EdeF400eDe5309240814b5FC403F224504604e9',
-        decimals: 8,
-      },
-      Optimism: {
-        address: '0xC5B3AC2DF8D8D7AC851F763a5b3Ff23B4A696d59',
-        decimals: 8,
-      },
-      Wormchain: {
-        address:
-          'wormhole1f9sxjn0qu8xylcpzlvnhrefnatndqxnrajfrnr5h97hegnmsdqhsh6juc0',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/A4D176906C1646949574B48C1928D475F2DF56DE0AC04E1C99B08F90BC21ABDE',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0x2a3DdE20159FbDbC86f1da0e7a462711b610c815',
-        decimals: 8,
-      },
-      Klaytn: {
-        address: '0x68d5254007BE3a6d3d2A37e2C1ad3921D049F46D',
-        decimals: 8,
-      },
-      Xlayer: {
-        address: '0xEdF2AEaCE382A3c0722f110c4927d34b78bce34F',
-        decimals: 8,
-      },
+      Ethereum: '0x8CDf7AF57E4c8B930e1B23c477c22f076530585e',
+      Bsc: '0x2Ba98cf7Edd2c5C794e21bc3Dc6973D3C2585eE3',
+      Polygon: '0xa4ef199d3ad524E9C3C51Ac46B303B103A307Cef',
+      Avalanche: '0x43c588459b3243fA541B98CC4B2E995b3de553A2',
+      Fantom: '0x3Cd9162Ca5256b8E26A0e3Ad14CCfF7C0Da0F174',
+      Celo: '0x89F2b718Ca518db39d377F0ABBa6B42582b549F7',
+      Moonbeam: '0x25331575641d35D9765e1934acC8F0991c58e904',
+      Solana: '6LNeTYMqtNm1pBFN8PfhQaoLyegAH8GD32WmHU9erXKN',
+      Sui: '0x3a5143bb1196e3bcdfab6203d1683ae29edd26294fc8bfeafe4aaa9d2704df37::coin::COIN',
+      Base: '0x1d36126289Be1658297A35CC3EB2BB80A7D7A04b',
+      Arbitrum: '0x4EdeF400eDe5309240814b5FC403F224504604e9',
+      Optimism: '0xC5B3AC2DF8D8D7AC851F763a5b3Ff23B4A696d59',
+      Wormchain:
+        'wormhole1f9sxjn0qu8xylcpzlvnhrefnatndqxnrajfrnr5h97hegnmsdqhsh6juc0',
+      Osmosis:
+        'ibc/A4D176906C1646949574B48C1928D475F2DF56DE0AC04E1C99B08F90BC21ABDE',
+      Blast: '0x2a3DdE20159FbDbC86f1da0e7a462711b610c815',
+      Klaytn: '0x68d5254007BE3a6d3d2A37e2C1ad3921D049F46D',
+      Xlayer: '0xEdF2AEaCE382A3c0722f110c4927d34b78bce34F',
     },
   },
   ETHarbitrum: {
@@ -2032,10 +841,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#5794EC',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETHarbitrum',
   },
   WETHarbitrum: {
@@ -2050,75 +856,26 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#5794EC',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0xb945E3F853B5f8033C8513Cf3cE9F8AD9beBB1c9',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0xaA1eEdABC48D078350ccBdD620bD088848e299E5',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x6a5c59AB16268d2c872916054C50440B999e417C',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xDfDA518A1612030536bD77Fd67eAcbe90dDC52Ab',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xE8367853A0823515D37b1538331B4704089becb4',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xc6F962fCcb140ece554AfD0E589f971532A57f14',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'CSD6JQMvLi46psjHdpfFdr826mF336pEVMJgjwcoS1m4',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x33744e7df340a4d01c23f6b18c13563f767545ea95f976f8045f056358419da3::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0xe977796d7bfb3263609b90dffd264c7bd078ce35dac42b55302858d9fa3452b::coin::T',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x9D36e0edb8BBaBeec5edE8a218dc2B9a6Fce494F',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x825206E1D29456337769e6f1384101E997C6A732',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x18872b45c603eD2EbC508b9C5514a85c2e2791FB',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole18nlwscr7290j463vcptqlgqudycry2rdnw2ysltpc2nqefk3353s808rl9',
-        decimals: 8,
-      },
-      Evmos: {
-        address:
-          'ibc/9E2E7B4A53409267CD686F4EB67969C2602A0F5FF9BDB1082B00E71CC4815DDE',
-        decimals: 8,
-      },
-      Klaytn: {
-        address: '0x3CF1751E32c4225CB12ba953786C260C2cE89008',
-        decimals: 18,
-      },
+      Ethereum: '0xb945E3F853B5f8033C8513Cf3cE9F8AD9beBB1c9',
+      Bsc: '0xaA1eEdABC48D078350ccBdD620bD088848e299E5',
+      Polygon: '0x6a5c59AB16268d2c872916054C50440B999e417C',
+      Avalanche: '0xDfDA518A1612030536bD77Fd67eAcbe90dDC52Ab',
+      Fantom: '0xE8367853A0823515D37b1538331B4704089becb4',
+      Celo: '0xc6F962fCcb140ece554AfD0E589f971532A57f14',
+      Solana: 'CSD6JQMvLi46psjHdpfFdr826mF336pEVMJgjwcoS1m4',
+      Sui: '0x33744e7df340a4d01c23f6b18c13563f767545ea95f976f8045f056358419da3::coin::COIN',
+      Aptos:
+        '0xe977796d7bfb3263609b90dffd264c7bd078ce35dac42b55302858d9fa3452b::coin::T',
+      Base: '0x9D36e0edb8BBaBeec5edE8a218dc2B9a6Fce494F',
+      Optimism: '0x825206E1D29456337769e6f1384101E997C6A732',
+      Moonbeam: '0x18872b45c603eD2EbC508b9C5514a85c2e2791FB',
+      Wormchain:
+        'wormhole18nlwscr7290j463vcptqlgqudycry2rdnw2ysltpc2nqefk3353s808rl9',
+      Evmos:
+        'ibc/9E2E7B4A53409267CD686F4EB67969C2602A0F5FF9BDB1082B00E71CC4815DDE',
+      Klaytn: '0x3CF1751E32c4225CB12ba953786C260C2cE89008',
     },
   },
   USDCarbitrum: {
@@ -2132,68 +889,23 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Ethereum: {
-        address: '0xCFc006a32a98031C2338BF9d5ff8ED2c0Cae4a9e',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0x5caa170b465122D15a6D20FD9A804a9613CE7882',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0x7800FE8951cdc1cDea748d878fAce63018D97960',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0x4b5fE357Eb11c735078e47526D6e853DBff18541',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0xA41a62567d9eb960D84b72663FdaeBE0BCdE2683',
-        decimals: 6,
-      },
-      Solana: {
-        address: 'CR4xnGrhsu1fWNPoX4KbTUUtqGMF3mzRLfj4S6YEs1Yo',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0xc3f8927de33d3deb52c282a836082a413bc73c6ee0bd4d7ec7e3b6b4c28e9abf::coin::COIN',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0xca3a2c28bc8c6c762f752dd2a4ebbfd00356ca99977ce6636e3af5897124a87a::coin::T',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0xa6252F56cc6eEA21165d56744C795F91c8a3Cf68',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xb96B82Cd6D45d98Fb6897D16A5E4EE888329C513',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0x2228703672906fEe5eD681Ec28e42B4506b8c336',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0xbd2B6D665439514EEaA8519f4fE87CC8C46e9167',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x3d5973fF7288f47857dAa5a32C53976A9A968928',
-        decimals: 6,
-      },
-      Xlayer: {
-        address: '0xd53bD30985B4125fc561774e388d9f679BB84117',
-        decimals: 6,
-      },
+      Ethereum: '0xCFc006a32a98031C2338BF9d5ff8ED2c0Cae4a9e',
+      Bsc: '0x5caa170b465122D15a6D20FD9A804a9613CE7882',
+      Polygon: '0x7800FE8951cdc1cDea748d878fAce63018D97960',
+      Avalanche: '0x4b5fE357Eb11c735078e47526D6e853DBff18541',
+      Celo: '0xA41a62567d9eb960D84b72663FdaeBE0BCdE2683',
+      Solana: 'CR4xnGrhsu1fWNPoX4KbTUUtqGMF3mzRLfj4S6YEs1Yo',
+      Sui: '0xc3f8927de33d3deb52c282a836082a413bc73c6ee0bd4d7ec7e3b6b4c28e9abf::coin::COIN',
+      Aptos:
+        '0xca3a2c28bc8c6c762f752dd2a4ebbfd00356ca99977ce6636e3af5897124a87a::coin::T',
+      Optimism: '0xa6252F56cc6eEA21165d56744C795F91c8a3Cf68',
+      Base: '0xb96B82Cd6D45d98Fb6897D16A5E4EE888329C513',
+      Fantom: '0x2228703672906fEe5eD681Ec28e42B4506b8c336',
+      Moonbeam: '0xbd2B6D665439514EEaA8519f4fE87CC8C46e9167',
+      Klaytn: '0x3d5973fF7288f47857dAa5a32C53976A9A968928',
+      Xlayer: '0xd53bD30985B4125fc561774e388d9f679BB84117',
     },
   },
   ETHoptimism: {
@@ -2204,10 +916,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#D53424',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETHoptimism',
   },
   WETHoptimism: {
@@ -2222,70 +931,24 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#D53424',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Fantom: {
-        address: '0xe8E8f941377A955bFA72880ec0dc2319dbC827a8',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x8d53771b1Ec7461f8e45Bca2609c45bC0bbd0677',
-        decimals: 18,
-      },
-      Solana: {
-        address: '8M6d63oL7dvMZ1gNbgGe3h8afMSWJEKEhtPTFM2u8h3c',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x0aab14ec22908de73d1b0619f5e03842398f8e68262981bd35ef44b42d22b23a::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x6a7a7f36ef5e2d0e65fcf72669c20d514d68298b0f76c7554517208f73260aaf::coin::T',
-        decimals: 8,
-      },
-      Arbitrum: {
-        address: '0xB1fC645a86fB5085e12D8BDDb77702F728D2A26F',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xDf11535274c0FD2Fe41A88bd1bBF802D72296037',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0x94AEc09B5e2CE591e39DC6aa58A3A6E85Ed45265',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x8B5653Ae095529155462eDa8CF664eD96773F557',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x8182De59485Bb646542Db8C7E5958148Dc699319',
-        decimals: 18,
-      },
-      Base: {
-        address: '0xCb725aC8d9985D3bE306Dd9e1517d3702929176c',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1ev8rhdflmlq6de5g7ttj585fhuv3jfhnuhfzyh7qrswhzaq2tkqswxz6y3',
-        decimals: 8,
-      },
-      Moonbeam: {
-        address: '0xd4870F7F5AD8Ae5139E1a5D8AD4ac55204aE4490',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x4ab77AF7059435b71dBC3B7c5255983C8628eFdf',
-        decimals: 18,
-      },
+      Fantom: '0xe8E8f941377A955bFA72880ec0dc2319dbC827a8',
+      Celo: '0x8d53771b1Ec7461f8e45Bca2609c45bC0bbd0677',
+      Solana: '8M6d63oL7dvMZ1gNbgGe3h8afMSWJEKEhtPTFM2u8h3c',
+      Sui: '0x0aab14ec22908de73d1b0619f5e03842398f8e68262981bd35ef44b42d22b23a::coin::COIN',
+      Aptos:
+        '0x6a7a7f36ef5e2d0e65fcf72669c20d514d68298b0f76c7554517208f73260aaf::coin::T',
+      Arbitrum: '0xB1fC645a86fB5085e12D8BDDb77702F728D2A26F',
+      Avalanche: '0xDf11535274c0FD2Fe41A88bd1bBF802D72296037',
+      Bsc: '0x94AEc09B5e2CE591e39DC6aa58A3A6E85Ed45265',
+      Ethereum: '0x8B5653Ae095529155462eDa8CF664eD96773F557',
+      Polygon: '0x8182De59485Bb646542Db8C7E5958148Dc699319',
+      Base: '0xCb725aC8d9985D3bE306Dd9e1517d3702929176c',
+      Wormchain:
+        'wormhole1ev8rhdflmlq6de5g7ttj585fhuv3jfhnuhfzyh7qrswhzaq2tkqswxz6y3',
+      Moonbeam: '0xd4870F7F5AD8Ae5139E1a5D8AD4ac55204aE4490',
+      Klaytn: '0x4ab77AF7059435b71dBC3B7c5255983C8628eFdf',
     },
   },
   USDCoptimism: {
@@ -2299,69 +962,24 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Fantom: {
-        address: '0x385b219f0C4fa2e84EfE5aaf9692a821C57B8248',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0xEe48963C003e21EaCEdFA8a0A19BB3cbF7E776Fe',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0x7143e8EA96e158381057a58AfdDF44601c7e532C',
-        decimals: 6,
-      },
-      Base: {
-        address: '0xc6bfBeb3002aD563D2d1f72614C61C83Bf147Acd',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0x3A5C2Da9E30741cb59a5e9446A23A86886fC9DC2',
-        decimals: 6,
-      },
-      Wormchain: {
-        address:
-          'wormhole1snw0qugpjcxwtxzzkqt5guwavq85eumxzeagql2u2m662xrtnjuqyj3pkj',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0x4f6ecb05a797902d472abc2f5804bde93a53d8b75f14f767824cdb1623a4ee83::coin::T',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0xa41ae127D04F7ee73B5058E2C60Fb7c7A2D21F79',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0xBe04f76A0ba2100c3F2d6Aa1FD8484F415469573',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0x31F12aCb60C3c32EE884F3894a873347C097D925',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0x6037801f060f0f54b3817bca05e3c8b9b9ffaa2da8e93fd5b80fa662aa3c9e55::coin::COIN',
-        decimals: 6,
-      },
-      Solana: {
-        address: 'J8kcD4Wnd1ehne1dpL8WNtgZQR6Jpui2cTZcrmg5ybAa',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x7Ee2AB1443fDB59AECEa3aDD8F81296d68c2D1e3',
-        decimals: 6,
-      },
-      Ethereum: {
-        address: '0xe77C99b64414e0fd9aeEA48AFFBBD2E97A895020',
-        decimals: 6,
-      },
+      Fantom: '0x385b219f0C4fa2e84EfE5aaf9692a821C57B8248',
+      Celo: '0xEe48963C003e21EaCEdFA8a0A19BB3cbF7E776Fe',
+      Moonbeam: '0x7143e8EA96e158381057a58AfdDF44601c7e532C',
+      Base: '0xc6bfBeb3002aD563D2d1f72614C61C83Bf147Acd',
+      Arbitrum: '0x3A5C2Da9E30741cb59a5e9446A23A86886fC9DC2',
+      Wormchain:
+        'wormhole1snw0qugpjcxwtxzzkqt5guwavq85eumxzeagql2u2m662xrtnjuqyj3pkj',
+      Aptos:
+        '0x4f6ecb05a797902d472abc2f5804bde93a53d8b75f14f767824cdb1623a4ee83::coin::T',
+      Bsc: '0xa41ae127D04F7ee73B5058E2C60Fb7c7A2D21F79',
+      Avalanche: '0xBe04f76A0ba2100c3F2d6Aa1FD8484F415469573',
+      Polygon: '0x31F12aCb60C3c32EE884F3894a873347C097D925',
+      Sui: '0x6037801f060f0f54b3817bca05e3c8b9b9ffaa2da8e93fd5b80fa662aa3c9e55::coin::COIN',
+      Solana: 'J8kcD4Wnd1ehne1dpL8WNtgZQR6Jpui2cTZcrmg5ybAa',
+      Klaytn: '0x7Ee2AB1443fDB59AECEa3aDD8F81296d68c2D1e3',
+      Ethereum: '0xe77C99b64414e0fd9aeEA48AFFBBD2E97A895020',
     },
   },
   WETHbsc: {
@@ -2376,65 +994,22 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Aptos: {
-        address:
-          '0xd9fc4259ec5def95477dba9f0861c2882d1f8bee9a4138b476dd0720a3444547::coin::T',
-        decimals: 8,
-      },
-      Solana: {
-        address: 'FzjTz2cD1DfqYvafrbHWZvf1dK9qjwXGLuaU7xYXQjxP',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0x5029d5a94429a73b8036cd67192d9c5e09bbc2c0fee942d50075a9edba66744f::coin::COIN',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xf50509Bb6aF76E20c6E1eD493699c5f70764BcCC',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x6478377A399bE8c92bD35254aA7bF287836de32e',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x5DbBB101CDc29443d12055eCDDdD7ca037Dce721',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xc511E3aec79CABD605021C237c475Ec553B002d4',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x09F236D3708894581b1Cf679e582ba9eA5BE16f0',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x4C07075BB44076106f3389766946b79784Fb5C58',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xf0e509144CfA602d0A5e8C75d76FF74077f52f2b',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x8088Bc767c392b5769b94c9ec1D07c62874c8d5f',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x2D291e940DbDdaa9E847Ba5cC49451575f086b27',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xBefd7902B682938b29B3FD3D4AdECD9A984D5930',
-        decimals: 18,
-      },
+      Aptos:
+        '0xd9fc4259ec5def95477dba9f0861c2882d1f8bee9a4138b476dd0720a3444547::coin::T',
+      Solana: 'FzjTz2cD1DfqYvafrbHWZvf1dK9qjwXGLuaU7xYXQjxP',
+      Sui: '0x5029d5a94429a73b8036cd67192d9c5e09bbc2c0fee942d50075a9edba66744f::coin::COIN',
+      Base: '0xf50509Bb6aF76E20c6E1eD493699c5f70764BcCC',
+      Arbitrum: '0x6478377A399bE8c92bD35254aA7bF287836de32e',
+      Ethereum: '0x5DbBB101CDc29443d12055eCDDdD7ca037Dce721',
+      Fantom: '0xc511E3aec79CABD605021C237c475Ec553B002d4',
+      Celo: '0x09F236D3708894581b1Cf679e582ba9eA5BE16f0',
+      Klaytn: '0x4C07075BB44076106f3389766946b79784Fb5C58',
+      Avalanche: '0xf0e509144CfA602d0A5e8C75d76FF74077f52f2b',
+      Optimism: '0x8088Bc767c392b5769b94c9ec1D07c62874c8d5f',
+      Polygon: '0x2D291e940DbDdaa9E847Ba5cC49451575f086b27',
+      Moonbeam: '0xBefd7902B682938b29B3FD3D4AdECD9A984D5930',
     },
   },
   ETHbase: {
@@ -2445,10 +1020,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETHbase',
   },
   WETHbase: {
@@ -2463,69 +1035,23 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Ethereum: {
-        address: '0x1D4241F7370253C0f12EFC536B7e16E462Fb3526',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0x9dc152F4941cE1A138326e70c3600385bf0C22dD',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x5BCf8d8c097FbB35C371F921E3FF3e6F6Eb54B41',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0xFA83178c66fE51ee99109b5cC912f8098Ff812eF',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xd3365E7355230c78098b44B172eE27DAB95B041A',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x905CADB645684140E285e2D09D39dF5a2082BC87',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0x6C6f83366A42fcA4D30a2D3f1914284de995Ac3a',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'DWXe1hxpnb8LAH21iyXcjvMbiAGzoYyuCVQtRLvZdLYd',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xaecbc804fa7ca7cffc74c9a05eb6ae86fda0c68375b5c1724204a1065bcb239a::coin::COIN',
-        decimals: 8,
-      },
-      Aptos: {
-        address:
-          '0x5b5f14781164cf77185a7b6acd8e4f3cbb7e7cfb1cd5760d2b8af81075fc153d::coin::T',
-        decimals: 8,
-      },
-      Arbitrum: {
-        address: '0xBAfbCB010D920e0Dab9DFdcF634De1B777028a85',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x3F369a664fa665e01e8EB9f20bFcE03A0CAb8971',
-        decimals: 18,
-      },
-      Mantle: {
-        address: '0x4a2176DE2Fb36485704965bd1Cc471854f21303B',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x7Bf9ad1D104dEAE4B59Ef1be6a273Cb46BA16362',
-        decimals: 18,
-      },
+      Ethereum: '0x1D4241F7370253C0f12EFC536B7e16E462Fb3526',
+      Bsc: '0x9dc152F4941cE1A138326e70c3600385bf0C22dD',
+      Polygon: '0x5BCf8d8c097FbB35C371F921E3FF3e6F6Eb54B41',
+      Avalanche: '0xFA83178c66fE51ee99109b5cC912f8098Ff812eF',
+      Fantom: '0xd3365E7355230c78098b44B172eE27DAB95B041A',
+      Celo: '0x905CADB645684140E285e2D09D39dF5a2082BC87',
+      Moonbeam: '0x6C6f83366A42fcA4D30a2D3f1914284de995Ac3a',
+      Solana: 'DWXe1hxpnb8LAH21iyXcjvMbiAGzoYyuCVQtRLvZdLYd',
+      Sui: '0xaecbc804fa7ca7cffc74c9a05eb6ae86fda0c68375b5c1724204a1065bcb239a::coin::COIN',
+      Aptos:
+        '0x5b5f14781164cf77185a7b6acd8e4f3cbb7e7cfb1cd5760d2b8af81075fc153d::coin::T',
+      Arbitrum: '0xBAfbCB010D920e0Dab9DFdcF634De1B777028a85',
+      Optimism: '0x3F369a664fa665e01e8EB9f20bFcE03A0CAb8971',
+      Mantle: '0x4a2176DE2Fb36485704965bd1Cc471854f21303B',
+      Klaytn: '0x7Bf9ad1D104dEAE4B59Ef1be6a273Cb46BA16362',
     },
   },
   USDCbase: {
@@ -2539,86 +1065,29 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Solana: {
-        address: 'EfqRM8ZGWhDTKJ7BHmFvNagKVu3AxQRDQs8WMMaoBCu6',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0xE6d02a875CcC153c076fe418f33De3A5C420f505',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x2e2acb1782Aad0490f8446b6fD4626C467987bD6',
-        decimals: 6,
-      },
-      Wormchain: {
-        address:
-          'wormhole1edkult6zudk6ld23fesjfrehux35q86engsq5jlycl0e4upkz8mqkgcprf',
-        decimals: 6,
-      },
-      Osmosis: {
-        address:
-          'ibc/8AC0F990290BBEF3AEBFCBF70F902AD954781BB40D07EB76341272800D48D05F',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0x55CaD531c8E303Cab8B3BE4bB4744Db4f896ac81',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0xb931c7BbD87A6e249EaA7355B13927F9c99Bce87',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0x8619F97D4d08382548F536E5CE1D3e0D9bA40326',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0x1eeCaB0F75fE93abbFa0cDFfb4fB13d1dC8706c8',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0xab933e939a9236BD439F7d29b87CE712f42bAC06',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0xd9E4C283d8A49Dc3767A6F5a4dFdc1d0cEf21604',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0x7e3e74afcc1913aa9491c8cee89b02131a6e5519b090f16b54321835c1241cfb::coin::COIN',
-        decimals: 6,
-      },
-      Aptos: {
-        address:
-          '0xfcc4fcd734d5b8578fb629d238d15264a49eca6165c7444c21feec3b4962eb88::coin::T',
-        decimals: 6,
-      },
-      Blast: {
-        address: '0x35a926D55A726cdF70Ac498972F22426363F3C77',
-        decimals: 6,
-      },
-      Mantle: {
-        address: '0x5D628a3285a10fdd93AEa704007957F294e05F91',
-        decimals: 6,
-      },
-      Ethereum: {
-        address: '0xc38261846c42C1E1D59E04dA675Eb1974E9cE7b1',
-        decimals: 6,
-      },
-      Klaytn: {
-        address: '0x0a2330c1C46E9A74e8651F7117a1264410eA3C88',
-        decimals: 6,
-      },
-      Scroll: {
-        address: '0x22C9bde4Ad49C4b6CCFB8D394B5ED42A57853d58',
-        decimals: 6,
-      },
+      Solana: 'EfqRM8ZGWhDTKJ7BHmFvNagKVu3AxQRDQs8WMMaoBCu6',
+      Moonbeam: '0xE6d02a875CcC153c076fe418f33De3A5C420f505',
+      Celo: '0x2e2acb1782Aad0490f8446b6fD4626C467987bD6',
+      Wormchain:
+        'wormhole1edkult6zudk6ld23fesjfrehux35q86engsq5jlycl0e4upkz8mqkgcprf',
+      Osmosis:
+        'ibc/8AC0F990290BBEF3AEBFCBF70F902AD954781BB40D07EB76341272800D48D05F',
+      Bsc: '0x55CaD531c8E303Cab8B3BE4bB4744Db4f896ac81',
+      Optimism: '0xb931c7BbD87A6e249EaA7355B13927F9c99Bce87',
+      Arbitrum: '0x8619F97D4d08382548F536E5CE1D3e0D9bA40326',
+      Polygon: '0x1eeCaB0F75fE93abbFa0cDFfb4fB13d1dC8706c8',
+      Avalanche: '0xab933e939a9236BD439F7d29b87CE712f42bAC06',
+      Fantom: '0xd9E4C283d8A49Dc3767A6F5a4dFdc1d0cEf21604',
+      Sui: '0x7e3e74afcc1913aa9491c8cee89b02131a6e5519b090f16b54321835c1241cfb::coin::COIN',
+      Aptos:
+        '0xfcc4fcd734d5b8578fb629d238d15264a49eca6165c7444c21feec3b4962eb88::coin::T',
+      Blast: '0x35a926D55A726cdF70Ac498972F22426363F3C77',
+      Mantle: '0x5D628a3285a10fdd93AEa704007957F294e05F91',
+      Ethereum: '0xc38261846c42C1E1D59E04dA675Eb1974E9cE7b1',
+      Klaytn: '0x0a2330c1C46E9A74e8651F7117a1264410eA3C88',
+      Scroll: '0x22C9bde4Ad49C4b6CCFB8D394B5ED42A57853d58',
     },
   },
   wstETHbase: {
@@ -2633,279 +1102,13 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.WSTETH,
     coinGeckoId: 'wrapped-steth',
     color: '#3AA3FF',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
+    decimals: 18,
     foreignAssets: {
-      Arbitrum: {
-        address: '0x09E79693E44c8813A8CA25EeD7A40e5E24cD9c01',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x187175c7a526f48c905202Bd2Bf8D25A457F479F',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x95d4C8e851D9E8c6B92aa518474E991c373E9Fb2',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x6ee40855c0BaB20585d17D2b9dd8d2Cd1cd41801',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x5e513CA12DbD8424bDFc5B50711dF4AE999a8C58',
-        decimals: 18,
-      },
-    },
-  },
-  tBTC: {
-    key: 'tBTC',
-    symbol: 'tBTC',
-    nativeChain: 'Ethereum',
-    tokenId: {
-      chain: 'Ethereum',
-      address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-    foreignAssets: {
-      Polygon: {
-        address: '0x3362b2B92b331925F09F9E5bCA3E8C43921a435C',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xeE27799cF29D7F64647B92f47d543B382B49f83E',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xeCd65E4B89495Ae63b4f11cA872a23680A7c419c',
-        decimals: 18,
-      },
-      Solana: {
-        address: '25rXTx9zDZcHyTav5sRqM6YBvTGu9pPH9yv83uAEqbgG',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xbc3a676894871284b3ccfb2eec66f428612000e2a6e6d23f592ce8833c27c973::coin::COIN',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x9EE95E6Bd1B3C5740F105d6fb06b8BDeF64Eec70',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x57723abc582DBfE11Ea01f1A1f48aEE20bD65D73',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xeC0a755664271b87002dDa33CA2484B24aF68912',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1nu9wf9dw384attnpu0pwfet5fajn05w2ex4r07mghvk3xcwrt2yq5uutp5',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/6207D35D2C08F2162575C3C4BFD524226E50639121A273045F1B393AF67DCEB3',
-        decimals: 8,
-      },
-      Avalanche: {
-        address: '0x3F531c038A0D2d9c7D19FC3554cd0439791526c4',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0x94c97dd3Bde5bC1406BCe82E7941A6365968521D',
-        decimals: 18,
-      },
-      Aptos: {
-        address:
-          '0x9d5a0f8215301fa8096df332b1533f6328f18c32fbac2a7089cfbea73b3068a7::coin::T',
-        decimals: 8,
-      },
-      Celo: {
-        address: '0xFaED7314060FCEc652ED91D9eac6c980DCA9D3B8',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0xB66cF9b8887d677993368d9A5377bd6469a24818',
-        decimals: 18,
-      },
-    },
-  },
-  tBTCpolygon: {
-    key: 'tBTCpolygon',
-    symbol: 'tBTC',
-    nativeChain: 'Polygon',
-    tokenId: {
-      chain: 'Polygon',
-      address: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-    foreignAssets: {
-      Ethereum: {
-        address: '0xb4c624dBC50804dA086cf2380cD55dEBC0d22E96',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xE4C32B9eA749fa0342B1C42C01E80028B97c3917',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x3bab04bDFd2Dc3640c2B9390A2Da05bC1192D482',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1uj24zecnaxz7ftz0sh6dsayfene4w3yptwg0422kves9duel67vsr7hlyz',
-        decimals: 8,
-      },
-    },
-  },
-  tBTCoptimism: {
-    key: 'tBTCoptimism',
-    symbol: 'tBTC',
-    nativeChain: 'Optimism',
-    tokenId: {
-      chain: 'Optimism',
-      address: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-    foreignAssets: {
-      Ethereum: {
-        address: '0xB8d1E0642bFD3744CaBd2ca8830cFabE19b2Ca54',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x68A8797da1c8ED592600d70A5151886A92D2183C',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x2519010b6585247BcDC8BcDa5C8730Be754b8c76',
-        decimals: 18,
-      },
-      Solana: {
-        address: '32L9kyjJvrhUGrTjfDUGUxDFm3PqehbDNUiqbXP8EVd5',
-        decimals: 8,
-      },
-      Base: {
-        address: '0x629a4DF9F59B253f28b92CeC3F9e0BD19f62CE4c',
-        decimals: 18,
-      },
-    },
-  },
-  tBTCarbitrum: {
-    key: 'tBTCarbitrum',
-    symbol: 'tBTC',
-    nativeChain: 'Arbitrum',
-    tokenId: {
-      chain: 'Arbitrum',
-      address: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-    foreignAssets: {
-      Base: {
-        address: '0x56D0873e0eCA4a56063e1BF945788365666CFBFC',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0x72878E7d3A8746e0c91b9F16F0b8ee4fDE9DDc06',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x2390a5131fcba6e47f702172cF4876589E4161c6',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x4F3819A6cfF717BFfE801a75c73A984141c76589',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x045D8c62D5326aa51a31518ECF3aF80C17421Aba',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1q8ynvqvtw49ln73mn70v4me4q03fvvmhkf2lh4ueam5w4362s2asjmvxtd',
-        decimals: 8,
-      },
-      Solana: {
-        address: '3WPTVC1Nw9cXizYrTbQLVYvXUziH2CE9G3UnPu5M1ySM',
-        decimals: 8,
-      },
-    },
-  },
-  tBTCbase: {
-    key: 'tBTCbase',
-    symbol: 'tBTC',
-    nativeChain: 'Base',
-    tokenId: {
-      chain: 'Base',
-      address: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-    foreignAssets: {
-      Ethereum: {
-        address: '0x733F28B3e315046Db01dAbC292D6F0F7F26C4551',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x761213993383aB05434f1D2f9CBc4c2246636532',
-        decimals: 18,
-      },
-      Klaytn: {
-        address: '0x0A8Ca0Ea298896a1c330B95fe7e99c33880111c0',
-        decimals: 18,
-      },
-    },
-  },
-  tBTCsol: {
-    key: 'tBTCsol',
-    symbol: 'tBTC',
-    nativeChain: 'Solana',
-    tokenId: {
-      chain: 'Solana',
-      address: '6DNSN2BJsaPFdFFc1zP37kkeNe4Usc1Sqkzr9C9vPWcU',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
+      Arbitrum: '0x09E79693E44c8813A8CA25EeD7A40e5E24cD9c01',
+      Ethereum: '0x187175c7a526f48c905202Bd2Bf8D25A457F479F',
+      Polygon: '0x95d4C8e851D9E8c6B92aa518474E991c373E9Fb2',
+      Optimism: '0x6ee40855c0BaB20585d17D2b9dd8d2Cd1cd41801',
+      Avalanche: '0x5e513CA12DbD8424bDFc5B50711dF4AE999a8C58',
     },
   },
   wstETH: {
@@ -2919,53 +1122,20 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.WSTETH,
     coinGeckoId: 'wrapped-steth',
     color: '#3AA3FF',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
+    decimals: 18,
     foreignAssets: {
-      Polygon: {
-        address: '0xe082a7Fc696De18172Ad08D956569Ee80BC37f06',
-        decimals: 18,
-      },
-      Solana: {
-        address: 'ZScHuTtqZukUrtZS43teTKGs2VqkKL8k4QCouR2n6Uo',
-        decimals: 8,
-      },
-      Arbitrum: {
-        address: '0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1gg6f95cymcfrfzhpek7cf5wl53t5kng52cd2m0krgdlu8k58vd8qezy8pt',
-        decimals: 8,
-      },
-      Osmosis: {
-        address:
-          'ibc/BF75AE1500CB7EC458E91A11731F1B6AC1F1FE1FA937A88564955ED6A83CA2FB',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0xad80E1A9B5824234afA9dE1F3bbDb8a994796169',
-        decimals: 18,
-      },
-      Avalanche: {
-        address: '0x11449fd2F05D93827972b40adE96F6ffBE42E35a',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x2a2Ec6Ad3e47C536F47934F63b95BD647F1C730E',
-        decimals: 18,
-      },
+      Polygon: '0xe082a7Fc696De18172Ad08D956569Ee80BC37f06',
+      Solana: 'ZScHuTtqZukUrtZS43teTKGs2VqkKL8k4QCouR2n6Uo',
+      Arbitrum: '0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F',
+      Optimism: '0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87',
+      Wormchain:
+        'wormhole1gg6f95cymcfrfzhpek7cf5wl53t5kng52cd2m0krgdlu8k58vd8qezy8pt',
+      Osmosis:
+        'ibc/BF75AE1500CB7EC458E91A11731F1B6AC1F1FE1FA937A88564955ED6A83CA2FB',
+      Base: '0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b',
+      Bsc: '0xad80E1A9B5824234afA9dE1F3bbDb8a994796169',
+      Avalanche: '0x11449fd2F05D93827972b40adE96F6ffBE42E35a',
+      Fantom: '0x2a2Ec6Ad3e47C536F47934F63b95BD647F1C730E',
     },
   },
   wstETHarbitrum: {
@@ -2980,49 +1150,18 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.WSTETH,
     coinGeckoId: 'wrapped-steth',
     color: '#3AA3FF',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
+    decimals: 18,
     foreignAssets: {
-      Bsc: {
-        address: '0x159167e842C586a81f02E55bc043AC8EdB033E0b',
-        decimals: 18,
-      },
-      Aptos: {
-        address:
-          '0xd2ca17516bc4ca57c1c69577e0c9cc0129153286695b46b97f438ecc138c225e::coin::T',
-        decimals: 8,
-      },
-      Solana: {
-        address: '8wJakbZuv7WApfHmRo2sdkeQfu6hXqfEqjb7BYXDKpKe',
-        decimals: 8,
-      },
-      Sui: {
-        address:
-          '0xb607aed1c09e676384d14ae638dbcb08523fc691d309e71c856c7fdcb60d4430::coin::COIN',
-        decimals: 8,
-      },
-      Base: {
-        address: '0xbE3981b37CcE5eCb6925d2ad9D9E28dE7b165793',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xEae5ccc3c36beF59f6794b467e7e228CB3720415',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0xf65BF40A3299Df500D440520dF7e6ce1BEa53E73',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x906310cE867C22c5016248Bd791FA5dd162c9D6d',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0xcf0aa97c2fD78Ee0f0C3090B9EB65d2bd6C1D81a',
-        decimals: 18,
-      },
+      Bsc: '0x159167e842C586a81f02E55bc043AC8EdB033E0b',
+      Aptos:
+        '0xd2ca17516bc4ca57c1c69577e0c9cc0129153286695b46b97f438ecc138c225e::coin::T',
+      Solana: '8wJakbZuv7WApfHmRo2sdkeQfu6hXqfEqjb7BYXDKpKe',
+      Sui: '0xb607aed1c09e676384d14ae638dbcb08523fc691d309e71c856c7fdcb60d4430::coin::COIN',
+      Base: '0xbE3981b37CcE5eCb6925d2ad9D9E28dE7b165793',
+      Optimism: '0xEae5ccc3c36beF59f6794b467e7e228CB3720415',
+      Fantom: '0xf65BF40A3299Df500D440520dF7e6ce1BEa53E73',
+      Ethereum: '0x906310cE867C22c5016248Bd791FA5dd162c9D6d',
+      Polygon: '0xcf0aa97c2fD78Ee0f0C3090B9EB65d2bd6C1D81a',
     },
   },
   wstETHoptimism: {
@@ -3037,31 +1176,13 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.WSTETH,
     coinGeckoId: 'wrapped-steth',
     color: '#3AA3FF',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
+    decimals: 18,
     foreignAssets: {
-      Bsc: {
-        address: '0x1f29fAD000255BF49D72803b2A8FaC8e31947eF8',
-        decimals: 18,
-      },
-      Base: {
-        address: '0xBb0BeaB819dEAf091C193bE4bBEeA9D5b0F5227C',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0xf99C5EEd186601955a9a1027536D1b46b1f909F8',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x9065e1D25E65F7A1D60bb6197154386B52faA469',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0xB3ceE6DCa1dD528CB7CC258e32D8B50ce9Ee46f5',
-        decimals: 18,
-      },
+      Bsc: '0x1f29fAD000255BF49D72803b2A8FaC8e31947eF8',
+      Base: '0xBb0BeaB819dEAf091C193bE4bBEeA9D5b0F5227C',
+      Arbitrum: '0xf99C5EEd186601955a9a1027536D1b46b1f909F8',
+      Polygon: '0x9065e1D25E65F7A1D60bb6197154386B52faA469',
+      Ethereum: '0xB3ceE6DCa1dD528CB7CC258e32D8B50ce9Ee46f5',
     },
   },
   wstETHpolygon: {
@@ -3076,40 +1197,19 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.WSTETH,
     coinGeckoId: 'wrapped-steth',
     color: '#3AA3FF',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
+    decimals: 18,
     foreignAssets: {
-      Base: {
-        address: '0xcB6D47199d60747152d7671D6497ce8D23cc1D75',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0x23D3901A635fDd98D8d6509bc0720281f80a8E6D',
-        decimals: 18,
-      },
-      Ethereum: {
-        address: '0x302F636d723c8Ed75C0d1E9D9C714009184C5624',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0x4fad81d2268a7D9E1e0fE7dB38af07FFFA0aA56E',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xA4c7302659eCF88a90e62e915Bd486E66B616A4C',
-        decimals: 18,
-      },
+      Base: '0xcB6D47199d60747152d7671D6497ce8D23cc1D75',
+      Arbitrum: '0x23D3901A635fDd98D8d6509bc0720281f80a8E6D',
+      Ethereum: '0x302F636d723c8Ed75C0d1E9D9C714009184C5624',
+      Optimism: '0x4fad81d2268a7D9E1e0fE7dB38af07FFFA0aA56E',
+      Celo: '0xA4c7302659eCF88a90e62e915Bd486E66B616A4C',
     },
   },
   KLAY: {
     key: 'KLAY',
     symbol: 'KLAY',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     nativeChain: 'Klaytn',
     icon: Icon.KLAY,
     coinGeckoId: 'klay-token',
@@ -3128,78 +1228,26 @@ export const MAINNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'wrapped-klay',
     color: '#fa4212',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     foreignAssets: {
-      Aptos: {
-        address:
-          '0x539b652f8230a0e42adaeda4706b5639893d22362eda6ea897493c210cb48219::coin::T',
-        decimals: 8,
-      },
-      Ethereum: {
-        address: '0x9AEA32B459e96C8eF5010f69130bf95fd129ac05',
-        decimals: 18,
-      },
-      Celo: {
-        address: '0xe304254de5c2048F9bFb042dDFB54f84d1d77730',
-        decimals: 18,
-      },
-      Polygon: {
-        address: '0x415ce980fde17F1FF102e1c6e4ce860Acc615D74',
-        decimals: 18,
-      },
-      Base: {
-        address: '0x41c433c146c47Dc53FC48cDc69e406e365e298E1',
-        decimals: 18,
-      },
-      Arbitrum: {
-        address: '0xFA95f6c796E54F9C4a99392CAE84410a25794BB3',
-        decimals: 18,
-      },
-      Moonbeam: {
-        address: '0xf0a9476E4712123A807859f9Fd25fe98213379BD',
-        decimals: 18,
-      },
-      Fantom: {
-        address: '0x787e2F3509583C0F03A339Be0826463C839CBE5E',
-        decimals: 18,
-      },
-      Sui: {
-        address:
-          '0xa5ec915864d7f37b25ca9144b2db6ebcf29e73603c2ccf9d0e765adcd9049a98::coin::COIN',
-        decimals: 8,
-      },
-      Avalanche: {
-        address: '0x126C03982Ad6D7ef7E6aF020bF219e87185a6BC3',
-        decimals: 18,
-      },
-      Bsc: {
-        address: '0xEA970e7b7D131Ea36c3051C9Ca11e785462fE00c',
-        decimals: 18,
-      },
-      Optimism: {
-        address: '0xbbeF8233a0d10EEAb84E913FaDB337ab9b62F683',
-        decimals: 18,
-      },
-      Wormchain: {
-        address:
-          'wormhole1kyy876kye7k79fuzat532yyqkrzhlr6l7hc7lfa2rk5tygzhy00qrhjgkc',
-        decimals: 8,
-      },
-      Solana: {
-        address: '2b8fZGLBZjpxFugCdnJbbLLBYxvx23rsrsvLYYueiHb7',
-        decimals: 8,
-      },
-      Blast: {
-        address: '0x5F6fE613528df9AE4Bf6f667fbCB923263098617',
-        decimals: 18,
-      },
-      Scroll: {
-        address: '0xA55FB7A046454998b2f6d8D99Df5F0E108b38229',
-        decimals: 18,
-      },
+      Aptos:
+        '0x539b652f8230a0e42adaeda4706b5639893d22362eda6ea897493c210cb48219::coin::T',
+      Ethereum: '0x9AEA32B459e96C8eF5010f69130bf95fd129ac05',
+      Celo: '0xe304254de5c2048F9bFb042dDFB54f84d1d77730',
+      Polygon: '0x415ce980fde17F1FF102e1c6e4ce860Acc615D74',
+      Base: '0x41c433c146c47Dc53FC48cDc69e406e365e298E1',
+      Arbitrum: '0xFA95f6c796E54F9C4a99392CAE84410a25794BB3',
+      Moonbeam: '0xf0a9476E4712123A807859f9Fd25fe98213379BD',
+      Fantom: '0x787e2F3509583C0F03A339Be0826463C839CBE5E',
+      Sui: '0xa5ec915864d7f37b25ca9144b2db6ebcf29e73603c2ccf9d0e765adcd9049a98::coin::COIN',
+      Avalanche: '0x126C03982Ad6D7ef7E6aF020bF219e87185a6BC3',
+      Bsc: '0xEA970e7b7D131Ea36c3051C9Ca11e785462fE00c',
+      Optimism: '0xbbeF8233a0d10EEAb84E913FaDB337ab9b62F683',
+      Wormchain:
+        'wormhole1kyy876kye7k79fuzat532yyqkrzhlr6l7hc7lfa2rk5tygzhy00qrhjgkc',
+      Solana: '2b8fZGLBZjpxFugCdnJbbLLBYxvx23rsrsvLYYueiHb7',
+      Blast: '0x5F6fE613528df9AE4Bf6f667fbCB923263098617',
+      Scroll: '0xA55FB7A046454998b2f6d8D99Df5F0E108b38229',
     },
   },
   PYTH: {
@@ -3213,64 +1261,22 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.PYTH,
     coinGeckoId: 'pyth-network',
     color: '#E6DAFE',
-    decimals: {
-      default: 6,
-    },
+    decimals: 6,
     foreignAssets: {
-      Aptos: {
-        address:
-          '0x770211b47954e15bec1a4271bf33bacebc2d2adb43b7dc1ca45efa787615dd4c::coin::T',
-        decimals: 6,
-      },
-      Bsc: {
-        address: '0xb0188B0bb2cD4a6D2744637fC83C94a284B247Da',
-        decimals: 6,
-      },
-      Base: {
-        address: '0x4c5d8A75F3762c1561D96f177694f67378705E98',
-        decimals: 6,
-      },
-      Celo: {
-        address: '0x985aa4814419ba338379A634785216301e51113D',
-        decimals: 6,
-      },
-      Avalanche: {
-        address: '0x8A0691e602B7a5FCc51a27E4a08376dE50889B42',
-        decimals: 6,
-      },
-      Polygon: {
-        address: '0xFa4B761A1e07909Ba31331a5dfa12390E3ff5583',
-        decimals: 6,
-      },
-      Fantom: {
-        address: '0x77ad3B2dA29FBd208F12c3C701E969F4422aAD79',
-        decimals: 6,
-      },
-      Optimism: {
-        address: '0x99C59ACeBFEF3BBFB7129DC90D1a11DB0E91187f',
-        decimals: 6,
-      },
-      Ethereum: {
-        address: '0xeFc0CED4B3D536103e76a1c4c74F0385C8F4Bdd3',
-        decimals: 6,
-      },
-      Arbitrum: {
-        address: '0xE4D5c6aE46ADFAF04313081e8C0052A30b6Dd724',
-        decimals: 6,
-      },
-      Sui: {
-        address:
-          '0x9c6d76eb273e6b5ba2ec8d708b7fa336a5531f6be59f326b5be8d4d8b12348a4::coin::COIN',
-        decimals: 6,
-      },
-      Moonbeam: {
-        address: '0x27cc3FDbDD1F415b09a41232D0fD71345DAB8030',
-        decimals: 6,
-      },
-      Xlayer: {
-        address: '0x057b766b3fB76527cf815c3b5C38Dfa8144335CF',
-        decimals: 6,
-      },
+      Aptos:
+        '0x770211b47954e15bec1a4271bf33bacebc2d2adb43b7dc1ca45efa787615dd4c::coin::T',
+      Bsc: '0xb0188B0bb2cD4a6D2744637fC83C94a284B247Da',
+      Base: '0x4c5d8A75F3762c1561D96f177694f67378705E98',
+      Celo: '0x985aa4814419ba338379A634785216301e51113D',
+      Avalanche: '0x8A0691e602B7a5FCc51a27E4a08376dE50889B42',
+      Polygon: '0xFa4B761A1e07909Ba31331a5dfa12390E3ff5583',
+      Fantom: '0x77ad3B2dA29FBd208F12c3C701E969F4422aAD79',
+      Optimism: '0x99C59ACeBFEF3BBFB7129DC90D1a11DB0E91187f',
+      Ethereum: '0xeFc0CED4B3D536103e76a1c4c74F0385C8F4Bdd3',
+      Arbitrum: '0xE4D5c6aE46ADFAF04313081e8C0052A30b6Dd724',
+      Sui: '0x9c6d76eb273e6b5ba2ec8d708b7fa336a5531f6be59f326b5be8d4d8b12348a4::coin::COIN',
+      Moonbeam: '0x27cc3FDbDD1F415b09a41232D0fD71345DAB8030',
+      Xlayer: '0x057b766b3fB76527cf815c3b5C38Dfa8144335CF',
     },
   },
   ETHscroll: {
@@ -3280,10 +1286,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'Scroll',
     icon: Icon.SCROLL,
     coinGeckoId: 'ethereum',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETHscroll',
   },
   WETHscroll: {
@@ -3297,16 +1300,8 @@ export const MAINNET_TOKENS: TokensConfig = {
       address: '0x5300000000000000000000000000000000000004',
     },
     coinGeckoId: 'ethereum',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    foreignAssets: {
-      Arbitrum: {
-        address: '0xAe81a542e20270b48Bd5297E3e0f280f79E46C42',
-        decimals: 18,
-      },
-    },
+    decimals: 18,
+    foreignAssets: { Arbitrum: '0xAe81a542e20270b48Bd5297E3e0f280f79E46C42' },
   },
   ETHblast: {
     key: 'ETHblast',
@@ -3315,10 +1310,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'Blast',
     icon: Icon.BLAST,
     coinGeckoId: 'ethereum',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETHblast',
   },
   WETHblast: {
@@ -3329,13 +1321,10 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.BLAST,
     tokenId: {
       chain: 'Blast',
-      address: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7', // non-rebasing
+      address: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
     },
     coinGeckoId: 'ethereum',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
   },
   OKB: {
     key: 'OKB',
@@ -3343,10 +1332,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'Xlayer',
     icon: Icon.XLAYER,
     coinGeckoId: 'okb',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WOKB',
   },
   WOKB: {
@@ -3359,10 +1345,7 @@ export const MAINNET_TOKENS: TokensConfig = {
       address: '0xe538905cf8410324e03A5A23C1c177a474D59b2b',
     },
     coinGeckoId: 'okb',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
   },
   MNT: {
     key: 'MNT',
@@ -3370,10 +1353,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'Mantle',
     icon: Icon.MANTLE,
     coinGeckoId: 'mantle',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WMNT',
   },
   WMNT: {
@@ -3386,15 +1366,7 @@ export const MAINNET_TOKENS: TokensConfig = {
       address: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
     },
     coinGeckoId: 'mantle',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    foreignAssets: {
-      Optimism: {
-        address: '0xf704F6a3241609Cfb3E44Db1237E68EB6CaC7C04',
-        decimals: 18,
-      },
-    },
+    decimals: 18,
+    foreignAssets: { Optimism: '0xf704F6a3241609Cfb3E44Db1237E68EB6CaC7C04' },
   },
 };

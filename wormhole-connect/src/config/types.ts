@@ -3,7 +3,6 @@ import {
   ChainConfig as BaseChainConfig,
   TokenId,
   ChainResourceMap,
-  Context,
   WormholeContext,
   WormholeConfig,
 } from 'sdklegacy';
@@ -258,10 +257,6 @@ export type MoreChainDefinition = {
   showOpenInNewIcon?: boolean;
 };
 
-type DecimalsMap = Partial<Record<Context, number>> & {
-  default: number;
-};
-
 export type TokenConfig = {
   key: string;
   symbol: string;
@@ -270,14 +265,11 @@ export type TokenConfig = {
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
   color?: string;
-  decimals: DecimalsMap;
+  decimals: number;
   wrappedAsset?: string;
   displayName?: string;
   foreignAssets?: {
-    [chain in Chain]?: {
-      address: string;
-      decimals: number;
-    };
+    [chain in Chain]?: string; // foreign address
   };
 };
 
@@ -291,7 +283,6 @@ export interface ChainConfig extends BaseChainConfig {
   chainId: number | string;
   icon: Icon;
   maxBlockSearch: number;
-  automaticRelayer?: boolean;
 }
 
 export type ChainsConfig = {
@@ -344,10 +335,7 @@ export class WrappedTokenAddressCache {
       if (token.foreignAssets) {
         for (const chain in token.foreignAssets) {
           const foreignAsset = tokens[key].foreignAssets![chain];
-          const addr = WormholeV2.parseAddress(
-            chain as Chain,
-            foreignAsset.address,
-          );
+          const addr = WormholeV2.parseAddress(chain as Chain, foreignAsset);
           this.set(key, chain as Chain, addr);
         }
       }

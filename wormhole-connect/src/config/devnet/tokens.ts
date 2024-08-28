@@ -8,10 +8,7 @@ export const DEVNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -25,10 +22,7 @@ export const DEVNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
+    decimals: 18,
   },
   TKN: {
     key: 'TKN',
@@ -41,54 +35,6 @@ export const DEVNET_TOKENS: TokensConfig = {
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-  },
-  OSMO: {
-    key: 'OSMO',
-    symbol: 'OSMO',
-    nativeChain: 'Osmosis',
-    tokenId: {
-      chain: 'Osmosis',
-      address: 'uosmo',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'osmo',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
-  WORM: {
-    key: 'WORM',
-    symbol: 'WORM',
-    nativeChain: 'Wormchain',
-    tokenId: {
-      chain: 'Wormchain',
-      address: 'uworm',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'worm',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
-  LUNA: {
-    key: 'LUNA',
-    symbol: 'LUNA',
-    nativeChain: 'Terra2',
-    tokenId: {
-      chain: 'Terra2',
-      address: 'uluna',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'uluna',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
+    decimals: 18,
   },
 };
