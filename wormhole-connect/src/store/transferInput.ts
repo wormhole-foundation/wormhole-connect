@@ -409,10 +409,13 @@ export const transferInputSlice = createSlice({
     ) => {
       state.allSupportedDestTokens = payload;
     },
-    swapChains: (state: TransferInputState) => {
-      const tmp = state.fromChain;
+    swapInputs: (state: TransferInputState) => {
+      const tmpChain = state.fromChain;
       state.fromChain = state.toChain;
-      state.toChain = tmp;
+      state.toChain = tmpChain;
+      const tmpToken = state.token;
+      state.token = state.destToken;
+      state.destToken = tmpToken;
       performModificationsIfFromChainChanged(state);
       performModificationsIfToChainChanged(state);
     },
@@ -500,7 +503,7 @@ export const {
   setSupportedDestTokens,
   setAllSupportedDestTokens,
   setSupportedSourceTokens,
-  swapChains,
+  swapInputs,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;
