@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { Chain, amount as sdkAmount, routes } from '@wormhole-foundation/sdk';
 
 import { getTokenDecimals } from 'utils';
 import config from 'config';
@@ -35,6 +35,40 @@ const defaultQuote: ParsedQuote = {
   relayerFee: 0,
 };
 
+const parseQuote = (quote: routes.QuoteResult<any>, sourceChain?: Chain): ParsedQuote => {
+  if (!quote.success) {
+    return {
+      ...defaultQuote,
+      error: quote.error.message,
+    };
+  }
+
+  const receiveAmount = sdkAmount
+    .whole(quote.destinationToken.amount)
+    .toString();
+  const receiveNativeAmount = quote.destinationNativeGas
+    ? sdkAmount.whole(quote.destinationNativeGas)
+    : 0;
+  const eta = quote.eta;
+  let relayerFee: number | undefined = undefined;
+
+  if (quote.relayFee && sourceChain) {
+    const { token, amount } = quote.relayFee;
+    const feeToken = config.sdkConverter.toTokenIdV1(token);
+    const decimals = getTokenDecimals(sourceChain, feeToken);
+    relayerFee = Number.parseFloat(
+      toDecimals(amount.amount, decimals, 6),
+    );
+  }
+
+  return {
+    receiveAmount,
+    receiveNativeAmount,
+    eta,
+    relayerFee,
+  };
+};
+
 const useRoutesQuotesBulk = (
   routes: string[],
   params: RoutesQuotesBulkParams,
@@ -54,18 +88,7 @@ const useRoutesQuotesBulk = (
       return;
     }
 
-    const promises = routes.map((route) =>
-      config.routes
-        .get(route)
-        .computeQuote(
-          params.amount,
-          params.sourceToken,
-          params.destToken,
-          params.sourceChain,
-          params.destChain,
-          { nativeGas: params.nativeGas },
-        ),
-    );
+    const promises = config.routes.computeMultipleQuotes(routes, params);
 
     setIsFetching(true);
     Promise.allSettled(promises).then((results) => {
@@ -76,38 +99,7 @@ const useRoutesQuotesBulk = (
             error: result.reason.toString(),
           };
         }
-        if (!result.value.success) {
-          return {
-            ...defaultQuote,
-            error: result.value.error.message,
-          };
-        }
-
-        const quote = result.value;
-        const receiveAmount = sdkAmount
-          .whole(quote.destinationToken.amount)
-          .toString();
-        const receiveNativeAmount = quote.destinationNativeGas
-          ? sdkAmount.whole(quote.destinationNativeGas)
-          : 0;
-        const eta = quote.eta;
-        let relayerFee: number | undefined = undefined;
-
-        if (quote.relayFee && params.sourceChain) {
-          const { token, amount } = quote.relayFee;
-          const feeToken = config.sdkConverter.toTokenIdV1(token);
-          const decimals = getTokenDecimals(params.sourceChain, feeToken);
-          relayerFee = Number.parseFloat(
-            toDecimals(amount.amount, decimals, 6),
-          );
-        }
-
-        return {
-          receiveAmount,
-          receiveNativeAmount,
-          eta,
-          relayerFee,
-        };
+        return parseQuote(result.value, params.sourceChain);
       });
       if (!unmounted) {
         setQuotes(quotes);

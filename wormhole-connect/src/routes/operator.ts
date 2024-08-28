@@ -183,6 +183,30 @@ export default class RouteOperator {
     });
     return Object.values(supported);
   }
+
+  computeMultipleQuotes(
+    routes: string[],
+    params: {
+      sourceChain?: Chain,
+      sourceToken: string,
+      destChain?: Chain,
+      destToken: string,
+      amount: string,
+      nativeGas: number,
+    },
+  ) {
+    return routes.map((route) =>
+      this.get(route)
+        .computeQuote(
+          params.amount,
+          params.sourceToken,
+          params.destToken,
+          params.sourceChain,
+          params.destChain,
+          { nativeGas: params.nativeGas },
+        ),
+    );
+  }
 }
 
 // Convenience function for integrators when adding NTT routes to their config
