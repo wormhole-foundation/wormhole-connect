@@ -72,15 +72,7 @@ const TokenList = (props: Props) => {
       ? [selectedTokenConfig]
       : [];
 
-    // Second: Add the native token, if not previously selected
-    if (
-      nativeTokenConfig &&
-      nativeTokenConfig.key !== selectedTokenConfig?.key
-    ) {
-      tokens.push(nativeTokenConfig);
-    }
-
-    // Third: Add the wrapped token of the source token, if sourceToken is defined (meaning
+    // Second: Add the wrapped token of the source token, if sourceToken is defined (meaning
     // this is being rendered with destination tokens).
     if (props.sourceToken) {
       const sourceToken = config.tokens[props.sourceToken];
@@ -95,6 +87,14 @@ const TokenList = (props: Props) => {
           }
         }
       }
+    }
+
+    // Third: Add the native gas token, if not previously selected
+    if (
+      nativeTokenConfig &&
+      nativeTokenConfig.key !== selectedTokenConfig?.key
+    ) {
+      tokens.push(nativeTokenConfig);
     }
 
     // Fourth: Add tokens with a balances in the connected wallet
