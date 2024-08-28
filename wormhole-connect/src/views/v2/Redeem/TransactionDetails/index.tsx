@@ -14,7 +14,12 @@ import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import TokenIcon from 'icons/TokenIcons';
-import { calculateUSDPrice, trimAddress, trimTxHash } from 'utils';
+import {
+  calculateUSDPrice,
+  getDisplayName,
+  trimAddress,
+  trimTxHash,
+} from 'utils';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { RootState } from 'store';
@@ -58,6 +63,7 @@ const TransactionDetails = () => {
     }
 
     const sourceTokenConfig = config.tokens[tokenKey];
+    const sourceTokenDisplayName = getDisplayName(sourceTokenConfig, fromChain);
     const sourceChainConfig = config.chains[fromChain]!;
 
     const usdAmount = calculateUSDPrice(
@@ -74,7 +80,7 @@ const TransactionDetails = () => {
         <TokenIcon icon={sourceTokenConfig.icon} height={32} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {amount} {tokenKey}
+            {amount} {sourceTokenDisplayName}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {isFetchingTokenPrices ? (
@@ -95,6 +101,7 @@ const TransactionDetails = () => {
     }
 
     const destTokenConfig = config.tokens[receivedTokenKey];
+    const destTokenDisplayName = getDisplayName(destTokenConfig, toChain);
     const destChainConfig = config.chains[toChain]!;
 
     const usdAmount = calculateUSDPrice(
@@ -111,7 +118,7 @@ const TransactionDetails = () => {
         <TokenIcon icon={destTokenConfig.icon} height={32} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {receiveAmount} {receivedTokenKey}
+            {receiveAmount} {destTokenDisplayName}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {isFetchingTokenPrices ? (
