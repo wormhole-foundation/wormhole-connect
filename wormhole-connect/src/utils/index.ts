@@ -334,3 +334,16 @@ export const isEmptyObject = (value: object | null | undefined) => {
 
   return true;
 };
+
+export const getExplorerUrl = (chain: Chain, address: string) => {
+  const chainConfig = config.chains[chain]!;
+  let explorerUrl = '';
+
+  if (chain === 'Sui') {
+    explorerUrl = `${chainConfig.explorerUrl}coin/${address}`;
+  } else {
+    explorerUrl = `${chainConfig.explorerUrl}address/${address}`;
+  }
+
+  return explorerUrl;
+};

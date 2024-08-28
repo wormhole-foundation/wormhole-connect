@@ -87,8 +87,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
   Sui: {
     ...chains.Sui!,
     displayName: 'Sui',
-    explorerUrl: 'https://explorer.sui.io/',
-    explorerName: 'Sui Explorer',
+    explorerUrl: 'https://suiscan.xyz/',
+    explorerName: 'Suiscan',
     gasToken: 'SUI',
     chainId: 0,
     icon: Icon.SUI,
