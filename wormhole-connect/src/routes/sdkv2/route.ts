@@ -39,27 +39,23 @@ import { toFixedDecimals } from 'utils/balance';
 
 // =^o^=
 export class SDKv2Route {
-  NATIVE_GAS_DROPOFF_SUPPORTED = false;
-  AUTOMATIC_DEPOSIT = false;
   // TODO: remove this
   IS_TOKEN_BRIDGE_ROUTE = false;
 
   constructor(readonly rc: routes.RouteConstructor) {
-    // TODO: get this info from the SDK
-    if (rc.meta.name === 'AutomaticTokenBridge') {
-      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
-      this.AUTOMATIC_DEPOSIT = true;
-    } else if (rc.meta.name === 'AutomaticNtt') {
-      this.AUTOMATIC_DEPOSIT = true;
-    } else if (rc.meta.name === 'AutomaticCCTP') {
-      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
-      this.AUTOMATIC_DEPOSIT = true;
-    }
     this.IS_TOKEN_BRIDGE_ROUTE = [
       'ManualTokenBridge',
       'AutomaticTokenBridge',
       'CosmosGateway',
     ].includes(rc.meta.name);
+  }
+
+  get AUTOMATIC_DEPOSIT() {
+    return this.rc.IS_AUTOMATIC;
+  }
+
+  get NATIVE_GAS_DROPOFF_SUPPORTED() {
+    return this.rc.NATIVE_GAS_DROPOFF_SUPPORTED;
   }
 
   async getV2ChainContext<C extends Chain>(
