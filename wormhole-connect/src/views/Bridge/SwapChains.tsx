@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import config from 'config';
 
 import { swapWallets } from 'store/wallet';
-import { swapChains } from 'store/transferInput';
+import { swapInputs } from 'store/transferInput';
 import { RootState } from '../../store';
 
 type StyleProps = { disabled: boolean };
@@ -43,7 +43,7 @@ function SwapChains() {
   const swap = () => {
     if (!canSwap) return;
     if (isTransactionInProgress) return;
-    dispatch(swapChains());
+    dispatch(swapInputs());
     dispatch(swapWallets());
   };
 

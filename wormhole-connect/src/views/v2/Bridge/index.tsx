@@ -37,7 +37,7 @@ import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
-import SwapChains from 'views/v2/Bridge/SwapChains';
+import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
@@ -255,7 +255,7 @@ const Bridge = () => {
           }}
           wallet={sendingWallet}
         />
-        <SwapChains />
+        <SwapInputs />
       </div>
     );
   }, [
