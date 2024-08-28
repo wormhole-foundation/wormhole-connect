@@ -35,7 +35,10 @@ const defaultQuote: ParsedQuote = {
   relayerFee: 0,
 };
 
-const parseQuote = (quote: routes.QuoteResult<any>, sourceChain?: Chain): ParsedQuote => {
+const parseQuote = (
+  quote: routes.QuoteResult<unknown>,
+  sourceChain?: Chain,
+): ParsedQuote => {
   if (!quote.success) {
     return {
       ...defaultQuote,
@@ -56,9 +59,7 @@ const parseQuote = (quote: routes.QuoteResult<any>, sourceChain?: Chain): Parsed
     const { token, amount } = quote.relayFee;
     const feeToken = config.sdkConverter.toTokenIdV1(token);
     const decimals = getTokenDecimals(sourceChain, feeToken);
-    relayerFee = Number.parseFloat(
-      toDecimals(amount.amount, decimals, 6),
-    );
+    relayerFee = Number.parseFloat(toDecimals(amount.amount, decimals, 6));
   }
 
   return {

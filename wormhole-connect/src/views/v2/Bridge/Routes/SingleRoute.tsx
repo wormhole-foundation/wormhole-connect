@@ -48,9 +48,12 @@ const SingleRoute = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const { toChain: destChain, destToken } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    toChain: destChain,
+    destToken,
+    fromChain: sourceChain,
+    token: sourceToken,
+  } = useSelector((state: RootState) => state.transferInput);
 
   const { prices: tokenPrices } = useFetchTokenPricesV2();
 
