@@ -266,7 +266,7 @@ export class SDKv2Route {
   ): Promise<
     [
       routes.Route<Network>,
-      routes.QuoteResult<any>,
+      routes.QuoteResult<routes.Options>,
       routes.RouteTransferRequest<Network>,
     ]
   > {
@@ -395,10 +395,10 @@ export class SDKv2Route {
     amountIn: string,
     sourceToken: string,
     destToken: string,
-    fromChain: Chain | undefined,
-    toChain: Chain | undefined,
+    fromChain: Chain,
+    toChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<routes.QuoteResult<any>> {
+  ): Promise<routes.QuoteResult<routes.Options>> {
     if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
 

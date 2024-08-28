@@ -6,9 +6,9 @@ import config from 'config';
 import { toDecimals } from 'utils/balance';
 
 type RoutesQuotesBulkParams = {
-  sourceChain: Chain | undefined;
+  sourceChain?: Chain;
   sourceToken: string;
-  destChain: Chain | undefined;
+  destChain?: Chain;
   destToken: string;
   amount: string;
   nativeGas: number;
@@ -36,8 +36,8 @@ const defaultQuote: ParsedQuote = {
 };
 
 const parseQuote = (
-  quote: routes.QuoteResult<unknown>,
-  sourceChain?: Chain,
+  quote: routes.QuoteResult<routes.Options>,
+  sourceChain: Chain,
 ): ParsedQuote => {
   if (!quote.success) {
     return {
@@ -55,7 +55,7 @@ const parseQuote = (
   const eta = quote.eta;
   let relayerFee: number | undefined = undefined;
 
-  if (quote.relayFee && sourceChain) {
+  if (quote.relayFee) {
     const { token, amount } = quote.relayFee;
     const feeToken = config.sdkConverter.toTokenIdV1(token);
     const decimals = getTokenDecimals(sourceChain, feeToken);
@@ -89,7 +89,9 @@ const useRoutesQuotesBulk = (
       return;
     }
 
-    const promises = config.routes.computeMultipleQuotes(routes, params);
+    // Forcing TS to infer that fields are non-optional
+    const rParams = params as Required<RoutesQuotesBulkParams>;
+    const promises = config.routes.computeMultipleQuotes(routes, rParams);
 
     setIsFetching(true);
     Promise.allSettled(promises).then((results) => {
@@ -100,7 +102,7 @@ const useRoutesQuotesBulk = (
             error: result.reason.toString(),
           };
         }
-        return parseQuote(result.value, params.sourceChain);
+        return parseQuote(result.value, rParams.sourceChain);
       });
       if (!unmounted) {
         setQuotes(quotes);

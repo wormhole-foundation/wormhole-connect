@@ -187,9 +187,9 @@ export default class RouteOperator {
   computeMultipleQuotes(
     routes: string[],
     params: {
-      sourceChain?: Chain;
+      sourceChain: Chain;
       sourceToken: string;
-      destChain?: Chain;
+      destChain: Chain;
       destToken: string;
       amount: string;
       nativeGas: number;
