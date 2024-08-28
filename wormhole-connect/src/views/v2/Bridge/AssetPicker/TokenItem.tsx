@@ -10,11 +10,10 @@ import Link from '@mui/material/Link';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import TokenIcon from 'icons/TokenIcons';
 
-import { ChainConfig, TokenConfig } from 'config/types';
-import config from 'config';
+import { TokenConfig } from 'config/types';
 
 import type { Chain } from '@wormhole-foundation/sdk';
-import { getWrappedToken } from 'utils';
+import { getExplorerUrl, getWrappedToken } from 'utils';
 
 const useStyles = makeStyles()(() => ({
   tokenListItem: {
@@ -49,16 +48,13 @@ function TokenItem(props: TokenItemProps) {
   const theme = useTheme();
 
   const { chain, token } = props;
-  const chainConfig: ChainConfig | undefined = config.chains[chain];
   // If the token is native to the chain, show the token's address.
   // Otherwise, show the wrapped token's address.
   const address =
     chain === token.nativeChain
       ? token.tokenId?.address
       : getWrappedToken(token)?.foreignAssets?.[chain];
-  const explorerURL = address
-    ? `${chainConfig?.explorerUrl}address/${address}`
-    : undefined;
+  const explorerURL = address ? getExplorerUrl(chain, address) : undefined;
   const addressDisplay = `${address?.slice(0, 4)}...${address?.slice(-4)}`;
 
   let displayName = token.displayName ?? token.symbol;
