@@ -2,6 +2,7 @@ import React, { ReactNode, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { CircularProgress, useTheme } from '@mui/material';
+import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
@@ -71,7 +72,20 @@ const TransactionDetails = () => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <TokenIcon icon={sourceTokenConfig.icon} height={32} />
+        <Badge
+          badgeContent={
+            <TokenIcon icon={sourceChainConfig?.icon} height={16} />
+          }
+          sx={{
+            marginRight: '4px',
+            '& .MuiBadge-badge': {
+              right: 2,
+              top: 24,
+            },
+          }}
+        >
+          <TokenIcon icon={sourceTokenConfig?.icon} height={32} />
+        </Badge>
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {amount} {sourceTokenConfig.symbol}
@@ -108,7 +122,18 @@ const TransactionDetails = () => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <TokenIcon icon={destTokenConfig.icon} height={32} />
+        <Badge
+          badgeContent={<TokenIcon icon={destChainConfig?.icon} height={16} />}
+          sx={{
+            marginRight: '4px',
+            '& .MuiBadge-badge': {
+              right: 2,
+              top: 24,
+            },
+          }}
+        >
+          <TokenIcon icon={destTokenConfig?.icon} height={32} />
+        </Badge>
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {receiveAmount} {destTokenConfig.symbol}
