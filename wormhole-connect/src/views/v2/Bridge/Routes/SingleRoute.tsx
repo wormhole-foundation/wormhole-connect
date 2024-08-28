@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
+import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
@@ -19,7 +20,6 @@ import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
-import { ParsedQuote } from 'hooks/useRoutesQuotesBulk';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -40,7 +40,7 @@ type Props = {
   destinationGasDrop?: number;
   title?: string;
   onSelect?: (route: string) => void;
-  quote?: ParsedQuote;
+  quote?: routes.Quote<routes.Options>;
   isFetchingQuote: boolean;
 };
 
@@ -63,8 +63,11 @@ const SingleRoute = (props: Props) => {
   const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
   const bridgeFee = useMemo(() => {
+    const relayFee = quote?.relayFee?.amount
+      ? amount.whole(quote?.relayFee?.amount)
+      : undefined;
     const bridgePrice = calculateUSDPrice(
-      quote?.relayerFee,
+      relayFee,
       tokenPrices,
       config.tokens[destToken],
       true,
@@ -86,7 +89,7 @@ const SingleRoute = (props: Props) => {
         )}
       </Stack>
     );
-  }, [destToken, isFetchingQuote, quote?.relayerFee, tokenPrices]);
+  }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!destChain || !props.destinationGasDrop) {
@@ -242,18 +245,22 @@ const SingleRoute = (props: Props) => {
     [isAutomaticRoute],
   );
 
+  const receiveAmount = useMemo(() => {
+    return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
+  }, [quote]);
+
   const routeCardHeader = useMemo(() => {
-    return typeof quote?.receiveAmount === 'undefined' ? (
+    return typeof receiveAmount === 'undefined' ? (
       <CircularProgress size={18} />
     ) : (
       <Typography>
-        {quote?.receiveAmount} {destTokenConfig.symbol}
+        {receiveAmount} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [quote?.receiveAmount, destToken]);
+  }, [destToken, receiveAmount]);
 
   const routeCardSubHeader = useMemo(() => {
-    if (typeof quote?.receiveAmount === 'undefined') {
+    if (typeof receiveAmount === 'undefined') {
       return <CircularProgress size={18} />;
     }
 
@@ -262,7 +269,7 @@ const SingleRoute = (props: Props) => {
     }
 
     const receiveAmountPrice = calculateUSDPrice(
-      quote?.receiveAmount,
+      receiveAmount,
       tokenPrices,
       destTokenConfig,
     );
@@ -273,7 +280,7 @@ const SingleRoute = (props: Props) => {
         color={theme.palette.text.secondary}
       >{`${receiveAmountPrice} ${providerText}`}</Typography>
     );
-  }, [destTokenConfig, providerText, quote?.receiveAmount, tokenPrices]);
+  }, [destTokenConfig, providerText, receiveAmount, tokenPrices]);
 
   // There are three states for the Card area cursor:
   // 1- If not available in the first place, "not-allowed"

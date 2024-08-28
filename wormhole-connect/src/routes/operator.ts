@@ -184,7 +184,7 @@ export default class RouteOperator {
     return Object.values(supported);
   }
 
-  computeMultipleQuotes(
+  async computeMultipleQuotes(
     routes: string[],
     params: {
       sourceChain: Chain;
@@ -194,17 +194,30 @@ export default class RouteOperator {
       amount: string;
       nativeGas: number;
     },
-  ) {
-    return routes.map((route) =>
-      this.get(route).computeQuote(
-        params.amount,
-        params.sourceToken,
-        params.destToken,
-        params.sourceChain,
-        params.destChain,
-        { nativeGas: params.nativeGas },
+  ): Promise<routes.QuoteResult<routes.Options>[]> {
+    const quoteResults = await Promise.allSettled(
+      routes.map((route) =>
+        this.get(route).computeQuote(
+          params.amount,
+          params.sourceToken,
+          params.destToken,
+          params.sourceChain,
+          params.destChain,
+          { nativeGas: params.nativeGas },
+        ),
       ),
     );
+
+    return quoteResults.map((quoteResult) => {
+      if (quoteResult.status === 'rejected') {
+        return {
+          success: false,
+          error: quoteResult.reason,
+        };
+      } else {
+        return quoteResult.value;
+      }
+    });
   }
 }
 

@@ -49,25 +49,26 @@ type SliderProps = {
   railColor: string;
 };
 
-const StyledSlider = styled(Slider)<SliderProps>(
-  ({ baseColor, railColor }) => ({
-    color: baseColor,
-    height: 8,
-    '& .MuiSlider-rail': {
-      height: '8px',
-      backgroundColor: railColor,
-      opacity: 0.1,
-    },
-    '& .MuiSlider-track': {
-      height: '8px',
-    },
-    '& .MuiSlider-thumb': {
-      height: 20,
-      width: 20,
-      backgroundColor: '#C1BBF6',
-    },
-  }),
-);
+const StyledSlider = styled(Slider, {
+  shouldForwardProp: (prop) =>
+    !['baseColor', 'railColor'].includes(prop.toString()),
+})<SliderProps>(({ baseColor, railColor }) => ({
+  color: baseColor,
+  height: 8,
+  '& .MuiSlider-rail': {
+    height: '8px',
+    backgroundColor: railColor,
+    opacity: 0.1,
+  },
+  '& .MuiSlider-track': {
+    height: '8px',
+  },
+  '& .MuiSlider-thumb': {
+    height: 20,
+    width: 20,
+    backgroundColor: '#C1BBF6',
+  },
+}));
 
 const StyledSwitch = styled(Switch)((props) => ({
   padding: '9px 12px',

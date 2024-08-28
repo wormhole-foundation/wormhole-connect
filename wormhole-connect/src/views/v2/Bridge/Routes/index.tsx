@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import { RoutesConfig } from 'config/routes';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
@@ -102,28 +103,32 @@ const Routes = (props: Props) => {
           return 1;
         }
 
-        // 2. Prioritize estimated time
-        if (quoteA?.eta && quoteB?.eta) {
-          if (quoteA.eta > quoteB.eta) {
-            return 1;
-          } else if (quoteA.eta < quoteB.eta) {
-            return -1;
+        if (quoteA?.success && quoteB?.success) {
+          // 2. Prioritize estimated time
+          if (quoteA?.eta && quoteB?.eta) {
+            if (quoteA.eta > quoteB.eta) {
+              return 1;
+            } else if (quoteA.eta < quoteB.eta) {
+              return -1;
+            }
           }
-        }
 
-        // 3. Compare relay fees
-        if (quoteA?.relayerFee && quoteB?.relayerFee) {
-          if (quoteA.relayerFee > quoteB.relayerFee) {
-            return 1;
-          } else if (quoteA.relayerFee < quoteB.relayerFee) {
-            return -1;
+          // 3. Compare relay fees
+          if (quoteA?.relayFee && quoteB?.relayFee) {
+            const relayFeeA = sdkAmount.whole(quoteA.relayFee.amount);
+            const relayFeeB = sdkAmount.whole(quoteB.relayFee.amount);
+            if (relayFeeA > relayFeeB) {
+              return 1;
+            } else if (relayFeeA < relayFeeB) {
+              return -1;
+            }
           }
         }
 
         // 4. Prioritize routes with quotes
-        if (quoteA && !quoteB) {
+        if (quoteA?.success && !quoteB?.success) {
           return -1;
-        } else if (!quoteA && quoteB) {
+        } else if (!quoteA?.success && quoteB?.success) {
           return 1;
         }
 
@@ -157,7 +162,8 @@ const Routes = (props: Props) => {
       {renderRoutes.map(({ name, available, availabilityError }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
-        const quote = quotesMap[name];
+        const quoteResult = quotesMap[name];
+        const quote = quoteResult?.success ? quoteResult : undefined;
         return (
           <SingleRoute
             key={name}
