@@ -74,7 +74,7 @@ const TransactionDetails = () => {
         <TokenIcon icon={sourceTokenConfig.icon} height={32} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {amount} {tokenKey}
+            {amount} {sourceTokenConfig.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {isFetchingTokenPrices ? (
@@ -111,7 +111,7 @@ const TransactionDetails = () => {
         <TokenIcon icon={destTokenConfig.icon} height={32} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {receiveAmount} {receivedTokenKey}
+            {receiveAmount} {destTokenConfig.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {isFetchingTokenPrices ? (
