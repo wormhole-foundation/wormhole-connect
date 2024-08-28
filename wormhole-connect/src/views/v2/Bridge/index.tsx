@@ -279,6 +279,7 @@ const Bridge = () => {
           chain={destChain}
           chainList={supportedDestChains}
           token={destToken}
+          sourceToken={sourceToken}
           tokenList={supportedDestTokens}
           isFetching={isFetchingSupportedDestTokens}
           setChain={(value: Chain) => {

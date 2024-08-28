@@ -57,7 +57,9 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
         // If any of the tokens are native to the chain, only select those.
         // This is to avoid users inadvertently receiving wrapped versions of the token.
         const nativeTokens = supported.filter(
-          (t) => t.nativeChain === destChain,
+          (t) =>
+            t.nativeChain === destChain ||
+            config.tokens[sourceToken].wrappedAsset === t.key,
         );
         if (nativeTokens.length > 0) {
           supported = nativeTokens;

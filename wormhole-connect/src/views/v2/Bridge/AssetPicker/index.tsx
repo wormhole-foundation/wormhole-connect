@@ -54,6 +54,7 @@ type Props = {
   chain?: Chain | undefined;
   chainList: Array<ChainConfig>;
   token?: string;
+  sourceToken?: string;
   tokenList?: Array<TokenConfig> | undefined;
   isFetching?: boolean;
   setToken: (value: string) => void;
@@ -188,6 +189,7 @@ const AssetPicker = (props: Props) => {
             isFetching={props.isFetching}
             selectedChainConfig={chainConfig}
             selectedToken={props.token}
+            sourceToken={props.sourceToken}
             wallet={props.wallet}
             onSelectToken={(key: string) => {
               props.setToken(key);

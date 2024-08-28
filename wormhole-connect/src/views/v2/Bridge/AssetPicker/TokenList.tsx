@@ -35,10 +35,11 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  tokenList?: Array<TokenConfig> | undefined;
+  tokenList?: Array<TokenConfig>;
   isFetching?: boolean;
   selectedChainConfig: ChainConfig;
-  selectedToken?: string | undefined;
+  selectedToken?: string;
+  sourceToken?: string;
   wallet: WalletData;
   onSelectToken: (key: string) => void;
 };
@@ -71,7 +72,24 @@ const TokenList = (props: Props) => {
       ? [selectedTokenConfig]
       : [];
 
-    // Second: Add the native token, if not previously selected
+    // Second: Add the wrapped token of the source token, if sourceToken is defined (meaning
+    // this is being rendered with destination tokens).
+    if (props.sourceToken) {
+      const sourceToken = config.tokens[props.sourceToken];
+      if (sourceToken) {
+        const destTokenKey = sourceToken.wrappedAsset;
+        if (destTokenKey) {
+          const destToken = props.tokenList?.find(
+            (t) => t.key === destTokenKey,
+          );
+          if (destToken) {
+            tokens.push(destToken);
+          }
+        }
+      }
+    }
+
+    // Third: Add the native gas token, if not previously selected
     if (
       nativeTokenConfig &&
       nativeTokenConfig.key !== selectedTokenConfig?.key
@@ -79,7 +97,7 @@ const TokenList = (props: Props) => {
       tokens.push(nativeTokenConfig);
     }
 
-    // Third: Add tokens with a balances in the connected wallet
+    // Fourth: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
       if (Number(val?.balance) > 0) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);
@@ -93,7 +111,7 @@ const TokenList = (props: Props) => {
       }
     });
 
-    // Fourth: Fill up any remaining space from supported tokens
+    // Finally: Fill up any remaining space from supported tokens
     props.tokenList?.forEach((t) => {
       const tokenNotAdded = !tokens.find(
         (addedToken) => addedToken.key === t.key,
