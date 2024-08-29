@@ -13,7 +13,7 @@ import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { getDisplayName, isFrankensteinToken } from 'utils';
+import { getDisplayName, isFrankensteinToken, isWrappedToken } from 'utils';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -124,9 +124,14 @@ const TokenList = (props: Props) => {
 
     // Finally: Fill up any remaining space from supported tokens
     props.tokenList?.forEach((t) => {
-      // Filter out frankenstein tokens with no balance
-      const balance = balances?.[t.key]?.balance;
-      if (isFrankensteinToken(t, selectedChainConfig.key) && !Number(balance)) {
+      // Exclude frankenstein tokens with no balance
+      const balance = Number(balances?.[t.key]?.balance);
+      if (isFrankensteinToken(t, selectedChainConfig.key) && !balance) {
+        return;
+      }
+
+      // Exclude wormhole-wrapped tokens with no balance
+      if (isWrappedToken(t, selectedChainConfig.key) && !balance) {
         return;
       }
 
@@ -163,12 +168,17 @@ const TokenList = (props: Props) => {
       filterFn={(token, query) => {
         if (query.length === 0) return true;
 
-        // Filter out frankenstein tokens with no balance
-        const balance = balances?.[token.key]?.balance;
+        // Exclude frankenstein tokens with no balance
+        const balance = Number(balances?.[token.key]?.balance);
         if (
           isFrankensteinToken(token, props.selectedChainConfig.key) &&
-          !Number(balance)
+          !balance
         ) {
+          return false;
+        }
+
+        // Exclude wormhole-wrapped tokens with no balance
+        if (isWrappedToken(token, props.selectedChainConfig.key) && !balance) {
           return false;
         }
 
