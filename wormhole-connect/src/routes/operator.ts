@@ -183,6 +183,42 @@ export default class RouteOperator {
     });
     return Object.values(supported);
   }
+
+  async computeMultipleQuotes(
+    routes: string[],
+    params: {
+      sourceChain: Chain;
+      sourceToken: string;
+      destChain: Chain;
+      destToken: string;
+      amount: string;
+      nativeGas: number;
+    },
+  ): Promise<routes.QuoteResult<routes.Options>[]> {
+    const quoteResults = await Promise.allSettled(
+      routes.map((route) =>
+        this.get(route).computeQuote(
+          params.amount,
+          params.sourceToken,
+          params.destToken,
+          params.sourceChain,
+          params.destChain,
+          { nativeGas: params.nativeGas },
+        ),
+      ),
+    );
+
+    return quoteResults.map((quoteResult) => {
+      if (quoteResult.status === 'rejected') {
+        return {
+          success: false,
+          error: quoteResult.reason,
+        };
+      } else {
+        return quoteResult.value;
+      }
+    });
+  }
 }
 
 // Convenience function for integrators when adding NTT routes to their config

@@ -16,7 +16,6 @@ import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
-import useComputeQuote from 'hooks/useComputeQuote';
 import { useGasSlider } from 'hooks/useGasSlider';
 import {
   setTxDetails,
@@ -38,6 +37,7 @@ import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
+import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -97,16 +97,17 @@ const ReviewTransaction = (props: Props) => {
     isTransactionInProgress,
   });
 
-  // Compute the native gas to receive
-  const { isFetching: isFetchingQuote } = useComputeQuote({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
+  const routes = useMemo(() => (route ? [route] : []), []);
+  const { quotesMap, isFetching } = useRoutesQuotesBulk(routes, {
     amount,
-    route,
-    toNativeToken,
+    sourceChain,
+    sourceToken,
+    destChain,
+    destToken,
+    nativeGas: toNativeToken,
   });
+  const quoteResult = quotesMap[route ?? ''];
+  const quote = quoteResult?.success ? quoteResult : undefined;
 
   const send = async () => {
     setSendError('');
@@ -290,7 +291,7 @@ const ReviewTransaction = (props: Props) => {
 
     return (
       <Button
-        disabled={isFetchingQuote || isTransactionInProgress}
+        disabled={isFetching || isTransactionInProgress}
         variant="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
@@ -305,7 +306,7 @@ const ReviewTransaction = (props: Props) => {
       </Button>
     );
   }, [
-    isFetchingQuote,
+    isFetching,
     isTransactionInProgress,
     sourceChain,
     sourceToken,
@@ -332,6 +333,8 @@ const ReviewTransaction = (props: Props) => {
         isSelected={false}
         destinationGasDrop={receiveNativeAmt}
         title="You will receive"
+        quote={quote}
+        isFetchingQuote={isFetching}
       />
       <Collapse in={showGasSlider}>
         <GasSlider

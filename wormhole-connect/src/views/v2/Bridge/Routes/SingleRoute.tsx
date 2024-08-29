@@ -10,9 +10,9 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
+import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import TokenIcon from 'icons/TokenIcons';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
@@ -40,6 +40,8 @@ type Props = {
   destinationGasDrop?: number;
   title?: string;
   onSelect?: (route: string) => void;
+  quote?: routes.Quote<routes.Options>;
+  isFetchingQuote: boolean;
 };
 
 const SingleRoute = (props: Props) => {
@@ -47,42 +49,36 @@ const SingleRoute = (props: Props) => {
   const theme = useTheme();
 
   const {
-    fromChain: sourceChain,
-    token: sourceToken,
     toChain: destChain,
     destToken,
-    amount,
+    fromChain: sourceChain,
+    token: sourceToken,
   } = useSelector((state: RootState) => state.transferInput);
-
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const { prices: tokenPrices } = useFetchTokenPricesV2();
 
   const { name } = props.route;
-
-  // Compute the quotes for this route
-  const {
-    eta: estimatedTime,
-    receiveAmount,
-    relayerFee,
-    isFetching: isFetchingQuote,
-  } = useComputeQuoteV2({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-    route: name,
-    toNativeToken,
-  });
+  const { quote, isFetchingQuote } = props;
 
   const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
   const bridgeFee = useMemo(() => {
+    if (!quote?.relayFee) {
+      return <></>;
+    }
+
+    const relayFee = amount.whole(quote.relayFee.amount);
+    const feeToken = quote.relayFee.token;
+
+    const feeTokenConfig = config.sdkConverter.findTokenConfigV1(
+      feeToken,
+      Object.values(config.tokens),
+    );
+
     const bridgePrice = calculateUSDPrice(
-      relayerFee,
+      relayFee,
       tokenPrices,
-      config.tokens[destToken],
+      feeTokenConfig,
       true,
     );
 
@@ -102,7 +98,7 @@ const SingleRoute = (props: Props) => {
         )}
       </Stack>
     );
-  }, [destToken, isFetchingQuote, relayerFee, tokenPrices]);
+  }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!destChain || !props.destinationGasDrop) {
@@ -147,12 +143,12 @@ const SingleRoute = (props: Props) => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>
-            {millisToMinutesAndSeconds(estimatedTime)}
+            {millisToMinutesAndSeconds(quote?.eta ?? 0)}
           </Typography>
         )}
       </>
     ),
-    [estimatedTime, isFetchingQuote],
+    [quote?.eta, isFetchingQuote],
   );
 
   const showWarning = useMemo(() => {
@@ -262,6 +258,10 @@ const SingleRoute = (props: Props) => {
     [isAutomaticRoute],
   );
 
+  const receiveAmount = useMemo(() => {
+    return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
+  }, [quote]);
+
   const routeCardHeader = useMemo(() => {
     return typeof receiveAmount === 'undefined' ? (
       <CircularProgress size={18} />
@@ -270,7 +270,7 @@ const SingleRoute = (props: Props) => {
         {receiveAmount} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [receiveAmount, destToken]);
+  }, [destToken, receiveAmount]);
 
   const routeCardSubHeader = useMemo(() => {
     if (typeof receiveAmount === 'undefined') {

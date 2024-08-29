@@ -1,13 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
+import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import { RoutesConfig } from 'config/routes';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
+import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
+import config from 'config';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -24,6 +28,15 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
     width: '100%',
   },
+  otherRoutesToggle: {
+    fontSize: 14,
+    color: '#C1BBF6',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -33,10 +46,11 @@ type Props = {
 
 const Routes = (props: Props) => {
   const { classes } = useStyles();
+  const [showAll, setShowAll] = useState(false);
 
-  const { amount, routeStates } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { amount, routeStates, fromChain, token, toChain, destToken } =
+    useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -52,9 +66,81 @@ const Routes = (props: Props) => {
     return routeStates.filter((rs) => rs.supported);
   }, [routeStates]);
 
+  const supportedRoutesNames = useMemo(
+    () => supportedRoutes.map((r) => r.name),
+    [supportedRoutes],
+  );
+
+  const { quotesMap, isFetching } = useRoutesQuotesBulk(supportedRoutesNames, {
+    amount,
+    sourceChain: fromChain,
+    sourceToken: token,
+    destChain: toChain,
+    destToken,
+    nativeGas: toNativeToken,
+  });
+
   const walletsConnected = useMemo(
     () => !!sendingWallet.address && !!receivingWallet.address,
     [sendingWallet.address, receivingWallet.address],
+  );
+
+  const sortedSupportedRoutes = useMemo(
+    () =>
+      [...supportedRoutes].sort((routeA, routeB) => {
+        const quoteA = quotesMap[routeA.name];
+        const quoteB = quotesMap[routeB.name];
+        const routeConfigA = config.routes.get(routeA.name);
+        const routeConfigB = config.routes.get(routeB.name);
+
+        // 1. Prioritize automatic routes
+        if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
+          return -1;
+        } else if (
+          !routeConfigA.AUTOMATIC_DEPOSIT &&
+          routeConfigB.AUTOMATIC_DEPOSIT
+        ) {
+          return 1;
+        }
+
+        if (quoteA?.success && quoteB?.success) {
+          // 2. Prioritize estimated time
+          if (quoteA?.eta && quoteB?.eta) {
+            if (quoteA.eta > quoteB.eta) {
+              return 1;
+            } else if (quoteA.eta < quoteB.eta) {
+              return -1;
+            }
+          }
+
+          // 3. Compare relay fees
+          if (quoteA?.relayFee && quoteB?.relayFee) {
+            const relayFeeA = sdkAmount.whole(quoteA.relayFee.amount);
+            const relayFeeB = sdkAmount.whole(quoteB.relayFee.amount);
+            if (relayFeeA > relayFeeB) {
+              return 1;
+            } else if (relayFeeA < relayFeeB) {
+              return -1;
+            }
+          }
+        }
+
+        // 4. Prioritize routes with quotes
+        if (quoteA?.success && !quoteB?.success) {
+          return -1;
+        } else if (!quoteA?.success && quoteB?.success) {
+          return 1;
+        }
+
+        // Don't swap when routes match by all criteria or don't have quotas
+        return 0;
+      }),
+    [supportedRoutes, quotesMap],
+  );
+
+  const renderRoutes = useMemo(
+    () => (showAll ? sortedSupportedRoutes : sortedSupportedRoutes.slice(0, 1)),
+    [showAll, sortedSupportedRoutes],
   );
 
   if (supportedRoutes.length === 0 || !walletsConnected) {
@@ -73,19 +159,32 @@ const Routes = (props: Props) => {
 
   return (
     <>
-      {supportedRoutes.map(({ name, available, availabilityError }) => {
+      {renderRoutes.map(({ name, available, availabilityError }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
+        const quoteResult = quotesMap[name];
+        const quote = quoteResult?.success ? quoteResult : undefined;
         return (
           <SingleRoute
+            key={name}
             route={routeConfig}
             available={available}
             error={availabilityError}
             isSelected={isSelected}
             onSelect={props.onRouteChange}
+            quote={quote}
+            isFetchingQuote={isFetching}
           />
         );
       })}
+      {sortedSupportedRoutes.length > 1 && (
+        <Link
+          onClick={() => setShowAll((prev) => !prev)}
+          className={classes.otherRoutesToggle}
+        >
+          {showAll ? 'Hide other routes' : 'View other routes'}
+        </Link>
+      )}
     </>
   );
 };
