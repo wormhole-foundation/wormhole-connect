@@ -82,7 +82,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
     <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
       <Typography component={'span'} gap={1} className={classes.addToken}>
         <TokenIcon height={20} icon={token.icon} />
-        Add {getDisplayName(token)} to your wallet
+        Add {getDisplayName(token, txData.toChain)} to your wallet
       </Typography>
     </Link>
   );
@@ -95,7 +95,7 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
     <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} icon={token.icon} />
       <span className={classes.addTokenText}>
-        See {getDisplayName(token)} token on
+        See {getDisplayName(token, 'Solana')} token on
       </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
@@ -116,7 +116,7 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
     <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} icon={token.icon} />
       <span className={classes.addTokenText}>
-        See {getDisplayName(token)} token on
+        See {getDisplayName(token, 'Sui')} token on
       </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
@@ -137,7 +137,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
     <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} icon={token.icon} />
       <span className={classes.addTokenText}>
-        See {getDisplayName(token)} token on
+        See {getDisplayName(token, 'Aptos')} token on
       </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}

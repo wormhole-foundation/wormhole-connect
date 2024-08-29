@@ -13,6 +13,7 @@ import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
+import { getDisplayName, isFrankensteinToken } from 'utils';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -113,6 +114,12 @@ const TokenList = (props: Props) => {
 
     // Finally: Fill up any remaining space from supported tokens
     props.tokenList?.forEach((t) => {
+      // Filter out frankenstein tokens with no balance
+      const balance = balances?.[t.key]?.balance;
+      if (isFrankensteinToken(t, selectedChainConfig.key) && !Number(balance)) {
+        return;
+      }
+
       const tokenNotAdded = !tokens.find(
         (addedToken) => addedToken.key === t.key,
       );
@@ -145,10 +152,22 @@ const TokenList = (props: Props) => {
       items={props.tokenList ?? []}
       filterFn={(token, query) => {
         if (query.length === 0) return true;
+
+        // Filter out frankenstein tokens with no balance
+        const balance = balances?.[token.key]?.balance;
+        if (
+          isFrankensteinToken(token, props.selectedChainConfig.key) &&
+          !Number(balance)
+        ) {
+          return false;
+        }
+
         const queryLC = query.toLowerCase();
         return Boolean(
           token.symbol?.toLowerCase().includes(queryLC) ||
-            token.displayName?.toLowerCase().includes(queryLC),
+            getDisplayName(token, props.selectedChainConfig.key)
+              .toLowerCase()
+              .includes(queryLC),
         );
       }}
       renderFn={(token: TokenConfig) => {

@@ -32,6 +32,7 @@ import {
   getGasToken,
   getWrappedToken,
   getWrappedTokenId,
+  isFrankensteinToken,
 } from 'utils';
 import { TransferWallet } from 'utils/wallet';
 import { RelayerFee } from 'store/relay';
@@ -506,7 +507,13 @@ export class SDKv2Route {
     receiveNativeAmt?: number,
   ): Promise<TransferDisplayData> {
     const displayData = [
-      this.createDisplayItem('Amount', amount, destToken, tokenPrices),
+      this.createDisplayItem(
+        'Amount',
+        amount,
+        destToken,
+        tokenPrices,
+        recipientChain,
+      ),
     ];
 
     if (relayerFee) {
@@ -517,6 +524,7 @@ export class SDKv2Route {
           fee,
           config.tokens[tokenKey],
           tokenPrices,
+          recipientChain,
         ),
       );
     }
@@ -530,6 +538,7 @@ export class SDKv2Route {
           receiveNativeAmt,
           destGasToken,
           tokenPrices,
+          recipientChain,
         ),
       );
     }
@@ -542,6 +551,7 @@ export class SDKv2Route {
     amount: number,
     token: TokenConfig,
     tokenPrices: TokenPrices,
+    chain: Chain,
   ) {
     return {
       title,
@@ -549,7 +559,7 @@ export class SDKv2Route {
         !isNaN(amount)
           ? Number(toFixedDecimals(amount.toFixed(18).toString(), 6))
           : '0'
-      } ${getDisplayName(token)}`,
+      } ${getDisplayName(token, chain)}`,
       valueUSD: calculateUSDPrice(amount, tokenPrices, token),
     };
   }
@@ -565,9 +575,10 @@ export class SDKv2Route {
         Number(txData.amount),
         token,
         params.tokenPrices,
+        txData.toChain,
       ),
     ];
-    const { relayerFee } = txData;
+    const { relayerFee, toChain } = txData;
     if (relayerFee) {
       displayData.push(
         this.createDisplayItem(
@@ -575,6 +586,7 @@ export class SDKv2Route {
           relayerFee.fee,
           config.tokens[relayerFee.tokenKey],
           params.tokenPrices,
+          toChain,
         ),
       );
     }
@@ -597,6 +609,7 @@ export class SDKv2Route {
           Number(txData.receiveAmount),
           token,
           params.tokenPrices,
+          txData.toChain,
         ),
       );
     }
@@ -607,6 +620,7 @@ export class SDKv2Route {
           Number(txData.receiveNativeAmount.toFixed(6)),
           config.tokens[config.chains[txData.toChain]?.gasToken || ''],
           params.tokenPrices,
+          txData.toChain,
         ),
       );
     }
@@ -641,11 +655,8 @@ export class SDKv2Route {
   isIlliquidDestToken(token: TokenConfig, toChain: Chain): boolean {
     const { symbol, nativeChain } = token;
 
-    // Unless these tokens are bridged from Ethereum or sent back to their native chain, they are illiquid
-    if (['ETH', 'WETH', 'wstETH', 'USDT', 'USDC'].includes(symbol)) {
-      if (nativeChain !== 'Ethereum' && nativeChain !== toChain) {
-        return true;
-      }
+    if (isFrankensteinToken(token, toChain)) {
+      return true;
     }
 
     // These chains have a native bridge to/from Ethereum, so receiving wormhole-wrapped ETH is not necessary

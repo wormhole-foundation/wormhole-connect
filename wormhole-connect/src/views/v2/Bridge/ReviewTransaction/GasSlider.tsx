@@ -132,10 +132,13 @@ const GasSlider = (props: {
       nativeGasToken,
     );
 
+    if (!destChain) return null;
+
     return (
       <Typography fontSize={14}>
         {`${tokenAmount} ${getDisplayName(
           sourceTokenConfig as TokenConfig,
+          destChain,
         )} ${tokenPrice}`}
       </Typography>
     );
@@ -144,6 +147,7 @@ const GasSlider = (props: {
     tokenPrices,
     props.destinationGasDrop,
     sourceTokenConfig,
+    destChain,
   ]);
 
   // Checking required values
