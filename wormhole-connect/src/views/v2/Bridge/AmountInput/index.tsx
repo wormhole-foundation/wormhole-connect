@@ -143,14 +143,7 @@ const AmountInput = (props: Props) => {
         getMaxAmt(route),
       );
 
-      // Validation result is truty when there are errors
-      if (amountValidation) {
-        // Reset the amount value when there are errors
-        dispatch(setAmount(''));
-      } else {
-        dispatch(setAmount(value));
-      }
-
+      dispatch(setAmount(value));
       setValidationResult(amountValidation);
     },
     [amount, route, tokenBalance],
