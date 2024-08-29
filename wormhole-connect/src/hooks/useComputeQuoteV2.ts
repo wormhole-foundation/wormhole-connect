@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { getTokenDecimals } from 'utils';
-import { toDecimals } from 'utils/balance';
 
 type Props = {
   sourceChain: Chain | undefined;
@@ -23,6 +21,7 @@ type returnProps = {
   receiveAmountError: string;
   receiveNativeAmt: number;
   relayerFee: number;
+  relayerFeeTokenKey: string;
 };
 
 const useComputeQuoteV2 = (props: Props): returnProps => {
@@ -42,6 +41,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
   const [receiveAmountError, setReceiveAmountError] = useState('');
   const [receiveNativeAmt, setReceiveNativeAmt] = useState(0);
   const [relayerFee, setRelayerFee] = useState(0);
+  const [relayerFeeTokenKey, setRelayerFeeTokenKey] = useState('');
 
   useEffect(() => {
     if (
@@ -61,6 +61,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
       setReceiveAmount('0');
       setReceiveNativeAmt(0);
       setRelayerFee(0);
+      setRelayerFeeTokenKey('');
       return;
     }
 
@@ -89,6 +90,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
             setReceiveAmountError(quote.error.message);
             setReceiveNativeAmt(0);
             setRelayerFee(0);
+            setRelayerFeeTokenKey('');
           }
 
           return;
@@ -107,14 +109,20 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
 
           if (quote.relayFee) {
             const { token, amount } = quote.relayFee;
-            const feeToken = config.sdkConverter.toTokenIdV1(token);
-            const decimals = getTokenDecimals(sourceChain, feeToken);
 
-            setRelayerFee(
-              Number.parseFloat(toDecimals(amount.amount, decimals, 6)),
+            const feeToken = config.sdkConverter.findTokenConfigV1(
+              token,
+              Object.values(config.tokens),
             );
+            if (!feeToken) {
+              console.error('Could not find relayer fee token', token);
+            }
+
+            setRelayerFee(sdkAmount.whole(amount));
+            setRelayerFeeTokenKey(feeToken?.key || '');
           } else {
             setRelayerFee(0);
+            setRelayerFeeTokenKey('');
           }
 
           if (quote.eta) {
@@ -127,6 +135,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
           setReceiveAmountError(e.message);
           setReceiveNativeAmt(0);
           setRelayerFee(0);
+          setRelayerFeeTokenKey('');
         }
       } finally {
         setIsFetching(false);
@@ -155,6 +164,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
     receiveAmountError,
     receiveNativeAmt,
     relayerFee,
+    relayerFeeTokenKey,
   };
 };
 

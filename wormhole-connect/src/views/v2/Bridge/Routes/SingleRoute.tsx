@@ -65,6 +65,7 @@ const SingleRoute = (props: Props) => {
     eta: estimatedTime,
     receiveAmount,
     relayerFee,
+    relayerFeeTokenKey,
     isFetching: isFetchingQuote,
   } = useComputeQuoteV2({
     sourceChain,
@@ -82,7 +83,7 @@ const SingleRoute = (props: Props) => {
     const bridgePrice = calculateUSDPrice(
       relayerFee,
       tokenPrices,
-      config.tokens[destToken],
+      config.tokens[relayerFeeTokenKey],
       true,
     );
 
@@ -102,7 +103,7 @@ const SingleRoute = (props: Props) => {
         )}
       </Stack>
     );
-  }, [destToken, isFetchingQuote, relayerFee, tokenPrices]);
+  }, [destToken, isFetchingQuote, relayerFee, relayerFeeTokenKey, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!destChain || !props.destinationGasDrop) {

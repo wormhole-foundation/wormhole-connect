@@ -170,14 +170,14 @@ const TransactionDetails = () => {
   );
 
   const bridgeFee = useMemo(() => {
-    if (!relayerFee || !receivedTokenKey) {
+    if (!relayerFee) {
       return <></>;
     }
 
     const bridgePrice = calculateUSDPrice(
-      relayerFee?.fee,
+      relayerFee.fee,
       tokenPrices,
-      config.tokens[receivedTokenKey],
+      config.tokens[relayerFee.tokenKey],
       true,
     );
 
@@ -197,7 +197,7 @@ const TransactionDetails = () => {
         )}
       </Stack>
     );
-  }, [isFetchingTokenPrices, receivedTokenKey, relayerFee, tokenPrices]);
+  }, [isFetchingTokenPrices, relayerFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!receivedTokenKey || !receiveNativeAmount) {
