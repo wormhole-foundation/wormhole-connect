@@ -224,6 +224,10 @@ const SingleRoute = (props: Props) => {
   }, [props.route.name]);
 
   const providerText = useMemo(() => {
+    if (!sourceToken) {
+      return '';
+    }
+
     const { providedBy, name } = props.route;
 
     const { symbol } = config.tokens[sourceToken];

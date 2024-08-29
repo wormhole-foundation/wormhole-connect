@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
@@ -66,7 +66,6 @@ const AmountInput = (props: Props) => {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const [tokenAmount, setTokenAmount] = useState(amount);
   const [validationResult, setValidationResult] = useState('');
 
   // Debouncing validation to prevent false-positive results while user is still typing
@@ -109,25 +108,6 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, balances, tokenBalance, sendingWallet.address]);
 
-  useEffect(() => {
-    // Validation for the amount value
-    const amountValidation = validateAmount(
-      tokenAmount,
-      tokenBalance,
-      getMaxAmt(route),
-    );
-
-    // Validation result is truty when there are errors
-    if (amountValidation) {
-      // Reset the amount value when there are errors
-      dispatch(setAmount(''));
-    } else {
-      dispatch(setAmount(tokenAmount));
-    }
-
-    setValidationResult(amountValidation);
-  }, [tokenAmount, tokenBalance, route, validationResult]);
-
   const maxButton = useMemo(() => {
     return (
       <Button
@@ -136,7 +116,7 @@ const AmountInput = (props: Props) => {
         onClick={() => {
           if (tokenBalance) {
             const trimmedTokenBalance = toFixedDecimals(`${tokenBalance}`, 6);
-            setTokenAmount(trimmedTokenBalance);
+            dispatch(setAmount(trimmedTokenBalance));
           }
         }}
       >
@@ -152,11 +132,28 @@ const AmountInput = (props: Props) => {
     (e: any) => {
       const { value } = e.target;
 
-      if (value !== tokenAmount) {
-        setTokenAmount(value);
+      if (value === amount) {
+        return;
       }
+
+      // Validation for the amount value
+      const amountValidation = validateAmount(
+        value,
+        tokenBalance,
+        getMaxAmt(route),
+      );
+
+      // Validation result is truty when there are errors
+      if (amountValidation) {
+        // Reset the amount value when there are errors
+        dispatch(setAmount(''));
+      } else {
+        dispatch(setAmount(value));
+      }
+
+      setValidationResult(amountValidation);
     },
-    [tokenAmount],
+    [amount, route, tokenBalance],
   );
 
   return (
@@ -181,7 +178,7 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={tokenAmount}
+            value={amount}
             onChange={onAmountChange}
             onWheel={(e) => {
               // IMPORTANT: We need to prevent the scroll behavior on number inputs.
