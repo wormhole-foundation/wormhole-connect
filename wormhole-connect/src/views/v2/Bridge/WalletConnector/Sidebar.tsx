@@ -80,52 +80,60 @@ const WalletSidebar = (props: Props) => {
   );
 
   const renderWalletOptions = useCallback(
-    (wallets: WalletData[]): JSX.Element[] => {
-      const walletsSorted = wallets.sort((w) => (w.isReady ? -1 : 1));
+    (wallets: WalletData[]): JSX.Element => {
+      const walletsSorted = [...wallets].sort((w) => (w.isReady ? -1 : 1));
 
-      let walletsFiltered = walletsSorted;
+      const walletsFiltered = !search
+        ? walletsSorted
+        : walletsSorted.filter(({ name, type }: WalletData) =>
+            [name, type].some((criteria) =>
+              criteria.toLowerCase().includes(search.toLowerCase()),
+            ),
+          );
 
-      if (search) {
-        const searchTerm = search.toLowerCase();
-
-        walletsFiltered = walletsSorted.filter(
-          ({ name, type }: WalletData) =>
-            name.toLowerCase().includes(searchTerm) ||
-            type.toLowerCase().includes(searchTerm),
-        );
-      }
-
-      return walletsFiltered.map((wallet) => {
-        const isWalletReady = wallet.isReady;
-
-        return (
-          <ListItemButton
-            key={wallet.name}
-            dense
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-            }}
-            onClick={() => {
-              if (isWalletReady) {
-                connect(wallet);
-              } else {
-                window.open(wallet.wallet.getUrl());
-              }
-            }}
-          >
-            <ListItemIcon>
-              <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
-            </ListItemIcon>
-            <Typography fontSize={14}>
-              <div className={`${!isWalletReady && classes.notInstalled}`}>
-                {!isWalletReady && 'Install'} {wallet.name}
-              </div>
-              <div className={classes.context}>{wallet.type.toUpperCase()}</div>
-            </Typography>
-          </ListItemButton>
-        );
-      });
+      return (
+        <>
+          {!walletsFiltered.length ? (
+            <ListItem>
+              <Typography>No results</Typography>
+            </ListItem>
+          ) : (
+            walletsFiltered.map((wallet) => (
+              <ListItemButton
+                key={wallet.name}
+                dense
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                }}
+                onClick={() => {
+                  if (wallet.isReady) {
+                    connect(wallet);
+                  } else {
+                    window.open(wallet.wallet.getUrl());
+                  }
+                }}
+              >
+                <ListItemIcon>
+                  <WalletIcon
+                    name={wallet.name}
+                    icon={wallet.icon}
+                    height={32}
+                  />
+                </ListItemIcon>
+                <Typography fontSize={14}>
+                  <div className={`${!wallet.isReady && classes.notInstalled}`}>
+                    {!wallet.isReady && 'Install'} {wallet.name}
+                  </div>
+                  <div className={classes.context}>
+                    {wallet.type.toUpperCase()}
+                  </div>
+                </Typography>
+              </ListItemButton>
+            ))
+          )}
+        </>
+      );
     },
     [connect, search],
   );
@@ -154,9 +162,8 @@ const WalletSidebar = (props: Props) => {
                   placeholder="Search for a wallet"
                   size="small"
                   variant="outlined"
-                  onChange={(e) => {
-                    setSearch(e.target.value?.toLowerCase());
-                  }}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -174,7 +181,7 @@ const WalletSidebar = (props: Props) => {
         // TODO: Do we ever get to this case? If so, what should be the UI?
         return <></>;
     }
-  }, [walletOptionsResult]);
+  }, [walletOptionsResult, renderWalletOptions]);
 
   return (
     <Drawer
