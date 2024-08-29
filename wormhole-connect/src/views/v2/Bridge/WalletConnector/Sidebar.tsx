@@ -102,17 +102,12 @@ const WalletSidebar = (props: Props) => {
               <ListItemButton
                 key={wallet.name}
                 dense
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                }}
-                onClick={() => {
-                  if (wallet.isReady) {
-                    connect(wallet);
-                  } else {
-                    window.open(wallet.wallet.getUrl());
-                  }
-                }}
+                sx={{ display: 'flex', flexDirection: 'row' }}
+                onClick={() =>
+                  wallet.isReady
+                    ? connect(wallet)
+                    : window.open(wallet.wallet.getUrl())
+                }
               >
                 <ListItemIcon>
                   <WalletIcon
@@ -138,44 +133,43 @@ const WalletSidebar = (props: Props) => {
     [connect, search],
   );
 
-  const sidebarContent = useMemo((): JSX.Element => {
+  const sidebarContent = useMemo(() => {
     switch (walletOptionsResult.state) {
       case 'loading':
         return <CircularProgress />;
       case 'error':
         return <AlertBannerV2 error show content={walletOptionsResult.error} />;
       case 'result':
-        if (walletOptionsResult.options?.length === 0) {
-          return <></>;
-        }
         return (
-          <>
-            <List>
-              <ListItem>
-                <Typography component={'div'} fontSize={16}>
-                  Connect a wallet
-                </Typography>
-              </ListItem>
-              <ListItem>
-                <TextField
-                  fullWidth
-                  placeholder="Search for a wallet"
-                  size="small"
-                  variant="outlined"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </ListItem>
-              {renderWalletOptions(walletOptionsResult.options)}
-            </List>
-          </>
+          !!walletOptionsResult.options?.length && (
+            <>
+              <List>
+                <ListItem>
+                  <Typography component={'div'} fontSize={16}>
+                    Connect a wallet
+                  </Typography>
+                </ListItem>
+                <ListItem>
+                  <TextField
+                    fullWidth
+                    placeholder="Search for a wallet"
+                    size="small"
+                    variant="outlined"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </ListItem>
+                {renderWalletOptions(walletOptionsResult.options)}
+              </List>
+            </>
+          )
         );
       default:
         // TODO: Do we ever get to this case? If so, what should be the UI?
@@ -187,9 +181,7 @@ const WalletSidebar = (props: Props) => {
     <Drawer
       anchor="right"
       open={props.type && props.open}
-      onClose={() => {
-        props.onClose?.();
-      }}
+      onClose={() => props.onClose?.()}
     >
       <div className={classes.drawer}>{sidebarContent}</div>
     </Drawer>
