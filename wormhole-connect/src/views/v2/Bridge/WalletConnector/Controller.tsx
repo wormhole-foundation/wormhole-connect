@@ -7,6 +7,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
   usePopupState,
@@ -24,7 +27,7 @@ import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
-import { Tooltip } from '@mui/material';
+import { Tooltip, useTheme } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -79,6 +82,8 @@ const COPY_MESSAGE_TIMOUT = 1000;
 // Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
   const { classes } = useStyles();
 
@@ -98,10 +103,14 @@ const ConnectedWallet = (props: Props) => {
   }, []);
 
   const copyAddress = useCallback(() => {
-    copyTextToClipboard(wallet.address);
+    if (copyTextToClipboard(wallet.address)) {
+      setSnackbarMessage('Address copied');
+    }
     popupState?.close();
     setIsCopied(true);
   }, [wallet.address]);
+
+  const handleCloseSnackbar = useCallback(() => setSnackbarMessage(''), []);
 
   const disconnectWallet = useCallback(() => {
     dispatch(disconnectFromStore(props.type));
@@ -172,6 +181,26 @@ const ConnectedWallet = (props: Props) => {
         onClose={() => {
           setIsOpen(false);
         }}
+      />
+      <Snackbar
+        open={!!snackbarMessage}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        message={
+          <Typography color={theme.palette.text.primary} fontSize={14}>
+            {snackbarMessage}
+          </Typography>
+        }
+        action={
+          <IconButton
+            color="primary"
+            size="small"
+            aria-label="close"
+            onClick={handleCloseSnackbar}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
       />
     </>
   );
