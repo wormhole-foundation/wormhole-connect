@@ -63,13 +63,22 @@ const SingleRoute = (props: Props) => {
   const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
   const bridgeFee = useMemo(() => {
-    const relayFee = quote?.relayFee?.amount
-      ? amount.whole(quote?.relayFee?.amount)
-      : undefined;
+    if (!quote?.relayFee) {
+      return <></>;
+    }
+
+    const relayFee = amount.whole(quote.relayFee.amount);
+    const feeToken = quote.relayFee.token;
+
+    const feeTokenConfig = config.sdkConverter.findTokenConfigV1(
+      feeToken,
+      Object.values(config.tokens),
+    );
+
     const bridgePrice = calculateUSDPrice(
       relayFee,
       tokenPrices,
-      config.tokens[destToken],
+      feeTokenConfig,
       true,
     );
 
