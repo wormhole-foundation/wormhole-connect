@@ -68,10 +68,20 @@ const TokenList = (props: Props) => {
       (t) => t.key === selectedChainConfig.gasToken,
     );
 
+    const tokenSet: Set<string> = new Set();
+    const tokens: Array<TokenConfig> = [];
+
+    const addToken = (tokenConfig: TokenConfig) => {
+      if (!tokenSet.has(tokenConfig.key)) {
+        tokenSet.add(tokenConfig.key);
+        tokens.push(tokenConfig);
+      }
+    };
+
     // First: Add previously selected token at the top of the list
-    const tokens: Array<TokenConfig> = selectedTokenConfig
-      ? [selectedTokenConfig]
-      : [];
+    if (selectedTokenConfig) {
+      addToken(selectedTokenConfig);
+    }
 
     // Second: Add the wrapped token of the source token, if sourceToken is defined (meaning
     // this is being rendered with destination tokens).
@@ -84,7 +94,7 @@ const TokenList = (props: Props) => {
             (t) => t.key === destTokenKey,
           );
           if (destToken) {
-            tokens.push(destToken);
+            addToken(destToken);
           }
         }
       }
@@ -95,7 +105,7 @@ const TokenList = (props: Props) => {
       nativeTokenConfig &&
       nativeTokenConfig.key !== selectedTokenConfig?.key
     ) {
-      tokens.push(nativeTokenConfig);
+      addToken(nativeTokenConfig);
     }
 
     // Fourth: Add tokens with a balances in the connected wallet
@@ -107,7 +117,7 @@ const TokenList = (props: Props) => {
         );
 
         if (tokenConfig && tokenNotAdded && tokens.length < SHORT_LIST_SIZE) {
-          tokens.push(tokenConfig);
+          addToken(tokenConfig);
         }
       }
     });
@@ -125,7 +135,7 @@ const TokenList = (props: Props) => {
       );
 
       if (tokens.length < SHORT_LIST_SIZE && tokenNotAdded) {
-        tokens.push(t);
+        addToken(t);
       }
     });
 
