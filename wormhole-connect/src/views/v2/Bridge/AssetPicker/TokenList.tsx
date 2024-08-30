@@ -91,7 +91,10 @@ const TokenList = (props: Props) => {
         const destTokenKey = sourceToken.wrappedAsset;
         if (destTokenKey) {
           const destToken = props.tokenList?.find(
-            (t) => t.key === destTokenKey,
+            (t) =>
+              t.key === destTokenKey &&
+              // Only add the wrapped token if it actually exists on the destination chain
+              !!t.foreignAssets?.[selectedChainConfig.key],
           );
           if (destToken) {
             addToken(destToken);
