@@ -4,8 +4,9 @@ import type { RootState } from 'store';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import config from 'config';
+import { RouteState } from 'store/transferInput';
 
-export const useSortedSupportedRoutes = () => {
+export const useSortedSupportedRoutes = (): RouteState[] => {
   const { amount, routeStates, fromChain, token, toChain, destToken } =
     useSelector((state: RootState) => state.transferInput);
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
