@@ -40,6 +40,7 @@ import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import { Chain } from '@wormhole-foundation/sdk';
 import { useSortedSupportedRoutes } from 'hooks/useSortedSupportedRoutes';
+import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -183,6 +184,9 @@ const Bridge = () => {
 
   // Call to initiate transfer inputs validations
   useValidate();
+
+  // Fetch token prices
+  useFetchTokenPrices();
 
   // Get input validation result
   const isValid = useMemo(() => isTransferValid(validations), [validations]);

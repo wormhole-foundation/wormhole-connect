@@ -1,10 +1,13 @@
 import config from 'config';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setPrices, setPricesError } from 'store/tokenPrices';
+import {
+  setFetchingPrices,
+  setPrices,
+  setPricesError,
+} from 'store/tokenPrices';
 import { sleep } from 'utils';
 
-const PRICES_FETCH_INTERVAL = 60000 * 5; // 5 mins
 const COINGECKO_URL = 'https://api.coingecko.com/';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
 
@@ -27,7 +30,10 @@ export const useFetchTokenPrices = (): void => {
         : {}),
     });
     const fetchTokenPrices = async () => {
+      dispatch(setFetchingPrices());
+
       while (!cancelled) {
+        let fetchInterval = 5 * 60 * 1000; // 5 mins
         try {
           // Make API call to fetch token prices
           // In the case the user https://apiguide.coingecko.com/getting-started/getting-started#id-2.-making-api-request
@@ -49,8 +55,10 @@ export const useFetchTokenPrices = (): void => {
           if (!cancelled) {
             dispatch(setPricesError(`Error fetching token prices: ${error}`));
           }
+          // If there was an error fetching token prices, retry in 30 seconds
+          fetchInterval = 30 * 1000; // 30 seconds
         }
-        await sleep(PRICES_FETCH_INTERVAL);
+        await sleep(fetchInterval);
       }
     };
 

@@ -295,7 +295,7 @@ export const getUSDFormat = (
 
 export const calculateUSDPrice = (
   amount?: number | string,
-  tokenPrices?: TokenPrices,
+  tokenPrices?: TokenPrices | null,
   token?: TokenConfig,
   noParanthesis?: boolean | undefined,
 ): string => {

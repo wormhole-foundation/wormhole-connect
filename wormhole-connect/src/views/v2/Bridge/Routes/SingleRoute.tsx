@@ -14,7 +14,6 @@ import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
-import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
@@ -55,7 +54,9 @@ const SingleRoute = (props: Props) => {
     token: sourceToken,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { prices: tokenPrices } = useFetchTokenPricesV2();
+  const { usdPrices: tokenPrices } = useSelector(
+    (state: RootState) => state.tokenPrices,
+  );
 
   const { name } = props.route;
   const { quote, isFetchingQuote } = props;
@@ -77,7 +78,7 @@ const SingleRoute = (props: Props) => {
 
     const bridgePrice = calculateUSDPrice(
       relayFee,
-      tokenPrices,
+      tokenPrices.data,
       feeTokenConfig,
       true,
     );
@@ -113,7 +114,7 @@ const SingleRoute = (props: Props) => {
 
     const gasTokenPrice = calculateUSDPrice(
       props.destinationGasDrop,
-      tokenPrices,
+      tokenPrices.data,
       config.tokens[destChainConfig.gasToken],
       true,
     );
@@ -283,7 +284,7 @@ const SingleRoute = (props: Props) => {
 
     const receiveAmountPrice = calculateUSDPrice(
       receiveAmount,
-      tokenPrices,
+      tokenPrices.data,
       destTokenConfig,
     );
 
@@ -297,7 +298,7 @@ const SingleRoute = (props: Props) => {
 
   // There are three states for the Card area cursor:
   // 1- If not available in the first place, "not-allowed"
-  // 2- If available but no action hanler provided, fall back to default
+  // 2- If available but no action handler provided, fall back to default
   // 3- Both available and there is an action handler, "pointer"
   const cursor = useMemo(() => {
     if (!props.available) {
