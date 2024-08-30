@@ -932,7 +932,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     },
     foreignAssets: {
       sepolia: {
-        address: '0x357ECA9754fDc02A9860973E261FB08DE0f3b094',
+        address: '0x824CB8fC742F8D3300d29f16cA8beE94471169f5',
         decimals: 9,
       },
       mumbai: {
@@ -1219,10 +1219,10 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCoptimism: {
     key: 'USDCoptimism',
     symbol: 'USDC',
-    nativeChain: 'optimis_sepolia',
+    nativeChain: 'optimism_sepolia',
     icon: Icon.USDC,
     tokenId: {
-      chain: 'optimis_sepolia',
+      chain: 'optimism_sepolia',
       address: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     },
     coinGeckoId: 'usd-coin',
