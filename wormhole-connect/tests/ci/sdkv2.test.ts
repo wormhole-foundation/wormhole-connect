@@ -186,7 +186,7 @@ describe('token', () => {
       v1: TESTNET.tokens.USDCeth,
       v2: v2.Wormhole.tokenId(
         'Ethereum',
-        '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
+        '0x99cA9faa461bE470dCff54d5b2e5857ef253AEb8',
       ),
     },
     {

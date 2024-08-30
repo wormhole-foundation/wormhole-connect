@@ -1166,390 +1166,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
-  ETHarbitrum: {
-    key: 'ETHarbitrum',
-    symbol: 'ETH',
-    displayName: 'ETH (Arbitrum)',
-    nativeChain: 'arbitrumgoerli',
-    icon: Icon.ETH,
-    coinGeckoId: 'ethereum',
-    color: '#5794EC',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    wrappedAsset: 'WETHarbitrum',
-  },
-  //TODO: understand difference between WETH and WETH-Arbitrum?
-  WETHarbitrum: {
-    key: 'WETHarbitrum',
-    symbol: 'WETH',
-    displayName: 'WETH (Arbitrum)',
-    nativeChain: 'arbitrumgoerli',
-    icon: Icon.ETH,
-    tokenId: {
-      chain: 'arbitrumgoerli',
-      address: '0xEe01c0CD76354C383B8c7B4e65EA88D00B06f36f',
-    },
-    coinGeckoId: 'ethereum',
-    color: '#5794EC',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    foreignAssets: {
-      bsc: {
-        address: '0x60845E2503Fcd945b3A6f0bC077a31CC913E654D',
-        decimals: 18,
-      },
-      fuji: {
-        address: '0x36Bd1562F874941eE62Ebb2b3A45B4A88A9df90e',
-        decimals: 18,
-      },
-      fantom: {
-        address: '0x456e08952f9091B6c268dC0cECad53d141152C59',
-        decimals: 18,
-      },
-      moonbasealpha: {
-        address: '0x15025b956969DD8F1d0CD69959Ad97128F8f6D69',
-        decimals: 18,
-      },
-      basegoerli: {
-        address: '0x8eD43aBdc4f836aa60933177B31AC358ea09f27E',
-        decimals: 18,
-      },
-      sei: {
-        address:
-          'sei1pf5j3dgngm8yj2xkwmvmvt87g4vyc0szpjz92q8ly9erh23ytn4s983htv',
-        decimals: 8,
-      },
-      wormchain: {
-        address:
-          'wormhole186k0cp83c3wyvapgh8fxf66ededemzrfujvjfsx0xw3vr0u9g8sq2y30vx',
-        decimals: 8,
-      },
-      cosmoshub: {
-        address:
-          'ibc/AB4046AF5B6F146C006DE4DECAD929D24F762A701E09EC8B29000EC63A6E649B',
-        decimals: 8,
-      },
-      osmosis: {
-        address:
-          'ibc/221A4AADF7972F3BB8F48A6CA984FF0AE65B5D973FF1A695B9642AD702F51789',
-        decimals: 8,
-      },
-    },
-  },
-  USDCarbitrum: {
-    key: 'USDCarbitrum',
-    symbol: 'USDC',
-    nativeChain: 'arbitrumgoerli',
-    icon: Icon.USDC,
-    tokenId: {
-      chain: 'arbitrumgoerli',
-      address: '0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63',
-    },
-    coinGeckoId: 'usd-coin',
-    color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
-    foreignAssets: {
-      goerli: {
-        address: '0xd962F26D93c4eF609Ba00Ed6101326A1490B9489',
-        decimals: 6,
-      },
-      alfajores: {
-        address: '0x0C4AbF95Ff3d82d1F02f55e65050eA5bA062606E',
-        decimals: 6,
-      },
-      wormchain: {
-        address:
-          'wormhole1s3pk90ccfl6ueehnj8s9pdgyjjlspmr3m5rv46arjh5v4g08dd0qrchjrk',
-        decimals: 6,
-      },
-      cosmoshub: {
-        address:
-          'ibc/6D1B6A7A9EF692A279A6B5994C98C0D598D003D9203BE8309F14B6E57A58506E',
-        decimals: 6,
-      },
-      aptos: {
-        address:
-          '0x3f0fdd44d96dae888d6c576218cf655458316a27c7bdc46537f61e531b10d3df::coin::T',
-        decimals: 6,
-      },
-      osmosis: {
-        address:
-          'ibc/06ED2700071B5A9C582F51A556537DA94E69EF547E7E6CCD8BFA3D95C818A525',
-        decimals: 6,
-      },
-      bsc: {
-        address: '0xe3aA397cb6d93Cce4fAd9Cc9E796CCa5E50FB5ED',
-        decimals: 6,
-      },
-    },
-  },
-  ETHoptimism: {
-    key: 'ETHoptimism',
-    symbol: 'ETH',
-    displayName: 'ETH (Optimism)',
-    nativeChain: 'optimismgoerli',
-    icon: Icon.ETH,
-    coinGeckoId: 'ethereum',
-    color: '#D53424',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    wrappedAsset: 'WETHoptimism',
-  },
-  //TODO: understand difference between WETH on optimism and WETH-Optimism?
-  WETHoptimism: {
-    key: 'WETHoptimism',
-    symbol: 'WETH',
-    displayName: 'WETH (Optimism)',
-    nativeChain: 'optimismgoerli',
-    icon: Icon.ETH,
-    tokenId: {
-      chain: 'optimismgoerli',
-      address: '0x4200000000000000000000000000000000000006',
-    },
-    coinGeckoId: 'ethereum',
-    color: '#D53424',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    foreignAssets: {
-      mumbai: {
-        address: '0xC77d781f38Cf52F8Ea0b4c0F22312bB9A34911b5',
-        decimals: 18,
-      },
-      fuji: {
-        address: '0x301587BF484756441de43E522027e3751871237B',
-        decimals: 18,
-      },
-      alfajores: {
-        address: '0x28E768a51D19dcB753a24B79D1e89c92fee094Ba',
-        decimals: 18,
-      },
-      basegoerli: {
-        address: '0x5c443C05C72F0660502d88642c807020cc9b71A2',
-        decimals: 18,
-      },
-      arbitrumgoerli: {
-        address: '0xFd903eA23Bf65f26FdAf2eeb589cf007b108882E',
-        decimals: 18,
-      },
-      wormchain: {
-        address:
-          'wormhole12eu6c7f67l8gdl2lt0hz0dgdh24dhune6wjgy5t0es3tpfzhc3yspwnpfy',
-        decimals: 8,
-      },
-      cosmoshub: {
-        address:
-          'ibc/A0298483510D803A045AA7F49CCBD0F9D01010FE0B1A346EBDFFF4BA820C3D21',
-        decimals: 8,
-      },
-      osmosis: {
-        address:
-          'ibc/80B3FECB24A4CE94537444E5BF937AC4C08A39BF90D59620D278FA185BD2B148',
-        decimals: 8,
-      },
-    },
-  },
-  USDCoptimism: {
-    key: 'USDCoptimism',
-    symbol: 'USDC',
-    nativeChain: 'optimismgoerli',
-    icon: Icon.USDC,
-    tokenId: {
-      chain: 'optimismgoerli',
-      address: '0xe05606174bac4A6364B31bd0eCA4bf4dD368f8C6',
-    },
-    coinGeckoId: 'usd-coin',
-    color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
-    foreignAssets: {
-      moonbasealpha: {
-        address: '0xf98E630a3DD4F21Cab7a37Bb01209cb62959169D',
-        decimals: 6,
-      },
-      fantom: {
-        address: '0x685B29e17440c42758Ab3F80FD3603EF01bebe9A',
-        decimals: 6,
-      },
-      wormchain: {
-        address:
-          'wormhole1u5z7097gm57zvun9wqsx6jxej2gpdjhg9l9xfe58rhpm29rtjmfqfnl4yv',
-        decimals: 6,
-      },
-      cosmoshub: {
-        address:
-          'ibc/CE3F2FE630DA6A1187F085CDC8D59BA8B20DA48F4866F2D71C5AB7A1D5859933',
-        decimals: 6,
-      },
-      osmosis: {
-        address:
-          'ibc/0A98A3947189D7C368170C76C3EF49486DDBE095F34B72A3C7F92AEBE1013A1D',
-        decimals: 6,
-      },
-      aptos: {
-        address:
-          '0xcff1d9820851201436ad225dcc4374a2d15f52a74109283eb9881be799677e92::coin::T',
-        decimals: 6,
-      },
-      sui: {
-        address:
-          '0xbbc39df58a11072ceeac1f685393ca912d1a1bfd6e772053ec5a544f36124da::coin::COIN',
-        decimals: 6,
-      },
-    },
-  },
-  ETHbase: {
-    key: 'ETHbase',
-    symbol: 'ETH',
-    displayName: 'ETH (Base)',
-    nativeChain: 'basegoerli',
-    icon: Icon.ETH,
-    coinGeckoId: 'ethereum',
-    color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    wrappedAsset: 'WETHbase',
-  },
-  WETHbase: {
-    key: 'WETHbase',
-    symbol: 'WETH',
-    displayName: 'WETH (Base)',
-    nativeChain: 'basegoerli',
-    icon: Icon.ETH,
-    tokenId: {
-      chain: 'basegoerli',
-      address: '0x4200000000000000000000000000000000000006',
-    },
-    coinGeckoId: 'ethereum',
-    color: '#62688F',
-    decimals: {
-      Ethereum: 18,
-      default: 8,
-    },
-    foreignAssets: {
-      goerli: {
-        address: '0x76e39239e40857030D6f4D8545EFbd71F904d344',
-        decimals: 18,
-      },
-      mumbai: {
-        address: '0x68C4365d5229A44D9A59058B65500365492b5307',
-        decimals: 18,
-      },
-      bsc: {
-        address: '0x63108fC941F3cCE0B484De19746B5Af949EAF6eE',
-        decimals: 18,
-      },
-      fuji: {
-        address: '0xc07c754ef7473d315D973F7D9F7858C2eCe0a0a6',
-        decimals: 18,
-      },
-      fantom: {
-        address: '0x01950A33DfFa63E6Bc23b5dB440505581A4cc0e7',
-        decimals: 18,
-      },
-      solana: {
-        address: 'EKZqcBZ3Y7YTDinpecA7SxRp9B4s1m99VHJ9jpvyTwzW',
-        decimals: 8,
-      },
-      aptos: {
-        address:
-          '0x5b5f14781164cf77185a7b6acd8e4f3cbb7e7cfb1cd5760d2b8af81075fc153d::coin::T',
-        decimals: 8,
-      },
-      sei: {
-        address:
-          'sei1kdqylzcv86t7slg8m30mlfgna9xsrusghdgnavvurkv0rku7jvqqta7lka',
-        decimals: 8,
-      },
-      sui: {
-        address:
-          '0x7b442b988864149dedfb9b6a75a88c7c33b9ddd3d15a87bf25104e1fcdd680ab::coin::COIN',
-        decimals: 8,
-      },
-      wormchain: {
-        address:
-          'wormhole10p89p4zh00dwdg8h52sysrqm0l2j47jj3kmg93pnz2a039ucw7esgl5vl9',
-        decimals: 8,
-      },
-      cosmoshub: {
-        address:
-          'ibc/97035986A4BD0AF555713355A02EA31A4526616B6543E019E0D750007FABE06C',
-        decimals: 8,
-      },
-      osmosis: {
-        address:
-          'ibc/A45069EA82C933945973E66E4222EEE4624498D4483508FE9BEBF9D519F2132F',
-        decimals: 8,
-      },
-    },
-  },
-  USDCbase: {
-    key: 'USDCbase',
-    symbol: 'USDC',
-    nativeChain: 'basegoerli',
-    icon: Icon.USDC,
-    tokenId: {
-      chain: 'basegoerli',
-      address: '0xF175520C52418dfE19C8098071a252da48Cd1C19',
-    },
-    coinGeckoId: 'usd-coin',
-    color: '#2774CA',
-    decimals: {
-      default: 6,
-    },
-    foreignAssets: {
-      moonbasealpha: {
-        address: '0x7480641F5B00b4Fc39d6AaeC4Cd851EdEA7f31CF',
-        decimals: 6,
-      },
-      goerli: {
-        address: '0x5aA392243437dDC8b4d86bfC90DF296908740A41',
-        decimals: 6,
-      },
-      wormchain: {
-        address:
-          'wormhole1ja4txt6m0jjq0gmjtmv442f8wk0r5f5apaya0z55wwlrpg3p5xaq3qxw7h',
-        decimals: 6,
-      },
-      cosmoshub: {
-        address:
-          'ibc/8560BA5F45C95AE716C05978E364F50C98347ACBEC745840C30F91611FA36698',
-        decimals: 6,
-      },
-      osmosis: {
-        address:
-          'ibc/2E4F8BC7F7AF33752CF7E290CAD4417EE67CD18FFC0D099E6519A440E588E0CE',
-        decimals: 6,
-      },
-      aptos: {
-        address:
-          '0xcfaabb3cb08ad612905dd6b2593d044ce857dfe5360148333b4635fb57d4d13f::coin::T',
-        decimals: 6,
-      },
-      sui: {
-        address:
-          '0x4125940814a0ca87465a1a59092a7344633ad03b48ad7cda36d799d8558012c1::coin::COIN',
-        decimals: 6,
-      },
-      sei: {
-        address:
-          'sei1lf6ghmrkd7gn5jlj6xw64suycpjy7g4s5q92fc2gef4f8q3znanq95mmgv',
-        decimals: 6,
-      },
-    },
-  },
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',
@@ -1568,10 +1184,11 @@ export const TESTNET_TOKENS: TokensConfig = {
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
-    nativeChain: 'goerli',
+    nativeChain: 'sepolia',
     tokenId: {
-      chain: 'goerli',
-      address: '0x679874fBE6D4E7Cc54A59e315FF1eB266686a937',
+      // https://github.com/threshold-network/threshold/blob/748d9188aec126b7b40830021636c14fa7b5caf9/docs/resources/contract-addresses/sepolia-testnet.md
+      chain: 'sepolia',
+      address: '0x517f2982701695D4E52f1ECFBEf3ba31Df470161',
     },
     icon: Icon.TBTC,
     coinGeckoId: 'tbtc',
@@ -1581,10 +1198,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
     },
     foreignAssets: {
-      mumbai: {
-        address: '0xf6CC0Cc8D54a4b1A63a0E9745663e0c844Ee4D48',
-        decimals: 18,
-      },
       bsc: {
         address: '0xE7176110261ef2FfC885dd568C1093f58F0aEee9',
         decimals: 18,
@@ -1621,35 +1234,13 @@ export const TESTNET_TOKENS: TokensConfig = {
       }
     },
   },
-  tBTCpolygon: {
-    key: 'tBTCpolygon',
-    symbol: 'tBTC',
-    nativeChain: 'mumbai',
-    tokenId: {
-      chain: 'mumbai',
-      address: '0xBcD7917282E529BAA6f232DdDc75F3901245A492',
-    },
-    icon: Icon.TBTC,
-    coinGeckoId: 'tbtc',
-    color: '#000000',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-    foreignAssets: {
-      optimismgoerli: {
-        address: '0xE04e0F5f2C6ce45A40482C3AB92CA91D6741D717',
-        decimals: 18,
-      },
-    },
-  },
   tBTCoptimism: {
     key: 'tBTCoptimism',
     symbol: 'tBTC',
-    nativeChain: 'optimismgoerli',
+    nativeChain: 'optimism_sepolia',
     tokenId: {
-      chain: 'optimismgoerli',
-      address: '0x1a53759DE2eADf73bd0b05c07a4F1F5B7912dA3d',
+      chain: 'optimism_sepolia',
+      address: '0x9A82bE743f0120fA24893b1631B6b2817fD94b1D',
     },
     icon: Icon.TBTC,
     coinGeckoId: 'tbtc',
@@ -1657,21 +1248,15 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
-    },
-    foreignAssets: {
-      solana: {
-        address: 'HsPvRT3J7kuitNvNHogyZeSEagcqAqwwq2FPgrGfgApy',
-        decimals: 8,
-      },
-    },
+    }
   },
   tBTCarbitrum: {
     key: 'tBTCarbitrum',
     symbol: 'tBTC',
-    nativeChain: 'arbitrumgoerli',
+    nativeChain: 'arbitrum_sepolia',
     tokenId: {
-      chain: 'arbitrumgoerli',
-      address: '0x85727F4725A4B2834e00Db1AA8e1b843a188162F',
+      chain: 'arbitrum_sepolia',
+      address: '0xb8f31A249bcb45267d06b9E51252c4793B917Cd0',
     },
     icon: Icon.TBTC,
     coinGeckoId: 'tbtc',
@@ -1681,10 +1266,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
     },
     foreignAssets: {
-      fuji: {
-        address: '0x4beDc7471374d7479120E44ea9593eBB85f48AD9',
-        decimals: 18,
-      },
       wormchain: {
         address:
           'wormhole1rm8ztmk20lrd6ex8uqq3yu7a6eyfjwvg53pcuuj22ffe2y8r3yzqr8j4v9',
@@ -1695,10 +1276,10 @@ export const TESTNET_TOKENS: TokensConfig = {
   tBTCbase: {
     key: 'tBTCbase',
     symbol: 'tBTC',
-    nativeChain: 'basegoerli',
+    nativeChain: 'base_sepolia',
     tokenId: {
-      chain: 'basegoerli',
-      address: '0x783349cd20f26CE12e747b1a17bC38D252c9e119',
+      chain: 'base_sepolia',
+      address: '0xb8f31A249bcb45267d06b9E51252c4793B917Cd0',
     },
     icon: Icon.TBTC,
     coinGeckoId: 'tbtc',
@@ -1724,10 +1305,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
     },
     foreignAssets: {
-      goerli: {
-        address: '0x57A52B6F0b393AF7d36116183cA83E584e636eA4',
-        decimals: 8,
-      },
       sei: {
         address:
           'sei1aj3uu9ejt8fk6rpjfhzluqnzqmv3enlndjmt8llkr7dn2dtz55xst4s3mn',
@@ -1738,10 +1315,10 @@ export const TESTNET_TOKENS: TokensConfig = {
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',
-    nativeChain: 'goerli',
+    nativeChain: 'sepolia',
     tokenId: {
-      chain: 'goerli',
-      address: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
+      chain: 'sepolia', 
+      address: '0xB82381A3fBD3FaFA77B3a7bE693342618240067b', // https://github.com/lidofinance/state-mate/blob/f50bab7be9284f6e15fdb24155fbba943810f0d1/configs/optimism/sepolia-testnet-wstETH.yaml#L5
     },
     icon: Icon.WSTETH,
     coinGeckoId: 'wrapped-steth',
@@ -1910,7 +1487,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
-  // TODO: can this be removed for ETH on native chain sepolia?
   ETHsepolia: {
     key: 'ETHsepolia',
     symbol: 'ETH',
