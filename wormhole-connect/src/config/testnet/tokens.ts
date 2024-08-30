@@ -1166,6 +1166,161 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
+  // https://developers.circle.com/stablecoins/docs/usdc-on-test-networks
+  USDCarbitrum: {
+    key: 'USDCarbitrum',
+    symbol: 'USDC',
+    nativeChain: 'arbitrum_sepolia',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'arbitrum_sepolia',
+      address: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+    foreignAssets: {
+      sepolia: {
+        address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+        decimals: 6,
+      },
+      alfajores: {
+        address: '0x0C4AbF95Ff3d82d1F02f55e65050eA5bA062606E',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1s3pk90ccfl6ueehnj8s9pdgyjjlspmr3m5rv46arjh5v4g08dd0qrchjrk',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/6D1B6A7A9EF692A279A6B5994C98C0D598D003D9203BE8309F14B6E57A58506E',
+        decimals: 6,
+      },
+      aptos: {
+        address:
+          '0x3f0fdd44d96dae888d6c576218cf655458316a27c7bdc46537f61e531b10d3df::coin::T',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/06ED2700071B5A9C582F51A556537DA94E69EF547E7E6CCD8BFA3D95C818A525',
+        decimals: 6,
+      },
+      bsc: {
+        address: '0xe3aA397cb6d93Cce4fAd9Cc9E796CCa5E50FB5ED',
+        decimals: 6,
+      },
+    },
+  },
+  USDCoptimism: {
+    key: 'USDCoptimism',
+    symbol: 'USDC',
+    nativeChain: 'optimis_sepolia',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'optimis_sepolia',
+      address: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+    foreignAssets: {
+      moonbasealpha: {
+        address: '0xf98E630a3DD4F21Cab7a37Bb01209cb62959169D',
+        decimals: 6,
+      },
+      fantom: {
+        address: '0x685B29e17440c42758Ab3F80FD3603EF01bebe9A',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1u5z7097gm57zvun9wqsx6jxej2gpdjhg9l9xfe58rhpm29rtjmfqfnl4yv',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/CE3F2FE630DA6A1187F085CDC8D59BA8B20DA48F4866F2D71C5AB7A1D5859933',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/0A98A3947189D7C368170C76C3EF49486DDBE095F34B72A3C7F92AEBE1013A1D',
+        decimals: 6,
+      },
+      aptos: {
+        address:
+          '0xcff1d9820851201436ad225dcc4374a2d15f52a74109283eb9881be799677e92::coin::T',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0xbbc39df58a11072ceeac1f685393ca912d1a1bfd6e772053ec5a544f36124da::coin::COIN',
+        decimals: 6,
+      },
+    },
+  },
+  USDCbase: {
+    key: 'USDCbase',
+    symbol: 'USDC',
+    nativeChain: 'base_sepolia',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'base_sepolia',
+      address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+    foreignAssets: {
+      moonbasealpha: {
+        address: '0x7480641F5B00b4Fc39d6AaeC4Cd851EdEA7f31CF',
+        decimals: 6,
+      },
+      sepolia: {
+        address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1ja4txt6m0jjq0gmjtmv442f8wk0r5f5apaya0z55wwlrpg3p5xaq3qxw7h',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/8560BA5F45C95AE716C05978E364F50C98347ACBEC745840C30F91611FA36698',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/2E4F8BC7F7AF33752CF7E290CAD4417EE67CD18FFC0D099E6519A440E588E0CE',
+        decimals: 6,
+      },
+      aptos: {
+        address:
+          '0xcfaabb3cb08ad612905dd6b2593d044ce857dfe5360148333b4635fb57d4d13f::coin::T',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0x4125940814a0ca87465a1a59092a7344633ad03b48ad7cda36d799d8558012c1::coin::COIN',
+        decimals: 6,
+      },
+      sei: {
+        address:
+          'sei1lf6ghmrkd7gn5jlj6xw64suycpjy7g4s5q92fc2gef4f8q3znanq95mmgv',
+        decimals: 6,
+      },
+    },
+  },
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',
