@@ -6,24 +6,21 @@ Bug fixes and enhancements are welcome!
 
 ### Setup
 
-1) Install
+Development happens inside the `wormhole-connect` directory at the top level of the repo.
 
+```
+cd wormhole-connect
+```
+
+1) Install dependencies
 
 ```
 npm i
 ```
 
-2) Build SDK
+2) Start demo app with Vite
 
 ```
-cd sdk
-npm run build
-```
-
-3) Start demo app with Vite
-
-```
-cd ../wormhole-connect
 npm run start
 ```
 
