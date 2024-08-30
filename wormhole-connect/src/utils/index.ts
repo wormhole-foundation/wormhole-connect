@@ -373,6 +373,10 @@ export const isFrankensteinToken = (token: TokenConfig, chain: Chain) => {
   return (
     nativeChain !== chain &&
     !(['Ethereum', 'Sepolia'] as Chain[]).includes(nativeChain) &&
-    ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC'].includes(symbol)
+    ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC', 'USDC.e'].includes(symbol)
   );
+};
+
+export const isWrappedToken = (token: TokenConfig, chain: Chain) => {
+  return token.nativeChain !== chain;
 };
