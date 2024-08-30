@@ -39,6 +39,7 @@ import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import { Chain } from '@wormhole-foundation/sdk';
+import { useSortedSupportedRoutes } from 'hooks/useSortedSupportedRoutes';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -126,19 +127,23 @@ const Bridge = () => {
     validations,
   } = useSelector((state: RootState) => state.transferInput);
 
+  const sortedSupportedRoutes = useSortedSupportedRoutes();
+
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    if (!route) {
-      return;
-    }
+    const validRoutes = sortedSupportedRoutes.filter(
+      (rs) => rs.supported && rs.available,
+    );
+    const autoselectedRoute = route || validRoutes[0]?.name;
 
-    const routeState = routeStates?.find((rs) => rs.name === route);
+    // avoids overwriting selected route
+    if (!autoselectedRoute || !!selectedRoute) return;
 
-    if (routeState?.supported && routeState?.available) {
-      setSelectedRoute(route);
-    }
-  }, [route, routeStates]);
+    const routeState = validRoutes?.find((rs) => rs.name === autoselectedRoute);
+
+    if (routeState) setSelectedRoute(routeState.name);
+  }, [route, sortedSupportedRoutes]);
 
   // Compute and set source tokens
   const { isFetching: isFetchingSupportedSourceTokens } =
@@ -388,7 +393,11 @@ const Bridge = () => {
       {destAssetPicker}
       <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
-      <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
+      <Routes
+        sortedSupportedRoutes={sortedSupportedRoutes}
+        selectedRoute={selectedRoute}
+        onRouteChange={setSelectedRoute}
+      />
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
