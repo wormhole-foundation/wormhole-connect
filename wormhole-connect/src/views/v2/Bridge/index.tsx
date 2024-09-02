@@ -353,24 +353,23 @@ const Bridge = () => {
     selectedRoute &&
     Number(amount) > 0;
 
+  const availableRouteSelected = useMemo(
+    () =>
+      routeStates?.find?.(
+        (rs) => rs.name === selectedRoute && !!rs.available && !!rs.supported,
+      ),
+    [routeStates, selectedRoute],
+  );
+
   // Review transaction button is shown only when everything is ready
   const reviewTransactionButton = (
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={!isValid || isFetchingQuote}
+      disabled={!isValid || isFetchingQuote || !availableRouteSelected}
       onClick={() => {
-        if (
-          routeStates &&
-          routeStates.some((rs) => rs.name === selectedRoute)
-        ) {
-          const route = routeStates.find((rs) => rs.name === selectedRoute);
-
-          if (route?.supported && route?.available) {
-            dispatch(setTransferRoute(selectedRoute));
-            setWillReviewTransaction(true);
-          }
-        }
+        dispatch(setTransferRoute(selectedRoute));
+        setWillReviewTransaction(true);
       }}
     >
       <Typography textTransform="none">
