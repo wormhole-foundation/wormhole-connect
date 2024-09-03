@@ -6,10 +6,12 @@ import {
 } from 'config/types';
 
 import * as v2 from '@wormhole-foundation/sdk';
-import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
+import {
+  getTokenBridgeWrappedTokenAddress,
+  getTokenBridgeWrappedTokenAddressSync,
+} from 'utils/sdkv2';
 import { getGasToken } from 'utils';
 import { Chain } from '@wormhole-foundation/sdk';
-import config from 'config';
 
 // SDKConverter provides utility functions for converting core types between SDKv1 and SDKv2
 // This is only meant to be used while we transition to SDKv2
@@ -55,8 +57,8 @@ export class SDKConverter {
     if (this.isTokenConfigV1(token)) {
       if (chain && chain != token.nativeChain) {
         // Getting foreign address
-        const foreignAsset = config.wrappedTokenAddressCache.get(
-          token.key,
+        const foreignAsset = getTokenBridgeWrappedTokenAddressSync(
+          token,
           chain,
         );
         if (foreignAsset) {
@@ -105,7 +107,7 @@ export class SDKConverter {
         }
       } else {
         // Check foreign assets
-        const fa = config.wrappedTokenAddressCache.get(token.key, chain);
+        const fa = getTokenBridgeWrappedTokenAddressSync(token, chain);
         if (fa && fa === tokenId.address.toString()) {
           return token;
         }

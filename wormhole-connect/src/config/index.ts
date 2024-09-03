@@ -33,6 +33,7 @@ import algorand from '@wormhole-foundation/sdk/algorand';
 import RouteOperator from 'routes/operator';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { CHAIN_ORDER } from './constants';
+import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -244,7 +245,7 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
         tokenV2.decimals = token.decimals;
       } else {
         tokenV2.original = token.nativeChain;
-        const fa = config.wrappedTokenAddressCache.get(token.key, chain);
+        const fa = getTokenBridgeWrappedTokenAddressSync(token, chain);
         if (fa) {
           tokenV2.address = fa.toString();
           tokenV2.decimals = getTokenDecimals(chain, getWrappedTokenId(token));

@@ -96,6 +96,15 @@ export async function getTokenBridgeWrappedTokenAddress<C extends Chain>(
   }
 }
 
+// This function is a synchronous version of `getTokenBridgeWrappedTokenAddress`
+// that returns the cached value if it exists.
+export function getTokenBridgeWrappedTokenAddressSync<C extends Chain>(
+  token: TokenConfig,
+  chain: C,
+): TokenAddress<C> | null {
+  return config.wrappedTokenAddressCache.get(token.key, chain);
+}
+
 export async function getDecimals(
   token: TokenId,
   chain: Chain,
