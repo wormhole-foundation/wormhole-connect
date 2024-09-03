@@ -9,8 +9,8 @@ export const CONNECT_VERSION =
   import.meta.env.REACT_APP_CONNECT_VERSION || 'unknown';
 
 export const CHAIN_ORDER: Chain[] = [
-  'Solana',
   'Ethereum',
+  'Solana',
   'Arbitrum',
   'Base',
   'Sui',
