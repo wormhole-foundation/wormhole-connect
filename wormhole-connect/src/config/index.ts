@@ -28,6 +28,7 @@ import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 import RouteOperator from 'routes/operator';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { CHAIN_ORDER } from './constants';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -111,11 +112,20 @@ export function buildConfig(
 
     // White lists
     chains: networkData.chains,
-    chainsArr: Object.values(networkData.chains).filter((chain) => {
-      return customConfig?.chains
-        ? customConfig.chains.includes(chain.key)
-        : true;
-    }),
+    chainsArr: Object.values(networkData.chains)
+      .filter((chain) => {
+        return customConfig?.chains
+          ? customConfig.chains.includes(chain.key)
+          : true;
+      })
+      .sort((a, b) => {
+        const ai = CHAIN_ORDER.indexOf(a.key);
+        const bi = CHAIN_ORDER.indexOf(b.key);
+        if (ai >= 0 && bi >= 0) return ai - bi;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return 0;
+      }),
     tokens,
     tokensArr: Object.values(tokens).filter((token) => {
       return customConfig?.tokens
