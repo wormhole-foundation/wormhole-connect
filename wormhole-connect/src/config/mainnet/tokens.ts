@@ -326,6 +326,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       Klaytn: '0x59AEaD999e018a00B162D34de7a81AFFAB88bAbB',
     },
   },
+  USDTpolygon: {
+    key: 'USDTpolygon',
+    symbol: 'USDT',
+    nativeChain: 'Polygon',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Polygon',
+      address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
+  },
   BNB: {
     key: 'BNB',
     symbol: 'BNB',
@@ -497,6 +510,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       Klaytn: '0x9C97D4c09679Dfd00A39681f6d3b61A285312B13',
       Scroll: '0xbEFc3d0457fB88f82364Dd982F7BA195FEE96b74',
     },
+  },
+  USDTavax: {
+    key: 'USDTavax',
+    symbol: 'USDT',
+    nativeChain: 'Avalanche',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Avalanche',
+      address: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
   },
   WETHavax: {
     key: 'WETHavax',
@@ -904,6 +930,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       Xlayer: '0xd53bD30985B4125fc561774e388d9f679BB84117',
     },
   },
+  USDTarbitrum: {
+    key: 'USDTarbitrum',
+    symbol: 'USDT',
+    nativeChain: 'Arbitrum',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Arbitrum',
+      address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
+  },
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
@@ -976,6 +1015,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       Ethereum: '0xe77C99b64414e0fd9aeEA48AFFBBD2E97A895020',
     },
   },
+  USDToptimism: {
+    key: 'USDToptimism',
+    symbol: 'USDT',
+    nativeChain: 'Optimism',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Optimism',
+      address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
+  },
   WETHbsc: {
     key: 'WETHbsc',
     symbol: 'WETH',
@@ -1004,6 +1056,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       Polygon: '0x2D291e940DbDdaa9E847Ba5cC49451575f086b27',
       Moonbeam: '0xBefd7902B682938b29B3FD3D4AdECD9A984D5930',
     },
+  },
+  USDTbsc: {
+    key: 'USDTbsc',
+    symbol: 'USDT',
+    nativeChain: 'Bsc',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Bsc',
+      address: '0x55d398326f99059fF775485246999027B3197955',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 18,
   },
   ETHbase: {
     key: 'ETHbase',
@@ -1080,6 +1145,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       Klaytn: '0x0a2330c1C46E9A74e8651F7117a1264410eA3C88',
       Scroll: '0x22C9bde4Ad49C4b6CCFB8D394B5ED42A57853d58',
     },
+  },
+  USDTbase: {
+    key: 'USDTbase',
+    symbol: 'USDT',
+    nativeChain: 'Base',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Base',
+      address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
   },
   wstETHbase: {
     key: 'wstETHbase',
