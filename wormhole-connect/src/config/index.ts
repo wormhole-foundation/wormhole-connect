@@ -4,7 +4,11 @@ import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
 import { Network, InternalConfig, WrappedTokenAddressCache } from './types';
-import { mergeCustomTokensConfig, validateDefaults } from './utils';
+import {
+  mergeCustomTokensConfig,
+  mergeCustomWrappedTokens,
+  validateDefaults,
+} from './utils';
 import { wrapEventHandler } from './events';
 
 import { SDKConverter } from './converter';
@@ -48,6 +52,11 @@ export function buildConfig(
   const tokens = mergeCustomTokensConfig(
     networkData.tokens,
     customConfig?.tokensConfig,
+  );
+
+  const wrappedTokens = mergeCustomWrappedTokens(
+    networkData.wrappedTokens,
+    customConfig?.wrappedTokens,
   );
 
   const sdkConfig = WormholeContext.getConfig(network);
@@ -133,10 +142,10 @@ export function buildConfig(
         : true;
     }),
 
-    // For token bridge ^_^
+    // For token bridge =^_^=
     wrappedTokenAddressCache: new WrappedTokenAddressCache(
       tokens,
-      sdkConverter,
+      wrappedTokens,
     ),
 
     routes: new RouteOperator(customConfig?.routes),
@@ -235,18 +244,10 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
         tokenV2.decimals = token.decimals;
       } else {
         tokenV2.original = token.nativeChain;
-        if (token.foreignAssets) {
-          const fa = token.foreignAssets[chain]!;
-
-          if (!fa) {
-            continue;
-          } else {
-            tokenV2.address = fa;
-            tokenV2.decimals = getTokenDecimals(
-              chain,
-              getWrappedTokenId(token),
-            );
-          }
+        const fa = config.wrappedTokenAddressCache.get(token.key, chain);
+        if (fa) {
+          tokenV2.address = fa.toString();
+          tokenV2.decimals = getTokenDecimals(chain, getWrappedTokenId(token));
         } else {
           continue;
         }

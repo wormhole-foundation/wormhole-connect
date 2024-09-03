@@ -110,6 +110,9 @@ export interface WormholeConnectConfig {
   // Custom tokens
   tokensConfig?: TokensConfig;
 
+  // Wormhole-wrapped token addresses
+  wrappedTokens?: TokenAddressesByChain;
+
   // Legacy support: allow theme to be in this config object
   // This should be removed in a future version after people have switched
   // to providing the theme as a separate prop
@@ -268,9 +271,6 @@ export type TokenConfig = {
   decimals: number;
   wrappedAsset?: string;
   displayName?: string;
-  foreignAssets?: {
-    [chain in Chain]?: string; // foreign address
-  };
 };
 
 export type TokensConfig = { [key: string]: TokenConfig };
@@ -299,6 +299,7 @@ export type GuardianSetData = {
 export type NetworkData = {
   chains: ChainsConfig;
   tokens: TokensConfig;
+  wrappedTokens: TokenAddressesByChain; // wormhole-wrapped tokens
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
@@ -312,9 +313,10 @@ export interface MenuEntry {
   order?: number;
 }
 
-export type NttTransceiverConfig = {
-  address: string;
-  type: 'wormhole'; // only wormhole is supported for now
+export type TokenAddressesByChain = {
+  [tokenKey: string]: {
+    [chain in Chain]?: string;
+  };
 };
 
 // Token bridge foreign asset cache
@@ -325,19 +327,19 @@ type ForeignAssets<C extends Chain> = Record<string, TokenAddressV2<C>>;
 export class WrappedTokenAddressCache {
   caches: Partial<Record<Chain, ForeignAssets<Chain>>>;
 
-  constructor(tokens: TokensConfig, converter: SDKConverter) {
+  constructor(tokens: TokensConfig, addresses: TokenAddressesByChain) {
     this.caches = {};
 
     // Pre-populate cache with values from built-in config
-    for (const key in tokens) {
+    for (const key in addresses) {
       const token = tokens[key];
+      if (!token) continue;
 
-      if (token.foreignAssets) {
-        for (const chain in token.foreignAssets) {
-          const foreignAsset = tokens[key].foreignAssets![chain];
-          const addr = WormholeV2.parseAddress(chain as Chain, foreignAsset);
-          this.set(key, chain as Chain, addr);
-        }
+      const wrappedTokens = addresses[key];
+      for (const chain in wrappedTokens) {
+        const foreignAsset = wrappedTokens[chain];
+        const addr = WormholeV2.parseAddress(chain as Chain, foreignAsset);
+        this.set(key, chain as Chain, addr);
       }
 
       // Cache it on its native chain too

@@ -5,7 +5,7 @@ import {
   MAINNET_REST_MAPPING,
   MAINNET_RPC_MAPPING,
 } from './rpcs';
-import { MAINNET_TOKENS } from './tokens';
+import { MAINNET_TOKENS, MAINNET_WRAPPED_TOKENS } from './tokens';
 
 export * from './chains';
 export * from './rpcs';
@@ -14,6 +14,7 @@ export * from './tokens';
 const MAINNET: NetworkData = {
   chains: MAINNET_CHAINS,
   tokens: MAINNET_TOKENS,
+  wrappedTokens: MAINNET_WRAPPED_TOKENS,
   rpcs: MAINNET_RPC_MAPPING,
   rest: MAINNET_REST_MAPPING,
   graphql: MAINNET_GRAPHQL_MAPPING,

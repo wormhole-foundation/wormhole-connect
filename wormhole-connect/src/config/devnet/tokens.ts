@@ -1,4 +1,4 @@
-import { Icon, TokensConfig } from '../types';
+import { Icon, TokensConfig, TokenAddressesByChain } from '../types';
 
 export const DEVNET_TOKENS: TokensConfig = {
   ETH: {
@@ -38,3 +38,5 @@ export const DEVNET_TOKENS: TokensConfig = {
     decimals: 18,
   },
 };
+
+export const DEVNET_WRAPPED_TOKENS: TokenAddressesByChain = {};
