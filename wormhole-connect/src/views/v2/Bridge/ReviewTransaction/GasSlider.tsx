@@ -14,7 +14,6 @@ import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 import config from 'config';
-import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import TokenIcon from 'icons/TokenIcons';
 import { getDisplayName, calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
@@ -97,7 +96,9 @@ const GasSlider = (props: {
     (state: RootState) => state.transferInput,
   );
 
-  const { prices: tokenPrices } = useFetchTokenPricesV2();
+  const { usdPrices: tokenPrices } = useSelector(
+    (state: RootState) => state.tokenPrices,
+  );
 
   const destChainConfig = config.chains[destChain!];
   const sourceTokenConfig = config.tokens[sourceToken];
@@ -129,7 +130,7 @@ const GasSlider = (props: {
     );
     const tokenPrice = calculateUSDPrice(
       props.destinationGasDrop,
-      tokenPrices,
+      tokenPrices.data,
       nativeGasToken,
     );
 

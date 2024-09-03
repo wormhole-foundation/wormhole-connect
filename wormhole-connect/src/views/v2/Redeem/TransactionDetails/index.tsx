@@ -12,7 +12,6 @@ import Stack from '@mui/material/Stack';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import { RouteContext } from 'contexts/RouteContext';
 import TokenIcon from 'icons/TokenIcons';
 import { calculateUSDPrice, trimAddress, trimTxHash } from 'utils';
@@ -51,8 +50,9 @@ const TransactionDetails = () => {
     eta,
   } = useSelector((state: RootState) => state.redeem.txData)!;
 
-  const { prices: tokenPrices, isFetching: isFetchingTokenPrices } =
-    useFetchTokenPricesV2();
+  const { usdPrices: tokenPrices } = useSelector(
+    (state: RootState) => state.tokenPrices,
+  );
 
   // Render details for the sent amount
   const sentAmount = useMemo(() => {
@@ -65,7 +65,7 @@ const TransactionDetails = () => {
 
     const usdAmount = calculateUSDPrice(
       amount,
-      tokenPrices,
+      tokenPrices.data,
       sourceTokenConfig,
       true,
     );
@@ -93,7 +93,7 @@ const TransactionDetails = () => {
             {amount} {sourceTokenConfig.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {isFetchingTokenPrices ? (
+            {tokenPrices.isFetching ? (
               <CircularProgress size={14} />
             ) : (
               `${usdAmount} \u2022 ${sourceChainConfig.displayName} ${senderAddress}`
@@ -102,7 +102,7 @@ const TransactionDetails = () => {
         </Stack>
       </Stack>
     );
-  }, [amount, fromChain, isFetchingTokenPrices, sender, tokenKey, tokenPrices]);
+  }, [amount, fromChain, sender, tokenKey, tokenPrices]);
 
   // Render details for the received amount
   const receivedAmount = useMemo(() => {
@@ -115,7 +115,7 @@ const TransactionDetails = () => {
 
     const usdAmount = calculateUSDPrice(
       receiveAmount,
-      tokenPrices,
+      tokenPrices.data,
       destTokenConfig,
       true,
     );
@@ -141,7 +141,7 @@ const TransactionDetails = () => {
             {receiveAmount} {destTokenConfig.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {isFetchingTokenPrices ? (
+            {tokenPrices.isFetching ? (
               <CircularProgress size={14} />
             ) : (
               `${usdAmount} \u2022 ${destChainConfig.displayName} ${recipientAddress}`
@@ -150,14 +150,7 @@ const TransactionDetails = () => {
         </Stack>
       </Stack>
     );
-  }, [
-    isFetchingTokenPrices,
-    receiveAmount,
-    receivedTokenKey,
-    recipient,
-    toChain,
-    tokenPrices,
-  ]);
+  }, [receiveAmount, receivedTokenKey, recipient, toChain, tokenPrices]);
 
   // Vertical line that connects sender and receiver token icons
   const verticalConnector = useMemo(
@@ -178,7 +171,7 @@ const TransactionDetails = () => {
 
     const bridgePrice = calculateUSDPrice(
       relayerFee?.fee,
-      tokenPrices,
+      tokenPrices.data,
       config.tokens[relayerFee.tokenKey],
       true,
     );
@@ -192,14 +185,14 @@ const TransactionDetails = () => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Bridge fee
         </Typography>
-        {isFetchingTokenPrices ? (
+        {tokenPrices.isFetching ? (
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>{bridgePrice}</Typography>
         )}
       </Stack>
     );
-  }, [isFetchingTokenPrices, relayerFee, tokenPrices]);
+  }, [relayerFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!receivedTokenKey || !receiveNativeAmount) {
@@ -214,7 +207,7 @@ const TransactionDetails = () => {
 
     const gasTokenPrice = calculateUSDPrice(
       receiveNativeAmount,
-      tokenPrices,
+      tokenPrices.data,
       config.tokens[destChainConfig.gasToken],
       true,
     );
@@ -224,14 +217,14 @@ const TransactionDetails = () => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Gas top up
         </Typography>
-        {isFetchingTokenPrices ? (
+        {tokenPrices.isFetching ? (
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>{gasTokenPrice}</Typography>
         )}
       </Stack>
     );
-  }, [isFetchingTokenPrices, receiveNativeAmount, toChain, tokenPrices]);
+  }, [receiveNativeAmount, toChain, tokenPrices]);
 
   const explorerLink = useMemo(() => {
     if (routeContext.route) {
