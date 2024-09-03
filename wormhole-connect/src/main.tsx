@@ -54,7 +54,7 @@ try {
 
   if (configAttr) {
     const parsedConfig = JSON.parse(configAttr);
-    config = parsedConfig;
+    config = { ...config, ...parsedConfig };
 
     // Handle legacy method of including theme in config JSON
     if (config?.customTheme) {
