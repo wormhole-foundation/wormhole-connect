@@ -87,8 +87,10 @@ const TxHistoryItem = (props: Props) => {
 
   // Render details for the received amount
   const receivedAmount = useMemo(() => {
-    const destTokenConfig = config.tokens[receivedTokenKey];
     const destChainConfig = config.chains[toChain]!;
+    const destTokenConfig = receivedTokenKey
+      ? config.tokens[receivedTokenKey]
+      : undefined;
 
     const recipientAddress = recipient ? trimAddress(recipient) : '';
 

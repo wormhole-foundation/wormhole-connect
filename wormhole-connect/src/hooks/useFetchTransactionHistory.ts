@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  chainIdToChain,
   amount as sdkAmount,
+  chainIdToChain,
   resolveWrappedToken,
 } from '@wormhole-foundation/sdk';
 
@@ -11,7 +11,7 @@ import config from 'config';
 import type { RootState } from 'store';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { RelayerFee } from 'store/relay';
-import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { getTokenById, getTokenDecimals, getWrappedTokenId } from 'utils';
 
 export interface Transaction {
   // Transaction hash
@@ -30,10 +30,10 @@ export interface Transaction {
   // Source token address
   tokenAddress: string;
   tokenKey: string;
-  tokenDecimals: number;
+  tokenDecimals?: number;
 
   // Destination token
-  receivedTokenKey: string;
+  receivedTokenKey?: string;
   receiveAmount?: string;
   relayerFee?: RelayerFee;
 
@@ -55,70 +55,103 @@ const useFetchTransactionHistory = (): {
     (state: RootState) => state.wallet,
   );
 
-  const parseTransactions = useCallback((allTxs: Array<any>) => {
-    const connectTxs = allTxs.filter((tx) =>
-      tx.content?.standarizedProperties?.appIds.includes('CONNECT'),
-    );
+  const parseTokenBridgeTx = (tx) => {
+    const { content = {}, data = {}, sourceChain = {}, targetChain = {} } = tx;
+    const { standarizedProperties = {} } = content;
 
-    const parsedTxs: Array<Transaction> = connectTxs.map((tx) => {
-      const {
-        content = {},
-        data = {},
-        sourceChain = {},
-        targetChain = {},
-      } = tx;
+    const fromChain = chainIdToChain(sourceChain.chainId);
 
-      const { payload = {}, standarizedProperties = {} } = content;
-      const { parsedPayload = {} } = payload;
-      const { targetRelayerFee, toNativeAmount, toNativeTokenAmount } =
-        parsedPayload;
-
-      const fromChain = chainIdToChain(sourceChain.chainId);
-      const toChain = chainIdToChain(targetChain.chainId);
-
-      const tokenDecimals = getTokenDecimals(
-        fromChain,
-        getWrappedTokenId(config.tokens[data.symbol]),
-      );
-
-      const fee = standarizedProperties.fee ?? targetRelayerFee;
-
-      const receiveAmount = sdkAmount.fromBaseUnits(
-        BigInt(standarizedProperties.amount) - BigInt(fee),
-        tokenDecimals,
-      );
-
-      const feeAmount = sdkAmount.fromBaseUnits(fee, tokenDecimals);
-
-      const gasAmount = sdkAmount.fromBaseUnits(
-        toNativeAmount ?? toNativeTokenAmount,
-        tokenDecimals,
-      );
-
-      const txData: Transaction = {
-        txHash: sourceChain.transaction?.txHash,
-        sender: standarizedProperties.fromAddress,
-        amount: data.tokenAmount,
-        amountUsd: data.usdAmount,
-        recipient: standarizedProperties.toAddress,
-        toChain,
-        fromChain,
-        tokenKey: data.symbol,
-        receivedTokenKey: '',
-        receiveAmount: sdkAmount.whole(receiveAmount).toString(),
-        receiveNativeAmount: sdkAmount.whole(gasAmount),
-        relayerFee: {
-          fee: sdkAmount.whole(feeAmount),
-          tokenKey: data.symbol,
-        },
-        tokenAddress: standarizedProperties.tokenAddress,
-        tokenDecimals,
-      };
-
-      return txData;
+    const tokenConfig = getTokenById({
+      chain: fromChain,
+      address: standarizedProperties.tokenAddress,
     });
 
-    return parsedTxs;
+    // Skip if we don't have the source chain or token
+    if (!fromChain || !tokenConfig) {
+      return;
+    }
+
+    const toChain = targetChain?.chainId && chainIdToChain(targetChain.chainId);
+
+    const [, wrappedToken] = resolveWrappedToken(
+      config.v2Network,
+      toChain,
+      tokenConfig.tokenId,
+    );
+
+    const decimals = getTokenDecimals(
+      fromChain,
+      getWrappedTokenId(tokenConfig),
+    );
+
+    const sentAmountDisplay = sdkAmount.display(
+      {
+        amount: standarizedProperties.amount,
+        decimals: Math.min(8, decimals),
+      },
+      0,
+    );
+
+    const receiveAmountDisplay = sdkAmount.display(
+      {
+        amount: (
+          standarizedProperties.amount - standarizedProperties.fee
+        ).toString(),
+        decimals: Math.min(8, decimals),
+      },
+      0,
+    );
+
+    const feeAmountDisplay = sdkAmount.display(
+      {
+        amount: standarizedProperties.fee,
+        decimals: Math.min(8, decimals),
+      },
+      0,
+    );
+
+    const txData: Transaction = {
+      txHash: sourceChain.transaction?.txHash,
+      sender: standarizedProperties.fromAddress || sourceChain.from,
+      amount: sentAmountDisplay,
+      amountUsd: data.usdAmount,
+      recipient: standarizedProperties.toAddress,
+      toChain,
+      fromChain,
+      tokenKey: data.symbol,
+      receivedTokenKey: getTokenById(wrappedToken)?.key,
+      receiveAmount: receiveAmountDisplay,
+      receiveNativeAmount: sourceChain.gasTokenNotional,
+      relayerFee: {
+        fee: Number(feeAmountDisplay),
+        tokenKey: data.symbol,
+      },
+      tokenAddress: standarizedProperties.tokenAddress,
+    };
+
+    return txData;
+  };
+
+  const SUPPORTED_APPIDS = {
+    PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
+  };
+
+  const parseTransactions = useCallback((allTxs: Array<any>) => {
+    const parsedTxs: Array<Transaction> = allTxs.map((tx) => {
+      const { appIds = [] } = tx.content?.standarizedProperties;
+
+      let txParser;
+
+      appIds.forEach((appId) => {
+        if (typeof SUPPORTED_APPIDS[appId] === 'function') {
+          txParser = SUPPORTED_APPIDS[appId];
+        }
+      });
+
+      return txParser?.(tx);
+    });
+
+    return parsedTxs.filter((tx) => !!tx);
   }, []);
 
   useEffect(() => {
@@ -130,6 +163,7 @@ const useFetchTransactionHistory = (): {
 
     const fetchTransactions = async () => {
       setIsFetching(true);
+      let data;
 
       try {
         const res = await fetch(
@@ -137,17 +171,17 @@ const useFetchTransactionHistory = (): {
           { headers },
         );
 
-        const data = await res.json();
-
-        if (!cancelled && data?.operations?.length > 0) {
-          setTransactions(parseTransactions(data.operations));
-        }
+        data = await res.json();
       } catch (error) {
         if (!cancelled) {
           setError(`Error fetching transaction history: ${error}`);
         }
       } finally {
         setIsFetching(false);
+      }
+
+      if (!cancelled && data?.operations?.length > 0) {
+        setTransactions(parseTransactions(data.operations));
       }
     };
 
