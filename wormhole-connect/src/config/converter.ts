@@ -108,7 +108,7 @@ export class SDKConverter {
       } else {
         // Check foreign assets
         const fa = getTokenBridgeWrappedTokenAddressSync(token, chain);
-        if (fa && fa === tokenId.address.toString()) {
+        if (fa && fa.toString() === tokenId.address.toString()) {
           return token;
         }
       }
