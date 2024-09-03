@@ -12,11 +12,12 @@ import Stack from '@mui/material/Stack';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-import { WORMSCAN } from 'config/constants';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
+import { RouteContext } from 'contexts/RouteContext';
 import TokenIcon from 'icons/TokenIcons';
 import { calculateUSDPrice, trimAddress, trimTxHash } from 'utils';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
+import { getExplorerLink } from 'utils/sdkv2';
 
 import type { RootState } from 'store';
 
@@ -33,6 +34,7 @@ const useStyles = makeStyles()((theme: any) => ({
 const TransactionDetails = () => {
   const { classes } = useStyles();
   const theme = useTheme();
+  const routeContext = React.useContext(RouteContext);
 
   const {
     sendTx,
@@ -231,26 +233,27 @@ const TransactionDetails = () => {
     );
   }, [isFetchingTokenPrices, receiveNativeAmount, toChain, tokenPrices]);
 
-  const wormscanLink = useMemo(() => {
-    const href = `${WORMSCAN}tx/${sendTx}${
-      config.isMainnet ? '' : '?network=TESTNET'
-    }`;
-
-    return (
-      <Stack alignItems="center" padding="24px 12px">
-        <Link
-          display="flex"
-          gap="8px"
-          href={href}
-          rel="noreferrer"
-          target="_blank"
-          underline="none"
-        >
-          <Typography>View on Wormholescan</Typography>
-          <LaunchIcon fontSize="small" sx={{ marginTop: '2px' }} />
-        </Link>
-      </Stack>
-    );
+  const explorerLink = useMemo(() => {
+    if (routeContext.route) {
+      const { name, url } = getExplorerLink(routeContext.route, sendTx);
+      return (
+        <Stack alignItems="center" padding="24px 12px">
+          <Link
+            display="flex"
+            gap="8px"
+            href={url}
+            rel="noreferrer"
+            target="_blank"
+            underline="none"
+          >
+            <Typography>{name}</Typography>
+            <LaunchIcon fontSize="small" sx={{ marginTop: '2px' }} />
+          </Link>
+        </Stack>
+      );
+    } else {
+      return null;
+    }
   }, [sendTx]);
 
   const timeToDestination = useMemo(() => {
@@ -297,7 +300,7 @@ const TransactionDetails = () => {
           </Stack>
         </CardContent>
         <Divider flexItem sx={{ margin: '0 16px', opacity: '50%' }} />
-        {wormscanLink}
+        {explorerLink}
       </Card>
     </div>
   );

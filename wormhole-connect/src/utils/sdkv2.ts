@@ -11,7 +11,9 @@ import {
   DestinationQueuedTransferReceipt,
   CompletedTransferReceipt,
   TokenBridge,
+  Network,
   amount,
+  routes,
   CircleTransfer,
 } from '@wormhole-foundation/sdk';
 import config from 'config';
@@ -20,6 +22,7 @@ import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { WORMSCAN } from 'config/constants';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -99,6 +102,32 @@ export async function getDecimals(
 ): Promise<number> {
   const wh = await getWormholeContextV2();
   return await wh.getDecimals(chain, token.address);
+}
+
+export type ExplorerLink = {
+  url: string;
+  name: string;
+};
+
+// TODO SDKV2 add a way for the Route interface to offer this
+export function getExplorerLink(
+  route: routes.Route<Network>,
+  txHash: string,
+): ExplorerLink {
+  switch ((route.constructor as routes.RouteConstructor).meta.name) {
+    case 'MayanSwap':
+      return {
+        url: `https://explorer.mayan.finance/swap/${txHash}`,
+        name: 'Mayan Explorer',
+      };
+    default:
+      return {
+        url: `${WORMSCAN}tx/${txHash}${
+          config.isMainnet ? '' : '?network=TESTNET'
+        }`,
+        name: 'Wormholescan',
+      };
+  }
 }
 
 type ReceiptWithAttestation<AT> =
