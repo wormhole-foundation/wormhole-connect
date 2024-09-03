@@ -11,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import TokenIcon from 'icons/TokenIcons';
 
-import { isDisabledChain } from 'store/transferInput';
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
@@ -91,7 +90,6 @@ const ChainList = (props: Props) => {
         {topChains.map((chain: ChainConfig) => (
           <ListItemButton
             key={chain.key}
-            disabled={isDisabledChain(chain.key, props.wallet)}
             selected={props.selectedChainConfig?.key === chain.key}
             className={classes.chainButton}
             onClick={() => props.onChainSelect(chain.key)}
@@ -132,7 +130,6 @@ const ChainList = (props: Props) => {
           <ListItemButton
             key={chain.key}
             dense
-            disabled={isDisabledChain(chain.key, props.wallet)}
             className={classes.chainItem}
             onClick={() => {
               props.onChainSelect(chain.key);
