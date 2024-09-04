@@ -36,7 +36,7 @@ import {
   switchChain,
 } from 'utils/wallet';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
-import WalletSidebar from '../Bridge/WalletConnector/Sidebar';
+import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
 
@@ -400,7 +400,9 @@ const Redeem = () => {
             className={classes.actionButton}
             onClick={() => setIsWalletSidebarOpen(true)}
           >
-            <Typography textTransform="none">Connect wallet</Typography>
+            <Typography textTransform="none">
+              Connect receiving wallet
+            </Typography>
           </Button>
         );
       }
