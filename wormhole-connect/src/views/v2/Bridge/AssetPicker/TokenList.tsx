@@ -57,7 +57,7 @@ const TokenList = (props: Props) => {
     props.tokenList || [],
   );
 
-  const topTokens = useMemo(() => {
+  const sortedTokens = useMemo(() => {
     const { selectedToken, selectedChainConfig } = props;
 
     const selectedTokenConfig = selectedToken
@@ -138,11 +138,8 @@ const TokenList = (props: Props) => {
         return;
       }
 
-      const tokenNotAdded = !tokens.find(
-        (addedToken) => addedToken.key === t.key,
-      );
-
-      if (tokens.length < SHORT_LIST_SIZE && tokenNotAdded) {
+      // Adding remaining tokens
+      if (!tokenSet.has(t.key)) {
         addToken(t);
       }
     });
@@ -166,8 +163,7 @@ const TokenList = (props: Props) => {
           </ListItemButton>
         )
       }
-      initialItems={topTokens}
-      items={props.tokenList ?? []}
+      items={sortedTokens}
       filterFn={(token, query) => {
         if (query.length === 0) return true;
 

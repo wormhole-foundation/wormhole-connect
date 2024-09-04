@@ -23,7 +23,6 @@ type SearchableListProps<T> = {
   listTitle?: ReactNode;
   searchPlaceholder?: string;
   className?: string;
-  initialItems?: T[]; // Items to render when search is not performed
   items: T[];
   loading?: ReactNode;
   renderFn: (item: T, index: number) => ReactNode;
@@ -35,11 +34,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const [query, setQuery] = useState('');
 
   const filteredList = useMemo(() => {
-    if (!query && props.initialItems) {
-      return props.initialItems;
-    } else {
-      return props.items.filter((item) => props.filterFn(item, query));
-    }
+    return props.items.filter((item) => props.filterFn(item, query));
   }, [props.items, props.filterFn, query]);
 
   return (
