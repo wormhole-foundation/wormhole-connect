@@ -36,6 +36,7 @@ import {
   switchChain,
 } from 'utils/wallet';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
+import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
 
@@ -85,6 +86,8 @@ const Redeem = () => {
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
+
+  const [isWalletSidebarOpen, setIsWalletSidebarOpen] = useState(false);
 
   // Start tracking changes in the transaction
   useTrackTransfer();
@@ -390,6 +393,20 @@ const Redeem = () => {
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
     if (!isTxComplete && !isAutomaticRoute) {
+      if (isTxAttested && !isConnectedToReceivingWallet) {
+        return (
+          <Button
+            variant="primary"
+            className={classes.actionButton}
+            onClick={() => setIsWalletSidebarOpen(true)}
+          >
+            <Typography textTransform="none">
+              Connect receiving wallet
+            </Typography>
+          </Button>
+        );
+      }
+
       return (
         <Button
           className={classes.actionButton}
@@ -422,7 +439,13 @@ const Redeem = () => {
         <Typography textTransform="none">Start a new transaction</Typography>
       </Button>
     );
-  }, [isAutomaticRoute, isClaimInProgress, isTxAttested, isTxComplete]);
+  }, [
+    isAutomaticRoute,
+    isClaimInProgress,
+    isTxAttested,
+    isTxComplete,
+    isConnectedToReceivingWallet,
+  ]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
@@ -435,6 +458,13 @@ const Redeem = () => {
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
+      <WalletSidebar
+        open={isWalletSidebarOpen}
+        type={TransferWallet.RECEIVING}
+        onClose={() => {
+          setIsWalletSidebarOpen(false);
+        }}
+      />
     </div>
   );
 };

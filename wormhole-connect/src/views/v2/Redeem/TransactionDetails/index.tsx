@@ -247,7 +247,7 @@ const TransactionDetails = () => {
     } else {
       return null;
     }
-  }, [sendTx]);
+  }, [sendTx, routeContext.route]);
 
   const timeToDestination = useMemo(() => {
     let etaDisplay: string | ReactNode = <CircularProgress size={14} />;
