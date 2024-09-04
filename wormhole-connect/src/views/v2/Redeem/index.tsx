@@ -220,7 +220,7 @@ const Redeem = () => {
     }
 
     return (
-      <Stack>
+      <Stack alignItems="center" justifyContent="center">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           ETA {etaElement}
         </Typography>
