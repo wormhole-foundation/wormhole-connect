@@ -223,7 +223,9 @@ const parseTokenBridgeReceipt = async (
       // VAAs are truncated to a max of 8 decimal places
       decimals: Math.min(8, decimals),
     });
-    txData.tokenAddress = payload.token.address.toNative(receipt.to).toString();
+    txData.tokenAddress = payload.token.address
+      .toNative(payload.token.chain)
+      .toString();
     txData.tokenKey = tokenV1.key;
     txData.receivedTokenKey = tokenV1.key;
     txData.receiveAmount = txData.amount;
