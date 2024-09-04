@@ -137,9 +137,10 @@ const Bridge = () => {
       (rs) => rs.supported && rs.available,
     );
     const autoselectedRoute = route || validRoutes[0]?.name;
-
-    // avoids overwriting selected route
-    if (!autoselectedRoute || !!selectedRoute) return;
+    const isSelectedRouteValid =
+      !!selectedRoute && validRoutes.some((rs) => rs.name === selectedRoute);
+    // avoids overwriting selected route when it's valid
+    if (!autoselectedRoute || !!isSelectedRouteValid) return;
 
     const routeState = validRoutes?.find((rs) => rs.name === autoselectedRoute);
 
@@ -397,6 +398,10 @@ const Bridge = () => {
       <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
       <Routes
+        alwaysShowAll={
+          /** show all routes when there is a selected one but it's not the first one */
+          !!selectedRoute && sortedSupportedRoutes[0]?.name !== selectedRoute
+        }
         sortedSupportedRoutes={sortedSupportedRoutes}
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}

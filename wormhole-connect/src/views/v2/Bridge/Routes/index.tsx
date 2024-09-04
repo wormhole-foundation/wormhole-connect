@@ -40,10 +40,11 @@ const useStyles = makeStyles()((theme: any) => ({
 type Props = {
   sortedSupportedRoutes: RouteState[];
   selectedRoute?: string;
+  alwaysShowAll: boolean;
   onRouteChange: (route: string) => void;
 };
 
-const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
+const Routes = ({ sortedSupportedRoutes, alwaysShowAll, ...props }: Props) => {
   const { classes } = useStyles();
   const [showAll, setShowAll] = useState(false);
 
@@ -83,7 +84,10 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
   );
 
   const renderRoutes = useMemo(
-    () => (showAll ? sortedSupportedRoutes : sortedSupportedRoutes.slice(0, 1)),
+    () =>
+      showAll || alwaysShowAll
+        ? sortedSupportedRoutes
+        : sortedSupportedRoutes.slice(0, 1),
     [showAll, sortedSupportedRoutes],
   );
 
@@ -121,7 +125,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
           />
         );
       })}
-      {sortedSupportedRoutes.length > 1 && (
+      {!alwaysShowAll && sortedSupportedRoutes.length > 1 && (
         <Link
           onClick={() => setShowAll((prev) => !prev)}
           className={classes.otherRoutesToggle}
