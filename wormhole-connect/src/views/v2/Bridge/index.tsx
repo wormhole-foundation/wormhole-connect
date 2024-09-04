@@ -41,6 +41,7 @@ import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import { Chain } from '@wormhole-foundation/sdk';
 import { useSortedSupportedRoutes } from 'hooks/useSortedSupportedRoutes';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
+import { useSortedChains } from 'hooks/useSortedChains';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -207,6 +208,8 @@ const Bridge = () => {
       );
     });
   }, [config.chainsArr, destChain, supportedChains]);
+
+  useSortedChains(sendingWallet, supportedSourceChains);
 
   // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
