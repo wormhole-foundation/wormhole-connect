@@ -176,12 +176,15 @@ const useFetchTransactionHistory = (): {
         if (!cancelled) {
           setError(`Error fetching transaction history: ${error}`);
         }
-      } finally {
+
         setIsFetching(false);
       }
 
-      if (!cancelled && data?.operations?.length > 0) {
-        setTransactions(parseTransactions(data.operations));
+      if (!cancelled) {
+        if (data?.operations?.length > 0) {
+          setTransactions(parseTransactions(data.operations));
+        }
+        setIsFetching(false);
       }
     };
 

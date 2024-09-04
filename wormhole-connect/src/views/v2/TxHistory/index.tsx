@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-import { CircularProgress, useTheme } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { CircularProgress, Typography, useTheme } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import IconButton from '@mui/material/IconButton';
 
@@ -13,8 +13,9 @@ import PoweredByIcon from 'icons/PoweredBy';
 import useFetchTransactionHistory from 'hooks/useFetchTransactionHistory';
 import { setRoute as setAppRoute } from 'store/router';
 import { joinClass } from 'utils/style';
-
 import TxHistoryItem from 'views/v2/TxHistory/Item';
+
+import type { RootState } from 'store';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -56,6 +57,8 @@ const TxHistory = () => {
 
   const { transactions, isFetching } = useFetchTransactionHistory();
 
+  const sendingWallet = useSelector((state: RootState) => state.wallet.sending);
+
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
       text: '',
@@ -91,17 +94,25 @@ const TxHistory = () => {
     );
   }, []);
 
+  const transactionList = useMemo(() => {
+    if (transactions.length === 0) {
+      return (
+        <Typography>
+          No transactions found for the address {sendingWallet.address}
+        </Typography>
+      );
+    }
+
+    return transactions.map((tx) => {
+      return <TxHistoryItem data={tx} />;
+    });
+  }, [sendingWallet.address, transactions]);
+
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
       {txHistoryHeader}
-      {isFetching ? (
-        <CircularProgress />
-      ) : (
-        transactions.map((tx) => {
-          return <TxHistoryItem data={tx} />;
-        })
-      )}
+      {isFetching ? <CircularProgress /> : transactionList}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
