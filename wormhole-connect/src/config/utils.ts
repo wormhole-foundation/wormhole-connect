@@ -1,4 +1,9 @@
-import { BridgeDefaults, TokensConfig, ChainsConfig } from './types';
+import {
+  BridgeDefaults,
+  TokensConfig,
+  ChainsConfig,
+  TokenAddressesByChain,
+} from './types';
 import { Chain } from '@wormhole-foundation/sdk';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
@@ -83,6 +88,23 @@ export const mergeCustomTokensConfig = (
     // Accept custom token config
     console.info(`Accepted custom token config for "${key}"`);
     builtin[key] = customToken;
+  }
+
+  return builtin;
+};
+
+export const mergeCustomWrappedTokens = (
+  builtin: TokenAddressesByChain,
+  custom?: TokenAddressesByChain,
+): TokenAddressesByChain => {
+  if (!custom) return builtin;
+
+  for (const key in custom) {
+    builtin[key] = {
+      ...custom[key],
+      // Prevent overwriting built-in wrapped token addresses
+      ...builtin[key],
+    };
   }
 
   return builtin;

@@ -14,6 +14,7 @@ import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { getDisplayName, isFrankensteinToken, isWrappedToken } from 'utils';
+import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -94,7 +95,10 @@ const TokenList = (props: Props) => {
             (t) =>
               t.key === destTokenKey &&
               // Only add the wrapped token if it actually exists on the destination chain
-              !!t.foreignAssets?.[selectedChainConfig.key],
+              !!getTokenBridgeWrappedTokenAddressSync(
+                t,
+                selectedChainConfig.key,
+              ),
           );
           if (destToken) {
             addToken(destToken);

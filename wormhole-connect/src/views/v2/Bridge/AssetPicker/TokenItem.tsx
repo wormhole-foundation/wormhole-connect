@@ -14,6 +14,7 @@ import { TokenConfig } from 'config/types';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 import { getDisplayName, getExplorerUrl, getWrappedToken } from 'utils';
+import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 const useStyles = makeStyles()(() => ({
   tokenListItem: {
@@ -53,7 +54,10 @@ function TokenItem(props: TokenItemProps) {
   const address =
     chain === token.nativeChain
       ? token.tokenId?.address
-      : getWrappedToken(token)?.foreignAssets?.[chain];
+      : getTokenBridgeWrappedTokenAddressSync(
+          getWrappedToken(token),
+          chain,
+        )?.toString();
   const explorerURL = address ? getExplorerUrl(chain, address) : undefined;
   const addressDisplay = `${address?.slice(0, 4)}...${address?.slice(-4)}`;
 

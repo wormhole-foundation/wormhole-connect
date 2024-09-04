@@ -27,10 +27,20 @@ import {
   wormhole,
 } from '@wormhole-foundation/sdk';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
-import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
+import {
+  MAINNET_TOKENS,
+  MAINNET_WRAPPED_TOKENS,
+} from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';
-import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
-import { ChainsConfig, TokensConfig } from '../src/config/types';
+import {
+  TESTNET_TOKENS,
+  TESTNET_WRAPPED_TOKENS,
+} from '../src/config/testnet/tokens';
+import {
+  ChainsConfig,
+  TokensConfig,
+  TokenAddressesByChain,
+} from '../src/config/types';
 
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
@@ -48,9 +58,10 @@ const WORMCHAIN_ERROR_MESSAGES = [
 const checkEnvConfig = async (
   env: Network,
   tokensConfig: TokensConfig,
+  wrappedTokens: TokenAddressesByChain,
   chainsConfig: ChainsConfig,
 ) => {
-  let recommendedUpdates: TokensConfig = {};
+  let recommendedUpdates: TokenAddressesByChain = {};
   const wh = await wormhole(env, [evm, solana, aptos, sui]);
 
   for (const [tokenKey, tokenConfig] of Object.entries(tokensConfig)) {
@@ -69,7 +80,7 @@ const checkEnvConfig = async (
           const context = await wh.getChain(chain);
           const tb = await context.getTokenBridge();
 
-          const configForeignAddress = tokenConfig.foreignAssets?.[chain];
+          const configForeignAddress = wrappedTokens[tokenKey]?.[chain];
           if (chain === tokenConfig.nativeChain) {
             if (configForeignAddress) {
               throw new Error(
@@ -111,10 +122,7 @@ const checkEnvConfig = async (
                   ...recommendedUpdates,
                   [tokenKey]: {
                     ...(recommendedUpdates[tokenKey] || {}),
-                    foreignAssets: {
-                      ...(recommendedUpdates[tokenKey]?.foreignAssets || {}),
-                      [chain]: foreignAddress,
-                    },
+                    [chain]: foreignAddress,
                   },
                 };
                 // console.warn(
@@ -145,6 +153,16 @@ const checkEnvConfig = async (
 };
 
 (async () => {
-  await checkEnvConfig('Testnet', TESTNET_TOKENS, TESTNET_CHAINS);
-  await checkEnvConfig('Mainnet', MAINNET_TOKENS, MAINNET_CHAINS);
+  await checkEnvConfig(
+    'Testnet',
+    TESTNET_TOKENS,
+    TESTNET_WRAPPED_TOKENS,
+    TESTNET_CHAINS,
+  );
+  await checkEnvConfig(
+    'Mainnet',
+    MAINNET_TOKENS,
+    MAINNET_WRAPPED_TOKENS,
+    MAINNET_CHAINS,
+  );
 })();

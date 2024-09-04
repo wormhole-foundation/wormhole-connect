@@ -6,7 +6,10 @@ import {
 } from 'config/types';
 
 import * as v2 from '@wormhole-foundation/sdk';
-import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
+import {
+  getTokenBridgeWrappedTokenAddress,
+  getTokenBridgeWrappedTokenAddressSync,
+} from 'utils/sdkv2';
 import { getGasToken } from 'utils';
 import { Chain } from '@wormhole-foundation/sdk';
 
@@ -54,9 +57,12 @@ export class SDKConverter {
     if (this.isTokenConfigV1(token)) {
       if (chain && chain != token.nativeChain) {
         // Getting foreign address
-        const foreignAsset = token.foreignAssets?.[chain];
+        const foreignAsset = getTokenBridgeWrappedTokenAddressSync(
+          token,
+          chain,
+        );
         if (foreignAsset) {
-          return v2.Wormhole.tokenId(chain, foreignAsset);
+          return v2.Wormhole.tokenId(chain, foreignAsset.toString());
         } else {
           throw new Error('no foreign asset');
         }
@@ -101,8 +107,8 @@ export class SDKConverter {
         }
       } else {
         // Check foreign assets
-        const fa = token.foreignAssets?.[chain];
-        if (fa && fa === tokenId.address.toString()) {
+        const fa = getTokenBridgeWrappedTokenAddressSync(token, chain);
+        if (fa && fa.toString() === tokenId.address.toString()) {
           return token;
         }
       }
