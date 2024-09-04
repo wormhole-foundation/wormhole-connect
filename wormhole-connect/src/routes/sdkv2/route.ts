@@ -136,55 +136,6 @@ export class SDKv2Route {
     return this.rc.supportedChains(config.v2Network).includes(chain);
   }
 
-  async isRouteAvailable(
-    sourceToken: string,
-    destToken: string,
-    amount: string,
-    sourceChain: Chain,
-    destChain: Chain,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<boolean> {
-    try {
-      // The route should be available when no amount is set
-      if (!amount) return true;
-      const wh = await getWormholeContextV2();
-      const route = new this.rc(wh);
-      if (routes.isAutomatic(route)) {
-        const req = await this.createRequest(
-          amount,
-          sourceToken,
-          destToken,
-          sourceChain,
-          destChain,
-        );
-        const available = await route.isAvailable(req);
-        if (!available) {
-          return false;
-        }
-      }
-      const [, quote] = await this.getQuote(
-        amount,
-        sourceToken,
-        destToken,
-        sourceChain,
-        destChain,
-        options,
-      );
-      if (!quote.success) {
-        return false;
-      }
-    } catch (e) {
-      console.error(`Error thrown in isRouteAvailable`, e);
-      // TODO is this the right place to try/catch these?
-      // or deeper inside SDKv2Route?
-
-      // Re-throw for the caller to handle and surface the error message
-      throw e;
-    }
-
-    return true;
-  }
-
   async supportedSourceTokens(
     tokens: TokenConfig[],
     _destToken?: TokenConfig | undefined,
@@ -398,6 +349,9 @@ export class SDKv2Route {
   ): Promise<routes.QuoteResult<routes.Options>> {
     if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
+
+    console.info('computing quote', this.rc.meta.name, amountIn);
+    console.trace();
 
     const [, quote] = await this.getQuote(
       amountIn,

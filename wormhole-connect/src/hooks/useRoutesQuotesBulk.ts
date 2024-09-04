@@ -40,14 +40,12 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     const rParams = params as Required<QuoteParams>;
 
     setIsFetching(true);
-    config.routes
-      .computeMultipleQuotes(routes, rParams)
-      .then((quoteResults) => {
-        if (!unmounted) {
-          setQuotes(quoteResults);
-          setIsFetching(false);
-        }
-      });
+    config.routes.getQuotes(routes, rParams).then((quoteResults) => {
+      if (!unmounted) {
+        setQuotes(quoteResults);
+        setIsFetching(false);
+      }
+    });
 
     return () => {
       unmounted = true;

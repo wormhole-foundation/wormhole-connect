@@ -197,7 +197,7 @@ export default class RouteOperator {
     return Object.values(supported);
   }
 
-  async computeMultipleQuotes(
+  async getQuotes(
     routes: string[],
     params: QuoteParams,
   ): Promise<routes.QuoteResult<routes.Options>[]> {

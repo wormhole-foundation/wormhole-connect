@@ -26,12 +26,10 @@ const useAvailableRoutes = (): void => {
 
     let isActive = true;
 
-    const getAvailable = async () => {
+    const getSupportedRoutes = async () => {
       let routes: RouteState[] = [];
       await config.routes.forEach(async (name, route) => {
         let supported = false;
-        let available = false;
-        let availabilityError = '';
 
         try {
           supported = await route.isRouteSupported(
@@ -54,25 +52,7 @@ const useAvailableRoutes = (): void => {
           console.error('Error when checking route is supported:', e, name);
         }
 
-        // Check availability of a route only when it is supported
-        // Primary goal here is to prevent any unnecessary RPC calls
-        if (supported) {
-          try {
-            available = await route.isRouteAvailable(
-              token,
-              destToken,
-              debouncedAmount,
-              fromChain,
-              toChain,
-              { nativeGas: toNativeToken },
-            );
-          } catch (e) {
-            availabilityError = 'Route is unavailable.';
-            console.error('Error when checking route is available:', e, name);
-          }
-        }
-
-        routes.push({ name, supported, available, availabilityError });
+        routes.push({ name, supported });
       });
 
       // If NTT or CCTP routes are available, then prioritize them over other routes
@@ -99,7 +79,7 @@ const useAvailableRoutes = (): void => {
       }
     };
 
-    getAvailable();
+    getSupportedRoutes();
 
     return () => {
       isActive = false;

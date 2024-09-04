@@ -34,7 +34,6 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   route: RouteData;
-  available: boolean;
   isSelected: boolean;
   error?: string;
   destinationGasDrop?: number;
@@ -329,18 +328,15 @@ const SingleRoute = (props: Props) => {
   }, [destTokenConfig, providerText, receiveAmount, tokenPrices]);
 
   // There are three states for the Card area cursor:
-  // 1- If not available in the first place, "not-allowed"
-  // 2- If available but no action handler provided, fall back to default
-  // 3- Both available and there is an action handler, "pointer"
+  // 1- If no action handler provided, fall back to default
+  // 2- Otherwise there is an action handler, "pointer"
   const cursor = useMemo(() => {
-    if (!props.available) {
-      return 'not-allowed';
-    } else if (typeof props.onSelect !== 'function') {
+    if (typeof props.onSelect !== 'function') {
       return 'auto';
     }
 
     return 'pointer';
-  }, [props.available, props.onSelect]);
+  }, [props.onSelect]);
 
   if (isEmptyObject(props.route)) {
     return <></>;
@@ -364,11 +360,11 @@ const SingleRoute = (props: Props) => {
             ? '1px solid #C1BBF6'
             : '1px solid transparent',
           cursor,
-          opacity: props.available ? 1 : 0.6,
+          opacity: 1,
         }}
       >
         <CardActionArea
-          disabled={!props.available || typeof props.onSelect !== 'function'}
+          disabled={typeof props.onSelect !== 'function'}
           disableTouchRipple
           onClick={() => {
             props.onSelect?.(props.route.name);
