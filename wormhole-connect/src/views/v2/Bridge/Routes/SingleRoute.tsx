@@ -264,9 +264,15 @@ const SingleRoute = (props: Props) => {
   }, [quote]);
 
   const routeCardHeader = useMemo(() => {
-    return typeof receiveAmount === 'undefined' ? (
-      <CircularProgress size={18} />
-    ) : (
+    if (props.error) {
+      return <Typography color="error">Route is unavailable</Typography>;
+    }
+
+    if (typeof receiveAmount === 'undefined') {
+      return <CircularProgress size={18} />;
+    }
+
+    return (
       <Typography>
         {receiveAmount} {destTokenConfig.symbol}
       </Typography>
@@ -274,12 +280,12 @@ const SingleRoute = (props: Props) => {
   }, [destToken, receiveAmount]);
 
   const routeCardSubHeader = useMemo(() => {
-    if (typeof receiveAmount === 'undefined') {
-      return <CircularProgress size={18} />;
+    if (props.error || !destChain) {
+      return null;
     }
 
-    if (!destChain) {
-      return <></>;
+    if (typeof receiveAmount === 'undefined') {
+      return <CircularProgress size={18} />;
     }
 
     const receiveAmountPrice = calculateUSDPrice(

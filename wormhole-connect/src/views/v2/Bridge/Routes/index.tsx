@@ -108,12 +108,17 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
         const isSelected = routeConfig.name === props.selectedRoute;
         const quoteResult = quotesMap[name];
         const quote = quoteResult?.success ? quoteResult : undefined;
+        // Default message added as precaution, as 'Error' type cannot be trusted
+        const quoteError =
+          quoteResult?.success === false
+            ? quoteResult?.error?.message ?? 'Error while getting a quote.'
+            : undefined;
         return (
           <SingleRoute
             key={name}
             route={routeConfig}
             available={available}
-            error={availabilityError}
+            error={availabilityError || quoteError}
             isSelected={isSelected}
             onSelect={props.onRouteChange}
             quote={quote}
