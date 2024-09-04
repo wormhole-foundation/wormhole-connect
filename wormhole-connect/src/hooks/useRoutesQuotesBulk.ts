@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Chain, routes } from '@wormhole-foundation/sdk';
+import { QuoteParams } from 'routes/operator';
 
 import config from 'config';
 
-type RoutesQuotesBulkParams = {
+type Params = {
   sourceChain?: Chain;
   sourceToken: string;
   destChain?: Chain;
@@ -19,10 +20,7 @@ type HookReturn = {
   isFetching: boolean;
 };
 
-const useRoutesQuotesBulk = (
-  routes: string[],
-  params: RoutesQuotesBulkParams,
-): HookReturn => {
+const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
 
@@ -39,7 +37,7 @@ const useRoutesQuotesBulk = (
     }
 
     // Forcing TS to infer that fields are non-optional
-    const rParams = params as Required<RoutesQuotesBulkParams>;
+    const rParams = params as Required<QuoteParams>;
 
     setIsFetching(true);
     config.routes
