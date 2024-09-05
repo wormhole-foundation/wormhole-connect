@@ -331,15 +331,15 @@ export class WrappedTokenAddressCache {
     this.caches = {};
 
     // Pre-populate cache with values from built-in config
-    for (const key in addresses) {
-      const token = tokens[key];
-      if (!token) continue;
-
+    for (const [key, token] of Object.entries(tokens)) {
+      // Cache any Wormhole-wrapped tokens
       const wrappedTokens = addresses[key];
-      for (const chain in wrappedTokens) {
-        const foreignAsset = wrappedTokens[chain];
-        const addr = WormholeV2.parseAddress(chain as Chain, foreignAsset);
-        this.set(key, chain as Chain, addr);
+      if (wrappedTokens) {
+        for (const chain in wrappedTokens) {
+          const foreignAsset = wrappedTokens[chain];
+          const addr = WormholeV2.parseAddress(chain as Chain, foreignAsset);
+          this.set(key, chain as Chain, addr);
+        }
       }
 
       // Cache it on its native chain too
