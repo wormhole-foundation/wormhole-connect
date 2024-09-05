@@ -42,18 +42,29 @@ export interface Transaction {
   receiveNativeAmount?: number;
 }
 
-const useFetchTransactionHistory = (): {
+type Props = {
+  page?: number;
+  pageSize?: number;
+};
+
+const useFetchTransactionHistory = (
+  props: Props,
+): {
   transactions: Array<Transaction>;
   error: string;
   isFetching: boolean;
+  hasMore: boolean;
 } => {
   const [transactions, setTransactions] = useState<Array<Transaction>>([]);
   const [error, setError] = useState('');
   const [isFetching, setIsFetching] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const { sending: sendingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
+
+  const { page = 0, pageSize = 30 } = props;
 
   const parseTokenBridgeTx = (tx) => {
     const { content = {}, data = {}, sourceChain = {}, targetChain = {} } = tx;
@@ -138,7 +149,7 @@ const useFetchTransactionHistory = (): {
 
   const parseTransactions = useCallback((allTxs: Array<any>) => {
     const parsedTxs: Array<Transaction> = allTxs.map((tx) => {
-      const { appIds = [] } = tx.content?.standarizedProperties;
+      const appIds = tx.content?.standarizedProperties?.appIds || [];
 
       let txParser;
 
@@ -167,7 +178,7 @@ const useFetchTransactionHistory = (): {
 
       try {
         const res = await fetch(
-          `${config.wormholeApi}api/v1/operations?address=${sendingWallet.address}`,
+          `${config.wormholeApi}api/v1/operations?address=${sendingWallet.address}&page=${page}&pageSize=${pageSize}`,
           { headers },
         );
 
@@ -182,8 +193,19 @@ const useFetchTransactionHistory = (): {
 
       if (!cancelled) {
         if (data?.operations?.length > 0) {
-          setTransactions(parseTransactions(data.operations));
+          setTransactions((txs) => {
+            const parsedTxs = parseTransactions(data.operations);
+            if (txs?.length > 0) {
+              return txs.concat(parsedTxs);
+            }
+            return parsedTxs;
+          });
         }
+
+        if (data?.operations?.length < pageSize) {
+          setHasMore(false);
+        }
+
         setIsFetching(false);
       }
     };
@@ -193,12 +215,13 @@ const useFetchTransactionHistory = (): {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [page, pageSize]);
 
   return {
     transactions,
     error,
     isFetching,
+    hasMore,
   };
 };
 

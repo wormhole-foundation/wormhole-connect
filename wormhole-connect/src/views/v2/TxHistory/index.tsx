@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CircularProgress, Typography, useTheme } from '@mui/material';
+import InfiniteScroll from 'react-infinite-scroller';
+import { CircularProgress, Stack, Typography, useTheme } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import IconButton from '@mui/material/IconButton';
 
@@ -18,15 +19,9 @@ import TxHistoryItem from 'views/v2/TxHistory/Item';
 import type { RootState } from 'store';
 
 const useStyles = makeStyles()((_theme) => ({
-  spacer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
   container: {
+    height: '690px',
+    justifyContent: 'start',
     margin: 'auto',
     maxWidth: '420px',
   },
@@ -36,10 +31,10 @@ const useStyles = makeStyles()((_theme) => ({
     alignItems: 'center',
     width: '100%',
   },
-  txHistoryHeader: {
+  infiniteScroller: {
+    height: '600px',
+    overflow: 'auto',
     width: '100%',
-    display: 'flex',
-    alignItems: 'center',
   },
   poweredBy: {
     display: 'flex',
@@ -48,6 +43,19 @@ const useStyles = makeStyles()((_theme) => ({
     gap: '8px',
     marginTop: '24px',
   },
+  txHistoryHeader: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  spacer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
 }));
 
 const TxHistory = () => {
@@ -55,7 +63,11 @@ const TxHistory = () => {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const { transactions, isFetching } = useFetchTransactionHistory();
+  const [page, setPage] = useState(0);
+
+  const { transactions, isFetching, hasMore } = useFetchTransactionHistory({
+    page,
+  });
 
   const sendingWallet = useSelector((state: RootState) => state.wallet.sending);
 
@@ -96,6 +108,10 @@ const TxHistory = () => {
 
   const transactionList = useMemo(() => {
     if (transactions.length === 0) {
+      if (isFetching) {
+        return <></>;
+      }
+
       return (
         <Typography>
           No transactions found for the address {sendingWallet.address}
@@ -103,16 +119,35 @@ const TxHistory = () => {
       );
     }
 
-    return transactions.map((tx) => {
-      return <TxHistoryItem data={tx} />;
-    });
-  }, [sendingWallet.address, transactions]);
+    return (
+      <div className={joinClass([classes.infiniteScroller])}>
+        <InfiniteScroll
+          hasMore={hasMore}
+          loader={
+            <Stack alignItems="center" padding="8px">
+              <CircularProgress />
+            </Stack>
+          }
+          loadMore={() => setPage((page) => page + 1)}
+          pageStart={0}
+          useWindow={false}
+        >
+          <div className={joinClass([classes.spacer])}>
+            {transactions.map((tx) => {
+              return <TxHistoryItem data={tx} />;
+            })}
+          </div>
+        </InfiniteScroll>
+      </div>
+    );
+  }, [isFetching, sendingWallet.address, transactions]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
       {txHistoryHeader}
-      {isFetching ? <CircularProgress /> : transactionList}
+      {transactionList}
+      {isFetching && transactions.length === 0 && <CircularProgress />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
