@@ -2,11 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import config from 'config';
-import {
-  setDestToken,
-  setSupportedDestTokens,
-  setAllSupportedDestTokens,
-} from 'store/transferInput';
+import { setDestToken, setSupportedDestTokens } from 'store/transferInput';
 
 import type { TokenConfig } from 'config/types';
 
@@ -53,27 +49,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
         console.error(e);
       }
 
-      if (sourceToken) {
-        // If any of the tokens are native to the chain, only select those.
-        // This is to avoid users inadvertently receiving wrapped versions of the token.
-        const nativeTokens = supported.filter(
-          (t) =>
-            t.nativeChain === destChain ||
-            config.tokens[sourceToken].wrappedAsset === t.key,
-        );
-        if (nativeTokens.length > 0) {
-          supported = nativeTokens;
-        }
-      }
-
       dispatch(setSupportedDestTokens(supported));
-      const allSupported = await config.routes.allSupportedDestTokens(
-        undefined,
-        sourceChain,
-        destChain,
-      );
-
-      dispatch(setAllSupportedDestTokens(allSupported));
 
       // Done fetching and setting all supported tokens
       setIsFetching(false);
