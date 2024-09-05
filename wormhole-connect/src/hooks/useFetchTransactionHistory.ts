@@ -36,6 +36,10 @@ export interface Transaction {
   // Amount of native gas being received, in destination gas token units
   // For example 1.0 is 1.0 ETH, not 1 wei
   receiveNativeAmount?: number;
+
+  // Timestamps
+  senderTimestamp?: string;
+  receiverTimestamp?: string;
 }
 
 type Props = {
@@ -110,8 +114,10 @@ const useFetchTransactionHistory = (
       0,
     );
 
-    const receiveAmountValue =
-      standarizedProperties.amount - standarizedProperties.fee ?? 0;
+    const receiveAmountValue = Math.max(
+      standarizedProperties.amount - standarizedProperties.fee,
+      0,
+    );
     const receiveAmountDisplay = sdkAmount.display(
       {
         amount: receiveAmountValue.toString(),
@@ -145,6 +151,8 @@ const useFetchTransactionHistory = (
         tokenKey: toChainConfig?.gasToken,
       },
       tokenAddress: standarizedProperties.tokenAddress,
+      senderTimestamp: sourceChain?.timestamp,
+      receiverTimestamp: targetChain?.timestamp,
     };
 
     return txData;

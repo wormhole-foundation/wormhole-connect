@@ -5,6 +5,7 @@ import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
@@ -33,6 +34,9 @@ const useStyles = makeStyles()((theme: any) => ({
   card: {
     width: '100%',
   },
+  cardHeader: {
+    paddingBottom: 0,
+  },
 }));
 
 type Props = {
@@ -59,6 +63,7 @@ const TxHistoryItem = (props: Props) => {
     receiveAmount,
     receiveNativeAmount,
     relayerFee,
+    senderTimestamp,
   } = props.data;
 
   // Render details for the sent amount
@@ -210,6 +215,16 @@ const TxHistoryItem = (props: Props) => {
     );
   }, [txHash]);
 
+  const transactionDateTime = useMemo(() => {
+    if (!senderTimestamp) {
+      return 'Unknown time';
+    }
+
+    const senderDate = new Date(senderTimestamp);
+
+    return `${senderDate.toLocaleDateString()} ${senderDate.toLocaleTimeString()}`;
+  }, [senderTimestamp]);
+
   return (
     <div className={classes.container}>
       <Card className={classes.card}>
@@ -219,11 +234,20 @@ const TxHistoryItem = (props: Props) => {
             setCollapsed((collapsed) => !collapsed);
           }}
         >
+          <CardHeader
+            className={classes.cardHeader}
+            title={
+              <Typography
+                justifyContent="space-between"
+                color={theme.palette.text.secondary}
+                display="flex"
+              >
+                <span>{`Transaction # ${trimTxHash(txHash)}`}</span>
+                <span>{transactionDateTime}</span>
+              </Typography>
+            }
+          />
           <CardContent>
-            <Typography
-              color={theme.palette.text.secondary}
-              marginBottom="12px"
-            >{`Transaction # ${trimTxHash(txHash)}`}</Typography>
             {sentAmount}
             {verticalConnector}
             {receivedAmount}
