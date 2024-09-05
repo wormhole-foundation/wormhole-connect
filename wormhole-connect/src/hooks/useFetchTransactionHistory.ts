@@ -91,7 +91,7 @@ const useFetchTransactionHistory = (
     }
 
     const toChain = chainIdToChain(toChainId) as Chain;
-    const toChainConfig = config.chains[toChain]!;
+    const toChainConfig = config.chains[toChain];
 
     const receivedTokenKey =
       tokenConfig.nativeChain === toChain
@@ -147,7 +147,7 @@ const useFetchTransactionHistory = (
       receiveAmount: receiveAmountDisplay,
       relayerFee: {
         fee: Number(feeAmountDisplay),
-        tokenKey: toChainConfig?.gasToken,
+        tokenKey: toChainConfig?.gasToken || '',
       },
       tokenAddress: standarizedProperties.tokenAddress,
       senderTimestamp: sourceChain?.timestamp,
@@ -161,6 +161,7 @@ const useFetchTransactionHistory = (
     PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseTransactions = useCallback((allTxs: Array<any>) => {
     const parsedTxs: Array<Transaction> = allTxs.map((tx) => {
       const appIds = tx.content?.standarizedProperties?.appIds || [];
