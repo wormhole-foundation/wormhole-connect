@@ -14,8 +14,7 @@ import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
-import { isEmptyObject, calculateUSDPrice } from 'utils';
-import { millisToMinutesAndSeconds } from 'utils/transferValidation';
+import { isEmptyObject, calculateUSDPrice, millisToHumanString } from 'utils';
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
@@ -144,7 +143,7 @@ const SingleRoute = (props: Props) => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>
-            {millisToMinutesAndSeconds(quote?.eta ?? 0)}
+            {quote?.eta ? millisToHumanString(quote.eta) : 'N/A'}
           </Typography>
         )}
       </>

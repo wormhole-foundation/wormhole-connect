@@ -14,8 +14,12 @@ import { makeStyles } from 'tss-react/mui';
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
 import TokenIcon from 'icons/TokenIcons';
-import { calculateUSDPrice, trimAddress, trimTxHash } from 'utils';
-import { millisToMinutesAndSeconds } from 'utils/transferValidation';
+import {
+  calculateUSDPrice,
+  millisToHumanString,
+  trimAddress,
+  trimTxHash,
+} from 'utils';
 import { getExplorerLink } from 'utils/sdkv2';
 
 import type { RootState } from 'store';
@@ -253,7 +257,7 @@ const TransactionDetails = () => {
     let etaDisplay: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
-      etaDisplay = millisToMinutesAndSeconds(eta);
+      etaDisplay = millisToHumanString(eta);
     }
 
     return (

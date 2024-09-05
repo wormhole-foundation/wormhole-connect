@@ -380,3 +380,13 @@ export const isFrankensteinToken = (token: TokenConfig, chain: Chain) => {
 export const isWrappedToken = (token: TokenConfig, chain: Chain) => {
   return token.nativeChain !== chain;
 };
+
+export const millisToHumanString = (ts: number): string => {
+  if (ts > 60000) {
+    const minutes = Math.ceil(ts / 60000);
+    return `~${minutes} min`;
+  } else {
+    const seconds = Math.ceil(ts / 1000);
+    return `~${seconds} sec`;
+  }
+};
