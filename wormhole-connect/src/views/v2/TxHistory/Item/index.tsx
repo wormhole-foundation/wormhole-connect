@@ -22,6 +22,7 @@ import {
   trimAddress,
   trimTxHash,
 } from 'utils';
+import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { Transaction } from 'hooks/useFetchTransactionHistory';
 import type { TokenPrices } from 'store/tokenPrices';
@@ -64,6 +65,7 @@ const TxHistoryItem = (props: Props) => {
     receiveNativeAmount,
     relayerFee,
     senderTimestamp,
+    receiverTimestamp,
   } = props.data;
 
   // Render details for the sent amount
@@ -193,6 +195,28 @@ const TxHistoryItem = (props: Props) => {
     );
   }, [receiveNativeAmount]);
 
+  const timeToDestination = useMemo(() => {
+    if (!senderTimestamp || !receiverTimestamp) {
+      return null;
+    }
+
+    const senderDate = new Date(senderTimestamp);
+    const receiverDate = new Date(receiverTimestamp);
+    const timePassed = receiverDate.getTime() - senderDate.getTime();
+
+    return (
+      <Stack direction="row" justifyContent="space-between">
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
+          Time to destination
+        </Typography>
+
+        <Typography fontSize={14}>
+          {millisToMinutesAndSeconds(timePassed)}
+        </Typography>
+      </Stack>
+    );
+  }, [senderTimestamp, receiverTimestamp]);
+
   const wormscanLink = useMemo(() => {
     const href = `${WORMSCAN}tx/${txHash}${
       config.isMainnet ? '' : '?network=TESTNET'
@@ -260,6 +284,7 @@ const TxHistoryItem = (props: Props) => {
               >
                 {bridgeFee}
                 {destinationGas}
+                {timeToDestination}
               </Stack>
               <Divider flexItem sx={{ margin: '16px 0', opacity: '50%' }} />
               {wormscanLink}
