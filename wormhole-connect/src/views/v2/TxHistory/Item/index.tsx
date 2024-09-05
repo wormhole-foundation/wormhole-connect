@@ -15,7 +15,7 @@ import { makeStyles } from 'tss-react/mui';
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import TokenIcon from 'icons/TokenIcons';
-import { trimAddress, trimTxHash } from 'utils';
+import { getUSDFormat, trimAddress, trimTxHash } from 'utils';
 
 import type { Transaction } from 'hooks/useFetchTransactionHistory';
 
@@ -82,7 +82,9 @@ const TxHistoryItem = (props: Props) => {
             {amount} {sourceTokenConfig?.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {`${amountUsd} \u2022 ${sourceChainConfig?.displayName} ${senderAddress}`}
+            {`${getUSDFormat(amountUsd)} \u2022 ${
+              sourceChainConfig?.displayName
+            } ${senderAddress}`}
           </Typography>
         </Stack>
       </Stack>
@@ -161,7 +163,9 @@ const TxHistoryItem = (props: Props) => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Gas top up
         </Typography>
-        <Typography fontSize={14}>{receiveNativeAmount}</Typography>
+        <Typography fontSize={14}>
+          {getUSDFormat(receiveNativeAmount, true)}
+        </Typography>
       </Stack>
     );
   }, [receiveNativeAmount]);
