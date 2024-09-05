@@ -145,7 +145,6 @@ const useFetchTransactionHistory = (
       tokenKey: tokenConfig.key,
       receivedTokenKey,
       receiveAmount: receiveAmountDisplay,
-      receiveNativeAmount: targetChain?.gasTokenNotional,
       relayerFee: {
         fee: Number(feeAmountDisplay),
         tokenKey: toChainConfig?.gasToken,

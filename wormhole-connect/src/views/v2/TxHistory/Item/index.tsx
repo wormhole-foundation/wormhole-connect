@@ -62,7 +62,6 @@ const TxHistoryItem = (props: Props) => {
     tokenKey,
     receivedTokenKey,
     receiveAmount,
-    receiveNativeAmount,
     relayerFee,
     senderTimestamp,
     receiverTimestamp,
@@ -149,7 +148,7 @@ const TxHistoryItem = (props: Props) => {
         </Stack>
       </Stack>
     );
-  }, [receiveAmount, receivedTokenKey, recipient, toChain]);
+  }, [props.tokenPrices, receiveAmount, receivedTokenKey, recipient, toChain]);
 
   // Vertical line that connects sender and receiver token icons
   const verticalConnector = useMemo(
@@ -168,32 +167,24 @@ const TxHistoryItem = (props: Props) => {
       return <></>;
     }
 
+    const sourceTokenConfig = config.tokens[tokenKey];
+
+    const feeAmountPrice = calculateUSDPrice(
+      relayerFee.fee,
+      props.tokenPrices,
+      sourceTokenConfig,
+      true,
+    );
+
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Bridge fee
         </Typography>
-        <Typography fontSize={14}>{relayerFee.fee}</Typography>
+        <Typography fontSize={14}>{feeAmountPrice}</Typography>
       </Stack>
     );
-  }, [relayerFee]);
-
-  const destinationGas = useMemo(() => {
-    if (!receiveNativeAmount) {
-      return <></>;
-    }
-
-    return (
-      <Stack direction="row" justifyContent="space-between">
-        <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Gas top up
-        </Typography>
-        <Typography fontSize={14}>
-          {getUSDFormat(receiveNativeAmount, true)}
-        </Typography>
-      </Stack>
-    );
-  }, [receiveNativeAmount]);
+  }, [props.tokenPrices, relayerFee, tokenKey]);
 
   const timeToDestination = useMemo(() => {
     if (!senderTimestamp || !receiverTimestamp) {
@@ -283,7 +274,6 @@ const TxHistoryItem = (props: Props) => {
                 marginTop="16px"
               >
                 {bridgeFee}
-                {destinationGas}
                 {timeToDestination}
               </Stack>
               <Divider flexItem sx={{ margin: '16px 0', opacity: '50%' }} />
