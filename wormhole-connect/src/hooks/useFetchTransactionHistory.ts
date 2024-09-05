@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  amount as sdkAmount,
-  chainIdToChain,
-  resolveWrappedToken,
-} from '@wormhole-foundation/sdk';
+import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
+import {
+  getTokenById,
+  getTokenDecimals,
+  getWrappedToken,
+  getWrappedTokenId,
+} from 'utils';
 
 import type { RootState } from 'store';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { RelayerFee } from 'store/relay';
-import { getTokenById, getTokenDecimals, getWrappedTokenId } from 'utils';
 
 export interface Transaction {
   // Transaction hash
@@ -70,25 +71,32 @@ const useFetchTransactionHistory = (
     const { content = {}, data = {}, sourceChain = {}, targetChain = {} } = tx;
     const { standarizedProperties = {} } = content;
 
-    const fromChain = chainIdToChain(sourceChain.chainId);
+    const fromChainId = standarizedProperties.fromChain || sourceChain?.chainId;
+    const toChainId = standarizedProperties.toChain || targetChain?.chainId;
+
+    const fromChain = chainIdToChain(fromChainId);
+
+    // Skip if we don't have the source chain
+    if (!fromChain) {
+      return;
+    }
 
     const tokenConfig = getTokenById({
       chain: fromChain,
       address: standarizedProperties.tokenAddress,
     });
 
-    // Skip if we don't have the source chain or token
-    if (!fromChain || !tokenConfig) {
+    // Skip if we don't have the source token
+    if (!tokenConfig) {
       return;
     }
 
-    const toChain = targetChain?.chainId && chainIdToChain(targetChain.chainId);
+    const toChain = chainIdToChain(toChainId);
 
-    const [, wrappedToken] = resolveWrappedToken(
-      config.v2Network,
-      toChain,
-      tokenConfig.tokenId,
-    );
+    const receivedTokenKey =
+      tokenConfig.nativeChain === toChain
+        ? tokenConfig.key
+        : getWrappedToken(tokenConfig)?.key;
 
     const decimals = getTokenDecimals(
       fromChain,
@@ -129,8 +137,8 @@ const useFetchTransactionHistory = (
       recipient: standarizedProperties.toAddress,
       toChain,
       fromChain,
-      tokenKey: data.symbol,
-      receivedTokenKey: getTokenById(wrappedToken)?.key,
+      tokenKey: tokenConfig.key,
+      receivedTokenKey,
       receiveAmount: receiveAmountDisplay,
       receiveNativeAmount: sourceChain.gasTokenNotional,
       relayerFee: {
