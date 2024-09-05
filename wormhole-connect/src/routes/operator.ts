@@ -225,11 +225,13 @@ export default class RouteOperator {
   }
 }
 
-// Cache key for a given quote
-const quoteParamsKey = (routeName: string, params: QuoteParams): string => {
-  return `${routeName}:${params.sourceChain}:${params.sourceToken}:${params.destChain}:${params.destToken}:${params.amount}`;
-};
-
+// This caches successful quote results from SDK routes and handles multiple concurrent
+// async functions asking for the same quote gracefully.
+//
+// If we are already fetching a quote and a second hook requests the same quote elsewhere,
+// we queue up a Promise in `QuoteCacheEntry.pending` that we resolve when the original
+// quote request is resolved. This just prevents us from making redundant API calls when
+// multiple components or hooks are interested in a quote.
 class QuoteCache {
   ttl: number;
   cache: Record<string, QuoteCacheEntry>;
@@ -241,12 +243,15 @@ class QuoteCache {
     this.pending = {};
   }
 
+  quoteParamsKey(routeName: string, params: QuoteParams): string {
+    return `${routeName}:${params.sourceChain}:${params.sourceToken}:${params.destChain}:${params.destToken}:${params.amount}`;
+  }
+
   get(routeName: string, params: QuoteParams): QuoteResult | null {
-    const key = quoteParamsKey(routeName, params);
+    const key = this.quoteParamsKey(routeName, params);
     const cachedVal = this.cache[key];
     if (cachedVal) {
       if (cachedVal.age() < this.ttl) {
-        console.info(`got cache ${key}`);
         return cachedVal.result;
       } else {
         delete this.cache[key];
@@ -261,17 +266,15 @@ class QuoteCache {
     params: QuoteParams,
     route: SDKv2Route,
   ): Promise<QuoteResult> {
-    const key = quoteParamsKey(routeName, params);
+    const key = this.quoteParamsKey(routeName, params);
     const pending = this.pending[key];
     if (pending) {
-      console.info(`subscribing ${key}...`);
       // We already have a pending request for this key, so don't create a new one.
       // Instead, subscribe to its result when it resolves
       return new Promise((resolve, reject) => {
         pending.push({ resolve, reject });
       });
     } else {
-      console.info(`fetching ${key}...`);
       // We don't yet have a pending request for this key, so initiate one
       route
         .computeQuote(
