@@ -15,9 +15,15 @@ import { makeStyles } from 'tss-react/mui';
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import TokenIcon from 'icons/TokenIcons';
-import { getUSDFormat, trimAddress, trimTxHash } from 'utils';
+import {
+  calculateUSDPrice,
+  getUSDFormat,
+  trimAddress,
+  trimTxHash,
+} from 'utils';
 
 import type { Transaction } from 'hooks/useFetchTransactionHistory';
+import type { TokenPrices } from 'store/tokenPrices';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -31,6 +37,7 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   data: Transaction;
+  tokenPrices: TokenPrices | null;
 };
 
 const TxHistoryItem = (props: Props) => {
@@ -82,7 +89,7 @@ const TxHistoryItem = (props: Props) => {
             {amount} {sourceTokenConfig?.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {`${getUSDFormat(amountUsd)} \u2022 ${
+            {`${getUSDFormat(amountUsd, true)} \u2022 ${
               sourceChainConfig?.displayName
             } ${senderAddress}`}
           </Typography>
@@ -99,6 +106,17 @@ const TxHistoryItem = (props: Props) => {
       : undefined;
 
     const recipientAddress = recipient ? trimAddress(recipient) : '';
+
+    const receiveAmountPrice = calculateUSDPrice(
+      receiveAmount,
+      props.tokenPrices,
+      destTokenConfig,
+      true,
+    );
+
+    const receiveAmountDisplay = receiveAmountPrice
+      ? `${receiveAmountPrice} \u2022 `
+      : '';
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
@@ -119,7 +137,7 @@ const TxHistoryItem = (props: Props) => {
             {receiveAmount} {destTokenConfig?.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {`${destChainConfig?.displayName} ${recipientAddress}`}
+            {`${receiveAmountDisplay}${destChainConfig?.displayName} ${recipientAddress}`}
           </Typography>
         </Stack>
       </Stack>

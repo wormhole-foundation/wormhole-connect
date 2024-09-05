@@ -71,6 +71,10 @@ const TxHistory = () => {
 
   const sendingWallet = useSelector((state: RootState) => state.wallet.sending);
 
+  const { usdPrices: tokenPrices } = useSelector(
+    (state: RootState) => state.tokenPrices,
+  );
+
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
       text: '',
@@ -134,7 +138,7 @@ const TxHistory = () => {
         >
           <div className={joinClass([classes.spacer])}>
             {transactions.map((tx) => {
-              return <TxHistoryItem data={tx} />;
+              return <TxHistoryItem data={tx} tokenPrices={tokenPrices.data} />;
             })}
           </div>
         </InfiniteScroll>
