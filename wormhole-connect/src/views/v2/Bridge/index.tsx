@@ -17,7 +17,7 @@ import PoweredByIcon from 'icons/PoweredBy';
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import useAvailableRoutes from 'hooks/useAvailableRoutes';
+import useSupportedRoutes from 'hooks/useSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import useComputeQuote from 'hooks/useComputeQuote';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
@@ -175,7 +175,7 @@ const Bridge = () => {
   });
 
   // Pre-fetch available routes
-  useAvailableRoutes();
+  useSupportedRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
