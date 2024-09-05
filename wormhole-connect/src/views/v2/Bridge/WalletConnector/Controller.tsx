@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -24,24 +24,34 @@ import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
+import { Tooltip } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
-    padding: '8px 16px',
+    padding: '8px 0 4px 16px',
     borderRadius: '8px',
     cursor: 'pointer',
     opacity: 1.0,
   },
-  walletIcon: {
-    width: '24px',
-    height: '24px',
+  walletAddress: {
+    color: '#C1BBF6',
+    fontWeight: 700,
+    fontSize: 14,
+    lineHeight: '17px',
+    letterSpacing: '0.5px',
+    fontFamily: 'Inter',
+    marginLeft: '8px',
   },
   down: {
-    marginRight: '-8px',
+    color: '#C1BBF6',
+    transition: 'transform 0.15s ease-in',
+    strokeWidth: '2px',
+  },
+  up: {
+    transform: 'scaleY(-1)',
   },
   dropdown: {
     backgroundColor: theme.palette.popover.background,
@@ -64,6 +74,8 @@ type Props = {
   type: TransferWallet;
 };
 
+const COPY_MESSAGE_TIMOUT = 1000;
+
 // Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
   const dispatch = useDispatch();
@@ -73,6 +85,7 @@ const ConnectedWallet = (props: Props) => {
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -87,12 +100,21 @@ const ConnectedWallet = (props: Props) => {
   const copyAddress = useCallback(() => {
     copyTextToClipboard(wallet.address);
     popupState?.close();
+    setIsCopied(true);
   }, [wallet.address]);
 
   const disconnectWallet = useCallback(() => {
     dispatch(disconnectFromStore(props.type));
     popupState?.close();
   }, [props.type]);
+
+  useEffect(() => {
+    if (isCopied) {
+      setTimeout(() => {
+        setIsCopied(false);
+      }, COPY_MESSAGE_TIMOUT);
+    }
+  }, [isCopied]);
 
   if (!wallet?.address) {
     return <></>;
@@ -101,11 +123,15 @@ const ConnectedWallet = (props: Props) => {
   return (
     <>
       <div className={classes.connectWallet} {...bindTrigger(popupState)}>
-        <WalletIcons name={wallet.name} icon={wallet.icon} height={24} />
-        <Typography fontSize={14}>
-          {displayWalletAddress(wallet.type, wallet.address)}
-        </Typography>
-        <DownIcon className={classes.down} />
+        <WalletIcons name={wallet.name} icon={wallet.icon} height={20} />
+        <Tooltip title="Copied" open={isCopied} placement="top" arrow>
+          <Typography className={classes.walletAddress}>
+            {displayWalletAddress(wallet.type, wallet.address)}
+          </Typography>
+        </Tooltip>
+        <DownIcon
+          className={`${classes.down} ${popupState.isOpen ? classes.up : ''}`}
+        />
       </div>
       <Popover
         {...bindPopover(popupState)}
