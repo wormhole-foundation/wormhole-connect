@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { useTheme } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
+import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
+import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
@@ -34,6 +36,8 @@ type Props = {
 const TxHistoryItem = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
+
+  const [collapsed, setCollapsed] = useState(true);
 
   const {
     txHash,
@@ -168,7 +172,7 @@ const TxHistoryItem = (props: Props) => {
     }`;
 
     return (
-      <Stack alignItems="center" padding="24px 12px">
+      <Stack alignItems="center">
         <Link
           display="flex"
           gap="8px"
@@ -187,26 +191,35 @@ const TxHistoryItem = (props: Props) => {
   return (
     <div className={classes.container}>
       <Card className={classes.card}>
-        <CardContent>
-          <Typography
-            color={theme.palette.text.secondary}
-            marginBottom="12px"
-          >{`Transaction # ${trimTxHash(txHash)}`}</Typography>
-          {sentAmount}
-          {verticalConnector}
-          {receivedAmount}
-          <Stack
-            direction="column"
-            gap="8px"
-            justifyContent="space-between"
-            marginTop="16px"
-          >
-            {bridgeFee}
-            {destinationGas}
-          </Stack>
-        </CardContent>
-        <Divider flexItem sx={{ margin: '0 16px', opacity: '50%' }} />
-        {wormscanLink}
+        <CardActionArea
+          disableTouchRipple
+          onClick={() => {
+            setCollapsed((collapsed) => !collapsed);
+          }}
+        >
+          <CardContent>
+            <Typography
+              color={theme.palette.text.secondary}
+              marginBottom="12px"
+            >{`Transaction # ${trimTxHash(txHash)}`}</Typography>
+            {sentAmount}
+            {verticalConnector}
+            {receivedAmount}
+            <Collapse in={!collapsed}>
+              <Stack
+                direction="column"
+                gap="8px"
+                justifyContent="space-between"
+                marginTop="16px"
+              >
+                {bridgeFee}
+                {destinationGas}
+              </Stack>
+              <Divider flexItem sx={{ margin: '16px 0', opacity: '50%' }} />
+              {wormscanLink}
+            </Collapse>
+          </CardContent>
+        </CardActionArea>
       </Card>
     </div>
   );
