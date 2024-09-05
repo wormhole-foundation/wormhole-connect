@@ -3,12 +3,7 @@ import { useSelector } from 'react-redux';
 import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import {
-  getTokenById,
-  getTokenDecimals,
-  getWrappedToken,
-  getWrappedTokenId,
-} from 'utils';
+import { getTokenById, getWrappedToken } from 'utils';
 
 import type { RootState } from 'store';
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -98,25 +93,28 @@ const useFetchTransactionHistory = (
         ? tokenConfig.key
         : getWrappedToken(tokenConfig)?.key;
 
-    const decimals = getTokenDecimals(
-      fromChain,
-      getWrappedTokenId(tokenConfig),
-    );
+    // Reverse engineering the conversion rate:
+    //   data.tokenAmount is the actual value and standarizedProperties.amount is the denomination.
+    //   There has been unexpected conversaion rates in API responses. Therefore we are
+    //   sniffing out the decimals from the conversion rate of between these two values.
+    const conversionRate =
+      Number(standarizedProperties.amount) / Number(data.tokenAmount);
+    const decimals = conversionRate.toString().length - 1;
 
     const sentAmountDisplay = sdkAmount.display(
       {
         amount: standarizedProperties.amount,
-        decimals: Math.min(8, decimals),
+        decimals,
       },
       0,
     );
 
+    const receiveAmountValue =
+      standarizedProperties.amount - standarizedProperties.fee ?? 0;
     const receiveAmountDisplay = sdkAmount.display(
       {
-        amount: (
-          standarizedProperties.amount - standarizedProperties.fee
-        ).toString(),
-        decimals: Math.min(8, decimals),
+        amount: receiveAmountValue.toString(),
+        decimals,
       },
       0,
     );
@@ -124,7 +122,7 @@ const useFetchTransactionHistory = (
     const feeAmountDisplay = sdkAmount.display(
       {
         amount: standarizedProperties.fee,
-        decimals: Math.min(8, decimals),
+        decimals,
       },
       0,
     );
