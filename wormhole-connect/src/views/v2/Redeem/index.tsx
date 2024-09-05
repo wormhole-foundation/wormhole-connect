@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { isRedeemed, routes, TransferState } from '@wormhole-foundation/sdk';
 import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -39,6 +38,7 @@ import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
 import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
+import TxCompleteIcon from 'icons/TxComplete';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -235,9 +235,13 @@ const Redeem = () => {
       <>
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
           {isTxComplete ? (
-            <CheckCircleOutlineIcon
-              htmlColor="#C1BBF6"
-              sx={{ width: '120px', height: '120px' }}
+            <TxCompleteIcon
+              sx={{
+                width: 105,
+                height: 105,
+                marginTop: 1,
+                marginBottom: 2,
+              }}
             />
           ) : (
             <>
