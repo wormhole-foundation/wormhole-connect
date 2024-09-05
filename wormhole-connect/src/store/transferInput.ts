@@ -3,7 +3,6 @@ import { Context } from 'sdklegacy';
 import config from 'config';
 import { TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
-import { toDecimals } from 'utils/balance';
 import {
   switchChain,
   TransferWallet,
@@ -18,7 +17,7 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { Chain } from '@wormhole-foundation/sdk';
+import { amount, Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
   lastUpdated: number;
@@ -35,12 +34,19 @@ export type WalletBalances = { [key: WalletAddress]: BalancesCache };
 export const formatBalance = (
   chain: Chain,
   token: TokenConfig,
-  balance: bigint | null,
-) => {
+  balance: string | bigint | null,
+): string | null => {
+  if (!balance) {
+    return null;
+  }
   const decimals = getTokenDecimals(chain, token.tokenId);
-  const formattedBalance =
-    balance !== null ? toDecimals(balance, decimals, 6) : null;
-  return formattedBalance;
+  const balanceNum = amount.whole({
+    amount: balance.toString(),
+    decimals,
+  });
+  return balanceNum.toLocaleString('en', {
+    maximumFractionDigits: 4,
+  });
 };
 
 // for use in USDC or other tokens that have versions on many chains

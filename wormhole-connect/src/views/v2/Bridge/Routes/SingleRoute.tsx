@@ -18,6 +18,7 @@ import { isEmptyObject, calculateUSDPrice, millisToHumanString } from 'utils';
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
+import { formatBalance } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -262,15 +263,25 @@ const SingleRoute = (props: Props) => {
     return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
   }, [quote]);
 
+  const receiveAmountTrunc = useMemo(() => {
+    return quote && destChain
+      ? formatBalance(
+          destChain,
+          destTokenConfig,
+          quote.destinationToken.amount.amount,
+        )
+      : undefined;
+  }, [quote]);
+
   const routeCardHeader = useMemo(() => {
     return typeof receiveAmount === 'undefined' ? (
       <CircularProgress size={18} />
     ) : (
       <Typography>
-        {receiveAmount} {destTokenConfig.symbol}
+        {receiveAmountTrunc} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [destToken, receiveAmount]);
+  }, [destToken, receiveAmountTrunc]);
 
   const routeCardSubHeader = useMemo(() => {
     if (typeof receiveAmount === 'undefined') {
