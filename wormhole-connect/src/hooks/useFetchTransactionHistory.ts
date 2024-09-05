@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { getTokenById, getWrappedToken } from 'utils';
+import { getTokenById, getUSDFormat, getWrappedToken } from 'utils';
 
 import type { RootState } from 'store';
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -131,14 +131,14 @@ const useFetchTransactionHistory = (
       txHash: sourceChain.transaction?.txHash,
       sender: standarizedProperties.fromAddress || sourceChain.from,
       amount: sentAmountDisplay,
-      amountUsd: data.usdAmount,
+      amountUsd: getUSDFormat(data.usdAmount),
       recipient: standarizedProperties.toAddress,
       toChain,
       fromChain,
       tokenKey: tokenConfig.key,
       receivedTokenKey,
       receiveAmount: receiveAmountDisplay,
-      receiveNativeAmount: sourceChain.gasTokenNotional,
+      receiveNativeAmount: targetChain?.gasTokenNotional,
       relayerFee: {
         fee: Number(feeAmountDisplay),
         tokenKey: data.symbol,
