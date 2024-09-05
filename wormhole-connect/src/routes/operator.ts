@@ -201,18 +201,18 @@ export default class RouteOperator {
     routes: string[],
     params: QuoteParams,
   ): Promise<routes.QuoteResult<routes.Options>[]> {
-    const quoteResults = await Promise.allSettled(
-      routes.map((route) => {
-        const cachedResult = this.quoteCache.get(route, params);
-        if (cachedResult) {
-          return cachedResult;
-        } else {
-          return this.quoteCache.fetch(route, params, this.get(route));
-        }
-      }),
-    );
-
-    return quoteResults.map((quoteResult) => {
+    return (
+      await Promise.allSettled(
+        routes.map((route) => {
+          const cachedResult = this.quoteCache.get(route, params);
+          if (cachedResult) {
+            return cachedResult;
+          } else {
+            return this.quoteCache.fetch(route, params, this.get(route));
+          }
+        }),
+      )
+    ).map((quoteResult) => {
       if (quoteResult.status === 'rejected') {
         return {
           success: false,
