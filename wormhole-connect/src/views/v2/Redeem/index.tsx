@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { isRedeemed, routes, TransferState } from '@wormhole-foundation/sdk';
 import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -82,7 +82,7 @@ const Redeem = () => {
 
   const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
 
-  const [claimError, setClaimError] = useState('fake error');
+  const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
 
@@ -105,6 +105,9 @@ const Redeem = () => {
     route: routeName,
     timestamp: txTimestamp,
   } = useSelector((state: RootState) => state.redeem);
+
+  const isTxRefunded = routeContext.receipt?.state === TransferState.Refunded;
+  const isTxFailed = routeContext.receipt?.state === TransferState.Failed;
 
   const {
     fromChain,
@@ -177,6 +180,10 @@ const Redeem = () => {
   const statusHeader = useMemo(() => {
     if (isTxComplete) {
       return <Stack>Transaction complete</Stack>;
+    } else if (isTxRefunded) {
+      return <Stack>Transaction was refunded</Stack>;
+    } else if (isTxFailed) {
+      return <Stack>Transaction failed</Stack>;
     } else if (isTxAttested) {
       return (
         <Stack>{`${receiveAmount} ${receivedTokenKey} received at ${displayAddress(
@@ -190,6 +197,8 @@ const Redeem = () => {
   }, [
     isTxAttested,
     isTxComplete,
+    isTxRefunded,
+    isTxFailed,
     receiveAmount,
     receivedTokenKey,
     recipient,
@@ -241,6 +250,16 @@ const Redeem = () => {
                 marginTop: 1,
                 marginBottom: 2,
               }}
+            />
+          ) : isTxRefunded ? (
+            <ArrowCircleLeftOutlinedIcon
+              htmlColor="#f3bb2b"
+              sx={{ width: '120px', height: '120px' }}
+            />
+          ) : isTxFailed ? (
+            <ErrorOutlineIcon
+              htmlColor="#e11a1a"
+              sx={{ width: '120px', height: '120px' }}
             />
           ) : (
             <>
@@ -395,7 +414,7 @@ const Redeem = () => {
 
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
-    if (!isTxComplete && !isAutomaticRoute) {
+    if (!isTxComplete && !isTxRefunded && !isTxFailed && !isAutomaticRoute) {
       if (isTxAttested && !isConnectedToReceivingWallet) {
         return (
           <Button
