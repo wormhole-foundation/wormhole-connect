@@ -275,6 +275,13 @@ class QuoteCache {
         pending.push({ resolve, reject });
       });
     } else {
+      // Initialize list of promises awaiting this result
+      const returnPromise: Promise<QuoteResult> = new Promise(
+        (resolve, reject) => {
+          this.pending[key] = [{ resolve, reject }];
+        },
+      );
+
       // We don't yet have a pending request for this key, so initiate one
       route
         .computeQuote(
@@ -304,10 +311,7 @@ class QuoteCache {
           delete this.pending[key];
         });
 
-      // Initialize list of promises awaiting this result
-      return new Promise((resolve, reject) => {
-        this.pending[key] = [{ resolve, reject }];
-      });
+      return returnPromise;
     }
   }
 }
