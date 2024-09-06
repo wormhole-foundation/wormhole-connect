@@ -82,10 +82,17 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
     [sendingWallet.address, receivingWallet.address],
   );
 
-  const renderRoutes = useMemo(
-    () => (showAll ? sortedSupportedRoutes : sortedSupportedRoutes.slice(0, 1)),
-    [showAll, sortedSupportedRoutes],
-  );
+  const renderRoutes = useMemo(() => {
+    if (showAll) {
+      return sortedSupportedRoutes;
+    }
+
+    const selectedRoute = sortedSupportedRoutes.find(
+      (route) => route.name === props.selectedRoute,
+    );
+
+    return selectedRoute ? [selectedRoute] : sortedSupportedRoutes.slice(0, 1);
+  }, [showAll, sortedSupportedRoutes]);
 
   if (supportedRoutes.length === 0 || !walletsConnected) {
     return <></>;
