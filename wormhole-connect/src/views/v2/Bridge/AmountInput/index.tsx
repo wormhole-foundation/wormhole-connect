@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
@@ -66,11 +66,6 @@ const AmountInput = (props: Props) => {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const [validationResult, setValidationResult] = useState('');
-
-  // Debouncing validation to prevent false-positive results while user is still typing
-  const [debouncedValidationResult] = useDebounce(validationResult, 500);
-
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
     sourceChain,
@@ -136,18 +131,18 @@ const AmountInput = (props: Props) => {
         return;
       }
 
-      // Validation for the amount value
-      const amountValidation = validateAmount(
-        value,
-        tokenBalance,
-        getMaxAmt(route),
-      );
-
       dispatch(setAmount(value));
-      setValidationResult(amountValidation);
     },
     [amount, route, tokenBalance],
   );
+
+  const validationResult = useMemo(
+    () => validateAmount(amount, tokenBalance, getMaxAmt(route)),
+    [amount, tokenBalance, route],
+  );
+
+  // Debouncing validation to prevent false-positive results while user is still typing
+  const [debouncedValidationResult] = useDebounce(validationResult, 500);
 
   return (
     <div className={classes.amountContainer}>
