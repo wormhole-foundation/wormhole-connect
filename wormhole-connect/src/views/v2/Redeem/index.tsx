@@ -22,13 +22,10 @@ import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { setRoute } from 'store/router';
-import { displayAddress } from 'utils';
+import { displayAddress, millisToHumanString } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
-import {
-  millisToMinutesAndSeconds,
-  minutesAndSecondsWithPadding,
-} from 'utils/transferValidation';
+import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -216,7 +213,7 @@ const Redeem = () => {
     let etaElement: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
-      etaElement = millisToMinutesAndSeconds(eta);
+      etaElement = millisToHumanString(eta);
     }
 
     return (
