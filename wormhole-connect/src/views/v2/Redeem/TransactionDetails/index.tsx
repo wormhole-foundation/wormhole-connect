@@ -23,6 +23,7 @@ import {
 import { getExplorerLink } from 'utils/sdkv2';
 
 import type { RootState } from 'store';
+import { toFixedDecimals } from 'utils/balance';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -173,26 +174,34 @@ const TransactionDetails = () => {
       return <></>;
     }
 
-    const bridgePrice = calculateUSDPrice(
-      relayerFee?.fee,
+    const feeTokenConfig = config.tokens[relayerFee.tokenKey];
+    if (!feeTokenConfig) {
+      return <></>;
+    }
+
+    const feePrice = calculateUSDPrice(
+      relayerFee.fee,
       tokenPrices.data,
-      config.tokens[relayerFee.tokenKey],
+      feeTokenConfig,
       true,
     );
 
-    if (!bridgePrice) {
+    if (!feePrice) {
       return <></>;
     }
 
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Bridge fee
+          Relayer fee
         </Typography>
         {tokenPrices.isFetching ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>{bridgePrice}</Typography>
+          <Typography fontSize={14}>{`${toFixedDecimals(
+            relayerFee.fee.toString(),
+            4,
+          )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
         )}
       </Stack>
     );

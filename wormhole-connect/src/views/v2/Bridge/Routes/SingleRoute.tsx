@@ -19,6 +19,7 @@ import { isEmptyObject, calculateUSDPrice, millisToHumanString } from 'utils';
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
 import { formatBalance } from 'store/transferInput';
+import { toFixedDecimals } from 'utils/balance';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -63,7 +64,7 @@ const SingleRoute = (props: Props) => {
 
   const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
-  const bridgeFee = useMemo(() => {
+  const relayerFee = useMemo(() => {
     if (!quote?.relayFee) {
       return <></>;
     }
@@ -76,26 +77,33 @@ const SingleRoute = (props: Props) => {
       Object.values(config.tokens),
     );
 
-    const bridgePrice = calculateUSDPrice(
+    if (!feeTokenConfig) {
+      return <></>;
+    }
+
+    const feePrice = calculateUSDPrice(
       relayFee,
       tokenPrices.data,
       feeTokenConfig,
       true,
     );
 
-    if (!bridgePrice) {
+    if (!feePrice) {
       return <></>;
     }
 
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Bridge fee
+          Relayer fee
         </Typography>
         {isFetchingQuote ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>{bridgePrice}</Typography>
+          <Typography fontSize={14}>{`${toFixedDecimals(
+            relayFee.toString(),
+            4,
+          )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
         )}
       </Stack>
     );
@@ -359,7 +367,7 @@ const SingleRoute = (props: Props) => {
           />
           <CardContent>
             <Stack justifyContent="space-between">
-              {bridgeFee}
+              {relayerFee}
               {destinationGas}
             </Stack>
             <Stack direction="row" justifyContent="space-between">
