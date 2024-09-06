@@ -32,6 +32,8 @@ const useStyles = makeStyles()(() => ({
     display: 'inline-flex',
     alignItems: 'center',
     marginLeft: 4,
+    height: '10px',
+    overflow: 'hidden',
   },
 }));
 
