@@ -6,6 +6,8 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import { isRedeemed, routes, TransferState } from '@wormhole-foundation/sdk';
 import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -80,7 +82,7 @@ const Redeem = () => {
 
   const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
 
-  const [claimError, setClaimError] = useState('');
+  const [claimError, setClaimError] = useState('fake error');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
 

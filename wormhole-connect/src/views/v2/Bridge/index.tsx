@@ -416,6 +416,9 @@ const Bridge = () => {
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
+      <div>
+        <DevTools />
+      </div>
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
