@@ -350,9 +350,6 @@ export class SDKv2Route {
     if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
 
-    console.info('computing quote', this.rc.meta.name, amountIn);
-    console.trace();
-
     const [, quote] = await this.getQuote(
       amountIn,
       sourceToken,

@@ -295,7 +295,6 @@ class QuoteCache {
         .then((result: QuoteResult) => {
           const pending = this.pending[key];
           for (const { resolve } of pending) {
-            console.info(`resolving sub ${key}`);
             resolve(result);
           }
           delete this.pending[key];
