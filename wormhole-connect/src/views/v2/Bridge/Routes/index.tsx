@@ -111,7 +111,8 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
         // Default message added as precaution, as 'Error' type cannot be trusted
         const quoteError =
           quoteResult?.success === false
-            ? quoteResult?.error?.message ?? 'Error while getting a quote.'
+            ? quoteResult?.error?.message ??
+              `Error while getting a quote for ${name}.`
             : undefined;
         return (
           <SingleRoute

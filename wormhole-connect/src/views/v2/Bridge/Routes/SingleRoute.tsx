@@ -268,8 +268,12 @@ const SingleRoute = (props: Props) => {
       return <Typography color="error">Route is unavailable</Typography>;
     }
 
-    if (typeof receiveAmount === 'undefined') {
+    if (props.isFetchingQuote) {
       return <CircularProgress size={18} />;
+    }
+
+    if (receiveAmount === undefined) {
+      return null;
     }
 
     return (
@@ -284,8 +288,12 @@ const SingleRoute = (props: Props) => {
       return null;
     }
 
-    if (typeof receiveAmount === 'undefined') {
+    if (props.isFetchingQuote) {
       return <CircularProgress size={18} />;
+    }
+
+    if (receiveAmount === undefined) {
+      return null;
     }
 
     const receiveAmountPrice = calculateUSDPrice(
