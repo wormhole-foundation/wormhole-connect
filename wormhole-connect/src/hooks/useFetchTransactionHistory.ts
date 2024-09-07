@@ -179,10 +179,8 @@ const useFetchTransactionHistory = (
       0,
     );
 
-    const receiveAmountValue = Math.max(
-      standarizedProperties.amount - standarizedProperties.fee,
-      0,
-    );
+    const receiveAmountValue =
+      BigInt(standarizedProperties.amount) - BigInt(standarizedProperties.fee);
     const receiveAmountDisplay = sdkAmount.display(
       {
         amount: receiveAmountValue.toString(),
