@@ -42,6 +42,69 @@ export interface Transaction {
   receiverTimestamp?: string;
 }
 
+interface WormholeScanTransaction {
+  id: string;
+  content: {
+    payload: {
+      amount: string;
+      callerAppId: string;
+      fromAddress: string;
+      parsedPayload: {
+        feeAmount: string;
+        recipientWallet: string;
+        toNativeAmount: string;
+      };
+      toAddress: string;
+      toChain: number;
+      tokenAddress: string;
+      tokenChain: number;
+    };
+    standarizedProperties: {
+      appIds: Array<string>;
+      fromChain: number;
+      fromAddress: string;
+      toChain: number;
+      toAddress: string;
+      tokenChain: number;
+      tokenAddress: string;
+      amount: string;
+      feeAddress: string;
+      feeChain: number;
+      fee: string;
+    };
+  };
+  sourceChain: {
+    chainId: number;
+    timestamp: string;
+    transaction: {
+      txHash: string;
+    };
+    from: string;
+    status: string;
+    fee: string;
+    gasTokenNotional: string;
+    feeUSD: string;
+  };
+  targetChain?: {
+    chainId: 6;
+    timestamp: string;
+    transaction: {
+      txHash: string;
+    };
+    status: string;
+    from: string;
+    to: string;
+    fee: string;
+    gasTokenNotional: string;
+    feeUSD: string;
+  };
+  data: {
+    symbol: string;
+    tokenAmount: string;
+    usdAmount: string;
+  };
+}
+
 type Props = {
   page?: number;
   pageSize?: number;
@@ -164,25 +227,28 @@ const useFetchTransactionHistory = (
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parseTransactions = useCallback((allTxs: Array<any>) => {
-    return allTxs
-      .map((tx) => {
-        // Locate the appIds
-        const appIds: Array<string> =
-          tx.content?.standarizedProperties?.appIds || [];
+  const parseTransactions = useCallback(
+    (allTxs: Array<WormholeScanTransaction>) => {
+      return allTxs
+        .map((tx) => {
+          // Locate the appIds
+          const appIds: Array<string> =
+            tx.content?.standarizedProperties?.appIds || [];
 
-        for (const appId of appIds) {
-          // Retrieve the parser for an appId
-          const parser = PARSERS[appId];
+          for (const appId of appIds) {
+            // Retrieve the parser for an appId
+            const parser = PARSERS[appId];
 
-          // If no parsers specified for the given appIds, we'll skip this transaction
-          if (parser) {
-            return parser(tx);
+            // If no parsers specified for the given appIds, we'll skip this transaction
+            if (parser) {
+              return parser(tx);
+            }
           }
-        }
-      })
-      .filter((tx) => !!tx); // Filter out unsupported transactions
-  }, []);
+        })
+        .filter((tx) => !!tx); // Filter out unsupported transactions
+    },
+    [],
+  );
 
   useEffect(() => {
     let cancelled = false;

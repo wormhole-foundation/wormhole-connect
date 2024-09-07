@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroller';
-import { CircularProgress, Stack, Typography, useTheme } from '@mui/material';
-import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { makeStyles } from 'tss-react/mui';
 
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
