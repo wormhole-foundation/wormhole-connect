@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { getTokenById, getWrappedToken } from 'utils';
+import { getTokenById, getTokenDecimals, getWrappedToken } from 'utils';
 
 import type { RootState } from 'store';
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -50,12 +50,14 @@ type Props = {
 const useFetchTransactionHistory = (
   props: Props,
 ): {
-  transactions: Array<Transaction>;
+  transactions: Array<Transaction> | undefined;
   error: string;
   isFetching: boolean;
   hasMore: boolean;
 } => {
-  const [transactions, setTransactions] = useState<Array<Transaction>>([]);
+  const [transactions, setTransactions] = useState<
+    Array<Transaction> | undefined
+  >();
   const [error, setError] = useState('');
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -98,13 +100,13 @@ const useFetchTransactionHistory = (
         ? tokenConfig.key
         : getWrappedToken(tokenConfig)?.key;
 
-    // Reverse engineering the conversion rate:
-    //   data.tokenAmount is the actual value and standarizedProperties.amount is the denomination.
-    //   There has been unexpected conversaion rates in API responses. Therefore we are
-    //   sniffing out the decimals from the conversion rate of between these two values.
-    const conversionRate =
-      Number(standarizedProperties.amount) / Number(data.tokenAmount);
-    const decimals = conversionRate.toString().length - 1;
+    const decimals = Math.min(
+      8,
+      getTokenDecimals(
+        fromChain,
+        tokenConfig.nativeChain === fromChain ? 'native' : tokenConfig.tokenId,
+      ),
+    );
 
     const sentAmountDisplay = sdkAmount.display(
       {
@@ -157,27 +159,29 @@ const useFetchTransactionHistory = (
     return txData;
   };
 
-  const SUPPORTED_APPIDS = {
+  const PARSERS = {
     PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseTransactions = useCallback((allTxs: Array<any>) => {
-    const parsedTxs: Array<Transaction> = allTxs.map((tx) => {
-      const appIds = tx.content?.standarizedProperties?.appIds || [];
+    return allTxs
+      .map((tx) => {
+        // Locate the appIds
+        const appIds: Array<string> =
+          tx.content?.standarizedProperties?.appIds || [];
 
-      let txParser;
+        for (const appId of appIds) {
+          // Retrieve the parser for an appId
+          const parser = PARSERS[appId];
 
-      appIds.forEach((appId) => {
-        if (typeof SUPPORTED_APPIDS[appId] === 'function') {
-          txParser = SUPPORTED_APPIDS[appId];
+          // If no parsers specified for the given appIds, we'll skip this transaction
+          if (parser) {
+            return parser(tx);
+          }
         }
-      });
-
-      return txParser?.(tx);
-    });
-
-    return parsedTxs.filter((tx) => !!tx);
+      })
+      .filter((tx) => !!tx); // Filter out unsupported transactions
   }, []);
 
   useEffect(() => {
@@ -189,7 +193,6 @@ const useFetchTransactionHistory = (
 
     const fetchTransactions = async () => {
       setIsFetching(true);
-      let data;
 
       try {
         const res = await fetch(
@@ -197,30 +200,28 @@ const useFetchTransactionHistory = (
           { headers },
         );
 
-        data = await res.json();
+        const data = await res.json();
+
+        if (!cancelled) {
+          if (data?.operations?.length > 0) {
+            setTransactions((txs) => {
+              const parsedTxs = parseTransactions(data.operations);
+              if (txs && txs.length > 0) {
+                return txs.concat(parsedTxs);
+              }
+              return parsedTxs;
+            });
+          }
+
+          if (data?.operations?.length < pageSize) {
+            setHasMore(false);
+          }
+        }
       } catch (error) {
         if (!cancelled) {
           setError(`Error fetching transaction history: ${error}`);
         }
-
-        setIsFetching(false);
-      }
-
-      if (!cancelled) {
-        if (data?.operations?.length > 0) {
-          setTransactions((txs) => {
-            const parsedTxs = parseTransactions(data.operations);
-            if (txs?.length > 0) {
-              return txs.concat(parsedTxs);
-            }
-            return parsedTxs;
-          });
-        }
-
-        if (data?.operations?.length < pageSize) {
-          setHasMore(false);
-        }
-
+      } finally {
         setIsFetching(false);
       }
     };

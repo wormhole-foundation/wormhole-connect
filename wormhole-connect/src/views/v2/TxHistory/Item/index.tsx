@@ -19,10 +19,10 @@ import TokenIcon from 'icons/TokenIcons';
 import {
   calculateUSDPrice,
   getUSDFormat,
+  millisToHumanString,
   trimAddress,
   trimTxHash,
 } from 'utils';
-import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
 import type { Transaction } from 'hooks/useFetchTransactionHistory';
 import type { TokenPrices } from 'store/tokenPrices';
@@ -201,9 +201,7 @@ const TxHistoryItem = (props: Props) => {
           Time to destination
         </Typography>
 
-        <Typography fontSize={14}>
-          {millisToMinutesAndSeconds(timePassed)}
-        </Typography>
+        <Typography fontSize={14}>{millisToHumanString(timePassed)}</Typography>
       </Stack>
     );
   }, [senderTimestamp, receiverTimestamp]);

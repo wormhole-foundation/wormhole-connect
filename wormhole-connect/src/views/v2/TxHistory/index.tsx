@@ -111,13 +111,11 @@ const TxHistory = () => {
   }, []);
 
   const transactionList = useMemo(() => {
-    if (transactions.length === 0) {
-      if (isFetching) {
-        return <></>;
-      }
-
+    if (!transactions) {
+      return <></>;
+    } else if (transactions.length === 0) {
       return (
-        <Typography>
+        <Typography textAlign="center">
           No transactions found for the address {sendingWallet.address}
         </Typography>
       );
@@ -127,31 +125,32 @@ const TxHistory = () => {
       <div className={joinClass([classes.infiniteScroller])}>
         <InfiniteScroll
           hasMore={hasMore}
-          loader={
-            <Stack alignItems="center" padding="8px">
-              <CircularProgress />
-            </Stack>
-          }
           loadMore={() => setPage((page) => page + 1)}
           pageStart={0}
           useWindow={false}
         >
           <div className={joinClass([classes.spacer])}>
-            {transactions.map((tx) => {
-              return <TxHistoryItem data={tx} tokenPrices={tokenPrices.data} />;
+            {transactions.map((tx, idx) => {
+              return (
+                <TxHistoryItem
+                  key={idx}
+                  data={tx}
+                  tokenPrices={tokenPrices.data}
+                />
+              );
             })}
           </div>
         </InfiniteScroll>
       </div>
     );
-  }, [isFetching, sendingWallet.address, transactions]);
+  }, [sendingWallet.address, transactions]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
       {txHistoryHeader}
       {transactionList}
-      {isFetching && transactions.length === 0 && <CircularProgress />}
+      {(!transactions || isFetching) && <CircularProgress />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
