@@ -15,6 +15,8 @@ import { Network } from '@wormhole-foundation/sdk';
 import config from 'config';
 
 const injectedWallets = [
+  InjectedWallets.CoinbaseWallet,
+  InjectedWallets.RabbyWallet,
   InjectedWallets.PhantomWallet,
   InjectedWallets.BackpackWallet,
 ].reduce((acc, name) => ({ [name]: new InjectedWallet({ name }), ...acc }), {});
