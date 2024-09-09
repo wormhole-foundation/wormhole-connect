@@ -9,8 +9,9 @@ import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 
 import type { RootState } from 'store';
-import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import { RouteState } from 'store/transferInput';
+
+import { routes } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -42,15 +43,17 @@ type Props = {
   sortedSupportedRoutes: RouteState[];
   selectedRoute?: string;
   onRouteChange: (route: string) => void;
+  quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
+  isFetchingQuotes: boolean;
 };
 
 const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
   const { classes } = useStyles();
   const [showAll, setShowAll] = useState(false);
 
-  const { amount, routeStates, fromChain, token, toChain, destToken } =
-    useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { amount, routeStates } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -63,20 +66,6 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
     return routeStates.filter((rs) => rs.supported);
   }, [routeStates]);
-
-  const supportedRoutesNames = useMemo(
-    () => supportedRoutes.map((r) => r.name),
-    [supportedRoutes],
-  );
-
-  const { quotesMap, isFetching } = useRoutesQuotesBulk(supportedRoutesNames, {
-    amount,
-    sourceChain: fromChain,
-    sourceToken: token,
-    destChain: toChain,
-    destToken,
-    nativeGas: toNativeToken,
-  });
 
   const walletsConnected = useMemo(
     () => !!sendingWallet.address && !!receivingWallet.address,
@@ -125,7 +114,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
       {renderRoutes.map(({ name }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
-        const quoteResult = quotesMap[name];
+        const quoteResult = props.quotes[name];
         const quote = quoteResult?.success ? quoteResult : undefined;
         // Default message added as precaution, as 'Error' type cannot be trusted
         const quoteError =
@@ -141,7 +130,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
             isSelected={isSelected && !quoteError}
             onSelect={props.onRouteChange}
             quote={quote}
-            isFetchingQuote={isFetching}
+            isFetchingQuote={props.isFetchingQuotes}
           />
         );
       })}

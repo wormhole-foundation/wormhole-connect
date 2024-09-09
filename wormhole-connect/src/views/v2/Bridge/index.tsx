@@ -19,7 +19,7 @@ import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import useSupportedRoutes from 'hooks/useSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
-import useComputeQuote from 'hooks/useComputeQuote';
+import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
 import {
   selectFromChain,
@@ -130,20 +130,6 @@ const Bridge = () => {
 
   const sortedSupportedRoutes = useSortedSupportedRoutes();
 
-  // Set selectedRoute if the route is auto-selected
-  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
-  useEffect(() => {
-    const validRoutes = sortedSupportedRoutes.filter((rs) => rs.supported);
-    const autoselectedRoute = route || validRoutes[0]?.name;
-
-    // avoids overwriting selected route
-    if (!autoselectedRoute || !!selectedRoute) return;
-
-    const routeState = validRoutes?.find((rs) => rs.name === autoselectedRoute);
-
-    if (routeState) setSelectedRoute(routeState.name);
-  }, [route, sortedSupportedRoutes]);
-
   // Compute and set source tokens
   const { isFetching: isFetchingSupportedSourceTokens } =
     useComputeSourceTokens({
@@ -163,16 +149,36 @@ const Bridge = () => {
       route: selectedRoute,
     });
 
-  // Compute the quotes for this route
-  const { isFetching: isFetchingQuote } = useComputeQuote({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-    route: selectedRoute,
-    toNativeToken,
-  });
+  const { quotesMap, isFetching: isFetchingQuotes } = useRoutesQuotesBulk(
+    sortedSupportedRoutes.map((r) => r.name),
+    {
+      amount,
+      sourceChain,
+      sourceToken,
+      destChain,
+      destToken,
+      nativeGas: toNativeToken,
+    },
+  );
+
+  // Set selectedRoute if the route is auto-selected
+  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
+  useEffect(() => {
+    const validRoutes = sortedSupportedRoutes.filter((rs) => rs.supported);
+
+    const routesWithSuccessfulQuote = validRoutes.filter(
+      (rs) => quotesMap[rs.name]?.success,
+    );
+
+    const autoselectedRoute = route || routesWithSuccessfulQuote[0]?.name;
+
+    // avoids overwriting selected route
+    if (!autoselectedRoute || !!selectedRoute) return;
+
+    const routeState = validRoutes?.find((rs) => rs.name === autoselectedRoute);
+
+    if (routeState) setSelectedRoute(routeState.name);
+  }, [route, sortedSupportedRoutes, quotesMap]);
 
   // Pre-fetch available routes
   useSupportedRoutes();
@@ -366,7 +372,7 @@ const Bridge = () => {
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={!isValid || isFetchingQuote || !supportedRouteSelected}
+      disabled={!isValid || isFetchingQuotes || !supportedRouteSelected}
       onClick={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);
@@ -396,6 +402,8 @@ const Bridge = () => {
         sortedSupportedRoutes={sortedSupportedRoutes}
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}
+        quotes={quotesMap}
+        isFetchingQuotes={isFetchingQuotes}
       />
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}
