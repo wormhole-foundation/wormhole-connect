@@ -67,10 +67,6 @@ const AmountInput = (props: Props) => {
   } = useSelector((state: RootState) => state.transferInput);
 
   const [amountLocal, setAmountLocal] = useState(amount);
-  const [validationResult, setValidationResult] = useState('');
-
-  // Debouncing validation to prevent false-positive results while user is still typing
-  const [debouncedValidationResult] = useDebounce(validationResult, 500);
 
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
@@ -83,22 +79,21 @@ const AmountInput = (props: Props) => {
     [balances, sourceToken],
   );
 
+  const validationResult = useMemo(
+    () => validateAmount(amountLocal, tokenBalance, getMaxAmt(route)),
+    [amountLocal, tokenBalance, route],
+  );
+
+  // Debouncing validation to prevent false-positive results while user is still typing
+  const [debouncedValidationResult] = useDebounce(validationResult, 500);
+
   useEffect(() => {
-    // Validation for the amount value
-    const amountValidation = validateAmount(
-      amountLocal,
-      tokenBalance,
-      getMaxAmt(route),
-    );
-
-    setValidationResult(amountValidation);
-
     // Update the redux state only when the amount is valid
     // This will prevent unnecessary API calls triggered by an amount change
-    if (!amountValidation) {
+    if (!validationResult) {
       dispatch(setAmount(amountLocal));
     }
-  }, [amountLocal, route, tokenBalance]);
+  }, [amountLocal, validationResult]);
 
   const isInputDisabled = useMemo(
     () => !sourceChain || !sourceToken,
