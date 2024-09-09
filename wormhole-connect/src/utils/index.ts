@@ -309,7 +309,6 @@ export const calculateUSDPriceRaw = (
 
   const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
   if (usdPrice > 0) {
-    console.log(amount, usdPrice);
     return Number.parseFloat(`${amount}`) * usdPrice;
   }
 };
