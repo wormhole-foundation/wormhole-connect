@@ -6,6 +6,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { RoutesConfig } from 'config/routes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 
 import type { RootState } from 'store';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
@@ -93,6 +94,17 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
     return selectedRoute ? [selectedRoute] : sortedSupportedRoutes.slice(0, 1);
   }, [showAll, sortedSupportedRoutes]);
+
+  if (walletsConnected && supportedRoutes.length === 0 && Number(amount) > 0) {
+    return (
+      <AlertBannerV2
+        error
+        show
+        content="No route found for this transaction"
+        style={{ justifyContent: 'center' }}
+      />
+    );
+  }
 
   if (supportedRoutes.length === 0 || !walletsConnected) {
     return <></>;
