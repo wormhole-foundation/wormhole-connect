@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDebounce } from 'use-debounce';
-import { calculateUSDPriceRaw } from 'utils';
 
 import { RouteState, setRoutes } from 'store/transferInput';
 
@@ -11,8 +10,6 @@ import { getTokenDetails } from 'telemetry';
 
 const useAvailableRoutes = (): void => {
   const dispatch = useDispatch();
-
-  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
 
   const { token, destToken, fromChain, toChain, amount } = useSelector(
     (state: RootState) => state.transferInput,
@@ -29,24 +26,9 @@ const useAvailableRoutes = (): void => {
 
     let isActive = true;
 
-    const tokenConfig = config.tokens[token];
-    const usdAmount = calculateUSDPriceRaw(
-      debouncedAmount,
-      usdPrices.data,
-      tokenConfig,
-    );
-
     const getSupportedRoutes = async () => {
       let routes: RouteState[] = [];
       await config.routes.forEach(async (name, route) => {
-        if (
-          usdAmount !== undefined &&
-          usdAmount > 1000 &&
-          name === 'MayanSwap'
-        ) {
-          return false;
-        }
-
         let supported = false;
 
         try {
