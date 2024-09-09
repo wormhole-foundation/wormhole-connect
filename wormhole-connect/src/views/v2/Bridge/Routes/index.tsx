@@ -138,7 +138,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
             key={name}
             route={routeConfig}
             error={quoteError}
-            isSelected={isSelected}
+            isSelected={isSelected && !quoteError}
             onSelect={props.onRouteChange}
             quote={quote}
             isFetchingQuote={isFetching}

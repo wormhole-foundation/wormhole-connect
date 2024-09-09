@@ -298,7 +298,7 @@ const SingleRoute = (props: Props) => {
         {receiveAmountTrunc} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [destToken, receiveAmountTrunc]);
+  }, [destToken, receiveAmountTrunc, props.error]);
 
   const routeCardSubHeader = useMemo(() => {
     if (props.error || !destChain) {
