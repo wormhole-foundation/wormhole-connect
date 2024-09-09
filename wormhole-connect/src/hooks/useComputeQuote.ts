@@ -61,15 +61,16 @@ const useComputeQuote = (props: Props): returnProps => {
           return;
         }
 
-        const r = config.routes.get(route);
-        const quote = await r.computeQuote(
-          amount,
-          sourceToken,
-          destToken,
-          sourceChain,
-          destChain,
-          { nativeGas: toNativeToken },
-        );
+        const quote = (
+          await config.routes.getQuotes([route], {
+            amount,
+            sourceToken,
+            destToken,
+            sourceChain,
+            destChain,
+            nativeGas: toNativeToken,
+          })
+        )[0];
 
         if (!quote.success) {
           if (isActive) {

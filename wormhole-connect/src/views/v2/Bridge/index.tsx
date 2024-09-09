@@ -17,7 +17,7 @@ import PoweredByIcon from 'icons/PoweredBy';
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import useAvailableRoutes from 'hooks/useAvailableRoutes';
+import useSupportedRoutes from 'hooks/useSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import useComputeQuote from 'hooks/useComputeQuote';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
@@ -133,9 +133,7 @@ const Bridge = () => {
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    const validRoutes = sortedSupportedRoutes.filter(
-      (rs) => rs.supported && rs.available,
-    );
+    const validRoutes = sortedSupportedRoutes.filter((rs) => rs.supported);
     const autoselectedRoute = route || validRoutes[0]?.name;
 
     // avoids overwriting selected route
@@ -177,7 +175,7 @@ const Bridge = () => {
   });
 
   // Pre-fetch available routes
-  useAvailableRoutes();
+  useSupportedRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
@@ -357,11 +355,9 @@ const Bridge = () => {
     selectedRoute &&
     Number(amount) > 0;
 
-  const availableRouteSelected = useMemo(
+  const supportedRouteSelected = useMemo(
     () =>
-      routeStates?.find?.(
-        (rs) => rs.name === selectedRoute && !!rs.available && !!rs.supported,
-      ),
+      routeStates?.find?.((rs) => rs.name === selectedRoute && !!rs.supported),
     [routeStates, selectedRoute],
   );
 
@@ -370,7 +366,7 @@ const Bridge = () => {
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={!isValid || isFetchingQuote || !availableRouteSelected}
+      disabled={!isValid || isFetchingQuote || !supportedRouteSelected}
       onClick={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);

@@ -122,7 +122,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
   return (
     <>
-      {renderRoutes.map(({ name, available, availabilityError }) => {
+      {renderRoutes.map(({ name }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
         const quoteResult = quotesMap[name];
@@ -137,8 +137,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
           <SingleRoute
             key={name}
             route={routeConfig}
-            available={available}
-            error={availabilityError || quoteError}
+            error={quoteError}
             isSelected={isSelected}
             onSelect={props.onRouteChange}
             quote={quote}

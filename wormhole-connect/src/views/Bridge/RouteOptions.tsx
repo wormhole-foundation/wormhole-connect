@@ -17,7 +17,7 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import Price from 'components/Price';
 import { finality, Chain } from '@wormhole-foundation/sdk';
-import useAvailableRoutes from 'hooks/useAvailableRoutes';
+import useSupportedRoutes from 'hooks/useSupportedRoutes';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -353,13 +353,12 @@ function RouteOptions() {
     (state: RootState) => state.transferInput,
   );
 
-  useAvailableRoutes();
+  useSupportedRoutes();
 
   const onSelect = useCallback(
     (value: string) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
-        const route = routeStates.find((rs) => rs.name === value);
-        if (route?.available) dispatch(setTransferRoute(value));
+        dispatch(setTransferRoute(value));
       }
     },
     [routeStates, dispatch],
@@ -384,13 +383,11 @@ function RouteOptions() {
       controlStyle={CollapseControlStyle.None}
     >
       <Options active={route} onSelect={onSelect} collapsable collapsed={false}>
-        {allRoutes.map(({ name, available }) => {
+        {allRoutes.map(({ name }) => {
           return {
             key: name,
-            disabled: !available,
-            child: (
-              <RouteOption disabled={!available} route={RoutesConfig[name]} />
-            ),
+            disabled: false,
+            child: <RouteOption disabled={false} route={RoutesConfig[name]} />,
           };
         })}
       </Options>

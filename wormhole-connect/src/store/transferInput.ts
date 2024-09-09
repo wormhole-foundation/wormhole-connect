@@ -105,8 +105,6 @@ export type TransferValidations = {
 export type RouteState = {
   name: string;
   supported: boolean;
-  available: boolean;
-  availabilityError?: string;
 };
 
 export interface TransferInputState {
