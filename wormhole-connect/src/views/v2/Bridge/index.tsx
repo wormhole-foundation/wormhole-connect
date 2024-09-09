@@ -170,14 +170,20 @@ const Bridge = () => {
       (rs) => quotesMap[rs.name]?.success,
     );
 
-    const autoselectedRoute = route || routesWithSuccessfulQuote[0]?.name;
+    if (routesWithSuccessfulQuote.length === 0) {
+      setSelectedRoute('');
+    } else {
+      const autoselectedRoute = route || routesWithSuccessfulQuote[0]?.name;
 
-    // avoids overwriting selected route
-    if (!autoselectedRoute || !!selectedRoute) return;
+      // avoids overwriting selected route
+      if (!autoselectedRoute || !!selectedRoute) return;
 
-    const routeState = validRoutes?.find((rs) => rs.name === autoselectedRoute);
+      const routeState = validRoutes?.find(
+        (rs) => rs.name === autoselectedRoute,
+      );
 
-    if (routeState) setSelectedRoute(routeState.name);
+      if (routeState) setSelectedRoute(routeState.name);
+    }
   }, [route, sortedSupportedRoutes, quotesMap]);
 
   // Pre-fetch available routes
