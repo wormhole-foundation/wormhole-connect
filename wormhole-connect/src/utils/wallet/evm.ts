@@ -2,8 +2,9 @@ import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
   InjectedWallet,
+  InjectedWallets,
   WalletConnectWallet,
-} from '@kev1n-peters/wallet-aggregator-evm';
+} from '@xlabs-libs/wallet-aggregator-evm';
 
 import {
   EvmUnsignedTransaction,
@@ -13,8 +14,14 @@ import { Network } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 
+const injectedWallets = [
+  InjectedWallets.PhantomWallet,
+  InjectedWallets.BackpackWallet,
+].reduce((acc, name) => ({ [name]: new InjectedWallet({ name }), ...acc }), {});
+
 export const wallets = {
   injected: new InjectedWallet(),
+  ...injectedWallets,
   ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
