@@ -93,7 +93,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
       <AlertBannerV2
         error
         show
-        content="No bridging route found for this transaction."
+        content="No route found for this transaction"
         style={{ justifyContent: 'center' }}
       />
     );
