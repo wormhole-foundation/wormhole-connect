@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
@@ -66,6 +66,7 @@ const AmountInput = (props: Props) => {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
+  const [amountLocal, setAmountLocal] = useState(amount);
   const [validationResult, setValidationResult] = useState('');
 
   // Debouncing validation to prevent false-positive results while user is still typing
@@ -81,6 +82,23 @@ const AmountInput = (props: Props) => {
     () => balances?.[sourceToken]?.balance || '',
     [balances, sourceToken],
   );
+
+  useEffect(() => {
+    // Validation for the amount value
+    const amountValidation = validateAmount(
+      amountLocal,
+      tokenBalance,
+      getMaxAmt(route),
+    );
+
+    setValidationResult(amountValidation);
+
+    // Update the redux state only when the amount is valid
+    // This will prevent unnecessary API calls triggered by an amount change
+    if (!amountValidation) {
+      dispatch(setAmount(amountLocal));
+    }
+  }, [amountLocal, route, tokenBalance]);
 
   const isInputDisabled = useMemo(
     () => !sourceChain || !sourceToken,
@@ -127,26 +145,10 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
-  // Update token amount in both local and Redux states
+  // Update token amount in local state
   const onAmountChange = useCallback(
-    (e: any) => {
-      const { value } = e.target;
-
-      if (value === amount) {
-        return;
-      }
-
-      // Validation for the amount value
-      const amountValidation = validateAmount(
-        value,
-        tokenBalance,
-        getMaxAmt(route),
-      );
-
-      dispatch(setAmount(value));
-      setValidationResult(amountValidation);
-    },
-    [amount, route, tokenBalance],
+    (e: any) => setAmountLocal(e.target?.value),
+    [],
   );
 
   return (
@@ -171,7 +173,7 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={amount}
+            value={amountLocal}
             onChange={onAmountChange}
             onWheel={(e) => {
               // IMPORTANT: We need to prevent the scroll behavior on number inputs.
