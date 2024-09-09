@@ -37,6 +37,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: '16px 20px',
+    ':last-child': {
+      padding: '16px 20px',
+    },
   },
   chainSelector: {
     display: 'flex',
