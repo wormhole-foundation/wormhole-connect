@@ -334,6 +334,9 @@ const SingleRoute = (props: Props) => {
     if (typeof props.onSelect !== 'function') {
       return 'auto';
     }
+    if (props.error) {
+      return 'not-allowed';
+    }
 
     return 'pointer';
   }, [props.onSelect]);
@@ -364,7 +367,9 @@ const SingleRoute = (props: Props) => {
         }}
       >
         <CardActionArea
-          disabled={typeof props.onSelect !== 'function'}
+          disabled={
+            typeof props.onSelect !== 'function' || props.error !== undefined
+          }
           disableTouchRipple
           onClick={() => {
             props.onSelect?.(props.route.name);
