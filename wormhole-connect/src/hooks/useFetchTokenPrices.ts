@@ -43,7 +43,7 @@ export const useFetchTokenPrices = (): void => {
             }api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=usd${
               !config.coinGeckoApiKey
                 ? ''
-                : `?x_cg_pro_api_key=${config.coinGeckoApiKey}`
+                : `&x_cg_pro_api_key=${config.coinGeckoApiKey}`
             }`,
             { signal, headers },
           );
