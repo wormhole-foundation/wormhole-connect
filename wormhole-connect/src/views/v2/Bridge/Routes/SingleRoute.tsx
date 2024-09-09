@@ -339,7 +339,7 @@ const SingleRoute = (props: Props) => {
     }
 
     return 'pointer';
-  }, [props.onSelect]);
+  }, [props.onSelect, props.error]);
 
   if (isEmptyObject(props.route)) {
     return <></>;
