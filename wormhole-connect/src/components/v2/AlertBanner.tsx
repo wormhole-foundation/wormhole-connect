@@ -21,6 +21,7 @@ type Props = {
   error?: boolean;
   style?: CSSProperties;
   testId?: string;
+  className?: string;
 };
 
 function AlertBanner(props: Props) {
@@ -36,7 +37,11 @@ function AlertBanner(props: Props) {
   }
 
   return (
-    <Collapse in={props.show && !!props.content} unmountOnExit>
+    <Collapse
+      className={props.className}
+      in={props.show && !!props.content}
+      unmountOnExit
+    >
       <div
         className={classes.container}
         style={props.style || {}}
