@@ -128,7 +128,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       if (approxInputUsdValue && approxOutputUsdValue) {
         const approxUsdNetworkCost = approxInputUsdValue - approxOutputUsdValue;
 
-        if (!isNaN(approxUsdNetworkCost) && approxInputUsdValue > 0) {
+        if (!isNaN(approxUsdNetworkCost) && approxUsdNetworkCost > 0) {
           (quotesMap['MayanSwap']! as routes.Quote<Network>).relayFee = {
             token: {
               chain: 'Solana' as Chain,
