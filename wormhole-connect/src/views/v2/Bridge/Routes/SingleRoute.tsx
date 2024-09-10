@@ -46,6 +46,7 @@ type Props = {
 const SingleRoute = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
+  const routeConfig = config.routes.get(props.route.name);
 
   const {
     toChain: destChain,
@@ -64,6 +65,10 @@ const SingleRoute = (props: Props) => {
   const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
 
   const relayerFee = useMemo(() => {
+    if (!routeConfig.AUTOMATIC_DEPOSIT) {
+      return <>You pay gas on {destChain}</>;
+    }
+
     if (!quote?.relayFee) {
       return <></>;
     }
@@ -163,8 +168,6 @@ const SingleRoute = (props: Props) => {
     if (!props.route) {
       return false;
     }
-
-    const routeConfig = config.routes.get(props.route.name);
 
     return !routeConfig.AUTOMATIC_DEPOSIT;
   }, [props.route.name]);
