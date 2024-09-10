@@ -37,10 +37,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  errorContainer: {
-    display: 'flex',
-    alignContent: 'center',
-    marginTop: '8px',
+  inputError: {
+    marginTop: '12px',
   },
 }));
 
@@ -169,7 +167,7 @@ const AmountInput = (props: Props) => {
             inputProps={{
               style: {
                 color: debouncedValidationResult
-                  ? theme.palette.error.main
+                  ? theme.palette.error.light
                   : theme.palette.text.primary,
                 fontSize: 24,
                 height: '40px',
@@ -207,6 +205,8 @@ const AmountInput = (props: Props) => {
         error
         content={debouncedValidationResult}
         show={!!debouncedValidationResult}
+        color={theme.palette.error.light}
+        className={classes.inputError}
       />
     </div>
   );
