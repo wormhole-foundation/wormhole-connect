@@ -39,16 +39,16 @@ export const validateToChain = (
     return 'Source chain and destination chain cannot be the same';
   if (
     config.bridgeDefaults &&
-    config.bridgeDefaults.requiredNetwork &&
+    config.bridgeDefaults.requiredChain &&
     chain &&
     fromChain
   ) {
-    const { requiredNetwork } = config.bridgeDefaults;
-    const requiredConfig = config.chains[requiredNetwork];
+    const { requiredChain } = config.bridgeDefaults;
+    const requiredConfig = config.chains[requiredChain];
     if (
       requiredConfig &&
-      chain !== requiredNetwork &&
-      fromChain !== requiredNetwork
+      chain !== requiredChain &&
+      fromChain !== requiredChain
     )
       return `Must select ${requiredConfig.displayName} as either the source or destination chain`;
   }

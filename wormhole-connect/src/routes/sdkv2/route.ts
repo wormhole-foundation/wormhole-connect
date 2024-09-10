@@ -82,7 +82,7 @@ export class SDKv2Route {
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
 
-    const supportedChains = this.rc.supportedChains(config.v2Network);
+    const supportedChains = this.rc.supportedChains(config.network);
 
     const fromChainSupported = supportedChains.includes(fromContext.chain);
     const toChainSupported = supportedChains.includes(toContext.chain);
@@ -133,7 +133,7 @@ export class SDKv2Route {
   }
 
   isSupportedChain(chain: Chain): boolean {
-    return this.rc.supportedChains(config.v2Network).includes(chain);
+    return this.rc.supportedChains(config.network).includes(chain);
   }
 
   async supportedSourceTokens(

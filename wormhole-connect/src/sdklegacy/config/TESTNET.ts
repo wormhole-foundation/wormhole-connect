@@ -110,7 +110,7 @@ const TESTNET: { [chain in Chain]?: ChainConfig } = {
  * default testnet chain config
  */
 const TESTNET_CONFIG: WormholeConfig = {
-  env: 'testnet',
+  env: 'Testnet',
   rpcs: {
     Bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',
     Avalanche: 'https://api.avax-test.network/ext/bc/C/rpc',

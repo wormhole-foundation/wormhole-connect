@@ -1,6 +1,4 @@
-import { Chain, ChainId } from '@wormhole-foundation/sdk';
-
-export type Network = 'mainnet' | 'testnet' | 'devnet';
+import { Network, Chain, ChainId } from '@wormhole-foundation/sdk';
 
 export const NATIVE = 'native';
 

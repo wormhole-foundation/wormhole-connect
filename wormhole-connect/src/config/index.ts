@@ -1,22 +1,27 @@
-import { WormholeContext, WormholeConfig, ChainResourceMap } from 'sdklegacy';
+import {
+  WormholeContext as LegacyWormholeContext,
+  WormholeConfig,
+  ChainResourceMap,
+} from 'sdklegacy';
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import { Network, InternalConfig, WrappedTokenAddressCache } from './types';
+import { InternalConfig, WrappedTokenAddressCache } from './types';
 import {
   mergeCustomTokensConfig,
   mergeCustomWrappedTokens,
   validateDefaults,
 } from './utils';
 import { wrapEventHandler } from './events';
+import { capitalize } from './utils';
 
 import { SDKConverter } from './converter';
 
 import {
   wormhole as getWormholeV2,
   Wormhole as WormholeV2,
-  Network as NetworkV2,
+  Network,
   Token as TokenV2,
   ChainTokens as ChainTokensV2,
   WormholeConfigOverrides as WormholeConfigOverridesV2,
@@ -37,16 +42,18 @@ import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
-): InternalConfig<NetworkV2> {
-  const network = (
+): InternalConfig<Network> {
+  const network = capitalize(
     customConfig?.network ||
-    customConfig?.env || // TODO remove; deprecated
-    import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
-    'mainnet'
-  ).toLowerCase() as Network;
+      customConfig?.env || // TODO remove; deprecated
+      import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
+      'Mainnet',
+  ) as Network;
 
-  if (!['mainnet', 'testnet', 'devnet'].includes(network))
-    throw new Error(`Invalid env "${network}"`);
+  if (!['Mainnet', 'Testnet', 'Devnet'].includes(network))
+    throw new Error(
+      `Invalid env "${network}": Use "Testnet", "Devnet", or "Mainnet"`,
+    );
 
   const networkData = { MAINNET, DEVNET, TESTNET }[network.toUpperCase()]!;
 
@@ -60,7 +67,7 @@ export function buildConfig(
     customConfig?.wrappedTokens,
   );
 
-  const sdkConfig = WormholeContext.getConfig(network);
+  const sdkConfig = LegacyWormholeContext.getConfig(network);
 
   const rpcs = Object.assign(
     {},
@@ -69,23 +76,22 @@ export function buildConfig(
     customConfig?.rpcs,
   );
 
-  const wh = getWormholeContext(network, sdkConfig, rpcs);
+  const whLegacy = getLegacyWormholeContext(network, sdkConfig, rpcs);
 
   if (customConfig?.bridgeDefaults) {
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
   }
 
-  const sdkConverter = new SDKConverter(wh);
+  const sdkConverter = new SDKConverter(whLegacy);
 
   return {
-    wh,
+    whLegacy,
     sdkConfig,
     sdkConverter,
 
-    v2Network: sdkConverter.toNetworkV2(network),
-
     network,
-    isMainnet: network === 'mainnet',
+    isMainnet: network === 'Mainnet',
+
     // External resources
     rpcs,
     rest: Object.assign(
@@ -192,12 +198,12 @@ const config = buildConfig();
 export default config;
 
 // TODO SDKV2: REMOVE
-export function getWormholeContext(
+export function getLegacyWormholeContext(
   network: Network,
   sdkConfig: WormholeConfig,
   rpcs: ChainResourceMap,
-): WormholeContext {
-  const wh: WormholeContext = new WormholeContext(network, {
+): LegacyWormholeContext {
+  const wh: LegacyWormholeContext = new LegacyWormholeContext(network, {
     ...sdkConfig,
     ...{ rpcs },
   });
@@ -205,25 +211,27 @@ export function getWormholeContext(
   return wh;
 }
 
-export function getDefaultWormholeContext(network: Network): WormholeContext {
-  const sdkConfig = WormholeContext.getConfig(network);
-  const networkData = { mainnet: MAINNET, devnet: DEVNET, testnet: TESTNET }[
+export function getDefaultWormholeContext(
+  network: Network,
+): LegacyWormholeContext {
+  const sdkConfig = LegacyWormholeContext.getConfig(network);
+  const networkData = { Mainnet: MAINNET, Devnet: DEVNET, Testnet: TESTNET }[
     network
   ]!;
 
   const rpcs = Object.assign({}, sdkConfig.rpcs, networkData.rpcs);
 
-  return getWormholeContext(network, sdkConfig, rpcs);
+  return getLegacyWormholeContext(network, sdkConfig, rpcs);
 }
 
-export async function getWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
-  if (config.v2Wormhole) return config.v2Wormhole;
-  config.v2Wormhole = await newWormholeContextV2();
-  return config.v2Wormhole;
+export async function getWormholeContextV2(): Promise<WormholeV2<Network>> {
+  if (config._v2Wormhole) return config._v2Wormhole;
+  config._v2Wormhole = await newWormholeContextV2();
+  return config._v2Wormhole;
 }
 
-export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
-  const v2Config: WormholeConfigOverridesV2<NetworkV2> = { chains: {} };
+export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
+  const v2Config: WormholeConfigOverridesV2<Network> = { chains: {} };
 
   for (const key in config.chains) {
     const chain = key as Chain;
@@ -261,7 +269,7 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
   }
 
   return await getWormholeV2(
-    config.v2Network,
+    config.network,
     [evm, solana, aptos, cosmwasm, sui, algorand],
     v2Config,
   );
@@ -270,7 +278,7 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
 // setConfig can be called afterwards to override the default config with integrator-provided config
 
 export function setConfig(customConfig?: WormholeConnectConfig) {
-  const newConfig: InternalConfig<NetworkV2> = buildConfig(customConfig);
+  const newConfig: InternalConfig<Network> = buildConfig(customConfig);
 
   // We overwrite keys in the existing object so the references to the config
   // imported elsewhere point to the new values

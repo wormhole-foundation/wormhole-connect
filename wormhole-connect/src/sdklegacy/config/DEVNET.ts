@@ -32,7 +32,7 @@ const DEVNET: { [chain in Chain]?: ChainConfig } = {
  * default devnet chain config
  */
 const DEVNET_CONFIG: WormholeConfig = {
-  env: 'devnet',
+  env: 'Devnet',
   rpcs: {
     Ethereum: 'http://localhost:8545',
     Wormchain: 'http://localhost:26659',

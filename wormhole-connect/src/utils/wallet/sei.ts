@@ -1,6 +1,6 @@
 // This module is only to be included in other modules using import()
 // so that it loads dynamically as a separate bundle
-import { Network } from 'config/types';
+import { Network } from '@wormhole-foundation/sdk';
 import config from 'config';
 import {
   SeiChainId,
@@ -11,7 +11,7 @@ import {
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 export const getSeiChainId = (env: Network) =>
-  env === 'mainnet' ? 'pacific-1' : 'atlantic-2';
+  env === 'Mainnet' ? 'pacific-1' : 'atlantic-2';
 
 export async function fetchOptions() {
   const seiWallets = getSupportedWallets({

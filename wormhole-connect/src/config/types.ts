@@ -9,7 +9,7 @@ import {
 
 // SDKv2
 import {
-  Network as NetworkV2,
+  Network,
   Wormhole as WormholeV2,
   Chain,
   TokenAddress as TokenAddressV2,
@@ -63,15 +63,11 @@ export enum Icon {
 // Used in bridging components
 export type TransferSide = 'source' | 'destination';
 
-export type Network = 'mainnet' | 'testnet' | 'devnet';
-
-// TODO: preference is fromChain/toChain, but want to keep backwards compatibility
-// TOOD: rename to fromChain/toChain
 export interface BridgeDefaults {
-  fromNetwork?: Chain;
-  toNetwork?: Chain;
-  token?: string;
-  requiredNetwork?: Chain;
+  fromChain?: Chain;
+  toChain?: Chain;
+  tokenKey?: string;
+  requiredChain?: Chain;
 }
 
 export interface ExtendedTransferDetails extends TransferDetails {
@@ -155,17 +151,16 @@ export interface WormholeConnectConfig {
 }
 
 // This is the exported config value used throughout the code base
-export interface InternalConfig<N extends NetworkV2> {
-  wh: WormholeContext;
+export interface InternalConfig<N extends Network> {
+  network: N;
+  // Cache. To be accessed via getWormholeContextV2(), not directly
+  _v2Wormhole?: WormholeV2<N>;
+
+  // Legacy TODO SDKV2 remove
+  whLegacy: WormholeContext;
 
   sdkConfig: WormholeConfig;
   sdkConverter: SDKConverter;
-
-  network: Network;
-
-  // SDkv2
-  v2Network: N;
-  v2Wormhole?: WormholeV2<N>; // cache
 
   isMainnet: boolean;
 

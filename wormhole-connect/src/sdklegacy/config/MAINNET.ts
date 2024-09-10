@@ -116,7 +116,7 @@ const MAINNET: { [chain in Chain]?: ChainConfig } = {
  * default mainnet chain config
  */
 const MAINNET_CONFIG: WormholeConfig = {
-  env: 'mainnet',
+  env: 'Mainnet',
   rpcs: {
     Ethereum: 'https://rpc.ankr.com/eth',
     Solana: 'https://solana-mainnet.rpc.extrnode.com',
