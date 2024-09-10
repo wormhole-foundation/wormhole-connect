@@ -49,6 +49,13 @@ export const formatBalance = (
   });
 };
 
+export const formatStringAmount = (amountStr = '0'): string => {
+  const amountNum = parseFloat(amountStr);
+  return amountNum.toLocaleString('en', {
+    maximumFractionDigits: 4,
+  });
+};
+
 // for use in USDC or other tokens that have versions on many chains
 // returns token key
 export const getNativeVersionOfToken = (

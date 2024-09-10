@@ -24,6 +24,7 @@ import { getExplorerLink } from 'utils/sdkv2';
 
 import type { RootState } from 'store';
 import { toFixedDecimals } from 'utils/balance';
+import { formatStringAmount } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -77,6 +78,8 @@ const TransactionDetails = () => {
 
     const senderAddress = sender ? trimAddress(sender) : '';
 
+    const formattedAmount = formatStringAmount(amount);
+
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
         <Badge
@@ -95,7 +98,7 @@ const TransactionDetails = () => {
         </Badge>
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {amount} {sourceTokenConfig.symbol}
+            {formattedAmount} {sourceTokenConfig.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {tokenPrices.isFetching ? (
@@ -127,6 +130,8 @@ const TransactionDetails = () => {
 
     const recipientAddress = recipient ? trimAddress(recipient) : '';
 
+    const formattedReceiveAmount = formatStringAmount(receiveAmount);
+
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
         <Badge
@@ -143,7 +148,7 @@ const TransactionDetails = () => {
         </Badge>
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {receiveAmount} {destTokenConfig.symbol}
+            {formattedReceiveAmount} {destTokenConfig.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {tokenPrices.isFetching ? (
