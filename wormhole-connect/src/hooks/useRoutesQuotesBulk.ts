@@ -134,7 +134,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
               chain: 'Solana' as Chain,
               address: Wormhole.parseAddress(
                 'Solana',
-                circle.usdcContract.get('Mainnet', 'Solana'),
+                circle.usdcContract.get('Mainnet', 'Solana') as string,
               ),
             },
             amount: amount.parse(amount.denoise(approxUsdNetworkCost, 6), 6),
