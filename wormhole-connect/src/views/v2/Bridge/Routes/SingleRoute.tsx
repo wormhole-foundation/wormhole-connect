@@ -109,7 +109,7 @@ const SingleRoute = (props: Props) => {
       props.route.name === 'MayanSwap' &&
       quote.details?.type?.toLowerCase() === 'swift'
     ) {
-      feeValue = <Typography>{`$(${feePrice})`}</Typography>;
+      feeValue = <Typography>{`${feePrice}`}</Typography>;
     }
 
     return (
