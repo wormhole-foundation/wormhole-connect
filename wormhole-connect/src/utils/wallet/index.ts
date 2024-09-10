@@ -322,11 +322,7 @@ export const postVaa = async (
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
-  return (
-    ready !== WalletState.Unsupported &&
-    ready !== WalletState.NotDetected &&
-    ready !== WalletState.Inactive
-  );
+  return ready !== WalletState.Unsupported && ready !== WalletState.NotDetected;
 };
 
 export type WalletData = {
