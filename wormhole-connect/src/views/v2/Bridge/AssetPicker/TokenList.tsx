@@ -195,7 +195,7 @@ const TokenList = (props: Props) => {
       }}
       renderFn={(token: TokenConfig) => {
         const balance = balances?.[token.key]?.balance;
-        const disabled = props.wallet?.address && !!balances && !balance;
+        const disabled = !!props.wallet?.address && !!balances && !balance;
 
         return (
           <TokenItem
