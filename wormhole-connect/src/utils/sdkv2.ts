@@ -269,6 +269,7 @@ const parseTokenBridgeReceipt = async (
         txData.recipient = account.owner.toBase58();
       } catch (e) {
         console.error(e);
+        txData.recipient = '';
       }
     } else {
       txData.recipient = payload.to.address.toNative(receipt.to).toString();
@@ -338,6 +339,7 @@ const parseCCTPReceipt = async (
       txData.recipient = account.owner.toBase58();
     } catch (e) {
       console.error(e);
+      txData.recipient = '';
     }
   } else {
     txData.recipient = payload.mintRecipient.toNative(receipt.to).toString();

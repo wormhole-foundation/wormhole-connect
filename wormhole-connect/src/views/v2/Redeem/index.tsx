@@ -102,6 +102,7 @@ const Redeem = () => {
     transferComplete: isTxComplete,
     route: routeName,
     timestamp: txTimestamp,
+    isResumeTx,
   } = useSelector((state: RootState) => state.redeem);
 
   const {
@@ -273,6 +274,13 @@ const Redeem = () => {
   // Checks whether the receiving wallet is currently connected
   const isConnectedToReceivingWallet = useMemo(() => {
     if (!recipient) {
+      // For Solana transfers, the associated token account (ATA) might not exist,
+      // preventing us from retrieving the recipient wallet address.
+      // In such cases, when resuming transfers, we allow the user to connect a wallet
+      // to claim the transfer, which will create the ATA.
+      if (isResumeTx && toChain === 'Solana' && receivingWallet.address) {
+        return true;
+      }
       return false;
     }
 
@@ -285,7 +293,7 @@ const Redeem = () => {
       walletAddress === walletCurrentAddress &&
       walletAddress === recipientAddress
     );
-  }, [receivingWallet, recipient]);
+  }, [receivingWallet, recipient, toChain]);
 
   // Callback for claim action in Manual route transactions
   const handleManualClaim = async () => {
