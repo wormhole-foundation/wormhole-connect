@@ -122,7 +122,7 @@ const Bridge = () => {
     destToken,
     route,
     routeStates,
-    supportedDestTokens,
+    supportedDestTokens: supportedDestTokensBase,
     supportedSourceTokens,
     amount,
     validations,
@@ -227,6 +227,19 @@ const Bridge = () => {
         supportedChains.includes(chain.key),
     );
   }, [config.chainsArr, sourceChain, supportedChains]);
+
+  // Supported tokens for destination chain
+  const supportedDestTokens = useMemo(() => {
+    if (sourceChain && sourceToken) {
+      return supportedDestTokensBase;
+    } else {
+      return config.tokensArr.filter(
+        (tokenConfig) =>
+          tokenConfig.nativeChain === destChain ||
+          tokenConfig.tokenId?.chain === destChain,
+      );
+    }
+  }, [destChain, sourceChain, sourceToken, supportedDestTokensBase]);
 
   // Connect bridge header, which renders any custom overrides for the header
   const header = useMemo(() => {
