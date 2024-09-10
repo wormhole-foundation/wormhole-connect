@@ -293,7 +293,7 @@ const Redeem = () => {
       walletAddress === walletCurrentAddress &&
       walletAddress === recipientAddress
     );
-  }, [receivingWallet, recipient, toChain]);
+  }, [receivingWallet, recipient, toChain, isResumeTx]);
 
   // Callback for claim action in Manual route transactions
   const handleManualClaim = async () => {
