@@ -16,7 +16,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 import { getDisplayName, getExplorerUrl, getWrappedToken } from 'utils';
 import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   tokenListItem: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -34,6 +34,8 @@ const useStyles = makeStyles()(() => ({
     marginLeft: 4,
     height: '10px',
     overflow: 'hidden',
+    color: theme.palette.text.primary,
+    opacity: 0.6,
   },
 }));
 

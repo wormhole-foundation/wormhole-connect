@@ -30,7 +30,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   otherRoutesToggle: {
     fontSize: 14,
-    color: '#C1BBF6',
+    color: theme.palette.primary.main,
     textDecoration: 'none',
     cursor: 'pointer',
     '&:hover': {

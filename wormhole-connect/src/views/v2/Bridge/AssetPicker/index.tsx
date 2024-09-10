@@ -32,6 +32,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
+    borderRadius: '8px',
   },
   cardContent: {
     display: 'flex',

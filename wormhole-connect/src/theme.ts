@@ -2,11 +2,13 @@ import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
+import purple from '@mui/material/colors/purple';
 import red from '@mui/material/colors/red';
 import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
 
 export type PaletteColor = {
+  25?: string;
   50: string;
   100: string;
   200: string;
@@ -17,10 +19,11 @@ export type PaletteColor = {
   700: string;
   800: string;
   900: string;
-  A100: string;
-  A200: string;
-  A400: string;
-  A700: string;
+  950?: string;
+  A100?: string;
+  A200?: string;
+  A400?: string;
+  A700?: string;
 };
 
 export type WormholeConnectPartialTheme = {
@@ -156,17 +159,50 @@ export const light: WormholeConnectTheme = {
 // wormhole styled theme
 export const dark: WormholeConnectTheme = {
   mode: 'dark',
-  primary: grey,
-  secondary: grey,
+  primary: {
+    25: '#FCFAFF',
+    50: '#F9F5FF',
+    100: '#F4EBFF',
+    200: '#E9D7FE',
+    300: '#D6BBFB',
+    400: '#B692F6',
+    500: '#9E77ED',
+    600: '#7F56D9',
+    700: '#6941C6',
+    800: '#53389E',
+    900: '#42307D',
+    950: '#2C1C5F',
+    A100: purple.A100,
+    A200: purple.A200,
+    A400: purple.A400,
+    A700: purple.A700,
+  },
+  secondary: {
+    25: '#FCFCFD',
+    50: '#F9FAFB',
+    100: '#F2F4F7',
+    200: '#E4E7EC',
+    300: '#D0D5DD',
+    400: '#98A2B3',
+    500: '#667085',
+    600: '#475467',
+    700: '#344054',
+    800: '#1D2939',
+    900: '#101828',
+    950: '#0C111D',
+    A100: grey.A100,
+    A200: grey.A200,
+    A400: grey.A400,
+    A700: grey.A700,
+  },
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: 'black',
+    default: '010101',
   },
   text: {
     primary: '#ffffff',
-    secondary: grey[500],
+    secondary: '#667085',
   },
-  error: red,
   info: {
     50: '#97a5b7',
     100: '#8293a9',
@@ -183,38 +219,59 @@ export const dark: WormholeConnectTheme = {
     A400: '#304C70',
     A700: '#304C70',
   },
-  // success: green,
+  error: {
+    25: '#FFFBFA',
+    50: '#FEF3F2',
+    100: '#FEE4E2',
+    200: '#FECDCA',
+    300: '#FDA29B',
+    400: '#F97066',
+    500: '#F04438',
+    600: '#D92D20',
+    700: '#B42318',
+    800: '#912018',
+    900: '#7A271A',
+    950: '#55160C',
+    A100: red.A100,
+    A200: red.A200,
+    A400: red.A400,
+    A700: red.A700,
+  },
   success: {
-    50: '#66d6cd',
-    100: '#4dcfc4',
-    200: '#33c8bc',
-    300: '#1ac1b4',
-    400: '#01BBAC',
-    500: '#00a89a',
-    600: '#009589',
-    700: '#008278',
-    800: '#007067',
-    900: '#005d56',
-    A100: '#00a89a',
-    A200: '#00a89a',
-    A400: '#00a89a',
-    A700: '#00a89a',
+    25: '#F6FEF9',
+    50: '#ECFDF3',
+    100: '#D1FADF',
+    200: '#A6F4C5',
+    300: '#6CE9A6',
+    400: '#32D583',
+    500: '#12B76A',
+    600: '#039855',
+    700: '#027A48',
+    800: '#05603A',
+    900: '#054F31',
+    950: '#053321',
+    A100: green.A100,
+    A200: green.A200,
+    A400: green.A400,
+    A700: green.A700,
   },
   warning: {
-    50: '#ffe3a4',
-    100: '#ffdd91',
-    200: '#ffd77f',
-    300: '#ffd26d',
-    400: '#ffcc5b',
-    500: '#FFC749',
-    600: '#e5b341',
-    700: '#cc9f3a',
-    800: '#b28b33',
-    900: '#99772b',
-    A100: '#FFC749',
-    A200: '#FFC749',
-    A400: '#FFC749',
-    A700: '#FFC749',
+    25: '#FFFCF5',
+    50: '#FFFAEB',
+    100: '#FEF0C7',
+    200: '#FEDF89',
+    300: '#FEC84B',
+    400: '#FDB022',
+    500: '#F79009',
+    600: '#DC6803',
+    700: '#B54708',
+    800: '#93370D',
+    900: '#7A2E0E',
+    950: '#4E1D09',
+    A100: orange.A100,
+    A200: orange.A200,
+    A400: orange.A400,
+    A700: orange.A700,
   },
   button: {
     primary: '#ffffff' + OPACITY[10],
@@ -240,11 +297,11 @@ export const dark: WormholeConnectTheme = {
     elevation: 'none',
   },
   modal: {
-    background: '#0F1024',
+    background: '#17171D',
   },
   font: {
     primary: '"Inter", sans-serif',
-    header: '"IBM Plex Mono", monospace',
+    header: '"Inter", sans-serif',
   },
   logo: '#ffffff',
 };
