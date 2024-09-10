@@ -1,7 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
-import { Chain, routes } from '@wormhole-foundation/sdk';
+import {
+  Wormhole,
+  Chain,
+  Network,
+  routes,
+  circle,
+  amount,
+} from '@wormhole-foundation/sdk';
 import { QuoteParams } from 'routes/operator';
 import { calculateUSDPriceRaw } from 'utils';
 
@@ -82,17 +89,52 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     [routes.join(), quotes],
   );
 
-  // TODO temporary
+  // TODO temporary logic for beta Mayan support
   const mayanQuote = quotesMap['MayanSwap'];
-  if (usdAmount !== undefined && usdAmount > 1000 && mayanQuote !== undefined) {
-    if (
-      mayanQuote.success &&
-      mayanQuote.details?.type.toLowerCase() === 'swift'
-    ) {
+  if (
+    mayanQuote !== undefined &&
+    mayanQuote.success &&
+    mayanQuote.details?.type.toLowerCase() === 'swift'
+  ) {
+    if (usdAmount !== undefined && usdAmount > 1000) {
+      // Temporarily disallow Swift quotes above $1000
+      // TODO revisit this
       quotesMap['MayanSwap'] = {
         success: false,
         error: new Error('Amount exceeds limit of $1000 USD'),
       };
+    } else {
+      // Under $1000, Swift is allowed. But we have to compute the "relayer fee" ourselves for Swift
+      // because the Mayan API doesn't return any fee info.
+      //
+      // This is calculated by
+      // TODO this code is horrible and would ideally not exist
+
+      const approxInputUsdValue = calculateUSDPriceRaw(
+        params.amount,
+        usdPrices.data,
+        tokenConfig,
+      );
+      const approxOutputUsdValue = calculateUSDPriceRaw(
+        amount.display(mayanQuote.destinationToken.amount),
+        usdPrices.data,
+        config.tokens[params.destToken],
+      );
+
+      if (approxInputUsdValue && approxOutputUsdValue) {
+        const approxUsdNetworkCost = approxInputUsdValue - approxOutputUsdValue;
+
+        (quotesMap['MayanSwap']! as routes.Quote<Network>).relayFee = {
+          token: {
+            chain: 'Solana' as Chain,
+            address: Wormhole.parseAddress(
+              'Solana',
+              circle.usdcContract.get('Mainnet', 'Solana')!,
+            ),
+          },
+          amount: amount.parse(amount.denoise(approxUsdNetworkCost, 6), 6),
+        };
+      }
     }
   }
 
