@@ -30,6 +30,8 @@ type HookReturn = {
   isFetching: boolean;
 };
 
+const MAYAN_SWIFT_LIMIT = 1000; // USD
+
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
@@ -96,20 +98,22 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     mayanQuote.success &&
     mayanQuote.details?.type.toLowerCase() === 'swift'
   ) {
-    if (usdAmount !== undefined && usdAmount > 1000) {
+    // There are two special cases here for Mayan Swift transfers
+    //
+    // 1) Disallow transfers >$1000 (temporary, while in beta)
+    // 2) For transfers <=$1000, calculate network costs manually, because Mayan API doesn't
+    //    expose relayer fee info for Swift quotes.
+    //
+    // TODO all of the code here is horrible and would ideally not exist
+
+    if (usdAmount !== undefined && usdAmount > MAYAN_SWIFT_LIMIT) {
       // Temporarily disallow Swift quotes above $1000
       // TODO revisit this
       quotesMap['MayanSwap'] = {
         success: false,
-        error: new Error('Amount exceeds limit of $1000 USD'),
+        error: new Error(`Amount exceeds limit of $${MAYAN_SWIFT_LIMIT} USD`),
       };
     } else {
-      // Under $1000, Swift is allowed. But we have to compute the "relayer fee" ourselves for Swift
-      // because the Mayan API doesn't return any fee info.
-      //
-      // This is calculated by
-      // TODO this code is horrible and would ideally not exist
-
       const approxInputUsdValue = calculateUSDPriceRaw(
         params.amount,
         usdPrices.data,
