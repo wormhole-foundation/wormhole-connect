@@ -36,6 +36,8 @@ import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -274,14 +276,36 @@ const Redeem = () => {
   // Checks whether the receiving wallet is currently connected
   const isConnectedToReceivingWallet = useMemo(() => {
     if (!recipient) {
-      // For Solana transfers, the associated token account (ATA) might not exist,
-      // preventing us from retrieving the recipient wallet address.
-      // In such cases, when resuming transfers, we allow the user to connect a wallet
-      // to claim the transfer, which will create the ATA.
-      if (isResumeTx && toChain === 'Solana' && receivingWallet.address) {
-        return true;
-      }
       return false;
+    }
+
+    // For Solana transfers, the associated token account (ATA) might not exist,
+    // preventing us from retrieving the recipient wallet address.
+    // In such cases, when resuming transfers, we allow the user to connect a wallet
+    // to claim the transfer, which will create the ATA.
+    if (
+      isResumeTx &&
+      toChain === 'Solana' &&
+      receivingWallet.address &&
+      receivingWallet.address !== recipient &&
+      routeName &&
+      // These routes set the recipient address to the associated token address
+      ['ManualTokenBridge', 'ManualCCTP'].includes(routeName)
+    ) {
+      const receivedToken = config.sdkConverter.toTokenIdV2(
+        config.tokens[receivedTokenKey],
+        'Solana',
+      );
+      const ata = getAssociatedTokenAddressSync(
+        new PublicKey(receivedToken.address.toString()),
+        new PublicKey(receivingWallet.address),
+      );
+      if (!ata.equals(new PublicKey(recipient))) {
+        setClaimError('Not connected to the receiving wallet');
+        return false;
+      }
+      setClaimError('');
+      return true;
     }
 
     const walletAddress = receivingWallet.address.toLowerCase();
@@ -293,7 +317,15 @@ const Redeem = () => {
       walletAddress === walletCurrentAddress &&
       walletAddress === recipientAddress
     );
-  }, [receivingWallet, recipient, toChain, isResumeTx]);
+  }, [
+    receivingWallet,
+    recipient,
+    toChain,
+    isResumeTx,
+    routeName,
+    config,
+    receivedTokenKey,
+  ]);
 
   // Callback for claim action in Manual route transactions
   const handleManualClaim = async () => {
