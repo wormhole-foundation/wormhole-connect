@@ -64,6 +64,7 @@ type Props = {
   setToken: (value: string) => void;
   setChain: (value: Chain) => void;
   wallet: WalletData;
+  isSource: boolean;
 };
 
 const AssetPicker = (props: Props) => {
@@ -199,6 +200,7 @@ const AssetPicker = (props: Props) => {
               props.setToken(key);
               popupState.close();
             }}
+            isSource={props.isSource}
           />
         )}
       </Popover>
