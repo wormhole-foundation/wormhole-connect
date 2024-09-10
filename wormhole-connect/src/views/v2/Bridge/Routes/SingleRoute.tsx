@@ -96,19 +96,28 @@ const SingleRoute = (props: Props) => {
       return <></>;
     }
 
+    let feeValue = isFetchingQuote ? (
+      <CircularProgress size={14} />
+    ) : (
+      <Typography fontSize={14}>{`${toFixedDecimals(relayFee.toString(), 4)} ${
+        feeTokenConfig.symbol
+      } (${feePrice})`}</Typography>
+    );
+
+    // Wesley made me do it
+    if (
+      props.route.name === 'MayanSwap' &&
+      quote.details?.type?.toLowerCase() === 'swift'
+    ) {
+      feeValue = <Typography>{`$(${feePrice})`}</Typography>;
+    }
+
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Network cost
         </Typography>
-        {isFetchingQuote ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{`${toFixedDecimals(
-            relayFee.toString(),
-            4,
-          )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
-        )}
+        {feeValue}
       </Stack>
     );
   }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
