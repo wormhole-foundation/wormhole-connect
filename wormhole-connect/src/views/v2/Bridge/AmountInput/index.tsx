@@ -19,6 +19,7 @@ import { toFixedDecimals } from 'utils/balance';
 import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
+import { usePrevious } from 'utils';
 
 const useStyles = makeStyles()((theme) => ({
   amountContainer: {
@@ -66,6 +67,8 @@ const AmountInput = (props: Props) => {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
+  const prevAmount = usePrevious(amount);
+
   const [amountLocal, setAmountLocal] = useState(amount);
 
   const { balances, isFetching } = useGetTokenBalances(
@@ -94,6 +97,13 @@ const AmountInput = (props: Props) => {
       dispatch(setAmount(amountLocal));
     }
   }, [amountLocal, validationResult]);
+
+  useEffect(() => {
+    // Updating local state when amount has been changed from outside
+    if (amount !== prevAmount && amount !== amountLocal) {
+      setAmountLocal(amount);
+    }
+  }, [amount, prevAmount]);
 
   const isInputDisabled = useMemo(
     () => !sourceChain || !sourceToken,
