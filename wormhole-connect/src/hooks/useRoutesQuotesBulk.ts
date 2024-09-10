@@ -128,16 +128,18 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       if (approxInputUsdValue && approxOutputUsdValue) {
         const approxUsdNetworkCost = approxInputUsdValue - approxOutputUsdValue;
 
-        (quotesMap['MayanSwap']! as routes.Quote<Network>).relayFee = {
-          token: {
-            chain: 'Solana' as Chain,
-            address: Wormhole.parseAddress(
-              'Solana',
-              circle.usdcContract.get('Mainnet', 'Solana')!,
-            ),
-          },
-          amount: amount.parse(amount.denoise(approxUsdNetworkCost, 6), 6),
-        };
+        if (!isNaN(approxUsdNetworkCost) && approxInputUsdValue > 0) {
+          (quotesMap['MayanSwap']! as routes.Quote<Network>).relayFee = {
+            token: {
+              chain: 'Solana' as Chain,
+              address: Wormhole.parseAddress(
+                'Solana',
+                circle.usdcContract.get('Mainnet', 'Solana')!,
+              ),
+            },
+            amount: amount.parse(amount.denoise(approxUsdNetworkCost, 6), 6),
+          };
+        }
       }
     }
   }
