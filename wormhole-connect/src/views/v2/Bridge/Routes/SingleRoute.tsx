@@ -105,10 +105,7 @@ const SingleRoute = (props: Props) => {
     );
 
     // Wesley made me do it
-    if (
-      props.route.name === 'MayanSwap' &&
-      quote.details?.type?.toLowerCase() === 'swift'
-    ) {
+    if (props.route.name === 'MayanSwap') {
       feeValue = <Typography fontSize={14}>{`${feePrice}`}</Typography>;
     }
 
