@@ -94,7 +94,7 @@ const SingleRoute = (props: Props) => {
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Relayer gas fee
+          Network cost
         </Typography>
         {isFetchingQuote ? (
           <CircularProgress size={14} />
