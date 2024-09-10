@@ -55,16 +55,12 @@ const useAvailableRoutes = (): void => {
         routes.push({ name, supported });
       });
 
-      // If NTT or CCTP routes are available, then prioritize them over other routes
-      const preferredRoutes = routes.filter(
-        (route) =>
-          route.supported &&
-          ['ManualNtt', 'AutomaticNtt', 'ManualCCTP', 'AutomaticCCTP'].includes(
-            route.name,
-          ),
+      // If automatic NTT is available, always prefer that
+      const autoNttRoute = routes.find(
+        (route) => route.supported && route.name === 'AutomaticNtt',
       );
-      if (preferredRoutes.length > 0) {
-        routes = preferredRoutes;
+      if (autoNttRoute) {
+        routes = [autoNttRoute];
       } else {
         // TODO figure out better approach to sorting routes... probably by ETA
         routes = routes.sort((a, b) => {

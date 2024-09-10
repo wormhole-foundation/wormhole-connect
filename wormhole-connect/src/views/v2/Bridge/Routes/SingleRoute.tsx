@@ -298,7 +298,7 @@ const SingleRoute = (props: Props) => {
         {receiveAmountTrunc} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [destToken, receiveAmountTrunc]);
+  }, [destToken, receiveAmountTrunc, props.error]);
 
   const routeCardSubHeader = useMemo(() => {
     if (props.error || !destChain) {
@@ -334,9 +334,12 @@ const SingleRoute = (props: Props) => {
     if (typeof props.onSelect !== 'function') {
       return 'auto';
     }
+    if (props.error) {
+      return 'not-allowed';
+    }
 
     return 'pointer';
-  }, [props.onSelect]);
+  }, [props.onSelect, props.error]);
 
   if (isEmptyObject(props.route)) {
     return <></>;
@@ -364,7 +367,9 @@ const SingleRoute = (props: Props) => {
         }}
       >
         <CardActionArea
-          disabled={typeof props.onSelect !== 'function'}
+          disabled={
+            typeof props.onSelect !== 'function' || props.error !== undefined
+          }
           disableTouchRipple
           onClick={() => {
             props.onSelect?.(props.route.name);
