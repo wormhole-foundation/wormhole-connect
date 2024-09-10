@@ -273,6 +273,7 @@ const Bridge = () => {
             dispatch(setToken(value));
           }}
           wallet={sendingWallet}
+          isSource={true}
         />
         <SwapInputs />
       </div>
@@ -308,6 +309,7 @@ const Bridge = () => {
             dispatch(setDestToken(value));
           }}
           wallet={receivingWallet}
+          isSource={false}
         />
       </div>
     );
