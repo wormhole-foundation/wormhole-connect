@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { getTokenById, getTokenDecimals, getWrappedToken } from 'utils';
+import { getTokenById, getWrappedToken } from 'utils';
 
 import type { RootState } from 'store';
-import type { Chain } from '@wormhole-foundation/sdk';
+import type { Chain, ChainId } from '@wormhole-foundation/sdk';
 import type { RelayerFee } from 'store/relay';
 
 export interface Transaction {
@@ -61,9 +61,9 @@ interface WormholeScanTransaction {
     };
     standarizedProperties: {
       appIds: Array<string>;
-      fromChain: number;
+      fromChain: ChainId;
       fromAddress: string;
-      toChain: number;
+      toChain: ChainId;
       toAddress: string;
       tokenChain: number;
       tokenAddress: string;
@@ -110,6 +110,9 @@ type Props = {
   pageSize?: number;
 };
 
+// Number of decimals from WHScan API results are fixed to 8
+const DECIMALS = 8;
+
 const useFetchTransactionHistory = (
   props: Props,
 ): {
@@ -131,9 +134,10 @@ const useFetchTransactionHistory = (
 
   const { page = 0, pageSize = 30 } = props;
 
-  const parseTokenBridgeTx = (tx) => {
-    const { content = {}, data = {}, sourceChain = {}, targetChain = {} } = tx;
-    const { standarizedProperties = {} } = content;
+  const parseSingleTx = (tx: WormholeScanTransaction) => {
+    const { content, data, sourceChain, targetChain } = tx;
+    const { tokenAmount, usdAmount } = data || {};
+    const { standarizedProperties } = content || {};
 
     const fromChainId = standarizedProperties.fromChain || sourceChain?.chainId;
     const toChainId = standarizedProperties.toChain || targetChain?.chainId;
@@ -158,33 +162,31 @@ const useFetchTransactionHistory = (
     const toChain = chainIdToChain(toChainId) as Chain;
     const toChainConfig = config.chains[toChain];
 
+    // If the sent token is native to the destination chain, use sent token.
+    // Otherwise get the wrapepd token for the destination chain.
     const receivedTokenKey =
       tokenConfig.nativeChain === toChain
         ? tokenConfig.key
         : getWrappedToken(tokenConfig)?.key;
 
-    const decimals = Math.min(
-      8,
-      getTokenDecimals(
-        fromChain,
-        tokenConfig.nativeChain === fromChain ? 'native' : tokenConfig.tokenId,
-      ),
-    );
-
-    const sentAmountDisplay = sdkAmount.display(
-      {
-        amount: standarizedProperties.amount,
-        decimals,
-      },
-      0,
-    );
+    // data.tokenAmount holds the normalized token ammount value.
+    // Otherwise we need to format standarizedProperties.amount using decimals
+    const sentAmountDisplay =
+      tokenAmount ??
+      sdkAmount.display(
+        {
+          amount: standarizedProperties.amount,
+          decimals: DECIMALS,
+        },
+        0,
+      );
 
     const receiveAmountValue =
       BigInt(standarizedProperties.amount) - BigInt(standarizedProperties.fee);
     const receiveAmountDisplay = sdkAmount.display(
       {
         amount: receiveAmountValue.toString(),
-        decimals,
+        decimals: DECIMALS,
       },
       0,
     );
@@ -192,7 +194,7 @@ const useFetchTransactionHistory = (
     const feeAmountDisplay = sdkAmount.display(
       {
         amount: standarizedProperties.fee,
-        decimals,
+        decimals: DECIMALS,
       },
       0,
     );
@@ -201,7 +203,7 @@ const useFetchTransactionHistory = (
       txHash: sourceChain.transaction?.txHash,
       sender: standarizedProperties.fromAddress || sourceChain.from,
       amount: sentAmountDisplay,
-      amountUsd: data.usdAmount,
+      amountUsd: usdAmount ? Number(usdAmount) : 0,
       recipient: standarizedProperties.toAddress,
       toChain,
       fromChain,
@@ -220,8 +222,31 @@ const useFetchTransactionHistory = (
     return txData;
   };
 
+  // Parser for Portal Token Bridge transactions (appId === PORTAL_TOKEN_BRIDGE)
+  // IMPORTANT: This is where we can add any customizations specific to Token Bridge data
+  // that we have retrieved from WHScan API
+  const parseTokenBridgeTx = (tx: WormholeScanTransaction) => {
+    return parseSingleTx(tx);
+  };
+
+  // Parser for NTT transactions (appId === NATIVE_TOKEN_TRANSFER)
+  // IMPORTANT: This is where we can add any customizations specific to NTT data
+  // that we have retrieved from WHScan API
+  const parseNTTTx = (tx: WormholeScanTransaction) => {
+    return parseSingleTx(tx);
+  };
+
+  // Parser for CCTP transactions (appId === CCTP_WORMHOLE_INTEGRATION)
+  // IMPORTANT: This is where we can add any customizations specific to CCTP data
+  // that we have retrieved from WHScan API
+  const parseCCTPTx = (tx: WormholeScanTransaction) => {
+    return parseSingleTx(tx);
+  };
+
   const PARSERS = {
     PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
+    NATIVE_TOKEN_TRANSFER: parseNTTTx,
+    CCTP_WORMHOLE_INTEGRATION: parseCCTPTx,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

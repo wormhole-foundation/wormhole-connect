@@ -127,8 +127,7 @@ const TxHistory = () => {
       <div className={joinClass([classes.infiniteScroller])}>
         <InfiniteScroll
           hasMore={hasMore}
-          loadMore={() => setPage((page) => page + 1)}
-          pageStart={0}
+          loadMore={(p) => setPage(p)}
           useWindow={false}
         >
           <div className={joinClass([classes.spacer])}>
@@ -145,7 +144,7 @@ const TxHistory = () => {
         </InfiniteScroll>
       </div>
     );
-  }, [sendingWallet.address, transactions]);
+  }, [hasMore, sendingWallet.address, tokenPrices.data, transactions]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
