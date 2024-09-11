@@ -3,6 +3,7 @@ import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
   InjectedWallet,
+  BinanceWallet,
   WalletConnectWallet,
   DEFAULT_CHAINS,
 } from '@xlabs-libs/wallet-aggregator-evm';
@@ -40,6 +41,9 @@ const CHAINS_CONFIG = Object.entries(DEFAULT_CHAINS).map(
 export const wallets = {
   injected: new InjectedWallet({
     chains: CHAINS_CONFIG,
+  }),
+  binance: new BinanceWallet({
+    options: {},
   }),
   ...(config.walletConnectProjectId
     ? {
