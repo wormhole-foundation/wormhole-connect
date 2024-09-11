@@ -154,7 +154,7 @@ const TokenList = (props: Props) => {
     });
 
     return tokens;
-  }, [balances, props.tokenList]);
+  }, [balances, props.tokenList, props.sourceToken]);
 
   const searchList = (
     <SearchableList<TokenConfig>

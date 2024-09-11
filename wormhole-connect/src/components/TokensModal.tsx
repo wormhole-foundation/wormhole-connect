@@ -282,17 +282,10 @@ function TokensModal(props: Props) {
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
-  const {
-    supportedSourceTokens,
-    supportedDestTokens,
-    allSupportedDestTokens: allSupportedDestTokensBase,
-    fromChain,
-    toChain,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { supportedSourceTokens, supportedDestTokens, fromChain, toChain } =
+    useSelector((state: RootState) => state.transferInput);
 
-  const allSupportedDestTokens = useMemo(() => {
-    return allSupportedDestTokensBase.filter((t) => !isGatewayNativeToken(t));
-  }, [allSupportedDestTokensBase]);
+  const allSupportedDestTokens = [];
 
   const supportedTokens = useMemo(() => {
     const supported =

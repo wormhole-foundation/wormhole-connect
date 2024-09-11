@@ -135,7 +135,6 @@ export interface TransferInputState {
   isTransactionInProgress: boolean;
   receiverNativeBalance: string | undefined;
   supportedSourceTokens: TokenConfig[];
-  allSupportedDestTokens: TokenConfig[];
   supportedDestTokens: TokenConfig[];
 }
 
@@ -173,7 +172,6 @@ function getInitialState(): TransferInputState {
     isTransactionInProgress: false,
     receiverNativeBalance: '',
     supportedSourceTokens: [],
-    allSupportedDestTokens: [],
     supportedDestTokens: [],
   };
 }
@@ -414,12 +412,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.supportedDestTokens = payload;
     },
-    setAllSupportedDestTokens: (
-      state: TransferInputState,
-      { payload }: PayloadAction<TokenConfig[]>,
-    ) => {
-      state.allSupportedDestTokens = payload;
-    },
     swapInputs: (state: TransferInputState) => {
       const tmpChain = state.fromChain;
       state.fromChain = state.toChain;
@@ -512,7 +504,6 @@ export const {
   setIsTransactionInProgress,
   setReceiverNativeBalance,
   setSupportedDestTokens,
-  setAllSupportedDestTokens,
   setSupportedSourceTokens,
   swapInputs,
 } = transferInputSlice.actions;
