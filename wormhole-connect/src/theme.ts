@@ -297,7 +297,7 @@ export const dark: WormholeConnectTheme = {
     elevation: 'none',
   },
   modal: {
-    background: '#17171D',
+    background: '#181a2d',
   },
   font: {
     primary: '"Inter", sans-serif',
