@@ -131,6 +131,8 @@ const TransactionDetails = () => {
     const recipientAddress = recipient ? trimAddress(recipient) : '';
 
     const formattedReceiveAmount = formatStringAmount(receiveAmount);
+    console.log(receiveAmount);
+    console.log(formattedReceiveAmount);
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
