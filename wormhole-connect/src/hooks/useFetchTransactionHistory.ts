@@ -296,14 +296,20 @@ const useFetchTransactionHistory = (
             setTransactions((txs) => {
               const parsedTxs = parseTransactions(data.operations);
               if (txs && txs.length > 0) {
-                const uniqList = {};
-                txs.concat(parsedTxs).forEach((tx) => {
+                // We need to keep track of existing tx hashes to prevent duplicates in the final list
+                const existingTxs = new Set<string>();
+                txs.forEach((tx: Transaction) => {
                   if (tx?.txHash) {
-                    uniqList[tx.txHash] = tx;
+                    existingTxs.add(tx.txHash);
                   }
                 });
 
-                return Object.values(uniqList);
+                // Add the new set transactions while filtering out duplicates
+                return txs.concat(
+                  parsedTxs.filter(
+                    (tx: Transaction) => !existingTxs.has(tx.txHash),
+                  ),
+                );
               }
               return parsedTxs;
             });
