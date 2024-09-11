@@ -47,6 +47,7 @@ type Props = {
 const SingleRoute = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
+  const routeConfig = config.routes.get(props.route.name);
 
   const {
     toChain: destChain,
@@ -68,6 +69,10 @@ const SingleRoute = (props: Props) => {
   );
 
   const relayerFee = useMemo(() => {
+    if (!routeConfig.AUTOMATIC_DEPOSIT) {
+      return <>You pay gas on {destChain}</>;
+    }
+
     if (!quote?.relayFee) {
       return <></>;
     }
@@ -95,19 +100,25 @@ const SingleRoute = (props: Props) => {
       return <></>;
     }
 
+    let feeValue = isFetchingQuote ? (
+      <CircularProgress size={14} />
+    ) : (
+      <Typography fontSize={14}>{`${toFixedDecimals(relayFee.toString(), 4)} ${
+        feeTokenConfig.symbol
+      } (${feePrice})`}</Typography>
+    );
+
+    // Wesley made me do it
+    if (props.route.name === 'MayanSwap') {
+      feeValue = <Typography fontSize={14}>{`${feePrice}`}</Typography>;
+    }
+
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Relayer fee
+          Network cost
         </Typography>
-        {isFetchingQuote ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{`${toFixedDecimals(
-            relayFee.toString(),
-            4,
-          )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
-        )}
+        {feeValue}
       </Stack>
     );
   }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
@@ -167,8 +178,6 @@ const SingleRoute = (props: Props) => {
     if (!props.route) {
       return false;
     }
-
-    const routeConfig = config.routes.get(props.route.name);
 
     return !routeConfig.AUTOMATIC_DEPOSIT;
   }, [props.route.name]);
