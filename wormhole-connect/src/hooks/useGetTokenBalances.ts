@@ -14,6 +14,8 @@ import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
 import { Chain, TokenAddress } from '@wormhole-foundation/sdk';
 
+// TODO: This hook shouldn't format amounts
+// Instead the view should format and render accordingly
 const useGetTokenBalances = (
   walletAddress: string,
   chain: Chain | undefined,
