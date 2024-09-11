@@ -72,10 +72,10 @@ const useStyles = makeStyles()((_theme) => ({
     maxWidth: '420px',
   },
   txStatusIcon: {
-    width: 105,
-    height: 105,
-    marginTop: '1rem',
-    marginBottom: '2rem',
+    width: '105px',
+    height: '105px',
+    marginTop: '16px',
+    marginBottom: '32px',
   },
   poweredBy: {
     display: 'flex',
@@ -260,14 +260,14 @@ const Redeem = () => {
             <TxRefundedIcon
               className={classes.txStatusIcon}
               sx={{
-                color: '#f3bb2b',
+                color: theme.palette.warning.main,
               }}
             />
           ) : isTxFailed ? (
             <TxFailedIcon
               className={classes.txStatusIcon}
               sx={{
-                color: '#f16576',
+                color: theme.palette.error.light,
               }}
             />
           ) : (
