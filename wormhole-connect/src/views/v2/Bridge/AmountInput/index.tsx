@@ -19,6 +19,7 @@ import { toFixedDecimals } from 'utils/balance';
 import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
+import { usePrevious } from 'utils';
 
 const useStyles = makeStyles()((theme) => ({
   amountContainer: {
@@ -36,10 +37,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  errorContainer: {
-    display: 'flex',
-    alignContent: 'center',
-    marginTop: '8px',
+  inputError: {
+    marginTop: '12px',
   },
 }));
 
@@ -65,6 +64,8 @@ const AmountInput = (props: Props) => {
     amount,
     route,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const prevAmount = usePrevious(amount);
 
   const [amountLocal, setAmountLocal] = useState(amount);
 
@@ -94,6 +95,13 @@ const AmountInput = (props: Props) => {
       dispatch(setAmount(amountLocal));
     }
   }, [amountLocal, validationResult]);
+
+  useEffect(() => {
+    // Updating local state when amount has been changed from outside
+    if (amount !== prevAmount && amount !== amountLocal) {
+      setAmountLocal(amount);
+    }
+  }, [amount, prevAmount]);
 
   const isInputDisabled = useMemo(
     () => !sourceChain || !sourceToken,
@@ -159,7 +167,7 @@ const AmountInput = (props: Props) => {
             inputProps={{
               style: {
                 color: debouncedValidationResult
-                  ? theme.palette.error.main
+                  ? theme.palette.error.light
                   : theme.palette.text.primary,
                 fontSize: 24,
                 height: '40px',
@@ -197,6 +205,8 @@ const AmountInput = (props: Props) => {
         error
         content={debouncedValidationResult}
         show={!!debouncedValidationResult}
+        color={theme.palette.error.light}
+        className={classes.inputError}
       />
     </div>
   );

@@ -6,8 +6,6 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { isRedeemed, routes, TransferState } from '@wormhole-foundation/sdk';
 import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -38,6 +36,8 @@ import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
+import TxRefundedIcon from 'icons/TxRefunded';
+import TxFailedIcon from 'icons/TxFailed';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 
@@ -67,6 +67,15 @@ const useStyles = makeStyles()((_theme) => ({
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
+  },
+  errorBox: {
+    maxWidth: '420px',
+  },
+  txStatusIcon: {
+    width: '105px',
+    height: '105px',
+    marginTop: '16px',
+    marginBottom: '32px',
   },
   poweredBy: {
     display: 'flex',
@@ -246,23 +255,20 @@ const Redeem = () => {
       <>
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
           {isTxComplete ? (
-            <TxCompleteIcon
+            <TxCompleteIcon className={classes.txStatusIcon} />
+          ) : isTxRefunded ? (
+            <TxRefundedIcon
+              className={classes.txStatusIcon}
               sx={{
-                width: 105,
-                height: 105,
-                marginTop: 1,
-                marginBottom: 2,
+                color: theme.palette.warning.main,
               }}
             />
-          ) : isTxRefunded ? (
-            <ArrowCircleLeftOutlinedIcon
-              htmlColor="#f3bb2b"
-              sx={{ width: '120px', height: '120px' }}
-            />
           ) : isTxFailed ? (
-            <ErrorOutlineIcon
-              htmlColor="#e11a1a"
-              sx={{ width: '120px', height: '120px' }}
+            <TxFailedIcon
+              className={classes.txStatusIcon}
+              sx={{
+                color: theme.palette.error.light,
+              }}
             />
           ) : (
             <>
@@ -516,7 +522,12 @@ const Redeem = () => {
       {etaCircle}
       <TransactionDetails />
       {actionButton}
-      <AlertBannerV2 error content={claimError} show={!!claimError} />
+      <AlertBannerV2
+        error
+        content={claimError}
+        show={!!claimError}
+        className={classes.errorBox}
+      />
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>

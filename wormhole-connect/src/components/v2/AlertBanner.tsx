@@ -21,6 +21,8 @@ type Props = {
   error?: boolean;
   style?: CSSProperties;
   testId?: string;
+  color?: string;
+  className?: string;
 };
 
 function AlertBanner(props: Props) {
@@ -29,14 +31,20 @@ function AlertBanner(props: Props) {
 
   let themeColor;
 
-  if (props.warning) {
+  if (props.color) {
+    themeColor = props.color;
+  } else if (props.warning) {
     themeColor = theme.palette.warning.main;
   } else if (props.error) {
     themeColor = theme.palette.error.main;
   }
 
   return (
-    <Collapse in={props.show && !!props.content} unmountOnExit>
+    <Collapse
+      className={props.className}
+      in={props.show && !!props.content}
+      unmountOnExit
+    >
       <div
         className={classes.container}
         style={props.style || {}}

@@ -103,7 +103,7 @@ export const validateAmount = (
   if (numAmount <= 0) return 'Amount must be greater than 0';
   if (balance) {
     const b = Number.parseFloat(balance);
-    if (numAmount > b) return 'Amount cannot exceed balance';
+    if (numAmount > b) return 'Amount exceeds available balance.';
   }
   if (isCctp && numAmount >= CCTP_MAX_TRANSFER_LIMIT)
     return `Your transaction exceeds the maximum transfer limit of ${Intl.NumberFormat(

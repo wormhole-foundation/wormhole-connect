@@ -208,8 +208,8 @@ export function isValidTxId(chain: Chain, tx: string) {
   }
 }
 
-export function usePrevious(value: any) {
-  const ref = useRef();
+export function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
