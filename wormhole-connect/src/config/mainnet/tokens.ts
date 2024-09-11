@@ -7,7 +7,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'Ethereum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
-    color: '#62688F',
+    color: '#38487d',
     decimals: 18,
     wrappedAsset: 'WETH',
   },

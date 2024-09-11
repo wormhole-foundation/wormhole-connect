@@ -23,8 +23,9 @@ import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import { Chain } from '@wormhole-foundation/sdk';
+import { Box } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   container: {
     marginTop: '4px',
   },
@@ -52,6 +53,12 @@ const useStyles = makeStyles()((theme) => ({
     opacity: '0.4',
     cursor: 'not-allowed',
     clickEvent: 'none',
+  },
+  chainBadge: {
+    padding: '2px',
+    background: theme.palette.background.default,
+    borderRadius: '6px',
+    border: `2px solid ${theme.palette.modal.background}`,
   },
 }));
 
@@ -113,12 +120,20 @@ const AssetPicker = (props: Props) => {
   const badges = useMemo(() => {
     return (
       <Badge
-        badgeContent={<TokenIcon icon={chainConfig?.icon} height={24} />}
+        badgeContent={
+          <>
+            {chainConfig ? (
+              <Box className={classes.chainBadge}>
+                <TokenIcon icon={chainConfig?.icon} height={18} />
+              </Box>
+            ) : null}
+          </>
+        }
         sx={{
           marginRight: '8px',
           '& .MuiBadge-badge': {
             right: 2,
-            top: 36,
+            top: 44,
           },
         }}
       >
