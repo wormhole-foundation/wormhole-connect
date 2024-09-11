@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import HistoryIcon from '@mui/icons-material/History';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { RootState } from 'store';
 
@@ -21,6 +21,7 @@ import useSupportedRoutes from 'hooks/useSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
+import { setRoute as setAppRoute } from 'store/router';
 import {
   selectFromChain,
   selectToChain,
@@ -38,9 +39,10 @@ import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
-import { Chain } from '@wormhole-foundation/sdk';
 import { useSortedSupportedRoutes } from 'hooks/useSortedSupportedRoutes';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
+
+import type { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -337,18 +339,25 @@ const Bridge = () => {
 
   // Header for Bridge view, which includes the title and settings icon.
   const bridgeHeader = useMemo(() => {
+    const isTxHistoryDisabled = !sendingWallet?.address;
     return (
       <div className={classes.bridgeHeader}>
         <Header align="left" text="Bridge assets" size={20} />
-        <IconButton>
-          <HistoryIcon />
-        </IconButton>
-        <IconButton>
-          <SettingsIcon />
-        </IconButton>
+        <Tooltip
+          title={isTxHistoryDisabled ? 'No connected wallets found' : ''}
+        >
+          <div>
+            <IconButton
+              disabled={isTxHistoryDisabled}
+              onClick={() => dispatch(setAppRoute('history'))}
+            >
+              <HistoryIcon />
+            </IconButton>
+          </div>
+        </Tooltip>
       </div>
     );
-  }, []);
+  }, [sendingWallet?.address]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {

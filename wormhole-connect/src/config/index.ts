@@ -102,22 +102,22 @@ export function buildConfig(
     ),
     graphql: Object.assign({}, networkData.graphql, customConfig?.graphql),
     wormholeApi: {
-      mainnet: 'https://api.wormholescan.io/',
-      testnet: 'https://api.testnet.wormholescan.io/',
-      devnet: '',
+      Mainnet: 'https://api.wormholescan.io/',
+      Testnet: 'https://api.testnet.wormholescan.io/',
+      Devnet: '',
     }[network],
     wormholeRpcHosts: {
-      mainnet: [
+      Mainnet: [
         'https://wormhole-v2-mainnet-api.mcf.rocks',
         'https://wormhole-v2-mainnet-api.chainlayer.network',
         'https://wormhole-v2-mainnet-api.staking.fund',
       ],
-      testnet: [
+      Testnet: [
         'https://guardian.testnet.xlabs.xyz',
         'https://guardian-01.testnet.xlabs.xyz',
         'https://guardian-02.testnet.xlabs.xyz',
       ],
-      devnet: ['http://localhost:7071'],
+      Devnet: ['http://localhost:7071'],
     }[network],
     coinGeckoApiKey: customConfig?.coinGeckoApiKey,
 
