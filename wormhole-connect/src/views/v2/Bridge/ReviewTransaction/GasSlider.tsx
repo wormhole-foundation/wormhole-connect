@@ -7,14 +7,13 @@ import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Collapse from '@mui/material/Collapse';
-import Slider, { SliderThumb } from '@mui/material/Slider';
+import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 import config from 'config';
-import TokenIcon from 'icons/TokenIcons';
 import { getDisplayName, calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
@@ -51,7 +50,7 @@ type SliderProps = {
 const StyledSlider = styled(Slider, {
   shouldForwardProp: (prop) =>
     !['baseColor', 'railColor'].includes(prop.toString()),
-})<SliderProps>(({ baseColor, railColor }) => ({
+})<SliderProps>(({ baseColor, railColor, theme }) => ({
   color: baseColor,
   height: 8,
   '& .MuiSlider-rail': {
@@ -65,18 +64,18 @@ const StyledSlider = styled(Slider, {
   '& .MuiSlider-thumb': {
     height: 20,
     width: 20,
-    backgroundColor: '#C1BBF6',
+    backgroundColor: theme.palette.primary.main,
   },
 }));
 
-const StyledSwitch = styled(Switch)((props) => ({
+const StyledSwitch = styled(Switch)(({ theme }) => ({
   padding: '9px 12px',
   right: `-12px`, // reposition towards right to negate switch padding
   '& .MuiSwitch-switchBase.Mui-checked': {
-    color: '#C1BBF6',
+    color: theme.palette.primary.main,
   },
   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-    backgroundColor: '#C1BBF6',
+    backgroundColor: theme.palette.primary.main,
   },
   '& .MuiSwitch-track': {
     height: '20px',
@@ -108,16 +107,6 @@ const GasSlider = (props: {
   const [percentage, setPercentage] = useState(0);
 
   const [debouncedPercentage] = useDebounce(percentage, 500);
-
-  const ThumbWithTokenIcon = (props: React.HTMLAttributes<unknown>) => {
-    const { children, ...other } = props;
-    return (
-      <SliderThumb {...other}>
-        {children}
-        <TokenIcon icon={nativeGasToken.icon} height={16} />
-      </SliderThumb>
-    );
-  };
 
   useEffect(() => {
     dispatch(setToNativeToken(debouncedPercentage / 100));
@@ -187,11 +176,10 @@ const GasSlider = (props: {
             </Typography>
             <div>
               <StyledSlider
-                slots={{ thumb: ThumbWithTokenIcon }}
                 aria-label="Native gas conversion amount"
                 defaultValue={0}
                 value={percentage}
-                baseColor="#C1BBF6"
+                baseColor={theme.palette.primary.main}
                 railColor={theme.palette.background.default}
                 step={1}
                 min={0}

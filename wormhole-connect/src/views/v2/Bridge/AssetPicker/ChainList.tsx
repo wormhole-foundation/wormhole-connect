@@ -34,9 +34,11 @@ const useStyles = makeStyles()((theme) => ({
   chainButton: {
     display: 'flex',
     flexDirection: 'column',
+    border: '1px solid transparent',
     borderRadius: 8,
     '&.Mui-selected': {
-      border: '1px solid #C1BBF6',
+      border: '1px solid',
+      borderColor: theme.palette.primary.main,
     },
   },
   chainItem: {

@@ -80,7 +80,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   reviewTransaction: {
     padding: '8px 16px',
-    backgroundColor: '#C1BBF6',
     borderRadius: '8px',
     margin: 'auto',
     maxWidth: '420px',

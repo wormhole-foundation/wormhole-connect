@@ -3,28 +3,24 @@ import { styled } from '@mui/material';
 import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
 const PrimaryButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText('#C1BBF6'),
-  backgroundColor: '#C1BBF6',
-  '&:hover': {
-    backgroundColor: '#C1BBF6',
-  },
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+
   '&:disabled': {
-    backgroundColor: '#C1BBF6',
-    color: '#1F2935',
-    opacity: '40%',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    opacity: 0.4,
   },
 }));
 
 const ErrorButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
-  color: '#17171D',
-  backgroundColor: '#F16576',
-  '&:hover': {
-    backgroundColor: '#F16576',
-  },
+  backgroundColor: theme.palette.error.main,
+  color: theme.palette.error.contrastText,
+
   '&:disabled': {
-    backgroundColor: '#F16576',
-    color: '#17171D',
-    opacity: '40%',
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+    opacity: 0.4,
   },
 }));
 

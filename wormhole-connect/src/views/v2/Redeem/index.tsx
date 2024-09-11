@@ -41,7 +41,7 @@ import TxFailedIcon from 'icons/TxFailed';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 
-const useStyles = makeStyles()((_theme) => ({
+const useStyles = makeStyles()((theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -62,7 +62,7 @@ const useStyles = makeStyles()((_theme) => ({
   },
   actionButton: {
     padding: '8px 16px',
-    backgroundColor: '#C1BBF6',
+    backgroundColor: theme.palette.primary.main,
     borderRadius: '8px',
     margin: 'auto',
     maxWidth: '420px',
@@ -276,7 +276,7 @@ const Redeem = () => {
               <CircularProgress
                 size={120}
                 sx={{
-                  color: '#C1BBF6',
+                  color: theme.palette.primary.main,
                 }}
                 thickness={2}
               />

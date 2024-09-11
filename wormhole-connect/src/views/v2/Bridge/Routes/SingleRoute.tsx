@@ -372,9 +372,10 @@ const SingleRoute = (props: Props) => {
       <Card
         className={classes.card}
         sx={{
-          border: props.isSelected
-            ? '1px solid #C1BBF6'
-            : '1px solid transparent',
+          border: '1px solid',
+          borderColor: props.isSelected
+            ? theme.palette.primary.main
+            : 'transparent',
           cursor,
           opacity: 1,
         }}
