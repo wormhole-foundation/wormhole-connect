@@ -21,6 +21,7 @@ const useAvailableRoutes = (): void => {
 
   useEffect(() => {
     if (!fromChain || !toChain || !token || !destToken) {
+      dispatch(setRoutes([]));
       return;
     }
 

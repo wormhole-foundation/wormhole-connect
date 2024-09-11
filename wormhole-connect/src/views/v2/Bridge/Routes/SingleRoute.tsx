@@ -20,6 +20,7 @@ import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
 import { formatBalance } from 'store/transferInput';
 import { toFixedDecimals } from 'utils/balance';
+import { TokenConfig } from 'config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -61,7 +62,10 @@ const SingleRoute = (props: Props) => {
   const { name } = props.route;
   const { quote, isFetchingQuote } = props;
 
-  const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
+  const destTokenConfig = useMemo(
+    () => config.tokens[destToken] as TokenConfig | undefined,
+    [destToken],
+  );
 
   const relayerFee = useMemo(() => {
     if (!quote?.relayFee) {
@@ -271,7 +275,7 @@ const SingleRoute = (props: Props) => {
   }, [quote]);
 
   const receiveAmountTrunc = useMemo(() => {
-    return quote && destChain
+    return quote && destChain && destTokenConfig
       ? formatBalance(
           destChain,
           destTokenConfig,
@@ -289,7 +293,7 @@ const SingleRoute = (props: Props) => {
       return <CircularProgress size={18} />;
     }
 
-    if (receiveAmount === undefined) {
+    if (receiveAmount === undefined || !destTokenConfig) {
       return null;
     }
 
@@ -376,7 +380,7 @@ const SingleRoute = (props: Props) => {
           }}
         >
           <CardHeader
-            avatar={<TokenIcon icon={destTokenConfig.icon} height={36} />}
+            avatar={<TokenIcon icon={destTokenConfig?.icon} height={36} />}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
           />
