@@ -1,7 +1,7 @@
 import React from 'react';
 import { createSvgIcon } from '@mui/material';
 
-const TxRefunded = createSvgIcon(
+const TxWarning = createSvgIcon(
   <svg
     width="107"
     height="107"
@@ -20,4 +20,4 @@ const TxRefunded = createSvgIcon(
   'Alert',
 );
 
-export default TxRefunded;
+export default TxWarning;
