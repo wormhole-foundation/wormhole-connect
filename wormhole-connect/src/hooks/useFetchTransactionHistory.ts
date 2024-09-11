@@ -296,7 +296,14 @@ const useFetchTransactionHistory = (
             setTransactions((txs) => {
               const parsedTxs = parseTransactions(data.operations);
               if (txs && txs.length > 0) {
-                return txs.concat(parsedTxs);
+                const uniqList = {};
+                txs.concat(parsedTxs).forEach((tx) => {
+                  if (tx?.txHash) {
+                    uniqList[tx.txHash] = tx;
+                  }
+                });
+
+                return Object.values(uniqList);
               }
               return parsedTxs;
             });
