@@ -197,7 +197,7 @@ export const dark: WormholeConnectTheme = {
   },
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: '010101',
+    default: '#010101',
   },
   text: {
     primary: '#ffffff',
