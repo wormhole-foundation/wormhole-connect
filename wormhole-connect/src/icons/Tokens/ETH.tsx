@@ -3,20 +3,53 @@ import React from 'react';
 function ETH() {
   return (
     <svg
-      style={{ maxHeight: '100%', maxWidth: '100%' }}
       xmlns="http://www.w3.org/2000/svg"
-      width="1920"
-      height="1920"
-      viewBox="0 0 1920 1920"
+      version="1.1"
+      viewBox="0 0 182 182"
+      style={{ maxHeight: '100%', maxWidth: '100%' }}
     >
-      <path fill="#8A92B2" d="M959.8 80.7L420.1 976.3 959.8 731z"></path>
-      <path
-        fill="#62688F"
-        d="M959.8 731L420.1 976.3l539.7 319.1zm539.8 245.3L959.8 80.7V731z"
-      ></path>
-      <path fill="#454A75" d="M959.8 1295.4l539.8-319.1L959.8 731z"></path>
-      <path fill="#8A92B2" d="M420.1 1078.7l539.7 760.6v-441.7z"></path>
-      <path fill="#62688F" d="M959.8 1397.6v441.7l540.1-760.6z"></path>
+      <g>
+        <g id="Layer_1" focusable="false">
+          <g>
+            <path
+              d="M90.9,181v-45.2l-55.9-32.7,55.9,77.8Z"
+              fill="#f0cdc2"
+              stroke="#1616b4"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M91.1,181v-45.2l55.9-32.7-55.9,77.8Z"
+              fill="#c9b3f5"
+              stroke="#1616b4"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M90.9,124.6v-57.6l-56.5,25.3,56.5,32.3Z"
+              fill="#88aaf1"
+              stroke="#1616b4"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M91.1,124.6v-57.6l56.5,25.3-56.5,32.3Z"
+              fill="#c9b3f5"
+              stroke="#1616b4"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M34.4,92.3L90.9,1v66l-56.5,25.3Z"
+              fill="#f0cdc2"
+              stroke="#1616b4"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M147.6,92.3L91.1,1v66l56.5,25.3Z"
+              fill="#b8faf6"
+              stroke="#1616b4"
+              stroke-linejoin="round"
+            />
+          </g>
+        </g>
+      </g>
     </svg>
   );
 }
