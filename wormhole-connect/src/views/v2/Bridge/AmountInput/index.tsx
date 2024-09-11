@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
-import { toFixedDecimals } from 'utils/balance';
 import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
@@ -122,7 +121,7 @@ const AmountInput = (props: Props) => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14} textAlign="right">
-            {Number.parseFloat(toFixedDecimals(`${tokenBalance}`, 6))}
+            {tokenBalance}
           </Typography>
         )}
       </Stack>
@@ -136,7 +135,8 @@ const AmountInput = (props: Props) => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            const trimmedTokenBalance = toFixedDecimals(`${tokenBalance}`, 6);
+            // TODO: Remove this when useGetTokenBalances returns non formatted amounts
+            const trimmedTokenBalance = tokenBalance.replaceAll(',', '');
             dispatch(setAmount(trimmedTokenBalance));
           }
         }}
