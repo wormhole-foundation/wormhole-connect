@@ -102,7 +102,7 @@ export const validateAmount = (
   if (isNaN(numAmount)) return 'Amount must be a number';
   if (numAmount <= 0) return 'Amount must be greater than 0';
   if (balance) {
-    const b = Number.parseFloat(balance);
+    const b = Number.parseFloat(balance.replace(',', ''));
     if (numAmount > b) return 'Amount exceeds available balance.';
   }
   if (isCctp && numAmount >= CCTP_MAX_TRANSFER_LIMIT)
