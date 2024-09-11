@@ -30,7 +30,7 @@ type HookReturn = {
   isFetching: boolean;
 };
 
-const MAYAN_SWIFT_LIMIT = 1000; // USD
+const MAYAN_SWIFT_LIMIT = 10_000; // USD
 
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
