@@ -179,31 +179,34 @@ const TokenList = (props: Props) => {
       filterFn={(token, query) => {
         if (query.length === 0) return true;
 
+        const chain = props.selectedChainConfig.key;
+
         // Exclude frankenstein tokens with no balance
         const balance = Number(balances?.[token.key]?.balance);
-        if (
-          isFrankensteinToken(token, props.selectedChainConfig.key) &&
-          !balance
-        ) {
+        if (isFrankensteinToken(token, chain) && !balance) {
           return false;
         }
 
         // Exclude wormhole-wrapped tokens with no balance
-        if (
-          props.isSource &&
-          isWrappedToken(token, props.selectedChainConfig.key) &&
-          !balance
-        ) {
+        if (props.isSource && isWrappedToken(token, chain) && !balance) {
           return false;
         }
 
         const queryLC = query.toLowerCase();
-        return Boolean(
-          token.symbol?.toLowerCase().includes(queryLC) ||
-            getDisplayName(token, props.selectedChainConfig.key)
-              .toLowerCase()
-              .includes(queryLC),
-        );
+
+        const symbolMatch = token.symbol?.toLowerCase().includes(queryLC);
+
+        const displayNameMatch = getDisplayName(token, chain)
+          .toLowerCase()
+          .includes(queryLC);
+
+        const tokenAddress = isWrappedToken(token, chain)
+          ? getTokenBridgeWrappedTokenAddressSync(token, chain)?.toString()
+          : token.tokenId?.address;
+
+        const tokenAddressMatch = tokenAddress?.toLowerCase().includes(queryLC);
+
+        return Boolean(symbolMatch || displayNameMatch || tokenAddressMatch);
       }}
       renderFn={(token: TokenConfig) => {
         const balance = balances?.[token.key]?.balance;
