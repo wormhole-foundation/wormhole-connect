@@ -145,9 +145,6 @@ export interface WormholeConnectConfig {
   // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
-
-  // Override to load Redesign
-  useRedesign?: boolean;
 }
 
 // This is the exported config value used throughout the code base
@@ -211,9 +208,6 @@ export interface InternalConfig<N extends Network> {
   wstETHBridgeMaxAmount: number;
 
   guardianSet: GuardianSetData;
-
-  // Redesign flag
-  useRedesign?: boolean;
 }
 
 export type ExplorerConfig = {
