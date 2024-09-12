@@ -102,4 +102,28 @@ export const RoutesConfig: Record<string, RouteData> = {
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  MayanSwapWH: {
+    name: 'MayanSwapWH',
+    displayName: 'Mayan Swap (WH)',
+    providedBy: 'Mayan Finance (WH)',
+    link: 'https://mayan.finance/',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
+  MayanSwapMCTP: {
+    name: 'MayanSwapMCTP',
+    displayName: 'Mayan Swap (MCTP)',
+    providedBy: 'Mayan Finance (MCTP)',
+    link: 'https://mayan.finance/',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
+  MayanSwapSWIFT: {
+    name: 'MayanSwapSWIFT',
+    displayName: 'Mayan Swap (SWIFT)',
+    providedBy: 'Mayan Finance (SWIFT)',
+    link: 'https://mayan.finance/',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
 };

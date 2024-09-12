@@ -31,7 +31,12 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
  *
  */
 import { routes } from '@wormhole-foundation/sdk';
-import { MayanRoute } from '@mayanfinance/wormhole-sdk-route';
+import {
+  MayanRoute,
+  MayanRouteWH,
+  MayanRouteMCTP,
+  MayanRouteSWIFT,
+} from '@mayanfinance/wormhole-sdk-route';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES, nttRoutes } from 'routes/operator';
 
@@ -56,6 +61,12 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.CCTPRoute = routes.CCTPRoute;
       /* @ts-ignore */
       window.MayanRoute = MayanRoute;
+      /* @ts-ignore */
+      window.MayanRouteWH = MayanRouteWH;
+      /* @ts-ignore */
+      window.MayanRouteMCTP = MayanRouteMCTP;
+      /* @ts-ignore */
+      window.MayanRouteSWIFT = MayanRouteSWIFT;
       /* @ts-ignore */
       window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
       /* @ts-ignore */
