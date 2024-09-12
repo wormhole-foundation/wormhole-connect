@@ -28,7 +28,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   bsc: {
     ...chains.bsc!,
-    displayName: 'BSC',
+    displayName: 'BNB',
     explorerUrl: 'https://testnet.bscscan.com/',
     explorerName: 'BscScan',
     gasToken: 'BNB',

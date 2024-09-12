@@ -17,7 +17,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
   },
   bsc: {
     ...chains.bsc!,
-    displayName: 'BSC',
+    displayName: 'BNB',
     explorerUrl: 'https://bscscan.com/',
     explorerName: 'BscScan',
     gasToken: 'BNB',

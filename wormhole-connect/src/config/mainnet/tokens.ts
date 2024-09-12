@@ -2051,7 +2051,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHbsc: {
     key: 'WETHbsc',
     symbol: 'WETH',
-    displayName: 'WETH (BSC)',
+    displayName: 'WETH (BNB)',
     nativeChain: 'bsc',
     icon: Icon.ETH,
     tokenId: {
