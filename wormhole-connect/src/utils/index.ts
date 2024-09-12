@@ -9,6 +9,7 @@ import { isEvmChain } from 'utils/sdk';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
 import { Chain, chainToPlatform } from '@wormhole-foundation/sdk';
+import { getNativeVersionOfToken } from 'store/transferInput';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -104,16 +105,21 @@ export function getTokenById(tokenId: TokenId): TokenConfig | undefined {
 }
 
 export function getDisplayName(token: TokenConfig, chain: Chain): string {
-  const isWrapped = chain !== token.nativeChain;
+  const isWrapped = isWrappedToken(token, chain);
   const baseName = token.displayName ?? token.symbol;
 
   if (!isWrapped) {
     return baseName;
   }
 
-  const prefix = isFrankensteinToken(token, chain)
-    ? `Wormhole-wrapped ${token.nativeChain} `
-    : 'Wormhole-wrapped ';
+  const isEthereum = token.nativeChain === 'Ethereum';
+  const prefix = `Wormhole-wrapped ${
+    isFrankensteinToken(token, chain)
+      ? isEthereum
+        ? ''
+        : `${token.nativeChain} `
+      : ''
+  }`;
 
   return `${prefix}${baseName}`;
 }
@@ -379,8 +385,16 @@ export const isFrankensteinToken = (token: TokenConfig, chain: Chain) => {
     return true;
   }
 
+  if (!isWrappedToken(token, chain)) {
+    return false;
+  }
+
+  // If there is a native version of the token on the chain, then it's a Frankenstein token
+  if (getNativeVersionOfToken(token.symbol, chain)) {
+    return true;
+  }
+
   return (
-    nativeChain !== chain &&
     !(['Ethereum', 'Sepolia'] as Chain[]).includes(nativeChain) &&
     ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC', 'USDC.e'].includes(symbol)
   );
