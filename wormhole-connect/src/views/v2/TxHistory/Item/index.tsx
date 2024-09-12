@@ -1,30 +1,24 @@
-import React, { useMemo, useState } from 'react';
-import LaunchIcon from '@mui/icons-material/Launch';
+import React, { useMemo } from 'react';
 import { useTheme } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
-import Collapse from '@mui/material/Collapse';
-import Divider from '@mui/material/Divider';
-import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-import { WORMSCAN } from 'config/constants';
 import TokenIcon from 'icons/TokenIcons';
 import {
   calculateUSDPrice,
   getUSDFormat,
-  millisToHumanString,
   trimAddress,
   trimTxHash,
 } from 'utils';
 
-import type { Transaction } from 'hooks/useFetchTransactionHistory';
+import type { Transaction } from 'config/types';
 import type { TokenPrices } from 'store/tokenPrices';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -49,8 +43,6 @@ const TxHistoryItem = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const [collapsed, setCollapsed] = useState(true);
-
   const {
     txHash,
     sender,
@@ -62,9 +54,8 @@ const TxHistoryItem = (props: Props) => {
     tokenKey,
     receivedTokenKey,
     receiveAmount,
-    relayerFee,
     senderTimestamp,
-    receiverTimestamp,
+    explorerLink,
   } = props.data;
 
   // Render details for the sent amount
@@ -162,72 +153,6 @@ const TxHistoryItem = (props: Props) => {
     [],
   );
 
-  const bridgeFee = useMemo(() => {
-    if (!relayerFee) {
-      return <></>;
-    }
-
-    const sourceTokenConfig = config.tokens[tokenKey];
-
-    const feeAmountPrice = calculateUSDPrice(
-      relayerFee.fee,
-      props.tokenPrices,
-      sourceTokenConfig,
-      true,
-    );
-
-    return (
-      <Stack direction="row" justifyContent="space-between">
-        <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Bridge fee
-        </Typography>
-        <Typography fontSize={14}>{feeAmountPrice}</Typography>
-      </Stack>
-    );
-  }, [props.tokenPrices, relayerFee, tokenKey]);
-
-  const timeToDestination = useMemo(() => {
-    if (!senderTimestamp || !receiverTimestamp) {
-      return null;
-    }
-
-    const senderDate = new Date(senderTimestamp);
-    const receiverDate = new Date(receiverTimestamp);
-    const timePassed = receiverDate.getTime() - senderDate.getTime();
-
-    return (
-      <Stack direction="row" justifyContent="space-between">
-        <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Time to destination
-        </Typography>
-
-        <Typography fontSize={14}>{millisToHumanString(timePassed)}</Typography>
-      </Stack>
-    );
-  }, [senderTimestamp, receiverTimestamp]);
-
-  const wormscanLink = useMemo(() => {
-    const href = `${WORMSCAN}tx/${txHash}${
-      config.isMainnet ? '' : '?network=TESTNET'
-    }`;
-
-    return (
-      <Stack alignItems="center">
-        <Link
-          display="flex"
-          gap="8px"
-          href={href}
-          rel="noreferrer"
-          target="_blank"
-          underline="none"
-        >
-          <Typography>View on Wormholescan</Typography>
-          <LaunchIcon fontSize="small" sx={{ marginTop: '2px' }} />
-        </Link>
-      </Stack>
-    );
-  }, [txHash]);
-
   const transactionDateTime = useMemo(() => {
     if (!senderTimestamp) {
       return 'Unknown time';
@@ -244,7 +169,7 @@ const TxHistoryItem = (props: Props) => {
         <CardActionArea
           disableTouchRipple
           onClick={() => {
-            setCollapsed((collapsed) => !collapsed);
+            window.open(explorerLink, '_blank');
           }}
         >
           <CardHeader
@@ -264,19 +189,6 @@ const TxHistoryItem = (props: Props) => {
             {sentAmount}
             {verticalConnector}
             {receivedAmount}
-            <Collapse in={!collapsed}>
-              <Stack
-                direction="column"
-                gap="8px"
-                justifyContent="space-between"
-                marginTop="16px"
-              >
-                {bridgeFee}
-                {timeToDestination}
-              </Stack>
-              <Divider flexItem sx={{ margin: '16px 0', opacity: '50%' }} />
-              {wormscanLink}
-            </Collapse>
           </CardContent>
         </CardActionArea>
       </Card>

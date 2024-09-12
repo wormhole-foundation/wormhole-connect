@@ -165,6 +165,7 @@ export interface InternalConfig<N extends Network> {
   rpcs: ChainResourceMap;
   rest: ChainResourceMap;
   graphql: ChainResourceMap;
+  mayanApi: string;
   wormholeApi: string;
   wormholeRpcHosts: string[];
   coinGeckoApiKey?: string;
@@ -361,4 +362,36 @@ export class WrappedTokenAddressCache {
     const chainCache = this.caches[chain]!;
     chainCache[tokenKey] = foreignAsset;
   }
+}
+
+// Transactions in Transaction History view
+export interface Transaction {
+  // Transaction hash
+  txHash: string;
+
+  // Stringified addresses
+  sender?: string;
+  recipient: string;
+
+  amount: string;
+  amountUsd: number;
+
+  toChain: Chain;
+  fromChain: Chain;
+
+  // Source token address
+  tokenAddress: string;
+  tokenKey: string;
+  tokenDecimals?: number;
+
+  // Destination token
+  receivedTokenKey?: string;
+  receiveAmount?: string;
+
+  // Timestamps
+  senderTimestamp: string;
+  receiverTimestamp?: string;
+
+  // Explorer link
+  explorerLink?: string;
 }
