@@ -1,5 +1,6 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
+  BinanceWallet,
   EVMWallet,
   Eip6963Wallet,
   Eip6963Wallets,
@@ -23,6 +24,7 @@ const eip6963Wallets = Object.entries(Eip6963Wallets).reduce(
 export const wallets = {
   ...eip6963Wallets,
   injected: new InjectedWallet(),
+  binance: new BinanceWallet({ options: {} }),
   ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
