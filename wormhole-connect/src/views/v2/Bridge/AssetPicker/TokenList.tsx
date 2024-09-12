@@ -44,6 +44,7 @@ type Props = {
   sourceToken?: string;
   wallet: WalletData;
   onSelectToken: (key: string) => void;
+  isSource: boolean;
 };
 
 const SHORT_LIST_SIZE = 5;
@@ -138,7 +139,11 @@ const TokenList = (props: Props) => {
       }
 
       // Exclude wormhole-wrapped tokens with no balance
-      if (isWrappedToken(t, selectedChainConfig.key) && !balance) {
+      if (
+        props.isSource &&
+        isWrappedToken(t, selectedChainConfig.key) &&
+        !balance
+      ) {
         return;
       }
 
@@ -149,7 +154,7 @@ const TokenList = (props: Props) => {
     });
 
     return tokens;
-  }, [balances, props.tokenList]);
+  }, [balances, props.tokenList, props.sourceToken]);
 
   const searchList = (
     <SearchableList<TokenConfig>
@@ -181,7 +186,11 @@ const TokenList = (props: Props) => {
         }
 
         // Exclude wormhole-wrapped tokens with no balance
-        if (isWrappedToken(token, props.selectedChainConfig.key) && !balance) {
+        if (
+          props.isSource &&
+          isWrappedToken(token, props.selectedChainConfig.key) &&
+          !balance
+        ) {
           return false;
         }
 
@@ -195,7 +204,8 @@ const TokenList = (props: Props) => {
       }}
       renderFn={(token: TokenConfig) => {
         const balance = balances?.[token.key]?.balance;
-        const disabled = !!props.wallet?.address && !!balances && !balance;
+        const disabled =
+          props.isSource && !!props.wallet?.address && !!balances && !balance;
 
         return (
           <TokenItem

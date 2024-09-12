@@ -39,16 +39,16 @@ export const validateToChain = (
     return 'Source chain and destination chain cannot be the same';
   if (
     config.bridgeDefaults &&
-    config.bridgeDefaults.requiredNetwork &&
+    config.bridgeDefaults.requiredChain &&
     chain &&
     fromChain
   ) {
-    const { requiredNetwork } = config.bridgeDefaults;
-    const requiredConfig = config.chains[requiredNetwork];
+    const { requiredChain } = config.bridgeDefaults;
+    const requiredConfig = config.chains[requiredChain];
     if (
       requiredConfig &&
-      chain !== requiredNetwork &&
-      fromChain !== requiredNetwork
+      chain !== requiredChain &&
+      fromChain !== requiredChain
     )
       return `Must select ${requiredConfig.displayName} as either the source or destination chain`;
   }
@@ -102,8 +102,8 @@ export const validateAmount = (
   if (isNaN(numAmount)) return 'Amount must be a number';
   if (numAmount <= 0) return 'Amount must be greater than 0';
   if (balance) {
-    const b = Number.parseFloat(balance);
-    if (numAmount > b) return 'Amount cannot exceed balance';
+    const b = Number.parseFloat(balance.replace(',', ''));
+    if (numAmount > b) return 'Amount exceeds available balance.';
   }
   if (isCctp && numAmount >= CCTP_MAX_TRANSFER_LIMIT)
     return `Your transaction exceeds the maximum transfer limit of ${Intl.NumberFormat(

@@ -23,8 +23,9 @@ import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import { Chain } from '@wormhole-foundation/sdk';
+import { Box } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   container: {
     marginTop: '4px',
   },
@@ -32,11 +33,16 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
+    borderRadius: '8px',
   },
   cardContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: '16px 20px',
+    ':last-child': {
+      padding: '16px 20px',
+    },
   },
   chainSelector: {
     display: 'flex',
@@ -47,6 +53,12 @@ const useStyles = makeStyles()((theme) => ({
     opacity: '0.4',
     cursor: 'not-allowed',
     clickEvent: 'none',
+  },
+  chainBadge: {
+    padding: '2px',
+    background: theme.palette.background.default,
+    borderRadius: '6px',
+    border: `2px solid ${theme.palette.modal.background}`,
   },
 }));
 
@@ -60,6 +72,7 @@ type Props = {
   setToken: (value: string) => void;
   setChain: (value: Chain) => void;
   wallet: WalletData;
+  isSource: boolean;
 };
 
 const AssetPicker = (props: Props) => {
@@ -107,12 +120,20 @@ const AssetPicker = (props: Props) => {
   const badges = useMemo(() => {
     return (
       <Badge
-        badgeContent={<TokenIcon icon={chainConfig?.icon} height={24} />}
+        badgeContent={
+          <>
+            {chainConfig ? (
+              <Box className={classes.chainBadge}>
+                <TokenIcon icon={chainConfig?.icon} height={18} />
+              </Box>
+            ) : null}
+          </>
+        }
         sx={{
           marginRight: '8px',
           '& .MuiBadge-badge': {
             right: 2,
-            top: 36,
+            top: 44,
           },
         }}
       >
@@ -195,6 +216,7 @@ const AssetPicker = (props: Props) => {
               props.setToken(key);
               popupState.close();
             }}
+            isSource={props.isSource}
           />
         )}
       </Popover>

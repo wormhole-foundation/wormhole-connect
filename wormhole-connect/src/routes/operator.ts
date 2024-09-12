@@ -20,6 +20,8 @@ export interface TxInfo {
   receipt: routes.Receipt;
 }
 
+export type QuoteResult = routes.QuoteResult<routes.Options>;
+
 type forEachCallback<T> = (name: string, route: SDKv2Route) => T;
 
 export const DEFAULT_ROUTES = [
@@ -29,9 +31,19 @@ export const DEFAULT_ROUTES = [
   routes.TokenBridgeRoute,
 ];
 
+export interface QuoteParams {
+  sourceChain: Chain;
+  sourceToken: string;
+  destChain: Chain;
+  destToken: string;
+  amount: string;
+  nativeGas: number;
+}
+
 export default class RouteOperator {
   preference: string[];
   routes: Record<string, SDKv2Route>;
+  quoteCache: QuoteCache;
 
   constructor(routesConfig: routes.RouteConstructor<any>[] = DEFAULT_ROUTES) {
     const routes = {};
@@ -48,6 +60,7 @@ export default class RouteOperator {
     }
     this.routes = routes;
     this.preference = preference;
+    this.quoteCache = new QuoteCache(15_000 /* 15 seconds */);
   }
 
   get(name: string): SDKv2Route {
@@ -184,31 +197,22 @@ export default class RouteOperator {
     return Object.values(supported);
   }
 
-  async computeMultipleQuotes(
+  async getQuotes(
     routes: string[],
-    params: {
-      sourceChain: Chain;
-      sourceToken: string;
-      destChain: Chain;
-      destToken: string;
-      amount: string;
-      nativeGas: number;
-    },
+    params: QuoteParams,
   ): Promise<routes.QuoteResult<routes.Options>[]> {
-    const quoteResults = await Promise.allSettled(
-      routes.map((route) =>
-        this.get(route).computeQuote(
-          params.amount,
-          params.sourceToken,
-          params.destToken,
-          params.sourceChain,
-          params.destChain,
-          { nativeGas: params.nativeGas },
-        ),
-      ),
-    );
-
-    return quoteResults.map((quoteResult) => {
+    return (
+      await Promise.allSettled(
+        routes.map((route) => {
+          const cachedResult = this.quoteCache.get(route, params);
+          if (cachedResult) {
+            return cachedResult;
+          } else {
+            return this.quoteCache.fetch(route, params, this.get(route));
+          }
+        }),
+      )
+    ).map((quoteResult) => {
       if (quoteResult.status === 'rejected') {
         return {
           success: false,
@@ -218,6 +222,117 @@ export default class RouteOperator {
         return quoteResult.value;
       }
     });
+  }
+}
+
+// This caches successful quote results from SDK routes and handles multiple concurrent
+// async functions asking for the same quote gracefully.
+//
+// If we are already fetching a quote and a second hook requests the same quote elsewhere,
+// we queue up a Promise in `QuoteCacheEntry.pending` that we resolve when the original
+// quote request is resolved. This just prevents us from making redundant API calls when
+// multiple components or hooks are interested in a quote.
+class QuoteCache {
+  ttl: number;
+  cache: Record<string, QuoteCacheEntry>;
+  pending: Record<string, QuotePromiseHandlers[]>;
+
+  constructor(ttl: number) {
+    this.ttl = ttl;
+    this.cache = {};
+    this.pending = {};
+  }
+
+  quoteParamsKey(routeName: string, params: QuoteParams): string {
+    return `${routeName}:${params.sourceChain}:${params.sourceToken}:${params.destChain}:${params.destToken}:${params.amount}:${params.nativeGas}`;
+  }
+
+  get(routeName: string, params: QuoteParams): QuoteResult | null {
+    const key = this.quoteParamsKey(routeName, params);
+    const cachedVal = this.cache[key];
+    if (cachedVal) {
+      if (cachedVal.age() < this.ttl) {
+        return cachedVal.result;
+      } else {
+        delete this.cache[key];
+      }
+    }
+
+    return null;
+  }
+
+  async fetch(
+    routeName: string,
+    params: QuoteParams,
+    route: SDKv2Route,
+  ): Promise<QuoteResult> {
+    const key = this.quoteParamsKey(routeName, params);
+    const pending = this.pending[key];
+    if (pending) {
+      // We already have a pending request for this key, so don't create a new one.
+      // Instead, subscribe to its result when it resolves
+      return new Promise((resolve, reject) => {
+        pending.push({ resolve, reject });
+      });
+    } else {
+      // Initialize list of promises awaiting this result
+      const returnPromise: Promise<QuoteResult> = new Promise(
+        (resolve, reject) => {
+          this.pending[key] = [{ resolve, reject }];
+        },
+      );
+
+      // We don't yet have a pending request for this key, so initiate one
+      route
+        .computeQuote(
+          params.amount,
+          params.sourceToken,
+          params.destToken,
+          params.sourceChain,
+          params.destChain,
+          { nativeGas: params.nativeGas },
+        )
+        .then((result: QuoteResult) => {
+          const pending = this.pending[key];
+          for (const { resolve } of pending) {
+            resolve(result);
+          }
+          delete this.pending[key];
+
+          // Cache result
+          this.cache[key] = new QuoteCacheEntry(result);
+        })
+        .catch((err: any) => {
+          const pending = this.pending[key];
+          for (const { reject } of pending) {
+            reject(err);
+          }
+          delete this.pending[key];
+        });
+
+      return returnPromise;
+    }
+  }
+}
+
+interface QuotePromiseHandlers {
+  resolve: (quote: QuoteResult) => void;
+  reject: (err: Error) => void;
+}
+
+class QuoteCacheEntry {
+  // Last quote we received (the cached value)
+  result: QuoteResult;
+  // Last time we fetched a quote
+  timestamp: Date;
+
+  constructor(result: QuoteResult) {
+    this.result = result;
+    this.timestamp = new Date();
+  }
+
+  age(): number {
+    return new Date().valueOf() - this.timestamp.valueOf();
   }
 }
 

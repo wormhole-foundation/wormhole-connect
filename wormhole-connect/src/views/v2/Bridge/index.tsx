@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import HistoryIcon from '@mui/icons-material/History';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { RootState } from 'store';
 
@@ -17,10 +17,11 @@ import PoweredByIcon from 'icons/PoweredBy';
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import useAvailableRoutes from 'hooks/useAvailableRoutes';
+import useSupportedRoutes from 'hooks/useSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
-import useComputeQuote from 'hooks/useComputeQuote';
+import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
+import { setRoute as setAppRoute } from 'store/router';
 import {
   selectFromChain,
   selectToChain,
@@ -38,9 +39,10 @@ import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
-import { Chain } from '@wormhole-foundation/sdk';
 import { useSortedSupportedRoutes } from 'hooks/useSortedSupportedRoutes';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
+
+import type { Chain } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -78,7 +80,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   reviewTransaction: {
     padding: '8px 16px',
-    backgroundColor: '#C1BBF6',
     borderRadius: '8px',
     margin: 'auto',
     maxWidth: '420px',
@@ -122,29 +123,13 @@ const Bridge = () => {
     destToken,
     route,
     routeStates,
-    supportedDestTokens,
+    supportedDestTokens: supportedDestTokensBase,
     supportedSourceTokens,
     amount,
     validations,
   } = useSelector((state: RootState) => state.transferInput);
 
   const sortedSupportedRoutes = useSortedSupportedRoutes();
-
-  // Set selectedRoute if the route is auto-selected
-  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
-  useEffect(() => {
-    const validRoutes = sortedSupportedRoutes.filter(
-      (rs) => rs.supported && rs.available,
-    );
-    const autoselectedRoute = route || validRoutes[0]?.name;
-
-    // avoids overwriting selected route
-    if (!autoselectedRoute || !!selectedRoute) return;
-
-    const routeState = validRoutes?.find((rs) => rs.name === autoselectedRoute);
-
-    if (routeState) setSelectedRoute(routeState.name);
-  }, [route, sortedSupportedRoutes]);
 
   // Compute and set source tokens
   const { isFetching: isFetchingSupportedSourceTokens } =
@@ -165,19 +150,45 @@ const Bridge = () => {
       route: selectedRoute,
     });
 
-  // Compute the quotes for this route
-  const { isFetching: isFetchingQuote } = useComputeQuote({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-    route: selectedRoute,
-    toNativeToken,
-  });
+  const { quotesMap, isFetching: isFetchingQuotes } = useRoutesQuotesBulk(
+    sortedSupportedRoutes.map((r) => r.name),
+    {
+      amount,
+      sourceChain,
+      sourceToken,
+      destChain,
+      destToken,
+      nativeGas: toNativeToken,
+    },
+  );
+
+  // Set selectedRoute if the route is auto-selected
+  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
+  useEffect(() => {
+    const validRoutes = sortedSupportedRoutes.filter((rs) => rs.supported);
+
+    const routesWithSuccessfulQuote = validRoutes.filter(
+      (rs) => quotesMap[rs.name]?.success,
+    );
+
+    if (routesWithSuccessfulQuote.length === 0) {
+      setSelectedRoute('');
+    } else {
+      const autoselectedRoute = route || routesWithSuccessfulQuote[0]?.name;
+
+      // avoids overwriting selected route
+      if (!autoselectedRoute || !!selectedRoute) return;
+
+      const routeState = validRoutes?.find(
+        (rs) => rs.name === autoselectedRoute,
+      );
+
+      if (routeState) setSelectedRoute(routeState.name);
+    }
+  }, [route, sortedSupportedRoutes, quotesMap]);
 
   // Pre-fetch available routes
-  useAvailableRoutes();
+  useSupportedRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
@@ -217,6 +228,19 @@ const Bridge = () => {
         supportedChains.includes(chain.key),
     );
   }, [config.chainsArr, sourceChain, supportedChains]);
+
+  // Supported tokens for destination chain
+  const supportedDestTokens = useMemo(() => {
+    if (sourceChain && sourceToken) {
+      return supportedDestTokensBase;
+    } else {
+      return config.tokensArr.filter(
+        (tokenConfig) =>
+          tokenConfig.nativeChain === destChain ||
+          tokenConfig.tokenId?.chain === destChain,
+      );
+    }
+  }, [destChain, sourceChain, sourceToken, supportedDestTokensBase]);
 
   // Connect bridge header, which renders any custom overrides for the header
   const header = useMemo(() => {
@@ -263,6 +287,7 @@ const Bridge = () => {
             dispatch(setToken(value));
           }}
           wallet={sendingWallet}
+          isSource={true}
         />
         <SwapInputs />
       </div>
@@ -298,6 +323,7 @@ const Bridge = () => {
             dispatch(setDestToken(value));
           }}
           wallet={receivingWallet}
+          isSource={false}
         />
       </div>
     );
@@ -312,18 +338,25 @@ const Bridge = () => {
 
   // Header for Bridge view, which includes the title and settings icon.
   const bridgeHeader = useMemo(() => {
+    const isTxHistoryDisabled = !sendingWallet?.address;
     return (
       <div className={classes.bridgeHeader}>
         <Header align="left" text="Bridge assets" size={20} />
-        <IconButton>
-          <HistoryIcon />
-        </IconButton>
-        <IconButton>
-          <SettingsIcon />
-        </IconButton>
+        <Tooltip
+          title={isTxHistoryDisabled ? 'No connected wallets found' : ''}
+        >
+          <div>
+            <IconButton
+              disabled={isTxHistoryDisabled}
+              onClick={() => dispatch(setAppRoute('history'))}
+            >
+              <HistoryIcon />
+            </IconButton>
+          </div>
+        </Tooltip>
       </div>
     );
-  }, []);
+  }, [sendingWallet?.address]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
@@ -357,11 +390,9 @@ const Bridge = () => {
     selectedRoute &&
     Number(amount) > 0;
 
-  const availableRouteSelected = useMemo(
+  const supportedRouteSelected = useMemo(
     () =>
-      routeStates?.find?.(
-        (rs) => rs.name === selectedRoute && !!rs.available && !!rs.supported,
-      ),
+      routeStates?.find?.((rs) => rs.name === selectedRoute && !!rs.supported),
     [routeStates, selectedRoute],
   );
 
@@ -370,7 +401,7 @@ const Bridge = () => {
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={!isValid || isFetchingQuote || !availableRouteSelected}
+      disabled={!isValid || isFetchingQuotes || !supportedRouteSelected}
       onClick={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);
@@ -400,6 +431,8 @@ const Bridge = () => {
         sortedSupportedRoutes={sortedSupportedRoutes}
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}
+        quotes={quotesMap}
+        isFetchingQuotes={isFetchingQuotes}
       />
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}

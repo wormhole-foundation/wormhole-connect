@@ -1,6 +1,5 @@
 import * as v1 from 'sdklegacy';
 import {
-  Network as NetworkConnect,
   TokenConfig as TokenConfigV1,
   TokensConfig as TokensConfigV1,
 } from 'config/types';
@@ -22,25 +21,7 @@ export class SDKConverter {
     this.wh = wh;
   }
 
-  // Network conversion
-
-  toNetworkV2(network: NetworkConnect): v2.Network {
-    switch (network) {
-      case 'mainnet':
-        return 'Mainnet';
-      case 'testnet':
-        return 'Testnet';
-      case 'devnet':
-        return 'Devnet';
-    }
-  }
-
-  toNetworkV1(network: v2.Network): NetworkConnect {
-    return network.toLowerCase() as NetworkConnect;
-  }
-
   // Token conversion
-
   toTokenIdV1(token: v2.TokenId): v1.TokenId | undefined {
     if (token.address === 'native') {
       // In Connect's legacy code, native tokens don't have a tokenId

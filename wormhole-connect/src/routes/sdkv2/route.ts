@@ -82,7 +82,7 @@ export class SDKv2Route {
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
 
-    const supportedChains = this.rc.supportedChains(config.v2Network);
+    const supportedChains = this.rc.supportedChains(config.network);
 
     const fromChainSupported = supportedChains.includes(fromContext.chain);
     const toChainSupported = supportedChains.includes(toContext.chain);
@@ -133,56 +133,7 @@ export class SDKv2Route {
   }
 
   isSupportedChain(chain: Chain): boolean {
-    return this.rc.supportedChains(config.v2Network).includes(chain);
-  }
-
-  async isRouteAvailable(
-    sourceToken: string,
-    destToken: string,
-    amount: string,
-    sourceChain: Chain,
-    destChain: Chain,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<boolean> {
-    try {
-      // The route should be available when no amount is set
-      if (!amount) return true;
-      const wh = await getWormholeContextV2();
-      const route = new this.rc(wh);
-      if (routes.isAutomatic(route)) {
-        const req = await this.createRequest(
-          amount,
-          sourceToken,
-          destToken,
-          sourceChain,
-          destChain,
-        );
-        const available = await route.isAvailable(req);
-        if (!available) {
-          return false;
-        }
-      }
-      const [, quote] = await this.getQuote(
-        amount,
-        sourceToken,
-        destToken,
-        sourceChain,
-        destChain,
-        options,
-      );
-      if (!quote.success) {
-        return false;
-      }
-    } catch (e) {
-      console.error(`Error thrown in isRouteAvailable`, e);
-      // TODO is this the right place to try/catch these?
-      // or deeper inside SDKv2Route?
-
-      // Re-throw for the caller to handle and surface the error message
-      throw e;
-    }
-
-    return true;
+    return this.rc.supportedChains(config.network).includes(chain);
   }
 
   async supportedSourceTokens(

@@ -21,10 +21,10 @@ import { setRoute } from './store/router';
 import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
-import internalConfig from 'config';
 
 import BridgeV2 from 'views/v2/Bridge';
 import RedeemV2 from 'views/v2/Redeem';
+import TxHistory from 'views/v2/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -84,7 +84,7 @@ function AppRouter(props: Props) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
       routeContext.clear();
-      internalConfig.wh.registerProviders(); // reset providers that may have been set during transfer
+      config.whLegacy.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
     if (route === bridgeRoute && prevRoute !== bridgeRoute) {
@@ -120,6 +120,7 @@ function AppRouter(props: Props) {
       {route === 'bridge' && bridge}
       {route === 'redeem' && redeem}
       {route === 'search' && <TxSearch />}
+      {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
       {route === 'faq' && <FAQ />}
     </div>

@@ -74,6 +74,10 @@ const plugins = [
   }),
 ];
 
+const optimizeDeps = {
+  include: ['@emotion/styled'],
+};
+
 interface AssetInfo {
   name: string;
 }
@@ -119,6 +123,7 @@ export default defineConfig(({ command, mode }) => {
         },
       },
       plugins,
+      optimizeDeps,
     };
   } else if (command === 'build') {
     //
@@ -152,6 +157,7 @@ export default defineConfig(({ command, mode }) => {
           },
         },
         plugins,
+        optimizeDeps,
       };
     } else {
       return {
@@ -174,6 +180,7 @@ export default defineConfig(({ command, mode }) => {
           },
         },
         plugins,
+        optimizeDeps,
       };
     }
   }

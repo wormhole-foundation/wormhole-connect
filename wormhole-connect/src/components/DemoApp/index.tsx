@@ -53,7 +53,7 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.TokenBridgeRoute = routes.TokenBridgeRoute;
       /* @ts-ignore */
-      window.ManualCCTPRoute = routes.ManualCCTPRoute;
+      window.CCTPRoute = routes.CCTPRoute;
       /* @ts-ignore */
       window.MayanRoute = MayanRoute;
       /* @ts-ignore */
@@ -166,7 +166,7 @@ function DemoApp() {
           <div id="custom-config">
             <textarea
               onChange={updateCustomConfig}
-              placeholder={'{\n  "env": "mainnet"\n}'}
+              placeholder={'{\n  "env": "Mainnet"\n}'}
               onBlur={() => {
                 emitCustomConfig();
               }}
@@ -191,7 +191,7 @@ function DemoApp() {
                 <i>{'RouteConstructor'}</i>
               </li>
               <li>
-                <pre>ManualCCTPRoute</pre>
+                <pre>CCTPRoute</pre>
                 <i>{'RouteConstructor'}</i>
               </li>
               <li>

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
@@ -15,10 +15,10 @@ import Typography from '@mui/material/Typography';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
-import { toFixedDecimals } from 'utils/balance';
 import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
+import { usePrevious } from 'utils';
 
 const useStyles = makeStyles()((theme) => ({
   amountContainer: {
@@ -36,10 +36,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  errorContainer: {
-    display: 'flex',
-    alignContent: 'center',
-    marginTop: '8px',
+  inputError: {
+    marginTop: '12px',
   },
 }));
 
@@ -66,10 +64,9 @@ const AmountInput = (props: Props) => {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const [validationResult, setValidationResult] = useState('');
+  const prevAmount = usePrevious(amount);
 
-  // Debouncing validation to prevent false-positive results while user is still typing
-  const [debouncedValidationResult] = useDebounce(validationResult, 500);
+  const [amountLocal, setAmountLocal] = useState(amount);
 
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
@@ -81,6 +78,29 @@ const AmountInput = (props: Props) => {
     () => balances?.[sourceToken]?.balance || '',
     [balances, sourceToken],
   );
+
+  const validationResult = useMemo(
+    () => validateAmount(amountLocal, tokenBalance, getMaxAmt(route)),
+    [amountLocal, tokenBalance, route],
+  );
+
+  // Debouncing validation to prevent false-positive results while user is still typing
+  const [debouncedValidationResult] = useDebounce(validationResult, 500);
+
+  useEffect(() => {
+    // Update the redux state only when the amount is valid
+    // This will prevent unnecessary API calls triggered by an amount change
+    if (!validationResult) {
+      dispatch(setAmount(amountLocal));
+    }
+  }, [amountLocal, validationResult]);
+
+  useEffect(() => {
+    // Updating local state when amount has been changed from outside
+    if (amount !== prevAmount && amount !== amountLocal) {
+      setAmountLocal(amount);
+    }
+  }, [amount, prevAmount]);
 
   const isInputDisabled = useMemo(
     () => !sourceChain || !sourceToken,
@@ -101,7 +121,7 @@ const AmountInput = (props: Props) => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14} textAlign="right">
-            {Number.parseFloat(toFixedDecimals(`${tokenBalance}`, 6))}
+            {tokenBalance}
           </Typography>
         )}
       </Stack>
@@ -115,7 +135,8 @@ const AmountInput = (props: Props) => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            const trimmedTokenBalance = toFixedDecimals(`${tokenBalance}`, 6);
+            // TODO: Remove this when useGetTokenBalances returns non formatted amounts
+            const trimmedTokenBalance = tokenBalance.replaceAll(',', '');
             dispatch(setAmount(trimmedTokenBalance));
           }
         }}
@@ -127,26 +148,10 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
-  // Update token amount in both local and Redux states
+  // Update token amount in local state
   const onAmountChange = useCallback(
-    (e: any) => {
-      const { value } = e.target;
-
-      if (value === amount) {
-        return;
-      }
-
-      // Validation for the amount value
-      const amountValidation = validateAmount(
-        value,
-        tokenBalance,
-        getMaxAmt(route),
-      );
-
-      dispatch(setAmount(value));
-      setValidationResult(amountValidation);
-    },
-    [amount, route, tokenBalance],
+    (e: any) => setAmountLocal(e.target?.value),
+    [],
   );
 
   return (
@@ -162,7 +167,7 @@ const AmountInput = (props: Props) => {
             inputProps={{
               style: {
                 color: debouncedValidationResult
-                  ? theme.palette.error.main
+                  ? theme.palette.error.light
                   : theme.palette.text.primary,
                 fontSize: 24,
                 height: '40px',
@@ -171,7 +176,7 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={amount}
+            value={amountLocal}
             onChange={onAmountChange}
             onWheel={(e) => {
               // IMPORTANT: We need to prevent the scroll behavior on number inputs.
@@ -200,6 +205,8 @@ const AmountInput = (props: Props) => {
         error
         content={debouncedValidationResult}
         show={!!debouncedValidationResult}
+        color={theme.palette.error.light}
+        className={classes.inputError}
       />
     </div>
   );

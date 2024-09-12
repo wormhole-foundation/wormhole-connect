@@ -6,10 +6,12 @@ import { makeStyles } from 'tss-react/mui';
 
 import { RoutesConfig } from 'config/routes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 
 import type { RootState } from 'store';
-import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import { RouteState } from 'store/transferInput';
+
+import { routes } from '@wormhole-foundation/sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -28,7 +30,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   otherRoutesToggle: {
     fontSize: 14,
-    color: '#C1BBF6',
+    color: theme.palette.primary.main,
     textDecoration: 'none',
     cursor: 'pointer',
     '&:hover': {
@@ -41,15 +43,17 @@ type Props = {
   sortedSupportedRoutes: RouteState[];
   selectedRoute?: string;
   onRouteChange: (route: string) => void;
+  quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
+  isFetchingQuotes: boolean;
 };
 
 const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
   const { classes } = useStyles();
   const [showAll, setShowAll] = useState(false);
 
-  const { amount, routeStates, fromChain, token, toChain, destToken } =
-    useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { amount, routeStates } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -62,20 +66,6 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
     return routeStates.filter((rs) => rs.supported);
   }, [routeStates]);
-
-  const supportedRoutesNames = useMemo(
-    () => supportedRoutes.map((r) => r.name),
-    [supportedRoutes],
-  );
-
-  const { quotesMap, isFetching } = useRoutesQuotesBulk(supportedRoutesNames, {
-    amount,
-    sourceChain: fromChain,
-    sourceToken: token,
-    destChain: toChain,
-    destToken,
-    nativeGas: toNativeToken,
-  });
 
   const walletsConnected = useMemo(
     () => !!sendingWallet.address && !!receivingWallet.address,
@@ -94,6 +84,17 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
     return selectedRoute ? [selectedRoute] : sortedSupportedRoutes.slice(0, 1);
   }, [showAll, sortedSupportedRoutes]);
 
+  if (walletsConnected && supportedRoutes.length === 0 && Number(amount) > 0) {
+    return (
+      <AlertBannerV2
+        error
+        show
+        content="No route found for this transaction"
+        style={{ justifyContent: 'center' }}
+      />
+    );
+  }
+
   if (supportedRoutes.length === 0 || !walletsConnected) {
     return <></>;
   }
@@ -110,21 +111,26 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
   return (
     <>
-      {renderRoutes.map(({ name, available, availabilityError }) => {
+      {renderRoutes.map(({ name }) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
-        const quoteResult = quotesMap[name];
+        const quoteResult = props.quotes[name];
         const quote = quoteResult?.success ? quoteResult : undefined;
+        // Default message added as precaution, as 'Error' type cannot be trusted
+        const quoteError =
+          quoteResult?.success === false
+            ? quoteResult?.error?.message ??
+              `Error while getting a quote for ${name}.`
+            : undefined;
         return (
           <SingleRoute
             key={name}
             route={routeConfig}
-            available={available}
-            error={availabilityError}
-            isSelected={isSelected}
+            error={quoteError}
+            isSelected={isSelected && !quoteError}
             onSelect={props.onRouteChange}
             quote={quote}
-            isFetchingQuote={isFetching}
+            isFetchingQuote={props.isFetchingQuotes}
           />
         );
       })}

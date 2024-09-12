@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
 import { RootState } from 'store';
-import { setAmount, swapInputs } from 'store/transferInput';
+import { setAmount, setDestToken, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
 
 const useStyles = makeStyles()(() => ({
@@ -25,9 +25,13 @@ const useStyles = makeStyles()(() => ({
 function SwapInputs() {
   const dispatch = useDispatch();
 
-  const { isTransactionInProgress, fromChain, toChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    isTransactionInProgress,
+    fromChain,
+    toChain,
+    destToken,
+    token: sourceToken,
+  } = useSelector((state: RootState) => state.transferInput);
 
   const canSwap =
     fromChain &&
@@ -35,12 +39,27 @@ function SwapInputs() {
     toChain &&
     !config.chains[toChain]?.disabledAsSource;
 
-  const swap = () => {
+  const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;
+
     dispatch(swapInputs());
     dispatch(swapWallets());
     dispatch(setAmount(''));
-  };
+
+    if (destToken) {
+      config.routes
+        .allSupportedDestTokens(config.tokens[destToken], toChain, fromChain)
+        .then((tokenConfigs) => {
+          const isTokenSupportedAsDest = tokenConfigs.find(
+            (tc) => tc.key === sourceToken,
+          );
+
+          if (!isTokenSupportedAsDest) {
+            dispatch(setDestToken(''));
+          }
+        });
+    }
+  }, [destToken, sourceToken, fromChain, toChain]);
 
   const { classes } = useStyles();
 

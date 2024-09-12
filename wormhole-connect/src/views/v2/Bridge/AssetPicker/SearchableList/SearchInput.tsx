@@ -1,27 +1,24 @@
 import React from 'react';
-
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { makeStyles } from 'tss-react/mui';
 
 import SearchIcon from 'icons/Search';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   input: {
-    border: '1px solid #C1BBF6',
-    borderRadius: '100vh',
     '& fieldset': {
-      border: 'none',
+      borderRadius: '100vh',
     },
     '& input::placeholder': {
-      color: 'white',
+      color: theme.palette.text.primary,
       opacity: 0.2,
     },
   },
   icon: {
     height: 20,
     width: 20,
-    color: 'white',
+    color: theme.palette.text.primary,
     opacity: 0.2,
   },
 }));

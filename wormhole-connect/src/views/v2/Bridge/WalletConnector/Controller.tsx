@@ -40,7 +40,7 @@ const useStyles = makeStyles()((theme: any) => ({
     opacity: 1.0,
   },
   walletAddress: {
-    color: '#C1BBF6',
+    color: theme.palette.primary.main,
     fontWeight: 700,
     fontSize: 14,
     lineHeight: '17px',
@@ -49,7 +49,7 @@ const useStyles = makeStyles()((theme: any) => ({
     marginLeft: '8px',
   },
   down: {
-    color: '#C1BBF6',
+    color: theme.palette.primary.main,
     transition: 'transform 0.15s ease-in',
     strokeWidth: '2px',
   },

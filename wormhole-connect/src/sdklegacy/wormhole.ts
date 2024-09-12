@@ -1,11 +1,10 @@
-import { Network } from './types';
 import { Domain, MultiProvider } from './multi-provider';
 
 import MAINNET_CONFIG from './config/MAINNET';
 import TESTNET_CONFIG from './config/TESTNET';
 import { AnyContext, Context, TokenId, WormholeConfig } from './types';
 import DEVNET_CONFIG from './config/DEVNET';
-import { Chain, toChainId } from '@wormhole-foundation/sdk';
+import { Network, Chain, toChainId } from '@wormhole-foundation/sdk';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -139,9 +138,9 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @returns A Wormhole Config
    */
   static getConfig(env: Network): WormholeConfig {
-    return env === 'mainnet'
+    return env === 'Mainnet'
       ? MAINNET_CONFIG
-      : env === 'devnet'
+      : env === 'Devnet'
       ? DEVNET_CONFIG
       : TESTNET_CONFIG;
   }

@@ -6,7 +6,13 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { isRedeemed, routes, TransferState } from '@wormhole-foundation/sdk';
+import {
+  isCompleted,
+  isDestinationQueued,
+  isRedeemed,
+  routes,
+  TransferState,
+} from '@wormhole-foundation/sdk';
 import { getTokenDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
 import { Context } from 'sdklegacy';
@@ -36,8 +42,12 @@ import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
+import TxWarningIcon from 'icons/TxWarning';
+import TxFailedIcon from 'icons/TxFailed';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 
-const useStyles = makeStyles()((_theme) => ({
+const useStyles = makeStyles()((theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -58,11 +68,20 @@ const useStyles = makeStyles()((_theme) => ({
   },
   actionButton: {
     padding: '8px 16px',
-    backgroundColor: '#C1BBF6',
+    backgroundColor: theme.palette.primary.main,
     borderRadius: '8px',
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
+  },
+  errorBox: {
+    maxWidth: '420px',
+  },
+  txStatusIcon: {
+    width: '105px',
+    height: '105px',
+    marginTop: '16px',
+    marginBottom: '32px',
   },
   poweredBy: {
     display: 'flex',
@@ -71,14 +90,15 @@ const useStyles = makeStyles()((_theme) => ({
     gap: '8px',
     marginTop: '24px',
   },
+  delayText: {
+    maxWidth: '420px',
+  },
 }));
 
 const Redeem = () => {
   const dispatch = useDispatch();
   const { classes } = useStyles();
   const theme = useTheme();
-
-  const { eta = 0 } = useSelector((state: RootState) => state.redeem.txData)!;
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
@@ -91,27 +111,30 @@ const Redeem = () => {
 
   const routeContext = React.useContext(RouteContext);
 
-  const isTxAttested = useMemo(
-    () =>
-      routeContext.receipt &&
-      routeContext.receipt.state >= TransferState.Attested,
-    [routeContext.receipt],
-  );
-
   const {
     transferComplete: isTxComplete,
     route: routeName,
     timestamp: txTimestamp,
+    isResumeTx,
   } = useSelector((state: RootState) => state.redeem);
 
+  const { txData } = useSelector((state: RootState) => state.redeem);
+
+  const { state: receiptState } = routeContext.receipt || {};
+  const isTxAttested = receiptState && receiptState >= TransferState.Attested;
+  const isTxRefunded = receiptState === TransferState.Refunded;
+  const isTxFailed = receiptState === TransferState.Failed;
+  const isTxDestQueued = receiptState === TransferState.DestinationQueued;
+
   const {
-    fromChain,
     recipient,
-    receiveAmount,
-    receivedTokenKey,
     toChain,
+    fromChain,
     tokenKey,
-  } = useSelector((state: RootState) => state.redeem.txData)!;
+    receivedTokenKey,
+    receiveAmount,
+    eta = 0,
+  } = txData!;
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
@@ -175,6 +198,12 @@ const Redeem = () => {
   const statusHeader = useMemo(() => {
     if (isTxComplete) {
       return <Stack>Transaction complete</Stack>;
+    } else if (isTxRefunded) {
+      return <Stack>Transaction was refunded</Stack>;
+    } else if (isTxFailed) {
+      return <Stack>Transaction failed</Stack>;
+    } else if (isTxDestQueued) {
+      return <Stack>Transaction delayed</Stack>;
     } else if (isTxAttested) {
       return (
         <Stack>{`${receiveAmount} ${receivedTokenKey} received at ${displayAddress(
@@ -188,6 +217,9 @@ const Redeem = () => {
   }, [
     isTxAttested,
     isTxComplete,
+    isTxRefunded,
+    isTxFailed,
+    isTxDestQueued,
     receiveAmount,
     receivedTokenKey,
     recipient,
@@ -232,12 +264,19 @@ const Redeem = () => {
       <>
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
           {isTxComplete ? (
-            <TxCompleteIcon
+            <TxCompleteIcon className={classes.txStatusIcon} />
+          ) : isTxRefunded || isTxDestQueued ? (
+            <TxWarningIcon
+              className={classes.txStatusIcon}
               sx={{
-                width: 105,
-                height: 105,
-                marginTop: 1,
-                marginBottom: 2,
+                color: theme.palette.warning.main,
+              }}
+            />
+          ) : isTxFailed ? (
+            <TxFailedIcon
+              className={classes.txStatusIcon}
+              sx={{
+                color: theme.palette.error.light,
               }}
             />
           ) : (
@@ -245,7 +284,7 @@ const Redeem = () => {
               <CircularProgress
                 size={120}
                 sx={{
-                  color: '#C1BBF6',
+                  color: theme.palette.primary.main,
                 }}
                 thickness={2}
               />
@@ -268,12 +307,62 @@ const Redeem = () => {
         </Box>
       </>
     );
-  }, [etaDisplay, isTxComplete]);
+  }, [etaDisplay, isTxComplete, isTxRefunded, isTxFailed, isTxDestQueued]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
+    if (routeContext.receipt && isDestinationQueued(routeContext.receipt)) {
+      setIsClaimInProgress(true);
+
+      const releaseTime = routeContext.receipt.queueReleaseTime.getTime();
+      const delay = releaseTime - Date.now();
+
+      timer = setTimeout(() => {
+        setIsClaimInProgress(false);
+      }, delay);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [routeContext.receipt]);
 
   // Checks whether the receiving wallet is currently connected
   const isConnectedToReceivingWallet = useMemo(() => {
     if (!recipient) {
       return false;
+    }
+
+    // For Solana transfers, the associated token account (ATA) might not exist,
+    // preventing us from retrieving the recipient wallet address.
+    // In such cases, when resuming transfers, we allow the user to connect a wallet
+    // to claim the transfer, which will create the ATA.
+    if (
+      isResumeTx &&
+      toChain === 'Solana' &&
+      receivingWallet.address &&
+      receivingWallet.address !== recipient &&
+      routeName &&
+      // These routes set the recipient address to the associated token address
+      ['ManualTokenBridge', 'ManualCCTP'].includes(routeName)
+    ) {
+      const receivedToken = config.sdkConverter.toTokenIdV2(
+        config.tokens[receivedTokenKey],
+        'Solana',
+      );
+      const ata = getAssociatedTokenAddressSync(
+        new PublicKey(receivedToken.address.toString()),
+        new PublicKey(receivingWallet.address),
+      );
+      if (!ata.equals(new PublicKey(recipient))) {
+        setClaimError('Not connected to the receiving wallet');
+        return false;
+      }
+      setClaimError('');
+      return true;
     }
 
     const walletAddress = receivingWallet.address.toLowerCase();
@@ -285,7 +374,15 @@ const Redeem = () => {
       walletAddress === walletCurrentAddress &&
       walletAddress === recipientAddress
     );
-  }, [receivingWallet, recipient]);
+  }, [
+    receivingWallet,
+    recipient,
+    toChain,
+    isResumeTx,
+    routeName,
+    config,
+    receivedTokenKey,
+  ]);
 
   // Callback for claim action in Manual route transactions
   const handleManualClaim = async () => {
@@ -294,6 +391,10 @@ const Redeem = () => {
 
     if (!routeName) {
       throw new Error('Unknown route, can not claim');
+    }
+
+    if (!routeContext.receipt) {
+      throw new Error('No receipt found, can not claim');
     }
 
     const transferDetails = {
@@ -334,8 +435,8 @@ const Redeem = () => {
         await registerWalletSigner(toChain, TransferWallet.RECEIVING);
       }
 
-      if (!routes.isManual(route)) {
-        throw new Error('Route is not manual');
+      if (!routes.isManual(route) && !routes.isFinalizable(route)) {
+        throw new Error('Route is not manual or finalizable');
       }
 
       const signer = await SDKv2Signer.fromChain(
@@ -345,10 +446,16 @@ const Redeem = () => {
         TransferWallet.RECEIVING,
       );
 
-      const receipt = await route.complete(signer, routeContext.receipt!);
+      let receipt: routes.Receipt | undefined;
 
-      if (!isRedeemed(receipt)) {
-        throw new Error('Transfer not redeemed');
+      if (isTxDestQueued && routes.isFinalizable(route)) {
+        receipt = await route.finalize(signer, routeContext.receipt);
+      } else if (!isTxDestQueued && routes.isManual(route)) {
+        receipt = await route.complete(signer, routeContext.receipt);
+      }
+
+      if (!receipt || (!isRedeemed(receipt) && !isCompleted(receipt))) {
+        throw new Error('Transfer not completed');
       }
 
       if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
@@ -393,7 +500,12 @@ const Redeem = () => {
 
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
-    if (!isTxComplete && !isAutomaticRoute) {
+    if (
+      !isTxComplete &&
+      !isTxRefunded &&
+      !isTxFailed &&
+      (isTxDestQueued || !isAutomaticRoute)
+    ) {
       if (isTxAttested && !isConnectedToReceivingWallet) {
         return (
           <Button
@@ -445,8 +557,33 @@ const Redeem = () => {
     isClaimInProgress,
     isTxAttested,
     isTxComplete,
+    isTxRefunded,
+    isTxFailed,
+    isTxDestQueued,
     isConnectedToReceivingWallet,
   ]);
+
+  const txDelayedText = useMemo(() => {
+    if (!routeContext.receipt || !isDestinationQueued(routeContext.receipt)) {
+      return null;
+    }
+
+    const { to, queueReleaseTime } = routeContext.receipt;
+    const symbol = config.tokens[receivedTokenKey]?.symbol || '';
+    const releaseTime = queueReleaseTime.toLocaleString();
+
+    return (
+      <Typography
+        color={theme.palette.text.secondary}
+        fontSize={14}
+        className={classes.delayText}
+      >
+        {`Your transfer to ${to} is delayed due to rate limits configured by ${symbol}. After
+        the delay ends on ${releaseTime}, you will need to tap "Claim" to
+        complete your transfer.`}
+      </Typography>
+    );
+  }, [routeContext.receipt, config, receivedTokenKey]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
@@ -455,7 +592,13 @@ const Redeem = () => {
       {etaCircle}
       <TransactionDetails />
       {actionButton}
-      <AlertBannerV2 error content={claimError} show={!!claimError} />
+      {txDelayedText}
+      <AlertBannerV2
+        error
+        content={claimError}
+        show={!!claimError}
+        className={classes.errorBox}
+      />
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>

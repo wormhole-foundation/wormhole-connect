@@ -208,8 +208,8 @@ export function isValidTxId(chain: Chain, tx: string) {
   }
 }
 
-export function usePrevious(value: any) {
-  const ref = useRef();
+export function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
@@ -293,27 +293,36 @@ export const getUSDFormat = (
   return '';
 };
 
-export const calculateUSDPrice = (
+export const calculateUSDPriceRaw = (
   amount?: number | string,
   tokenPrices?: TokenPrices | null,
   token?: TokenConfig,
-  noParanthesis?: boolean | undefined,
-): string => {
+): number | undefined => {
   if (
     typeof amount === 'undefined' ||
     amount === '' ||
     !tokenPrices ||
     !token
   ) {
-    return '';
+    return undefined;
   }
 
   const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
   if (usdPrice > 0) {
-    const price = Number.parseFloat(`${amount}`) * usdPrice;
-    return getUSDFormat(price, noParanthesis);
+    return Number.parseFloat(`${amount}`) * usdPrice;
   }
-  return '';
+};
+
+export const calculateUSDPrice = (
+  amount?: number | string,
+  tokenPrices?: TokenPrices | null,
+  token?: TokenConfig,
+  noParanthesis?: boolean | undefined,
+): string => {
+  return getUSDFormat(
+    calculateUSDPriceRaw(amount, tokenPrices, token),
+    noParanthesis,
+  );
 };
 
 /**

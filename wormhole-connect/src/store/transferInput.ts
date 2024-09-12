@@ -49,6 +49,13 @@ export const formatBalance = (
   });
 };
 
+export const formatStringAmount = (amountStr = '0'): string => {
+  const amountNum = parseFloat(amountStr);
+  return amountNum.toLocaleString('en', {
+    maximumFractionDigits: 4,
+  });
+};
+
 // for use in USDC or other tokens that have versions on many chains
 // returns token key
 export const getNativeVersionOfToken = (
@@ -105,8 +112,6 @@ export type TransferValidations = {
 export type RouteState = {
   name: string;
   supported: boolean;
-  available: boolean;
-  availabilityError?: string;
 };
 
 export interface TransferInputState {
@@ -130,7 +135,6 @@ export interface TransferInputState {
   isTransactionInProgress: boolean;
   receiverNativeBalance: string | undefined;
   supportedSourceTokens: TokenConfig[];
-  allSupportedDestTokens: TokenConfig[];
   supportedDestTokens: TokenConfig[];
 }
 
@@ -151,9 +155,9 @@ function getInitialState(): TransferInputState {
       receiveAmount: '',
     },
     routeStates: undefined,
-    fromChain: config.bridgeDefaults?.fromNetwork || undefined,
-    toChain: config.bridgeDefaults?.toNetwork || undefined,
-    token: config.bridgeDefaults?.token || '',
+    fromChain: config.bridgeDefaults?.fromChain || undefined,
+    toChain: config.bridgeDefaults?.toChain || undefined,
+    token: config.bridgeDefaults?.tokenKey || '',
     destToken: '',
     amount: '',
     receiveAmount: getEmptyDataWrapper(),
@@ -168,7 +172,6 @@ function getInitialState(): TransferInputState {
     isTransactionInProgress: false,
     receiverNativeBalance: '',
     supportedSourceTokens: [],
-    allSupportedDestTokens: [],
     supportedDestTokens: [],
   };
 }
@@ -409,12 +412,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.supportedDestTokens = payload;
     },
-    setAllSupportedDestTokens: (
-      state: TransferInputState,
-      { payload }: PayloadAction<TokenConfig[]>,
-    ) => {
-      state.allSupportedDestTokens = payload;
-    },
     swapInputs: (state: TransferInputState) => {
       const tmpChain = state.fromChain;
       state.fromChain = state.toChain;
@@ -507,7 +504,6 @@ export const {
   setIsTransactionInProgress,
   setReceiverNativeBalance,
   setSupportedDestTokens,
-  setAllSupportedDestTokens,
   setSupportedSourceTokens,
   swapInputs,
 } = transferInputSlice.actions;

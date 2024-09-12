@@ -19,6 +19,8 @@ import { isEmptyObject, calculateUSDPrice, millisToHumanString } from 'utils';
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
 import { formatBalance } from 'store/transferInput';
+import { toFixedDecimals } from 'utils/balance';
+import { TokenConfig } from 'config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -33,7 +35,6 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   route: RouteData;
-  available: boolean;
   isSelected: boolean;
   error?: string;
   destinationGasDrop?: number;
@@ -46,6 +47,7 @@ type Props = {
 const SingleRoute = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
+  const routeConfig = config.routes.get(props.route.name);
 
   const {
     toChain: destChain,
@@ -61,9 +63,16 @@ const SingleRoute = (props: Props) => {
   const { name } = props.route;
   const { quote, isFetchingQuote } = props;
 
-  const destTokenConfig = useMemo(() => config.tokens[destToken], [destToken]);
+  const destTokenConfig = useMemo(
+    () => config.tokens[destToken] as TokenConfig | undefined,
+    [destToken],
+  );
 
-  const bridgeFee = useMemo(() => {
+  const relayerFee = useMemo(() => {
+    if (!routeConfig.AUTOMATIC_DEPOSIT) {
+      return <>You pay gas on {destChain}</>;
+    }
+
     if (!quote?.relayFee) {
       return <></>;
     }
@@ -76,27 +85,40 @@ const SingleRoute = (props: Props) => {
       Object.values(config.tokens),
     );
 
-    const bridgePrice = calculateUSDPrice(
+    if (!feeTokenConfig) {
+      return <></>;
+    }
+
+    const feePrice = calculateUSDPrice(
       relayFee,
       tokenPrices.data,
       feeTokenConfig,
       true,
     );
 
-    if (!bridgePrice) {
+    if (!feePrice) {
       return <></>;
+    }
+
+    let feeValue = isFetchingQuote ? (
+      <CircularProgress size={14} />
+    ) : (
+      <Typography fontSize={14}>{`${toFixedDecimals(relayFee.toString(), 4)} ${
+        feeTokenConfig.symbol
+      } (${feePrice})`}</Typography>
+    );
+
+    // Wesley made me do it
+    if (props.route.name === 'MayanSwap') {
+      feeValue = <Typography fontSize={14}>{`${feePrice}`}</Typography>;
     }
 
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Bridge fee
+          Network cost
         </Typography>
-        {isFetchingQuote ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{bridgePrice}</Typography>
-        )}
+        {feeValue}
       </Stack>
     );
   }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
@@ -156,8 +178,6 @@ const SingleRoute = (props: Props) => {
     if (!props.route) {
       return false;
     }
-
-    const routeConfig = config.routes.get(props.route.name);
 
     return !routeConfig.AUTOMATIC_DEPOSIT;
   }, [props.route.name]);
@@ -264,7 +284,7 @@ const SingleRoute = (props: Props) => {
   }, [quote]);
 
   const receiveAmountTrunc = useMemo(() => {
-    return quote && destChain
+    return quote && destChain && destTokenConfig
       ? formatBalance(
           destChain,
           destTokenConfig,
@@ -274,22 +294,36 @@ const SingleRoute = (props: Props) => {
   }, [quote]);
 
   const routeCardHeader = useMemo(() => {
-    return typeof receiveAmount === 'undefined' ? (
-      <CircularProgress size={18} />
-    ) : (
+    if (props.error) {
+      return <Typography color="error">Route is unavailable</Typography>;
+    }
+
+    if (props.isFetchingQuote) {
+      return <CircularProgress size={18} />;
+    }
+
+    if (receiveAmount === undefined || !destTokenConfig) {
+      return null;
+    }
+
+    return (
       <Typography>
         {receiveAmountTrunc} {destTokenConfig.symbol}
       </Typography>
     );
-  }, [destToken, receiveAmountTrunc]);
+  }, [destToken, receiveAmountTrunc, props.error]);
 
   const routeCardSubHeader = useMemo(() => {
-    if (typeof receiveAmount === 'undefined') {
+    if (props.error || !destChain) {
+      return null;
+    }
+
+    if (props.isFetchingQuote) {
       return <CircularProgress size={18} />;
     }
 
-    if (!destChain) {
-      return <></>;
+    if (receiveAmount === undefined) {
+      return null;
     }
 
     const receiveAmountPrice = calculateUSDPrice(
@@ -307,18 +341,18 @@ const SingleRoute = (props: Props) => {
   }, [destTokenConfig, providerText, receiveAmount, tokenPrices]);
 
   // There are three states for the Card area cursor:
-  // 1- If not available in the first place, "not-allowed"
-  // 2- If available but no action handler provided, fall back to default
-  // 3- Both available and there is an action handler, "pointer"
+  // 1- If no action handler provided, fall back to default
+  // 2- Otherwise there is an action handler, "pointer"
   const cursor = useMemo(() => {
-    if (!props.available) {
-      return 'not-allowed';
-    } else if (typeof props.onSelect !== 'function') {
+    if (typeof props.onSelect !== 'function') {
       return 'auto';
+    }
+    if (props.error) {
+      return 'not-allowed';
     }
 
     return 'pointer';
-  }, [props.available, props.onSelect]);
+  }, [props.onSelect, props.error]);
 
   if (isEmptyObject(props.route)) {
     return <></>;
@@ -338,28 +372,31 @@ const SingleRoute = (props: Props) => {
       <Card
         className={classes.card}
         sx={{
-          border: props.isSelected
-            ? '1px solid #C1BBF6'
-            : '1px solid transparent',
+          border: '1px solid',
+          borderColor: props.isSelected
+            ? theme.palette.primary.main
+            : 'transparent',
           cursor,
-          opacity: props.available ? 1 : 0.6,
+          opacity: 1,
         }}
       >
         <CardActionArea
-          disabled={!props.available || typeof props.onSelect !== 'function'}
+          disabled={
+            typeof props.onSelect !== 'function' || props.error !== undefined
+          }
           disableTouchRipple
           onClick={() => {
             props.onSelect?.(props.route.name);
           }}
         >
           <CardHeader
-            avatar={<TokenIcon icon={destTokenConfig.icon} height={36} />}
+            avatar={<TokenIcon icon={destTokenConfig?.icon} height={36} />}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
           />
           <CardContent>
             <Stack justifyContent="space-between">
-              {bridgeFee}
+              {relayerFee}
               {destinationGas}
             </Stack>
             <Stack direction="row" justifyContent="space-between">
