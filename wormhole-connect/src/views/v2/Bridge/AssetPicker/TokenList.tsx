@@ -74,6 +74,24 @@ const TokenList = (props: Props) => {
     const tokens: Array<TokenConfig> = [];
 
     const addToken = (tokenConfig: TokenConfig) => {
+      // Exclude frankenstein tokens with no balance
+      const balance = Number(balances?.[tokenConfig.key]?.balance);
+      if (
+        isFrankensteinToken(tokenConfig, selectedChainConfig.key) &&
+        !balance
+      ) {
+        return;
+      }
+
+      // Exclude wormhole-wrapped tokens with no balance
+      if (
+        props.isSource &&
+        isWrappedToken(tokenConfig, selectedChainConfig.key) &&
+        !balance
+      ) {
+        return;
+      }
+
       if (!tokenSet.has(tokenConfig.key)) {
         tokenSet.add(tokenConfig.key);
         tokens.push(tokenConfig);
@@ -132,21 +150,6 @@ const TokenList = (props: Props) => {
 
     // Finally: Fill up any remaining space from supported tokens
     props.tokenList?.forEach((t) => {
-      // Exclude frankenstein tokens with no balance
-      const balance = Number(balances?.[t.key]?.balance);
-      if (isFrankensteinToken(t, selectedChainConfig.key) && !balance) {
-        return;
-      }
-
-      // Exclude wormhole-wrapped tokens with no balance
-      if (
-        props.isSource &&
-        isWrappedToken(t, selectedChainConfig.key) &&
-        !balance
-      ) {
-        return;
-      }
-
       // Adding remaining tokens
       if (!tokenSet.has(t.key)) {
         addToken(t);
