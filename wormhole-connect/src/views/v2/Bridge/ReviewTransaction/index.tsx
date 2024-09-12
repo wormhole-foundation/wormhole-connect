@@ -38,6 +38,10 @@ import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
+import { RelayerFee } from 'store/relay';
+
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { toDecimals } from 'utils/balance';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -78,7 +82,6 @@ const ReviewTransaction = (props: Props) => {
     token: sourceToken,
     destToken,
     isTransactionInProgress,
-    receiveAmount,
     route,
     validations,
   } = transferInput;
@@ -87,7 +90,7 @@ const ReviewTransaction = (props: Props) => {
   const { sending: sendingWallet, receiving: receivingWallet } = wallet;
 
   const relay = useSelector((state: RootState) => state.relay);
-  const { receiveNativeAmt, relayerFee, toNativeToken, eta } = relay;
+  const { toNativeToken } = relay;
 
   const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
     destChain,
@@ -109,6 +112,10 @@ const ReviewTransaction = (props: Props) => {
   const quoteResult = quotesMap[route ?? ''];
   const quote = quoteResult?.success ? quoteResult : undefined;
 
+  const receiveNativeAmount = quote?.destinationNativeGas
+    ? sdkAmount.whole(quote.destinationNativeGas)
+    : undefined;
+
   const send = async () => {
     setSendError('');
 
@@ -119,7 +126,8 @@ const ReviewTransaction = (props: Props) => {
       !destChain ||
       !destToken ||
       !amount ||
-      !route
+      !route ||
+      !quote
     ) {
       return;
     }
@@ -212,6 +220,24 @@ const ReviewTransaction = (props: Props) => {
         throw new Error("Can't find txid in receipt");
       }
 
+      let relayerFee: RelayerFee | undefined = undefined;
+      if (quote.relayFee) {
+        const { token, amount } = quote.relayFee;
+        const feeToken = config.sdkConverter.findTokenConfigV1(
+          token,
+          Object.values(config.tokens),
+        );
+
+        const formattedFee = Number.parseFloat(
+          toDecimals(amount.amount, amount.decimals, 6),
+        );
+
+        relayerFee = {
+          fee: formattedFee,
+          tokenKey: feeToken?.key || '',
+        };
+      }
+
       // Set the start time of the transaction
       dispatch(setTimestamp(Date.now()));
 
@@ -236,9 +262,11 @@ const ReviewTransaction = (props: Props) => {
           ),
           receivedTokenKey: config.tokens[destToken].key, // TODO: possibly wrong (e..g if portico swap fails)
           relayerFee,
-          receiveAmount: receiveAmount.data || '',
-          receiveNativeAmount: receiveNativeAmt,
-          eta,
+          receiveAmount: sdkAmount
+            .whole(quote.destinationToken.amount)
+            .toString(),
+          receiveNativeAmount,
+          eta: quote.eta || 0,
         }),
       );
 
@@ -314,6 +342,7 @@ const ReviewTransaction = (props: Props) => {
     destToken,
     route,
     amount,
+    send,
   ]);
 
   if (!route || !walletsConnected) {
@@ -330,14 +359,14 @@ const ReviewTransaction = (props: Props) => {
       <SingleRoute
         route={RoutesConfig[route]}
         isSelected={false}
-        destinationGasDrop={receiveNativeAmt}
+        destinationGasDrop={receiveNativeAmount}
         title="You will receive"
         quote={quote}
         isFetchingQuote={isFetching}
       />
       <Collapse in={showGasSlider}>
         <GasSlider
-          destinationGasDrop={receiveNativeAmt || 0}
+          destinationGasDrop={receiveNativeAmount || 0}
           disabled={isGasSliderDisabled}
         />
       </Collapse>
