@@ -3,6 +3,7 @@ import {
   EVMWallet,
   Eip6963Wallet,
   Eip6963Wallets,
+  InjectedWallet,
   WalletConnectWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 
@@ -21,6 +22,7 @@ const eip6963Wallets = Object.entries(Eip6963Wallets).reduce(
 
 export const wallets = {
   ...eip6963Wallets,
+  injected: new InjectedWallet(),
   ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
