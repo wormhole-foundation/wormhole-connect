@@ -19,7 +19,6 @@ import { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 
 import { toFixedDecimals } from 'utils/balance';
-import { TokenConfig } from 'config/types';
 
 const useStyles = makeStyles()(() => ({
   card: {
@@ -91,7 +90,7 @@ const GasSlider = (props: {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const { token: sourceToken, toChain: destChain } = useSelector(
+  const { toChain: destChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -100,8 +99,7 @@ const GasSlider = (props: {
   );
 
   const destChainConfig = config.chains[destChain!];
-  const sourceTokenConfig = config.tokens[sourceToken];
-  const nativeGasToken = config.tokens[destChainConfig!.gasToken];
+  const nativeGasTokenConfig = config.tokens[destChainConfig!.gasToken];
 
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(!props.disabled);
   const [percentage, setPercentage] = useState(0);
@@ -113,36 +111,33 @@ const GasSlider = (props: {
   }, [debouncedPercentage]);
 
   const nativeGasPrice = useMemo(() => {
+    if (!destChain) {
+      return null;
+    }
+
     const tokenAmount = toFixedDecimals(
       props.destinationGasDrop?.toString() || '0',
       6,
     );
+
     const tokenPrice = calculateUSDPrice(
       props.destinationGasDrop,
       tokenPrices.data,
-      nativeGasToken,
+      nativeGasTokenConfig,
     );
-
-    if (!destChain) return null;
 
     return (
       <Typography fontSize={14}>
         {`${tokenAmount} ${getDisplayName(
-          sourceTokenConfig as TokenConfig,
+          nativeGasTokenConfig,
           destChain,
         )} ${tokenPrice}`}
       </Typography>
     );
-  }, [
-    nativeGasToken,
-    tokenPrices,
-    props.destinationGasDrop,
-    sourceTokenConfig,
-    destChain,
-  ]);
+  }, [nativeGasTokenConfig, tokenPrices, props.destinationGasDrop, destChain]);
 
   // Checking required values
-  if (!sourceTokenConfig || !destChainConfig || !nativeGasToken) {
+  if (!destChainConfig || !nativeGasTokenConfig) {
     return <></>;
   }
 
