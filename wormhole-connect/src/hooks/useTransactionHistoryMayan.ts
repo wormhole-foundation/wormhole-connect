@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChainId, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { getTokenById } from 'utils';
 
 import type { Transaction } from 'config/types';
 
@@ -60,6 +59,7 @@ const useTransactionHistoryMayan = (
       initiatedAt,
       toAmount,
       toTokenAddress,
+      toTokenSymbol,
       sourceTxHash,
       trader,
     } = tx;
@@ -72,13 +72,16 @@ const useTransactionHistoryMayan = (
     }
 
     const fromTokenConfig = config.tokensArr.find(
-      (t) => t.nativeChain === fromChain && t.symbol === fromTokenSymbol,
+      (t) =>
+        t.symbol === fromTokenSymbol &&
+        (t.nativeChain === fromChain || t.tokenId?.chain === fromChain),
     );
 
-    const toTokenConfig = getTokenById({
-      chain: toChain,
-      address: toTokenAddress,
-    });
+    const toTokenConfig = config.tokensArr.find(
+      (t) =>
+        t.symbol === toTokenSymbol &&
+        (t.nativeChain === toChain || t.tokenId?.chain === toChain),
+    );
 
     if (!fromTokenConfig || !toTokenConfig) {
       return;
