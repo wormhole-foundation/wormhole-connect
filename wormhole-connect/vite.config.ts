@@ -1,4 +1,5 @@
 import path from 'path';
+import { execSync } from 'child_process';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import checker from '@artursapek/vite-plugin-checker';
@@ -13,6 +14,18 @@ const packagePath = __dirname.endsWith('wormhole-connect')
   : './wormhole-connect/package.json';
 const { version } = require(packagePath);
 
+let gitHash = 'unknown';
+try {
+  gitHash = execSync("git log | head -n 1 | awk '{ print $2 }'").toString();
+} catch (e) {
+  console.error(`Failed to determine git hash! Will be missing from telemetry`);
+  console.error(e);
+}
+
+console.info(
+  `\nBuilding Wormhole Connect version=${version} hash=${gitHash}\n`,
+);
+
 // There are three configs this file can return.
 // 1. local dev server
 // 2. production build, for direct import
@@ -24,6 +37,7 @@ const envPrefix = 'REACT_APP_';
 const define = {
   'import.meta.env.REACT_APP_CONNECT_VERSION':
     process.env.CONNECT_VERSION ?? JSON.stringify(version),
+  'import.meta.env.REACT_APP_CONNECT_GIT_HASH': JSON.stringify(gitHash),
 };
 
 const resolve = {
