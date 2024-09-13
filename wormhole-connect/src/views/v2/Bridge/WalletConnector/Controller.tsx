@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
@@ -38,11 +37,6 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   walletAddress: {
     color: theme.palette.primary.main,
-    fontWeight: 700,
-    fontSize: 14,
-    lineHeight: '17px',
-    letterSpacing: '0.5px',
-    fontFamily: 'Inter',
     marginLeft: '8px',
   },
   down: {
@@ -125,7 +119,11 @@ const ConnectedWallet = (props: Props) => {
       <div className={classes.connectWallet} {...bindTrigger(popupState)}>
         <WalletIcons name={wallet.name} icon={wallet.icon} height={20} />
         <Tooltip title="Copied" open={isCopied} placement="top" arrow>
-          <Typography className={classes.walletAddress}>
+          <Typography
+            className={classes.walletAddress}
+            fontSize={14}
+            fontWeight={700}
+          >
             {displayWalletAddress(wallet.type, wallet.address)}
           </Typography>
         </Tooltip>
@@ -149,14 +147,12 @@ const ConnectedWallet = (props: Props) => {
             <Typography fontSize={14}>Copy address</Typography>
           </ListItemButton>
           {config.explorer ? (
-            <ListItem>
-              <ExplorerLink
-                address={wallet.address}
-                href={config.explorer.href}
-                target={config.explorer.target}
-                label={config.explorer.label}
-              />
-            </ListItem>
+            <ExplorerLink
+              address={wallet.address}
+              href={config.explorer.href}
+              target={config.explorer.target}
+              label={config.explorer.label}
+            />
           ) : null}
           <ListItemButton onClick={connectWallet}>
             <Typography fontSize={14}>Change wallet</Typography>
