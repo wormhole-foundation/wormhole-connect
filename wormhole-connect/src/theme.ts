@@ -33,6 +33,7 @@ export type WormholeConnectPartialTheme = {
   divider?: string;
   background?: {
     default: string;
+    badge: string;
   };
   text?: {
     primary: string;
@@ -99,6 +100,7 @@ export const light: WormholeConnectTheme = {
   divider: '#a0a2a9',
   background: {
     default: '#E5E8F2',
+    badge: '#E5E8F2',
   },
   text: {
     primary: grey[900],
@@ -198,6 +200,7 @@ export const dark: WormholeConnectTheme = {
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: '#010101',
+    badge: '#010101',
   },
   text: {
     primary: '#ffffff',
