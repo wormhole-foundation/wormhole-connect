@@ -150,7 +150,7 @@ const AmountInput = (props: Props) => {
 
   // Update token amount in local state
   const onAmountChange = useCallback((e: any) => {
-    if (Number(e.target?.value) < 0) return;
+    if (Number(e.target?.value) < 0) return; // allows "everything" but negative numbers
     setAmountLocal(e.target?.value);
   }, []);
 
