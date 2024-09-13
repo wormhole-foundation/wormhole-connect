@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -11,12 +11,9 @@ import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
 
-import Bridge from './views/Bridge/Bridge';
 import FAQ from './views/FAQ';
-import Redeem from './views/Redeem/Redeem';
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
-import WalletModal from './views/WalletModal';
 import { setRoute } from './store/router';
 import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
@@ -69,10 +66,6 @@ function AppRouter(props: Props) {
     });
   }, []);
 
-  const showWalletModal = useSelector(
-    (state: RootState) => state.router.showWalletModal,
-  );
-
   const route = useSelector((state: RootState) => state.router.route);
   const prevRoute = usePrevious(route);
   const { hasExternalSearch } = useExternalSearch();
@@ -100,25 +93,10 @@ function AppRouter(props: Props) {
     }
   }, [hasExternalSearch, dispatch]);
 
-  const bridge = useMemo(() => {
-    return props.config?.useRedesign ? <BridgeV2 /> : <Bridge />;
-  }, [props.config?.useRedesign]);
-
-  const redeem = useMemo(() => {
-    return props.config?.useRedesign ? <RedeemV2 /> : <Redeem />;
-  }, [props.config?.useRedesign]);
-
-  const walletSelector = useMemo(() => {
-    return props.config?.useRedesign || !showWalletModal ? null : (
-      <WalletModal type={showWalletModal} />
-    );
-  }, [showWalletModal, props.config?.useRedesign]);
-
   return (
     <div className={classes.appContent}>
-      {walletSelector}
-      {route === 'bridge' && bridge}
-      {route === 'redeem' && redeem}
+      {route === 'bridge' && <BridgeV2 />}
+      {route === 'redeem' && <RedeemV2 />}
       {route === 'search' && <TxSearch />}
       {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
