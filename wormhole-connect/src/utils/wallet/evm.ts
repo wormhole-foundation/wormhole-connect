@@ -1,9 +1,12 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
+  BinanceWallet,
   EVMWallet,
+  Eip6963Wallet,
+  Eip6963Wallets,
   InjectedWallet,
   WalletConnectWallet,
-} from '@kev1n-peters/wallet-aggregator-evm';
+} from '@xlabs-libs/wallet-aggregator-evm';
 
 import {
   EvmUnsignedTransaction,
@@ -13,8 +16,15 @@ import { Network } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 
+const eip6963Wallets = Object.entries(Eip6963Wallets).reduce(
+  (acc, [key, name]) => ({ [key]: new Eip6963Wallet(name), ...acc }),
+  {},
+);
+
 export const wallets = {
+  ...eip6963Wallets,
   injected: new InjectedWallet(),
+  binance: new BinanceWallet({ options: {} }),
   ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({

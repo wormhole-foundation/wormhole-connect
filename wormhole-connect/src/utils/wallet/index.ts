@@ -339,6 +339,10 @@ const mapWallets = (
   skip: string[] = [],
 ): WalletData[] => {
   return Object.values(wallets)
+    .filter(
+      (wallet, index, self) =>
+        index === self.findIndex((o) => o.getName() === wallet.getName()),
+    )
     .filter((wallet) => !skip.includes(wallet.getName()))
     .map((wallet) => ({
       wallet,
