@@ -3,6 +3,8 @@ import React from 'react';
 function ARBITRUM() {
   return (
     <svg
+      width={470.29}
+      height={514.25}
       style={{ maxHeight: '100%', maxWidth: '100%' }}
       viewBox="0 0 470.29 514.25"
       fill="none"

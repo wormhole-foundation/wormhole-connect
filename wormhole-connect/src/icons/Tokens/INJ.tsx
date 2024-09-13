@@ -2,7 +2,12 @@ import React from 'react';
 
 function INJ() {
   return (
-    <svg viewBox="100 100 400 400" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={400}
+      height={400}
+      viewBox="100 100 400 400"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M148.497 169.135C150.981 166.013 153.613 163.009 156.245
     160.005C156.363 159.856 156.63 159.826 156.748 159.677C156.985 159.38 157.37

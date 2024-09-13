@@ -50,6 +50,8 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
     height: size,
   },
   icon: {
+    width: 48,
+    height: 48,
     maxHeight: '100%',
     maxWidth: '100%',
   },
@@ -88,8 +90,8 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.NTT]: NTT(),
   [Icon.SCROLL]: SCROLL(),
   [Icon.BLAST]: BLAST(),
-  [Icon.XLAYER]: <img src={chainToIcon('Xlayer')} />,
-  [Icon.MANTLE]: <img src={chainToIcon('Mantle')} />,
+  [Icon.XLAYER]: <img width="48px" src={chainToIcon('Xlayer')} />,
+  [Icon.MANTLE]: <img width="48px" src={chainToIcon('Mantle')} />,
 };
 
 function isBuiltinIcon(icon?: Icon | string): icon is Icon {
