@@ -210,6 +210,18 @@ function DemoApp() {
                 <i>{'RouteConstructor'}</i>
               </li>
               <li>
+                <pre>MayanRouteWH</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>MayanRouteMCTP</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>MayanRouteSWIFT</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
                 <pre>nttRoutes</pre>{' '}
                 <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
               </li>
