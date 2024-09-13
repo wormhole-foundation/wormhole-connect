@@ -71,21 +71,21 @@ const useTransactionHistory = (
   // Updates the index tracker for transactions from WHScan
   const updateWHScanIndex = useCallback(
     (indexValue: number) => {
-      if (hasMoreWHScan || (whScanTxs && indexValue <= whScanTxs?.length)) {
+      if (whScanTxs && indexValue <= whScanTxs?.length) {
         setWHScanIndex(indexValue);
       }
     },
-    [hasMoreWHScan, whScanTxs],
+    [whScanTxs],
   );
 
   // Updates the index tracker for transactions from Mayan
   const updateMayanIndex = useCallback(
     (indexValue: number) => {
-      if (hasMoreMayan || (mayanTxs && indexValue <= mayanTxs?.length)) {
+      if (mayanTxs && indexValue <= mayanTxs?.length) {
         setMayanIndex(indexValue);
       }
     },
-    [hasMoreMayan, mayanTxs],
+    [mayanTxs],
   );
 
   // Sets the page for each API hook,
@@ -113,16 +113,20 @@ const useTransactionHistory = (
     let mayanLocalIdx = mayanIndex;
 
     for (let i = 0; i < pageSize; i++) {
-      // First check if we reach the last item of a tx list where it still has more in the data source
       if (
         (whScanLocalIdx === whScanTxs.length && hasMoreWHScan) ||
         (mayanLocalIdx === mayanTxs.length && hasMoreMayan)
       ) {
+        // This case happens when we reach the last item of a transactions list
+        // where it still has more in the API. Therefore we can't continue
+        // to merge until we have the next set of transactions from that API.
+        // We'll finish merging and wait for user to request the next page.
+
         // Update the indexes to the next item in respective data sources
         updateWHScanIndex(whScanLocalIdx);
         updateMayanIndex(mayanLocalIdx);
 
-        // Append the merged transactions
+        // Append the merged transactions and exit
         setTransactions((txs) => appendTxs(txs, mergedTxs));
         return;
       }
@@ -130,12 +134,14 @@ const useTransactionHistory = (
       const whScanItem = whScanTxs[whScanLocalIdx];
       const mayanItem = mayanTxs[mayanLocalIdx];
 
-      // If this happens we have reached to the end of each resources at the same time
       if (!whScanItem && !mayanItem) {
+        // This case happens when we reach to the end of each resources at the same time.
+        // We'll finish merging and wait for user to request the next page.
+
         // Update the indexes to the next item in respective data sources
         updateWHScanIndex(whScanLocalIdx);
         updateMayanIndex(mayanLocalIdx);
-        // Append the merged transactions
+        // Append the merged transactions and exit
         setTransactions((txs) => appendTxs(txs, mergedTxs));
         return;
       }
@@ -164,10 +170,15 @@ const useTransactionHistory = (
       }
     }
 
+    // This case happens when there are sufficient number of transactions from both APIs
+    // in a single round of data fetching. Therefore the merger didn't reach
+    // to the end of the either transaction list before the pageSize.
+    // We'll finish merging and wait for user to request the next page.
+
     // Update the indexes to the next item in respective data sources
     updateWHScanIndex(whScanLocalIdx);
     updateMayanIndex(mayanLocalIdx);
-    // Append the merged transactions
+    // Append the merged transactions and exit
     setTransactions((txs) => appendTxs(txs, mergedTxs));
   }, [whScanTxs, mayanTxs]);
 
