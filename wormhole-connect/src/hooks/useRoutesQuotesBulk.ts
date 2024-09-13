@@ -30,7 +30,8 @@ type HookReturn = {
   isFetching: boolean;
 };
 
-const MAYAN_SWIFT_LIMIT = 10_000; // USD
+const MAYAN_BETA_LIMIT = 10_000; // USD
+const MAYAN_BETA_PROTOCOLS = ['MCTP', 'SWIFT'];
 
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
@@ -92,57 +93,69 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   );
 
   // TODO temporary logic for beta Mayan support
-  const mayanQuote = quotesMap['MayanSwap'];
-  if (
-    mayanQuote !== undefined &&
-    mayanQuote.success &&
-    mayanQuote.details?.type.toLowerCase() === 'swift'
-  ) {
-    // There are two special cases here for Mayan Swift transfers
-    //
-    // 1) Disallow transfers >$1000 (temporary, while in beta)
-    // 2) For transfers <=$1000, calculate network costs manually, because Mayan API doesn't
-    //    expose relayer fee info for Swift quotes.
-    //
-    // TODO all of the code here is horrible and would ideally not exist
+  for (const name in quotesMap) {
+    if (name.startsWith('MayanSwap')) {
+      const mayanQuote = quotesMap[name];
 
-    if (usdAmount !== undefined && usdAmount > MAYAN_SWIFT_LIMIT) {
-      // Temporarily disallow Swift quotes above $1000
-      // TODO revisit this
-      quotesMap['MayanSwap'] = {
-        success: false,
-        error: new Error(`Amount exceeds limit of $${MAYAN_SWIFT_LIMIT} USD`),
-      };
-    } else {
-      const approxInputUsdValue = calculateUSDPriceRaw(
-        params.amount,
-        usdPrices.data,
-        tokenConfig,
-      );
-      const approxOutputUsdValue = calculateUSDPriceRaw(
-        amount.display(mayanQuote.destinationToken.amount),
-        usdPrices.data,
-        config.tokens[params.destToken],
-      );
+      if (
+        mayanQuote !== undefined &&
+        mayanQuote.success &&
+        MAYAN_BETA_PROTOCOLS.includes(mayanQuote.details?.type.toUpperCase())
+      ) {
+        // There are two special cases here for Mayan Swift transfers
+        //
+        // 1) Disallow transfers >$1000 (temporary, while in beta)
+        // 2) For transfers <=$1000, calculate network costs manually, because Mayan API doesn't
+        //    expose relayer fee info for Swift quotes.
+        //
+        // TODO all of the code here is horrible and would ideally not exist
 
-      if (approxInputUsdValue && approxOutputUsdValue) {
-        const approxUsdNetworkCost = approxInputUsdValue - approxOutputUsdValue;
-
-        if (!isNaN(approxUsdNetworkCost) && approxUsdNetworkCost > 0) {
-          (quotesMap['MayanSwap'] as routes.Quote<Network>).relayFee = {
-            token: {
-              chain: 'Solana' as Chain,
-              address: Wormhole.parseAddress(
-                'Solana',
-                circle.usdcContract.get('Mainnet', 'Solana') as string,
-              ),
-            },
-            amount: amount.parse(amount.denoise(approxUsdNetworkCost, 6), 6),
+        if (usdAmount !== undefined && usdAmount > MAYAN_BETA_LIMIT) {
+          // Temporarily disallow Swift quotes above $1000
+          // TODO revisit this
+          quotesMap[name] = {
+            success: false,
+            error: new Error(
+              `Amount exceeds limit of $${MAYAN_BETA_LIMIT} USD`,
+            ),
           };
+        } else {
+          const approxInputUsdValue = calculateUSDPriceRaw(
+            params.amount,
+            usdPrices.data,
+            tokenConfig,
+          );
+          const approxOutputUsdValue = calculateUSDPriceRaw(
+            amount.display(mayanQuote.destinationToken.amount),
+            usdPrices.data,
+            config.tokens[params.destToken],
+          );
+
+          if (approxInputUsdValue && approxOutputUsdValue) {
+            const approxUsdNetworkCost =
+              approxInputUsdValue - approxOutputUsdValue;
+
+            if (!isNaN(approxUsdNetworkCost) && approxUsdNetworkCost > 0) {
+              (quotesMap[name] as routes.Quote<Network>).relayFee = {
+                token: {
+                  chain: 'Solana' as Chain,
+                  address: Wormhole.parseAddress(
+                    'Solana',
+                    circle.usdcContract.get('Mainnet', 'Solana') as string,
+                  ),
+                },
+                amount: amount.parse(
+                  amount.denoise(approxUsdNetworkCost, 6),
+                  6,
+                ),
+              };
+            }
+          }
         }
       }
     }
   }
+  // TODO end Mayan beta support special logic
 
   return {
     quotesMap,
