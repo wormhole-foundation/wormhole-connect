@@ -155,6 +155,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       }
     }
   }
+  // TODO end Mayan beta support special logic
 
   return {
     quotesMap,
