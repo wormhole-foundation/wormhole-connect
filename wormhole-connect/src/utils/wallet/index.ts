@@ -293,6 +293,17 @@ export type WalletData = {
   wallet: Wallet;
 };
 
+const readyWalletFirst = (a: Wallet, b: Wallet): number => {
+  if (getReady(a) && !getReady(b)) return -1;
+  if (!getReady(a) && getReady(b)) return 1;
+  return 0;
+};
+
+const binanceFirst = (a: Wallet, _: Wallet): number => {
+  if (a.getName().startsWith('Binance')) return -1;
+  return 0;
+};
+
 const mapWallets = (
   wallets: Record<string, Wallet>,
   type: Context,
@@ -300,6 +311,8 @@ const mapWallets = (
 ): WalletData[] => {
   return Object.values(wallets)
     .filter((wallet) => !skip.includes(wallet.getName()))
+    .sort(binanceFirst) // Binance wallets first, it will be always ready
+    .sort(readyWalletFirst) //Sort the rest by ready state
     .map((wallet) => ({
       wallet,
       type,
