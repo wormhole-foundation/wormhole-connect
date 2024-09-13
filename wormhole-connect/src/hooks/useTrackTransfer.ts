@@ -1,8 +1,9 @@
 import { isCompleted } from '@wormhole-foundation/sdk';
 import { RouteContext } from 'contexts/RouteContext';
 import { useContext, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
+import type { RootState } from 'store';
 import { sleep } from 'utils';
 
 const TRACK_TIMEOUT = 120 * 1000;
@@ -13,8 +14,16 @@ const useTrackTransfer = (): void => {
 
   const routeContext = useContext(RouteContext);
 
+  const { txData, timestamp } = useSelector((state: RootState) => state.redeem);
+
   useEffect(() => {
     let isActive = true;
+
+    let eta: Date | null = null;
+
+    if (txData && txData.eta) {
+      eta = new Date(timestamp + txData.eta);
+    }
 
     const track = async () => {
       const { route, receipt } = routeContext;
@@ -60,9 +69,25 @@ const useTrackTransfer = (): void => {
         } catch (e) {
           console.error('Error tracking transfer:', e);
         }
+
+        let sleepTime = 5000; // Default to 5 sec between polling attempts
+
+        if (eta) {
+          // If we have an ETA and we're within a minute of it, steadily decrease the polling
+          // frequency until we've reached the ETA. At that point, check once a second.
+          const secondsUntilEta = Math.max(
+            0,
+            (eta.valueOf() - new Date().valueOf()) / 1000,
+          );
+          if (secondsUntilEta < 60) {
+            // If we're within a minute of the ETA, poll more frequently
+            sleepTime = 1000 + 4000 * (secondsUntilEta / 60);
+          }
+        }
+
         // retry
         // TODO: exponential backoff depending on the current state?
-        await sleep(5000);
+        await sleep(sleepTime);
       }
     };
 
@@ -71,7 +96,7 @@ const useTrackTransfer = (): void => {
     return () => {
       isActive = false;
     };
-  }, [routeContext]);
+  }, [routeContext, txData?.eta, timestamp]);
 };
 
 export default useTrackTransfer;
