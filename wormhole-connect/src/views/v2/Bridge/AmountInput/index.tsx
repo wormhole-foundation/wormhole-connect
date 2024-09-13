@@ -149,10 +149,10 @@ const AmountInput = (props: Props) => {
   }, [isInputDisabled, tokenBalance]);
 
   // Update token amount in local state
-  const onAmountChange = useCallback(
-    (e: any) => setAmountLocal(e.target?.value),
-    [],
-  );
+  const onAmountChange = useCallback((e: any) => {
+    if (Number(e.target?.value) < 0) return;
+    setAmountLocal(e.target?.value);
+  }, []);
 
   return (
     <div className={classes.amountContainer}>
