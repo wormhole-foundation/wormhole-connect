@@ -148,13 +148,18 @@ const useTransactionHistoryWHScan = (
 
     const receiveAmountValue =
       BigInt(standarizedProperties.amount) - BigInt(standarizedProperties.fee);
-    const receiveAmountDisplay = sdkAmount.display(
-      {
-        amount: receiveAmountValue.toString(),
-        decimals: DECIMALS,
-      },
-      0,
-    );
+    // It's unlikely, but in case the above substraction returns a non-positive number,
+    // we should not show that at all.
+    const receiveAmountDisplay =
+      receiveAmountValue > 0
+        ? sdkAmount.display(
+            {
+              amount: receiveAmountValue.toString(),
+              decimals: DECIMALS,
+            },
+            0,
+          )
+        : '';
 
     const txHash = sourceChain.transaction?.txHash;
 
@@ -247,12 +252,13 @@ const useTransactionHistoryWHScan = (
           { headers },
         );
 
-        const data = await res.json();
+        const resPayload = await res.json();
 
         if (!cancelled) {
-          if (data?.operations?.length > 0) {
+          const resData = resPayload?.operations;
+          if (resData.length > 0) {
             setTransactions((txs) => {
-              const parsedTxs = parseTransactions(data.operations);
+              const parsedTxs = parseTransactions(resData);
               if (txs && txs.length > 0) {
                 // We need to keep track of existing tx hashes to prevent duplicates in the final list
                 const existingTxs = new Set<string>();
@@ -273,13 +279,15 @@ const useTransactionHistoryWHScan = (
             });
           }
 
-          if (data?.operations?.length < pageSize) {
+          if (resData?.length < pageSize) {
             setHasMore(false);
           }
         }
       } catch (error) {
         if (!cancelled) {
-          setError(`Error fetching transaction history from WHScan: ${error}`);
+          setError(
+            `Error fetching transaction history from WormholeScan: ${error}`,
+          );
         }
       } finally {
         setIsFetching(false);

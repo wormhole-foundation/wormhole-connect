@@ -7,6 +7,7 @@ import type { Transaction } from 'config/types';
 
 interface MayanTransaction {
   trader: string;
+  destAddress: string;
   sourceTxHash: string;
   sourceChain: ChainId;
   swapChain: string;
@@ -62,11 +63,13 @@ const useTransactionHistoryMayan = (
       toTokenSymbol,
       sourceTxHash,
       trader,
+      destAddress,
     } = tx;
 
     const fromChain = chainIdToChain(sourceChain);
     const toChain = chainIdToChain(destChain);
 
+    // Skip this transaction if we don't have source or destination chains
     if (!fromChain || !toChain) {
       return;
     }
@@ -83,6 +86,7 @@ const useTransactionHistoryMayan = (
         (t.nativeChain === toChain || t.tokenId?.chain === toChain),
     );
 
+    // Skip this transaction if we can't find source or destination token configs
     if (!fromTokenConfig || !toTokenConfig) {
       return;
     }
@@ -92,7 +96,7 @@ const useTransactionHistoryMayan = (
       sender: trader,
       amount: fromAmount,
       amountUsd: Number(fromAmount) * fromTokenPrice,
-      recipient: '',
+      recipient: destAddress,
       toChain,
       fromChain,
       tokenKey: fromTokenConfig?.key,
@@ -126,27 +130,36 @@ const useTransactionHistoryMayan = (
           `${config.mayanApi}/v3/swaps?trader=${address}&offset=${offset}&limit=${limit}`,
         );
 
-        const payload = await res.json();
+        const resPayload = await res.json();
 
         if (!cancelled) {
-          if (payload?.data?.length > 0) {
+          const resData = resPayload?.data;
+
+          if (resData?.length > 0) {
             setTransactions((txs) => {
-              const parsedTxs = parseTransactions(payload.data);
+              const parsedTxs = parseTransactions(resData);
+
               if (txs && txs.length > 0) {
-                const uniqList = {};
-                txs.concat(parsedTxs).forEach((tx) => {
+                // We need to keep track of existing tx hashes to prevent duplicates in the final list
+                const existingTxs = new Set<string>();
+                txs.forEach((tx: Transaction) => {
                   if (tx?.txHash) {
-                    uniqList[tx.txHash] = tx;
+                    existingTxs.add(tx.txHash);
                   }
                 });
 
-                return Object.values(uniqList);
+                // Add the new set transactions while filtering out duplicates
+                return txs.concat(
+                  parsedTxs.filter(
+                    (tx: Transaction) => !existingTxs.has(tx.txHash),
+                  ),
+                );
               }
               return parsedTxs;
             });
           }
 
-          if (payload?.data?.length < limit) {
+          if (resData?.length < limit) {
             setHasMore(false);
           }
         }

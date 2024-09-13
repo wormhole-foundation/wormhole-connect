@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import useTransactionHistoryWHScan from 'hooks/useTransactionHistoryWHScan';
@@ -22,9 +22,12 @@ const useTransactionHistory = (
 } => {
   const { page = 0, pageSize = 30 } = props;
 
+  // Keeping separate indexes to track the last rendered item in respective transaction sets
   const [mayanIndex, setMayanIndex] = useState(0);
   const [whScanIndex, setWHScanIndex] = useState(0);
 
+  // We need to keep the last fetched pages from each APIs
+  // as the number of items in a page from each API can be different when sorted by time.
   const [mayanPage, setMayanPage] = useState(page);
   const [whScanPage, setWHScanPage] = useState(page);
 
@@ -54,6 +57,39 @@ const useTransactionHistory = (
     pageSize,
   });
 
+  const appendTxs = useCallback(
+    (prevTxs: Array<Transaction> | undefined, nextTxs: Array<Transaction>) => {
+      if (!prevTxs) {
+        return nextTxs;
+      }
+
+      return prevTxs.concat(nextTxs);
+    },
+    [],
+  );
+
+  // Updates the index tracker for transactions from WHScan
+  const updateWHScanIndex = useCallback(
+    (indexValue: number) => {
+      if (hasMoreWHScan || (whScanTxs && indexValue <= whScanTxs?.length)) {
+        setWHScanIndex(indexValue);
+      }
+    },
+    [hasMoreWHScan, whScanTxs],
+  );
+
+  // Updates the index tracker for transactions from Mayan
+  const updateMayanIndex = useCallback(
+    (indexValue: number) => {
+      if (hasMoreMayan || (mayanTxs && indexValue <= mayanTxs?.length)) {
+        setMayanIndex(indexValue);
+      }
+    },
+    [hasMoreMayan, mayanTxs],
+  );
+
+  // Sets the page for each API hook,
+  // only when there are more items in the respective data sources.
   useEffect(() => {
     if (hasMoreMayan && mayanPage !== page) {
       setMayanPage(page);
@@ -64,6 +100,7 @@ const useTransactionHistory = (
     }
   }, [hasMoreMayan, hasMoreWHScan, page]);
 
+  // Side-effect to merge transactions in time-order whenever there is new data
   useEffect(() => {
     if (!whScanTxs || !mayanTxs) {
       return;
@@ -71,48 +108,67 @@ const useTransactionHistory = (
 
     const mergedTxs: Array<Transaction> = [];
 
+    // We need to update the indexes locally until the merge is completed
     let whScanLocalIdx = whScanIndex;
     let mayanLocalIdx = mayanIndex;
 
     for (let i = 0; i < pageSize; i++) {
+      // First check if we reach the last item of a tx list where it still has more in the data source
       if (
-        whScanLocalIdx === whScanTxs.length - 1 ||
-        mayanLocalIdx === mayanTxs.length - 1
+        (whScanLocalIdx === whScanTxs.length && hasMoreWHScan) ||
+        (mayanLocalIdx === mayanTxs.length && hasMoreMayan)
       ) {
-        setWHScanIndex(whScanLocalIdx + 1);
-        setMayanIndex(mayanLocalIdx + 1);
-        setTransactions((txs) => {
-          if (!txs) {
-            return mergedTxs;
-          }
+        // Update the indexes to the next item in respective data sources
+        updateWHScanIndex(whScanLocalIdx);
+        updateMayanIndex(mayanLocalIdx);
 
-          return txs.concat(mergedTxs);
-        });
+        // Append the merged transactions
+        setTransactions((txs) => appendTxs(txs, mergedTxs));
         return;
       }
 
       const whScanItem = whScanTxs[whScanLocalIdx];
       const mayanItem = mayanTxs[mayanLocalIdx];
 
-      const whScanTime = new Date(whScanItem.senderTimestamp);
-      const mayanTime = new Date(mayanItem.senderTimestamp);
+      // If this happens we have reached to the end of each resources at the same time
+      if (!whScanItem && !mayanItem) {
+        // Update the indexes to the next item in respective data sources
+        updateWHScanIndex(whScanLocalIdx);
+        updateMayanIndex(mayanLocalIdx);
+        // Append the merged transactions
+        setTransactions((txs) => appendTxs(txs, mergedTxs));
+        return;
+      }
 
-      if (whScanTime > mayanTime) {
+      if (!mayanItem) {
+        // No item left in Mayan transactions
         mergedTxs.push(whScanItem);
-        if (whScanLocalIdx < whScanTxs.length - 1) {
-          whScanLocalIdx += 1;
-        }
-      } else {
+        whScanLocalIdx += 1;
+      } else if (!whScanItem) {
+        // No item left in WHScan transactions
         mergedTxs.push(mayanItem);
-        if (mayanLocalIdx < mayanTxs.length - 1) {
+        mayanLocalIdx += 1;
+      } else {
+        // We have both WHScan and Mayan transactions
+        // This is the main scenario where we compare the timestamps and push the most recent
+        const whScanTime = new Date(whScanItem.senderTimestamp);
+        const mayanTime = new Date(mayanItem.senderTimestamp);
+
+        if (whScanTime > mayanTime) {
+          mergedTxs.push(whScanItem);
+          whScanLocalIdx += 1;
+        } else {
+          mergedTxs.push(mayanItem);
           mayanLocalIdx += 1;
         }
       }
     }
 
-    setWHScanIndex(whScanLocalIdx + 1);
-    setMayanIndex(mayanLocalIdx + 1);
-    setTransactions(mergedTxs);
+    // Update the indexes to the next item in respective data sources
+    updateWHScanIndex(whScanLocalIdx);
+    updateMayanIndex(mayanLocalIdx);
+    // Append the merged transactions
+    setTransactions((txs) => appendTxs(txs, mergedTxs));
   }, [whScanTxs, mayanTxs]);
 
   return {
