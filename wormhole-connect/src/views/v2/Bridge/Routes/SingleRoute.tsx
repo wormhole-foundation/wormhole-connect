@@ -21,6 +21,8 @@ import type { RootState } from 'store';
 import { formatBalance } from 'store/transferInput';
 import { toFixedDecimals } from 'utils/balance';
 import { TokenConfig } from 'config/types';
+import FastestRoute from 'icons/FastestRoute';
+import CheapestRoute from 'icons/CheapestRoute';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -31,6 +33,20 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
     maxWidth: '420px',
   },
+  fastestBadge: {
+    width: '14px',
+    height: '14px',
+    position: 'relative',
+    top: '2px',
+    fill: theme.palette.primary.main,
+  },
+  cheapestBadge: {
+    width: '12px',
+    height: '12px',
+    position: 'relative',
+    top: '1px',
+    fill: theme.palette.primary.main,
+  },
 }));
 
 type Props = {
@@ -39,6 +55,9 @@ type Props = {
   error?: string;
   destinationGasDrop?: number;
   title?: string;
+  isFastest?: boolean;
+  isCheapest?: boolean;
+  isOnlyChoice?: boolean;
   onSelect?: (route: string) => void;
   quote?: routes.Quote<routes.Options>;
   isFetchingQuote: boolean;
@@ -118,7 +137,9 @@ const SingleRoute = (props: Props) => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Network cost
         </Typography>
-        {feeValue}
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
+          {feeValue}
+        </Typography>
       </Stack>
     );
   }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
@@ -165,7 +186,15 @@ const SingleRoute = (props: Props) => {
         {isFetchingQuote ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>
+          <Typography
+            fontSize={14}
+            sx={{
+              color:
+                quote?.eta && quote.eta < 60 * 1000
+                  ? theme.palette.success.main
+                  : theme.palette.text.secondary,
+            }}
+          >
             {quote?.eta ? millisToHumanString(quote.eta) : 'N/A'}
           </Typography>
         )}
@@ -226,20 +255,6 @@ const SingleRoute = (props: Props) => {
     );
   }, [showWarning]);
 
-  const isAutomaticRoute = useMemo(() => {
-    if (!props.route.name) {
-      return false;
-    }
-
-    const route = config.routes.get(props.route.name);
-
-    if (!route) {
-      return false;
-    }
-
-    return route.AUTOMATIC_DEPOSIT;
-  }, [props.route.name]);
-
   const providerText = useMemo(() => {
     if (!sourceToken) {
       return '';
@@ -273,11 +288,6 @@ const SingleRoute = (props: Props) => {
     sourceChain,
     destChain,
   ]);
-
-  const routeTitle = useMemo(
-    () => (isAutomaticRoute ? 'Automatic route' : 'Manual route'),
-    [isAutomaticRoute],
-  );
 
   const receiveAmount = useMemo(() => {
     return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
@@ -358,17 +368,27 @@ const SingleRoute = (props: Props) => {
     return <></>;
   }
 
+  const routeCardBadge = useMemo(() => {
+    if (props.isFastest) {
+      return (
+        <>
+          <FastestRoute className={classes.fastestBadge} />
+          {props.isOnlyChoice ? 'Fast' : 'Fastest'}
+        </>
+      );
+    } else if (props.isCheapest && !props.isOnlyChoice) {
+      return (
+        <>
+          <CheapestRoute className={classes.cheapestBadge} /> Cheapest
+        </>
+      );
+    } else {
+      return null;
+    }
+  }, [props.isFastest, props.isCheapest]);
+
   return (
     <div key={name} className={classes.container}>
-      <Typography
-        fontSize={16}
-        paddingBottom={0}
-        marginBottom="8px"
-        width="100%"
-        textAlign="left"
-      >
-        {props.title || routeTitle}
-      </Typography>
       <Card
         className={classes.card}
         sx={{
@@ -393,6 +413,7 @@ const SingleRoute = (props: Props) => {
             avatar={<TokenIcon icon={destTokenConfig?.icon} height={36} />}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
+            action={routeCardBadge}
           />
           <CardContent>
             <Stack justifyContent="space-between">
