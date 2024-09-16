@@ -4,6 +4,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
 
+import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 import AlertBannerV2 from 'components/v2/AlertBanner';
@@ -12,6 +13,7 @@ import type { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
 
 import { routes } from '@wormhole-foundation/sdk';
+import { Typography } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -84,6 +86,41 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
     return selectedRoute ? [selectedRoute] : sortedSupportedRoutes.slice(0, 1);
   }, [showAll, sortedSupportedRoutes]);
 
+  const fastestRoute = useMemo(() => {
+    return sortedSupportedRoutes.reduce(
+      (fastest, route) => {
+        const quote = props.quotes[route.name];
+        if (!quote || !quote.success) return fastest;
+
+        if (quote.eta !== undefined && quote.eta < fastest.eta) {
+          return { name: route.name, eta: quote.eta };
+        } else {
+          return fastest;
+        }
+      },
+      { name: '', eta: Infinity },
+    );
+  }, [sortedSupportedRoutes, props.quotes]);
+
+  const cheapestRoute = useMemo(() => {
+    return sortedSupportedRoutes.reduce(
+      (cheapest, route) => {
+        const quote = props.quotes[route.name];
+        const rc = config.routes.get(route.name);
+        // TODO put AUTOMATIC_DEPOSIT into RouteState
+        if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
+
+        const amountOut = BigInt(quote.destinationToken.amount.amount);
+        if (amountOut > cheapest.amountOut) {
+          return { name: route.name, amountOut };
+        } else {
+          return cheapest;
+        }
+      },
+      { name: '', amountOut: 0n },
+    );
+  }, [sortedSupportedRoutes, props.quotes]);
+
   if (walletsConnected && supportedRoutes.length === 0 && Number(amount) > 0) {
     return (
       <AlertBannerV2
@@ -111,7 +148,17 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
   return (
     <>
-      {renderRoutes.map(({ name }) => {
+      <Typography
+        fontSize={16}
+        paddingBottom={0}
+        marginTop="8px"
+        marginBottom={0}
+        width="100%"
+        textAlign="left"
+      >
+        Routes
+      </Typography>
+      {renderRoutes.map(({ name }, index) => {
         const routeConfig = RoutesConfig[name];
         const isSelected = routeConfig.name === props.selectedRoute;
         const quoteResult = props.quotes[name];
@@ -128,6 +175,8 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
             route={routeConfig}
             error={quoteError}
             isSelected={isSelected && !quoteError}
+            isFastest={name === fastestRoute.name}
+            isCheapest={name === cheapestRoute.name}
             onSelect={props.onRouteChange}
             quote={quote}
             isFetchingQuote={props.isFetchingQuotes}

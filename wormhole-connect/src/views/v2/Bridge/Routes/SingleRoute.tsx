@@ -39,6 +39,8 @@ type Props = {
   error?: string;
   destinationGasDrop?: number;
   title?: string;
+  isFastest?: boolean;
+  isCheapest?: boolean;
   onSelect?: (route: string) => void;
   quote?: routes.Quote<routes.Options>;
   isFetchingQuote: boolean;
@@ -226,20 +228,6 @@ const SingleRoute = (props: Props) => {
     );
   }, [showWarning]);
 
-  const isAutomaticRoute = useMemo(() => {
-    if (!props.route.name) {
-      return false;
-    }
-
-    const route = config.routes.get(props.route.name);
-
-    if (!route) {
-      return false;
-    }
-
-    return route.AUTOMATIC_DEPOSIT;
-  }, [props.route.name]);
-
   const providerText = useMemo(() => {
     if (!sourceToken) {
       return '';
@@ -273,11 +261,6 @@ const SingleRoute = (props: Props) => {
     sourceChain,
     destChain,
   ]);
-
-  const routeTitle = useMemo(
-    () => (isAutomaticRoute ? 'Automatic route' : 'Manual route'),
-    [isAutomaticRoute],
-  );
 
   const receiveAmount = useMemo(() => {
     return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
@@ -358,17 +341,20 @@ const SingleRoute = (props: Props) => {
     return <></>;
   }
 
+  const routeCardBadge = useMemo(() => {
+    if (props.isFastest && props.isCheapest) {
+      return <>😱 FASTEST AND CHEAPEST</>;
+    } else if (props.isFastest) {
+      return <>🐇 Fastest</>;
+    } else if (props.isCheapest) {
+      return <>😌 Cheapest</>;
+    } else {
+      return null;
+    }
+  }, [props.isFastest, props.isCheapest]);
+
   return (
     <div key={name} className={classes.container}>
-      <Typography
-        fontSize={16}
-        paddingBottom={0}
-        marginBottom="8px"
-        width="100%"
-        textAlign="left"
-      >
-        {props.title || routeTitle}
-      </Typography>
       <Card
         className={classes.card}
         sx={{
@@ -393,6 +379,7 @@ const SingleRoute = (props: Props) => {
             avatar={<TokenIcon icon={destTokenConfig?.icon} height={36} />}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
+            action={routeCardBadge}
           />
           <CardContent>
             <Stack justifyContent="space-between">
