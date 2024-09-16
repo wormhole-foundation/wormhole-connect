@@ -19,10 +19,11 @@ const useTrackTransfer = (): void => {
   useEffect(() => {
     let isActive = true;
 
-    let eta: Date | null = null;
+    let sleepTime = 5000;
 
-    if (txData && txData.eta) {
-      eta = new Date(timestamp + txData.eta);
+    if (txData && txData.eta && txData.eta < 30_000) {
+      // Poll aggressively for very fast transfers
+      sleepTime = 1000;
     }
 
     const track = async () => {
@@ -68,21 +69,7 @@ const useTrackTransfer = (): void => {
           }
         } catch (e) {
           console.error('Error tracking transfer:', e);
-        }
-
-        let sleepTime = 5000; // Default to 5 sec between polling attempts
-
-        if (eta) {
-          // If we have an ETA and we're within a minute of it, steadily decrease the polling
-          // frequency until we've reached the ETA. At that point, check once a second.
-          const secondsUntilEta = Math.max(
-            0,
-            (eta.valueOf() - new Date().valueOf()) / 1000,
-          );
-          if (secondsUntilEta < 60) {
-            // If we're within a minute of the ETA, poll more frequently
-            sleepTime = 1000 + 4000 * (secondsUntilEta / 60);
-          }
+          sleepTime = 5000; // Back off if we were polling aggressively
         }
 
         // retry
