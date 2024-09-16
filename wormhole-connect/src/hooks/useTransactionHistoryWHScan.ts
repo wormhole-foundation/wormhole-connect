@@ -163,6 +163,13 @@ const useTransactionHistoryWHScan = (
 
     const txHash = sourceChain.transaction?.txHash;
 
+    // Transaction is in-progress when the below are both true:
+    //   1- Source chain has confirmed
+    //   2- Target has either not received, or received but not completed
+    const inProgress =
+      sourceChain?.status?.toLowerCase() === 'confirmed' &&
+      targetChain?.status?.toLowerCase() !== 'completed';
+
     const txData: Transaction = {
       txHash,
       sender: standarizedProperties.fromAddress || sourceChain.from,
@@ -180,6 +187,7 @@ const useTransactionHistoryWHScan = (
       explorerLink: `${WORMSCAN}tx/${txHash}${
         config.isMainnet ? '' : '?network=TESTNET'
       }`,
+      inProgress,
     };
 
     return txData;

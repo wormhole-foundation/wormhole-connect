@@ -64,6 +64,7 @@ const useTransactionHistoryMayan = (
       sourceTxHash,
       trader,
       destAddress,
+      clientStatus,
     } = tx;
 
     const fromChain = chainIdToChain(sourceChain);
@@ -105,6 +106,7 @@ const useTransactionHistoryMayan = (
       tokenAddress: toTokenAddress,
       senderTimestamp: initiatedAt,
       explorerLink: `https://explorer.mayan.finance/swap/${sourceTxHash}`,
+      inProgress: clientStatus?.toLowerCase() !== 'completed',
     };
 
     return txData;
