@@ -167,7 +167,15 @@ const SingleRoute = (props: Props) => {
         {isFetchingQuote ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>
+          <Typography
+            fontSize={14}
+            sx={{
+              color:
+                quote?.eta && quote.eta < 60 * 1000
+                  ? theme.palette.success.main
+                  : theme.palette.text.primary,
+            }}
+          >
             {quote?.eta ? millisToHumanString(quote.eta) : 'N/A'}
           </Typography>
         )}
