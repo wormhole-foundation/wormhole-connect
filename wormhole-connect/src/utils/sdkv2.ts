@@ -123,19 +123,22 @@ export function getExplorerLink(
   route: routes.Route<Network>,
   txHash: string,
 ): ExplorerLink {
-  switch ((route.constructor as routes.RouteConstructor).meta.name) {
-    case 'MayanSwap':
-      return {
-        url: `https://explorer.mayan.finance/swap/${txHash}`,
-        name: 'Mayan Explorer',
-      };
-    default:
-      return {
-        url: `${WORMSCAN}tx/${txHash}${
-          config.isMainnet ? '' : '?network=TESTNET'
-        }`,
-        name: 'Wormholescan',
-      };
+  if (
+    (route.constructor as routes.RouteConstructor).meta.name.startsWith(
+      'MayanSwap',
+    )
+  ) {
+    return {
+      url: `https://explorer.mayan.finance/swap/${txHash}`,
+      name: 'Mayan Explorer',
+    };
+  } else {
+    return {
+      url: `${WORMSCAN}tx/${txHash}${
+        config.isMainnet ? '' : '?network=TESTNET'
+      }`,
+      name: 'Wormholescan',
+    };
   }
 }
 
