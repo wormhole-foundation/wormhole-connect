@@ -29,8 +29,9 @@ export const useAmountValidation = (props: Props): HookReturn => {
           return minAmount;
         }
 
+        // For some weird reason error instanceof MinAmountError returns false
+        // Workaround, to check if quoteResult.error is indeed instance of MinAmountError
         const minAmountError = quoteResult?.error as routes.MinAmountError;
-
         if (!minAmountError?.min) {
           return minAmount;
         }
@@ -39,8 +40,8 @@ export const useAmountValidation = (props: Props): HookReturn => {
           return minAmountError.min;
         }
 
-        const minAmountNum = parseFloat(minAmountError.min.amount);
-        const existingMin = parseFloat(minAmount.amount);
+        const minAmountNum = BigInt(minAmountError.min.amount);
+        const existingMin = BigInt(minAmount.amount);
         if (minAmountNum < existingMin) {
           return minAmountError.min;
         } else {
@@ -55,21 +56,17 @@ export const useAmountValidation = (props: Props): HookReturn => {
     [props.routes, props.quotesMap],
   );
 
+  const numAmount = Number.parseFloat(amount);
+
   // Don't show errors when no amount is set or it's loading
-  if (amount === '' || props.isLoading) {
+  if (!amount || !numAmount || props.isLoading) {
     return {};
   }
 
-  const numAmount = Number.parseFloat(amount);
   // Input errors
   if (Number.isNaN(numAmount)) {
     return {
       error: 'Amount must be a number.',
-    };
-  }
-  if (numAmount <= 0) {
-    return {
-      error: 'Amount must be greater than 0.',
     };
   }
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
-import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { routes } from '@wormhole-foundation/sdk';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import config from 'config';
 import { RouteState } from 'store/transferInput';
@@ -39,14 +39,22 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
     [supportedRoutes],
   );
 
-  const { quotesMap, isFetching } = useRoutesQuotesBulk(supportedRoutesNames, {
-    amount,
-    sourceChain: fromChain,
-    sourceToken: token,
-    destChain: toChain,
-    destToken,
-    nativeGas: toNativeToken,
-  });
+  const useQuotesBulkParams = useMemo(
+    () => ({
+      amount,
+      sourceChain: fromChain,
+      sourceToken: token,
+      destChain: toChain,
+      destToken,
+      nativeGas: toNativeToken,
+    }),
+    [parseFloat(amount), fromChain, token, toChain, destToken, toNativeToken],
+  );
+
+  const { quotesMap, isFetching } = useRoutesQuotesBulk(
+    supportedRoutesNames,
+    useQuotesBulkParams,
+  );
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
@@ -90,19 +98,12 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
         }
       }
 
-      // 3. Compare relay fees
-      if (routeA.quote.relayFee && routeB.quote.relayFee) {
-        const relayFeeA = sdkAmount.whole(routeA.quote.relayFee.amount);
-        const relayFeeB = sdkAmount.whole(routeB.quote.relayFee.amount);
-        if (relayFeeA > relayFeeB) {
-          return 1;
-        } else if (relayFeeA < relayFeeB) {
-          return -1;
-        }
-      }
-
-      // Don't swap when routes match by all criteria or don't have quotas
-      return 0;
+      // 3. Compare destination token amounts
+      const destAmountA = BigInt(routeA.quote.destinationToken.amount.amount);
+      const destAmountB = BigInt(routeB.quote.destinationToken.amount.amount);
+      // Note: Sort callback return strictly expects Number
+      // Returning BigInt results in TypeError
+      return Number(destAmountB - destAmountA);
     });
   }, [routesWithQuotes]);
 
