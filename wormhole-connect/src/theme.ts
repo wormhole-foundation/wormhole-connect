@@ -201,7 +201,7 @@ export const dark: WormholeConnectTheme = {
   },
   text: {
     primary: '#ffffff',
-    secondary: '#667085',
+    secondary: '#79859e',
   },
   info: {
     50: '#97a5b7',

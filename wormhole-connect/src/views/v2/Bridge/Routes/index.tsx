@@ -92,7 +92,11 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
         const quote = props.quotes[route.name];
         if (!quote || !quote.success) return fastest;
 
-        if (quote.eta !== undefined && quote.eta < fastest.eta) {
+        if (
+          quote.eta !== undefined &&
+          quote.eta < fastest.eta &&
+          quote.eta < 60_000
+        ) {
           return { name: route.name, eta: quote.eta };
         } else {
           return fastest;
@@ -177,6 +181,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
             isSelected={isSelected && !quoteError}
             isFastest={name === fastestRoute.name}
             isCheapest={name === cheapestRoute.name}
+            isOnlyChoice={supportedRoutes.length === 1}
             onSelect={props.onRouteChange}
             quote={quote}
             isFetchingQuote={props.isFetchingQuotes}
