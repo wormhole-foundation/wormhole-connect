@@ -20,7 +20,7 @@ type ReturnProps = {
 };
 
 const useComputeDestinationTokens = (props: Props): ReturnProps => {
-  const { sourceChain, destChain, sourceToken, route } = props;
+  const { sourceChain, destChain, sourceToken } = props;
 
   const dispatch = useDispatch();
 
@@ -85,7 +85,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
     return () => {
       canceled = true;
     };
-  }, [route, sourceToken, sourceChain, destChain, dispatch]);
+  }, [sourceToken, sourceChain, destChain, dispatch]);
 
   return {
     isFetching,
