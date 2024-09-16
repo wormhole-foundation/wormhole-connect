@@ -195,18 +195,21 @@ const TokenList = (props: Props) => {
         const queryLC = query.toLowerCase();
 
         const symbolMatch = token.symbol?.toLowerCase().includes(queryLC);
+        if (symbolMatch) return true;
 
         const displayNameMatch = getDisplayName(token, chain)
           .toLowerCase()
           .includes(queryLC);
+        if (displayNameMatch) return true;
 
         const tokenAddress = isWrappedToken(token, chain)
           ? getTokenBridgeWrappedTokenAddressSync(token, chain)?.toString()
           : token.tokenId?.address;
 
         const tokenAddressMatch = tokenAddress?.toLowerCase().includes(queryLC);
+        if (tokenAddressMatch) return true;
 
-        return Boolean(symbolMatch || displayNameMatch || tokenAddressMatch);
+        return false;
       }}
       renderFn={(token: TokenConfig) => {
         const balance = balances?.[token.key]?.balance;
