@@ -1,7 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  ComponentProps,
+  memo,
+  useEffect,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
+import { usePrevious } from 'utils';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -18,7 +26,47 @@ import { setAmount } from 'store/transferInput';
 import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
-import { usePrevious } from 'utils';
+
+const INPUT_DEBOUNCE = 300;
+
+const DebouncedTextField = memo(
+  ({
+    value,
+    onChange,
+    ...props
+  }: Omit<ComponentProps<typeof TextField>, 'onChange' | 'value'> & {
+    value: string;
+    onChange: (event: string) => void;
+  }) => {
+    const [innerValue, setInnerValue] = useState<string>(value);
+    const [deferredValue] = useDebounce(innerValue, INPUT_DEBOUNCE);
+    const prev = usePrevious(deferredValue);
+
+    const onInnerChange = useCallback(
+      (
+        e: Parameters<
+          NonNullable<ComponentProps<typeof TextField>['onChange']>
+        >[0],
+      ) => {
+        if (Number(e.target.value) < 0) return; // allows "everything" but negative numbers
+        setInnerValue(e.target.value);
+      },
+      [],
+    );
+
+    useEffect(() => {
+      if (prev !== deferredValue && deferredValue !== value) {
+        onChange(deferredValue);
+      }
+    }, [onChange, deferredValue, prev, value]);
+
+    useEffect(() => {
+      setInnerValue(value);
+    }, [value]);
+
+    return <TextField {...props} value={innerValue} onChange={onInnerChange} />;
+  },
+);
 
 const useStyles = makeStyles()((theme) => ({
   amountContainer: {
@@ -148,12 +196,6 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
-  // Update token amount in local state
-  const onAmountChange = useCallback((e: any) => {
-    if (Number(e.target?.value) < 0) return; // allows "everything" but negative numbers
-    setAmountLocal(e.target?.value);
-  }, []);
-
   return (
     <div className={classes.amountContainer}>
       <div className={classes.amountTitle}>
@@ -161,7 +203,7 @@ const AmountInput = (props: Props) => {
       </div>
       <Card variant="elevation">
         <CardContent className={classes.amountCardContent}>
-          <TextField
+          <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}
             inputProps={{
@@ -177,7 +219,7 @@ const AmountInput = (props: Props) => {
             placeholder="0"
             variant="standard"
             value={amountLocal}
-            onChange={onAmountChange}
+            onChange={setAmountLocal}
             onWheel={(e) => {
               // IMPORTANT: We need to prevent the scroll behavior on number inputs.
               // Otherwise it'll increase/decrease the value when user scrolls on the input control.
