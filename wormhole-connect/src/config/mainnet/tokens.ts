@@ -89,19 +89,19 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#F0B90B',
     decimals: 18,
   },
-  MATIC: {
-    key: 'MATIC',
-    symbol: 'MATIC',
+  POL: {
+    key: 'POL',
+    symbol: 'POL',
     nativeChain: 'Polygon',
     icon: Icon.POLYGON,
     coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
-    wrappedAsset: 'WMATIC',
+    wrappedAsset: 'WPOL',
   },
-  WMATIC: {
-    key: 'WMATIC',
-    symbol: 'WMATIC',
+  WPOL: {
+    key: 'WPOL',
+    symbol: 'WPOL',
     nativeChain: 'Polygon',
     icon: Icon.POLYGON,
     tokenId: {

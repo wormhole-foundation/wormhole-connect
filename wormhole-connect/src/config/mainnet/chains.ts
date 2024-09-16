@@ -29,7 +29,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     displayName: 'Polygon',
     explorerUrl: 'https://polygonscan.com/',
     explorerName: 'PolygonScan',
-    gasToken: 'MATIC',
+    gasToken: 'POL',
     chainId: 137,
     icon: Icon.POLYGON,
     maxBlockSearch: 1000,

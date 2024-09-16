@@ -15,7 +15,7 @@ import WormholeConnect, {
 const config: WormholeConnectConfig = {
   env: 'mainnet',
   networks: ['Ethereum', 'Polygon', 'Solana'],
-  tokens: ['ETH', 'WETH', 'MATIC', 'WMATIC'],
+  tokens: ['ETH', 'WETH', 'POL', 'WPOL'],
   rpcs: {
     Ethereum: 'https://rpc.ankr.com/eth',
     Solana: 'https://rpc.ankr.com/solana',
@@ -107,8 +107,8 @@ You can provide a whitelist of tokens under `tokens`. By default, Connect will o
 | USDT           |                                    |
 | DAI            |                                    |
 | BUSD           |                                    |
-| MATIC          | MATIC                              |
-| WMATIC         | WMATIC                             |
+| POL            |                                    |
+| WPOL           |                                    |
 | USDCpolygon    |                                    |
 | BNB            | BNB                                |
 | WBNB           | WBNB                               |
@@ -301,7 +301,7 @@ for the type definition of `TokensConfig`.
 ```json
 {
   "networks": ["Solana", "Ethereum"],
-  "tokens": ["ETH", "WETH", "MATIC", "WMATIC", "BSKT"],
+  "tokens": ["ETH", "WETH", "POL", "WPOL", "BSKT"],
   "tokensConfig": {
     "BSKT": {
       "key": "BSKT",
