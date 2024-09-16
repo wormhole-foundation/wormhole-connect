@@ -16,7 +16,7 @@ const { version } = require(packagePath);
 
 let gitHash = 'unknown';
 try {
-  gitHash = execSync("git log | head -n 1 | awk '{ print $2 }'").toString();
+  gitHash = execSync('git log -1 --format=%H').toString().replace('\n', '');
 } catch (e) {
   console.error(`Failed to determine git hash! Will be missing from telemetry`);
   console.error(e);
