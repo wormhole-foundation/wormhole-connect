@@ -10,7 +10,8 @@ type Quote = routes.Quote<
   routes.Options,
   routes.ValidatedTransferParams<routes.Options>
 >;
-type RouteWithQuote = {
+
+export type RouteWithQuote = {
   route: RouteState;
   quote: Quote;
 };
@@ -18,6 +19,7 @@ type RouteWithQuote = {
 type HookReturn = {
   allSupportedRoutes: RouteState[];
   sortedRoutes: RouteState[];
+  sortedRoutesWithQuotes: RouteWithQuote[];
   quotesMap: ReturnType<typeof useRoutesQuotesBulk>['quotesMap'];
   isFetchingQuotes: boolean;
 };
@@ -64,7 +66,7 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
   }, [supportedRoutes, quotesMap]);
 
   // Only routes with quotes are sorted.
-  const sortedRoutes = useMemo(() => {
+  const sortedRoutesWithQuotes = useMemo(() => {
     return [...routesWithQuotes]
       .sort((routeA, routeB) => {
         const routeConfigA = config.routes.get(routeA.route.name);
@@ -102,17 +104,19 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
 
         // Don't swap when routes match by all criteria or don't have quotas
         return 0;
-      })
-      .map((routeWithQuote) => routeWithQuote.route);
+      });
   }, [routesWithQuotes]);
+
+  const sortedRoutes = useMemo(() => sortedRoutesWithQuotes.map(r => r.route), [sortedRoutesWithQuotes]);
 
   return useMemo(
     () => ({
       allSupportedRoutes: supportedRoutes,
       sortedRoutes,
+      sortedRoutesWithQuotes,
       quotesMap,
       isFetchingQuotes: isFetching,
     }),
-    [supportedRoutes, sortedRoutes, quotesMap, isFetching],
+    [supportedRoutes, sortedRoutesWithQuotes, quotesMap, isFetching],
   );
 };

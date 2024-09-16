@@ -42,6 +42,8 @@ import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
 import type { Chain } from '@wormhole-foundation/sdk';
+import { useAmountValidation } from 'hooks/useAmountValidation';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -126,7 +128,7 @@ const Bridge = () => {
     validations,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { sortedRoutes, quotesMap, isFetchingQuotes } =
+  const { allSupportedRoutes, sortedRoutes, sortedRoutesWithQuotes, quotesMap, isFetchingQuotes } =
     useSortedRoutesWithQuotes();
 
   // Compute and set source tokens
@@ -151,27 +153,23 @@ const Bridge = () => {
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    const validRoutes = sortedRoutes.filter((rs) => rs.supported);
+    const validRoutes = sortedRoutesWithQuotes.filter((rs) => rs.route.supported);
 
-    const routesWithSuccessfulQuote = validRoutes.filter(
-      (rs) => quotesMap[rs.name]?.success,
-    );
-
-    if (routesWithSuccessfulQuote.length === 0) {
+    if (validRoutes.length === 0) {
       setSelectedRoute('');
     } else {
-      const autoselectedRoute = route || routesWithSuccessfulQuote[0]?.name;
+      const autoselectedRoute = route || validRoutes[0].route.name;
 
       // avoids overwriting selected route
       if (!autoselectedRoute || !!selectedRoute) return;
 
-      const routeState = validRoutes?.find(
-        (rs) => rs.name === autoselectedRoute,
+      const routeData = validRoutes?.find(
+        (rs) => rs.route.name === autoselectedRoute,
       );
 
-      if (routeState) setSelectedRoute(routeState.name);
+      if (routeData) setSelectedRoute(routeData.route.name);
     }
-  }, [route, sortedRoutes, quotesMap]);
+  }, [route, sortedRoutesWithQuotes]);
 
   // Pre-fetch available routes
   useFetchSupportedRoutes();
@@ -184,6 +182,20 @@ const Bridge = () => {
 
   // Fetch token prices
   useFetchTokenPrices();
+
+  const { balances, isFetching: isFetchingBalances } = useGetTokenBalances(
+    sendingWallet?.address || '',
+    sourceChain,
+    sourceToken ? [config.tokens[sourceToken]]: [],
+  );
+
+  // Validate amount
+  const amountValidation = useAmountValidation({
+    balance: balances[sourceToken]?.balance,
+    routes: allSupportedRoutes,
+    quotesMap,
+    tokenSymbol: config.tokens[sourceToken]?.symbol ?? '',
+  });
 
   // Get input validation result
   const isValid = useMemo(() => isTransferValid(validations), [validations]);
@@ -412,13 +424,13 @@ const Bridge = () => {
       {sourceAssetPicker}
       {destAssetPicker}
       <TokenWarnings />
-      <AmountInput supportedSourceTokens={supportedSourceTokens} />
+      <AmountInput supportedSourceTokens={supportedSourceTokens} error={amountValidation.error} warning={amountValidation.warning} />
       <Routes
         routes={sortedRoutes}
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}
         quotes={quotesMap}
-        isFetchingQuotes={isFetchingQuotes}
+        isFetchingQuotes={isFetchingQuotes || isFetchingBalances}
       />
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}

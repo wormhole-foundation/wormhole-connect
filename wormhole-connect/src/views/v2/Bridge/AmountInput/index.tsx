@@ -73,6 +73,7 @@ const useStyles = makeStyles()((theme) => ({
 type Props = {
   supportedSourceTokens: Array<TokenConfig>;
   error?: string;
+  warning?: string;
 };
 
 /**
@@ -208,10 +209,10 @@ const AmountInput = (props: Props) => {
         </CardContent>
       </Card>
       <AlertBannerV2
-        error
-        content={props.error}
-        show={!!props.error}
-        color={theme.palette.error.light}
+        error={!!props.error}
+        content={props.error || props.warning}
+        show={!!props.error || !!props.warning}
+        color={props.error ? theme.palette.error.light : theme.palette.grey.A400}
         className={classes.inputError}
       />
     </div>

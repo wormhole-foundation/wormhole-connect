@@ -9,7 +9,7 @@ import {
   circle,
   amount,
 } from '@wormhole-foundation/sdk';
-import { QuoteParams } from 'routes/operator';
+import { QuoteParams, QuoteResult } from 'routes/operator';
 import { calculateUSDPriceRaw } from 'utils';
 
 import config from 'config';
@@ -22,8 +22,6 @@ type Params = {
   amount: string;
   nativeGas: number;
 };
-
-type QuoteResult = routes.QuoteResult<routes.Options>;
 
 type HookReturn = {
   quotesMap: Record<string, QuoteResult | undefined>;
