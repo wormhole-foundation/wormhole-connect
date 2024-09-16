@@ -325,7 +325,15 @@ const ReviewTransaction = (props: Props) => {
         onClick={() => send()}
       >
         {isTransactionInProgress ? (
-          <CircularProgress color="secondary" size={24} />
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            <CircularProgress color="secondary" size={16} />
+            {mobile ? 'Preparing' : 'Preparing transaction'}
+          </Typography>
         ) : (
           <Typography textTransform="none">
             {mobile ? 'Confirm' : 'Confirm transaction'}

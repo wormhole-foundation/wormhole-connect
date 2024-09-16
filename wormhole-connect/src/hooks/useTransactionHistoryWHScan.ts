@@ -1,46 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
+import { WORMSCAN } from 'config/constants';
 import { getTokenById, getWrappedToken } from 'utils';
 
-import type { RootState } from 'store';
 import type { Chain, ChainId } from '@wormhole-foundation/sdk';
-import type { RelayerFee } from 'store/relay';
-
-export interface Transaction {
-  // Transaction hash
-  txHash: string;
-
-  // Stringified addresses
-  sender?: string;
-  recipient: string;
-
-  amount: string;
-  amountUsd: number;
-
-  toChain: Chain;
-  fromChain: Chain;
-
-  // Source token address
-  tokenAddress: string;
-  tokenKey: string;
-  tokenDecimals?: number;
-
-  // Destination token
-  receivedTokenKey?: string;
-  receiveAmount?: string;
-  relayerFee?: RelayerFee;
-
-  // Amount of native gas being received, in destination gas token units
-  // For example 1.0 is 1.0 ETH, not 1 wei
-  receiveNativeAmount?: number;
-
-  // Timestamps
-  senderTimestamp?: string;
-  receiverTimestamp?: string;
-}
+import type { Transaction } from 'config/types';
 
 interface WormholeScanTransaction {
   id: string;
@@ -65,7 +31,7 @@ interface WormholeScanTransaction {
       fromAddress: string;
       toChain: ChainId;
       toAddress: string;
-      tokenChain: number;
+      tokenChain: ChainId;
       tokenAddress: string;
       amount: string;
       feeAddress: string;
@@ -106,6 +72,7 @@ interface WormholeScanTransaction {
 }
 
 type Props = {
+  address: string;
   page?: number;
   pageSize?: number;
 };
@@ -113,7 +80,7 @@ type Props = {
 // Number of decimals from WHScan API results are fixed to 8
 const DECIMALS = 8;
 
-const useFetchTransactionHistory = (
+const useTransactionHistoryWHScan = (
   props: Props,
 ): {
   transactions: Array<Transaction> | undefined;
@@ -128,11 +95,7 @@ const useFetchTransactionHistory = (
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const { sending: sendingWallet } = useSelector(
-    (state: RootState) => state.wallet,
-  );
-
-  const { page = 0, pageSize = 30 } = props;
+  const { address, page = 0, pageSize = 30 } = props;
 
   const parseSingleTx = (tx: WormholeScanTransaction) => {
     const { content, data, sourceChain, targetChain } = tx;
@@ -141,6 +104,7 @@ const useFetchTransactionHistory = (
 
     const fromChainId = standarizedProperties.fromChain || sourceChain?.chainId;
     const toChainId = standarizedProperties.toChain || targetChain?.chainId;
+    const tokenChainId = standarizedProperties.tokenChain;
 
     const fromChain = chainIdToChain(fromChainId);
 
@@ -149,8 +113,10 @@ const useFetchTransactionHistory = (
       return;
     }
 
+    const tokenChain = chainIdToChain(tokenChainId);
+
     const tokenConfig = getTokenById({
-      chain: fromChain,
+      chain: tokenChain,
       address: standarizedProperties.tokenAddress,
     });
 
@@ -160,7 +126,6 @@ const useFetchTransactionHistory = (
     }
 
     const toChain = chainIdToChain(toChainId) as Chain;
-    const toChainConfig = config.chains[toChain];
 
     // If the sent token is native to the destination chain, use sent token.
     // Otherwise get the wrapepd token for the destination chain.
@@ -183,40 +148,38 @@ const useFetchTransactionHistory = (
 
     const receiveAmountValue =
       BigInt(standarizedProperties.amount) - BigInt(standarizedProperties.fee);
-    const receiveAmountDisplay = sdkAmount.display(
-      {
-        amount: receiveAmountValue.toString(),
-        decimals: DECIMALS,
-      },
-      0,
-    );
+    // It's unlikely, but in case the above substraction returns a non-positive number,
+    // we should not show that at all.
+    const receiveAmountDisplay =
+      receiveAmountValue > 0
+        ? sdkAmount.display(
+            {
+              amount: receiveAmountValue.toString(),
+              decimals: DECIMALS,
+            },
+            0,
+          )
+        : '';
 
-    const feeAmountDisplay = sdkAmount.display(
-      {
-        amount: standarizedProperties.fee,
-        decimals: DECIMALS,
-      },
-      0,
-    );
+    const txHash = sourceChain.transaction?.txHash;
 
     const txData: Transaction = {
-      txHash: sourceChain.transaction?.txHash,
+      txHash,
       sender: standarizedProperties.fromAddress || sourceChain.from,
+      recipient: standarizedProperties.toAddress,
       amount: sentAmountDisplay,
       amountUsd: usdAmount ? Number(usdAmount) : 0,
-      recipient: standarizedProperties.toAddress,
-      toChain,
-      fromChain,
-      tokenKey: tokenConfig.key,
-      receivedTokenKey,
       receiveAmount: receiveAmountDisplay,
-      relayerFee: {
-        fee: Number(feeAmountDisplay),
-        tokenKey: toChainConfig?.gasToken || '',
-      },
+      fromChain,
+      toChain,
+      tokenKey: tokenConfig.key,
       tokenAddress: standarizedProperties.tokenAddress,
+      receivedTokenKey,
       senderTimestamp: sourceChain?.timestamp,
       receiverTimestamp: targetChain?.timestamp,
+      explorerLink: `${WORMSCAN}tx/${txHash}${
+        config.isMainnet ? '' : '?network=TESTNET'
+      }`,
     };
 
     return txData;
@@ -285,16 +248,17 @@ const useFetchTransactionHistory = (
 
       try {
         const res = await fetch(
-          `${config.wormholeApi}api/v1/operations?address=${sendingWallet.address}&page=${page}&pageSize=${pageSize}`,
+          `${config.wormholeApi}api/v1/operations?address=${address}&page=${page}&pageSize=${pageSize}`,
           { headers },
         );
 
-        const data = await res.json();
+        const resPayload = await res.json();
 
         if (!cancelled) {
-          if (data?.operations?.length > 0) {
+          const resData = resPayload?.operations;
+          if (resData.length > 0) {
             setTransactions((txs) => {
-              const parsedTxs = parseTransactions(data.operations);
+              const parsedTxs = parseTransactions(resData);
               if (txs && txs.length > 0) {
                 // We need to keep track of existing tx hashes to prevent duplicates in the final list
                 const existingTxs = new Set<string>();
@@ -315,13 +279,15 @@ const useFetchTransactionHistory = (
             });
           }
 
-          if (data?.operations?.length < pageSize) {
+          if (resData?.length < pageSize) {
             setHasMore(false);
           }
         }
       } catch (error) {
         if (!cancelled) {
-          setError(`Error fetching transaction history: ${error}`);
+          setError(
+            `Error fetching transaction history from WormholeScan: ${error}`,
+          );
         }
       } finally {
         setIsFetching(false);
@@ -343,4 +309,4 @@ const useFetchTransactionHistory = (
   };
 };
 
-export default useFetchTransactionHistory;
+export default useTransactionHistoryWHScan;

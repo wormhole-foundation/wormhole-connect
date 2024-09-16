@@ -101,6 +101,7 @@ export function buildConfig(
       customConfig?.rest,
     ),
     graphql: Object.assign({}, networkData.graphql, customConfig?.graphql),
+    mayanApi: 'https://explorer-api.mayan.finance',
     wormholeApi: {
       Mainnet: 'https://api.wormholescan.io/',
       Testnet: 'https://api.testnet.wormholescan.io/',

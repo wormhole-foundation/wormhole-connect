@@ -13,7 +13,7 @@ import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import config from 'config';
 import PoweredByIcon from 'icons/PoweredBy';
-import useFetchTransactionHistory from 'hooks/useFetchTransactionHistory';
+import useTransactionHistory from 'hooks/useTransactionHistory';
 import { setRoute as setAppRoute } from 'store/router';
 import { joinClass } from 'utils/style';
 import TxHistoryItem from 'views/v2/TxHistory/Item';
@@ -67,7 +67,7 @@ const TxHistory = () => {
 
   const [page, setPage] = useState(0);
 
-  const { transactions, isFetching, hasMore } = useFetchTransactionHistory({
+  const { transactions, isFetching, hasMore } = useTransactionHistory({
     page,
   });
 
