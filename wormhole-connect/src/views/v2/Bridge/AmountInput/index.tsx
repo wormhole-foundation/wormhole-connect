@@ -173,6 +173,12 @@ const AmountInput = (props: Props) => {
                 height: '40px',
                 padding: '4px',
               },
+              onWheel: (e) => {
+                // IMPORTANT: We need to prevent the scroll behavior on number inputs.
+                // Otherwise it'll increase/decrease the value when user scrolls on the input control.
+                // See for details: https://github.com/mui/material-ui/issues/7960
+                e.currentTarget.blur();
+              },
             }}
             placeholder="0"
             variant="standard"

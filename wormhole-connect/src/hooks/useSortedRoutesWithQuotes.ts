@@ -60,7 +60,7 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
         }
       })
       .filter(Boolean) as RouteWithQuote[];
-      // Safe to cast, as falsy values are filtered
+    // Safe to cast, as falsy values are filtered
   }, [supportedRoutes, quotesMap]);
 
   // Only routes with quotes are sorted.

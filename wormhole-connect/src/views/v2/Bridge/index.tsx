@@ -126,7 +126,7 @@ const Bridge = () => {
     validations,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { sortedRoutes, allSupportedRoutes, quotesMap, isFetchingQuotes } =
+  const { sortedRoutes, quotesMap, isFetchingQuotes } =
     useSortedRoutesWithQuotes();
 
   // Compute and set source tokens
@@ -414,7 +414,7 @@ const Bridge = () => {
       <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
       <Routes
-        sortedSupportedRoutes={sortedRoutes}
+        routes={sortedRoutes}
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}
         quotes={quotesMap}
