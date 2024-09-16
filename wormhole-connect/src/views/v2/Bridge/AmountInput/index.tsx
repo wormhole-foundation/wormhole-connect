@@ -1,4 +1,12 @@
-import React, { ChangeEventHandler, ComponentProps, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  ChangeEventHandler,
+  ComponentProps,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebouncedCallback } from 'use-debounce';
@@ -212,7 +220,9 @@ const AmountInput = (props: Props) => {
         error={!!props.error}
         content={props.error || props.warning}
         show={!!props.error || !!props.warning}
-        color={props.error ? theme.palette.error.light : theme.palette.grey.A400}
+        color={
+          props.error ? theme.palette.error.light : theme.palette.grey.A400
+        }
         className={classes.inputError}
       />
     </div>

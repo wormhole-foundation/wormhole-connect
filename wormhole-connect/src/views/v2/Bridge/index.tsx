@@ -128,8 +128,13 @@ const Bridge = () => {
     validations,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { allSupportedRoutes, sortedRoutes, sortedRoutesWithQuotes, quotesMap, isFetchingQuotes } =
-    useSortedRoutesWithQuotes();
+  const {
+    allSupportedRoutes,
+    sortedRoutes,
+    sortedRoutesWithQuotes,
+    quotesMap,
+    isFetchingQuotes,
+  } = useSortedRoutesWithQuotes();
 
   // Compute and set source tokens
   const { isFetching: isFetchingSupportedSourceTokens } =
@@ -153,7 +158,9 @@ const Bridge = () => {
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    const validRoutes = sortedRoutesWithQuotes.filter((rs) => rs.route.supported);
+    const validRoutes = sortedRoutesWithQuotes.filter(
+      (rs) => rs.route.supported,
+    );
 
     if (validRoutes.length === 0) {
       setSelectedRoute('');
@@ -186,7 +193,7 @@ const Bridge = () => {
   const { balances, isFetching: isFetchingBalances } = useGetTokenBalances(
     sendingWallet?.address || '',
     sourceChain,
-    sourceToken ? [config.tokens[sourceToken]]: [],
+    sourceToken ? [config.tokens[sourceToken]] : [],
   );
 
   // Validate amount
@@ -424,7 +431,11 @@ const Bridge = () => {
       {sourceAssetPicker}
       {destAssetPicker}
       <TokenWarnings />
-      <AmountInput supportedSourceTokens={supportedSourceTokens} error={amountValidation.error} warning={amountValidation.warning} />
+      <AmountInput
+        supportedSourceTokens={supportedSourceTokens}
+        error={amountValidation.error}
+        warning={amountValidation.warning}
+      />
       <Routes
         routes={sortedRoutes}
         selectedRoute={selectedRoute}
