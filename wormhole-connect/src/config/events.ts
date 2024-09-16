@@ -1,4 +1,4 @@
-import { CONNECT_VERSION } from './constants';
+import { CONNECT_VERSION, CONNECT_GIT_HASH } from './constants';
 import {
   WormholeConnectEvent,
   WormholeConnectEventHandler,
@@ -12,6 +12,7 @@ export function wrapEventHandler(
     const eventWithMeta: WormholeConnectEventWithMeta = {
       meta: {
         version: CONNECT_VERSION,
+        hash: CONNECT_GIT_HASH,
         host: window?.location?.host,
       },
       ...event,

@@ -90,6 +90,7 @@ export type WormholeConnectEvent =
 export interface WormholeConnectEventMeta {
   meta: {
     version: string;
+    hash: string;
     host: string;
   };
 }
