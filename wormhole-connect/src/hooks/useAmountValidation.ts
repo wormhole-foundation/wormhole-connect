@@ -15,6 +15,7 @@ type Props = {
   routes: RouteState[];
   quotesMap: Record<string, QuoteResult | undefined>;
   tokenSymbol: string;
+  isLoading: boolean;
 };
 
 export const useAmountValidation = (props: Props): HookReturn => {
@@ -54,7 +55,8 @@ export const useAmountValidation = (props: Props): HookReturn => {
     [props.routes, props.quotesMap],
   );
 
-  if (amount === '') {
+  // Don't show errors when no amount is set or it's loading
+  if (amount === '' || props.isLoading) {
     return {};
   }
 

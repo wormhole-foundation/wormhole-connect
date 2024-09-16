@@ -202,6 +202,7 @@ const Bridge = () => {
     routes: allSupportedRoutes,
     quotesMap,
     tokenSymbol: config.tokens[sourceToken]?.symbol ?? '',
+    isLoading: isFetchingBalances || isFetchingQuotes,
   });
 
   // Get input validation result
