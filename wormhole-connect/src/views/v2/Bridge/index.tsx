@@ -17,9 +17,8 @@ import PoweredByIcon from 'icons/PoweredBy';
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import useSupportedRoutes from 'hooks/useSupportedRoutes';
+import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
-import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
 import { setRoute as setAppRoute } from 'store/router';
 import {
@@ -39,7 +38,7 @@ import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
-import { useSortedSupportedRoutes } from 'hooks/useSortedSupportedRoutes';
+import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -114,8 +113,6 @@ const Bridge = () => {
   const [selectedRoute, setSelectedRoute] = useState<string>();
   const [willReviewTransaction, setWillReviewTransaction] = useState(false);
 
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
-
   const {
     fromChain: sourceChain,
     toChain: destChain,
@@ -129,7 +126,8 @@ const Bridge = () => {
     validations,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const sortedSupportedRoutes = useSortedSupportedRoutes();
+  const { sortedRoutes, allSupportedRoutes, quotesMap, isFetchingQuotes } =
+    useSortedRoutesWithQuotes();
 
   // Compute and set source tokens
   const { isFetching: isFetchingSupportedSourceTokens } =
@@ -150,22 +148,10 @@ const Bridge = () => {
       route: selectedRoute,
     });
 
-  const { quotesMap, isFetching: isFetchingQuotes } = useRoutesQuotesBulk(
-    sortedSupportedRoutes.map((r) => r.name),
-    {
-      amount,
-      sourceChain,
-      sourceToken,
-      destChain,
-      destToken,
-      nativeGas: toNativeToken,
-    },
-  );
-
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    const validRoutes = sortedSupportedRoutes.filter((rs) => rs.supported);
+    const validRoutes = sortedRoutes.filter((rs) => rs.supported);
 
     const routesWithSuccessfulQuote = validRoutes.filter(
       (rs) => quotesMap[rs.name]?.success,
@@ -185,10 +171,10 @@ const Bridge = () => {
 
       if (routeState) setSelectedRoute(routeState.name);
     }
-  }, [route, sortedSupportedRoutes, quotesMap]);
+  }, [route, sortedRoutes, quotesMap]);
 
   // Pre-fetch available routes
-  useSupportedRoutes();
+  useFetchSupportedRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
@@ -428,7 +414,7 @@ const Bridge = () => {
       <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
       <Routes
-        sortedSupportedRoutes={sortedSupportedRoutes}
+        sortedSupportedRoutes={sortedRoutes}
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}
         quotes={quotesMap}

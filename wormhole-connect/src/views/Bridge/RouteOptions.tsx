@@ -17,7 +17,7 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import Price from 'components/Price';
 import { finality, Chain } from '@wormhole-foundation/sdk';
-import useSupportedRoutes from 'hooks/useSupportedRoutes';
+import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -353,7 +353,7 @@ function RouteOptions() {
     (state: RootState) => state.transferInput,
   );
 
-  useSupportedRoutes();
+  useFetchSupportedRoutes();
 
   const onSelect = useCallback(
     (value: string) => {

@@ -1,15 +1,7 @@
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  ComponentProps,
-  memo,
-  useEffect,
-} from 'react';
+import React, { ChangeEventHandler, ComponentProps, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useDebounce } from 'use-debounce';
-import { usePrevious } from 'utils';
+import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -23,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
-import { getMaxAmt, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
 
@@ -39,26 +30,16 @@ const DebouncedTextField = memo(
     onChange: (event: string) => void;
   }) => {
     const [innerValue, setInnerValue] = useState<string>(value);
-    const [deferredValue] = useDebounce(innerValue, INPUT_DEBOUNCE);
-    const prev = usePrevious(deferredValue);
+    const defferedOnChange = useDebouncedCallback(onChange, INPUT_DEBOUNCE);
 
-    const onInnerChange = useCallback(
-      (
-        e: Parameters<
-          NonNullable<ComponentProps<typeof TextField>['onChange']>
-        >[0],
-      ) => {
+    const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+      (e) => {
         if (Number(e.target.value) < 0) return; // allows "everything" but negative numbers
         setInnerValue(e.target.value);
+        defferedOnChange(e.target.value);
       },
       [],
     );
-
-    useEffect(() => {
-      if (prev !== deferredValue && deferredValue !== value) {
-        onChange(deferredValue);
-      }
-    }, [onChange, deferredValue, prev, value]);
 
     useEffect(() => {
       setInnerValue(value);
@@ -91,6 +72,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   supportedSourceTokens: Array<TokenConfig>;
+  error?: string;
 };
 
 /**
@@ -109,12 +91,7 @@ const AmountInput = (props: Props) => {
     fromChain: sourceChain,
     token: sourceToken,
     amount,
-    route,
   } = useSelector((state: RootState) => state.transferInput);
-
-  const prevAmount = usePrevious(amount);
-
-  const [amountLocal, setAmountLocal] = useState(amount);
 
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
@@ -126,29 +103,6 @@ const AmountInput = (props: Props) => {
     () => balances?.[sourceToken]?.balance || '',
     [balances, sourceToken],
   );
-
-  const validationResult = useMemo(
-    () => validateAmount(amountLocal, tokenBalance, getMaxAmt(route)),
-    [amountLocal, tokenBalance, route],
-  );
-
-  // Debouncing validation to prevent false-positive results while user is still typing
-  const [debouncedValidationResult] = useDebounce(validationResult, 500);
-
-  useEffect(() => {
-    // Update the redux state only when the amount is valid
-    // This will prevent unnecessary API calls triggered by an amount change
-    if (!validationResult) {
-      dispatch(setAmount(amountLocal));
-    }
-  }, [amountLocal, validationResult]);
-
-  useEffect(() => {
-    // Updating local state when amount has been changed from outside
-    if (amount !== prevAmount && amount !== amountLocal) {
-      setAmountLocal(amount);
-    }
-  }, [amount, prevAmount]);
 
   const isInputDisabled = useMemo(
     () => !sourceChain || !sourceToken,
@@ -196,6 +150,10 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
+  const handleChange = useCallback((newValue: string): void => {
+    dispatch(setAmount(newValue));
+  }, []);
+
   return (
     <div className={classes.amountContainer}>
       <div className={classes.amountTitle}>
@@ -208,7 +166,7 @@ const AmountInput = (props: Props) => {
             disabled={isInputDisabled}
             inputProps={{
               style: {
-                color: debouncedValidationResult
+                color: props.error
                   ? theme.palette.error.light
                   : theme.palette.text.primary,
                 fontSize: 24,
@@ -218,8 +176,8 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={amountLocal}
-            onChange={setAmountLocal}
+            value={amount}
+            onChange={handleChange}
             onWheel={(e) => {
               // IMPORTANT: We need to prevent the scroll behavior on number inputs.
               // Otherwise it'll increase/decrease the value when user scrolls on the input control.
@@ -245,8 +203,8 @@ const AmountInput = (props: Props) => {
       </Card>
       <AlertBannerV2
         error
-        content={debouncedValidationResult}
-        show={!!debouncedValidationResult}
+        content={props.error}
+        show={!!props.error}
         color={theme.palette.error.light}
         className={classes.inputError}
       />
