@@ -13,11 +13,9 @@ import AlertBannerV2 from 'components/v2/AlertBanner';
 import type { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
 import { routes } from '@wormhole-foundation/sdk';
+import { CircularProgress } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
-  routes: {
-    width: '100%',
-  },
   connectWallet: {
     display: 'flex',
     alignItems: 'center',
@@ -44,15 +42,6 @@ const useStyles = makeStyles()((theme: any) => ({
       textDecoration: 'underline',
     },
   },
-  routesWrapper: {
-    width: '100%',
-  },
-  routesBlock: {
-    marginBottom: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
 }));
 
 type Props = {
@@ -60,7 +49,8 @@ type Props = {
   selectedRoute?: string;
   onRouteChange: (route: string) => void;
   quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
-  isFetchingQuotes: boolean;
+  isLoading: boolean;
+  hasError: boolean;
 };
 
 const Routes = ({ ...props }: Props) => {
@@ -150,8 +140,12 @@ const Routes = ({ ...props }: Props) => {
     );
   }
 
-  if (supportedRoutes.length === 0 || !walletsConnected) {
+  if (supportedRoutes.length === 0 || !walletsConnected || props.hasError) {
     return null;
+  }
+
+  if (props.isLoading) {
+    return <CircularProgress />;
   }
 
   if (walletsConnected && !(Number(amount) > 0)) {
@@ -198,7 +192,7 @@ const Routes = ({ ...props }: Props) => {
             isOnlyChoice={supportedRoutes.length === 1}
             onSelect={props.onRouteChange}
             quote={quote}
-            isFetchingQuote={props.isFetchingQuotes}
+            isFetchingQuote={props.isLoading}
           />
         );
       })}

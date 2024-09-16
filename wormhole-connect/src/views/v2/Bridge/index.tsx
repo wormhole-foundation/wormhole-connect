@@ -385,6 +385,8 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
+  const hasError = !!amountValidation.error;
+
   const showReviewTransactionButton =
     sourceChain &&
     sourceToken &&
@@ -393,7 +395,8 @@ const Bridge = () => {
     sendingWallet.address &&
     receivingWallet.address &&
     selectedRoute &&
-    Number(amount) > 0;
+    Number(amount) > 0 &&
+    !hasError;
 
   const supportedRouteSelected = useMemo(
     () =>
@@ -441,7 +444,8 @@ const Bridge = () => {
         selectedRoute={selectedRoute}
         onRouteChange={setSelectedRoute}
         quotes={quotesMap}
-        isFetchingQuotes={isFetchingQuotes || isFetchingBalances}
+        isLoading={isFetchingQuotes || isFetchingBalances}
+        hasError={hasError}
       />
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}

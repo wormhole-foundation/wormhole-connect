@@ -26,7 +26,7 @@ import { setAmount } from 'store/transferInput';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
 
-const INPUT_DEBOUNCE = 300;
+const INPUT_DEBOUNCE = 500;
 
 const DebouncedTextField = memo(
   ({
