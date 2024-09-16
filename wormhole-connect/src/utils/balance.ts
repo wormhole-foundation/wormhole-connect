@@ -23,13 +23,11 @@ export function toFixedDecimals(number: string, numDecimals: number) {
     return '0';
   }
 
-  const index = number.indexOf('.');
-  if (index === -1) {
+  if (!number.includes('.')) {
     return number;
   }
 
-  const end = index + (numDecimals || 18) + 1;
-  return `${Number.parseFloat(number.slice(0, end))}`;
+  return parseFloat(number).toFixed(numDecimals);
 }
 
 // Cache that stores calls to the coingecko API
