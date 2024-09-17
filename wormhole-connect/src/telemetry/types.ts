@@ -11,6 +11,9 @@ export interface TransferDetails {
   toToken: TokenDetails;
   fromChain: Chain;
   toChain: Chain;
+  txId?: string;
+  USDAmount?: number;
+  amount?: number;
 }
 
 export type TransferEventType =
