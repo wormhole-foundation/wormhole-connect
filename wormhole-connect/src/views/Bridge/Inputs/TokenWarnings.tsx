@@ -224,7 +224,7 @@ function TokenWarnings() {
 
   useEffect(() => {
     // if the url it's empty that means the user doesn't want this feature
-    const cctpWarningFlag = !!config.cctpWarning;
+    const cctpWarningFlag = !!config.ui.cctpWarning;
     // check if the tokens will be wrapped USDC
     const isResultWrappedUSDC =
       tokenConfig?.symbol === 'USDC' &&
@@ -306,7 +306,7 @@ function TokenWarnings() {
       This transaction will transfer wrapped USDC (wUSDC) to the destination
       chain. If you want to transfer native USDC on chains supported by Circle's
       CCTP, use the{' '}
-      <Link target={'_blank'} variant="inherit" href={config.cctpWarning}>
+      <Link target={'_blank'} variant="inherit" href={config.ui.cctpWarning}>
         USDC Bridge
       </Link>
       .

@@ -169,7 +169,7 @@ function TxSearch() {
       <PageHeader
         title="Resume transaction"
         description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
         back
       />
 
@@ -213,7 +213,7 @@ function TxSearch() {
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
         {loading ? <CircularProgress size={24} /> : 'Search'}
       </Button>
-      {config.showHamburgerMenu ? null : (
+      {config.ui.showHamburgerMenu ? null : (
         <div className={classes.footerNavBar}>
           <FooterNavBar />
         </div>

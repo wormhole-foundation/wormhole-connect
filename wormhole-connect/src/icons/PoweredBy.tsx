@@ -94,11 +94,11 @@ function PartnerLogo(props: { src: string }) {
 
 function PoweredByIcon(props: { color: string }) {
   const { classes } = useStyles();
-  return config.partnerLogo ? (
+  return config.ui.partnerLogo ? (
     <Box className={classes.container}>
       <WormholeLogo color={props.color} />
       <SeparatorSymbol color={props.color} />
-      <PartnerLogo src={config.partnerLogo} />
+      <PartnerLogo src={config.ui.partnerLogo} />
     </Box>
   ) : (
     <WormholeLogo color={props.color} />

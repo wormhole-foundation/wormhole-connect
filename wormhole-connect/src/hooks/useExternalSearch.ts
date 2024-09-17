@@ -15,8 +15,8 @@ export function useExternalSearch(): ExternalSearch {
   const [txHash, setTxHash] = useState<string>();
   const [chainName, setChainName] = useState<Chain>();
   useEffect(() => {
-    if (config.searchTx?.chainName && config.searchTx?.txHash) {
-      const chainName = config.searchTx.chainName.toLowerCase() as Chain;
+    if (config.ui.searchTx?.chainName && config.ui.searchTx?.txHash) {
+      const chainName = config.ui.searchTx.chainName.toLowerCase() as Chain;
 
       const validChains = config.chainsArr
         .filter((chain) => chain.key !== 'Wormchain')
@@ -24,7 +24,7 @@ export function useExternalSearch(): ExternalSearch {
 
       if (validChains.includes(chainName)) {
         setHasExternalSearchtate(true);
-        setTxHash(config.searchTx.txHash);
+        setTxHash(config.ui.searchTx.txHash);
         setChainName(chainName);
       }
     }
@@ -38,9 +38,9 @@ export function useExternalSearch(): ExternalSearch {
       setHasExternalSearchtate(false);
       setTxHash(undefined);
       setChainName(undefined);
-      if (config.searchTx) {
-        config.searchTx.chainName = undefined;
-        config.searchTx.txHash = undefined;
+      if (config.ui.searchTx) {
+        config.ui.searchTx.chainName = undefined;
+        config.ui.searchTx.txHash = undefined;
       }
     },
   };

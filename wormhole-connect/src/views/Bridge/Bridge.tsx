@@ -137,7 +137,7 @@ function Bridge() {
       <PageHeader
         title={pageHeader.text}
         align={pageHeader.align}
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
       />
       <FromInputs />
       <SwapChains />
@@ -162,7 +162,7 @@ function Bridge() {
           <Send valid={!!valid} />
         </div>
       </Collapse>
-      {config.showHamburgerMenu ? null : <FooterNavBar />}
+      {config.ui.showHamburgerMenu ? null : <FooterNavBar />}
 
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
@@ -176,10 +176,10 @@ const getPageHeader = (): { text: string; align: Alignment } => {
     text: '',
     align: 'left',
   };
-  if (typeof config.pageHeader === 'string') {
-    return { ...defaults, text: config.pageHeader };
+  if (typeof config.ui.pageHeader === 'string') {
+    return { ...defaults, text: config.ui.pageHeader };
   } else {
-    return { ...defaults, ...config.pageHeader };
+    return { ...defaults, ...config.ui.pageHeader };
   }
 };
 

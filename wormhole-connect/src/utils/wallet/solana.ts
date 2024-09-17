@@ -59,7 +59,7 @@ export function fetchOptions() {
     solong: new SolanaWallet(new SolongWalletAdapter(), connection),
     torus: new SolanaWallet(new TorusWalletAdapter(), connection),
     nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-    ...(config.walletConnectProjectId
+    ...(config.ui.walletConnectProjectId
       ? {
           walletConnect: new SolanaWallet(
             new WalletConnectWalletAdapter({
@@ -67,7 +67,7 @@ export function fetchOptions() {
                 ? SolanaNetwork.Mainnet
                 : SolanaNetwork.Devnet,
               options: {
-                projectId: config.walletConnectProjectId,
+                projectId: config.ui.walletConnectProjectId,
               },
             }),
             connection,

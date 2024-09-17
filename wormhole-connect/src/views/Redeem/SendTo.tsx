@@ -260,7 +260,7 @@ function SendTo() {
   //  }
   //}
 
-  const { previewMode } = config;
+  const { previewMode } = config.ui;
 
   return (
     <div>
