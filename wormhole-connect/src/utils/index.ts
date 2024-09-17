@@ -394,6 +394,10 @@ export const isFrankensteinToken = (token: TokenConfig, chain: Chain) => {
     return true;
   }
 
+  if (token.symbol === 'tBTC') {
+    return true;
+  }
+
   return (
     !(['Ethereum', 'Sepolia'] as Chain[]).includes(nativeChain) &&
     ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC', 'USDC.e'].includes(symbol)
