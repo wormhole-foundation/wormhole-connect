@@ -16,7 +16,6 @@ import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import { setRoute } from './store/router';
 import { clearWallets } from './store/wallet';
-import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
 
 import BridgeV2 from 'views/v2/Bridge';
@@ -80,9 +79,9 @@ function AppRouter(props: Props) {
       config.whLegacy.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
-    if (route === bridgeRoute && prevRoute !== bridgeRoute) {
+    const isEnteringBridge = route === bridgeRoute && prevRoute !== bridgeRoute;
+    if (isEnteringBridge && prevRoute !== 'history') {
       dispatch(clearTransfer());
-      dispatch(clearPorticoBridge());
     }
   }, [route, prevRoute, dispatch]);
 
