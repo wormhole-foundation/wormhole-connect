@@ -347,6 +347,7 @@ const Bridge = () => {
         >
           <div>
             <IconButton
+              sx={{ padding: 0 }}
               disabled={isTxHistoryDisabled}
               onClick={() => dispatch(setAppRoute('history'))}
             >
