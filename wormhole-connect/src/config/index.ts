@@ -39,6 +39,7 @@ import RouteOperator from 'routes/operator';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { CHAIN_ORDER } from './constants';
 import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
+import { createUiConfig } from './ui';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -159,28 +160,7 @@ export function buildConfig(
     routes: new RouteOperator(customConfig?.routes),
 
     // UI details
-    cta: customConfig?.cta,
-    explorer: customConfig?.explorer,
-    attestUrl: {
-      mainnet: 'https://portalbridge.com/advanced-tools/#/register',
-      devnet: '',
-      testnet:
-        'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
-    }[network],
-    bridgeDefaults: customConfig?.bridgeDefaults,
-    cctpWarning: customConfig?.cctpWarning?.href || '',
-    pageHeader: customConfig?.pageHeader,
-    pageSubHeader: customConfig?.pageSubHeader,
-    menu: customConfig?.menu ?? [],
-    searchTx: customConfig?.searchTx,
-    moreTokens: customConfig?.moreTokens,
-    moreNetworks: customConfig?.moreNetworks,
-    partnerLogo: customConfig?.partnerLogo,
-    walletConnectProjectId:
-      customConfig?.walletConnectProjectId ??
-      import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
-    showHamburgerMenu: customConfig?.showHamburgerMenu ?? false,
-    previewMode: !!customConfig?.previewMode,
+    ui: createUiConfig({ ...customConfig?.ui }),
 
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,

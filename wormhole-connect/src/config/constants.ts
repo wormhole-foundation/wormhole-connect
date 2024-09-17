@@ -1,4 +1,4 @@
-import { type Chain } from '@wormhole-foundation/sdk';
+import { type Chain, Network } from '@wormhole-foundation/sdk';
 
 export const WORMSCAN = 'https://wormholescan.io/#/';
 
@@ -32,3 +32,11 @@ export const CHAIN_ORDER: Chain[] = [
   'Evmos',
   'Mantle',
 ];
+
+export const getAttestUrl = (network: Network): string => {
+  if (network === 'Testnet') {
+    return 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
+  } else {
+    return 'https://portalbridge.com/advanced-tools/#/register';
+  }
+};

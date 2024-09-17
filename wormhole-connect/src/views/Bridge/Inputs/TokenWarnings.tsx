@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { getAttestUrl } from 'config/constants';
 
 import { RootState } from 'store';
 import {
@@ -282,7 +283,11 @@ function TokenWarnings() {
   const noForeignAssetWarning = (
     <Typography>
       This token is not registered, you must{' '}
-      <Link target={'_blank'} variant="inherit" href={config.attestUrl}>
+      <Link
+        target={'_blank'}
+        variant="inherit"
+        href={getAttestUrl(config.network)}
+      >
         register
       </Link>{' '}
       it before you continue. Newly registered tokens will not have liquid

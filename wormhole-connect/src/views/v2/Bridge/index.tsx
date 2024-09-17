@@ -346,7 +346,7 @@ const Bridge = () => {
     const isTxHistoryDisabled = !sendingWallet?.address;
     return (
       <div className={classes.bridgeHeader}>
-        <Header align="left" text="Bridge assets" size={20} />
+        <Header align="left" text={config.title} size={20} />
         <Tooltip
           title={isTxHistoryDisabled ? 'No connected wallets found' : ''}
         >
