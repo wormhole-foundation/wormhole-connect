@@ -1,3 +1,4 @@
+// TODO: SDKV2 remove this file
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   DataWrapper,
