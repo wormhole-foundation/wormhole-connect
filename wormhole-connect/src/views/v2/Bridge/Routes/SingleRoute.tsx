@@ -38,6 +38,7 @@ const useStyles = makeStyles()((theme: any) => ({
     height: '14px',
     position: 'relative',
     top: '2px',
+    marginRight: '4px',
     fill: theme.palette.primary.main,
   },
   cheapestBadge: {
@@ -45,6 +46,7 @@ const useStyles = makeStyles()((theme: any) => ({
     height: '12px',
     position: 'relative',
     top: '1px',
+    marginRight: '3px',
     fill: theme.palette.primary.main,
   },
 }));

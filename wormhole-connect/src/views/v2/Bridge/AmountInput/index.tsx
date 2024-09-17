@@ -87,6 +87,9 @@ const useStyles = makeStyles()((theme) => ({
   inputError: {
     marginTop: '12px',
   },
+  balance: {
+    color: theme.palette.text.secondary,
+  },
 }));
 
 type Props = {
@@ -162,13 +165,22 @@ const AmountInput = (props: Props) => {
 
     return (
       <Stack direction="row" alignItems="center">
-        <Typography fontSize={14} textAlign="right" sx={{ marginRight: '4px' }}>
+        <Typography
+          fontSize={14}
+          textAlign="right"
+          sx={{ marginRight: '4px' }}
+          className={classes.balance}
+        >
           Balance:
         </Typography>
         {isFetching ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14} textAlign="right">
+          <Typography
+            fontSize={14}
+            textAlign="right"
+            className={classes.balance}
+          >
             {tokenBalance}
           </Typography>
         )}
@@ -199,7 +211,7 @@ const AmountInput = (props: Props) => {
   return (
     <div className={classes.amountContainer}>
       <div className={classes.amountTitle}>
-        <Typography variant="body2">Amount:</Typography>
+        <Typography variant="body2">Amount</Typography>
       </div>
       <Card variant="elevation">
         <CardContent className={classes.amountCardContent}>

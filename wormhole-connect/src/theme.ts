@@ -68,10 +68,7 @@ export type WormholeConnectPartialTheme = {
   modal?: {
     background: string;
   };
-  font?: {
-    primary: string;
-    header: string;
-  };
+  font?: string;
   logo?: string;
 };
 
@@ -149,10 +146,7 @@ export const light: WormholeConnectTheme = {
   modal: {
     background: '#ffffff',
   },
-  font: {
-    primary: '"Inter", sans-serif',
-    header: '"IBM Plex Mono", monospace',
-  },
+  font: '"Inter", sans-serif',
   logo: '#000000',
 };
 
@@ -299,10 +293,7 @@ export const dark: WormholeConnectTheme = {
   modal: {
     background: '#181a2d',
   },
-  font: {
-    primary: '"Inter", sans-serif',
-    header: '"Inter", sans-serif',
-  },
+  font: '"Inter", sans-serif',
   logo: '#ffffff',
 };
 
@@ -335,6 +326,9 @@ export const getDesignTokens = (customTheme: WormholeConnectPartialTheme) => {
         lg: 900,
         xl: 1200,
       },
+    },
+    typography: {
+      fontFamily: customTheme.font ?? '"Inter", sans-serif',
     },
     palette: {
       ...theme,
