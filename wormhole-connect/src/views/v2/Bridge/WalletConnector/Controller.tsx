@@ -146,12 +146,12 @@ const ConnectedWallet = (props: Props) => {
           <ListItemButton onClick={copyAddress}>
             <Typography fontSize={14}>Copy address</Typography>
           </ListItemButton>
-          {config.explorer ? (
+          {config.ui.explorer ? (
             <ExplorerLink
               address={wallet.address}
-              href={config.explorer.href}
-              target={config.explorer.target}
-              label={config.explorer.label}
+              href={config.ui.explorer.href}
+              target={config.ui.explorer.target}
+              label={config.ui.explorer.label}
             />
           ) : null}
           <ListItemButton onClick={connectWallet}>

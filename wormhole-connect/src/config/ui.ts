@@ -8,21 +8,21 @@ export type UiConfig = {
     link: string;
   };
   explorer?: ExplorerConfig;
-  bridgeDefaults?: BridgeDefaults;
+  defaultInputs?: DefaultInputs;
   cctpWarning: string;
   pageHeader?: string | PageHeader;
   pageSubHeader?: string;
   menu: MenuEntry[];
   searchTx?: SearchTxConfig;
   moreTokens?: MoreTokenConfig;
-  moreNetworks?: MoreChainConfig;
+  moreChains?: MoreChainConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
   showHamburgerMenu: boolean;
   previewMode?: boolean; // Disables making transfers
 };
 
-export interface BridgeDefaults {
+export interface DefaultInputs {
   fromChain?: Chain;
   toChain?: Chain;
   tokenKey?: string;
@@ -80,14 +80,14 @@ export function createUiConfig(customConfig: Partial<UiConfig>): UiConfig {
     title: customConfig?.title ?? 'Wormhole Connect',
     cta: customConfig?.cta,
     explorer: customConfig?.explorer,
-    bridgeDefaults: customConfig?.bridgeDefaults,
+    defaultInputs: customConfig?.defaultInputs,
     cctpWarning: customConfig?.cctpWarning || '',
     pageHeader: customConfig?.pageHeader,
     pageSubHeader: customConfig?.pageSubHeader,
     menu: customConfig?.menu ?? [],
     searchTx: customConfig?.searchTx,
     moreTokens: customConfig?.moreTokens,
-    moreNetworks: customConfig?.moreNetworks,
+    moreChains: customConfig?.moreChains,
     partnerLogo: customConfig?.partnerLogo,
     walletConnectProjectId:
       customConfig?.walletConnectProjectId ??

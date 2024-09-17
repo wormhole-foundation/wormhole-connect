@@ -95,6 +95,7 @@ export interface WormholeConnectConfig {
   // White lists
   chains?: Chain[];
   tokens?: string[];
+  routes?: routes.RouteConstructor<any>[];
 
   // Custom tokens
   tokensConfig?: TokensConfig;
@@ -114,7 +115,7 @@ export interface WormholeConnectConfig {
   isRouteSupportedHandler?: IsRouteSupportedHandler;
 
   // UI details
-  ui: UiConfig;
+  ui?: UiConfig;
 
   // Route settings
   ethBridgeMaxAmount?: number;

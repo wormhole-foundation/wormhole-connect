@@ -223,22 +223,22 @@ function DisplayTokens(props: DisplayTokensProps) {
                 </div>
               </div>
             ))}
-            {config.moreTokens ? (
+            {config.ui.moreTokens ? (
               <>
                 <div>
                   <Button
                     disableRipple
                     className={classes.moreTokens}
                     onClick={() =>
-                      config.moreTokens &&
+                      config.ui.moreTokens &&
                       moreTokens(
-                        config.moreTokens.href,
-                        config.moreTokens.target,
+                        config.ui.moreTokens.href,
+                        config.ui.moreTokens.target,
                       )
                     }
                   >
                     <span className={classes.moreTokensLabel}>
-                      {config.moreTokens.label}
+                      {config.ui.moreTokens.label}
                     </span>
                     <IconButton className={classes.iconButton}>
                       <OpenInNewIcon className={classes.iconOpenInNew} />

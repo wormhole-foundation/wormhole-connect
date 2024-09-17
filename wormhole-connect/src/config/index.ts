@@ -79,8 +79,8 @@ export function buildConfig(
 
   const whLegacy = getLegacyWormholeContext(network, sdkConfig, rpcs);
 
-  if (customConfig?.bridgeDefaults) {
-    validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
+  if (customConfig?.ui?.defaultInputs) {
+    validateDefaults(customConfig.ui.defaultInputs, networkData.chains, tokens);
   }
 
   const sdkConverter = new SDKConverter(whLegacy);
