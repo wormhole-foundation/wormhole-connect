@@ -1,4 +1,5 @@
 import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
 type Class = string | false;
 
@@ -86,4 +87,30 @@ export const changeOpacity = (
   if (color.length === 7) return color + OPACITY[opacity];
   if (color.length === 9) return color.slice(0, 7) + OPACITY[opacity];
   return color;
+};
+
+const useScrollbarClassName = makeStyles()((theme) => ({
+  scrollbar: {
+    '&::-webkit-scrollbar': {
+      backgroundColor: 'transparent',
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      backgroundColor: 'transparent',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'transparent',
+      borderRadius: '16px',
+    },
+    '&:hover::-webkit-scrollbar-thumb': {
+      backgroundColor: `${theme.palette.text.primary}1a`,
+    },
+    '&::-webkit-scrollbar-button': {
+      display: 'none',
+    },
+  },
+}));
+
+export const useCustomScrollbar = (): string => {
+  return useScrollbarClassName().classes.scrollbar;
 };
