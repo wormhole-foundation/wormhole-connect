@@ -102,7 +102,7 @@ const WidgetItem = (props: Props) => {
       }
     };
 
-    poll(fetchTransaction, 5000, () => cancelled);
+    poll(fetchTransaction, 5000, () => cancelled || !inProgress);
 
     return () => {
       cancelled = true;
@@ -114,7 +114,6 @@ const WidgetItem = (props: Props) => {
       // Remove local storage item
       const lsItemId = `${LOCAL_STORAGE_TXS}${txHash}`;
       window.localStorage.removeItem(lsItemId);
-      window.dispatchEvent(new Event('storage'));
     }
   }, [inProgress, txHash]);
 
@@ -140,10 +139,14 @@ const WidgetItem = (props: Props) => {
               <Typography
                 fontSize={14}
                 justifyContent="space-between"
-                color={theme.palette.text.secondary}
+                color={
+                  inProgress
+                    ? theme.palette.text.secondary
+                    : theme.palette.success.main
+                }
                 display="flex"
               >
-                {millisToHumanString(eta)}
+                {inProgress ? millisToHumanString(eta) : 'Completed'}
               </Typography>
               <Stack direction="row" alignItems="center">
                 <Typography fontSize={14} marginRight="8px">

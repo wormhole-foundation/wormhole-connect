@@ -42,32 +42,23 @@ const TxHistoryWidget = () => {
   const [transactions, setTransactions] = useState<Array<TransactionLocal>>();
 
   useEffect(() => {
-    const updateTransactions = () => {
-      const txs: Array<TransactionLocal> = [];
+    const txs: Array<TransactionLocal> = [];
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const itemKey = localStorage.key(i);
-        if (itemKey?.toLowerCase().startsWith(LOCAL_STORAGE_TXS)) {
-          const item = localStorage.getItem(itemKey);
-          if (item) {
-            try {
-              txs.push(JSON.parse(item));
-            } catch (e: any) {
-              console.log(`Error parsing local transaction: ${e}`);
-            }
+    for (let i = 0; i < localStorage.length; i++) {
+      const itemKey = localStorage.key(i);
+      if (itemKey?.toLowerCase().startsWith(LOCAL_STORAGE_TXS)) {
+        const item = localStorage.getItem(itemKey);
+        if (item) {
+          try {
+            txs.push(JSON.parse(item));
+          } catch (e: any) {
+            console.log(`Error parsing local transaction: ${e}`);
           }
         }
       }
-      setTransactions(txs);
-    };
+    }
 
-    // Register and trigger for the initial rendering
-    window.addEventListener('storage', updateTransactions);
-    window.dispatchEvent(new Event('storage'));
-
-    return () => {
-      window.removeEventListener('storage', updateTransactions);
-    };
+    setTransactions(txs);
   }, []);
 
   if (!transactions || transactions.length === 0) {
