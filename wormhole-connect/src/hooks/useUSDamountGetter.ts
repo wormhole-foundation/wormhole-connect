@@ -4,19 +4,16 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { getTokenPrice } from 'utils';
 
-export const useUSDamountGetter = () => {
+export const useUSDamountGetter = (): ((args: {
+  token: string;
+  amount: string;
+}) => number | undefined) => {
   const {
     usdPrices: { data },
   } = useSelector((state: RootState) => state.tokenPrices);
 
   return useCallback(
-    ({
-      token,
-      amount,
-    }: {
-      token: string;
-      amount: string;
-    }): number | undefined => {
+    ({ token, amount }) => {
       const prices = data || {};
       const numericAmount = Number(amount);
       const tokenPrice = Number(getTokenPrice(prices, config.tokens[token]));
