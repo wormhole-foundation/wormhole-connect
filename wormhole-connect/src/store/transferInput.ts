@@ -45,7 +45,7 @@ export const formatBalance = (
     decimals,
   });
   return balanceNum.toLocaleString('en', {
-    maximumFractionDigits: 4,
+    maximumFractionDigits: 6,
   });
 };
 
