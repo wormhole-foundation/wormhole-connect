@@ -431,3 +431,9 @@ const parseNttReceipt = (
     relayerFee: undefined, // TODO: how to get?
   };
 };
+
+export const isMinAmountError = (
+  error?: Error,
+): error is routes.MinAmountError => {
+  return !!(error as routes.MinAmountError)?.min;
+};

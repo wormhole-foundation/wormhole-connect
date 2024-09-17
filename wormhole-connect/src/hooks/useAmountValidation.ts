@@ -1,9 +1,10 @@
-import { amount as sdkAmount, routes } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { QuoteResult } from 'routes/operator';
 import { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
+import { isMinAmountError } from 'utils/sdkv2';
 
 type HookReturn = {
   error?: string;
@@ -29,21 +30,18 @@ export const useAmountValidation = (props: Props): HookReturn => {
           return minAmount;
         }
 
-        // For some weird reason error instanceof MinAmountError returns false
-        // Workaround, to check if quoteResult.error is indeed instance of MinAmountError
-        const minAmountError = quoteResult?.error as routes.MinAmountError;
-        if (!minAmountError?.min) {
+        if (!isMinAmountError(quoteResult?.error)) {
           return minAmount;
         }
 
         if (!minAmount) {
-          return minAmountError.min;
+          return quoteResult.error.min;
         }
 
-        const minAmountNum = BigInt(minAmountError.min.amount);
+        const minAmountNum = BigInt(quoteResult.error.min.amount);
         const existingMin = BigInt(minAmount.amount);
         if (minAmountNum < existingMin) {
-          return minAmountError.min;
+          return quoteResult.error.min;
         } else {
           return minAmount;
         }
