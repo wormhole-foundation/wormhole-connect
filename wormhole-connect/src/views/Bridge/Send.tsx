@@ -45,6 +45,7 @@ import { useDebounce } from 'use-debounce';
 import { interpretTransferError } from 'utils/errors';
 import { getTokenDetails } from 'telemetry';
 import { RouteContext } from 'contexts/RouteContext';
+import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -92,6 +93,8 @@ function Send(props: { valid: boolean }) {
 
   const routeContext = useContext(RouteContext);
 
+  const getUSDAmount = useUSDamountGetter();
+
   async function send() {
     setSendError('');
     await validate({ transferInput, relay, wallet }, dispatch, () => false);
@@ -105,6 +108,8 @@ function Send(props: { valid: boolean }) {
       toToken: getTokenDetails(destToken),
       fromChain: fromChain!,
       toChain: toChain!,
+      amount: Number(amount),
+      USDAmount: getUSDAmount({ token, amount }),
     };
 
     // Handle custom transfer validation (if provided by integrator)
@@ -163,18 +168,20 @@ function Send(props: { valid: boolean }) {
         );
       console.log('send done', sendResult);
 
+      const [sdkRoute, receipt] = sendResult;
+
+      const txId =
+        'originTxs' in receipt
+          ? receipt.originTxs[receipt.originTxs.length - 1].txid
+          : undefined;
+
       config.triggerEvent({
         type: 'transfer.start',
-        details: transferDetails,
+        details: { ...transferDetails, txId },
       });
 
-      const [sdkRoute, receipt] = sendResult;
-      let txId = '';
-      if ('originTxs' in receipt) {
-        txId = receipt.originTxs[receipt.originTxs.length - 1].txid;
-      } else {
-        throw new Error("Can't find txid in receipt");
-      }
+      if (!txId) throw new Error("Can't find txid in receipt");
+
       // TODO: SDKV2 set the tx details using on-chain data
       // because they might be different than what we have in memory (relayer fee)
       // or we may not have all the data (e.g. block)
