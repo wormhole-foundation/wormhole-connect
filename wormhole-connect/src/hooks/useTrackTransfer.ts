@@ -1,8 +1,9 @@
 import { isCompleted } from '@wormhole-foundation/sdk';
 import { RouteContext } from 'contexts/RouteContext';
 import { useContext, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
+import type { RootState } from 'store';
 import { sleep } from 'utils';
 
 const TRACK_TIMEOUT = 120 * 1000;
@@ -13,8 +14,17 @@ const useTrackTransfer = (): void => {
 
   const routeContext = useContext(RouteContext);
 
+  const { txData, timestamp } = useSelector((state: RootState) => state.redeem);
+
   useEffect(() => {
     let isActive = true;
+
+    let sleepTime = 5000;
+
+    if (txData && txData.eta && txData.eta < 30_000) {
+      // Poll aggressively for very fast transfers
+      sleepTime = 1000;
+    }
 
     const track = async () => {
       const { route, receipt } = routeContext;
@@ -59,10 +69,12 @@ const useTrackTransfer = (): void => {
           }
         } catch (e) {
           console.error('Error tracking transfer:', e);
+          sleepTime = 5000; // Back off if we were polling aggressively
         }
+
         // retry
         // TODO: exponential backoff depending on the current state?
-        await sleep(5000);
+        await sleep(sleepTime);
       }
     };
 
@@ -71,7 +83,7 @@ const useTrackTransfer = (): void => {
     return () => {
       isActive = false;
     };
-  }, [routeContext]);
+  }, [routeContext, txData?.eta, timestamp]);
 };
 
 export default useTrackTransfer;

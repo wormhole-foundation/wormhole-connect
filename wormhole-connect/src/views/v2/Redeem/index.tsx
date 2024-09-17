@@ -116,9 +116,8 @@ const Redeem = () => {
     route: routeName,
     timestamp: txTimestamp,
     isResumeTx,
+    txData,
   } = useSelector((state: RootState) => state.redeem);
-
-  const { txData } = useSelector((state: RootState) => state.redeem);
 
   const { state: receiptState } = routeContext.receipt || {};
   const isTxAttested = receiptState && receiptState >= TransferState.Attested;
