@@ -56,7 +56,8 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   chainBadge: {
     padding: '2px',
-    background: theme.palette.background.default,
+    background:
+      theme.palette.background.badge ?? theme.palette.background.default,
     borderRadius: '6px',
     border: `2px solid ${theme.palette.modal.background}`,
   },
