@@ -32,7 +32,6 @@ import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
-import TokenWarnings from 'views/v2/Bridge/AssetPicker/TokenWarnings';
 import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
@@ -435,7 +434,6 @@ const Bridge = () => {
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
-      <TokenWarnings />
       <AmountInput
         supportedSourceTokens={supportedSourceTokens}
         error={amountValidation.error}
