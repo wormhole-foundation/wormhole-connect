@@ -79,6 +79,15 @@ const useStyles = makeStyles()((theme) => ({
   balance: {
     color: theme.palette.text.secondary,
   },
+  amountInput: {
+    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '&[type="number"]': {
+      '-moz-appearance': 'textfield',
+    },
+  },
 }));
 
 type Props = {
@@ -200,6 +209,7 @@ const AmountInput = (props: Props) => {
                 // See for details: https://github.com/mui/material-ui/issues/7960
                 e.currentTarget.blur();
               },
+              step: '0.1',
             }}
             placeholder="0"
             variant="standard"
@@ -224,6 +234,7 @@ const AmountInput = (props: Props) => {
                 </InputAdornment>
               ),
               type: 'number',
+              classes: { input: classes.amountInput },
             }}
           />
         </CardContent>
