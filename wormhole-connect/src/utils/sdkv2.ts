@@ -431,3 +431,19 @@ const parseNttReceipt = (
     relayerFee: undefined, // TODO: how to get?
   };
 };
+
+const isAmount = (amount: any): amount is amount.Amount => {
+  return (
+    typeof amount === 'object' &&
+    typeof amount.amount === 'string' &&
+    typeof amount.decimals === 'number'
+  );
+};
+
+// Warning: any changes to this function can make TS unhappy
+export const isMinAmountError = (
+  error?: Error,
+): error is routes.MinAmountError => {
+  const unsafeCastError = error as routes.MinAmountError;
+  return isAmount(unsafeCastError?.min?.amount);
+};

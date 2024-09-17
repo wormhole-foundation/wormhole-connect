@@ -205,7 +205,7 @@ const SingleRoute = (props: Props) => {
     [quote?.eta, isFetchingQuote],
   );
 
-  const showWarning = useMemo(() => {
+  const isManual = useMemo(() => {
     if (!props.route) {
       return false;
     }
@@ -234,7 +234,7 @@ const SingleRoute = (props: Props) => {
   }, [props.error]);
 
   const warningMessage = useMemo(() => {
-    if (!showWarning) {
+    if (!isManual) {
       return null;
     }
 
@@ -255,7 +255,7 @@ const SingleRoute = (props: Props) => {
         </Stack>
       </>
     );
-  }, [showWarning]);
+  }, [isManual]);
 
   const providerText = useMemo(() => {
     if (!sourceToken) {

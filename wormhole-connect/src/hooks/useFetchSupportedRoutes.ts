@@ -8,7 +8,7 @@ import type { RootState } from 'store';
 import config from 'config';
 import { getTokenDetails } from 'telemetry';
 
-const useAvailableRoutes = (): void => {
+const useFetchSupportedRoutes = (): void => {
   const dispatch = useDispatch();
 
   const { token, destToken, fromChain, toChain, amount } = useSelector(
@@ -92,4 +92,4 @@ const useAvailableRoutes = (): void => {
   ]);
 };
 
-export default useAvailableRoutes;
+export default useFetchSupportedRoutes;

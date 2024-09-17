@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
 
@@ -11,9 +12,8 @@ import AlertBannerV2 from 'components/v2/AlertBanner';
 
 import type { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
-
 import { routes } from '@wormhole-foundation/sdk';
-import { Typography } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -31,6 +31,9 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
   },
   otherRoutesToggle: {
+    display: 'block',
+    width: '100%',
+    textAlign: 'center',
     fontSize: 14,
     color: theme.palette.primary.main,
     textDecoration: 'none',
@@ -42,14 +45,15 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 type Props = {
-  sortedSupportedRoutes: RouteState[];
+  routes: RouteState[];
   selectedRoute?: string;
   onRouteChange: (route: string) => void;
   quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
-  isFetchingQuotes: boolean;
+  isLoading: boolean;
+  hasError: boolean;
 };
 
-const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
+const Routes = ({ ...props }: Props) => {
   const { classes } = useStyles();
   const [showAll, setShowAll] = useState(false);
 
@@ -76,18 +80,18 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
 
   const renderRoutes = useMemo(() => {
     if (showAll) {
-      return sortedSupportedRoutes;
+      return props.routes;
     }
 
-    const selectedRoute = sortedSupportedRoutes.find(
+    const selectedRoute = props.routes.find(
       (route) => route.name === props.selectedRoute,
     );
 
-    return selectedRoute ? [selectedRoute] : sortedSupportedRoutes.slice(0, 1);
-  }, [showAll, sortedSupportedRoutes]);
+    return selectedRoute ? [selectedRoute] : props.routes.slice(0, 1);
+  }, [showAll, props.routes]);
 
   const fastestRoute = useMemo(() => {
-    return sortedSupportedRoutes.reduce(
+    return props.routes.reduce(
       (fastest, route) => {
         const quote = props.quotes[route.name];
         if (!quote || !quote.success) return fastest;
@@ -104,10 +108,10 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
       },
       { name: '', eta: Infinity },
     );
-  }, [sortedSupportedRoutes, props.quotes]);
+  }, [routes, props.quotes]);
 
   const cheapestRoute = useMemo(() => {
-    return sortedSupportedRoutes.reduce(
+    return props.routes.reduce(
       (cheapest, route) => {
         const quote = props.quotes[route.name];
         const rc = config.routes.get(route.name);
@@ -123,7 +127,7 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
       },
       { name: '', amountOut: 0n },
     );
-  }, [sortedSupportedRoutes, props.quotes]);
+  }, [routes, props.quotes]);
 
   if (walletsConnected && supportedRoutes.length === 0 && Number(amount) > 0) {
     return (
@@ -136,8 +140,12 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
     );
   }
 
-  if (supportedRoutes.length === 0 || !walletsConnected) {
-    return <></>;
+  if (supportedRoutes.length === 0 || !walletsConnected || props.hasError) {
+    return null;
+  }
+
+  if (props.isLoading) {
+    return <CircularProgress />;
   }
 
   if (walletsConnected && !(Number(amount) > 0)) {
@@ -184,11 +192,11 @@ const Routes = ({ sortedSupportedRoutes, ...props }: Props) => {
             isOnlyChoice={supportedRoutes.length === 1}
             onSelect={props.onRouteChange}
             quote={quote}
-            isFetchingQuote={props.isFetchingQuotes}
+            isFetchingQuote={props.isLoading}
           />
         );
       })}
-      {sortedSupportedRoutes.length > 1 && (
+      {props.routes.length > 1 && (
         <Link
           onClick={() => setShowAll((prev) => !prev)}
           className={classes.otherRoutesToggle}
