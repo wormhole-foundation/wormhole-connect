@@ -294,3 +294,17 @@ export interface Transaction {
   // In-progress status
   inProgress: boolean;
 }
+// Transanction data in local storage
+export interface TransactionLocal {
+  txHash: string;
+  amount: string;
+  tokenKey: string;
+  sourceChain: string;
+  destChain: string;
+  eta: number;
+  explorerInfo: {
+    name: string;
+    url: string;
+    apiUrl: string;
+  };
+}

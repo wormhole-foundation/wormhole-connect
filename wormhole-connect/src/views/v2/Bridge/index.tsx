@@ -37,6 +37,7 @@ import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
+import TxHistoryWidget from 'views/v2/TxHistory/Widget';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
@@ -457,6 +458,7 @@ const Bridge = () => {
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       {header}
+      <TxHistoryWidget />
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}

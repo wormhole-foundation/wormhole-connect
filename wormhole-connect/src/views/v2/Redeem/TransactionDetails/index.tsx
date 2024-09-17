@@ -20,7 +20,7 @@ import {
   trimAddress,
   trimTxHash,
 } from 'utils';
-import { getExplorerLink } from 'utils/sdkv2';
+import { getExplorerInfo } from 'utils/sdkv2';
 
 import type { RootState } from 'store';
 import { toFixedDecimals } from 'utils/balance';
@@ -246,7 +246,7 @@ const TransactionDetails = () => {
 
   const explorerLink = useMemo(() => {
     if (routeContext.route) {
-      const { name, url } = getExplorerLink(routeContext.route, sendTx);
+      const { name, url } = getExplorerInfo(routeContext.route, sendTx);
       return (
         <Stack alignItems="center" padding="24px 12px">
           <Link

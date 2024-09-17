@@ -18,7 +18,6 @@ import { setRoute as setAppRoute } from 'store/router';
 import { trimAddress } from 'utils';
 import { joinClass } from 'utils/style';
 import TxHistoryItem from 'views/v2/TxHistory/Item';
-import TxHistoryWidget from 'views/v2/TxHistory/Widget';
 
 import type { RootState } from 'store';
 
@@ -112,20 +111,6 @@ const TxHistory = () => {
     );
   }, []);
 
-  const inProgressTransactions = useMemo(() => {
-    if (!transactions) {
-      return <></>;
-    }
-
-    const inProgressTxs = transactions.filter((tx) => tx.inProgress);
-
-    if (inProgressTxs.length === 0) {
-      return <></>;
-    }
-
-    return <TxHistoryWidget transactions={inProgressTxs.slice(0, 3)} />;
-  }, [transactions]);
-
   const transactionList = useMemo(() => {
     if (!transactions) {
       return <></>;
@@ -166,7 +151,6 @@ const TxHistory = () => {
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
-      {inProgressTransactions}
       {txHistoryHeader}
       {transactionList}
       {(!transactions || isFetching) && <CircularProgress />}

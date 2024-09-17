@@ -1,17 +1,12 @@
-import React from 'react';
-import { Stack, useTheme } from '@mui/material';
-import Card from '@mui/material/Card';
-import CardActionArea from '@mui/material/CardActionArea';
-import CardContent from '@mui/material/CardContent';
+import React, { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 
-import config from 'config';
-import ArrowRight from 'icons/ArrowRight';
-import TokenIcon from 'icons/TokenIcons';
+import { LOCAL_STORAGE_TXS } from 'config/constants';
 
-import { trimTxHash } from 'utils';
-import { Transaction } from 'config/types';
+import { TransactionLocal } from 'config/types';
+import WidgetItem from 'views/v2/TxHistory/Widget/Item';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -28,7 +23,7 @@ const useStyles = makeStyles()((theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px',
+    gap: '16px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -40,15 +35,40 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-type Props = {
-  transactions: Array<Transaction>;
-};
-
-const TxHistoryWidget = (props: Props) => {
+const TxHistoryWidget = () => {
   const { classes } = useStyles();
   const theme = useTheme();
 
-  const { transactions } = props;
+  const [transactions, setTransactions] = useState<Array<TransactionLocal>>();
+
+  useEffect(() => {
+    const updateTransactions = () => {
+      const txs: Array<TransactionLocal> = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const itemKey = localStorage.key(i);
+        if (itemKey?.toLowerCase().startsWith(LOCAL_STORAGE_TXS)) {
+          const item = localStorage.getItem(itemKey);
+          if (item) {
+            try {
+              txs.push(JSON.parse(item));
+            } catch (e: any) {
+              console.log(`Error parsing local transaction: ${e}`);
+            }
+          }
+        }
+      }
+      setTransactions(txs);
+    };
+
+    // Register and trigger for the initial rendering
+    window.addEventListener('storage', updateTransactions);
+    window.dispatchEvent(new Event('storage'));
+
+    return () => {
+      window.removeEventListener('storage', updateTransactions);
+    };
+  }, []);
 
   if (!transactions || transactions.length === 0) {
     return <></>;
@@ -61,54 +81,9 @@ const TxHistoryWidget = (props: Props) => {
           Transactions in progress
         </Typography>
       </div>
-      {transactions.map((tx, idx) => {
-        const { txHash, explorerLink, amount, fromChain, toChain, tokenKey } =
-          tx;
-
-        return (
-          <div key={idx} className={classes.container}>
-            <Card className={classes.card}>
-              <CardActionArea
-                disableTouchRipple
-                onClick={() => {
-                  window.open(explorerLink, '_blank');
-                }}
-              >
-                <CardContent>
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <Typography
-                      fontSize={14}
-                      justifyContent="space-between"
-                      color={theme.palette.text.secondary}
-                      display="flex"
-                    >
-                      <span>{`Transaction # ${trimTxHash(txHash)}`}</span>
-                    </Typography>
-                    <Stack direction="row" alignItems="center">
-                      <TokenIcon
-                        icon={config.chains[fromChain]?.icon}
-                        height={24}
-                      />
-                      <ArrowRight fontSize="small" />
-                      <TokenIcon
-                        icon={config.chains[toChain]?.icon}
-                        height={24}
-                      />
-                      <Typography fontSize={14} marginLeft="8px">
-                        {amount} {config.tokens[tokenKey].symbol}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </div>
-        );
-      })}
+      {transactions.map((tx) => (
+        <WidgetItem data={tx} />
+      ))}
     </div>
   );
 };
