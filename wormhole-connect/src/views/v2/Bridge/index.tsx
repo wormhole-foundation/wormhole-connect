@@ -271,7 +271,7 @@ const Bridge = () => {
     return (
       <div className={classes.assetPickerContainer}>
         <div className={classes.assetPickerTitle}>
-          <Typography variant="body2">From:</Typography>
+          <Typography variant="body2">From</Typography>
           <WalletController type={TransferWallet.SENDING} />
         </div>
         <AssetPicker
@@ -306,7 +306,7 @@ const Bridge = () => {
     return (
       <div className={classes.assetPickerContainer}>
         <div className={classes.assetPickerTitle}>
-          <Typography variant="body2">To:</Typography>
+          <Typography variant="body2">To</Typography>
           <WalletController type={TransferWallet.RECEIVING} />
         </div>
         <AssetPicker

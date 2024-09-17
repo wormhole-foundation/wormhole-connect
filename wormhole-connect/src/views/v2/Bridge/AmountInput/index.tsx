@@ -211,7 +211,7 @@ const AmountInput = (props: Props) => {
   return (
     <div className={classes.amountContainer}>
       <div className={classes.amountTitle}>
-        <Typography variant="body2">Amount:</Typography>
+        <Typography variant="body2">Amount</Typography>
       </div>
       <Card variant="elevation">
         <CardContent className={classes.amountCardContent}>
