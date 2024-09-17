@@ -147,13 +147,11 @@ function Send(props: { valid: boolean }) {
       if (fromConfig?.context === Context.COSMOS) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);
       }
-
       config.triggerEvent({
         type: 'transfer.initiate',
         details: transferDetails,
       });
 
-      console.log('sending');
       const sendResult = await config.routes
         .get(route)
         .send(
@@ -166,7 +164,6 @@ function Send(props: { valid: boolean }) {
           destToken,
           { nativeGas: toNativeToken },
         );
-      console.log('send done', sendResult);
 
       const [sdkRoute, receipt] = sendResult;
 

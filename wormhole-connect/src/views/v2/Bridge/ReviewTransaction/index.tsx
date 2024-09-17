@@ -42,6 +42,7 @@ import { RelayerFee } from 'store/relay';
 
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
+import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -91,6 +92,8 @@ const ReviewTransaction = (props: Props) => {
 
   const relay = useSelector((state: RootState) => state.relay);
   const { toNativeToken } = relay;
+
+  const getUSDAmount = useUSDamountGetter();
 
   const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
     destChain,
@@ -147,6 +150,8 @@ const ReviewTransaction = (props: Props) => {
       toToken: getTokenDetails(destToken),
       fromChain: sourceChain,
       toChain: destChain,
+      amount: Number(amount),
+      USDAmount: getUSDAmount({ token: sourceToken, amount }),
     };
 
     // Handle custom transfer validation (if provided by integrator)
@@ -208,17 +213,17 @@ const ReviewTransaction = (props: Props) => {
           { nativeGas: toNativeToken },
         );
 
+      const txId =
+        'originTxs' in receipt
+          ? receipt.originTxs[receipt.originTxs.length - 1].txid
+          : undefined;
+
       config.triggerEvent({
         type: 'transfer.start',
-        details: transferDetails,
+        details: { ...transferDetails, txId },
       });
 
-      let txId = '';
-      if ('originTxs' in receipt) {
-        txId = receipt.originTxs[receipt.originTxs.length - 1].txid;
-      } else {
-        throw new Error("Can't find txid in receipt");
-      }
+      if (!txId) throw new Error("Can't find txid in receipt");
 
       let relayerFee: RelayerFee | undefined = undefined;
       if (quote.relayFee) {
