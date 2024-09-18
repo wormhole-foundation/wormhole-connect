@@ -24,7 +24,7 @@ function BridgeComplete() {
   //const theme: any = useTheme();
   const toLink = () => {
     if (typeof window !== 'undefined') {
-      window.location.href = config.cta!.link;
+      window.location.href = config.ui.cta!.link;
     }
   };
   const toBridge = () => {
@@ -52,16 +52,16 @@ function BridgeComplete() {
       <InputContainer bg={containerBg}>
         <>
           {component}
-          {!!config.cta && (
+          {!!config.ui.cta && (
             <div>Click the button below to begin using your new assets.</div>
           )}
           <AddToWallet />
         </>
       </InputContainer>
       <Spacer />
-      {config.cta ? (
+      {config.ui.cta ? (
         <Button onClick={toLink} action elevated>
-          {config.cta.text}
+          {config.ui.cta.text}
         </Button>
       ) : (
         <Button onClick={toBridge} action elevated>

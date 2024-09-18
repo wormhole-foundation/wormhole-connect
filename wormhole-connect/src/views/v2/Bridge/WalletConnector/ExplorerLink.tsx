@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { ExplorerConfig } from 'config/types';
+import { ExplorerConfig } from 'config/ui';
 import { ListItemButton, Typography } from '@mui/material';
 
 type ExplorerLinkProps = {

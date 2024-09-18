@@ -17,7 +17,7 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import config from 'config';
 import { TransferSide } from 'config/types';
-import { ExplorerConfig } from 'config/types';
+import { ExplorerConfig } from 'config/ui';
 
 type StyleProps = { disabled?: boolean };
 const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
@@ -153,12 +153,12 @@ function ConnectWallet(props: Props) {
                     >
                       Copy address
                     </div>
-                    {config.explorer ? (
+                    {config.ui.explorer ? (
                       <ExplorerLink
                         address={wallet.address}
-                        href={config.explorer.href}
-                        target={config.explorer.target}
-                        label={config.explorer.label}
+                        href={config.ui.explorer.href}
+                        target={config.ui.explorer.target}
+                        label={config.ui.explorer.label}
                       />
                     ) : null}
                     <div

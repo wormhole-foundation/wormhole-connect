@@ -256,20 +256,20 @@ const Bridge = () => {
 
     let headerConfig;
 
-    if (typeof config.pageHeader === 'string') {
-      headerConfig = { ...defaults, text: config.pageHeader };
+    if (typeof config.ui.pageHeader === 'string') {
+      headerConfig = { ...defaults, text: config.ui.pageHeader };
     } else {
-      headerConfig = { ...defaults, ...config.pageHeader };
+      headerConfig = { ...defaults, ...config.ui.pageHeader };
     }
 
     return (
       <PageHeader
         title={headerConfig.text}
         align={headerConfig.align}
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
       />
     );
-  }, []);
+  }, [config.ui]);
 
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
@@ -346,7 +346,7 @@ const Bridge = () => {
     const isTxHistoryDisabled = !sendingWallet?.address;
     return (
       <div className={classes.bridgeHeader}>
-        <Header align="left" text="Bridge assets" size={20} />
+        <Header align="left" text={config.ui.title} size={20} />
         <Tooltip
           title={isTxHistoryDisabled ? 'No connected wallets found' : ''}
         >
@@ -362,7 +362,7 @@ const Bridge = () => {
         </Tooltip>
       </div>
     );
-  }, [sendingWallet?.address]);
+  }, [sendingWallet?.address, config.ui]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
@@ -449,7 +449,7 @@ const Bridge = () => {
       />
       {walletConnector}
       {showReviewTransactionButton ? reviewTransactionButton : null}
-      {config.showHamburgerMenu ? null : <FooterNavBar />}
+      {config.ui.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>

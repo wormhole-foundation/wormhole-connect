@@ -164,7 +164,7 @@ function Redeem({
       <PageHeader
         title="Bridge"
         back
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
         testId="redeem-screen-header"
       />
 

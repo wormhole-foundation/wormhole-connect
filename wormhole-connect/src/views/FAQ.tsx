@@ -200,7 +200,7 @@ function FAQ() {
       <PageHeader
         title="FAQ"
         description="This page collects and answers the most commonly asked questions."
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
         back
       />
 
@@ -219,7 +219,7 @@ function FAQ() {
           );
         })}
       </div>
-      {config.showHamburgerMenu ? null : <FooterNavBar />}
+      {config.ui.showHamburgerMenu ? null : <FooterNavBar />}
     </div>
   );
 }

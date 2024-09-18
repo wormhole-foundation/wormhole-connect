@@ -1,11 +1,7 @@
-import {
-  BridgeDefaults,
-  TokensConfig,
-  ChainsConfig,
-  TokenAddressesByChain,
-} from './types';
+import { TokensConfig, ChainsConfig, TokenAddressesByChain } from './types';
 import { Chain } from '@wormhole-foundation/sdk';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import { DefaultInputs } from './ui';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
@@ -174,7 +170,7 @@ export const mergeNttConfig = (
 };
 
 export const validateDefaults = (
-  defaults: BridgeDefaults,
+  defaults: DefaultInputs,
   chains: ChainsConfig,
   tokens: TokensConfig,
 ) => {
@@ -183,7 +179,7 @@ export const validateDefaults = (
     const chain = chains[defaults.fromChain];
     if (!chain) {
       error(
-        `Invalid chain name "${defaults.fromChain}" specified for bridgeDefaults.fromChain`,
+        `Invalid chain name "${defaults.fromChain}" specified for defaultInputs.fromChain`,
       );
       delete defaults.fromChain;
     }
@@ -192,7 +188,7 @@ export const validateDefaults = (
     const chain = chains[defaults.toChain];
     if (!chain) {
       error(
-        `Invalid chain name "${defaults.toChain}" specified for bridgeDefaults.toChain`,
+        `Invalid chain name "${defaults.toChain}" specified for defaultInputs.toChain`,
       );
       delete defaults.fromChain;
     }
@@ -200,7 +196,7 @@ export const validateDefaults = (
   if (defaults.fromChain && defaults.toChain) {
     if (defaults.fromChain === defaults.toChain) {
       error(
-        `Source and destination chain cannot be the same, check the bridgeDefaults configuration`,
+        `Source and destination chain cannot be the same, check the defaultInputs configuration`,
       );
     }
   }
@@ -209,7 +205,7 @@ export const validateDefaults = (
     const requiredConfig = chains[defaults.requiredChain];
     if (!requiredConfig) {
       error(
-        `Invalid network value "${defaults.requiredChain}" specified for bridgeDefaults.requiredChain`,
+        `Invalid network value "${defaults.requiredChain}" specified for defaultInputs.requiredChain`,
       );
     }
     if (
@@ -226,7 +222,7 @@ export const validateDefaults = (
     const tokenConfig = tokens[defaults.tokenKey];
     if (!tokenConfig) {
       error(
-        `Invalid token "${defaults.tokenKey}" specified for bridgeDefaults.tokenKey`,
+        `Invalid token "${defaults.tokenKey}" specified for defaultInputs.tokenKey`,
       );
       delete defaults.tokenKey;
     }
@@ -237,7 +233,7 @@ export const validateDefaults = (
     const { tokenId, nativeChain } = tokens[defaults.tokenKey]!;
     if (!tokenId && nativeChain !== chain.key) {
       error(
-        `Invalid token "${defaults.tokenKey}" specified for bridgeDefaults.tokenKey. It does not exist on "${defaults.fromChain}"`,
+        `Invalid token "${defaults.tokenKey}" specified for defaultInputs.tokenKey. It does not exist on "${defaults.fromChain}"`,
       );
     }
   }

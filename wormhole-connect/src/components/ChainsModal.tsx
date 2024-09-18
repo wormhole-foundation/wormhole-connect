@@ -94,7 +94,11 @@ function ChainsModal(props: Props) {
     if (href) {
       props.onMoreNetworkSelect?.(href, chainName, target);
     } else {
-      props.onMoreNetworkSelect?.(config.moreNetworks!.href, chainName, target);
+      props.onMoreNetworkSelect?.(
+        config.ui.moreChains!.href,
+        chainName,
+        target,
+      );
     }
   };
   const supportedChains = useMemo(() => {
@@ -169,7 +173,7 @@ function ChainsModal(props: Props) {
                 )
               );
             })}
-            {config.moreNetworks?.networks.map((chain, i) => {
+            {config.ui.moreChains?.networks.map((chain, i) => {
               return (
                 <div
                   key={i}
@@ -179,10 +183,10 @@ function ChainsModal(props: Props) {
                   ])}
                   onClick={() =>
                     handleExtraNetwork(
-                      chain.href || config.moreNetworks!.href,
+                      chain.href || config.ui.moreChains!.href,
                       chain.name ||
                         chain.label.toLocaleLowerCase().split(' ').join('_'),
-                      chain.target || config.moreNetworks?.target,
+                      chain.target || config.ui.moreChains?.target,
                     )
                   }
                 >
@@ -192,7 +196,7 @@ function ChainsModal(props: Props) {
                     height={48}
                     showOpenInNewIcon={chain.showOpenInNewIcon}
                     description={
-                      chain.description || config.moreNetworks?.description
+                      chain.description || config.ui.moreChains?.description
                     }
                   />
                   <div className={classes.chainText}>{chain.label}</div>

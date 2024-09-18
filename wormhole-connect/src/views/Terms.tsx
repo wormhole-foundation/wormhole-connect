@@ -28,7 +28,7 @@ function Terms() {
       <PageHeader
         title="Terms"
         back
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
       />
       <div className={classes.body}>
         <div>Disclaimer:</div>
@@ -74,7 +74,7 @@ function Terms() {
           third-party activities.
         </div>
       </div>
-      {config.showHamburgerMenu ? null : <FooterNavBar />}
+      {config.ui.showHamburgerMenu ? null : <FooterNavBar />}
     </div>
   );
 }

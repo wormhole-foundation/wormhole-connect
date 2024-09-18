@@ -248,7 +248,7 @@ function Send(props: { valid: boolean }) {
     route,
   ]);
 
-  const disabled = isTransactionInProgress || config.previewMode;
+  const disabled = isTransactionInProgress || config.ui.previewMode;
 
   const setDestGas = useCallback(async () => {
     if (!route || !toChain) return;

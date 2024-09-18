@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { getAttestUrl } from 'config/constants';
 
 import { RootState } from 'store';
 import {
@@ -223,7 +224,7 @@ function TokenWarnings() {
 
   useEffect(() => {
     // if the url it's empty that means the user doesn't want this feature
-    const cctpWarningFlag = !!config.cctpWarning;
+    const cctpWarningFlag = !!config.ui.cctpWarning;
     // check if the tokens will be wrapped USDC
     const isResultWrappedUSDC =
       tokenConfig?.symbol === 'USDC' &&
@@ -282,7 +283,11 @@ function TokenWarnings() {
   const noForeignAssetWarning = (
     <Typography>
       This token is not registered, you must{' '}
-      <Link target={'_blank'} variant="inherit" href={config.attestUrl}>
+      <Link
+        target={'_blank'}
+        variant="inherit"
+        href={getAttestUrl(config.network)}
+      >
         register
       </Link>{' '}
       it before you continue. Newly registered tokens will not have liquid
@@ -301,7 +306,7 @@ function TokenWarnings() {
       This transaction will transfer wrapped USDC (wUSDC) to the destination
       chain. If you want to transfer native USDC on chains supported by Circle's
       CCTP, use the{' '}
-      <Link target={'_blank'} variant="inherit" href={config.cctpWarning}>
+      <Link target={'_blank'} variant="inherit" href={config.ui.cctpWarning}>
         USDC Bridge
       </Link>
       .

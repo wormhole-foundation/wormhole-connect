@@ -178,17 +178,17 @@ const Redeem = () => {
 
     let headerConfig;
 
-    if (typeof config.pageHeader === 'string') {
-      headerConfig = { ...defaults, text: config.pageHeader };
+    if (typeof config.ui.pageHeader === 'string') {
+      headerConfig = { ...defaults, text: config.ui.pageHeader };
     } else {
-      headerConfig = { ...defaults, ...config.pageHeader };
+      headerConfig = { ...defaults, ...config.ui.pageHeader };
     }
 
     return (
       <PageHeader
         title={headerConfig.text}
         align={headerConfig.align}
-        showHamburgerMenu={config.showHamburgerMenu}
+        showHamburgerMenu={config.ui.showHamburgerMenu}
       />
     );
   }, []);

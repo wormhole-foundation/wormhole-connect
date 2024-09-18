@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import { ICON } from 'utils/style';
 import { Route, setRoute } from 'store/router';
 import config from 'config';
-import { MenuEntry } from 'config/types';
+import { MenuEntry } from 'config/ui';
 
 const useStyles = makeStyles()((theme) => ({
   menuIcon: ICON,
@@ -60,7 +60,10 @@ export default function FooterNavBar() {
     [dispatch],
   );
 
-  const entries = config.menu.reduce(itemAppender, defaultMenuItems(navigate));
+  const entries = config.ui.menu.reduce(
+    itemAppender,
+    defaultMenuItems(navigate),
+  );
 
   return (
     <div className={classes.menu}>

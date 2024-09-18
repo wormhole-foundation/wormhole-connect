@@ -25,11 +25,11 @@ export const wallets = {
   ...eip6963Wallets,
   injected: new InjectedWallet(),
   binance: new BinanceWallet({ options: {} }),
-  ...(config.walletConnectProjectId
+  ...(config.ui.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
           connectorOptions: {
-            projectId: config.walletConnectProjectId,
+            projectId: config.ui.walletConnectProjectId,
           },
         }),
       }

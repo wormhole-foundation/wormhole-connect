@@ -15,13 +15,13 @@ import {
   TokenAddress as TokenAddressV2,
 } from '@wormhole-foundation/sdk';
 
-import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
 
 import { routes } from '@wormhole-foundation/sdk';
 import RouteOperator from 'routes/operator';
+import { UiConfig } from './ui';
 
 export enum Icon {
   'AVAX' = 1,
@@ -63,13 +63,6 @@ export enum Icon {
 // Used in bridging components
 export type TransferSide = 'source' | 'destination';
 
-export interface BridgeDefaults {
-  fromChain?: Chain;
-  toChain?: Chain;
-  tokenKey?: string;
-  requiredChain?: Chain;
-}
-
 export interface ExtendedTransferDetails extends TransferDetails {
   fromWalletAddress: string;
   toWalletAddress: string;
@@ -102,6 +95,7 @@ export interface WormholeConnectConfig {
   // White lists
   chains?: Chain[];
   tokens?: string[];
+  routes?: routes.RouteConstructor<any>[];
 
   // Custom tokens
   tokensConfig?: TokensConfig;
@@ -121,26 +115,7 @@ export interface WormholeConnectConfig {
   isRouteSupportedHandler?: IsRouteSupportedHandler;
 
   // UI details
-  cta?: {
-    text: string;
-    link: string;
-  };
-  showHamburgerMenu?: boolean;
-  explorer?: ExplorerConfig;
-  bridgeDefaults?: BridgeDefaults;
-  routes?: routes.RouteConstructor<any>[];
-  cctpWarning?: {
-    href: string;
-  };
-  pageHeader?: string | PageHeader;
-  pageSubHeader?: string;
-  menu?: MenuEntry[];
-  searchTx?: SearchTxConfig;
-  moreTokens?: MoreTokenConfig;
-  moreNetworks?: MoreChainConfig;
-  partnerLogo?: string;
-  walletConnectProjectId?: string;
-  previewMode?: boolean;
+  ui?: UiConfig;
 
   // Route settings
   ethBridgeMaxAmount?: number;
@@ -184,25 +159,8 @@ export interface InternalConfig<N extends Network> {
   validateTransfer?: ValidateTransferHandler;
   isRouteSupportedHandler?: IsRouteSupportedHandler;
 
-  // UI details
-  cta?: {
-    text: string;
-    link: string;
-  };
-  explorer?: ExplorerConfig;
-  attestUrl: string;
-  bridgeDefaults?: BridgeDefaults;
-  cctpWarning: string;
-  pageHeader?: string | PageHeader;
-  pageSubHeader?: string;
-  menu: MenuEntry[];
-  searchTx?: SearchTxConfig;
-  moreTokens?: MoreTokenConfig;
-  moreNetworks?: MoreChainConfig;
-  partnerLogo?: string;
-  walletConnectProjectId?: string;
-  showHamburgerMenu: boolean;
-  previewMode?: boolean; // Disables making transfers
+  // UI configuration
+  ui: UiConfig;
 
   // Route settings
   ethBridgeMaxAmount: number;
@@ -210,45 +168,6 @@ export interface InternalConfig<N extends Network> {
 
   guardianSet: GuardianSetData;
 }
-
-export type ExplorerConfig = {
-  href: string;
-  label?: string;
-  target?: '_blank' | '_self';
-};
-
-export type PageHeader = {
-  text: string;
-  align: Alignment;
-};
-
-export type SearchTxConfig = {
-  txHash?: string;
-  chainName?: string;
-};
-
-export type MoreTokenConfig = {
-  label: string;
-  href: string;
-  target?: '_blank' | '_self';
-};
-
-export type MoreChainConfig = {
-  href: string;
-  target?: '_blank' | '_self';
-  description: string;
-  networks: MoreChainDefinition[];
-};
-
-export type MoreChainDefinition = {
-  icon: string;
-  href?: string;
-  label: string;
-  name?: string;
-  description?: string;
-  target?: '_blank' | '_self';
-  showOpenInNewIcon?: boolean;
-};
 
 export type TokenConfig = {
   key: string;
@@ -295,13 +214,6 @@ export type NetworkData = {
   graphql: RpcMapping;
   guardianSet: GuardianSetData;
 };
-
-export interface MenuEntry {
-  label: string;
-  href: string;
-  target?: string;
-  order?: number;
-}
 
 export type TokenAddressesByChain = {
   [tokenKey: string]: {

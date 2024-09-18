@@ -38,12 +38,12 @@ export const validateToChain = (
   if (fromChain && chain === fromChain)
     return 'Source chain and destination chain cannot be the same';
   if (
-    config.bridgeDefaults &&
-    config.bridgeDefaults.requiredChain &&
+    config.ui.defaultInputs &&
+    config.ui.defaultInputs.requiredChain &&
     chain &&
     fromChain
   ) {
-    const { requiredChain } = config.bridgeDefaults;
+    const { requiredChain } = config.ui.defaultInputs;
     const requiredConfig = config.chains[requiredChain];
     if (
       requiredConfig &&
