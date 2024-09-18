@@ -6,7 +6,6 @@ import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
  */
 export const TESTNET_CHAINS = {
   solana: 1,
-  goerli: 2,
   bsc: 4,
   mumbai: 5,
   fuji: 6,
@@ -17,9 +16,6 @@ export const TESTNET_CHAINS = {
   injective: 19,
   sui: 21,
   aptos: 22,
-  arbitrumgoerli: 23,
-  optimismgoerli: 24,
-  basegoerli: 30,
   sei: 32,
   scroll: 34,
   mantle: 35,
@@ -52,18 +48,6 @@ export type ChainContracts = {
 };
 
 const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
-  goerli: {
-    key: 'goerli',
-    id: 2,
-    context: Context.ETH,
-    contracts: {
-      ...CONTRACTS.TESTNET.ethereum,
-      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
-    },
-    finalityThreshold: 64,
-    nativeTokenDecimals: 18,
-    cctpDomain: 0,
-  },
   solana: {
     key: 'solana',
     id: 1,
@@ -187,61 +171,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
-  },
-  arbitrumgoerli: {
-    key: 'arbitrumgoerli',
-    id: 23,
-    context: Context.ETH,
-    contracts: {
-      ...CONTRACTS.TESTNET.arbitrum,
-      cctpContracts: {
-        cctpTokenMessenger: '0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352',
-        cctpMessageTransmitter: '0x109bc137cb64eab7c0b1dddd1edf341467dc2d35',
-        wormholeCircleRelayer: '0xbf683d541e11320418ca78ec13309938e6c5922f',
-        wormholeCCTP: '0x2e8f5e00a9c5d450a72700546b89e2b70dfb00f2',
-      },
-      tbtcGateway: '0x31A15e213B59E230b45e8c5c99dAFAc3d1236Ee2',
-    },
-    finalityThreshold: 0,
-    nativeTokenDecimals: 18,
-    cctpDomain: 3,
-  },
-  optimismgoerli: {
-    key: 'optimismgoerli',
-    id: 24,
-    context: Context.ETH,
-    contracts: {
-      ...CONTRACTS.TESTNET.optimism,
-      cctpContracts: {
-        cctpTokenMessenger: '0x23a04d5935ed8bc8e3eb78db3541f0abfb001c6e',
-        cctpMessageTransmitter: '0x9ff9a4da6f2157a9c82ce756f8fd7e0d75be8895',
-        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
-        wormholeCCTP: '0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c',
-      },
-      tbtcGateway: '0x6449F4381f3d63bDfb36B3bDc375724aD3cD4621',
-    },
-    finalityThreshold: 0,
-    nativeTokenDecimals: 18,
-    cctpDomain: 2,
-  },
-  basegoerli: {
-    key: 'basegoerli',
-    id: 30,
-    context: Context.ETH,
-    contracts: {
-      ...CONTRACTS.TESTNET.base,
-      relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1',
-      cctpContracts: {
-        cctpTokenMessenger: '0x877b8e8c9e2383077809787ed6f279ce01cb4cc8',
-        cctpMessageTransmitter: '0x9ff9a4da6f2157a9c82ce756f8fd7e0d75be8895',
-        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
-        wormholeCCTP: '0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c',
-      },
-      tbtcGateway: '0xe3e0511EEbD87F08FbaE4486419cb5dFB06e1343',
-    },
-    finalityThreshold: 0,
-    nativeTokenDecimals: 18,
-    cctpDomain: 6,
   },
   klaytn: {
     key: 'klaytn',
@@ -419,7 +348,6 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://rpc.ankr.com/polygon_mumbai',
     bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
@@ -429,9 +357,6 @@ const TESTNET_CONFIG: WormholeConfig = {
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
-    arbitrumgoerli: 'https://arbitrum-goerli.publicnode.com',
-    optimismgoerli: 'https://optimism-goerli.publicnode.com',
-    basegoerli: 'https://base-goerli.publicnode.com',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
     wormchain: '',
     osmosis: 'https://rpc.osmotest5.osmosis.zone',

@@ -1,28 +1,6 @@
 import { GasEstimates, Route } from '../types';
 
 export const TESTNET_GAS_ESTIMATES: GasEstimates = {
-  goerli: {
-    [Route.Bridge]: {
-      sendNative: 100000,
-      sendToken: 150000,
-      claim: 200000,
-    },
-    [Route.Relay]: {
-      sendNative: 200000,
-      sendToken: 300000,
-    },
-    [Route.CCTPManual]: {
-      sendToken: 150000,
-      claim: 300000,
-    },
-    [Route.CCTPRelay]: {
-      sendToken: 300000,
-    },
-    [Route.TBTC]: {
-      sendToken: 150000,
-      claim: 200000,
-    },
-  },
   mumbai: {
     [Route.Bridge]: {
       sendNative: 200000,
@@ -151,28 +129,6 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       claim: 1000000,
     },
   },
-  basegoerli: {
-    [Route.Bridge]: {
-      sendNative: 100000,
-      sendToken: 1000000,
-      claim: 1000000,
-    },
-    [Route.Relay]: {
-      sendNative: 300000,
-      sendToken: 300000,
-    },
-    [Route.CCTPManual]: {
-      sendToken: 300000,
-      claim: 500000,
-    },
-    [Route.CCTPRelay]: {
-      sendToken: 300000,
-    },
-    [Route.TBTC]: {
-      sendToken: 300000,
-      claim: 500000,
-    },
-  },
   klaytn: {
     [Route.Bridge]: {
       sendNative: 2000000,
@@ -192,40 +148,6 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendNative: 0,
       sendToken: 0,
       claim: 0,
-    },
-  },
-  arbitrumgoerli: {
-    [Route.Bridge]: {
-      sendNative: 100000,
-      sendToken: 150000,
-      claim: 150000,
-    },
-    [Route.CCTPManual]: {
-      sendToken: 150000,
-    },
-    [Route.CCTPRelay]: {
-      sendToken: 300000,
-    },
-    [Route.TBTC]: {
-      sendToken: 150000,
-      claim: 300000,
-    },
-  },
-  optimismgoerli: {
-    [Route.Bridge]: {
-      sendNative: 100000,
-      sendToken: 100000,
-      claim: 100000,
-    },
-    [Route.CCTPManual]: {
-      sendToken: 150000,
-    },
-    [Route.CCTPRelay]: {
-      sendToken: 300000,
-    },
-    [Route.TBTC]: {
-      sendToken: 150000,
-      claim: 300000,
     },
   },
   cosmoshub: {

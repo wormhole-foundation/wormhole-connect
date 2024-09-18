@@ -57,7 +57,7 @@ export class BridgeRoute extends BaseRoute {
     // Special case: Native eth cannot be sent on arbitrum
     if (
       (sourceToken === 'ETHarbitrum' || sourceToken === 'native') &&
-      (sourceChain === 'arbitrum' || sourceChain === 'arbitrumgoerli')
+      sourceChain === 'arbitrum'
     )
       return false;
 
