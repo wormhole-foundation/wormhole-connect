@@ -28,10 +28,17 @@ type HookReturn = {
   isFetching: boolean;
 };
 
+const QUOTE_REFRESH_INTERVAL = 20_000;
+
 const MAYAN_BETA_LIMIT = 10_000; // USD
 const MAYAN_BETA_PROTOCOLS = ['MCTP', 'SWIFT'];
 
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
+  const [nonce, setNonce] = useState(new Date().valueOf());
+  const [refreshTimeout, setRefreshTimeout] = useState<null | ReturnType<
+    typeof setTimeout
+  >>(null);
+
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
 
@@ -65,11 +72,21 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       if (!unmounted) {
         setQuotes(quoteResults);
         setIsFetching(false);
+
+        // Refresh quotes in 15 seconds
+        const refreshTimeout = setTimeout(
+          () => setNonce(new Date().valueOf()),
+          QUOTE_REFRESH_INTERVAL,
+        );
+        setRefreshTimeout(refreshTimeout);
       }
     });
 
     return () => {
       unmounted = true;
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout);
+      }
     };
   }, [
     routes.join(),
@@ -79,6 +96,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     params.destToken,
     params.amount,
     params.nativeGas,
+    nonce,
   ]);
 
   const quotesMap = useMemo(
