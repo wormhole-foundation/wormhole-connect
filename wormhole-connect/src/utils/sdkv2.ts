@@ -445,5 +445,5 @@ export const isMinAmountError = (
   error?: Error,
 ): error is routes.MinAmountError => {
   const unsafeCastError = error as routes.MinAmountError;
-  return isAmount(unsafeCastError?.min?.amount);
+  return isAmount(unsafeCastError?.min);
 };

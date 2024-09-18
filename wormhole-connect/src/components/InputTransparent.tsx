@@ -40,6 +40,7 @@ type Props = {
   disabled?: boolean;
   value?: string | number;
   testId?: string;
+  pattern?: string;
 };
 
 const NUMBER_FORMAT_REGEX = /^\d*\.?\d*$/;
@@ -78,6 +79,7 @@ function InputTransparent(props: Props) {
       readOnly={props.disabled}
       value={props.value}
       data-testid={props.testId}
+      pattern={props.pattern}
     />
   );
 }
