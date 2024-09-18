@@ -13,7 +13,12 @@ import TESTNET from './config/testnet';
 // Routes
 import { DEFAULT_ROUTES, nttRoutes } from './routes/operator';
 import { routes } from '@wormhole-foundation/sdk';
-import { MayanRoute } from '@mayanfinance/wormhole-sdk-route';
+import {
+  MayanRoute,
+  MayanRouteWH,
+  MayanRouteMCTP,
+  MayanRouteSWIFT,
+} from '@mayanfinance/wormhole-sdk-route';
 import {
   nttAutomaticRoute,
   nttManualRoute,
@@ -53,4 +58,7 @@ export {
   AutomaticCCTPRoute,
   CCTPRoute,
   MayanRoute,
+  MayanRouteWH,
+  MayanRouteMCTP,
+  MayanRouteSWIFT,
 };
