@@ -269,7 +269,7 @@ const Bridge = () => {
         showHamburgerMenu={config.ui.showHamburgerMenu}
       />
     );
-  }, []);
+  }, [config.ui]);
 
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
@@ -362,7 +362,7 @@ const Bridge = () => {
         </Tooltip>
       </div>
     );
-  }, [sendingWallet?.address]);
+  }, [sendingWallet?.address, config.ui]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
