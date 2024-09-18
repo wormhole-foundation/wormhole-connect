@@ -189,10 +189,14 @@ const Bridge = () => {
   // Fetch token prices
   useFetchTokenPrices();
 
+  const sourceTokenArray = useMemo(() => {
+    return sourceToken ? [config.tokens[sourceToken]] : [];
+  }, [sourceToken]);
+
   const { balances, isFetching: isFetchingBalances } = useGetTokenBalances(
     sendingWallet?.address || '',
     sourceChain,
-    sourceToken ? [config.tokens[sourceToken]] : [],
+    sourceTokenArray,
   );
 
   // Validate amount
