@@ -4,7 +4,6 @@ import transferInputReducer from './transferInput';
 import relayReducer from './relay';
 import routerReducer from './router';
 import walletReducer from './wallet';
-import porticoBridgeReducer from './porticoBridge';
 import tokenPricesReducer from './tokenPrices';
 
 export const store = configureStore({
@@ -14,7 +13,6 @@ export const store = configureStore({
     router: routerReducer,
     wallet: walletReducer,
     relay: relayReducer,
-    porticoBridge: porticoBridgeReducer,
     tokenPrices: tokenPricesReducer,
   },
 });

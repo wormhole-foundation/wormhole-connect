@@ -16,7 +16,6 @@ import {
   getEmptyDataWrapper,
   receiveDataWrapper,
 } from './helpers';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { amount, Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
@@ -177,7 +176,7 @@ function getInitialState(): TransferInputState {
 }
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token, route } = state;
+  const { fromChain, token } = state;
   if (token) {
     const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
@@ -186,9 +185,7 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       (!tokenConfig.tokenId && tokenConfig.nativeChain !== fromChain)
     ) {
       state.token = '';
-      if (!route || !isPorticoRoute(route)) {
-        state.amount = '';
-      }
+      state.amount = '';
     }
     if (
       tokenConfig.symbol === 'USDC' &&
@@ -203,16 +200,12 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         getNativeVersionOfToken('tBTC', fromChain!) ||
         config.tokens['tBTC']?.key ||
         '';
-    } else if (route && isPorticoRoute(route)) {
-      if (tokenConfig.nativeChain !== fromChain) {
-        state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
-      }
     }
   }
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken, route } = state;
+  const { toChain, destToken } = state;
 
   if (destToken) {
     const tokenConfig = config.tokens[destToken];
@@ -229,10 +222,6 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
         getNativeVersionOfToken('tBTC', toChain!) ||
         config.tokens['tBTC']?.key ||
         '';
-    } else if (route && isPorticoRoute(route)) {
-      if (tokenConfig.nativeChain !== toChain) {
-        state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
-      }
     }
   }
 };
@@ -373,19 +362,6 @@ export const transferInputSlice = createSlice({
         state.route = undefined;
       }
     },
-    // gas estimates
-    setSendingGasEst: (
-      state: TransferInputState,
-      { payload }: PayloadAction<string>,
-    ) => {
-      state.gasEst.send = payload;
-    },
-    setClaimGasEst: (
-      state: TransferInputState,
-      { payload }: PayloadAction<string>,
-    ) => {
-      state.gasEst.claim = payload;
-    },
     // clear inputs
     clearTransfer: (state: TransferInputState) => {
       const initialState = getInitialState();
@@ -497,8 +473,6 @@ export const {
   setForeignAsset,
   setAssociatedTokenAddress,
   setTransferRoute,
-  setSendingGasEst,
-  setClaimGasEst,
   updateBalances,
   clearTransfer,
   setIsTransactionInProgress,
