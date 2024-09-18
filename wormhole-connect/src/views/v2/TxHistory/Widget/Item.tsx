@@ -14,6 +14,7 @@ import config from 'config';
 import { LOCAL_STORAGE_TXS } from 'config/constants';
 import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
+import TxCompleteIcon from 'icons/TxComplete';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
 
@@ -224,16 +225,12 @@ const WidgetItem = (props: Props) => {
               alignItems="center"
               justifyContent="space-between"
             >
-              <Typography
-                justifyContent="space-between"
-                color={
-                  inProgress
-                    ? theme.palette.text.primary
-                    : theme.palette.success.main
-                }
-                display="flex"
-              >
-                {inProgress ? etaCountdown : 'Completed'}
+              <Typography display="flex" justifyContent="space-between">
+                {inProgress ? (
+                  etaCountdown
+                ) : (
+                  <TxCompleteIcon sx={{ height: '24px', width: '24px' }} />
+                )}
               </Typography>
               <Stack direction="row" alignItems="center">
                 <Typography fontSize={14} marginRight="8px">
