@@ -387,12 +387,14 @@ const ReviewTransaction = (props: Props) => {
         destinationGasDrop={receiveNativeAmount}
         quote={quote}
       />
-      <Collapse in={showGasSlider}>
-        <GasSlider
-          destinationGasDrop={receiveNativeAmount || 0}
-          disabled={isGasSliderDisabled}
-        />
-      </Collapse>
+      {showGasSlider && (
+        <Collapse in={showGasSlider}>
+          <GasSlider
+            destinationGasDrop={receiveNativeAmount || 0}
+            disabled={isGasSliderDisabled}
+          />
+        </Collapse>
+      )}
       <SendError humanError={sendError} internalError={sendErrorInternal} />
       {confirmTransactionButton}
     </Stack>
