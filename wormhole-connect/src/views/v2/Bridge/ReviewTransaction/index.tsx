@@ -321,17 +321,7 @@ const ReviewTransaction = (props: Props) => {
         className={classes.confirmTransaction}
         onClick={() => send()}
       >
-        {props.isFetchingQuotes ? (
-          <Typography
-            display="flex"
-            alignItems="center"
-            gap={1}
-            textTransform="none"
-          >
-            <CircularProgress color="secondary" size={16} />
-            {mobile ? 'Refreshing' : 'Refreshing quote'}
-          </Typography>
-        ) : isTransactionInProgress ? (
+        {isTransactionInProgress ? (
           <Typography
             display="flex"
             alignItems="center"
@@ -340,6 +330,16 @@ const ReviewTransaction = (props: Props) => {
           >
             <CircularProgress color="secondary" size={16} />
             {mobile ? 'Preparing' : 'Preparing transaction'}
+          </Typography>
+        ) : !isTransactionInProgress && props.isFetchingQuotes ? (
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            <CircularProgress color="secondary" size={16} />
+            {mobile ? 'Refreshing' : 'Refreshing quote'}
           </Typography>
         ) : (
           <Typography textTransform="none">
