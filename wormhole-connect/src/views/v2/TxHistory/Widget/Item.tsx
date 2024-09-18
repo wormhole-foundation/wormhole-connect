@@ -60,7 +60,7 @@ const WidgetItem = (props: Props) => {
   } = transaction;
 
   // Initialize the countdown
-  const { seconds, minutes, isRunning, restart } = useTimer({
+  const { seconds, minutes, totalSeconds, isRunning, restart } = useTimer({
     expiryTimestamp: new Date(),
     autoStart: false,
     onExpire: () => setEtaExpired(true),
@@ -159,7 +159,7 @@ const WidgetItem = (props: Props) => {
     }
 
     return eta - timePassed;
-  }, [senderTime, eta]);
+  }, [senderTime, eta, totalSeconds]);
 
   // Displays the countdown
   const etaCountdown = useMemo(() => {
@@ -196,13 +196,13 @@ const WidgetItem = (props: Props) => {
 
   // Start the timer when we have the sender timestamp to compute the remaining time
   useEffect(() => {
-    if (isRunning || !etaRemaining) {
+    if (isRunning || !inProgress) {
       return;
     }
 
     // Start only when we have the remaining eta and if the timer hasn't been started yet
     restart(new Date(Date.now() + etaRemaining), true);
-  }, [etaRemaining]);
+  }, [etaRemaining, inProgress]);
 
   if (!transaction) {
     return <></>;
