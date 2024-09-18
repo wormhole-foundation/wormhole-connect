@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTimer } from 'react-timer-hook';
-import { CircularProgress, useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -20,18 +20,14 @@ import { toFixedDecimals } from 'utils/balance';
 
 import type { TransactionLocal } from 'config/types';
 
-const useStyles = makeStyles<{
-  isFetching: boolean;
-}>()((theme, { isFetching }) => ({
+const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     maxWidth: '420px',
   },
   card: {
     width: '100%',
-    boxShadow: `0px 0px 3.5px 0px ${
-      isFetching ? theme.palette.success.main : theme.palette.primary.main
-    }`,
+    boxShadow: `0px 0px 3.5px 0px ${theme.palette.primary.main}`,
   },
 }));
 
@@ -40,14 +36,12 @@ type Props = {
 };
 
 const WidgetItem = (props: Props) => {
-  const theme = useTheme();
-
   const [senderTimestamp, setSenderTimestamp] = useState('');
   const [etaExpired, setEtaExpired] = useState(false);
   const [inProgress, setInProgress] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
 
-  const { classes } = useStyles({ isFetching });
+  const { classes } = useStyles();
 
   const { data: transaction } = props;
   const {
@@ -164,31 +158,32 @@ const WidgetItem = (props: Props) => {
 
   // Displays the countdown
   const etaCountdown = useMemo(() => {
-    if (!senderTime && isFetching) {
-      return <CircularProgress size={16} />;
-    }
-
     if (etaExpired) {
       return 'Any time now!';
     }
 
-    const counter = isRunning
-      ? minutesAndSecondsWithPadding(minutes, seconds)
-      : null;
+    if (isRunning) {
+      return minutesAndSecondsWithPadding(minutes, seconds);
+    }
 
-    return counter;
+    return <CircularProgress size={16} />;
   }, [etaExpired, isRunning, minutes, seconds, senderTime, isFetching]);
 
   // A number value between 0-100
   const progressBarValue = useMemo(() => {
     // etaRemaining is guaranteed to be smaller than or equal to eta,
     // but we still check here as well to be on the safe side.
-    if (etaRemaining > eta || !etaRemaining) {
+    if (etaRemaining > eta) {
       return 0;
     }
 
-    // Return full bar if already completed
-    if (!inProgress) {
+    // Return empty bar when computing the remaining eta and counter is running
+    if (!etaExpired && etaRemaining === 0) {
+      return 0;
+    }
+
+    // Return full bar when countdown expires
+    if (etaExpired) {
       return 100;
     }
 
