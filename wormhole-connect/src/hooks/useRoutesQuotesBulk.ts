@@ -73,7 +73,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
         setQuotes(quoteResults);
         setIsFetching(false);
 
-        // Refresh quotes in 15 seconds
+        // Refresh quotes in 20 seconds
         const refreshTimeout = setTimeout(
           () => setNonce(new Date().valueOf()),
           QUOTE_REFRESH_INTERVAL,
