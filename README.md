@@ -1,9 +1,11 @@
-# Wormhole Connect
-[![Documentation](https://img.shields.io/badge/Documentation-2a67c9)](https://docs.wormhole.com/wormhole/wormhole-connect/overview) [![npm version](https://img.shields.io/npm/v/@wormhole-foundation/wormhole-connect.svg)](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect) ![CI build](https://github.com/wormhole-foundation/wormhole-connect/actions/workflows/build.yml/badge.svg)
+# Wormhole Connect[![Documentation](https://img.shields.io/badge/Documentation-2a67c9)](https://docs.wormhole.com/wormhole/wormhole-connect/overview) [![npm version](https://img.shields.io/npm/v/@wormhole-foundation/wormhole-connect.svg)](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect) ![CI build](https://github.com/wormhole-foundation/wormhole-connect/actions/workflows/build.yml/badge.svg)
 
 Wormhole Connect is a customizable React widget for cross-chain asset transfers powered by Wormhole.
 
 [![Wormhole Connect running on Portal Bridge](https://i.imgur.com/sZJKw8e.png)](https://portalbridge.com/)
+
+Connect is powered by the [Wormhole TypeScript SDK](https://github.com/wormhole-foundation/wormhole-sdk-ts). Developers interested in building their
+own interface for Wormhole bridging functionality are encouraged to explore the SDK!
 
 ## Demo
 
@@ -66,7 +68,7 @@ import WormholeConnect, {
 } from '@wormhole-foundation/wormhole-connect';
 
 const config: WormholeConnectConfig = {
-  networks: ['Ethereum', 'Solana']
+  chains: ['Ethereum', 'Solana']
 };
 
 const theme: WormholeConnectPartialTheme = {
@@ -92,15 +94,55 @@ Below are some of the more commonly used config options. See
 [the full Connect docs](https://docs.wormhole.com/wormhole/wormhole-connect/overview) for more complete
 documentation and examples of the different config options.
 
-### Environment (`env`):
+### Network (`network`):
 
-Connect renders in mainnet mode by default, but you can switch it to testnet by setting `env` to `testnet`.
+Values: `Mainnet` | `Testnet` | `Devnet`
+
+Connect renders in Mainnet mode by default, but you can switch it to testnet by setting `network` to `Testnet`:
 
 ```ts
 const config: WormholeConnectConfig = {
-  env: 'testnet'
+  network: 'Testnet'
 }
 ```
+
+### Choosing Chains (`chains`):
+
+You can provide a whitelist of chains to limit which ones Connect offers.
+
+```ts
+const config: WormholeConnectConfig = {
+  chains: ['Ethereum', 'Solana']
+}
+```
+
+See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/main/core/base/src/constants/chains.ts) in the SDK. By default, Connect offers its full built-in list for both `mainnet` and `testnet`:
+
+| `mainnet` | `testnet` |
+| ---------- | ------------- |
+| Ethereum | Sepolia |
+| Polygon | |
+| Bsc | Bsc |
+| Avalanche | Avalanche |
+| Celo | Celo |
+| Moonbeam | Moonbeam |
+| Solana | Solana |
+| Sui | Sui |
+| Aptos | Aptos |
+| Base | BaseSepolia |
+| Osmosis | Osmosis |
+| Evmos | Evmos |
+| Kujira | Kujira |
+| Injective | Injective |
+| Klaytn | Klaytn |
+| Arbitrum | ArbitrumSepolia |
+| Optimism | OptimismSepolia |
+| Scroll | Scroll |
+| Blast | Blast |
+| Xlayer | Xlayer |
+| Mantle | Mantle |
+
+> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
 ### RPC Endpoints (`rpcs`):
 
@@ -175,45 +217,6 @@ You can change the `theme` prop to dynamically change Connect's colors, for exam
 switches from light to dark mode.
 
 See the definitions of `WormholeConnectTheme` and `dark` in [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/theme.ts) for type definitions.
-
-### Choosing Networks (`networks`):
-
-You can provide a whitelist of networks to limit which ones Connect offers.
-
-
-```ts
-const config: WormholeConnectConfig = {
-  networks: ['Ethereum', 'Solana']
-}
-```
-
-By default, it offers its full built-in list for both `mainnet` and `testnet`:
-
-| `mainnet` | `testnet` |
-| ---------- | ------------- |
-| Ethereum | Sepolia |
-| Polygon | |
-| Bsc | Bsc |
-| Avalanche | Avalanche |
-| Celo | Celo |
-| Moonbeam | Moonbeam |
-| Solana | Solana |
-| Sui | Sui |
-| Aptos | Aptos |
-| Base | BaseSepolia |
-| Osmosis | Osmosis |
-| Evmos | Evmos |
-| Kujira | Kujira |
-| Injective | Injective |
-| Klaytn | Klaytn |
-| Arbitrum | ArbitrumSepolia |
-| Optimism | OptimismSepolia |
-| Scroll | Scroll |
-| Blast | Blast |
-| Xlayer | Xlayer |
-| Mantle | Mantle |
-
-> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
 ### Learn More
 
