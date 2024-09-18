@@ -329,7 +329,7 @@ const ReviewTransaction = (props: Props) => {
             textTransform="none"
           >
             <CircularProgress color="secondary" size={16} />
-            {mobile ? 'Refreshing' : 'Refreshing quotes'}
+            {mobile ? 'Refreshing' : 'Refreshing quote'}
           </Typography>
         ) : isTransactionInProgress ? (
           <Typography
