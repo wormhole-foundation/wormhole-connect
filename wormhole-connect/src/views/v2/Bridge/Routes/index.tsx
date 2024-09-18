@@ -13,7 +13,7 @@ import AlertBannerV2 from 'components/v2/AlertBanner';
 import type { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
 import { routes } from '@wormhole-foundation/sdk';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Skeleton } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -144,10 +144,6 @@ const Routes = ({ ...props }: Props) => {
     return null;
   }
 
-  if (props.isLoading) {
-    return <CircularProgress />;
-  }
-
   if (walletsConnected && !(Number(amount) > 0)) {
     return (
       <Tooltip title="Please enter the amount to view available routes">
@@ -160,42 +156,54 @@ const Routes = ({ ...props }: Props) => {
 
   return (
     <>
-      <Typography
-        fontSize={16}
-        paddingBottom={0}
-        marginTop="8px"
-        marginBottom={0}
-        width="100%"
-        textAlign="left"
-      >
-        Routes
-      </Typography>
-      {renderRoutes.map(({ name }, index) => {
-        const routeConfig = RoutesConfig[name];
-        const isSelected = routeConfig.name === props.selectedRoute;
-        const quoteResult = props.quotes[name];
-        const quote = quoteResult?.success ? quoteResult : undefined;
-        // Default message added as precaution, as 'Error' type cannot be trusted
-        const quoteError =
-          quoteResult?.success === false
-            ? quoteResult?.error?.message ??
-              `Error while getting a quote for ${name}.`
-            : undefined;
-        return (
-          <SingleRoute
-            key={name}
-            route={routeConfig}
-            error={quoteError}
-            isSelected={isSelected && !quoteError}
-            isFastest={name === fastestRoute.name}
-            isCheapest={name === cheapestRoute.name}
-            isOnlyChoice={supportedRoutes.length === 1}
-            onSelect={props.onRouteChange}
-            quote={quote}
-            isFetchingQuote={props.isLoading}
-          />
-        );
-      })}
+      <Box sx={{ display: 'flex', width: '100%' }}>
+        <Typography
+          align="left"
+          fontSize={16}
+          paddingBottom={0}
+          marginTop="8px"
+          marginBottom={0}
+          width="100%"
+          textAlign="left"
+        >
+          Routes
+        </Typography>
+        {props.isLoading ? (
+          <CircularProgress sx={{ 'align-self': 'flex-end' }} size={20} />
+        ) : null}
+      </Box>
+
+      {props.isLoading && renderRoutes.length === 0 ? (
+        <Skeleton variant="rounded" height={153} width="100%" />
+      ) : (
+        renderRoutes.map(({ name }, index) => {
+          const routeConfig = RoutesConfig[name];
+          const isSelected = routeConfig.name === props.selectedRoute;
+          const quoteResult = props.quotes[name];
+          const quote = quoteResult?.success ? quoteResult : undefined;
+          // Default message added as precaution, as 'Error' type cannot be trusted
+          const quoteError =
+            quoteResult?.success === false
+              ? quoteResult?.error?.message ??
+                `Error while getting a quote for ${name}.`
+              : undefined;
+          return (
+            <SingleRoute
+              key={name}
+              route={routeConfig}
+              error={quoteError}
+              isSelected={isSelected && !quoteError}
+              isFastest={name === fastestRoute.name}
+              isCheapest={name === cheapestRoute.name}
+              isOnlyChoice={supportedRoutes.length === 1}
+              onSelect={props.onRouteChange}
+              quote={quote}
+              isFetchingQuote={props.isLoading}
+            />
+          );
+        })
+      )}
+
       {props.routes.length > 1 && (
         <Link
           onClick={() => setShowAll((prev) => !prev)}
