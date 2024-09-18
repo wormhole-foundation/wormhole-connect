@@ -37,7 +37,6 @@ import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
-import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import { RelayerFee } from 'store/relay';
 
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
@@ -61,6 +60,8 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   onClose: () => void;
+  quotes: any;
+  isFetchingQuotes: boolean;
 };
 
 const ReviewTransaction = (props: Props) => {
@@ -103,16 +104,7 @@ const ReviewTransaction = (props: Props) => {
     isTransactionInProgress,
   });
 
-  const routes = useMemo(() => (route ? [route] : []), []);
-  const { quotesMap, isFetching } = useRoutesQuotesBulk(routes, {
-    amount,
-    sourceChain,
-    sourceToken,
-    destChain,
-    destToken,
-    nativeGas: toNativeToken,
-  });
-  const quoteResult = quotesMap[route ?? ''];
+  const quoteResult = props.quotes[route ?? ''];
   const quote = quoteResult?.success ? quoteResult : undefined;
 
   const receiveNativeAmount = quote?.destinationNativeGas
@@ -324,7 +316,7 @@ const ReviewTransaction = (props: Props) => {
 
     return (
       <Button
-        disabled={isFetching || isTransactionInProgress}
+        disabled={props.isFetchingQuotes || isTransactionInProgress}
         variant="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
@@ -339,6 +331,16 @@ const ReviewTransaction = (props: Props) => {
             <CircularProgress color="secondary" size={16} />
             {mobile ? 'Preparing' : 'Preparing transaction'}
           </Typography>
+        ) : !isTransactionInProgress && props.isFetchingQuotes ? (
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            <CircularProgress color="secondary" size={16} />
+            {mobile ? 'Refreshing' : 'Refreshing quote'}
+          </Typography>
         ) : (
           <Typography textTransform="none">
             {mobile ? 'Confirm' : 'Confirm transaction'}
@@ -347,7 +349,7 @@ const ReviewTransaction = (props: Props) => {
       </Button>
     );
   }, [
-    isFetching,
+    props.isFetchingQuotes,
     isTransactionInProgress,
     sourceChain,
     sourceToken,
@@ -375,7 +377,6 @@ const ReviewTransaction = (props: Props) => {
         destinationGasDrop={receiveNativeAmount}
         title="You will receive"
         quote={quote}
-        isFetchingQuote={isFetching}
       />
       <Collapse in={showGasSlider}>
         <GasSlider

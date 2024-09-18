@@ -28,10 +28,17 @@ type HookReturn = {
   isFetching: boolean;
 };
 
+const QUOTE_REFRESH_INTERVAL = 20_000;
+
 const MAYAN_BETA_LIMIT = 10_000; // USD
 const MAYAN_BETA_PROTOCOLS = ['MCTP', 'SWIFT'];
 
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
+  const [nonce, setNonce] = useState(new Date().valueOf());
+  const [refreshTimeout, setRefreshTimeout] = useState<null | ReturnType<
+    typeof setTimeout
+  >>(null);
+
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
 
@@ -39,6 +46,9 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   // Calculate USD amount for temporary $1000 Mayan limit
   const tokenConfig = config.tokens[params.sourceToken];
   const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
+  const { isTransactionInProgress } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const usdAmount = calculateUSDPriceRaw(
     params.amount,
     usdPrices.data,
@@ -60,16 +70,34 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     // Forcing TS to infer that fields are non-optional
     const rParams = params as Required<QuoteParams>;
 
-    setIsFetching(true);
-    config.routes.getQuotes(routes, rParams).then((quoteResults) => {
-      if (!unmounted) {
-        setQuotes(quoteResults);
-        setIsFetching(false);
-      }
-    });
+    const onComplete = () => {
+      // Refresh quotes in 20 seconds
+      const refreshTimeout = setTimeout(
+        () => setNonce(new Date().valueOf()),
+        QUOTE_REFRESH_INTERVAL,
+      );
+      setRefreshTimeout(refreshTimeout);
+    };
+
+    if (isTransactionInProgress) {
+      // Don't fetch new quotes if the user has committed to one and has initiated a transaction
+      onComplete();
+    } else {
+      setIsFetching(true);
+      config.routes.getQuotes(routes, rParams).then((quoteResults) => {
+        if (!unmounted) {
+          setQuotes(quoteResults);
+          setIsFetching(false);
+          onComplete();
+        }
+      });
+    }
 
     return () => {
       unmounted = true;
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout);
+      }
     };
   }, [
     routes.join(),
@@ -79,6 +107,8 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     params.destToken,
     params.amount,
     params.nativeGas,
+    nonce,
+    isTransactionInProgress,
   ]);
 
   const quotesMap = useMemo(

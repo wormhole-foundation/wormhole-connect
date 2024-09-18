@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { CircularProgress, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
@@ -62,7 +62,6 @@ type Props = {
   isOnlyChoice?: boolean;
   onSelect?: (route: string) => void;
   quote?: routes.Quote<routes.Options>;
-  isFetchingQuote: boolean;
 };
 
 const SingleRoute = (props: Props) => {
@@ -82,7 +81,7 @@ const SingleRoute = (props: Props) => {
   );
 
   const { name } = props.route;
-  const { quote, isFetchingQuote } = props;
+  const { quote } = props;
 
   const destTokenConfig = useMemo(
     () => config.tokens[destToken] as TokenConfig | undefined,
@@ -121,9 +120,7 @@ const SingleRoute = (props: Props) => {
       return <></>;
     }
 
-    let feeValue = isFetchingQuote ? (
-      <CircularProgress size={14} />
-    ) : (
+    let feeValue = (
       <Typography fontSize={14}>{`${toFixedDecimals(relayFee.toString(), 4)} ${
         feeTokenConfig.symbol
       } (${feePrice})`}</Typography>
@@ -144,7 +141,7 @@ const SingleRoute = (props: Props) => {
         </Typography>
       </Stack>
     );
-  }, [destToken, isFetchingQuote, quote?.relayFee, tokenPrices]);
+  }, [destToken, quote?.relayFee, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!destChain || !props.destinationGasDrop) {
@@ -169,14 +166,10 @@ const SingleRoute = (props: Props) => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Gas top up
         </Typography>
-        {isFetchingQuote ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{gasTokenPrice}</Typography>
-        )}
+        <Typography fontSize={14}>{gasTokenPrice}</Typography>
       </Stack>
     );
-  }, [destChain, isFetchingQuote, props.destinationGasDrop]);
+  }, [destChain, props.destinationGasDrop]);
 
   const timeToDestination = useMemo(
     () => (
@@ -185,24 +178,20 @@ const SingleRoute = (props: Props) => {
           Time to destination
         </Typography>
 
-        {isFetchingQuote ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography
-            fontSize={14}
-            sx={{
-              color:
-                quote?.eta && quote.eta < 60 * 1000
-                  ? theme.palette.success.main
-                  : theme.palette.text.secondary,
-            }}
-          >
-            {quote?.eta ? millisToHumanString(quote.eta) : 'N/A'}
-          </Typography>
-        )}
+        <Typography
+          fontSize={14}
+          sx={{
+            color:
+              quote?.eta && quote.eta < 60 * 1000
+                ? theme.palette.success.main
+                : theme.palette.text.secondary,
+          }}
+        >
+          {quote?.eta ? millisToHumanString(quote.eta) : 'N/A'}
+        </Typography>
       </>
     ),
-    [quote?.eta, isFetchingQuote],
+    [quote?.eta],
   );
 
   const isManual = useMemo(() => {
@@ -310,10 +299,6 @@ const SingleRoute = (props: Props) => {
       return <Typography color="error">Route is unavailable</Typography>;
     }
 
-    if (props.isFetchingQuote) {
-      return <CircularProgress size={18} />;
-    }
-
     if (receiveAmount === undefined || !destTokenConfig) {
       return null;
     }
@@ -328,10 +313,6 @@ const SingleRoute = (props: Props) => {
   const routeCardSubHeader = useMemo(() => {
     if (props.error || !destChain) {
       return null;
-    }
-
-    if (props.isFetchingQuote) {
-      return <CircularProgress size={18} />;
     }
 
     if (receiveAmount === undefined) {

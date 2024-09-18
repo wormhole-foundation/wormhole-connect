@@ -399,7 +399,6 @@ const Bridge = () => {
     destToken &&
     sendingWallet.address &&
     receivingWallet.address &&
-    selectedRoute &&
     Number(amount) > 0 &&
     !hasError;
 
@@ -414,7 +413,12 @@ const Bridge = () => {
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={!isValid || isFetchingQuotes || !supportedRouteSelected}
+      disabled={
+        !isValid ||
+        isFetchingQuotes ||
+        !supportedRouteSelected ||
+        !selectedRoute
+      }
       onClick={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);
@@ -428,7 +432,11 @@ const Bridge = () => {
 
   if (willReviewTransaction) {
     return (
-      <ReviewTransaction onClose={() => setWillReviewTransaction(false)} />
+      <ReviewTransaction
+        quotes={quotesMap}
+        isFetchingQuotes={isFetchingQuotes}
+        onClose={() => setWillReviewTransaction(false)}
+      />
     );
   }
 
