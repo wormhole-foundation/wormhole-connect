@@ -26,7 +26,6 @@ import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
-import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { setRoute } from 'store/router';
 import { displayAddress, millisToHumanString } from 'utils';
 import { interpretTransferError } from 'utils/errors';
@@ -447,6 +446,11 @@ const Redeem = () => {
 
       let receipt: routes.Receipt | undefined;
 
+      config.triggerEvent({
+        type: 'transfer.redeem.start',
+        details: transferDetails,
+      });
+
       if (isTxDestQueued && routes.isFinalizable(route)) {
         receipt = await route.finalize(signer, routeContext.receipt);
       } else if (!isTxDestQueued && routes.isManual(route)) {
@@ -460,11 +464,6 @@ const Redeem = () => {
       if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
         txId = receipt.destinationTxs[receipt.destinationTxs.length - 1].txid;
       }
-
-      config.triggerEvent({
-        type: 'transfer.redeem.start',
-        details: transferDetails,
-      });
 
       setIsClaimInProgress(false);
       setClaimError('');
@@ -483,13 +482,6 @@ const Redeem = () => {
       console.error(e);
     }
     if (txId !== undefined) {
-      dispatch(setRedeemTx(txId));
-
-      // Transfer may require an additional step if this is a finalizable route
-      if (!routes.isFinalizable(route)) {
-        dispatch(setTransferComplete(true));
-      }
-
       config.triggerEvent({
         type: 'transfer.redeem.success',
         details: transferDetails,
