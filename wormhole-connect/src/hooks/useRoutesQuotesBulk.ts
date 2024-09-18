@@ -108,6 +108,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     params.amount,
     params.nativeGas,
     nonce,
+    isTransactionInProgress,
   ]);
 
   const quotesMap = useMemo(
