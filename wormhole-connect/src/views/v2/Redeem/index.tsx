@@ -67,12 +67,19 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
   actionButton: {
-    padding: '8px 16px',
+    padding: '12px 16px',
     backgroundColor: theme.palette.primary.main,
     borderRadius: '8px',
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
+  },
+  claimButton: {
+    backgroundColor: theme.palette.warning.light,
+    color: theme.palette.background.default,
+    '&:hover': {
+      backgroundColor: theme.palette.warning.main,
+    },
   },
   errorBox: {
     maxWidth: '420px',
@@ -543,7 +550,7 @@ const Redeem = () => {
 
       return (
         <Button
-          className={classes.actionButton}
+          className={joinClass([classes.actionButton, classes.claimButton])}
           disabled={isClaimInProgress || !isTxAttested}
           variant={claimError ? 'error' : 'primary'}
           onClick={handleManualClaim}
@@ -556,7 +563,9 @@ const Redeem = () => {
               </Typography>
             </Stack>
           ) : (
-            <Typography textTransform="none">Claim</Typography>
+            <Typography textTransform="none">
+              Claim tokens to complete transfer
+            </Typography>
           )}
         </Button>
       );
