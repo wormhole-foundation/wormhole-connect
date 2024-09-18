@@ -182,7 +182,7 @@ const WidgetItem = (props: Props) => {
   const progressBarValue = useMemo(() => {
     // etaRemaining is guaranteed to be smaller than or equal to eta,
     // but we still check here as well to be on the safe side.
-    if (etaRemaining > eta) {
+    if (etaRemaining > eta || !etaRemaining) {
       return 0;
     }
 
@@ -194,14 +194,15 @@ const WidgetItem = (props: Props) => {
     return ((eta - etaRemaining) / eta) * 100;
   }, [eta, etaRemaining, inProgress]);
 
-  // Start the timer when we have the sender timestamp to compute the remaining time
+  // Start the countdown timer
   useEffect(() => {
-    if (isRunning || !inProgress) {
-      return;
+    if (!isRunning && inProgress && etaRemaining) {
+      // Start only when:
+      //   1- the timer hasn't been started yet and
+      //   2- transaction is in progress and
+      //   3- we have the remaining eta
+      restart(new Date(Date.now() + etaRemaining), true);
     }
-
-    // Start only when we have the remaining eta and if the timer hasn't been started yet
-    restart(new Date(Date.now() + etaRemaining), true);
   }, [etaRemaining, inProgress]);
 
   if (!transaction) {
