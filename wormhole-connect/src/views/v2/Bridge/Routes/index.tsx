@@ -198,7 +198,6 @@ const Routes = ({ ...props }: Props) => {
               isOnlyChoice={supportedRoutes.length === 1}
               onSelect={props.onRouteChange}
               quote={quote}
-              isFetchingQuote={props.isLoading}
             />
           );
         })

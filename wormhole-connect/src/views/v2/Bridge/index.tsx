@@ -432,7 +432,11 @@ const Bridge = () => {
 
   if (willReviewTransaction) {
     return (
-      <ReviewTransaction onClose={() => setWillReviewTransaction(false)} />
+      <ReviewTransaction
+        quotes={quotesMap}
+        isFetchingQuotes={isFetchingQuotes}
+        onClose={() => setWillReviewTransaction(false)}
+      />
     );
   }
 
