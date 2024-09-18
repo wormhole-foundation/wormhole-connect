@@ -55,7 +55,7 @@ export type MoreChainConfig = {
   href: string;
   target?: '_blank' | '_self';
   description: string;
-  networks: MoreChainDefinition[];
+  chains: MoreChainDefinition[];
 };
 
 export type MoreChainDefinition = {

@@ -173,7 +173,7 @@ function ChainsModal(props: Props) {
                 )
               );
             })}
-            {config.ui.moreChains?.networks.map((chain, i) => {
+            {config.ui.moreChains?.chains.map((chain, i) => {
               return (
                 <div
                   key={i}
