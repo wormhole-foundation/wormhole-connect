@@ -295,7 +295,7 @@ const TransactionDetails = () => {
           <Typography
             color={theme.palette.text.secondary}
             marginBottom="12px"
-          >{`Transaction # ${trimTxHash(sendTx)}`}</Typography>
+          >{`Transaction #${trimTxHash(sendTx)}`}</Typography>
           {sentAmount}
           {verticalConnector}
           {receivedAmount}
