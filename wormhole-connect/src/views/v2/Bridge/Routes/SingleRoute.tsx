@@ -56,7 +56,6 @@ type Props = {
   isSelected: boolean;
   error?: string;
   destinationGasDrop?: number;
-  title?: string;
   isFastest?: boolean;
   isCheapest?: boolean;
   isOnlyChoice?: boolean;
