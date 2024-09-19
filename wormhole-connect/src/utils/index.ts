@@ -417,3 +417,27 @@ export const millisToHumanString = (ts: number): string => {
     return `~${seconds} sec`;
   }
 };
+
+// Generates relative time string for days, hours and minutes
+export const millisToRelativeTime = (ts: number): string => {
+  const minsMultiplier = 1000 * 60;
+  const hoursMultiplier = minsMultiplier * 60;
+  const daysMultiplier = hoursMultiplier * 24;
+
+  if (ts > daysMultiplier) {
+    // It's been more than a day, show "# days ago"
+    const days = Math.floor(ts / daysMultiplier);
+    return `~${days} ${days === 1 ? 'day' : 'days'} ago`;
+  } else if (ts > hoursMultiplier) {
+    // It's been more than an hour, show "# hours ago"
+    const hours = Math.floor(ts / hoursMultiplier);
+    return `~${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+  } else if (ts > minsMultiplier) {
+    // It's been more than a minute ago, show "# minutes ago"
+    const minutes = Math.floor(ts / minsMultiplier);
+    return `~${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+  } else {
+    // It's been less than a minute ago, but we approx up to one minute
+    return '~1 minute ago';
+  }
+};

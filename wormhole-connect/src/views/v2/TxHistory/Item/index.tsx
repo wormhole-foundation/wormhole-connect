@@ -14,7 +14,7 @@ import TokenIcon from 'icons/TokenIcons';
 import {
   calculateUSDPrice,
   getUSDFormat,
-  trimAddress,
+  millisToRelativeTime,
   trimTxHash,
 } from 'utils';
 
@@ -63,8 +63,6 @@ const TxHistoryItem = (props: Props) => {
     const sourceTokenConfig = config.tokens[tokenKey];
     const sourceChainConfig = config.chains[fromChain]!;
 
-    const senderAddress = sender ? trimAddress(sender) : '';
-
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
         <Badge
@@ -88,7 +86,7 @@ const TxHistoryItem = (props: Props) => {
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {`${getUSDFormat(amountUsd, true)} \u2022 ${
               sourceChainConfig?.displayName
-            } ${senderAddress}`}
+            }`}
           </Typography>
         </Stack>
       </Stack>
@@ -101,8 +99,6 @@ const TxHistoryItem = (props: Props) => {
     const destTokenConfig = receivedTokenKey
       ? config.tokens[receivedTokenKey]
       : undefined;
-
-    const recipientAddress = recipient ? trimAddress(recipient) : '';
 
     const receiveAmountPrice = calculateUSDPrice(
       receiveAmount,
@@ -134,7 +130,7 @@ const TxHistoryItem = (props: Props) => {
             {receiveAmount} {destTokenConfig?.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {`${receiveAmountDisplay}${destChainConfig?.displayName} ${recipientAddress}`}
+            {`${receiveAmountDisplay}${destChainConfig?.displayName}`}
           </Typography>
         </Stack>
       </Stack>
@@ -160,7 +156,18 @@ const TxHistoryItem = (props: Props) => {
 
     const senderDate = new Date(senderTimestamp);
 
-    return `${senderDate.toLocaleDateString()} ${senderDate.toLocaleTimeString()}`;
+    // If it's been less than a day, show relative time
+    const timePassed = Date.now() - senderDate.getTime();
+    if (timePassed < 1000 * 60 * 60 * 24) {
+      return millisToRelativeTime(timePassed);
+    }
+
+    const dateTimeFormat = new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
+
+    return `${dateTimeFormat.format(senderDate)}`;
   }, [senderTimestamp]);
 
   return (
@@ -180,7 +187,7 @@ const TxHistoryItem = (props: Props) => {
                 color={theme.palette.text.secondary}
                 display="flex"
               >
-                <span>{`Transaction # ${trimTxHash(txHash)}`}</span>
+                <span>{`Transaction #${trimTxHash(txHash)}`}</span>
                 <span>{transactionDateTime}</span>
               </Typography>
             }

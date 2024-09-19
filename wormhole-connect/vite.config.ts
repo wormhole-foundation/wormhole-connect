@@ -89,7 +89,12 @@ const plugins = [
 ];
 
 const optimizeDeps = {
-  include: ['@emotion/styled'],
+  include: [
+    '@emotion/react',
+    '@emotion/styled',
+    '@mui/material/Tooltip',
+    '@mui/material/Unstable_Grid2',
+  ],
 };
 
 interface AssetInfo {

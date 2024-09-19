@@ -104,7 +104,7 @@ const TxHistory = () => {
   const txHistoryHeader = useMemo(() => {
     return (
       <div className={classes.txHistoryHeader}>
-        <Header align="left" text="Transaction history" size={20} />
+        <Header align="left" size={18} text="Transaction history" />
         <IconButton onClick={() => dispatch(setAppRoute('bridge'))}>
           <SwapHorizIcon />
         </IconButton>
