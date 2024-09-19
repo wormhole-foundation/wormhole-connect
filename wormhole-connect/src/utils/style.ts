@@ -89,6 +89,7 @@ export const changeOpacity = (
   return color;
 };
 
+// Use this hook to use similar scrollbar across platforms
 const useScrollbarClassName = makeStyles()((theme) => ({
   scrollbar: {
     '&::-webkit-scrollbar': {
