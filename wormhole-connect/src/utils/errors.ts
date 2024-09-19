@@ -45,14 +45,6 @@ export function interpretTransferError(
       uiErrorMessage = SWAP_ERROR;
       internalErrorCode = ERR_SWAP_FAILED;
       */
-    } else {
-      /**
-       * if we can not interpret the error message, we show the error message if it present to
-       * attempt to reduce user anxiety and if the error comes from route#validate we want to
-       * show the error message as well.
-       */
-      uiErrorMessage = e.message;
-      internalErrorCode = e.name || ERR_UNKNOWN;
     }
   }
 
