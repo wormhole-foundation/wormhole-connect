@@ -367,15 +367,14 @@ const ReviewTransaction = (props: Props) => {
   return (
     <Stack className={classes.container}>
       <div>
-        <IconButton onClick={() => props.onClose?.()}>
-          <ChevronLeft />
+        <IconButton sx={{ padding: 0 }} onClick={() => props.onClose?.()}>
+          <ChevronLeft sx={{ fontSize: '32px' }} />
         </IconButton>
       </div>
       <SingleRoute
         route={RoutesConfig[route]}
         isSelected={false}
         destinationGasDrop={receiveNativeAmount}
-        title="You will receive"
         quote={quote}
       />
       <Collapse in={showGasSlider}>

@@ -149,7 +149,7 @@ const GasSlider = (props: {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Typography>Buy more gas for transactions</Typography>
+          <Typography>{`Need more gas on ${destChain}?`}</Typography>
           <StyledSwitch
             checked={isGasSliderOpen}
             onClick={(e: any) => {
@@ -167,7 +167,7 @@ const GasSlider = (props: {
         <Collapse in={isGasSliderOpen} unmountOnExit>
           <div className={classes.container}>
             <Typography color={theme.palette.text.secondary} fontSize={14}>
-              Estimated amount needed for this transaction
+              {`Use the slider to buy extra ${nativeGasTokenConfig.symbol} for future transactions.`}
             </Typography>
             <div>
               <StyledSlider
@@ -185,9 +185,11 @@ const GasSlider = (props: {
               />
               <div className={classes.amounts}>
                 <Typography color={theme.palette.text.secondary} fontSize={14}>
-                  Gas price
+                  Additional Gas
                 </Typography>
-                {nativeGasPrice}
+                <Typography color={theme.palette.text.secondary} fontSize={14}>
+                  {nativeGasPrice}
+                </Typography>
               </div>
             </div>
           </div>

@@ -233,7 +233,7 @@ const TransactionDetails = () => {
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Gas top up
+          Additional Gas
         </Typography>
         {tokenPrices.isFetching ? (
           <CircularProgress size={14} />
@@ -277,7 +277,7 @@ const TransactionDetails = () => {
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Time to destination
+          {`Time to ${toChain}`}
         </Typography>
         {!eta ? (
           <CircularProgress size={14} />
