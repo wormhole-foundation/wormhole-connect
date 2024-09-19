@@ -83,6 +83,11 @@ const TokenList = (props: Props) => {
         return;
       }
 
+      // Exclude tokens with no balance on source list
+      if (props.isSource && !balance && props.wallet?.address) {
+        return;
+      }
+
       // Exclude wormhole-wrapped tokens with no balance
       if (
         props.isSource &&
@@ -159,14 +164,30 @@ const TokenList = (props: Props) => {
     return tokens;
   }, [balances, props.tokenList, props.sourceToken]);
 
+  const noTokensMessage = useMemo(
+    () => (
+      <Typography variant="body2" color={theme.palette.grey.A400}>
+        No supported tokens found in wallet
+      </Typography>
+    ),
+    [],
+  );
+
+  const shouldShowEmptyMessage =
+    sortedTokens.length === 0 && !isFetchingTokenBalances && !props.isFetching;
+
   const searchList = (
     <SearchableList<TokenConfig>
       searchPlaceholder="Search for a token"
       className={classes.tokenList}
       listTitle={
-        <Typography fontSize={14} color={theme.palette.text.secondary}>
-          Tokens on {props.selectedChainConfig.displayName}
-        </Typography>
+        shouldShowEmptyMessage ? (
+          noTokensMessage
+        ) : (
+          <Typography fontSize={14} color={theme.palette.text.secondary}>
+            Tokens on {props.selectedChainConfig.displayName}
+          </Typography>
+        )
       }
       loading={
         props.isFetching && (
