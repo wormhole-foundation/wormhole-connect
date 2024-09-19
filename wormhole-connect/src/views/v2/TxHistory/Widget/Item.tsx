@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTimer } from 'react-timer-hook';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
@@ -20,14 +21,29 @@ import { toFixedDecimals } from 'utils/balance';
 
 import type { TransactionLocal } from 'config/types';
 
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    width: '100%',
-    maxWidth: '420px',
+const useStyles = makeStyles()((theme: any) => ({
+  arrowIcon: {
+    fontSize: '16px',
+    margin: '0 4px',
   },
   card: {
     width: '100%',
     boxShadow: `0px 0px 3.5px 0px ${theme.palette.primary.main}`,
+  },
+  chainIcon: {
+    background: theme.palette.background.default,
+    border: `2px solid ${theme.palette.modal.background}`,
+    borderRadius: '6px',
+    padding: '2px',
+  },
+  completedIcon: { height: '24px', width: '24px' },
+  container: {
+    width: '100%',
+    maxWidth: '420px',
+  },
+  progressBar: {
+    borderRadius: '4px',
+    marginTop: '8px',
   },
 }));
 
@@ -224,7 +240,7 @@ const WidgetItem = (props: Props) => {
                 {inProgress ? (
                   etaCountdown
                 ) : (
-                  <TxCompleteIcon sx={{ height: '24px', width: '24px' }} />
+                  <TxCompleteIcon className={classes.completedIcon} />
                 )}
               </Typography>
               <Stack direction="row" alignItems="center">
@@ -233,20 +249,24 @@ const WidgetItem = (props: Props) => {
                     config.tokens[tokenKey].symbol
                   }`}
                 </Typography>
-                <TokenIcon
-                  icon={config.chains[sourceChain]?.icon}
-                  height={24}
-                />
-                <ArrowRight fontSize="small" sx={{ margin: '0 4px' }} />
-                <TokenIcon icon={config.chains[destChain]?.icon} height={24} />
+                <Box className={classes.chainIcon}>
+                  <TokenIcon
+                    icon={config.chains[sourceChain]?.icon}
+                    height={24}
+                  />
+                </Box>
+                <ArrowRight className={classes.arrowIcon} />
+                <Box className={classes.chainIcon}>
+                  <TokenIcon
+                    icon={config.chains[destChain]?.icon}
+                    height={24}
+                  />
+                </Box>
               </Stack>
             </Stack>
             {inProgress && (
               <LinearProgress
-                sx={{
-                  borderRadius: '4px',
-                  marginTop: '8px',
-                }}
+                className={classes.progressBar}
                 variant="determinate"
                 value={progressBarValue}
               />
