@@ -126,6 +126,7 @@ You can provide a whitelist of tokens under `tokens`. By default, Connect will o
 | PYTH           |                                    |
 | SUI            | SUI                                |
 | USDCsol        |                                    |
+| USDTsol        |                                    |
 | APT            | APT                                |
 | ETHarbitrum    | ETHarbitrum, ETHarbitrum_sepolia   |
 | WETHarbitrum   | WETHarbitrum, WETHarbitrum_sepolia |

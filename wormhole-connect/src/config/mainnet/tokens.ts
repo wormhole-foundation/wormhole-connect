@@ -357,6 +357,19 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#2774CA',
     decimals: 6,
   },
+  USDTsol: {
+    key: 'USDTsol',
+    symbol: 'USDT',
+    nativeChain: 'Solana',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Solana',
+      address: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
+  },
   SUI: {
     key: 'SUI',
     symbol: 'SUI',
