@@ -12,6 +12,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: './wormhole-connect'
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -25,12 +29,11 @@ jobs:
       - run: npm run lint:ci
       - run: |
           IFS='@' read -a strarr <<< $(git describe --tags)
-          sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" wormhole-connect/package.json
+          sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" package.json
           npm run build:lib
           npm run build:hosted
-          cp README.md wormhole-connect/
-          cp wormhole-connect.png wormhole-connect/
-          cd wormhole-connect
+          cp ../README.md .
+          cp ../wormhole-connect.png .
           npm publish --tag $(echo $([ ${strarr[0]} == "production" ] && echo "latest" || echo ${strarr[0]})) --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
