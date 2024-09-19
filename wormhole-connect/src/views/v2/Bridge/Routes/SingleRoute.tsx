@@ -154,19 +154,28 @@ const SingleRoute = (props: Props) => {
       return <></>;
     }
 
+    const gasTokenConfig = config.tokens[destChainConfig.gasToken];
+
     const gasTokenPrice = calculateUSDPrice(
       props.destinationGasDrop,
       tokenPrices.data,
-      config.tokens[destChainConfig.gasToken],
-      true,
+      gasTokenConfig,
+    );
+
+    const gasTokenAmount = toFixedDecimals(
+      props.destinationGasDrop?.toString() || '0',
+      4,
     );
 
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Gas top up
+          Additional Gas
         </Typography>
-        <Typography fontSize={14}>{gasTokenPrice}</Typography>
+        <Typography
+          color={theme.palette.text.secondary}
+          fontSize={14}
+        >{`${gasTokenAmount} ${gasTokenConfig.symbol} ${gasTokenPrice}`}</Typography>
       </Stack>
     );
   }, [destChain, props.destinationGasDrop]);
@@ -175,7 +184,7 @@ const SingleRoute = (props: Props) => {
     () => (
       <>
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Time to destination
+          {`Time to ${destChain}`}
         </Typography>
 
         <Typography
@@ -191,7 +200,7 @@ const SingleRoute = (props: Props) => {
         </Typography>
       </>
     ),
-    [quote?.eta],
+    [destChain, quote?.eta],
   );
 
   const isManual = useMemo(() => {
