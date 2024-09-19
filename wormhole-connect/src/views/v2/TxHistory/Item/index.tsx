@@ -141,7 +141,7 @@ const TxHistoryItem = (props: Props) => {
   const verticalConnector = useMemo(
     () => (
       <Stack
-        height="32px"
+        height="24px"
         borderLeft="1px solid #8B919D"
         marginLeft="16px"
       ></Stack>
