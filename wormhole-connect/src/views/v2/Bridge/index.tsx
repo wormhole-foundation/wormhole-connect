@@ -199,6 +199,14 @@ const Bridge = () => {
     sourceTokenArray,
   );
 
+  const disableValidation =
+    !sendingWallet.address ||
+    !receivingWallet.address ||
+    !sourceChain ||
+    !sourceToken ||
+    !destChain ||
+    !destToken;
+
   // Validate amount
   const amountValidation = useAmountValidation({
     balance: balances[sourceToken]?.balance,
@@ -206,6 +214,7 @@ const Bridge = () => {
     quotesMap,
     tokenSymbol: config.tokens[sourceToken]?.symbol ?? '',
     isLoading: isFetchingBalances || isFetchingQuotes,
+    disabled: disableValidation,
   });
 
   // Get input validation result
