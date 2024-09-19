@@ -5,6 +5,8 @@ function ETH() {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       version="1.1"
+      height="182"
+      width="182"
       viewBox="0 0 182 182"
       style={{ maxHeight: '100%', maxWidth: '100%' }}
     >
