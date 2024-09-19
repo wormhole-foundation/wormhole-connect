@@ -446,11 +446,6 @@ const Redeem = () => {
 
       let receipt: routes.Receipt | undefined;
 
-      config.triggerEvent({
-        type: 'transfer.redeem.start',
-        details: transferDetails,
-      });
-
       if (isTxDestQueued && routes.isFinalizable(route)) {
         receipt = await route.finalize(signer, routeContext.receipt);
       } else if (!isTxDestQueued && routes.isManual(route)) {
@@ -464,6 +459,11 @@ const Redeem = () => {
       if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
         txId = receipt.destinationTxs[receipt.destinationTxs.length - 1].txid;
       }
+
+      config.triggerEvent({
+        type: 'transfer.redeem.start',
+        details: transferDetails,
+      });
 
       setIsClaimInProgress(false);
       setClaimError('');
