@@ -33,6 +33,9 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
     maxWidth: '420px',
   },
+  cardHeader: {
+    paddingBottom: '2px',
+  },
   fastestBadge: {
     width: '14px',
     height: '14px',
@@ -312,7 +315,7 @@ const SingleRoute = (props: Props) => {
     }
 
     return (
-      <Typography>
+      <Typography fontSize={18}>
         {receiveAmountTrunc} {destTokenConfig.symbol}
       </Typography>
     );
@@ -402,6 +405,7 @@ const SingleRoute = (props: Props) => {
         >
           <CardHeader
             avatar={<TokenIcon icon={destTokenConfig?.icon} height={36} />}
+            className={classes.cardHeader}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
             action={routeCardBadge}
