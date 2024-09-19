@@ -3,10 +3,11 @@ import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 
-import { LOCAL_STORAGE_TXS } from 'config/constants';
+import { LOCAL_STORAGE_TX } from 'config/constants';
 
 import { TransactionLocal } from 'config/types';
 import WidgetItem from 'views/v2/TxHistory/Widget/Item';
+import { getItemsFromLocalStorage } from 'utils/localStorage';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -42,23 +43,8 @@ const TxHistoryWidget = () => {
   const [transactions, setTransactions] = useState<Array<TransactionLocal>>();
 
   useEffect(() => {
-    const txs: Array<TransactionLocal> = [];
-
-    for (let i = 0; i < localStorage.length; i++) {
-      const itemKey = localStorage.key(i);
-      if (itemKey?.toLowerCase().startsWith(LOCAL_STORAGE_TXS)) {
-        const item = localStorage.getItem(itemKey);
-        if (item) {
-          try {
-            txs.push(JSON.parse(item));
-          } catch (e: any) {
-            console.log(`Error parsing local transaction: ${e}`);
-          }
-        }
-      }
-    }
-
-    setTransactions(txs);
+    // Get all items in localStorage with the transaction prefix
+    setTransactions(getItemsFromLocalStorage(LOCAL_STORAGE_TX));
   }, []);
 
   if (!transactions || transactions.length === 0) {

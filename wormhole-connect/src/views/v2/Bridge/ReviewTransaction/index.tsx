@@ -13,7 +13,7 @@ import { Context } from 'sdklegacy';
 
 import Button from 'components/v2/Button';
 import config from 'config';
-import { LOCAL_STORAGE_TXS, LOCAL_STORAGE_TXS_MAX } from 'config/constants';
+import { LOCAL_STORAGE_TX, LOCAL_STORAGE_TX_MAX } from 'config/constants';
 import { addItemToLocalStorage } from 'utils/localStorage';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
@@ -286,8 +286,8 @@ const ReviewTransaction = (props: Props) => {
           eta: quote.eta || 0,
           explorerInfo: getExplorerInfo(sdkRoute, txId),
         },
-        LOCAL_STORAGE_TXS,
-        LOCAL_STORAGE_TXS_MAX,
+        LOCAL_STORAGE_TX,
+        LOCAL_STORAGE_TX_MAX,
       );
 
       // Reset the amount for a successful transaction

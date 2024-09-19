@@ -12,7 +12,7 @@ import { makeStyles } from 'tss-react/mui';
 import { poll } from 'poll';
 
 import config from 'config';
-import { LOCAL_STORAGE_TXS } from 'config/constants';
+import { LOCAL_STORAGE_TX } from 'config/constants';
 import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
 import TxCompleteIcon from 'icons/TxComplete';
@@ -141,7 +141,7 @@ const WidgetItem = (props: Props) => {
   useEffect(() => {
     if (!inProgress && txHash) {
       // Remove local storage item
-      const lsItemId = `${LOCAL_STORAGE_TXS}${txHash}`;
+      const lsItemId = `${LOCAL_STORAGE_TX}${txHash}`;
       window.localStorage.removeItem(lsItemId);
     }
   }, [inProgress, txHash]);

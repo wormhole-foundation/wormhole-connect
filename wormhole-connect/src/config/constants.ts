@@ -41,5 +41,5 @@ export const getAttestUrl = (network: Network): string => {
   }
 };
 
-export const LOCAL_STORAGE_TXS = 'wormhole-connect:transactions:';
-export const LOCAL_STORAGE_TXS_MAX = 3;
+export const LOCAL_STORAGE_TX = 'wormhole-connect:transactions:';
+export const LOCAL_STORAGE_TX_MAX = 3;
