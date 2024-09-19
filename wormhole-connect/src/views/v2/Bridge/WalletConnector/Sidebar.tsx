@@ -13,6 +13,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 
 import config from 'config';
 import { RootState } from 'store';
@@ -21,8 +22,9 @@ import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 import WalletIcon from 'icons/WalletIcons';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
+import { IconButton } from '@mui/material';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   drawer: {
     width: '360px',
   },
@@ -31,6 +33,19 @@ const useStyles = makeStyles()(() => ({
   },
   notInstalled: {
     opacity: 0.6,
+  },
+  title: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  smOnly: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    },
   },
 }));
 
@@ -142,33 +157,38 @@ const WalletSidebar = (props: Props) => {
       case 'result':
         return (
           !!walletOptionsResult.options?.length && (
-            <>
-              <List>
-                <ListItem>
+            <List>
+              <ListItem>
+                <div className={classes.title}>
                   <Typography component={'div'} fontSize={16}>
                     Connect a wallet
                   </Typography>
-                </ListItem>
-                <ListItem>
-                  <TextField
-                    fullWidth
-                    placeholder="Search for a wallet"
-                    size="small"
-                    variant="outlined"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </ListItem>
-                {renderWalletOptions(walletOptionsResult.options)}
-              </List>
-            </>
+                  <div className={classes.smOnly}>
+                    <IconButton onClick={props.onClose} sx={{ padding: 0 }}>
+                      <CloseIcon sx={{ height: '18px', width: '18px' }} />
+                    </IconButton>
+                  </div>
+                </div>
+              </ListItem>
+              <ListItem>
+                <TextField
+                  fullWidth
+                  placeholder="Search for a wallet"
+                  size="small"
+                  variant="outlined"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </ListItem>
+              {renderWalletOptions(walletOptionsResult.options)}
+            </List>
           )
         );
       default:
