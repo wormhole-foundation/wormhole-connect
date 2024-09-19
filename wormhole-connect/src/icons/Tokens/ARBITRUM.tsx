@@ -4,8 +4,8 @@ function ARBITRUM() {
   return (
     <svg
       style={{ maxHeight: '100%', maxWidth: '100%' }}
-      width={470.29}
-      height={514.25}
+      width="470.29"
+      height="514.25"
       viewBox="0 0 470.29 514.25"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
