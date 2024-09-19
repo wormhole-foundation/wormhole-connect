@@ -88,8 +88,18 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.NTT]: NTT(),
   [Icon.SCROLL]: SCROLL(),
   [Icon.BLAST]: BLAST(),
-  [Icon.XLAYER]: <img src={chainToIcon('Xlayer')} />,
-  [Icon.MANTLE]: <img src={chainToIcon('Mantle')} />,
+  [Icon.XLAYER]: (
+    <img
+      style={{ maxHeight: '100%', maxWidth: '100%' }}
+      src={chainToIcon('Xlayer')}
+    />
+  ),
+  [Icon.MANTLE]: (
+    <img
+      style={{ maxHeight: '100%', maxWidth: '100%' }}
+      src={chainToIcon('Mantle')}
+    />
+  ),
 };
 
 function isBuiltinIcon(icon?: Icon | string): icon is Icon {
