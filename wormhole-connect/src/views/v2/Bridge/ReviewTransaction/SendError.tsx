@@ -25,11 +25,11 @@ const useStyles = makeStyles()((theme: any) => ({
 export default ({ humanError, internalError }: Props) => {
   const { classes } = useStyles();
 
+  const [justCopied, setJustCopied] = useState(false);
+
   if (humanError === undefined) {
     return null;
   }
-
-  const [justCopied, setJustCopied] = useState(false);
 
   const getHelp =
     internalError && internalError.message && config.ui.supportUrl ? (

@@ -42,6 +42,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import SendError from './SendError';
+import { ERR_USER_REJECTED } from 'telemetry/types';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -282,20 +283,25 @@ const ReviewTransaction = (props: Props) => {
       dispatch(setAppRoute('redeem'));
       setSendError(undefined);
     } catch (e: any) {
-      console.error('Wormhole Connect: error completing transfer', e);
-
       const [uiError, transferError] = interpretTransferError(e, sourceChain);
 
-      // Show error in UI
-      setSendError(uiError);
-      setSendErrorInternal(e);
+      if (transferError.type === ERR_USER_REJECTED) {
+        // User intentionally rejected in their wallet. This is not an error in the sense
+        // that something went wrong.
+      } else {
+        console.error('Wormhole Connect: error completing transfer', e);
 
-      // Trigger transfer error event to integrator
-      config.triggerEvent({
-        type: 'transfer.error',
-        error: transferError,
-        details: transferDetails,
-      });
+        // Show error in UI
+        setSendError(uiError);
+        setSendErrorInternal(e);
+
+        // Trigger transfer error event to integrator
+        config.triggerEvent({
+          type: 'transfer.error',
+          error: transferError,
+          details: transferDetails,
+        });
+      }
     } finally {
       dispatch(setIsTransactionInProgress(false));
     }
