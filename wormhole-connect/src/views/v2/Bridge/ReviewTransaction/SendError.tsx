@@ -34,7 +34,7 @@ export default ({ humanError, internalError }: Props) => {
   const getHelp =
     internalError && internalError.message && config.ui.getHelpUrl ? (
       <Typography fontSize={14} sx={{ marginTop: 1 }}>
-        Need help?{' '}
+        Having trouble?{' '}
         <a
           href="#"
           onClick={() => {
