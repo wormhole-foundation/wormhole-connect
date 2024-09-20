@@ -18,7 +18,7 @@ import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
-    width: '420px',
+    maxWidth: '420px',
   },
   cardContent: {
     paddingTop: 0,

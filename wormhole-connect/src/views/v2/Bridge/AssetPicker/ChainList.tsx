@@ -16,13 +16,27 @@ import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 
 import { Chain } from '@wormhole-foundation/sdk';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
     width: '420px',
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '420px',
+      width: '360px',
+    },
+    '@media (max-width: 366px)': {
+      width: '330px',
+    },
   },
   cardContent: {
     paddingBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      padding: '16px 10px',
+      ':last-child': {
+        padding: '16px 10px',
+      },
+    },
   },
   title: {
     fontSize: 14,
@@ -60,9 +74,12 @@ type Props = {
 };
 
 const SHORT_LIST_SIZE = 5;
+const SHORT_LIST_SIZE_MOBILE = 4;
 
 const ChainList = (props: Props) => {
   const { classes } = useStyles();
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const topChains = useMemo(() => {
     const allChains = props.chainList ?? [];
@@ -72,18 +89,18 @@ const ChainList = (props: Props) => {
     const selectedChainIndex = allChains.findIndex((chain) => {
       return chain.key === selectedChain?.key;
     });
-
+    const shortListSize = mobile ? SHORT_LIST_SIZE_MOBILE : SHORT_LIST_SIZE;
     // If the selected chain is outside the top list, we add it to the top;
     // otherwise we do not change its index in the top list
     if (
       selectedChain &&
       selectedChainIndex &&
-      selectedChainIndex >= SHORT_LIST_SIZE
+      selectedChainIndex >= shortListSize
     ) {
-      return [selectedChain, ...allChains.slice(0, SHORT_LIST_SIZE - 1)];
+      return [selectedChain, ...allChains.slice(0, shortListSize - 1)];
     }
 
-    return allChains.slice(0, SHORT_LIST_SIZE);
+    return allChains.slice(0, shortListSize);
   }, [props.chainList, props.selectedChainConfig]);
 
   const shortList = useMemo(() => {
