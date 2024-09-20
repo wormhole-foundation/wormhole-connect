@@ -20,6 +20,8 @@ export type UiConfig = {
   walletConnectProjectId?: string;
   showHamburgerMenu: boolean;
   previewMode?: boolean; // Disables making transfers
+
+  getHelpUrl?: string;
 };
 
 export interface DefaultInputs {
@@ -85,6 +87,7 @@ export function createUiConfig(customConfig: Partial<UiConfig>): UiConfig {
     pageHeader: customConfig?.pageHeader,
     pageSubHeader: customConfig?.pageSubHeader,
     menu: customConfig?.menu ?? [],
+    getHelpUrl: customConfig?.getHelpUrl,
     searchTx: customConfig?.searchTx,
     moreTokens: customConfig?.moreTokens,
     moreChains: customConfig?.moreChains,

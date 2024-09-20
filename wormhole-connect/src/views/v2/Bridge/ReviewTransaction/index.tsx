@@ -11,7 +11,6 @@ import IconButton from '@mui/material/IconButton';
 import { getTokenDetails } from 'telemetry';
 import { Context } from 'sdklegacy';
 
-import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
@@ -42,6 +41,8 @@ import { RelayerFee } from 'store/relay';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
+import SendError from './SendError';
+import { ERR_USER_REJECTED } from 'telemetry/types';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -71,7 +72,10 @@ const ReviewTransaction = (props: Props) => {
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [sendError, setSendError] = useState('');
+  const [sendError, setSendError] = useState<string | undefined>(undefined);
+  const [sendErrorInternal, setSendErrorInternal] = useState<any | undefined>(
+    undefined,
+  );
 
   const routeContext = useContext(RouteContext);
 
@@ -112,7 +116,7 @@ const ReviewTransaction = (props: Props) => {
     : undefined;
 
   const send = async () => {
-    setSendError('');
+    setSendError(undefined);
 
     // Pre-check of required values
     if (
@@ -160,6 +164,7 @@ const ReviewTransaction = (props: Props) => {
         }
       } catch (e) {
         setSendError('Error validating transfer');
+        setSendErrorInternal(e);
         console.error(e);
         return;
       }
@@ -276,21 +281,27 @@ const ReviewTransaction = (props: Props) => {
       dispatch(setSendTx(txId));
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      setSendError('');
+      setSendError(undefined);
     } catch (e: any) {
-      console.error('Wormhole Connect: error completing transfer', e);
-
       const [uiError, transferError] = interpretTransferError(e, sourceChain);
 
-      // Show error in UI
-      setSendError(uiError);
+      if (transferError.type === ERR_USER_REJECTED) {
+        // User intentionally rejected in their wallet. This is not an error in the sense
+        // that something went wrong.
+      } else {
+        console.error('Wormhole Connect: error completing transfer', e);
 
-      // Trigger transfer error event to integrator
-      config.triggerEvent({
-        type: 'transfer.error',
-        error: transferError,
-        details: transferDetails,
-      });
+        // Show error in UI
+        setSendError(uiError);
+        setSendErrorInternal(e);
+
+        // Trigger transfer error event to integrator
+        config.triggerEvent({
+          type: 'transfer.error',
+          error: transferError,
+          details: transferDetails,
+        });
+      }
     } finally {
       dispatch(setIsTransactionInProgress(false));
     }
@@ -383,12 +394,7 @@ const ReviewTransaction = (props: Props) => {
           disabled={isGasSliderDisabled}
         />
       </Collapse>
-      <AlertBannerV2
-        error
-        content={sendError}
-        show={!!sendError}
-        testId="send-error-message"
-      />
+      <SendError humanError={sendError} internalError={sendErrorInternal} />
       {confirmTransactionButton}
     </Stack>
   );
