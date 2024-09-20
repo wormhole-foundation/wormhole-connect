@@ -224,6 +224,7 @@ const Redeem = () => {
     receivedTokenKey,
     recipient,
     toChain,
+    config,
   ]);
 
   // Displays the ETA value and the countdown within the ETA circle
