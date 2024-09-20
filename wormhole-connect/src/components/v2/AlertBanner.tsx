@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useMemo } from 'react';
 import { Collapse, Typography, useTheme } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import { makeStyles } from 'tss-react/mui';
@@ -28,16 +28,11 @@ type Props = {
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
-
-  let themeColor;
-
-  if (props.color) {
-    themeColor = props.color;
-  } else if (props.warning) {
-    themeColor = theme.palette.warning.main;
-  } else if (props.error) {
-    themeColor = theme.palette.error.main;
-  }
+  const themeColor = useMemo(() => {
+    if (props.color) return props.color;
+    if (props.warning) return theme.palette.warning.main;
+    if (props.error) return theme.palette.error.main;
+  }, [props.color, props.warning, props.error, theme.palette]);
 
   return (
     <Collapse

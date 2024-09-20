@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Stack from '@mui/material/Stack';
@@ -71,7 +71,9 @@ const ReviewTransaction = (props: Props) => {
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [sendError, setSendError] = useState('');
+  const [sendError, setSendError] = useState<
+    { shortMessage: string; original?: Error } | undefined
+  >();
 
   const routeContext = useContext(RouteContext);
 
@@ -112,7 +114,7 @@ const ReviewTransaction = (props: Props) => {
     : undefined;
 
   const send = async () => {
-    setSendError('');
+    setSendError(undefined);
 
     // Pre-check of required values
     if (
@@ -155,11 +157,21 @@ const ReviewTransaction = (props: Props) => {
           toWalletAddress: receivingWallet.address,
         });
         if (!isValid) {
-          setSendError(error ?? 'Transfer validation failed');
+          setSendError(
+            error
+              ? {
+                  shortMessage: 'Transfer validation failed',
+                  original: undefined,
+                }
+              : undefined,
+          );
           return;
         }
       } catch (e) {
-        setSendError('Error validating transfer');
+        setSendError({
+          shortMessage: 'Error validating transfer',
+          original: undefined,
+        });
         console.error(e);
         return;
       }
@@ -276,14 +288,14 @@ const ReviewTransaction = (props: Props) => {
       dispatch(setSendTx(txId));
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      setSendError('');
+      setSendError(undefined);
     } catch (e: any) {
       console.error('Wormhole Connect: error completing transfer', e);
 
       const [uiError, transferError] = interpretTransferError(e, sourceChain);
 
       // Show error in UI
-      setSendError(uiError);
+      setSendError({ shortMessage: uiError, original: e });
 
       // Trigger transfer error event to integrator
       config.triggerEvent({
@@ -383,12 +395,16 @@ const ReviewTransaction = (props: Props) => {
           disabled={isGasSliderDisabled}
         />
       </Collapse>
-      <AlertBannerV2
-        error
-        content={sendError}
-        show={!!sendError}
-        testId="send-error-message"
-      />
+      <Tooltip arrow placement="bottom" title={sendError?.original?.message}>
+        <div>
+          <AlertBannerV2
+            error
+            content={sendError?.shortMessage}
+            show={!!sendError?.shortMessage}
+            testId="send-error-message"
+          />
+        </div>
+      </Tooltip>
       {confirmTransactionButton}
     </Stack>
   );

@@ -169,7 +169,7 @@ const Routes = ({ ...props }: Props) => {
           Routes
         </Typography>
         {props.isLoading ? (
-          <CircularProgress sx={{ 'align-self': 'flex-end' }} size={20} />
+          <CircularProgress sx={{ alignSelf: 'flex-end' }} size={20} />
         ) : null}
       </Box>
 
