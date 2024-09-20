@@ -43,7 +43,7 @@ export default ({ humanError, internalError }: Props) => {
             setTimeout(() => setJustCopied(false), 3000);
           }}
         >
-          Copy error logs{' '}
+          Copy the error logs{' '}
           {justCopied ? (
             <DoneIcon className={classes.doneIcon} />
           ) : (
