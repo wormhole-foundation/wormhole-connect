@@ -132,7 +132,8 @@ export const connectLastUsedWallet = async (
   const lastUsedWallet = localStorage.getItem(
     `wormhole-connect:wallet:${chainConfig.context}`,
   );
-  if (lastUsedWallet) {
+  // if the last used wallet is not WalletConnect, try to connect to it
+  if (lastUsedWallet && lastUsedWallet !== 'WalletConnect') {
     const options = await getWalletOptions(chainConfig);
     const wallet = options.find((w) => w.name === lastUsedWallet);
     if (wallet) {
