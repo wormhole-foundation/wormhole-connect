@@ -10,6 +10,9 @@ const useStyles = makeStyles()((theme) => ({
     alignContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    maxWidth: '100%',
+    flexWrap: 'wrap',
+    gap: '20px 4px',
   },
   partnerLogo: {
     maxHeight: theme.spacing(3),
