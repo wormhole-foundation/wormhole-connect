@@ -52,7 +52,7 @@ export default ({ humanError, internalError }: Props) => {
         </a>
         {' and '}
         <a href={config.ui.supportUrl} target="_blank">
-          reach out to support
+          ask for help
         </a>
         .
       </Typography>
