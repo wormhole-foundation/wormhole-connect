@@ -32,7 +32,7 @@ export default ({ humanError, internalError }: Props) => {
   }
 
   const getHelp =
-    internalError && internalError.message && config.ui.supportUrl ? (
+    internalError && internalError.message && config.ui.getHelpUrl ? (
       <Typography fontSize={14} sx={{ marginTop: 1 }}>
         Need help?{' '}
         <a
@@ -51,7 +51,7 @@ export default ({ humanError, internalError }: Props) => {
           )}
         </a>
         {' and '}
-        <a href={config.ui.supportUrl} target="_blank">
+        <a href={config.ui.getHelpUrl} target="_blank">
           ask for help
         </a>
         .
