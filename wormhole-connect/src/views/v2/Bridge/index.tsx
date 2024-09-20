@@ -165,9 +165,14 @@ const Bridge = () => {
       setSelectedRoute('');
     } else {
       const autoselectedRoute = route || validRoutes[0].route.name;
+      const isSelectedRouteValid =
+        validRoutes.findIndex((r) => r.route.name === selectedRoute) > -1;
 
-      // avoids overwriting selected route
-      if (!autoselectedRoute || !!selectedRoute) return;
+      // If no route is autoselected or we already have a valid selected route,
+      // we should avoid to overwrite it
+      if (!autoselectedRoute || (selectedRoute && isSelectedRouteValid)) {
+        return;
+      }
 
       const routeData = validRoutes?.find(
         (rs) => rs.route.name === autoselectedRoute,
