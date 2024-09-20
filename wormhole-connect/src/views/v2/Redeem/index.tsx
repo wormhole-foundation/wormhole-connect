@@ -27,7 +27,7 @@ import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
-import { displayAddress, millisToHumanString } from 'utils';
+import { displayAddress, getDisplayName, millisToHumanString } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
@@ -203,8 +203,10 @@ const Redeem = () => {
     } else if (isTxDestQueued) {
       return <Stack>Transaction delayed</Stack>;
     } else if (isTxAttested) {
+      const token = config.tokens[receivedTokenKey];
+      const displayName = token ? getDisplayName(token, toChain) : '';
       return (
-        <Stack>{`${receiveAmount} ${receivedTokenKey} received at ${displayAddress(
+        <Stack>{`${receiveAmount} ${displayName} received at ${displayAddress(
           toChain,
           recipient,
         )}`}</Stack>
