@@ -13,11 +13,10 @@ import { Chain } from '@wormhole-foundation/sdk';
 
 // TODO SDKV2
 // attempt to capture errors using regex
-export const INSUFFICIENT_ALLOWANCE_REGEX =
-  /[I|i]nsufficient token allowance/gm;
+export const INSUFFICIENT_ALLOWANCE_REGEX = /insufficient token allowance/im;
 export const USER_REJECTED_REGEX = new RegExp(
   'user rejected|rejected the request|rejected from user|user cancel|aborted by user',
-  'gmi',
+  'mi',
 );
 
 export function interpretTransferError(
