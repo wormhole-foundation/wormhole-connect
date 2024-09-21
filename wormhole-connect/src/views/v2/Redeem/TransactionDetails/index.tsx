@@ -198,7 +198,7 @@ const TransactionDetails = () => {
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Relayer fee
+          Network cost
         </Typography>
         {tokenPrices.isFetching ? (
           <CircularProgress size={14} />
