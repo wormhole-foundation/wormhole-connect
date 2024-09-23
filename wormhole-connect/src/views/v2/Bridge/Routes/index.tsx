@@ -8,7 +8,6 @@ import { makeStyles } from 'tss-react/mui';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
-import AlertBannerV2 from 'components/v2/AlertBanner';
 
 import type { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
@@ -128,14 +127,8 @@ const Routes = ({ ...props }: Props) => {
   }, [routes, props.quotes]);
 
   if (walletsConnected && supportedRoutes.length === 0 && Number(amount) > 0) {
-    return (
-      <AlertBannerV2
-        error
-        show
-        content="No route found for this transaction"
-        style={{ justifyContent: 'center' }}
-      />
-    );
+    // Errors are displayed in AmountInput
+    return;
   }
 
   if (supportedRoutes.length === 0 || !walletsConnected || props.hasError) {

@@ -17,6 +17,7 @@ type Props = {
   quotesMap: Record<string, QuoteResult | undefined>;
   tokenSymbol: string;
   isLoading: boolean;
+  disabled?: boolean;
 };
 
 export const useAmountValidation = (props: Props): HookReturn => {
@@ -57,7 +58,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
   const numAmount = Number.parseFloat(amount);
 
   // Don't show errors when no amount is set or it's loading
-  if (!amount || !numAmount || props.isLoading) {
+  if (!amount || !numAmount || props.isLoading || props.disabled) {
     return {};
   }
 
