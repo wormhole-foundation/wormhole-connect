@@ -15,6 +15,7 @@ import config from 'config';
 import PoweredByIcon from 'icons/PoweredBy';
 import useTransactionHistory from 'hooks/useTransactionHistory';
 import { setRoute as setAppRoute } from 'store/router';
+import { trimAddress } from 'utils';
 import { joinClass } from 'utils/style';
 import TxHistoryItem from 'views/v2/TxHistory/Item';
 
@@ -117,8 +118,10 @@ const TxHistory = () => {
       return <></>;
     } else if (transactions.length === 0) {
       return (
-        <Typography textAlign="center">
-          No transactions found for the address {sendingWallet.address}
+        <Typography color={theme.palette.text.secondary} textAlign="center">
+          {`No transactions found for the wallet ${trimAddress(
+            sendingWallet.address,
+          )}`}
         </Typography>
       );
     }
