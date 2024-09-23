@@ -8,7 +8,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import IconButton from '@mui/material/IconButton';
-import { getTokenDetails } from 'telemetry';
+import { getTransferDetails } from 'telemetry';
 import { Context } from 'sdklegacy';
 
 import Button from 'components/v2/Button';
@@ -139,16 +139,15 @@ const ReviewTransaction = (props: Props) => {
       return;
     }
 
-    // Details for config.dispatchEvent events
-    const transferDetails = {
+    const transferDetails = getTransferDetails(
       route,
-      fromToken: getTokenDetails(sourceToken),
-      toToken: getTokenDetails(destToken),
-      fromChain: sourceChain,
-      toChain: destChain,
-      amount: Number(amount),
-      USDAmount: getUSDAmount({ token: sourceToken, amount }),
-    };
+      sourceToken,
+      destToken,
+      sourceChain,
+      destChain,
+      amount,
+      getUSDAmount,
+    );
 
     // Handle custom transfer validation (if provided by integrator)
     if (config.validateTransfer) {
