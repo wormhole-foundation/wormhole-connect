@@ -130,37 +130,43 @@ const useTransactionHistoryMayan = (
           `${config.mayanApi}/v3/swaps?trader=${address}&offset=${offset}&limit=${limit}`,
         );
 
-        const resPayload = await res.json();
+        // If the fetch was unsuccessful, return an empty set
+        if (res.status !== 200) {
+          setIsFetching(false);
+          setTransactions([]);
+        } else {
+          const resPayload = await res.json();
 
-        if (!cancelled) {
-          const resData = resPayload?.data;
+          if (!cancelled) {
+            const resData = resPayload?.data;
 
-          if (resData?.length > 0) {
-            setTransactions((txs) => {
-              const parsedTxs = parseTransactions(resData);
+            if (resData) {
+              setTransactions((txs) => {
+                const parsedTxs = parseTransactions(resData);
 
-              if (txs && txs.length > 0) {
-                // We need to keep track of existing tx hashes to prevent duplicates in the final list
-                const existingTxs = new Set<string>();
-                txs.forEach((tx: Transaction) => {
-                  if (tx?.txHash) {
-                    existingTxs.add(tx.txHash);
-                  }
-                });
+                if (txs && txs.length > 0) {
+                  // We need to keep track of existing tx hashes to prevent duplicates in the final list
+                  const existingTxs = new Set<string>();
+                  txs.forEach((tx: Transaction) => {
+                    if (tx?.txHash) {
+                      existingTxs.add(tx.txHash);
+                    }
+                  });
 
-                // Add the new set transactions while filtering out duplicates
-                return txs.concat(
-                  parsedTxs.filter(
-                    (tx: Transaction) => !existingTxs.has(tx.txHash),
-                  ),
-                );
-              }
-              return parsedTxs;
-            });
-          }
+                  // Add the new set transactions while filtering out duplicates
+                  return txs.concat(
+                    parsedTxs.filter(
+                      (tx: Transaction) => !existingTxs.has(tx.txHash),
+                    ),
+                  );
+                }
+                return parsedTxs;
+              });
+            }
 
-          if (resData?.length < limit) {
-            setHasMore(false);
+            if (resData?.length < limit) {
+              setHasMore(false);
+            }
           }
         }
       } catch (error) {
