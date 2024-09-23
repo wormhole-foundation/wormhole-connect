@@ -102,7 +102,8 @@ const Redeem = () => {
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
-  const [isTransferComplete, setIsTransferComplete] = useState(false);
+  const [transferSuccessEventFired, setTransferSuccessEventFired] =
+    useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
 
   const [isWalletSidebarOpen, setIsWalletSidebarOpen] = useState(false);
@@ -142,8 +143,8 @@ const Redeem = () => {
   useEffect(() => {
     // When we see the transfer was complete for the first time,
     // fire a transfer.success telemetry event.
-    if (isTxComplete && !isTransferComplete) {
-      setIsTransferComplete(true);
+    if (isTxComplete && !transferSuccessEventFired) {
+      setTransferSuccessEventFired(true);
 
       config.triggerEvent({
         type: 'transfer.success',
