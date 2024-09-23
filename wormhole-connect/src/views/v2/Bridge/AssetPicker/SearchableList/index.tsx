@@ -3,6 +3,7 @@ import React, { memo, useState, ReactNode, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import { makeStyles } from 'tss-react/mui';
+import { joinClass, useCustomScrollbar } from 'utils/style';
 
 import SearchInput from './SearchInput';
 
@@ -31,6 +32,7 @@ type SearchableListProps<T> = {
 
 function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const { classes } = useStyles();
+  const scrollbarClass = useCustomScrollbar();
   const [query, setQuery] = useState('');
 
   const filteredList = useMemo(() => {
@@ -45,7 +47,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         onChange={setQuery}
         placeholder={props.searchPlaceholder}
       />
-      <List className={classes.searchList}>
+      <List className={joinClass([classes.searchList, scrollbarClass])}>
         {props.listTitle}
         {props.loading || filteredList.map(props.renderFn)}
       </List>
