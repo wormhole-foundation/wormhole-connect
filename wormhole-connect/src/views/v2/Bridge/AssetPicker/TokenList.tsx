@@ -52,8 +52,6 @@ type Props = {
   isSource: boolean;
 };
 
-const SHORT_LIST_SIZE = 5;
-
 const TokenList = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -79,17 +77,22 @@ const TokenList = (props: Props) => {
     const tokens: Array<TokenConfig> = [];
 
     const addToken = (tokenConfig: TokenConfig) => {
+      // Get token balance
+      const tokenBalance = balances?.[tokenConfig.key]?.balance;
+      // Check "no balance" only when a wallet is connected
+      const noBalance =
+        props.wallet?.address && (!tokenBalance || Number(tokenBalance) === 0);
+
       // Exclude frankenstein tokens with no balance
-      const balance = Number(balances?.[tokenConfig.key]?.balance);
       if (
         isFrankensteinToken(tokenConfig, selectedChainConfig.key) &&
-        !balance
+        noBalance
       ) {
         return;
       }
 
       // Exclude tokens with no balance on source list
-      if (props.isSource && !balance && props.wallet?.address) {
+      if (props.isSource && noBalance && props.wallet?.address) {
         return;
       }
 
@@ -99,7 +102,7 @@ const TokenList = (props: Props) => {
         props.isSource &&
         isWrappedToken(tokenConfig, selectedChainConfig.key) &&
         !isCanonicalToken(tokenConfig, selectedChainConfig.key) &&
-        !balance
+        noBalance
       ) {
         return;
       }
@@ -148,25 +151,27 @@ const TokenList = (props: Props) => {
 
     // Fourth: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
-      if (Number(val?.balance) > 0) {
+      if (val?.balance && Number(val.balance) > 0) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);
         const tokenNotAdded = !tokens.find(
           (addedToken) => addedToken.key === key,
         );
 
-        if (tokenConfig && tokenNotAdded && tokens.length < SHORT_LIST_SIZE) {
+        if (tokenConfig && tokenNotAdded) {
           addToken(tokenConfig);
         }
       }
     });
 
-    // Finally: Fill up any remaining space from supported tokens
-    props.tokenList?.forEach((t) => {
-      // Adding remaining tokens
-      if (!tokenSet.has(t.key)) {
-        addToken(t);
-      }
-    });
+    // Finally: If no wallet is connected, fill up any remaining space from supported tokens
+    if (!props.wallet?.address) {
+      props.tokenList?.forEach((t) => {
+        // Adding remaining tokens
+        if (!tokenSet.has(t.key)) {
+          addToken(t);
+        }
+      });
+    }
 
     return tokens;
   }, [balances, props.tokenList, props.sourceToken]);
