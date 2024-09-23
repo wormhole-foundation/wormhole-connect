@@ -210,19 +210,12 @@ const AmountInput = (props: Props) => {
                 e.currentTarget.blur();
               },
               step: '0.1',
+              pattern: '[0-9]+([.|,][0-9]{1,2})?',
             }}
             placeholder="0"
             variant="standard"
             value={amount}
             onChange={handleChange}
-            onWheel={(e) => {
-              // IMPORTANT: We need to prevent the scroll behavior on number inputs.
-              // Otherwise it'll increase/decrease the value when user scrolls on the input control.
-              // See for details: https://github.com/mui/material-ui/issues/7960
-              if (e.target instanceof HTMLElement) {
-                e.target.blur();
-              }
-            }}
             InputProps={{
               disableUnderline: true,
               endAdornment: (
