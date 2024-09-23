@@ -270,20 +270,16 @@ const TransactionDetails = () => {
   const timeToDestination = useMemo(() => {
     let etaDisplay: string | ReactNode = <CircularProgress size={14} />;
 
-    if (eta) {
-      etaDisplay = millisToHumanString(eta);
-    }
+    if (!eta) return null;
+
+    etaDisplay = millisToHumanString(eta);
 
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           {`Time to ${toChain}`}
         </Typography>
-        {!eta ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{etaDisplay}</Typography>
-        )}
+        <Typography fontSize={14}>{etaDisplay}</Typography>
       </Stack>
     );
   }, [eta]);
