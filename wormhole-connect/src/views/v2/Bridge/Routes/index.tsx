@@ -57,21 +57,19 @@ const Routes = ({ ...props }: Props) => {
   const { classes } = useStyles();
   const [showAll, setShowAll] = useState(false);
 
-  const { amount, routeStates } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { amount } = useSelector((state: RootState) => state.transferInput);
 
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
 
   const supportedRoutes = useMemo(() => {
-    if (!routeStates) {
+    if (!props.routes) {
       return [];
     }
 
-    return routeStates.filter((rs) => rs.supported);
-  }, [routeStates]);
+    return props.routes.filter((rs) => rs.supported);
+  }, [props.routes]);
 
   const walletsConnected = useMemo(
     () => !!sendingWallet.address && !!receivingWallet.address,
