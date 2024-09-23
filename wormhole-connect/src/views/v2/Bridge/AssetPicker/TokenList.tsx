@@ -91,11 +91,6 @@ const TokenList = (props: Props) => {
         return;
       }
 
-      // Exclude tokens with no balance on source list
-      if (props.isSource && noBalance && props.wallet?.address) {
-        return;
-      }
-
       // Exclude wormhole-wrapped tokens with no balance
       // unless it's canonical
       if (
@@ -163,11 +158,14 @@ const TokenList = (props: Props) => {
       }
     });
 
-    // Finally: If no wallet is connected, fill up any remaining space from supported tokens
-    if (!props.wallet?.address) {
+    // Finally: If this is destination token or no wallet is connected,
+    // fill up any remaining space from supported and non-Frankenstein tokens
+    if (!props.isSource || !props.wallet?.address) {
       props.tokenList?.forEach((t) => {
-        // Adding remaining tokens
-        if (!tokenSet.has(t.key)) {
+        if (
+          !tokenSet.has(t.key) &&
+          !isFrankensteinToken(t, selectedChainConfig.key)
+        ) {
           addToken(t);
         }
       });
