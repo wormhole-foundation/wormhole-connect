@@ -13,7 +13,7 @@ import {
   routes,
   TransferState,
 } from '@wormhole-foundation/sdk';
-import { getTokenDetails } from 'telemetry';
+import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
 import { Context } from 'sdklegacy';
 
@@ -27,6 +27,7 @@ import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
+import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import { displayAddress, getDisplayName, millisToHumanString } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
@@ -101,6 +102,8 @@ const Redeem = () => {
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
+  const [transferSuccessEventFired, setTransferSuccessEventFired] =
+    useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
 
   const [isWalletSidebarOpen, setIsWalletSidebarOpen] = useState(false);
@@ -130,9 +133,33 @@ const Redeem = () => {
     fromChain,
     tokenKey,
     receivedTokenKey,
+    amount,
     receiveAmount,
     eta = 0,
   } = txData!;
+
+  const getUSDAmount = useUSDamountGetter();
+
+  useEffect(() => {
+    // When we see the transfer was complete for the first time,
+    // fire a transfer.success telemetry event.
+    if (isTxComplete && !transferSuccessEventFired) {
+      setTransferSuccessEventFired(true);
+
+      config.triggerEvent({
+        type: 'transfer.success',
+        details: getTransferDetails(
+          routeName!,
+          tokenKey,
+          receivedTokenKey,
+          fromChain,
+          toChain,
+          amount,
+          getUSDAmount,
+        ),
+      });
+    }
+  }, [isTxComplete]);
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,

@@ -19,7 +19,7 @@ export const useUSDamountGetter = (): ((args: {
       const tokenPrice = Number(getTokenPrice(prices, config.tokens[token]));
       const USDAmount = tokenPrice * numericAmount;
 
-      return isNaN(USDAmount) ? undefined : USDAmount;
+      return isNaN(USDAmount) ? undefined : parseFloat(USDAmount.toFixed(2));
     },
     [data],
   );
