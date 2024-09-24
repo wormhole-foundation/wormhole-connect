@@ -28,7 +28,7 @@ import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
-import { displayAddress, getDisplayName, millisToHumanString } from 'utils';
+import { millisToHumanString } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
@@ -46,6 +46,7 @@ import TxWarningIcon from 'icons/TxWarning';
 import TxFailedIcon from 'icons/TxFailed';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
+import TxReadyForClaim from 'icons/TxReadyForClaim';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -236,15 +237,8 @@ const Redeem = () => {
       return <Stack>Transaction failed</Stack>;
     } else if (isTxDestQueued) {
       return <Stack>Transaction delayed</Stack>;
-    } else if (isTxAttested) {
-      const token = config.tokens[receivedTokenKey];
-      const displayName = token ? getDisplayName(token, toChain) : '';
-      return (
-        <Stack>{`${receiveAmount} ${displayName} received at ${displayAddress(
-          toChain,
-          recipient,
-        )}`}</Stack>
-      );
+    } else if (isTxAttested && !isAutomaticRoute) {
+      return <Stack>Ready to claim on {toChain}</Stack>;
     }
 
     return <Stack>Transaction submitted</Stack>;
@@ -295,54 +289,72 @@ const Redeem = () => {
 
   // Circular progress indicator component for ETA countdown
   const etaCircle = useMemo(() => {
-    return (
-      <>
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-          {isTxComplete ? (
-            <TxCompleteIcon className={classes.txStatusIcon} />
-          ) : isTxRefunded || isTxDestQueued ? (
-            <TxWarningIcon
-              className={classes.txStatusIcon}
-              sx={{
-                color: theme.palette.warning.main,
-              }}
-            />
-          ) : isTxFailed ? (
-            <TxFailedIcon
-              className={classes.txStatusIcon}
-              sx={{
-                color: theme.palette.error.light,
-              }}
-            />
-          ) : (
-            <>
-              <CircularProgress
-                size={120}
-                sx={{
-                  color: theme.palette.primary.main,
-                }}
-                thickness={2}
-              />
-              <Box
-                sx={{
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  right: 0,
-                  position: 'absolute',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {etaDisplay}
-              </Box>
-            </>
-          )}
-        </Box>
-      </>
-    );
-  }, [etaDisplay, isTxComplete, isTxRefunded, isTxFailed, isTxDestQueued]);
+    if (isTxComplete) {
+      return <TxCompleteIcon className={classes.txStatusIcon} />;
+    } else if (isTxRefunded || isTxDestQueued) {
+      return (
+        <TxWarningIcon
+          className={classes.txStatusIcon}
+          sx={{
+            color: theme.palette.warning.main,
+          }}
+        />
+      );
+    } else if (isTxFailed) {
+      return (
+        <TxFailedIcon
+          className={classes.txStatusIcon}
+          sx={{
+            color: theme.palette.error.light,
+          }}
+        />
+      );
+    } else if (!isAutomaticRoute && isTxAttested) {
+      // Waiting for manual redeem
+      return (
+        <TxReadyForClaim
+          className={classes.txStatusIcon}
+          sx={{
+            color: theme.palette.warning.light,
+          }}
+        />
+      );
+    } else {
+      // In progress
+      return (
+        <>
+          <CircularProgress
+            size={120}
+            sx={{
+              color: theme.palette.primary.main,
+            }}
+            thickness={2}
+          />
+          <Box
+            sx={{
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              position: 'absolute',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {etaDisplay}
+          </Box>
+        </>
+      );
+    }
+  }, [
+    etaDisplay,
+    isTxComplete,
+    isTxRefunded,
+    isTxFailed,
+    isTxDestQueued,
+    isTxAttested,
+  ]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
@@ -619,7 +631,9 @@ const Redeem = () => {
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
       {statusHeader}
-      {etaCircle}
+      <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+        {etaCircle}
+      </Box>
       <TransactionDetails />
       {actionButton}
       {txDelayedText}
