@@ -134,7 +134,7 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Evmos | Evmos |
 | Kujira | Kujira |
 | Injective | Injective |
-| Klaytn | Klaytn |
+| Kaia | Kaia |
 | Arbitrum | ArbitrumSepolia |
 | Optimism | OptimismSepolia |
 | Scroll | Scroll |

@@ -157,9 +157,9 @@ export const MAINNET_CHAINS: ChainsConfig = {
   },
   Klaytn: {
     ...chains.Klaytn!,
-    displayName: 'Klaytn',
-    explorerUrl: 'https://klaytnscope.com/',
-    explorerName: 'Klaytn Scope',
+    displayName: 'Kaia',
+    explorerUrl: 'https://kaiascope.com/',
+    explorerName: 'Kaia Scope',
     gasToken: 'KLAY',
     chainId: 8217,
     icon: Icon.KLAY,
