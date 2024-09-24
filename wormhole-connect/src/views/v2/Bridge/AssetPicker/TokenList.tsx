@@ -13,7 +13,12 @@ import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { getDisplayName, isFrankensteinToken, isWrappedToken } from 'utils';
+import {
+  getDisplayName,
+  isCanonicalToken,
+  isFrankensteinToken,
+  isWrappedToken,
+} from 'utils';
 import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
@@ -92,6 +97,7 @@ const TokenList = (props: Props) => {
       if (
         props.isSource &&
         isWrappedToken(tokenConfig, selectedChainConfig.key) &&
+        !isCanonicalToken(tokenConfig, selectedChainConfig.key) &&
         !balance
       ) {
         return;
