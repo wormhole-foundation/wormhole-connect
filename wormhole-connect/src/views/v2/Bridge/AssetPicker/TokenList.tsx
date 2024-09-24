@@ -52,8 +52,6 @@ type Props = {
   isSource: boolean;
 };
 
-const SHORT_LIST_SIZE = 5;
-
 const TokenList = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -78,51 +76,20 @@ const TokenList = (props: Props) => {
     const tokenSet: Set<string> = new Set();
     const tokens: Array<TokenConfig> = [];
 
-    const addToken = (tokenConfig: TokenConfig) => {
-      // Exclude frankenstein tokens with no balance
-      const balance = Number(balances?.[tokenConfig.key]?.balance);
-      if (
-        isFrankensteinToken(tokenConfig, selectedChainConfig.key) &&
-        !balance
-      ) {
-        return;
-      }
-
-      // Exclude tokens with no balance on source list
-      if (props.isSource && !balance && props.wallet?.address) {
-        return;
-      }
-
-      // Exclude wormhole-wrapped tokens with no balance
-      // unless it's canonical
-      if (
-        props.isSource &&
-        isWrappedToken(tokenConfig, selectedChainConfig.key) &&
-        !isCanonicalToken(tokenConfig, selectedChainConfig.key) &&
-        !balance
-      ) {
-        return;
-      }
-
-      if (!tokenSet.has(tokenConfig.key)) {
-        tokenSet.add(tokenConfig.key);
-        tokens.push(tokenConfig);
-      }
-    };
-
     // First: Add previously selected token at the top of the list
-    if (selectedTokenConfig) {
-      addToken(selectedTokenConfig);
+    if (selectedTokenConfig && !tokenSet.has(selectedTokenConfig.key)) {
+      tokenSet.add(selectedTokenConfig.key);
+      tokens.push(selectedTokenConfig);
     }
 
     // Second: Add the wrapped token of the source token, if sourceToken is defined (meaning
-    // this is being rendered with destination tokens).
+    // this is being rendered with destination tokens) and the wrapped is not a Frankenstein token
     if (props.sourceToken) {
-      const sourceToken = config.tokens[props.sourceToken];
-      if (sourceToken) {
-        const destTokenKey = sourceToken.wrappedAsset;
+      const sourceTokenConfig = config.tokens[props.sourceToken];
+      if (sourceTokenConfig) {
+        const destTokenKey = sourceTokenConfig.wrappedAsset;
         if (destTokenKey) {
-          const destToken = props.tokenList?.find(
+          const destTokenConfig = props.tokenList?.find(
             (t) =>
               t.key === destTokenKey &&
               // Only add the wrapped token if it actually exists on the destination chain
@@ -131,42 +98,68 @@ const TokenList = (props: Props) => {
                 selectedChainConfig.key,
               ),
           );
-          if (destToken) {
-            addToken(destToken);
+
+          if (
+            destTokenConfig &&
+            !tokenSet.has(destTokenConfig.key) &&
+            !isFrankensteinToken(destTokenConfig, selectedChainConfig.key)
+          ) {
+            tokenSet.add(destTokenConfig.key);
+            tokens.push(destTokenConfig);
           }
         }
       }
     }
 
-    // Third: Add the native gas token, if not previously selected
+    // Third: Add the native gas token
     if (
       nativeTokenConfig &&
-      nativeTokenConfig.key !== selectedTokenConfig?.key
+      nativeTokenConfig.key !== selectedTokenConfig?.key &&
+      !tokenSet.has(nativeTokenConfig.key)
     ) {
-      addToken(nativeTokenConfig);
+      tokenSet.add(nativeTokenConfig.key);
+      tokens.push(nativeTokenConfig);
     }
 
     // Fourth: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
-      if (Number(val?.balance) > 0) {
+      if (val?.balance && Number(val.balance) > 0) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);
-        const tokenNotAdded = !tokens.find(
-          (addedToken) => addedToken.key === key,
-        );
 
-        if (tokenConfig && tokenNotAdded && tokens.length < SHORT_LIST_SIZE) {
-          addToken(tokenConfig);
+        if (tokenConfig && !tokenSet.has(tokenConfig.key)) {
+          tokenSet.add(tokenConfig.key);
+          tokens.push(tokenConfig);
         }
       }
     });
 
-    // Finally: Fill up any remaining space from supported tokens
-    props.tokenList?.forEach((t) => {
-      // Adding remaining tokens
-      if (!tokenSet.has(t.key)) {
-        addToken(t);
-      }
-    });
+    // Finally: If this is destination token or no wallet is connected,
+    // fill up any remaining space from supported and non-Frankenstein tokens
+    if (!props.isSource || !props.wallet?.address) {
+      props.tokenList?.forEach((t) => {
+        // Check if previously added
+        if (tokenSet.has(t.key)) {
+          return;
+        }
+
+        // Exclude frankenstein tokens
+        if (isFrankensteinToken(t, selectedChainConfig.key)) {
+          return;
+        }
+
+        // Exclude wormhole-wrapped tokens, unless it's canonical
+        if (
+          props.isSource &&
+          isWrappedToken(t, selectedChainConfig.key) &&
+          !isCanonicalToken(t, selectedChainConfig.key)
+        ) {
+          return;
+        }
+
+        tokenSet.add(t.key);
+        tokens.push(t);
+      });
+    }
 
     return tokens;
   }, [balances, props.tokenList, props.sourceToken]);
