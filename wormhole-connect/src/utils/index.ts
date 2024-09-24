@@ -408,6 +408,12 @@ export const isWrappedToken = (token: TokenConfig, chain: Chain) => {
   return token.nativeChain !== chain;
 };
 
+// Canonical tokens may be Wormhole-wrapped tokens that are canonical on the chain
+// e.g., Wormhole-wrapped Ethereum USDC is canonical on Sui
+export const isCanonicalToken = (token: TokenConfig, chain: Chain) => {
+  return token.key === 'USDCeth' && chain === 'Sui';
+};
+
 export const millisToHumanString = (ts: number): string => {
   if (ts > 60000) {
     const minutes = Math.ceil(ts / 60000);
