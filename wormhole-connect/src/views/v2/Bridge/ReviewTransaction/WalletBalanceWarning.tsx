@@ -26,24 +26,24 @@ export default function WalletBalanceWarning({
       />
       {!hasSufficientBalance && !isCheckingBalance && (
         <Stack>
-          <Stack direction="row" justifyContent="space-between">
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              Wallet balance
-            </Typography>
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              {!!walletBalance &&
-                `${toFixedDecimals(walletBalance.toString(), 4)} ${feeSymbol}`}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="space-between">
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              Network cost
-            </Typography>
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              {!!networkCost &&
-                `${toFixedDecimals(networkCost.toString(), 4)} ${feeSymbol}`}
-            </Typography>
-          </Stack>
+          {[
+            { title: 'Wallet balance', balance: walletBalance! },
+            { title: 'Network cost', balance: networkCost! },
+          ].map((item) => (
+            <Stack
+              key={item.title}
+              direction="row"
+              justifyContent="space-between"
+            >
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                {item.title}
+              </Typography>
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                {!isNaN(item.balance) &&
+                  `${toFixedDecimals(item.balance.toString(), 4)} ${feeSymbol}`}
+              </Typography>
+            </Stack>
+          ))}
         </Stack>
       )}
     </Stack>

@@ -338,7 +338,9 @@ const ReviewTransaction = (props: Props) => {
     return (
       <Button
         disabled={
-          props.isFetchingQuotes || isTransactionInProgress || !hasSufficientBalance
+          props.isFetchingQuotes ||
+          isTransactionInProgress ||
+          !hasSufficientBalance
         }
         variant="primary"
         className={classes.confirmTransaction}

@@ -56,7 +56,8 @@ export const useBalanceChecker = (
   return {
     feeSymbol,
     isCheckingBalance,
-    hasSufficientBalance: !!state && state?.balance > state?.cost,
+    hasSufficientBalance:
+      !quote?.relayFee || (!!state && state?.balance > state?.cost),
     walletBalance: state?.balance,
     networkCost: state?.cost,
   };
