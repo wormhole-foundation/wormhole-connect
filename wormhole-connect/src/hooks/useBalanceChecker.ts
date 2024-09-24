@@ -7,8 +7,7 @@ import { useIsMounted } from './useIsMounted';
 export const useBalanceChecker = (
   quote?: routes.Quote<
     routes.Options,
-    routes.ValidatedTransferParams<routes.Options>,
-    any
+    routes.ValidatedTransferParams<routes.Options>
   >,
 ): {
   feeSymbol?: string;
