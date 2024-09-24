@@ -94,6 +94,7 @@ const TokenList = (props: Props) => {
       }
 
       // Exclude wormhole-wrapped tokens with no balance
+      // unless it's canonical
       if (
         props.isSource &&
         isWrappedToken(tokenConfig, selectedChainConfig.key) &&
@@ -215,7 +216,13 @@ const TokenList = (props: Props) => {
         }
 
         // Exclude wormhole-wrapped tokens with no balance
-        if (props.isSource && isWrappedToken(token, chain) && !balance) {
+        // unless it's canonical
+        if (
+          props.isSource &&
+          isWrappedToken(token, chain) &&
+          !isCanonicalToken(token, chain) &&
+          !balance
+        ) {
           return false;
         }
 
