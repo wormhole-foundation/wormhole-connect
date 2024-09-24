@@ -83,7 +83,7 @@ const TokenList = (props: Props) => {
     }
 
     // Second: Add the wrapped token of the source token, if sourceToken is defined (meaning
-    // this is being rendered with destination tokens).
+    // this is being rendered with destination tokens) and the wrapped is not a Frankenstein token
     if (props.sourceToken) {
       const sourceTokenConfig = config.tokens[props.sourceToken];
       if (sourceTokenConfig) {
@@ -98,7 +98,12 @@ const TokenList = (props: Props) => {
                 selectedChainConfig.key,
               ),
           );
-          if (destTokenConfig && !tokenSet.has(destTokenConfig.key)) {
+
+          if (
+            destTokenConfig &&
+            !tokenSet.has(destTokenConfig.key) &&
+            !isFrankensteinToken(destTokenConfig, selectedChainConfig.key)
+          ) {
             tokenSet.add(destTokenConfig.key);
             tokens.push(destTokenConfig);
           }
