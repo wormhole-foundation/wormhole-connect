@@ -46,7 +46,6 @@ export function buildConfig(
 ): InternalConfig<Network> {
   const network = capitalize(
     customConfig?.network ||
-      customConfig?.env || // TODO remove; deprecated
       import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
       'Mainnet',
   ) as Network;
@@ -161,10 +160,6 @@ export function buildConfig(
 
     // UI details
     ui: createUiConfig({ ...customConfig?.ui }),
-
-    // Route options
-    ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
-    wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
 
     // Guardian Set
     guardianSet: networkData.guardianSet,

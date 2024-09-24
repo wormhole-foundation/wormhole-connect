@@ -177,7 +177,7 @@ function DemoApp() {
           <div id="custom-config">
             <textarea
               onChange={updateCustomConfig}
-              placeholder={'{\n  "env": "Mainnet"\n}'}
+              placeholder={'{\n  "network": "Mainnet"\n}'}
               onBlur={() => {
                 emitCustomConfig();
               }}

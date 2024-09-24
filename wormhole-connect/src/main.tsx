@@ -55,19 +55,6 @@ try {
   if (configAttr) {
     const parsedConfig = JSON.parse(configAttr);
     config = { ...config, ...parsedConfig };
-
-    // Handle legacy method of including theme in config JSON
-    if (config?.customTheme) {
-      console.warn(
-        `Wormhole Connect: please provide your custom theme as a "data-theme" attribute. ` +
-          `Providing it in your "config" attribute won't be supported in future versions. ` +
-          `\n` +
-          `See the README for examples: ` +
-          `https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect`,
-      );
-      theme = config.customTheme;
-      if (config?.mode) theme.mode = config.mode;
-    }
   }
 
   const themeAttr = container.getAttribute('data-theme');

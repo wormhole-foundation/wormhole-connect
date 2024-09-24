@@ -15,7 +15,6 @@ import {
   TokenAddress as TokenAddressV2,
 } from '@wormhole-foundation/sdk';
 
-import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
 
@@ -83,7 +82,6 @@ export type IsRouteSupportedHandler = (
 
 // This is the integrator-provided config
 export interface WormholeConnectConfig {
-  env?: Network; // TODO REMOVE; DEPRECATED
   network?: Network; // New name for this, consistent with SDKv2
 
   // External resources
@@ -103,12 +101,6 @@ export interface WormholeConnectConfig {
   // Wormhole-wrapped token addresses
   wrappedTokens?: TokenAddressesByChain;
 
-  // Legacy support: allow theme to be in this config object
-  // This should be removed in a future version after people have switched
-  // to providing the theme as a separate prop
-  customTheme?: WormholeConnectPartialTheme;
-  mode?: 'dark' | 'light';
-
   // Callbacks
   eventHandler?: WormholeConnectEventHandler;
   validateTransferHandler?: ValidateTransferHandler;
@@ -116,10 +108,6 @@ export interface WormholeConnectConfig {
 
   // UI details
   ui?: UiConfig;
-
-  // Route settings
-  ethBridgeMaxAmount?: number;
-  wstETHBridgeMaxAmount?: number;
 }
 
 // This is the exported config value used throughout the code base
@@ -161,10 +149,6 @@ export interface InternalConfig<N extends Network> {
 
   // UI configuration
   ui: UiConfig;
-
-  // Route settings
-  ethBridgeMaxAmount: number;
-  wstETHBridgeMaxAmount: number;
 
   guardianSet: GuardianSetData;
 }
