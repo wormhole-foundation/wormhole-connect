@@ -121,7 +121,7 @@ const ReviewTransaction = (props: Props) => {
   const {
     isCheckingBalance,
     feeSymbol,
-    isBalanceEnough,
+    hasSufficientBalance,
     walletBalance,
     networkCost,
   } = useBalanceChecker(quote);
@@ -338,7 +338,7 @@ const ReviewTransaction = (props: Props) => {
     return (
       <Button
         disabled={
-          props.isFetchingQuotes || isTransactionInProgress || !isBalanceEnough
+          props.isFetchingQuotes || isTransactionInProgress || !hasSufficientBalance
         }
         variant="primary"
         className={classes.confirmTransaction}
@@ -381,7 +381,7 @@ const ReviewTransaction = (props: Props) => {
     route,
     amount,
     send,
-    isBalanceEnough,
+    hasSufficientBalance,
   ]);
 
   if (!route || !walletsConnected) {
@@ -410,11 +410,11 @@ const ReviewTransaction = (props: Props) => {
         </Collapse>
       )}
       <WalletBalanceWarning
-        isBalanceEnough={isBalanceEnough}
+        hasSufficientBalance={hasSufficientBalance}
         isCheckingBalance={isCheckingBalance}
         walletBalance={walletBalance}
         networkCost={networkCost}
-        symbol={feeSymbol}
+        feeSymbol={feeSymbol}
       />
       <SendError humanError={sendError} internalError={sendErrorInternal} />
       {confirmTransactionButton}

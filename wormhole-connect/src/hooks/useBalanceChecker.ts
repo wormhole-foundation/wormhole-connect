@@ -12,7 +12,7 @@ export const useBalanceChecker = (
 ): {
   feeSymbol?: string;
   isCheckingBalance: boolean;
-  isBalanceEnough: boolean;
+  hasSufficientBalance: boolean;
   walletBalance?: number;
   networkCost?: number;
 } => {
@@ -35,8 +35,10 @@ export const useBalanceChecker = (
     setCheckingBalance(true);
     (async () => {
       try {
+        if (!quote?.relayFee?.amount) return;
+
         const wallet = getWalletConnection(TransferWallet.SENDING);
-        if (!wallet || !quote?.relayFee?.amount) return;
+        if (!wallet) return;
 
         const cost = amount.whole(quote.relayFee.amount);
         const balance = parseFloat(await wallet.getBalance());
@@ -54,7 +56,7 @@ export const useBalanceChecker = (
   return {
     feeSymbol,
     isCheckingBalance,
-    isBalanceEnough: !!state && state?.balance > state?.cost,
+    hasSufficientBalance: !!state && state?.balance > state?.cost,
     walletBalance: state?.balance,
     networkCost: state?.cost,
   };
