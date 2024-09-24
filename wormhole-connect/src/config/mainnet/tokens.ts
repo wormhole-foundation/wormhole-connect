@@ -1223,7 +1223,7 @@ export const MAINNET_WRAPPED_TOKENS: TokenAddressesByChain = {
     Avalanche: '0x4b5fE357Eb11c735078e47526D6e853DBff18541',
     Celo: '0xA41a62567d9eb960D84b72663FdaeBE0BCdE2683',
     Solana: 'CR4xnGrhsu1fWNPoX4KbTUUtqGMF3mzRLfj4S6YEs1Yo',
-    Sui: '0xc3f8927de33d3deb52c282a836082a413bc73c6ee0bd4d7ec7e3b6b4c28e9abf::coin::COIN',
+    Sui: '0xe32d3ebafa42e6011b87ef1087bbc6053b499bf6f095807b9013aff5a6ecd7bb::coin::COIN',
     Aptos:
       '0xca3a2c28bc8c6c762f752dd2a4ebbfd00356ca99977ce6636e3af5897124a87a::coin::T',
     Optimism: '0xa6252F56cc6eEA21165d56744C795F91c8a3Cf68',
