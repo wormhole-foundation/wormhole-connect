@@ -13,8 +13,8 @@ export default function WalletBalanceWarning({
 }: ReturnType<typeof useBalanceChecker>) {
   const theme = useTheme();
   const content = isCheckingBalance
-    ? 'Checking wallet balance for network costs...'
-    : 'Insufficient balance to cover the network costs. Please add more funds to your wallet.';
+    ? ''
+    : `Insufficient ${feeSymbol} to cover network costs.`;
 
   return (
     <Stack direction="column" gap="10px">
