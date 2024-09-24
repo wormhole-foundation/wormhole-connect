@@ -113,6 +113,12 @@ export function getDisplayName(token: TokenConfig, chain: Chain): string {
   }
 
   const isEthereum = token.nativeChain === 'Ethereum';
+
+  // TODO: remove this once CCTP is launched on Sui
+  if (isStableCoin(token) && !isEthereum && chain === 'Sui') {
+    return `Wormhole-wrapped ${token.nativeChain} ${baseName}`;
+  }
+
   const prefix = `Wormhole-wrapped ${
     isFrankensteinToken(token, chain)
       ? isEthereum
@@ -398,6 +404,12 @@ export const isFrankensteinToken = (token: TokenConfig, chain: Chain) => {
     return true;
   }
 
+  // TODO: Remove this once CCTP is launched on Sui
+  // Allow all USDC flavors to be transferred on Sui
+  if (token.symbol === 'USDC' && chain === 'Sui') {
+    return false;
+  }
+
   return (
     !(['Ethereum', 'Sepolia'] as Chain[]).includes(nativeChain) &&
     ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC', 'USDC.e'].includes(symbol)
@@ -412,6 +424,10 @@ export const isWrappedToken = (token: TokenConfig, chain: Chain) => {
 // e.g., Wormhole-wrapped Ethereum USDC is canonical on Sui
 export const isCanonicalToken = (token: TokenConfig, chain: Chain) => {
   return token.key === 'USDCeth' && chain === 'Sui';
+};
+
+export const isStableCoin = (token: TokenConfig) => {
+  return token.symbol === 'USDC' || token.symbol === 'USDT';
 };
 
 export const millisToHumanString = (ts: number): string => {
