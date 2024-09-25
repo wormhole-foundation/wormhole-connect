@@ -86,9 +86,9 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   Klaytn: {
     ...chains.Klaytn!,
-    displayName: 'Klaytn',
-    explorerUrl: 'https://baobab.klaytnscope.com/',
-    explorerName: 'Klaytn Scope',
+    displayName: 'Kaia',
+    explorerUrl: 'https://kairos.kaiascope.com/',
+    explorerName: 'Kaia Scope',
     gasToken: 'KLAY',
     chainId: 1001,
     icon: Icon.KLAY,
