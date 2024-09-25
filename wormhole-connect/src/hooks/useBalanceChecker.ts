@@ -41,8 +41,10 @@ export const useBalanceChecker = (
         if (!wallet) return;
 
         const cost = amount.whole(quote.relayFee.amount);
-        const balance = parseFloat(await wallet.getBalance());
 
+        const balance = parseFloat(
+          await wallet.getBalance(quote.relayFee.token.address?.toString()),
+        );
         if (isMounted.current) setState({ balance, cost });
       } catch (e) {
         console.error(e);
