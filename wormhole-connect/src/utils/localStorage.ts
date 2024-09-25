@@ -1,56 +1,71 @@
 import { TransactionLocal } from 'config/types';
 
-// Adds an object to localStorage
-export const addItemToLocalStorage = (
-  id: string, // Key for the item
-  data: object, // Item data
-  prefix: string, // Prefix to use for the item key
-  max?: number, // Max number of items allowed with the same prefix
-) => {
-  const ls = window.localStorage;
-  const items: Array<string> = [];
+const LOCAL_STORAGE_KEY = 'wormhole-connect:transactions:inprogress';
+const LOCAL_STORAGE_MAX = 3;
 
-  // Get all current items with the prefix
+// Retrieves all in-progress transactions from localStorage
+export const getTxsFromLocalStorage = ():
+  | Array<TransactionLocal>
+  | undefined => {
+  const ls = window.localStorage;
+
+  // Find the in-progress transactions list in localStorage
   for (let i = 0; i < ls.length; i++) {
     const itemKey = ls.key(i);
-    if (itemKey?.toLowerCase().startsWith(prefix)) {
-      items.push(itemKey);
-    }
-  }
-
-  // Remove the oldest items that puts the length at or over the limit
-  if (max && items.length >= max) {
-    for (let i = 0; i < items.length - max + 1; i++) {
-      ls.removeItem(items[i]);
-    }
-  }
-
-  // Add the new item
-  const lsItemId = `${prefix}${id}`;
-  ls.setItem(lsItemId, JSON.stringify(data));
-};
-
-// Retrieves all items with a key prefix from localStorage
-export const getItemsFromLocalStorage = (
-  prefix: string, // Prefix to use for the item key
-): Array<TransactionLocal> => {
-  const ls = window.localStorage;
-  const items: Array<TransactionLocal> = [];
-
-  // Iterate all items in localStorage and collect those with the specified key prefix
-  for (let i = 0; i < ls.length; i++) {
-    const itemKey = ls.key(i);
-    if (itemKey?.toLowerCase().startsWith(prefix)) {
+    if (itemKey?.toLowerCase() === LOCAL_STORAGE_KEY) {
       const item = ls.getItem(itemKey);
       if (item) {
         try {
-          items.push(JSON.parse(item));
+          return JSON.parse(item);
         } catch (e: any) {
-          console.log(`Error parsing transaction from localStorage: ${e}`);
+          console.log(
+            `Error while parsing localStorage item ${LOCAL_STORAGE_KEY}: ${e}`,
+          );
+          return;
         }
       }
     }
   }
+};
 
-  return items;
+// Adds a TransactionLocal object to localStorage
+export const addTxToLocalStorage = (
+  data: TransactionLocal, // Item data
+) => {
+  const ls = window.localStorage;
+  const items: Array<TransactionLocal> | undefined = getTxsFromLocalStorage();
+  let newList: Array<TransactionLocal>;
+
+  if (!items) {
+    // First item in the list
+    newList = [data];
+  } else if (items.length < LOCAL_STORAGE_MAX) {
+    // Haven't reached to the max number of items allowed
+    // Concat the new item to the end
+    newList = items.concat([data]);
+  } else {
+    // Reached the max number of items allowed
+    // Remove the first element and concat the new one to the end
+    items.splice(0, 1);
+    newList = items.concat([data]);
+  }
+
+  // Update the list
+  ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList));
+};
+
+// Removes a transaction from localStorage
+export const removeTxFromLocalStorage = (txHash: string) => {
+  const ls = window.localStorage;
+  const items: Array<TransactionLocal> | undefined = getTxsFromLocalStorage();
+
+  if (items && items.length > 0) {
+    // Find the item to remove
+    const removeIndex = items.findIndex((tx) => tx.txHash === txHash);
+    if (removeIndex > -1) {
+      // remove the item and update localStorage
+      items.splice(removeIndex, 1);
+      ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    }
+  }
 };

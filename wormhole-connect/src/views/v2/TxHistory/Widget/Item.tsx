@@ -9,15 +9,15 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
-import { poll } from 'poll';
 
 import config from 'config';
-import { LOCAL_STORAGE_TX } from 'config/constants';
 import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
 import TxCompleteIcon from 'icons/TxComplete';
-import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
+import { removeTxFromLocalStorage } from 'utils/localStorage';
+import { poll } from 'utils/polling';
+import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 
 import type { TransactionLocal } from 'config/types';
 
@@ -29,6 +29,9 @@ const useStyles = makeStyles()((theme: any) => ({
   card: {
     width: '100%',
     boxShadow: `0px 0px 3.5px 0px ${theme.palette.primary.main}`,
+  },
+  cardActionArea: {
+    height: '76px',
   },
   chainIcon: {
     background: theme.palette.background.default,
@@ -77,13 +80,6 @@ const WidgetItem = (props: Props) => {
     onExpire: () => setEtaExpired(true),
   });
 
-  // Check whether the current transaction is from Mayan API
-  // We need this to parse the API response accordingly
-  const isMayanTx = useMemo(
-    () => explorerInfo.apiUrl.startsWith(config.mayanApi),
-    [explorerInfo.apiUrl],
-  );
-
   // Side-effect to poll the transaction info from the respective API
   useEffect(() => {
     if (!transaction) {
@@ -102,7 +98,7 @@ const WidgetItem = (props: Props) => {
         if (!cancelled) {
           let txInProgress = true;
           let txSenderTimestamp = '';
-          if (isMayanTx) {
+          if (explorerInfo.apiUrl.startsWith(config.mayanApi)) {
             txInProgress =
               resPayload?.clientStatus?.toLowerCase() !== 'completed' &&
               resPayload?.clientStatus?.toLowerCase() !== 'refunded';
@@ -140,9 +136,8 @@ const WidgetItem = (props: Props) => {
 
   useEffect(() => {
     if (!inProgress && txHash) {
-      // Remove local storage item
-      const lsItemId = `${LOCAL_STORAGE_TX}${txHash}`;
-      window.localStorage.removeItem(lsItemId);
+      // Remove this transaction from local storage
+      removeTxFromLocalStorage(txHash);
     }
   }, [inProgress, txHash]);
 
@@ -175,7 +170,7 @@ const WidgetItem = (props: Props) => {
   // Displays the countdown
   const etaCountdown = useMemo(() => {
     if (etaExpired) {
-      return 'Any time now!';
+      return 'Wrapping up...';
     }
 
     if (isRunning) {
@@ -226,6 +221,7 @@ const WidgetItem = (props: Props) => {
       <Card className={classes.card}>
         <CardActionArea
           disableTouchRipple
+          className={classes.cardActionArea}
           onClick={() => {
             window.open(explorerInfo.url, '_blank');
           }}

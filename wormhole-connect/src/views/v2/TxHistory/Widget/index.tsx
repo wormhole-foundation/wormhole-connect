@@ -3,11 +3,9 @@ import { useTheme } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 
-import { LOCAL_STORAGE_TX } from 'config/constants';
-
 import { TransactionLocal } from 'config/types';
 import WidgetItem from 'views/v2/TxHistory/Widget/Item';
-import { getItemsFromLocalStorage } from 'utils/localStorage';
+import { getTxsFromLocalStorage } from 'utils/localStorage';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -43,8 +41,8 @@ const TxHistoryWidget = () => {
   const [transactions, setTransactions] = useState<Array<TransactionLocal>>();
 
   useEffect(() => {
-    // Get all items in localStorage with the transaction prefix
-    setTransactions(getItemsFromLocalStorage(LOCAL_STORAGE_TX));
+    // Get all in-progress transactions from localStorage
+    setTransactions(getTxsFromLocalStorage());
   }, []);
 
   if (!transactions || transactions.length === 0) {

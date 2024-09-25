@@ -40,6 +40,3 @@ export const getAttestUrl = (network: Network): string => {
     return 'https://portalbridge.com/advanced-tools/#/register';
   }
 };
-
-export const LOCAL_STORAGE_TX = 'wormhole-connect:transactions:';
-export const LOCAL_STORAGE_TX_MAX = 3;

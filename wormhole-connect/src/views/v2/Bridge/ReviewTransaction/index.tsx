@@ -13,8 +13,7 @@ import { Context } from 'sdklegacy';
 
 import Button from 'components/v2/Button';
 import config from 'config';
-import { LOCAL_STORAGE_TX, LOCAL_STORAGE_TX_MAX } from 'config/constants';
-import { addItemToLocalStorage } from 'utils/localStorage';
+import { addTxToLocalStorage } from 'utils/localStorage';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
 import { useGasSlider } from 'hooks/useGasSlider';
@@ -274,21 +273,16 @@ const ReviewTransaction = (props: Props) => {
         }),
       );
 
-      // Push the new transaction to local storage
-      addItemToLocalStorage(
-        txId,
-        {
-          txHash: txId,
-          amount,
-          tokenKey: sourceTokenConfig.key,
-          sourceChain: receipt.from,
-          destChain: receipt.to,
-          eta: quote.eta || 0,
-          explorerInfo: getExplorerInfo(sdkRoute, txId),
-        },
-        LOCAL_STORAGE_TX,
-        LOCAL_STORAGE_TX_MAX,
-      );
+      // Add the new transaction to local storage
+      addTxToLocalStorage({
+        txHash: txId,
+        amount,
+        tokenKey: sourceTokenConfig.key,
+        sourceChain: receipt.from,
+        destChain: receipt.to,
+        eta: quote.eta || 0,
+        explorerInfo: getExplorerInfo(sdkRoute, txId),
+      });
 
       // Reset the amount for a successful transaction
       dispatch(setAmount(''));

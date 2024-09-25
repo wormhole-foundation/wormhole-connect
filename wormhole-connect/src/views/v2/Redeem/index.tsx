@@ -261,7 +261,7 @@ const Redeem = () => {
       return (
         <Stack>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            Any time now!
+            Wrapping up...
           </Typography>
         </Stack>
       );
