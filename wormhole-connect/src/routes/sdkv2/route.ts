@@ -20,7 +20,10 @@ import {
   TransferInfoBaseParams,
 } from 'routes/types';
 import { TokenPrices } from 'store/tokenPrices';
-import { TransferInfo } from 'utils/sdkv2';
+import {
+  getTokenBridgeWrappedTokenAddressSync,
+  TransferInfo,
+} from 'utils/sdkv2';
 
 import { SDKv2Signer } from './signer';
 
@@ -33,6 +36,7 @@ import {
   getWrappedToken,
   getWrappedTokenId,
   isFrankensteinToken,
+  isWrappedToken,
 } from 'utils';
 import { TransferWallet } from 'utils/wallet';
 import { RelayerFee } from 'store/relay';
@@ -191,10 +195,18 @@ export class SDKv2Route {
     // A longer term solution to this might be to add methods to SDKv2 for fetching token
     // metadata like name/logo and not relying on configuration for this at all. At that
     // point all that would be required would be an address.
-    if (this.IS_TOKEN_BRIDGE_ROUTE) {
-      if (destTokenIds.length > 0) {
-        return [getWrappedToken(sourceToken)];
+    if (this.IS_TOKEN_BRIDGE_ROUTE && destTokenIds.length > 0) {
+      const isWrapped = isWrappedToken(sourceToken, toChain);
+      const wrappedTokenAddress = getTokenBridgeWrappedTokenAddressSync(
+        getWrappedToken(sourceToken),
+        toChain,
+      );
+      if (isWrapped && !wrappedTokenAddress) {
+        // The wrapped token must have a foreign address configured,
+        // otherwise don't support it
+        return [];
       }
+      return [getWrappedToken(sourceToken)];
     }
 
     return destTokenIds
