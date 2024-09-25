@@ -39,7 +39,11 @@ const useStyles = makeStyles()((theme: any) => ({
     borderRadius: '6px',
     padding: '2px',
   },
-  completedIcon: { height: '24px', width: '24px' },
+  completedIcon: {
+    color: theme.palette.success.main,
+    height: '24px',
+    width: '24px',
+  },
   container: {
     width: '100%',
     maxWidth: '420px',

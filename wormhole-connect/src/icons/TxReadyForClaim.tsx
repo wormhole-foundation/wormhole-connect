@@ -1,7 +1,7 @@
 import React from 'react';
 import { createSvgIcon } from '@mui/material';
 
-const TxCompleteIcon = createSvgIcon(
+const TxReadyForClaimIcon = createSvgIcon(
   <svg
     width="107"
     height="106"
@@ -36,4 +36,4 @@ const TxCompleteIcon = createSvgIcon(
   'Alert',
 );
 
-export default TxCompleteIcon;
+export default TxReadyForClaimIcon;
