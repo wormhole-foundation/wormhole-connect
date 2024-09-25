@@ -427,7 +427,7 @@ export const isCanonicalToken = (token: TokenConfig, chain: Chain) => {
 };
 
 export const isStableCoin = (token: TokenConfig) => {
-  return token.symbol === 'USDC' || token.symbol === 'USDT';
+  return ['USDC', 'USDT', 'DAI'].includes(token.symbol);
 };
 
 export const millisToHumanString = (ts: number): string => {
