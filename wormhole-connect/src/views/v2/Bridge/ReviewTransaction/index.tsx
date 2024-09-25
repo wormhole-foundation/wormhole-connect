@@ -43,6 +43,9 @@ import { toDecimals } from 'utils/balance';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import SendError from './SendError';
 import { ERR_USER_REJECTED } from 'telemetry/types';
+import { useBalanceChecker } from 'hooks/useBalanceChecker';
+import WalletBalanceWarning from './WalletBalanceWarning';
+import { QuoteResult } from 'routes/operator';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -61,7 +64,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   onClose: () => void;
-  quotes: any;
+  quotes: Record<string, QuoteResult | undefined>;
   isFetchingQuotes: boolean;
 };
 
@@ -114,6 +117,14 @@ const ReviewTransaction = (props: Props) => {
   const receiveNativeAmount = quote?.destinationNativeGas
     ? sdkAmount.whole(quote.destinationNativeGas)
     : undefined;
+
+  const {
+    isCheckingBalance,
+    feeSymbol,
+    hasSufficientBalance,
+    walletBalance,
+    networkCost,
+  } = useBalanceChecker(quote);
 
   const send = async () => {
     setSendError(undefined);
@@ -326,7 +337,11 @@ const ReviewTransaction = (props: Props) => {
 
     return (
       <Button
-        disabled={props.isFetchingQuotes || isTransactionInProgress}
+        disabled={
+          props.isFetchingQuotes ||
+          isTransactionInProgress ||
+          !hasSufficientBalance
+        }
         variant="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
@@ -368,6 +383,7 @@ const ReviewTransaction = (props: Props) => {
     route,
     amount,
     send,
+    hasSufficientBalance,
   ]);
 
   if (!route || !walletsConnected) {
@@ -395,6 +411,13 @@ const ReviewTransaction = (props: Props) => {
           />
         </Collapse>
       )}
+      <WalletBalanceWarning
+        hasSufficientBalance={hasSufficientBalance}
+        isCheckingBalance={isCheckingBalance}
+        walletBalance={walletBalance}
+        networkCost={networkCost}
+        feeSymbol={feeSymbol}
+      />
       <SendError humanError={sendError} internalError={sendErrorInternal} />
       {confirmTransactionButton}
     </Stack>
