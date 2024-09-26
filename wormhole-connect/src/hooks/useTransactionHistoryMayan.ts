@@ -64,6 +64,7 @@ const useTransactionHistoryMayan = (
       sourceTxHash,
       trader,
       destAddress,
+      clientStatus,
     } = tx;
 
     const fromChain = chainIdToChain(sourceChain);
@@ -91,6 +92,11 @@ const useTransactionHistoryMayan = (
       return;
     }
 
+    // Transaction is in progress when it's not completed or refunded
+    const clientStatusLC = clientStatus?.toLowerCase();
+    const inProgress =
+      clientStatusLC !== 'completed' && clientStatusLC !== 'refunded';
+
     const txData: Transaction = {
       txHash: sourceTxHash,
       sender: trader,
@@ -105,6 +111,7 @@ const useTransactionHistoryMayan = (
       tokenAddress: toTokenAddress,
       senderTimestamp: initiatedAt,
       explorerLink: `https://explorer.mayan.finance/swap/${sourceTxHash}`,
+      inProgress,
     };
 
     return txData;

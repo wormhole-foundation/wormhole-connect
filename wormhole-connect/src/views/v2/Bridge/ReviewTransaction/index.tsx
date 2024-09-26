@@ -13,6 +13,7 @@ import { Context } from 'sdklegacy';
 
 import Button from 'components/v2/Button';
 import config from 'config';
+import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
 import { useGasSlider } from 'hooks/useGasSlider';
@@ -26,6 +27,7 @@ import { setRoute as setAppRoute } from 'store/router';
 import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
 import { getTokenDecimals, getWrappedToken, getWrappedTokenId } from 'utils';
 import { interpretTransferError } from 'utils/errors';
+import { getExplorerInfo } from 'utils/sdkv2';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   registerWalletSigner,
@@ -270,6 +272,17 @@ const ReviewTransaction = (props: Props) => {
           eta: quote.eta || 0,
         }),
       );
+
+      // Add the new transaction to local storage
+      addTxToLocalStorage({
+        txHash: txId,
+        amount,
+        tokenKey: sourceTokenConfig.key,
+        sourceChain: receipt.from,
+        destChain: receipt.to,
+        eta: quote.eta || 0,
+        explorerInfo: getExplorerInfo(sdkRoute, txId),
+      });
 
       // Reset the amount for a successful transaction
       dispatch(setAmount(''));

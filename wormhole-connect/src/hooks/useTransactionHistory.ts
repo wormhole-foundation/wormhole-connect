@@ -13,14 +13,14 @@ type Props = {
 };
 
 const useTransactionHistory = (
-  props: Props,
+  props?: Props,
 ): {
   transactions: Array<Transaction> | undefined;
   error: Array<string>;
   isFetching: boolean;
   hasMore: boolean;
 } => {
-  const { page = 0, pageSize = 30 } = props;
+  const { page = 0, pageSize = 30 } = props || {};
 
   // Keeping separate indexes to track the last rendered item in respective transaction sets
   const [mayanIndex, setMayanIndex] = useState(0);

@@ -86,6 +86,7 @@ const useStyles = makeStyles()((theme) => ({
     maxWidth: '420px',
   },
   txStatusIcon: {
+    color: theme.palette.primary.light,
     width: '105px',
     height: '105px',
     marginTop: '16px',
@@ -261,7 +262,7 @@ const Redeem = () => {
       return (
         <Stack>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            Any time now!
+            Wrapping up...
           </Typography>
         </Stack>
       );

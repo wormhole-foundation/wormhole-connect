@@ -113,16 +113,17 @@ export async function getDecimals(
   return await wh.getDecimals(chain, token.address);
 }
 
-export type ExplorerLink = {
+export type ExplorerInfo = {
   url: string;
   name: string;
+  apiUrl: string;
 };
 
 // TODO SDKV2 add a way for the Route interface to offer this
-export function getExplorerLink(
+export function getExplorerInfo(
   route: routes.Route<Network>,
   txHash: string,
-): ExplorerLink {
+): ExplorerInfo {
   if (
     (route.constructor as routes.RouteConstructor).meta.name.startsWith(
       'MayanSwap',
@@ -131,6 +132,7 @@ export function getExplorerLink(
     return {
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',
+      apiUrl: `${config.mayanApi}/v3/swap/trx/${txHash}`,
     };
   } else {
     return {
@@ -138,6 +140,7 @@ export function getExplorerLink(
         config.isMainnet ? '' : '?network=TESTNET'
       }`,
       name: 'Wormholescan',
+      apiUrl: `${config.wormholeApi}api/v1/operations?txHash=${txHash}`,
     };
   }
 }

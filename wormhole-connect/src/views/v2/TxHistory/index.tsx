@@ -23,8 +23,6 @@ import type { RootState } from 'store';
 
 const useStyles = makeStyles()((_theme) => ({
   container: {
-    height: '690px',
-    justifyContent: 'start',
     margin: 'auto',
     maxWidth: '420px',
   },
@@ -35,7 +33,7 @@ const useStyles = makeStyles()((_theme) => ({
     width: '100%',
   },
   infiniteScroller: {
-    height: '600px',
+    height: '640px',
     overflow: 'auto',
     width: '100%',
   },
@@ -54,7 +52,7 @@ const useStyles = makeStyles()((_theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '24px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -132,6 +130,7 @@ const TxHistory = () => {
           hasMore={hasMore}
           loadMore={(p) => setPage(p)}
           useWindow={false}
+          style={{ scrollbarWidth: 'thin' }}
         >
           <div className={joinClass([classes.spacer])}>
             {transactions.map((tx, idx) => {

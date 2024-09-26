@@ -281,13 +281,30 @@ export interface Transaction {
   tokenDecimals?: number;
 
   // Destination token
-  receivedTokenKey?: string;
-  receiveAmount?: string;
+  receivedTokenKey: string;
+  receiveAmount: string;
 
   // Timestamps
   senderTimestamp: string;
   receiverTimestamp?: string;
 
   // Explorer link
-  explorerLink?: string;
+  explorerLink: string;
+
+  // In-progress status
+  inProgress: boolean;
+}
+// Transanction data in local storage
+export interface TransactionLocal {
+  txHash: string;
+  amount: string;
+  tokenKey: string;
+  sourceChain: string;
+  destChain: string;
+  eta: number;
+  explorerInfo: {
+    name: string;
+    url: string;
+    apiUrl: string;
+  };
 }
