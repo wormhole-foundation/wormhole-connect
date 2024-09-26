@@ -77,7 +77,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   claimButton: {
     backgroundColor: theme.palette.warning.light,
-    color: theme.palette.background.default,
+    color:
+      theme.palette.warning.contrastText ?? theme.palette.background.default,
     '&:hover': {
       backgroundColor: theme.palette.warning.main,
     },
