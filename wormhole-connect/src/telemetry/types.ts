@@ -1,8 +1,10 @@
 import { Chain } from '@wormhole-foundation/sdk';
+import { WormholeConnectConfig } from 'config/types';
 import { TransferWallet } from 'utils/wallet';
 
 export interface LoadEvent {
   type: 'load';
+  config?: WormholeConnectConfig;
 }
 
 export interface TransferDetails {

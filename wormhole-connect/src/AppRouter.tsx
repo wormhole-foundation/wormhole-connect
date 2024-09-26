@@ -62,6 +62,7 @@ function AppRouter(props: Props) {
 
     config.triggerEvent({
       type: 'load',
+      config: props.config,
     });
   }, []);
 
