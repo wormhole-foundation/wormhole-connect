@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { TransactionLocal } from 'config/types';
 import WidgetItem from 'views/v2/TxHistory/Widget/Item';
-import { getTxsFromLocalStorage } from 'utils/localStorage';
+import { getTxsFromLocalStorage } from 'utils/inProgressTxCache';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

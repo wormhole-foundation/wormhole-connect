@@ -33,7 +33,7 @@ export const addTxToLocalStorage = (
   data: TransactionLocal, // Item data
 ) => {
   const ls = window.localStorage;
-  const items: Array<TransactionLocal> | undefined = getTxsFromLocalStorage();
+  const items = getTxsFromLocalStorage();
   let newList: Array<TransactionLocal>;
 
   if (!items) {
@@ -57,7 +57,7 @@ export const addTxToLocalStorage = (
 // Removes a transaction from localStorage
 export const removeTxFromLocalStorage = (txHash: string) => {
   const ls = window.localStorage;
-  const items: Array<TransactionLocal> | undefined = getTxsFromLocalStorage();
+  const items = getTxsFromLocalStorage();
 
   if (items && items.length > 0) {
     // Find the item to remove

@@ -15,7 +15,7 @@ import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
 import TxCompleteIcon from 'icons/TxComplete';
 import { toFixedDecimals } from 'utils/balance';
-import { removeTxFromLocalStorage } from 'utils/localStorage';
+import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
 import { poll } from 'utils/polling';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 

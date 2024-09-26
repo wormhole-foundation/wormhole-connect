@@ -13,7 +13,7 @@ import { Context } from 'sdklegacy';
 
 import Button from 'components/v2/Button';
 import config from 'config';
-import { addTxToLocalStorage } from 'utils/localStorage';
+import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
 import { useGasSlider } from 'hooks/useGasSlider';
