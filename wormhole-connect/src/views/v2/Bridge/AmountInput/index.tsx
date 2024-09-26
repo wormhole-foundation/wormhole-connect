@@ -81,11 +81,11 @@ const useStyles = makeStyles()((theme) => ({
   },
   amountInput: {
     '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-      '-webkit-appearance': 'none',
+      webkitAppearance: 'none',
       margin: 0,
     },
     '&[type="number"]': {
-      '-moz-appearance': 'textfield',
+      mozAppearance: 'textfield',
     },
   },
 }));

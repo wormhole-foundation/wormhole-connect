@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { styled } from '@mui/material';
 import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
@@ -32,16 +32,16 @@ type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
  *                  Primary: The main CTA
  *
  */
-const Button = (props: Props) => {
+const Button = forwardRef<HTMLButtonElement, Props>((props: Props, ref) => {
   const { variant, ...rest } = props;
 
   if (variant === 'primary') {
-    return <PrimaryButton variant="contained" {...rest} />;
+    return <PrimaryButton ref={ref} variant="contained" {...rest} />;
   } else if (variant === 'error') {
-    return <ErrorButton variant="contained" {...rest} />;
+    return <ErrorButton ref={ref} variant="contained" {...rest} />;
   }
 
   return <MUIButton {...rest} />;
-};
+});
 
 export default Button;
