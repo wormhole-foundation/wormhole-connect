@@ -254,8 +254,9 @@ const useTransactionHistoryWHScan = (
 
         // If the fetch was unsuccessful, return an empty set
         if (res.status !== 200) {
-          setIsFetching(false);
           setTransactions([]);
+          setHasMore(false);
+          setIsFetching(false);
         } else {
           const resPayload = await res.json();
 
@@ -291,6 +292,7 @@ const useTransactionHistoryWHScan = (
         }
       } catch (error) {
         if (!cancelled) {
+          setHasMore(false);
           setError(
             `Error fetching transaction history from WormholeScan: ${error}`,
           );
