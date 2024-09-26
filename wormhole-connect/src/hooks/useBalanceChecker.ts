@@ -45,6 +45,13 @@ export const useBalanceChecker = (
         const balance = parseFloat(
           await wallet.getBalance(quote.relayFee.token.address?.toString()),
         );
+
+        if (typeof balance !== 'number') {
+          throw new Error(
+            `Expected balance to be a number, but got "${balance}"`,
+          );
+        }
+
         if (isMounted.current) setState({ balance, cost });
       } catch (e) {
         console.error(e);
@@ -59,7 +66,7 @@ export const useBalanceChecker = (
     feeSymbol,
     isCheckingBalance,
     hasSufficientBalance:
-      !quote?.relayFee || (!!state && state?.balance > state?.cost),
+      !quote?.relayFee || !state || state?.balance > state?.cost,
     walletBalance: state?.balance,
     networkCost: state?.cost,
   };

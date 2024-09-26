@@ -12,15 +12,15 @@ export default function WalletBalanceWarning({
   feeSymbol,
 }: ReturnType<typeof useBalanceChecker>) {
   const theme = useTheme();
-  const content = isCheckingBalance
-    ? ''
-    : `Insufficient ${feeSymbol} to cover network costs.`;
 
   return (
     <Stack direction="column" gap="10px">
       <AlertBanner
-        warning
-        content={content}
+        warning={true}
+        content={
+          !isCheckingBalance &&
+          `Insufficient ${feeSymbol} to cover network costs.`
+        }
         show={!!isCheckingBalance || !hasSufficientBalance}
         testId="wallet-balance-warning-message"
       />
@@ -39,8 +39,12 @@ export default function WalletBalanceWarning({
                 {item.title}
               </Typography>
               <Typography color={theme.palette.text.secondary} fontSize={14}>
-                {!isNaN(item.balance) &&
-                  `${toFixedDecimals(item.balance.toString(), 4)} ${feeSymbol}`}
+                {isNaN(item.balance)
+                  ? '-'
+                  : `${toFixedDecimals(
+                      item.balance.toString(),
+                      4,
+                    )} ${feeSymbol}`}
               </Typography>
             </Stack>
           ))}
