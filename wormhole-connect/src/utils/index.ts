@@ -5,7 +5,6 @@ import { TokenId, Context } from 'sdklegacy';
 
 import config from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
-import { isEvmChain } from 'utils/sdk';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
 import { Chain, chainToPlatform } from '@wormhole-foundation/sdk';
@@ -39,7 +38,7 @@ export function trimTxHash(txHash: string): string {
 }
 
 export function displayAddress(chain: Chain, address: string): string {
-  if (isEvmChain(chain)) {
+  if (chainToPlatform.get(chain) === 'Evm') {
     return trimAddress(convertAddress(address));
   } else if (chain === 'Solana') {
     return trimAddress(address, 4);

@@ -295,32 +295,6 @@ export const signAndSendTransaction = async (
     */
 };
 
-export const postVaa = async (
-  connection: any,
-  coreContract: string,
-  signedVAA: Buffer,
-) => {
-  return 'lol';
-};
-
-/*
-   * TODO SDKV2
-   * replace with SDKV2 signer
-  const wallet = walletConnection.receiving;
-  if (!wallet) throw new Error('not connected');
-  const pk = (wallet as any).adapter.publicKey;
-  const MAX_VAA_UPLOAD_RETRIES_SOLANA = 5;
-
-  await postVaaSolanaWithRetry(
-    connection,
-    wallet.signTransaction.bind(wallet), // Solana Wallet Signer
-    coreContract,
-    pk.toString(),
-    Buffer.from(signedVAA),
-    MAX_VAA_UPLOAD_RETRIES_SOLANA,
-  );
-  */
-
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
   return ready !== WalletState.Unsupported && ready !== WalletState.NotDetected;

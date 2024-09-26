@@ -18,7 +18,6 @@ import { walletAcceptedChains } from './wallet';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 import { DataWrapper } from 'store/helpers';
-import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
 import { Chain } from '@wormhole-foundation/sdk';
 
 export const validateFromChain = (chain: Chain | undefined): ValidationErr => {
@@ -95,7 +94,6 @@ export const validateAmount = (
   amount: string,
   balance: string | null,
   maxAmount: number,
-  isCctp?: boolean,
 ): ValidationErr => {
   if (amount === '') return '';
   const numAmount = Number.parseFloat(amount);
@@ -105,10 +103,6 @@ export const validateAmount = (
     const b = Number.parseFloat(balance.replace(',', ''));
     if (numAmount > b) return 'Amount exceeds available balance.';
   }
-  if (isCctp && numAmount >= CCTP_MAX_TRANSFER_LIMIT)
-    return `Your transaction exceeds the maximum transfer limit of ${Intl.NumberFormat(
-      'en-EN',
-    ).format(CCTP_MAX_TRANSFER_LIMIT)} USDC. Please use a different amount.`;
   if (numAmount > maxAmount) {
     return `At the moment, amount cannot exceed ${maxAmount}`;
   }
@@ -179,26 +173,6 @@ export const getIsAutomatic = (route?: string): boolean => {
   return r.AUTOMATIC_DEPOSIT;
 };
 
-export const isCctp = (
-  token: string,
-  destToken: string,
-  fromChain: Chain | undefined,
-  toChain: Chain | undefined,
-): boolean => {
-  const isUSDCToken =
-    config.tokens[token]?.symbol === 'USDC' &&
-    config.tokens[destToken]?.symbol === 'USDC' &&
-    config.tokens[token]?.nativeChain === fromChain &&
-    config.tokens[destToken]?.nativeChain === toChain;
-  const bothChainsSupportCCTP =
-    !!toChain &&
-    //CCTP_CHAINS.includes(toChain) && TODO SDKV2
-    !!fromChain; //&&
-  //CCTP_CHAINS.includes(fromChain); TODO SDKV2
-
-  return isUSDCToken && bothChainsSupportCCTP;
-};
-
 export const validateAll = async (
   transferData: TransferInputState,
   relayData: RelayState,
@@ -224,7 +198,6 @@ export const validateAll = async (
     token,
   );
   const maxSendAmount = getMaxAmt(route);
-  const isCctpTx = isCctp(token, destToken, fromChain, toChain);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
@@ -236,7 +209,6 @@ export const validateAll = async (
       amount,
       sendingTokenBalance?.balance || null,
       maxSendAmount,
-      isCctpTx,
     ),
     toNativeToken: '',
     relayerFee: '',
