@@ -42,7 +42,13 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e) => {
-        if (Number(e.target.value) < 0) return; // allows "everything" but negative numbers
+        const numValue = Number(e.target.value);
+
+        if (isNaN(numValue) || numValue < 0) {
+          // allows all but negative numbers
+          return;
+        }
+
         setInnerValue(e.target.value);
         defferedOnChange(e.target.value);
       },
@@ -78,15 +84,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   balance: {
     color: theme.palette.text.secondary,
-  },
-  amountInput: {
-    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-      webkitAppearance: 'none',
-      margin: 0,
-    },
-    '&[type="number"]': {
-      mozAppearance: 'textfield',
-    },
   },
 }));
 
@@ -226,8 +223,6 @@ const AmountInput = (props: Props) => {
                   </Stack>
                 </InputAdornment>
               ),
-              type: 'number',
-              classes: { input: classes.amountInput },
             }}
           />
         </CardContent>
