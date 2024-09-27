@@ -98,7 +98,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
   // MinQuote warnings information
   if (minAmount) {
     const formattedAmount = sdkAmount.whole(minAmount).toLocaleString('en', {
-      maximumFractionDigits: 4,
+      maximumFractionDigits: 6,
     });
     return {
       warning: `More routes available for amounts exceeding ${formattedAmount} ${props.tokenSymbol}`,
