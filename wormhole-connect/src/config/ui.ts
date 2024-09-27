@@ -9,13 +9,9 @@ export type UiConfig = {
   };
   explorer?: ExplorerConfig;
   defaultInputs?: DefaultInputs;
-  cctpWarning: string;
   pageHeader?: string | PageHeader;
-  pageSubHeader?: string;
   menu: MenuEntry[];
   searchTx?: SearchTxConfig;
-  moreTokens?: MoreTokenConfig;
-  moreChains?: MoreChainConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
   showHamburgerMenu: boolean;
@@ -47,29 +43,6 @@ export type SearchTxConfig = {
   chainName?: string;
 };
 
-export type MoreTokenConfig = {
-  label: string;
-  href: string;
-  target?: '_blank' | '_self';
-};
-
-export type MoreChainConfig = {
-  href: string;
-  target?: '_blank' | '_self';
-  description: string;
-  chains: MoreChainDefinition[];
-};
-
-export type MoreChainDefinition = {
-  icon: string;
-  href?: string;
-  label: string;
-  name?: string;
-  description?: string;
-  target?: '_blank' | '_self';
-  showOpenInNewIcon?: boolean;
-};
-
 export interface MenuEntry {
   label: string;
   href: string;
@@ -83,14 +56,10 @@ export function createUiConfig(customConfig: Partial<UiConfig>): UiConfig {
     cta: customConfig?.cta,
     explorer: customConfig?.explorer,
     defaultInputs: customConfig?.defaultInputs,
-    cctpWarning: customConfig?.cctpWarning || '',
     pageHeader: customConfig?.pageHeader,
-    pageSubHeader: customConfig?.pageSubHeader,
     menu: customConfig?.menu ?? [],
     getHelpUrl: customConfig?.getHelpUrl,
     searchTx: customConfig?.searchTx,
-    moreTokens: customConfig?.moreTokens,
-    moreChains: customConfig?.moreChains,
     partnerLogo: customConfig?.partnerLogo,
     walletConnectProjectId:
       customConfig?.walletConnectProjectId ??
