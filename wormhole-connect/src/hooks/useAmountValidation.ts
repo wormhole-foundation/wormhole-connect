@@ -83,7 +83,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
   if (allRoutesFailed) {
     if (minAmount) {
       const formattedAmount = sdkAmount.whole(minAmount).toLocaleString('en', {
-        maximumFractionDigits: 4,
+        maximumFractionDigits: 6,
       });
       return {
         error: `Amount too small (min ~${formattedAmount} ${props.tokenSymbol})`,
