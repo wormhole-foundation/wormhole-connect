@@ -12,7 +12,7 @@ export interface HostedParameters {
 
 export function wormholeConnectHosted(
   parentNode: HTMLElement,
-  params: HostedParameters,
+  params: HostedParameters = {},
 ) {
   /* @ts-ignore */
   window.__CONNECT_CONFIG = params.config;
