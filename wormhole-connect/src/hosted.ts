@@ -25,7 +25,7 @@ export function wormholeConnectHosted(
   const version = params.version ?? CONNECT_VERSION;
   const baseUrl =
     params.cdnBaseUrl ??
-    `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}`;
+    `https://cdn.jsdelivr.net/npm/@wormhole-foundation/wormhole-connect@${version}`;
 
   const script = document.createElement('script');
   script.setAttribute('src', `${baseUrl}/dist/main.js`);
