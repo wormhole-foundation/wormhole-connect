@@ -71,7 +71,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
 
   // Balance errors
   if (props.balance) {
-    const balanceNum = Number.parseFloat(props.balance.replace(',', ''));
+    const balanceNum = Number.parseFloat(props.balance.replaceAll(',', ''));
     if (numAmount > balanceNum) {
       return {
         error: 'Amount exceeds available balance.',

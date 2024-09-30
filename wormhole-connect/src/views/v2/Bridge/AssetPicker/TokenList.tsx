@@ -123,7 +123,7 @@ const TokenList = (props: Props) => {
 
     // Fourth: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
-      if (val?.balance && Number(val.balance) > 0) {
+      if (val?.balance && Number(val.balance.replaceAll(',', '')) > 0) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);
 
         if (tokenConfig && !tokenSet.has(tokenConfig.key)) {
