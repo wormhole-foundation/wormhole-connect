@@ -48,9 +48,8 @@ If you're not using React, you can still embed Connect on your website by using 
 <!-- Mounting point. Include in <body> -->
 <div id="wormhole-connect"></div>
 
-<!-- Dependencies -->
+<!-- Must appear after #wormhole-connect component -->
 <script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.3.0/dist/main.js" defer></script>
-<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.3.0/dist/main.css" />
 ```
 
 Note that the `#wormhole-connect` element has to be present _before_ the scripts are loaded.
