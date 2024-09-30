@@ -2,9 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import WormholeConnect from './WormholeConnect';
 import ErrorBoundary from './components/ErrorBoundary';
-import { WormholeConnectConfig } from 'config/types';
-import { WormholeConnectPartialTheme } from './theme';
-import { WormholeConnectEvent } from 'telemetry/types';
 export * from './theme';
 
 // This is the entry point that runs when integrators add the Connect widget
@@ -26,46 +23,10 @@ if (!container) {
   );
 }
 
-let config: WormholeConnectConfig = {
-  eventHandler: (event: WormholeConnectEvent) => {
-    container.dispatchEvent(
-      new CustomEvent('wormholeConnectEvent', { detail: event }),
-    );
-  },
-};
-let theme: WormholeConnectPartialTheme | undefined = undefined;
-
-try {
-  let configAttr = container.getAttribute('data-config');
-
-  if (!configAttr) {
-    // Legacy support. We'll stop looking for the "config" attribute in a future version
-    configAttr = container.getAttribute('config');
-    if (configAttr) {
-      console.warn(
-        `Wormhole Connect: please provide your custom config as a "data-config" attribute. ` +
-          `Providing it as a "config" attribute won't be supported in future versions. ` +
-          `\n` +
-          `See the README for examples: ` +
-          `https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect`,
-      );
-    }
-  }
-
-  if (configAttr) {
-    const parsedConfig = JSON.parse(configAttr);
-    config = { ...config, ...parsedConfig };
-  }
-
-  const themeAttr = container.getAttribute('data-theme');
-  if (themeAttr) {
-    const parsedTheme = JSON.parse(themeAttr);
-    theme = parsedTheme;
-  }
-} catch (e) {
-  console.error(`Error parsing custom config: ${e}`);
-  // Ignore
-}
+/* @ts-ignore */
+const config = window.__CONNECT_CONFIG as WormholeConnectConfig;
+/* @ts-ignore */
+const theme = window.__CONNECT_THEME as WormholeConnectPartialTheme;
 
 const root = ReactDOM.createRoot(container);
 

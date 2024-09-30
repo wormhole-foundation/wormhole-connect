@@ -27,6 +27,9 @@ import {
 import type { WormholeConnectConfig } from './config/types';
 import type { Chain } from '@wormhole-foundation/sdk';
 
+import { wormholeConnectHosted } from './hosted';
+import type { HostedParameters } from './hosted';
+
 const {
   AutomaticTokenBridgeRoute,
   TokenBridgeRoute,
@@ -61,4 +64,8 @@ export {
   MayanRouteWH,
   MayanRouteMCTP,
   MayanRouteSWIFT,
+
+  // Utility function for CDN-hosted version of Connect
+  wormholeConnectHosted,
+  HostedParameters,
 };
