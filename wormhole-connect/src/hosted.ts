@@ -1,5 +1,5 @@
 // This file exports a utility function used to add the hosted version of Connect to a webpage
-
+import { CONNECT_VERSION } from 'config/constants';
 import { WormholeConnectConfig } from 'config/types';
 import { WormholeConnectPartialTheme } from 'theme';
 
@@ -22,7 +22,7 @@ export function wormholeConnectHosted(
   const connectRoot = document.createElement('div');
   connectRoot.id = 'wormhole-connect';
 
-  const version = params.version ?? process.env.CONNECT_VERSION;
+  const version = params.version ?? CONNECT_VERSION;
   const baseUrl =
     params.cdnBaseUrl ??
     `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}`;
