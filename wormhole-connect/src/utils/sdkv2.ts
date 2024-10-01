@@ -121,14 +121,15 @@ export type ExplorerInfo = {
 
 // TODO SDKV2 add a way for the Route interface to offer this
 export function getExplorerInfo(
-  route: routes.Route<Network>,
+  route: string | routes.Route<Network>,
   txHash: string,
 ): ExplorerInfo {
-  if (
-    (route.constructor as routes.RouteConstructor).meta.name.startsWith(
-      'MayanSwap',
-    )
-  ) {
+  const routeName =
+    typeof route === 'string'
+      ? route
+      : (route.constructor as routes.RouteConstructor).meta.name;
+
+  if (routeName.startsWith('MayanSwap')) {
     return {
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',

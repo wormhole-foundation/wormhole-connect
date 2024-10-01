@@ -1,10 +1,10 @@
 import React, { ReactNode, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import LaunchIcon from '@mui/icons-material/Launch';
-import { CircularProgress, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
@@ -56,6 +56,8 @@ const TransactionDetails = () => {
     eta,
   } = useSelector((state: RootState) => state.redeem.txData)!;
 
+  const { route: routeName } = useSelector((state: RootState) => state.redeem);
+
   const { usdPrices: tokenPrices } = useSelector(
     (state: RootState) => state.tokenPrices,
   );
@@ -104,7 +106,7 @@ const TransactionDetails = () => {
             {tokenPrices.isFetching ? (
               <CircularProgress size={14} />
             ) : (
-              `${usdAmount} \u2022 ${sourceChainConfig.displayName} ${senderAddress}`
+              `${usdAmount} \u2022 ${sourceChainConfig.displayName} \u2022 ${senderAddress}`
             )}
           </Typography>
         </Stack>
@@ -154,7 +156,7 @@ const TransactionDetails = () => {
             {tokenPrices.isFetching ? (
               <CircularProgress size={14} />
             ) : (
-              `${usdAmount} \u2022 ${destChainConfig.displayName} ${recipientAddress}`
+              `${usdAmount} \u2022 ${destChainConfig.displayName} \u2022 ${recipientAddress}`
             )}
           </Typography>
         </Stack>
@@ -166,7 +168,7 @@ const TransactionDetails = () => {
   const verticalConnector = useMemo(
     () => (
       <Stack
-        height="32px"
+        height="28px"
         borderLeft="1px solid #8B919D"
         marginLeft="16px"
       ></Stack>
@@ -195,22 +197,27 @@ const TransactionDetails = () => {
       return <></>;
     }
 
+    let feeValue = (
+      <Typography fontSize={14}>{`${toFixedDecimals(
+        relayerFee.fee.toString(),
+        4,
+      )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
+    );
+
+    // Special request: For Mayan we show the USD amount only
+    if (routeName?.startsWith('MayanSwap')) {
+      feeValue = <Typography fontSize={14}>{feePrice}</Typography>;
+    }
+
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Network cost
         </Typography>
-        {tokenPrices.isFetching ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{`${toFixedDecimals(
-            relayerFee.fee.toString(),
-            4,
-          )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
-        )}
+        {tokenPrices.isFetching ? <CircularProgress size={14} /> : feeValue}
       </Stack>
     );
-  }, [relayerFee, tokenPrices]);
+  }, [relayerFee, routeName, tokenPrices]);
 
   const destinationGas = useMemo(() => {
     if (!receivedTokenKey || !receiveNativeAmount) {
@@ -245,26 +252,33 @@ const TransactionDetails = () => {
   }, [receiveNativeAmount, toChain, tokenPrices]);
 
   const explorerLink = useMemo(() => {
-    if (routeContext.route) {
-      const { name, url } = getExplorerInfo(routeContext.route, sendTx);
-      return (
-        <Stack alignItems="center" padding="24px 12px">
-          <Link
-            display="flex"
-            gap="8px"
-            href={url}
-            rel="noreferrer"
-            target="_blank"
-            underline="none"
-          >
-            <Typography>{name}</Typography>
-            <LaunchIcon fontSize="small" sx={{ marginTop: '2px' }} />
-          </Link>
-        </Stack>
-      );
-    } else {
+    // Fallback to routeName if RouteContext value is not available
+    const route = routeContext.route ?? routeName;
+
+    if (!route) {
       return null;
     }
+
+    // Get explorer name and url for the route
+    const { name, url } = getExplorerInfo(route, sendTx);
+
+    return (
+      <Stack alignItems="center" padding="24px 12px">
+        <Link
+          display="flex"
+          gap="8px"
+          href={url}
+          rel="noreferrer"
+          target="_blank"
+          underline="none"
+        >
+          <Typography
+            color={theme.palette.text.primary}
+            fontSize={14}
+          >{`View on ${name}`}</Typography>
+        </Link>
+      </Stack>
+    );
   }, [sendTx, routeContext.route]);
 
   const timeToDestination = useMemo(() => {

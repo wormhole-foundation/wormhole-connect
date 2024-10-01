@@ -207,7 +207,6 @@ const AmountInput = (props: Props) => {
                 e.currentTarget.blur();
               },
               step: '0.1',
-              pattern: '[0-9]+([.|,][0-9]{1,2})?',
             }}
             placeholder="0"
             variant="standard"

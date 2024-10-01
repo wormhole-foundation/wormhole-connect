@@ -28,10 +28,12 @@ import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
-import { millisToHumanString } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
-import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
+import {
+  millisToMinutesAndSeconds,
+  minutesAndSecondsWithPadding,
+} from 'utils/transferValidation';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -83,6 +85,17 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.warning.main,
     },
   },
+  circularProgressCircleIndeterminite: {
+    stroke: 'url(#circularGradient)',
+    strokeDasharray: '100px, 200px',
+    strokeLinecap: 'round',
+  },
+  circularProgressCircleDeterminite: {
+    strokeLinecap: 'round',
+  },
+  circularProgressRoot: {
+    animationDuration: '1s',
+  },
   errorBox: {
     maxWidth: '420px',
   },
@@ -90,8 +103,6 @@ const useStyles = makeStyles()((theme) => ({
     color: theme.palette.primary.light,
     width: '105px',
     height: '105px',
-    marginTop: '16px',
-    marginBottom: '32px',
   },
   poweredBy: {
     display: 'flex',
@@ -231,19 +242,24 @@ const Redeem = () => {
 
   // Header showing the status of the transaction
   const statusHeader = useMemo(() => {
+    let statusText = 'Transaction submitted';
     if (isTxComplete) {
-      return <Stack>Transaction complete</Stack>;
+      statusText = 'Transaction complete';
     } else if (isTxRefunded) {
-      return <Stack>Transaction was refunded</Stack>;
+      statusText = 'Transaction was refunded';
     } else if (isTxFailed) {
-      return <Stack>Transaction failed</Stack>;
+      statusText = 'Transaction failed';
     } else if (isTxDestQueued) {
-      return <Stack>Transaction delayed</Stack>;
+      statusText = 'Transaction delayed';
     } else if (isTxAttested && !isAutomaticRoute) {
-      return <Stack>Ready to claim on {toChain}</Stack>;
+      statusText = `Ready to claim on ${toChain}`;
     }
 
-    return <Stack>Transaction submitted</Stack>;
+    return (
+      <Stack>
+        <Typography fontSize={18}>{statusText}</Typography>
+      </Stack>
+    );
   }, [
     isTxAttested,
     isTxComplete,
@@ -276,7 +292,7 @@ const Redeem = () => {
     let etaElement: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
-      etaElement = millisToHumanString(eta);
+      etaElement = millisToMinutesAndSeconds(eta);
     }
 
     return (
@@ -284,10 +300,92 @@ const Redeem = () => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           ETA {etaElement}
         </Typography>
-        <Typography fontSize={24}>{counter}</Typography>
+        <Typography fontSize={28}>{counter}</Typography>
       </Stack>
     );
   }, [eta, etaExpired, isRunning, minutes, seconds]);
+
+  // Value for determinate circular progress bar
+  const etaProgressValue = useMemo(() => {
+    const timePassed = Date.now() - txTimestamp;
+
+    // Check if eta has already
+    if (timePassed >= eta) {
+      return 100;
+    }
+
+    return (timePassed / eta) * 100;
+  }, [eta, txTimestamp, seconds]);
+
+  // In-progress circular progress bar
+  const etaCircularProgress = useMemo(() => {
+    return (
+      <>
+        <svg width={0} height={0}>
+          <defs>
+            <linearGradient
+              id="circularGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                stopColor={theme.palette.primary.main}
+                stopOpacity="1"
+              />
+              <stop
+                offset="100%"
+                stopColor={theme.palette.background.default}
+                stopOpacity="0.1"
+              />
+            </linearGradient>
+          </defs>
+        </svg>
+        <Box sx={{ position: 'relative' }}>
+          <CircularProgress
+            variant="determinate"
+            sx={(theme) => ({
+              color: theme.palette.primary.main,
+              opacity: 0.2,
+              position: 'absolute',
+            })}
+            size={140}
+            thickness={2}
+            value={100}
+          />
+          <CircularProgress
+            variant={etaExpired ? 'indeterminate' : 'determinate'}
+            classes={{
+              root: classes.circularProgressRoot,
+              circle: etaExpired
+                ? classes.circularProgressCircleIndeterminite
+                : classes.circularProgressCircleDeterminite,
+            }}
+            disableShrink
+            size={140}
+            thickness={2}
+            value={etaProgressValue}
+          />
+        </Box>
+        <Box
+          sx={{
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            position: 'absolute',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {etaDisplay}
+        </Box>
+      </>
+    );
+  }, [etaDisplay, etaProgressValue]);
 
   // Circular progress indicator component for ETA countdown
   const etaCircle = useMemo(() => {
@@ -323,34 +421,10 @@ const Redeem = () => {
       );
     } else {
       // In progress
-      return (
-        <>
-          <CircularProgress
-            size={120}
-            sx={{
-              color: theme.palette.primary.main,
-            }}
-            thickness={2}
-          />
-          <Box
-            sx={{
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
-              position: 'absolute',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {etaDisplay}
-          </Box>
-        </>
-      );
+      return etaCircularProgress;
     }
   }, [
-    etaDisplay,
+    etaCircularProgress,
     isTxComplete,
     isTxRefunded,
     isTxFailed,
@@ -633,7 +707,15 @@ const Redeem = () => {
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
       {statusHeader}
-      <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'inline-flex',
+          alignItems: 'center',
+          marginBottom: '24px',
+          height: '140px',
+        }}
+      >
         {etaCircle}
       </Box>
       <TransactionDetails />
