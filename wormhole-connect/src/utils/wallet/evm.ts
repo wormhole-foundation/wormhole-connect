@@ -73,6 +73,14 @@ export async function signAndSendTransaction(
   const signer = config.whLegacy.getSigner(chainName);
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
+  // Make sure the signer is connected to the right chain
+  const provider = await signer.provider?.getNetwork();
+  if (!provider || provider.chainId !== request.transaction.chainId) {
+    throw new Error(
+      `Signer is not connected to the right chain. Expected ${request.transaction.chainId}, got ${provider?.chainId}`,
+    );
+  }
+
   const tx = await signer.sendTransaction(request.transaction);
   const result = await tx.wait();
 
