@@ -42,19 +42,41 @@ function App() {
 
 ### Alternative: hosted version via CDN (for any website)
 
-If you're not using React, you can still embed Connect on your website by using the hosted version. Simply copy and paste the following code into your HTML body:
+If you're not using React, you can still embed Connect on your website by using the hosted version:
 
-```html
-<!-- Mounting point. Include in <body> -->
-<div id="wormhole-connect"></div>
+```ts
+import {
+  wormholeConnectHosted,
+} from '@wormhole-foundation/wormhole-connect';
 
-<!-- Must appear after #wormhole-connect component -->
-<script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.3.0/dist/main.js" defer></script>
+const container = document.getElementById('connect')!;
+
+wormholeConnectHosted(container);
 ```
 
-Note that the `#wormhole-connect` element has to be present _before_ the scripts are loaded.
 
-You can customize and integrate Connect via our no-code solution: https://connect-in-style.wormhole.com/
+You can provide `config` and `theme` parameters in a second function argument:
+
+```ts
+import {
+  wormholeConnectHosted,
+} from '@wormhole-foundation/wormhole-connect';
+
+const container = document.getElementById('connect')!;
+
+wormholeConnectHosted(container, {
+  config: {
+    rpcs: {
+      ...
+    }
+  },
+  theme: {
+    background: {
+      default: '#004547',
+    }
+  }
+});
+```
 
 ## Configuration
 
