@@ -114,7 +114,9 @@ const ChainList = (props: Props) => {
             onClick={() => props.onChainSelect(chain.key)}
           >
             <TokenIcon icon={chain.icon} height={32} />
-            <Typography fontSize={12}>{chain.displayName}</Typography>
+            <Typography fontSize={12} whiteSpace="nowrap">
+              {chain.displayName}
+            </Typography>
           </ListItemButton>
         ))}
         <ListItemButton

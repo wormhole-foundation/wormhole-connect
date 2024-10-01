@@ -80,23 +80,25 @@ const WalletConnector = (props: Props) => {
 
   const disconnected = useMemo(() => {
     const button = (
-      <Button
-        variant="primary"
-        className={classes.connectWallet}
-        data-testid={`${props.side}-section-connect-wallet-button`}
-        disabled={disabled}
-        sx={{
-          '&:disabled': {
-            cursor: 'not-allowed',
-            pointerEvents: 'all !important',
-          },
-        }}
-        onClick={() => connectWallet()}
-      >
-        <Typography textTransform="none">
-          {mobile ? 'Connect' : `Connect ${props.side} wallet`}
-        </Typography>
-      </Button>
+      <span style={{ width: '100%' }}>
+        <Button
+          variant="primary"
+          className={classes.connectWallet}
+          data-testid={`${props.side}-section-connect-wallet-button`}
+          disabled={disabled}
+          sx={{
+            '&:disabled': {
+              cursor: 'not-allowed',
+              pointerEvents: 'all !important',
+            },
+          }}
+          onClick={() => connectWallet()}
+        >
+          <Typography textTransform="none">
+            {mobile ? 'Connect' : `Connect ${props.side} wallet`}
+          </Typography>
+        </Button>
+      </span>
     );
 
     if (disabled) {
