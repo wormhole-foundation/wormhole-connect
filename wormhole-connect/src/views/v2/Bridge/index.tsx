@@ -369,7 +369,7 @@ const Bridge = () => {
         <Tooltip
           title={isTxHistoryDisabled ? 'No connected wallets found' : ''}
         >
-          <div>
+          <span>
             <IconButton
               sx={{ padding: 0 }}
               disabled={isTxHistoryDisabled}
@@ -377,7 +377,7 @@ const Bridge = () => {
             >
               <HistoryIcon />
             </IconButton>
-          </div>
+          </span>
         </Tooltip>
       </div>
     );
