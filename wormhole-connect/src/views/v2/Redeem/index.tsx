@@ -50,7 +50,11 @@ import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 import TxReadyForClaim from 'icons/TxReadyForClaim';
 
-const useStyles = makeStyles()((theme) => ({
+type StyleProps = {
+  transitionDuration?: string;
+};
+
+const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -92,6 +96,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   circularProgressCircleDeterminite: {
     strokeLinecap: 'round',
+    transitionDuration,
+    transitionProperty: 'all',
   },
   circularProgressRoot: {
     animationDuration: '1s',
@@ -118,7 +124,6 @@ const useStyles = makeStyles()((theme) => ({
 
 const Redeem = () => {
   const dispatch = useDispatch();
-  const { classes } = useStyles();
   const theme = useTheme();
 
   const [claimError, setClaimError] = useState('');
@@ -158,6 +163,8 @@ const Redeem = () => {
     receiveAmount,
     eta = 0,
   } = txData!;
+
+  const { classes } = useStyles({ transitionDuration: `${eta}ms` });
 
   const getUSDAmount = useUSDamountGetter();
 
@@ -307,15 +314,14 @@ const Redeem = () => {
 
   // Value for determinate circular progress bar
   const etaProgressValue = useMemo(() => {
-    const timePassed = Date.now() - txTimestamp;
-
-    // Check if eta has already
-    if (timePassed >= eta) {
+    if (eta && txTimestamp && isRunning) {
+      // We return the full bar value when the ETA timer is running
+      // and simulate the progress by setting transitionDuration the eta (see useStyles above)
       return 100;
     }
 
-    return (timePassed / eta) * 100;
-  }, [eta, txTimestamp, seconds]);
+    return 0;
+  }, [eta, txTimestamp, isRunning]);
 
   // In-progress circular progress bar
   const etaCircularProgress = useMemo(() => {
@@ -385,7 +391,7 @@ const Redeem = () => {
         </Box>
       </>
     );
-  }, [etaDisplay, etaProgressValue]);
+  }, [etaDisplay, etaExpired, etaProgressValue]);
 
   // Circular progress indicator component for ETA countdown
   const etaCircle = useMemo(() => {
