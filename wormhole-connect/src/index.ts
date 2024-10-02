@@ -9,6 +9,8 @@ import { dark, light } from './theme';
 
 import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
+import { buildConfig } from './config';
+import type { WormholeConnectConfig } from './config/types';
 
 // Routes
 import { DEFAULT_ROUTES, nttRoutes } from './routes/operator';
@@ -24,7 +26,6 @@ import {
   nttManualRoute,
 } from '@wormhole-foundation/sdk-route-ntt';
 
-import type { WormholeConnectConfig } from './config/types';
 import type { Chain } from '@wormhole-foundation/sdk';
 
 const {
@@ -37,8 +38,10 @@ const {
 export default WormholeConnect;
 
 export {
+  // Config related exports
   MAINNET,
   TESTNET,
+  buildConfig,
 
   // Types
   WormholeConnectConfig,
