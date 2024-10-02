@@ -239,7 +239,7 @@ const SingleRoute = (props: Props) => {
   }, [props.error]);
 
   const warningMessages = useMemo(() => {
-    let messages: React.JSX.Element[] = [];
+    const messages: React.JSX.Element[] = [];
 
     if (isManual) {
       messages.push(
