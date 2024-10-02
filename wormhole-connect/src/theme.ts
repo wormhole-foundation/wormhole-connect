@@ -308,6 +308,8 @@ export const getDesignTokens = (customTheme: WormholeConnectPartialTheme) => {
     customTheme,
   ) as WormholeConnectTheme;
 
+  theme.background.default = 'transparent';
+
   return createTheme({
     components: {
       MuiPaper: {
