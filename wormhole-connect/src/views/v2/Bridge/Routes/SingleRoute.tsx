@@ -14,7 +14,12 @@ import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
-import { isEmptyObject, calculateUSDPrice, millisToHumanString } from 'utils';
+import {
+  isEmptyObject,
+  calculateUSDPrice,
+  millisToHumanString,
+  formatDuration,
+} from 'utils';
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
@@ -233,29 +238,54 @@ const SingleRoute = (props: Props) => {
     );
   }, [props.error]);
 
-  const warningMessage = useMemo(() => {
-    if (!isManual) {
-      return null;
+  const warningMessages = useMemo(() => {
+    const messages: React.JSX.Element[] = [];
+
+    if (isManual) {
+      messages.push(
+        <>
+          <Divider flexItem sx={{ marginTop: '8px' }} />
+          <Stack direction="row" alignItems="center">
+            <WarningIcon htmlColor={theme.palette.warning.main} />
+            <Stack sx={{ padding: '16px' }}>
+              <Typography color={theme.palette.warning.main} fontSize={14}>
+                This transfer requires two transactions
+              </Typography>
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                You will need to make two wallet approvals and have gas on the
+                destination chain.
+              </Typography>
+            </Stack>
+          </Stack>
+        </>,
+      );
     }
 
-    return (
-      <>
-        <Divider flexItem sx={{ marginTop: '8px' }} />
-        <Stack direction="row" alignItems="center">
-          <WarningIcon htmlColor={theme.palette.warning.main} />
-          <Stack sx={{ padding: '16px' }}>
-            <Typography color={theme.palette.warning.main} fontSize={14}>
-              This transfer requires two transactions
-            </Typography>
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              You will need to make two wallet approvals and have gas on the
-              destination chain.
-            </Typography>
-          </Stack>
-        </Stack>
-      </>
-    );
-  }, [isManual]);
+    for (const warning of quote?.warnings || []) {
+      if (
+        warning.type === 'DestinationCapacityWarning' &&
+        warning.delayDurationSec
+      ) {
+        const symbol = config.tokens[destToken].symbol;
+        const duration = formatDuration(warning.delayDurationSec);
+        messages.push(
+          <>
+            <Divider flexItem sx={{ marginTop: '8px' }} />
+            <Stack direction="row" alignItems="center">
+              <WarningIcon htmlColor={theme.palette.warning.main} />
+              <Stack sx={{ padding: '16px' }}>
+                <Typography color={theme.palette.warning.main} fontSize={14}>
+                  {`Your transfer to ${destChain} may be delayed due to rate limits set by ${symbol}. If your transfer is delayed, you will need to return after ${duration} to complete the transfer. Please consider this before proceeding.`}
+                </Typography>
+              </Stack>
+            </Stack>
+          </>,
+        );
+      }
+    }
+
+    return messages;
+  }, [isManual, quote, destChain, destToken, config]);
 
   const providerText = useMemo(() => {
     if (!sourceToken) {
@@ -419,7 +449,7 @@ const SingleRoute = (props: Props) => {
               {timeToDestination}
             </Stack>
             {errorMessage}
-            {warningMessage}
+            {warningMessages}
           </CardContent>
         </CardActionArea>
       </Card>
