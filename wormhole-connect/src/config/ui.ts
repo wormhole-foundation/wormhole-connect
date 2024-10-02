@@ -18,6 +18,9 @@ export type UiConfig = {
   previewMode?: boolean; // Disables making transfers
 
   getHelpUrl?: string;
+
+  // Shows in-progress widgets
+  showInProgressWidget?: boolean;
 };
 
 export interface DefaultInputs {
@@ -66,5 +69,6 @@ export function createUiConfig(customConfig: Partial<UiConfig>): UiConfig {
       import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
     showHamburgerMenu: customConfig?.showHamburgerMenu ?? false,
     previewMode: !!customConfig?.previewMode,
+    showInProgressWidget: !!customConfig?.showInProgressWidget,
   };
 }
