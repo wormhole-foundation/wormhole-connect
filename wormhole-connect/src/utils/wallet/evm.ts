@@ -16,6 +16,7 @@ import {
 import { Network } from '@wormhole-foundation/sdk';
 
 import config from 'config';
+import { getBigInt } from 'ethers';
 
 const eip6963Wallets = Object.entries(Eip6963Wallets).reduce(
   (acc, [key, name]) => ({ [key]: new Eip6963Wallet(name), ...acc }),
@@ -72,6 +73,19 @@ export async function signAndSendTransaction(
   // TODO remove reliance on SDkv1 here (multi-provider)
   const signer = config.whLegacy.getSigner(chainName);
   if (!signer) throw new Error('No signer found for chain' + chainName);
+
+  // Ensure the signer is connected to the correct chain
+  const provider = await signer.provider?.getNetwork();
+  const expectedChainId = request.transaction.chainId
+    ? getBigInt(request.transaction.chainId)
+    : undefined;
+  const actualChainId = provider?.chainId;
+
+  if (!actualChainId || !expectedChainId || actualChainId !== expectedChainId) {
+    throw new Error(
+      `Signer is not connected to the right chain. Expected ${expectedChainId}, got ${actualChainId}`,
+    );
+  }
 
   const tx = await signer.sendTransaction(request.transaction);
   const result = await tx.wait();
