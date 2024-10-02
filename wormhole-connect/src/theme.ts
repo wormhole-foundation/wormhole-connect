@@ -302,7 +302,11 @@ export const dark: WormholeConnectTheme = {
 
 export const getDesignTokens = (customTheme: WormholeConnectPartialTheme) => {
   const baseTheme = customTheme?.mode === 'light' ? light : dark;
-  const theme = Object.assign(baseTheme, customTheme) as WormholeConnectTheme;
+  const theme = Object.assign(
+    {},
+    baseTheme,
+    customTheme,
+  ) as WormholeConnectTheme;
 
   return createTheme({
     components: {
