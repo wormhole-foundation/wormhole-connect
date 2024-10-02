@@ -462,3 +462,15 @@ export const millisToRelativeTime = (ts: number): string => {
     return '~1 minute ago';
   }
 };
+
+export const formatDuration = (seconds: number) => {
+  if (seconds < 60) {
+    return seconds === 1 ? `${seconds} second` : `${seconds} seconds`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    return minutes === 1 ? `${minutes} minute` : `${minutes} minutes`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    return hours === 1 ? `${hours} hour` : `${hours} hours`;
+  }
+};
