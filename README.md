@@ -195,21 +195,24 @@ See the "Arbitrary Token" example in [the config docs](https://docs.wormhole.com
 Please note you have to [register a token](https://portalbridge.com/advanced-tools/#/register) with the token bridge before you can use it in Connect.
 
 ### Configuring Custom NTT (Native Token Transfer) Tokens
-To configure a custom NTT token, include the `nttConfig` key in your configuration.
+
+To configure a custom NTT token, pass your NTT config to the `nttRoutes` helper function, which will add the NTT routes to the `routes` array. You can find the definition for the NTT config [here](https://github.com/wormhole-foundation/example-native-token-transfers/blob/6a1a3d9e6d1a2045fb1688c2b53c9ac145cb40bc/sdk/route/src/types.ts#L34).
 
 ```ts
 const config: WormholeConnectConfig = {
-  nttConfig: {
-    tokens: {
-      // Your custom NTT token configs go here
-    }
-  }
+  routes: [
+    ...nttRoutes({
+      tokens: {
+        // Your custom NTT configs go here
+        // See: https://github.com/wormhole-foundation/wormhole-connect/blob/9548507ca68dfd249bf84057889dc61553b17b5f/wormhole-connect/src/components/DemoApp/consts.ts#L3 for an example NTT config
+      }
+    })
+    // other routes
+  ]
 }
 ```
 
-For a practical example of how to configure your custom NTT token, refer to the [nttConfig.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/testnet/nttConfig.ts) file.
-
-Please note that the `token` address specified must correspond to an entry in the `tokensConfig`, whether it's a built-in or a custom token.
+Each `token` address specified in the NTT config must have a corresponding entry in `tokensConfig`, whether it is a built-in or custom token.
 
 ### Custom Theme
 
