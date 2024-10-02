@@ -458,7 +458,7 @@ const Bridge = () => {
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       {header}
-      <TxHistoryWidget />
+      {config.ui.showInProgressWidget && <TxHistoryWidget />}
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
