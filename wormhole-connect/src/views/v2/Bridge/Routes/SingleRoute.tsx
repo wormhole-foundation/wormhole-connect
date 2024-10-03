@@ -242,7 +242,7 @@ const SingleRoute = (props: Props) => {
 
     if (isManual) {
       messages.push(
-        <>
+        <div key="ManualTransactionWarning">
           <Divider flexItem sx={{ marginTop: '8px' }} />
           <Stack direction="row" alignItems="center">
             <WarningIcon htmlColor={theme.palette.warning.main} />
@@ -256,7 +256,7 @@ const SingleRoute = (props: Props) => {
               </Typography>
             </Stack>
           </Stack>
-        </>,
+        </div>,
       );
     }
 
@@ -268,7 +268,7 @@ const SingleRoute = (props: Props) => {
         const symbol = config.tokens[destToken].symbol;
         const duration = formatDuration(warning.delayDurationSec);
         messages.push(
-          <>
+          <div key={`${warning.type}-${warning.delayDurationSec}`}>
             <Divider flexItem sx={{ marginTop: '8px' }} />
             <Stack direction="row" alignItems="center">
               <WarningIcon htmlColor={theme.palette.warning.main} />
@@ -278,7 +278,7 @@ const SingleRoute = (props: Props) => {
                 </Typography>
               </Stack>
             </Stack>
-          </>,
+          </div>,
         );
       }
     }
