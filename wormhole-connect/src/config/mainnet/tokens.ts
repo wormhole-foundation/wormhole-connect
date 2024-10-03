@@ -924,7 +924,7 @@ export const MAINNET_WRAPPED_TOKENS: TokenAddressesByChain = {
     Aptos:
       '0x77400d2f56a01bad2d7c8c6fa282f62647ce3c03f43f2a8742e47ea01a91e24a::coin::T',
   },
-  WMATIC: {
+  WPOL: {
     Ethereum: '0x7c9f4C87d911613Fe9ca58b579f737911AAD2D43',
     Bsc: '0xc836d8dC361E44DbE64c4862D55BA041F88Ddd39',
     Avalanche: '0xf2f13f0B7008ab2FA4A2418F4ccC3684E49D20Eb',
