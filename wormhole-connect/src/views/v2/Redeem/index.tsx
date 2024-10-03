@@ -652,9 +652,7 @@ const Redeem = () => {
           {isClaimInProgress || !isTxAttested ? (
             <Stack direction="row" alignItems="center">
               <CircularProgress size={24} />
-              <Typography marginLeft="4px" textTransform="none">
-                Transfer in progress
-              </Typography>
+              <Typography textTransform="none">Transfer in progress</Typography>
             </Stack>
           ) : (
             <Typography textTransform="none">
