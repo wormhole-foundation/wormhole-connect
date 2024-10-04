@@ -55,9 +55,6 @@ export default function Menu() {
           <div className={classes.menuItem} onClick={() => navigate('search')}>
             Resume transaction
           </div>
-          <div className={classes.menuItem} onClick={() => navigate('faq')}>
-            FAQs
-          </div>
           <div className={classes.menuItem} onClick={() => navigate('terms')}>
             Terms of Use
           </div>
