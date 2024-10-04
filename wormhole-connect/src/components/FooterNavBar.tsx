@@ -44,7 +44,6 @@ function itemAppender(acc: MenuItem[], item: MenuEntry) {
 function defaultMenuItems(navigate: (name: Route) => void): MenuItem[] {
   return [
     { label: 'Resume Transaction', handleClick: () => navigate('search') },
-    { label: 'FAQs', handleClick: () => navigate('faq') },
     { label: 'Terms of Use', handleClick: () => navigate('terms') },
   ];
 }

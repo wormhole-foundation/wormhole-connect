@@ -11,7 +11,6 @@ import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
 
-import FAQ from './views/FAQ';
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import { setRoute } from './store/router';
@@ -100,7 +99,6 @@ function AppRouter(props: Props) {
       {route === 'search' && <TxSearch />}
       {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
-      {route === 'faq' && <FAQ />}
     </div>
   );
 }
