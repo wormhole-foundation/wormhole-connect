@@ -39,7 +39,7 @@ export default function SearchInput(props: SearchInputProps) {
       fullWidth
       inputProps={{
         style: {
-          fontSize: 14,
+          fontSize: 16,
           height: 22,
           lineHeight: 22,
         },
