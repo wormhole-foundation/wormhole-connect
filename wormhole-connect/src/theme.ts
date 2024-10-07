@@ -27,6 +27,7 @@ export type PaletteColor = {
 };
 
 export type WormholeConnectTheme = {
+  // "dark" or "light"
   mode: PaletteMode;
   // Color of input fields, like asset picker and dropdowns
   input?: string;
