@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
-import CircularProgress from '@mui/material/CircularProgress';
-import Drawer from '@mui/material/Drawer';
 import { useDispatch, useSelector } from 'react-redux';
 
+import CircularProgress from '@mui/material/CircularProgress';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -19,10 +20,9 @@ import config from 'config';
 import { RootState } from 'store';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 
-import WalletIcon from 'icons/WalletIcons';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
-import { IconButton } from '@mui/material';
+import WalletIcon from 'icons/WalletIcons';
 
 const useStyles = makeStyles()((theme) => ({
   drawer: {
@@ -131,7 +131,7 @@ const WalletSidebar = (props: Props) => {
                     height={32}
                   />
                 </ListItemIcon>
-                <Typography fontSize={14}>
+                <Typography component="div" fontSize={14}>
                   <div className={`${!wallet.isReady && classes.notInstalled}`}>
                     {!wallet.isReady && 'Install'} {wallet.name}
                   </div>

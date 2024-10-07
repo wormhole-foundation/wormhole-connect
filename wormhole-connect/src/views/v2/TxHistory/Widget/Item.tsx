@@ -221,7 +221,7 @@ const WidgetItem = (props: Props) => {
   }
 
   return (
-    <div key={txHash} className={classes.container}>
+    <div className={classes.container}>
       <Card className={classes.card}>
         <CardActionArea
           disableTouchRipple

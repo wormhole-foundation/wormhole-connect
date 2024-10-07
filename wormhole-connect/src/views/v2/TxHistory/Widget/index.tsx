@@ -57,7 +57,7 @@ const TxHistoryWidget = () => {
         </Typography>
       </div>
       {transactions.map((tx) => (
-        <WidgetItem data={tx} />
+        <WidgetItem key={tx.txHash} data={tx} />
       ))}
     </div>
   );
