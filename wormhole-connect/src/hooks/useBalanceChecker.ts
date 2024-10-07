@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { amount, routes } from '@wormhole-foundation/sdk';
 import { getWalletConnection, TransferWallet } from 'utils/wallet';
 import config from 'config';
-import { useIsMounted } from './useIsMounted';
 
 export const useBalanceChecker = (
   quote?: routes.Quote<
@@ -20,7 +19,6 @@ export const useBalanceChecker = (
   const [state, setState] = useState<{ balance: number; cost: number } | null>(
     null,
   );
-  const isMounted = useIsMounted();
 
   const feeSymbol = useMemo(() => {
     if (!quote?.relayFee?.token) return;
@@ -32,6 +30,7 @@ export const useBalanceChecker = (
   }, [quote]);
 
   useEffect(() => {
+    let isActive = true;
     setCheckingBalance(true);
     (async () => {
       try {
@@ -44,7 +43,9 @@ export const useBalanceChecker = (
 
         const feeTokenAddress = quote.relayFee.token.address?.toString();
         const balance = parseFloat(
-          await wallet.getBalance(feeTokenAddress !== 'native' ? feeTokenAddress : undefined),
+          await wallet.getBalance(
+            feeTokenAddress !== 'native' ? feeTokenAddress : undefined,
+          ),
         );
         if (typeof balance !== 'number') {
           throw new Error(
@@ -52,15 +53,18 @@ export const useBalanceChecker = (
           );
         }
 
-        if (isMounted.current) setState({ balance, cost });
+        if (isActive) setState({ balance, cost });
       } catch (e) {
         console.error(e);
-        if (isMounted.current) setState(null);
+        if (isActive) setState(null);
       } finally {
-        if (isMounted.current) setCheckingBalance(false);
+        if (isActive) setCheckingBalance(false);
       }
     })();
-  }, [quote, isMounted]);
+    return () => {
+      isActive = false;
+    };
+  }, [quote]);
 
   return {
     feeSymbol,
