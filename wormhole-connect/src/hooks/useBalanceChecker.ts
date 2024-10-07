@@ -42,10 +42,10 @@ export const useBalanceChecker = (
 
         const cost = amount.whole(quote.relayFee.amount);
 
+        const feeTokenAddress = quote.relayFee.token.address?.toString();
         const balance = parseFloat(
-          await wallet.getBalance(quote.relayFee.token.address?.toString()),
+          await wallet.getBalance(feeTokenAddress !== 'native' ? feeTokenAddress : undefined),
         );
-
         if (typeof balance !== 'number') {
           throw new Error(
             `Expected balance to be a number, but got "${balance}"`,
