@@ -365,8 +365,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
     }
   }
 
-  theme.background.default = 'transparent';
-
   return createTheme({
     components: {
       MuiPaper: {
