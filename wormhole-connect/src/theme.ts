@@ -41,8 +41,11 @@ export type WormholeConnectTheme = {
   textSecondary?: string;
   // Error message color
   error?: string;
+  // Success message color
   success?: string;
+  // Background color for badges in asset picker
   badge?: string;
+  // Font family
   font?: string;
 };
 
@@ -116,7 +119,7 @@ export const light: InternalTheme = {
   secondary: grey,
   divider: '#a0a2a9',
   background: {
-    default: '#E5E8F2',
+    default: 'transparent',
     badge: '#E5E8F2',
   },
   text: {
@@ -213,7 +216,7 @@ export const dark: InternalTheme = {
   },
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: '#010101',
+    default: 'transparent',
     badge: '#010101',
   },
   text: {
