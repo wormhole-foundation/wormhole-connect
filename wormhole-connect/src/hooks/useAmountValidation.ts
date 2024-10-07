@@ -82,9 +82,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
   // All quotes fail.
   if (allRoutesFailed) {
     if (minAmount) {
-      const formattedAmount = sdkAmount.whole(minAmount).toLocaleString('en', {
-        maximumFractionDigits: 4,
-      });
+      const formattedAmount = sdkAmount.display(minAmount);
       return {
         error: `Amount too small (min ~${formattedAmount} ${props.tokenSymbol})`,
       };
@@ -97,9 +95,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
 
   // MinQuote warnings information
   if (minAmount) {
-    const formattedAmount = sdkAmount.whole(minAmount).toLocaleString('en', {
-      maximumFractionDigits: 4,
-    });
+    const formattedAmount = sdkAmount.display(minAmount);
     return {
       warning: `More routes available for amounts exceeding ${formattedAmount} ${props.tokenSymbol}`,
     };
