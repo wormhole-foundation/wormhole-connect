@@ -26,7 +26,7 @@ export type PaletteColor = {
   A700?: string;
 };
 
-export type WormholeConnectCustomTheme = {
+export type WormholeConnectTheme = {
   mode: PaletteMode;
   // Color of input fields, like asset picker and dropdowns
   input?: string;
@@ -47,7 +47,7 @@ export type WormholeConnectCustomTheme = {
 
 type Color = PaletteColor | PaletteColorOptions;
 
-export type WormholeConnectTheme = {
+export type InternalTheme = {
   mode: PaletteMode;
   primary: Color;
   secondary: Color;
@@ -94,7 +94,7 @@ export type WormholeConnectTheme = {
   logo: string;
 };
 
-export const light: WormholeConnectTheme = {
+export const light: InternalTheme = {
   mode: 'light',
   primary: {
     50: '#161718',
@@ -172,7 +172,7 @@ export const light: WormholeConnectTheme = {
 };
 
 // wormhole styled theme
-export const dark: WormholeConnectTheme = {
+export const dark: InternalTheme = {
   mode: 'dark',
   primary: {
     25: '#FCFAFF',
@@ -319,11 +319,9 @@ export const dark: WormholeConnectTheme = {
   logo: '#ffffff',
 };
 
-export const generateTheme = (
-  customTheme: WormholeConnectCustomTheme,
-): Theme => {
+export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
   const baseTheme = customTheme.mode === 'light' ? light : dark;
-  const theme = Object.assign({}, baseTheme) as WormholeConnectTheme;
+  const theme = Object.assign({}, baseTheme) as InternalTheme;
 
   // Override built-in theme with whichever custom values we've been provided
   if (customTheme) {

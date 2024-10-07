@@ -8,12 +8,12 @@ import AppRouter from './AppRouter';
 import { generateTheme } from './theme';
 import ErrorBoundary from './components/ErrorBoundary';
 import { WormholeConnectConfig } from './config/types';
-import { WormholeConnectCustomTheme } from 'theme';
+import { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
-  theme?: WormholeConnectCustomTheme;
+  theme?: WormholeConnectTheme;
   // config is only used once, when Connect first mounts, to initialize the global config
   config?: WormholeConnectConfig;
 }
