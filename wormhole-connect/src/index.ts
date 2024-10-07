@@ -1,9 +1,6 @@
 import WormholeConnect from './WormholeConnect';
 
-import type {
-  WormholeConnectPartialTheme,
-  WormholeConnectTheme,
-} from './theme';
+import type { WormholeConnectCustomTheme, WormholeConnectTheme } from './theme';
 
 import { dark, light } from './theme';
 
@@ -49,7 +46,7 @@ export {
   // Types
   WormholeConnectConfig,
   Chain,
-  WormholeConnectPartialTheme,
+  WormholeConnectCustomTheme,
   WormholeConnectTheme,
   dark,
   light,
