@@ -4,7 +4,7 @@ import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import purple from '@mui/material/colors/purple';
 import red from '@mui/material/colors/red';
-import { PaletteMode } from '@mui/material';
+import { PaletteMode, PaletteColorOptions, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
 
 export type PaletteColor = {
@@ -26,24 +26,49 @@ export type PaletteColor = {
   A700?: string;
 };
 
-export type WormholeConnectPartialTheme = {
-  mode?: PaletteMode;
-  primary?: PaletteColor;
-  secondary?: PaletteColor;
-  divider?: string;
-  background?: {
+export type WormholeConnectTheme = {
+  // "dark" or "light"
+  mode: PaletteMode;
+  // Color of input fields, like asset picker and dropdowns
+  input?: string;
+  // Primary brand color
+  primary?: string;
+  // Secondary brand color
+  secondary?: string;
+  // Primary text color
+  text?: string;
+  // Secondary text color
+  textSecondary?: string;
+  // Error message color
+  error?: string;
+  // Success message color
+  success?: string;
+  // Background color for badges in asset picker
+  badge?: string;
+  // Font family
+  font?: string;
+};
+
+type Color = PaletteColor | PaletteColorOptions;
+
+export type InternalTheme = {
+  mode: PaletteMode;
+  primary: Color;
+  secondary: Color;
+  divider: string;
+  background: {
     default: string;
     badge: string;
   };
-  text?: {
+  text: {
     primary: string;
     secondary: string;
   };
-  error?: PaletteColor;
-  info?: PaletteColor;
-  success?: PaletteColor;
-  warning?: PaletteColor;
-  button?: {
+  error: Color;
+  info: Color;
+  success: Color;
+  warning: Color;
+  button: {
     primary: string;
     primaryText: string;
     disabled: string;
@@ -52,30 +77,28 @@ export type WormholeConnectPartialTheme = {
     actionText: string;
     hover: string;
   };
-  options?: {
+  options: {
     hover: string;
     select: string;
   };
-  card?: {
+  card: {
     background: string;
     elevation: string;
     secondary: string;
   };
-  popover?: {
+  popover: {
     background: string;
     elevation: string;
     secondary: string;
   };
-  modal?: {
+  modal: {
     background: string;
   };
-  font?: string;
-  logo?: string;
+  font: string;
+  logo: string;
 };
 
-export type WormholeConnectTheme = Required<WormholeConnectPartialTheme>;
-
-export const light: WormholeConnectTheme = {
+export const light: InternalTheme = {
   mode: 'light',
   primary: {
     50: '#161718',
@@ -96,7 +119,7 @@ export const light: WormholeConnectTheme = {
   secondary: grey,
   divider: '#a0a2a9',
   background: {
-    default: '#E5E8F2',
+    default: 'transparent',
     badge: '#E5E8F2',
   },
   text: {
@@ -153,7 +176,7 @@ export const light: WormholeConnectTheme = {
 };
 
 // wormhole styled theme
-export const dark: WormholeConnectTheme = {
+export const dark: InternalTheme = {
   mode: 'dark',
   primary: {
     25: '#FCFAFF',
@@ -193,7 +216,7 @@ export const dark: WormholeConnectTheme = {
   },
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: '#010101',
+    default: 'transparent',
     badge: '#010101',
   },
   text: {
@@ -300,15 +323,47 @@ export const dark: WormholeConnectTheme = {
   logo: '#ffffff',
 };
 
-export const getDesignTokens = (customTheme: WormholeConnectPartialTheme) => {
-  const baseTheme = customTheme?.mode === 'light' ? light : dark;
-  const theme = Object.assign(
-    {},
-    baseTheme,
-    customTheme,
-  ) as WormholeConnectTheme;
+export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
+  const baseTheme = customTheme.mode === 'light' ? light : dark;
+  const theme = Object.assign({}, baseTheme) as InternalTheme;
 
-  theme.background.default = 'transparent';
+  // Override built-in theme with whichever custom values we've been provided
+  if (customTheme) {
+    if (customTheme.input) {
+      theme.modal = {
+        background: customTheme.input,
+      };
+    }
+    if (customTheme.primary) {
+      theme.primary = {
+        main: customTheme.primary,
+      };
+    }
+    if (customTheme.secondary) {
+      theme.secondary = {
+        main: customTheme.secondary,
+      };
+    }
+    if (customTheme.text) {
+      theme.text.primary = customTheme.text;
+    }
+    if (customTheme.textSecondary) {
+      theme.text.secondary = customTheme.textSecondary;
+    }
+    if (customTheme.error) {
+      theme.error = {
+        main: customTheme.error,
+      };
+    }
+    if (customTheme.success) {
+      theme.success = {
+        main: customTheme.success,
+      };
+    }
+    if (customTheme.badge) {
+      theme.background.badge = customTheme.badge;
+    }
+  }
 
   return createTheme({
     components: {
