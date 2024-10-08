@@ -1,6 +1,6 @@
 {
   "name": "@wormhole-foundation/wormhole-connect",
-  "version": "0.3.7",
+  "version": "1.0.0",
   "repository": "github:wormhole-foundation/wormhole-connect",
   "main": "./lib/index.js",
   "module": "./lib/index.mjs",
