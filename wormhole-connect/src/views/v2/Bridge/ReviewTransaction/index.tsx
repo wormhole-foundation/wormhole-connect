@@ -126,7 +126,7 @@ const ReviewTransaction = (props: Props) => {
     hasSufficientBalance,
     walletBalance,
     networkCost,
-  } = useBalanceChecker(quote);
+  } = useBalanceChecker(quote, sourceChain);
 
   const send = async () => {
     setSendError(undefined);

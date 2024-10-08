@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { amount, routes } from '@wormhole-foundation/sdk';
+import { amount, Chain, routes } from '@wormhole-foundation/sdk';
 import { getWalletConnection, TransferWallet } from 'utils/wallet';
 import config from 'config';
 
@@ -8,6 +8,7 @@ export const useBalanceChecker = (
     routes.Options,
     routes.ValidatedTransferParams<routes.Options>
   >,
+  chain?: Chain,
 ): {
   feeSymbol?: string;
   isCheckingBalance: boolean;
@@ -34,7 +35,12 @@ export const useBalanceChecker = (
     setCheckingBalance(true);
     (async () => {
       try {
-        if (!quote?.relayFee?.amount) return;
+        if (
+          !quote?.relayFee?.amount ||
+          quote?.relayFee?.token?.chain !== chain
+        ) {
+          return;
+        }
 
         const wallet = getWalletConnection(TransferWallet.SENDING);
         if (!wallet) return;
