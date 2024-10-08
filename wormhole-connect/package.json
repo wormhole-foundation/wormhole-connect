@@ -158,7 +158,7 @@
       "aptos": "1.5.0"
     },
     "vite-plugin-dts": {
-      "vue-tsc": "^2.1.6"
+      "vue-tsc": "2.0.0"
     }
   }
 }
