@@ -86,7 +86,7 @@ export interface ConnectWalletEvent {
   };
 }
 
-export type WormholeConnectEvent =
+export type WormholeConnectEventCore =
   | LoadEvent
   | TransferEvent
   | TransferErrorEvent
@@ -100,7 +100,11 @@ export interface WormholeConnectEventMeta {
   };
 }
 
-export type WormholeConnectEventWithMeta = WormholeConnectEvent &
+export type WormholeConnectEvent = WormholeConnectEventCore &
   WormholeConnectEventMeta;
 
-export type WormholeConnectEventHandler = (type: WormholeConnectEvent) => void;
+// This is used internally to trigger events
+export type TriggerEventHandler = (event: WormholeConnectEventCore) => void;
+
+// This is used externally to consume events
+export type WormholeConnectEventHandler = (event: WormholeConnectEvent) => void;

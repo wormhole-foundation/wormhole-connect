@@ -6,6 +6,7 @@ import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 import { buildConfig } from './config';
 import type { WormholeConnectConfig } from './config/types';
+import type { WormholeConnectEvent } from './telemetry/types';
 
 // Routes
 import { DEFAULT_ROUTES, nttRoutes } from './routes/operator';
@@ -45,6 +46,7 @@ export {
   WormholeConnectConfig,
   Chain,
   WormholeConnectTheme,
+  WormholeConnectEvent,
 
   // Routes
   DEFAULT_ROUTES,
