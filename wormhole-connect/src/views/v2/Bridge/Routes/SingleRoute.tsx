@@ -377,15 +377,16 @@ const SingleRoute = (props: Props) => {
   // 1- If no action handler provided, fall back to default
   // 2- Otherwise there is an action handler, "pointer"
   const cursor = useMemo(() => {
-    if (typeof props.onSelect !== 'function') {
-      return 'auto';
+    if (props.isSelected || typeof props.onSelect !== 'function') {
+      return 'default';
     }
+
     if (props.error) {
       return 'not-allowed';
     }
 
     return 'pointer';
-  }, [props.onSelect, props.error]);
+  }, [props.error, props.isSelected, props.onSelect]);
 
   if (isEmptyObject(props.route)) {
     return <></>;
@@ -419,7 +420,6 @@ const SingleRoute = (props: Props) => {
           borderColor: props.isSelected
             ? theme.palette.primary.main
             : 'transparent',
-          cursor,
           opacity: 1,
         }}
       >
@@ -428,6 +428,7 @@ const SingleRoute = (props: Props) => {
             typeof props.onSelect !== 'function' || props.error !== undefined
           }
           disableTouchRipple
+          sx={{ cursor }}
           onClick={() => {
             props.onSelect?.(props.route.name);
           }}
