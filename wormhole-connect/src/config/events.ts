@@ -1,15 +1,16 @@
 import { CONNECT_VERSION, CONNECT_GIT_HASH } from './constants';
 import {
-  WormholeConnectEvent,
+  WormholeConnectEventCore,
   WormholeConnectEventHandler,
-  WormholeConnectEventWithMeta,
+  WormholeConnectEvent,
+  TriggerEventHandler,
 } from 'telemetry/types';
 
 export function wrapEventHandler(
   integrationHandler?: WormholeConnectEventHandler,
-): WormholeConnectEventHandler {
-  return function (event: WormholeConnectEvent) {
-    const eventWithMeta: WormholeConnectEventWithMeta = {
+): TriggerEventHandler {
+  return function (event: WormholeConnectEventCore) {
+    const eventWithMeta: WormholeConnectEvent = {
       meta: {
         version: CONNECT_VERSION,
         hash: CONNECT_GIT_HASH,

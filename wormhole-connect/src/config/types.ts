@@ -15,7 +15,11 @@ import {
   TokenAddress as TokenAddressV2,
 } from '@wormhole-foundation/sdk';
 
-import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
+import {
+  TransferDetails,
+  TriggerEventHandler,
+  WormholeConnectEventHandler,
+} from 'telemetry/types';
 import { SDKConverter } from './converter';
 
 import { routes } from '@wormhole-foundation/sdk';
@@ -143,7 +147,7 @@ export interface InternalConfig<N extends Network> {
   routes: RouteOperator;
 
   // Callbacks
-  triggerEvent: WormholeConnectEventHandler;
+  triggerEvent: TriggerEventHandler;
   validateTransfer?: ValidateTransferHandler;
   isRouteSupportedHandler?: IsRouteSupportedHandler;
 
