@@ -2,8 +2,6 @@ import WormholeConnect from './WormholeConnect';
 
 import type { WormholeConnectTheme } from './theme';
 
-import { dark, light } from './theme';
-
 import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 import { buildConfig } from './config';
@@ -47,8 +45,6 @@ export {
   WormholeConnectConfig,
   Chain,
   WormholeConnectTheme,
-  dark,
-  light,
 
   // Routes
   DEFAULT_ROUTES,
