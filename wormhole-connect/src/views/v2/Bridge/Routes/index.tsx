@@ -33,7 +33,6 @@ const useStyles = makeStyles()((theme: any) => ({
   otherRoutesToggle: {
     display: 'block',
     width: '100%',
-    marginTop: '8px',
     textAlign: 'center',
     fontSize: 14,
     color: theme.palette.primary.main,

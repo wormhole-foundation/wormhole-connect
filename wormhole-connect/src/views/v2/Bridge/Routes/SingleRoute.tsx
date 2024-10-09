@@ -33,6 +33,7 @@ const useStyles = makeStyles()((theme: any) => ({
   container: {
     width: '100%',
     maxWidth: '420px',
+    marginBottom: '8px',
   },
   card: {
     width: '100%',
