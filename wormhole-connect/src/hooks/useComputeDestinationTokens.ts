@@ -32,7 +32,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
       return;
     }
 
-    let canceled = false;
+    let active = true;
 
     const computeDestTokens = async () => {
       let supported: Array<TokenConfig> = [];
@@ -55,7 +55,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
       // Done fetching and setting all supported tokens
       setIsFetching(false);
 
-      if (!canceled && destChain && destToken !== '') {
+      if (active && destChain && destToken !== '') {
         // check if the pre selected destToken is supported
         const isTokenSupported = supported.some((t) => t.key == destToken);
         if (!isTokenSupported) {
@@ -63,7 +63,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
           dispatch(setDestToken(''));
         }
       } else if (destChain && supported.length === 1) {
-        if (!canceled) {
+        if (active) {
           dispatch(setDestToken(supported[0].key));
         }
       }
@@ -82,7 +82,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
             t.nativeChain === t.tokenId?.chain &&
             t.nativeChain === destChain,
         )?.key;
-        if (!canceled && key) {
+        if (active && key) {
           dispatch(setDestToken(key));
         }
       }
@@ -91,7 +91,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
     computeDestTokens();
 
     return () => {
-      canceled = true;
+      active = false;
     };
   }, [sourceToken, sourceChain, destChain, dispatch]);
 
