@@ -29,6 +29,7 @@ export interface DefaultInputs {
   tokenKey?: string;
   toTokenKey?: string;
   requiredChain?: Chain;
+  preferredRouteName?: string;
 }
 
 export type ExplorerConfig = {
