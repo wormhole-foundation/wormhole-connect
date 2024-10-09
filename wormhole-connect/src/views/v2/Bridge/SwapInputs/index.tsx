@@ -14,7 +14,7 @@ const useStyles = makeStyles()(() => ({
   swapButton: {
     display: 'block',
     position: 'absolute',
-    bottom: -48,
+    bottom: -44,
     left: 'calc(50% - 20px)',
     width: 40,
     height: 40,

@@ -190,7 +190,10 @@ const AmountInput = (props: Props) => {
         <Typography variant="body2">Amount</Typography>
       </div>
       <Card variant="elevation">
-        <CardContent className={classes.amountCardContent}>
+        <CardContent
+          className={classes.amountCardContent}
+          style={{ paddingBottom: '16px' }}
+        >
           <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}

@@ -66,6 +66,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  ctaContainer: {
+    marginTop: '8px',
+    width: '100%',
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -82,6 +86,7 @@ const useStyles = makeStyles()((theme) => ({
   reviewTransaction: {
     padding: '8px 16px',
     borderRadius: '8px',
+    height: '48px',
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
@@ -89,7 +94,7 @@ const useStyles = makeStyles()((theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '8px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -479,8 +484,11 @@ const Bridge = () => {
         isLoading={isFetchingQuotes || isFetchingBalances}
         hasError={hasError}
       />
-      {walletConnector}
-      {showReviewTransactionButton ? reviewTransactionButton : null}
+      <span className={classes.ctaContainer}>
+        {showReviewTransactionButton
+          ? reviewTransactionButton
+          : walletConnector}
+      </span>
       {config.ui.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
