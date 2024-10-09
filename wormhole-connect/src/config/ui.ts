@@ -53,22 +53,11 @@ export interface MenuEntry {
   order?: number;
 }
 
-export function createUiConfig(customConfig: Partial<UiConfig>): UiConfig {
+export function createUiConfig(customConfig: UiConfig): UiConfig {
   return {
-    title: customConfig?.title ?? 'Wormhole Connect',
-    cta: customConfig?.cta,
-    explorer: customConfig?.explorer,
-    defaultInputs: customConfig?.defaultInputs,
-    pageHeader: customConfig?.pageHeader,
-    menu: customConfig?.menu ?? [],
-    getHelpUrl: customConfig?.getHelpUrl,
-    searchTx: customConfig?.searchTx,
-    partnerLogo: customConfig?.partnerLogo,
+    ...customConfig,
     walletConnectProjectId:
       customConfig?.walletConnectProjectId ??
       import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
-    showHamburgerMenu: customConfig?.showHamburgerMenu ?? false,
-    previewMode: !!customConfig?.previewMode,
-    showInProgressWidget: !!customConfig?.showInProgressWidget,
   };
 }
