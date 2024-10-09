@@ -120,6 +120,11 @@ const ReviewTransaction = (props: Props) => {
   const send = async () => {
     setSendError(undefined);
 
+    if (config.ui.previewMode) {
+      setSendError('Connect is in preview mode');
+      return;
+    }
+
     // Pre-check of required values
     if (
       !sourceChain ||

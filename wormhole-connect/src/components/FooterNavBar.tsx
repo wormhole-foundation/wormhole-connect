@@ -59,7 +59,7 @@ export default function FooterNavBar() {
     [dispatch],
   );
 
-  const entries = config.ui.menu.reduce(
+  const entries = (config.ui?.menu ?? []).reduce(
     itemAppender,
     defaultMenuItems(navigate),
   );
