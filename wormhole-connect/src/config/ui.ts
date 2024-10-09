@@ -2,7 +2,7 @@ import { Chain } from '@wormhole-foundation/sdk';
 import { Alignment } from 'components/Header';
 
 export type UiConfig = {
-  title: string;
+  title?: string;
   cta?: {
     text: string;
     link: string;
@@ -10,11 +10,11 @@ export type UiConfig = {
   explorer?: ExplorerConfig;
   defaultInputs?: DefaultInputs;
   pageHeader?: string | PageHeader;
-  menu: MenuEntry[];
+  menu?: MenuEntry[];
   searchTx?: SearchTxConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
-  showHamburgerMenu: boolean;
+  showHamburgerMenu?: boolean;
   previewMode?: boolean; // Disables making transfers
 
   getHelpUrl?: string;
