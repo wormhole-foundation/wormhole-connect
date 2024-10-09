@@ -42,7 +42,10 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e) => {
-        const numValue = Number(e.target.value);
+        let value = e.target.value;
+        if (value === '.') value = '0.';
+
+        const numValue = Number(value);
 
         if (isNaN(numValue) || numValue < 0) {
           // allows all but negative numbers
