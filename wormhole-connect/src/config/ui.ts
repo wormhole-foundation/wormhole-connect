@@ -27,6 +27,7 @@ export interface DefaultInputs {
   fromChain?: Chain;
   toChain?: Chain;
   tokenKey?: string;
+  toTokenKey?: string;
   requiredChain?: Chain;
 }
 
