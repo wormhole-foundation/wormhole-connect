@@ -158,7 +158,7 @@ function getInitialState(): TransferInputState {
     fromChain: config.ui.defaultInputs?.fromChain || undefined,
     toChain: config.ui.defaultInputs?.toChain || undefined,
     token: config.ui.defaultInputs?.tokenKey || '',
-    destToken: config.ui.defaultInputs?.tokenKey || '',
+    destToken: config.ui.defaultInputs?.toTokenKey || '',
     amount: '',
     receiveAmount: getEmptyDataWrapper(),
     preferredRouteName: undefined,

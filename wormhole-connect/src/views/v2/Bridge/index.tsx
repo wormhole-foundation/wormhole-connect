@@ -152,6 +152,7 @@ const Bridge = () => {
       sourceChain,
       destChain,
       sourceToken,
+      destToken,
       route: selectedRoute,
     });
 
