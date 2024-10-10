@@ -71,6 +71,9 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     maxWidth: '420px',
   },
+  amountCard: {
+    borderRadius: '8px',
+  },
   amountCardContent: {
     display: 'flex',
     alignItems: 'center',
@@ -189,8 +192,11 @@ const AmountInput = (props: Props) => {
       <div className={classes.amountTitle}>
         <Typography variant="body2">Amount</Typography>
       </div>
-      <Card variant="elevation">
-        <CardContent className={classes.amountCardContent}>
+      <Card className={classes.amountCard} variant="elevation">
+        <CardContent
+          className={classes.amountCardContent}
+          style={{ paddingBottom: '16px' }}
+        >
           <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}

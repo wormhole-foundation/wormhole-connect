@@ -17,11 +17,11 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
 type Props = {
   name?: string;
   icon?: string;
-  height?: number;
+  size?: number;
 };
 
 function WalletIcon(props: Props) {
-  const size = props.height || 32;
+  const size = props.size || 32;
   const { classes } = useStyles({ size });
 
   const { icon, name } = props;

@@ -25,8 +25,9 @@ const useStyles = makeStyles()((theme: any) => ({
     backgroundColor: theme.palette.button.primary,
     cursor: 'not-allowed',
     opacity: 0.7,
-    margin: 'auto',
+    marginTop: '16px',
     maxWidth: '420px',
+    height: '48px',
     width: '100%',
   },
   otherRoutesToggle: {
@@ -34,7 +35,7 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
     textAlign: 'center',
     fontSize: 14,
-    color: theme.palette.primary.main,
+    color: theme.palette.text.secondary,
     textDecoration: 'none',
     cursor: 'pointer',
     '&:hover': {

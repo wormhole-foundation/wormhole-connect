@@ -154,7 +154,7 @@ const AssetPicker = (props: Props) => {
 
     return (
       <div>
-        <Typography component={'div'} fontSize={16}>
+        <Typography component={'div'} fontSize={16} fontWeight={700}>
           {tokenConfig?.symbol || 'Select token'}
         </Typography>
         <Typography component={'div'} fontSize={12}>

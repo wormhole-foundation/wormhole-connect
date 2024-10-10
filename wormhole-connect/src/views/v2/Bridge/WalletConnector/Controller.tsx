@@ -30,9 +30,9 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '8px 0 4px 16px',
     borderRadius: '8px',
     cursor: 'pointer',
+    paddingTop: '2px',
     opacity: 1.0,
   },
   walletAddress: {
@@ -117,7 +117,7 @@ const ConnectedWallet = (props: Props) => {
   return (
     <>
       <div className={classes.connectWallet} {...bindTrigger(popupState)}>
-        <WalletIcons name={wallet.name} icon={wallet.icon} height={20} />
+        <WalletIcons name={wallet.name} icon={wallet.icon} size={20} />
         <Tooltip title="Copied" open={isCopied} placement="top" arrow>
           <Typography
             className={classes.walletAddress}
