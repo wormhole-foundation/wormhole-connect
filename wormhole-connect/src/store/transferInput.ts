@@ -161,7 +161,7 @@ function getInitialState(): TransferInputState {
     destToken: config.ui.defaultInputs?.toTokenKey || '',
     amount: '',
     receiveAmount: getEmptyDataWrapper(),
-    preferredRouteName: undefined,
+    preferredRouteName: config.ui.defaultInputs?.preferredRouteName,
     route: undefined,
     balances: {},
     foreignAsset: '',
