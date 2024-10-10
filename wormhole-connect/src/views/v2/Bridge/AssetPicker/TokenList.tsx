@@ -221,7 +221,9 @@ const TokenList = (props: Props) => {
 
         const queryLC = query.toLowerCase();
 
-        const symbolMatch = token.symbol?.toLowerCase().includes(queryLC);
+        const symbolMatch = [token.symbol, token.coinGeckoId].some((criteria) =>
+          criteria?.toLowerCase()?.includes?.(queryLC),
+        );
         if (symbolMatch) return true;
 
         const displayNameMatch = getDisplayName(token, chain)
