@@ -25,8 +25,15 @@ type HookReturn = {
 };
 
 export const useSortedRoutesWithQuotes = (): HookReturn => {
-  const { amount, routeStates, fromChain, token, toChain, destToken } =
-    useSelector((state: RootState) => state.transferInput);
+  const {
+    amount,
+    routeStates,
+    fromChain,
+    token,
+    toChain,
+    destToken,
+    preferredRouteName,
+  } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const supportedRoutes = useMemo(
@@ -78,6 +85,16 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
     return [...routesWithQuotes].sort((routeA, routeB) => {
       const routeConfigA = config.routes.get(routeA.route.name);
       const routeConfigB = config.routes.get(routeB.route.name);
+
+      // Prioritize preferred route to avoid flickering the UI
+      // when the preferred route gets autoselected
+      if (preferredRouteName) {
+        if (routeA.route.name === preferredRouteName) {
+          return -1;
+        } else if (routeB.route.name === preferredRouteName) {
+          return 1;
+        }
+      }
 
       // 1. Prioritize automatic routes
       if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {

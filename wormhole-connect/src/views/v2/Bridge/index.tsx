@@ -171,7 +171,7 @@ const Bridge = () => {
         (route) => route.route.name === preferredRouteName,
       );
       const autoselectedRoute =
-        preferredRoute?.route.name ?? route ?? validRoutes[0].route.name;
+        route ?? validRoutes[0].route.name ?? preferredRoute?.route.name;
       const isSelectedRouteValid =
         validRoutes.findIndex((r) => r.route.name === selectedRoute) > -1;
 
