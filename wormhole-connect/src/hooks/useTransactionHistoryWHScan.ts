@@ -115,14 +115,21 @@ const useTransactionHistoryWHScan = (
 
     const tokenChain = chainIdToChain(tokenChainId);
 
-    const tokenConfig = getTokenById({
+    let tokenConfig = getTokenById({
       chain: tokenChain,
       address: standarizedProperties.tokenAddress,
     });
 
-    // Skip if we don't have the source token
     if (!tokenConfig) {
-      return;
+      // IMPORTANT:
+      // If we don't have the token config from the token address,
+      // we can check if we can use the symbol to get it.
+      // So far this case is only for SUI and APT
+      if (data?.symbol && config.tokens[data.symbol]) {
+        tokenConfig = config.tokens[data.symbol];
+      } else {
+        return;
+      }
     }
 
     const toChain = chainIdToChain(toChainId) as Chain;
