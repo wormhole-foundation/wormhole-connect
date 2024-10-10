@@ -125,11 +125,7 @@ const WalletSidebar = (props: Props) => {
                 }
               >
                 <ListItemIcon>
-                  <WalletIcon
-                    name={wallet.name}
-                    icon={wallet.icon}
-                    height={32}
-                  />
+                  <WalletIcon name={wallet.name} icon={wallet.icon} />
                 </ListItemIcon>
                 <Typography component="div" fontSize={14}>
                   <div className={`${!wallet.isReady && classes.notInstalled}`}>

@@ -36,6 +36,7 @@ const useStyles = makeStyles()((theme: any) => ({
     marginBottom: '8px',
   },
   card: {
+    borderRadius: '8px',
     width: '100%',
     maxWidth: '420px',
   },
