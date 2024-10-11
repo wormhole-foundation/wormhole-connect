@@ -298,6 +298,19 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#35D07E',
     decimals: 18,
   },
+  USDTcelo: {
+    key: 'USDTcelo',
+    symbol: 'USDT',
+    nativeChain: 'Celo',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'Celo',
+      address: '0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
+  },
   GLMR: {
     key: 'GLMR',
     symbol: 'GLMR',

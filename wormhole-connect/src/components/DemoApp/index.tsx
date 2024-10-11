@@ -60,6 +60,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.CCTPRoute = routes.CCTPRoute;
       /* @ts-ignore */
+      window.AutomaticPorticoRoute = routes.AutomaticPorticoRoute;
+      /* @ts-ignore */
       window.MayanRoute = MayanRoute;
       /* @ts-ignore */
       window.MayanRouteWH = MayanRouteWH;
@@ -203,6 +205,10 @@ function DemoApp() {
               </li>
               <li>
                 <pre>CCTPRoute</pre>
+                <i>{'RouteConstructor'}</i>
+              </li>
+              <li>
+                <pre>AutomaticPorticoRoute</pre>
                 <i>{'RouteConstructor'}</i>
               </li>
               <li>
