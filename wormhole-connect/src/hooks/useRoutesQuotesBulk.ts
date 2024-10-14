@@ -121,9 +121,8 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     [routes.join(), quotes],
   );
 
-  // Here we filter out bad quotes (price protection)
-  // For transfers >=$1000, we hide quotes with >=10% value loss
-  // For <=$1000, we hide quotes with >=$100 loss
+  // Filter out quotes that would result in a large instant loss
+  // (Transfers >=$1000 with >=10% value loss)
   for (const name in quotesMap) {
     const quote = quotesMap[name]!;
     if (quote !== undefined && quote.success) {
@@ -136,7 +135,6 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       if (usdValue && usdValueOut) {
         const valueRatio = usdValueOut / usdValue;
         if (usdValue >= 1000 && valueRatio <= 0.9) {
-          // Don't offer quotes where the user would get 90% or less of the input amount
           delete quotesMap[name];
         }
       }
