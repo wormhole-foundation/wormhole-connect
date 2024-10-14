@@ -124,7 +124,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   // Filter out quotes that would result in a large instant loss
   // (Transfers >=$1000 with >=10% value loss)
   for (const name in quotesMap) {
-    const quote = quotesMap[name]!;
+    const quote = quotesMap[name];
     if (quote !== undefined && quote.success) {
       const usdValueOut = calculateUSDPriceRaw(
         amount.whole(quote.destinationToken.amount),
