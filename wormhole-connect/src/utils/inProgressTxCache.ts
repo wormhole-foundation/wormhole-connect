@@ -3,6 +3,12 @@ import { TransactionLocal } from 'config/types';
 const LOCAL_STORAGE_KEY = 'wormhole-connect:transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
 
+// Bigint types cannot be serialized to a string
+// That's why we need to provide a replacer function to handle it separately
+// Please see for details: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/BigInt_not_serializable
+const JSONReplacer = (_, value: any) =>
+  typeof value === 'bigint' ? value.toString() : value;
+
 // Retrieves all in-progress transactions from localStorage
 export const getTxsFromLocalStorage = ():
   | Array<TransactionLocal>
@@ -51,7 +57,7 @@ export const addTxToLocalStorage = (
   }
 
   // Update the list
-  ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList));
+  ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList, JSONReplacer));
 };
 
 // Removes a transaction from localStorage
@@ -65,7 +71,7 @@ export const removeTxFromLocalStorage = (txHash: string) => {
     if (removeIndex > -1) {
       // remove the item and update localStorage
       items.splice(removeIndex, 1);
-      ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+      ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items, JSONReplacer));
     }
   }
 };

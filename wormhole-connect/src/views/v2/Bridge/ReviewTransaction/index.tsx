@@ -246,8 +246,24 @@ const ReviewTransaction = (props: Props) => {
         };
       }
 
+      const txTimestamp = Date.now();
+
+      // Add the new transaction to local storage
+      addTxToLocalStorage({
+        txHash: txId,
+        amount,
+        tokenKey: sourceTokenConfig.key,
+        sourceChain: receipt.from,
+        destChain: receipt.to,
+        timestamp: txTimestamp,
+        eta: quote.eta || 0,
+        explorerInfo: getExplorerInfo(sdkRoute, txId),
+        receipt,
+        route,
+      });
+
       // Set the start time of the transaction
-      dispatch(setTimestamp(Date.now()));
+      dispatch(setTimestamp(txTimestamp));
 
       // TODO: SDKV2 set the tx details using on-chain data
       // because they might be different than what we have in memory (relayer fee)
@@ -277,17 +293,6 @@ const ReviewTransaction = (props: Props) => {
           eta: quote.eta || 0,
         }),
       );
-
-      // Add the new transaction to local storage
-      addTxToLocalStorage({
-        txHash: txId,
-        amount,
-        tokenKey: sourceTokenConfig.key,
-        sourceChain: receipt.from,
-        destChain: receipt.to,
-        eta: quote.eta || 0,
-        explorerInfo: getExplorerInfo(sdkRoute, txId),
-      });
 
       // Reset the amount for a successful transaction
       dispatch(setAmount(''));

@@ -13,6 +13,7 @@ import {
   Wormhole as WormholeV2,
   Chain,
   TokenAddress as TokenAddressV2,
+  AttestationReceipt,
 } from '@wormhole-foundation/sdk';
 
 import {
@@ -305,10 +306,13 @@ export interface TransactionLocal {
   tokenKey: string;
   sourceChain: string;
   destChain: string;
+  timestamp: number;
   eta: number;
   explorerInfo: {
     name: string;
     url: string;
     apiUrl: string;
   };
+  route: string;
+  receipt: routes.Receipt<AttestationReceipt>;
 }
