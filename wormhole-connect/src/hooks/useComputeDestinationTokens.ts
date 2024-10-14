@@ -11,7 +11,6 @@ import { Chain } from '@wormhole-foundation/sdk';
 type Props = {
   sourceChain: Chain | undefined;
   sourceToken: string;
-  destToken: string;
   destChain: Chain | undefined;
   route?: string;
 };
@@ -21,7 +20,7 @@ type ReturnProps = {
 };
 
 const useComputeDestinationTokens = (props: Props): ReturnProps => {
-  const { sourceChain, destChain, sourceToken, destToken } = props;
+  const { sourceChain, destChain, sourceToken } = props;
 
   const dispatch = useDispatch();
 
@@ -55,14 +54,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
       // Done fetching and setting all supported tokens
       setIsFetching(false);
 
-      if (active && destChain && destToken !== '') {
-        // check if the pre selected destToken is supported
-        const isTokenSupported = supported.some((t) => t.key == destToken);
-        if (!isTokenSupported) {
-          // if not, clear the destToken
-          dispatch(setDestToken(''));
-        }
-      } else if (destChain && supported.length === 1) {
+      if (destChain && supported.length === 1) {
         if (active) {
           dispatch(setDestToken(supported[0].key));
         }

@@ -153,7 +153,6 @@ const Bridge = () => {
       sourceChain,
       destChain,
       sourceToken,
-      destToken,
       route: selectedRoute,
     });
 
@@ -171,7 +170,7 @@ const Bridge = () => {
         (route) => route.route.name === preferredRouteName,
       );
       const autoselectedRoute =
-        route ?? validRoutes[0].route.name ?? preferredRoute?.route.name;
+        route ?? preferredRoute?.route.name ?? validRoutes[0].route.name;
       const isSelectedRouteValid =
         validRoutes.findIndex((r) => r.route.name === selectedRoute) > -1;
 
