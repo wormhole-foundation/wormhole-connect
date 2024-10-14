@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { WormholeConnectConfig } from './config/types';
 import { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
+import { WalletManagerProvider } from 'utils/wallet/wallet-manager';
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
@@ -34,7 +35,9 @@ export default function WormholeConnect({
         <ScopedCssBaseline enableColorScheme>
           <ErrorBoundary>
             <RouteProvider>
-              <AppRouter config={config} />
+              <WalletManagerProvider>
+                <AppRouter config={config} />
+              </WalletManagerProvider>
             </RouteProvider>
           </ErrorBoundary>
         </ScopedCssBaseline>

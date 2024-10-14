@@ -59,6 +59,7 @@ const resolve = {
     views: path.resolve(__dirname, './src/views'),
     'process/': 'process',
     'buffer/': 'buffer',
+    'buffer/index.js': 'buffer',
   },
 };
 
