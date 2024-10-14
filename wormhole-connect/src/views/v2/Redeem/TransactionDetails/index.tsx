@@ -75,7 +75,6 @@ const TransactionDetails = () => {
       amount,
       tokenPrices.data,
       sourceTokenConfig,
-      true,
     );
 
     const senderAddress = sender ? trimAddress(sender) : '';
@@ -127,7 +126,6 @@ const TransactionDetails = () => {
       receiveAmount,
       tokenPrices.data,
       destTokenConfig,
-      true,
     );
 
     const recipientAddress = recipient ? trimAddress(recipient) : '';
@@ -190,7 +188,6 @@ const TransactionDetails = () => {
       relayerFee.fee,
       tokenPrices.data,
       feeTokenConfig,
-      true,
     );
 
     if (!feePrice) {
@@ -234,7 +231,6 @@ const TransactionDetails = () => {
       receiveNativeAmount,
       tokenPrices.data,
       config.tokens[destChainConfig.gasToken],
-      true,
     );
 
     return (

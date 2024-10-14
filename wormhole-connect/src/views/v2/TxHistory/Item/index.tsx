@@ -84,7 +84,7 @@ const TxHistoryItem = (props: Props) => {
             {amount} {sourceTokenConfig?.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {`${getUSDFormat(amountUsd, true)} \u2022 ${
+            {`${getUSDFormat(amountUsd)} \u2022 ${
               sourceChainConfig?.displayName
             }`}
           </Typography>
@@ -104,7 +104,6 @@ const TxHistoryItem = (props: Props) => {
       receiveAmount,
       props.tokenPrices,
       destTokenConfig,
-      true,
     );
 
     const receiveAmountDisplay = receiveAmountPrice

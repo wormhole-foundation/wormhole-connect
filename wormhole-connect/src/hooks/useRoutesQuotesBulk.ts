@@ -43,16 +43,17 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
 
   // TODO temporary
-  // Calculate USD amount for temporary $1000 Mayan limit
-  const tokenConfig = config.tokens[params.sourceToken];
+  // Calculate USD amount for temporary $10,000 Mayan limit
+  const sourceTokenConfig = config.tokens[params.sourceToken];
+  const destTokenConfig = config.tokens[params.destToken];
   const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
   const { isTransactionInProgress } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const usdAmount = calculateUSDPriceRaw(
+  const usdValue = calculateUSDPriceRaw(
     params.amount,
     usdPrices.data,
-    tokenConfig,
+    sourceTokenConfig,
   );
 
   useEffect(() => {
@@ -120,6 +121,28 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     [routes.join(), quotes],
   );
 
+  // Here we filter out bad quotes (price protection)
+  // For transfers >=$1000, we hide quotes with >=10% value loss
+  // For <=$1000, we hide quotes with >=$100 loss
+  for (const name in quotesMap) {
+    const quote = quotesMap[name]!;
+    if (quote !== undefined && quote.success) {
+      const usdValueOut = calculateUSDPriceRaw(
+        amount.whole(quote.destinationToken.amount),
+        usdPrices.data,
+        destTokenConfig,
+      );
+
+      if (usdValue && usdValueOut) {
+        const valueRatio = usdValueOut / usdValue;
+        if (usdValue >= 1000 && valueRatio <= 0.9) {
+          // Don't offer quotes where the user would get 90% or less of the input amount
+          delete quotesMap[name];
+        }
+      }
+    }
+  }
+
   // TODO temporary logic for beta Mayan support
   for (const name in quotesMap) {
     if (name.startsWith('MayanSwap')) {
@@ -132,14 +155,14 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       ) {
         // There are two special cases here for Mayan Swift transfers
         //
-        // 1) Disallow transfers >$1000 (temporary, while in beta)
-        // 2) For transfers <=$1000, calculate network costs manually, because Mayan API doesn't
+        // 1) Disallow transfers >$10,000 (temporary, while in beta)
+        // 2) For transfers <=$10,000, calculate network costs manually, because Mayan API doesn't
         //    expose relayer fee info for Swift quotes.
         //
         // TODO all of the code here is horrible and would ideally not exist
 
-        if (usdAmount !== undefined && usdAmount > MAYAN_BETA_LIMIT) {
-          // Temporarily disallow Swift quotes above $1000
+        if (usdValue !== undefined && usdValue > MAYAN_BETA_LIMIT) {
+          // Temporarily disallow Swift quotes above $10,000
           // TODO revisit this
           quotesMap[name] = {
             success: false,
@@ -151,7 +174,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
           const approxInputUsdValue = calculateUSDPriceRaw(
             params.amount,
             usdPrices.data,
-            tokenConfig,
+            sourceTokenConfig,
           );
           const approxOutputUsdValue = calculateUSDPriceRaw(
             amount.display(mayanQuote.destinationToken.amount),
