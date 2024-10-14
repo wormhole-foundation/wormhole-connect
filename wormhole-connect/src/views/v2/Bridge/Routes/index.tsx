@@ -63,13 +63,13 @@ const Routes = ({ ...props }: Props) => {
     (state: RootState) => state.wallet,
   );
 
-  const supportedRoutes = useMemo(() => {
-    if (!props.routes) {
-      return [];
-    }
+  const routes = useMemo(() => {
+    return props.routes.filter((rs) => props.quotes[rs.name] !== undefined);
+  }, [props.routes, props.quotes]);
 
-    return props.routes.filter((rs) => rs.supported);
-  }, [props.routes]);
+  const supportedRoutes = useMemo(() => {
+    return routes.filter((rs) => rs.supported);
+  }, [routes]);
 
   const walletsConnected = useMemo(
     () => !!sendingWallet.address && !!receivingWallet.address,
@@ -78,18 +78,18 @@ const Routes = ({ ...props }: Props) => {
 
   const renderRoutes = useMemo(() => {
     if (showAll) {
-      return props.routes;
+      return routes;
     }
 
-    const selectedRoute = props.routes.find(
+    const selectedRoute = routes.find(
       (route) => route.name === props.selectedRoute,
     );
 
-    return selectedRoute ? [selectedRoute] : props.routes.slice(0, 1);
-  }, [showAll, props.routes]);
+    return selectedRoute ? [selectedRoute] : routes.slice(0, 1);
+  }, [showAll, routes]);
 
   const fastestRoute = useMemo(() => {
-    return props.routes.reduce(
+    return routes.reduce(
       (fastest, route) => {
         const quote = props.quotes[route.name];
         if (!quote || !quote.success) return fastest;
@@ -109,7 +109,7 @@ const Routes = ({ ...props }: Props) => {
   }, [routes, props.quotes]);
 
   const cheapestRoute = useMemo(() => {
-    return props.routes.reduce(
+    return routes.reduce(
       (cheapest, route) => {
         const quote = props.quotes[route.name];
         const rc = config.routes.get(route.name);
@@ -127,15 +127,6 @@ const Routes = ({ ...props }: Props) => {
     );
   }, [routes, props.quotes]);
 
-  if (walletsConnected && supportedRoutes.length === 0 && Number(amount) > 0) {
-    // Errors are displayed in AmountInput
-    return;
-  }
-
-  if (supportedRoutes.length === 0 || !walletsConnected || props.hasError) {
-    return null;
-  }
-
   if (walletsConnected && !(Number(amount) > 0)) {
     return (
       <Tooltip title="Please enter the amount to view available routes">
@@ -144,6 +135,10 @@ const Routes = ({ ...props }: Props) => {
         </div>
       </Tooltip>
     );
+  }
+
+  if (props.hasError) {
+    return null;
   }
 
   return (
@@ -195,7 +190,7 @@ const Routes = ({ ...props }: Props) => {
         })
       )}
 
-      {props.routes.length > 1 && (
+      {routes.length > 1 && (
         <Link
           onClick={() => setShowAll((prev) => !prev)}
           className={classes.otherRoutesToggle}

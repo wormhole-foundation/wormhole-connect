@@ -393,17 +393,19 @@ const SingleRoute = (props: Props) => {
       return null;
     }
 
-    const receiveAmountPrice = calculateUSDPrice(
+    let usdValue = calculateUSDPrice(
       receiveAmount,
       tokenPrices.data,
       destTokenConfig,
     );
 
+    if (usdValue !== '') usdValue = `(${usdValue})`;
+
     return (
       <Typography
         fontSize={14}
         color={theme.palette.text.secondary}
-      >{`(${receiveAmountPrice}) ${providerText}`}</Typography>
+      >{`${usdValue} ${providerText}`}</Typography>
     );
   }, [destTokenConfig, providerText, receiveAmount, tokenPrices]);
 
