@@ -11,9 +11,9 @@ const TRACK_INTERVAL_FAST = 1000;
 const TRACK_TIMEOUT = 120 * 1000;
 
 type Props = {
-  eta: number;
   route: string;
   receipt: routes.Receipt<AttestationReceipt>;
+  eta?: number;
 };
 
 type ReturnProps = {

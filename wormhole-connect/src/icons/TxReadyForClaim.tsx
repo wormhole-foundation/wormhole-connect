@@ -10,8 +10,8 @@ const TxReadyForClaimIcon = createSvgIcon(
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       fill="currentColor"
       d="M53.2,105.5c29,0,52.6-23.5,52.6-52.5S82.2.5,53.2.5.6,24,.6,53s23.5,52.5,52.6,52.5ZM53.2,102.1c27.2,0,49.2-22,49.2-49.1S80.4,3.9,53.2,3.9,4,25.9,4,53s22,49.1,49.2,49.1Z"
     />
