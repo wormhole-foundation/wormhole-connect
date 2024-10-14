@@ -290,13 +290,21 @@ export const getTokenPrice = (
 };
 
 export const getUSDFormat = (price: number | undefined): string => {
-  if (typeof price !== 'undefined') {
-    return `${price > 0 ? '~' : ''}${Intl.NumberFormat('en-EN', {
+  if (typeof price === 'undefined') {
+    return '';
+  }
+
+  if (price === 0) {
+    return '$0';
+  }
+
+  return (
+    '~' +
+    Intl.NumberFormat('en-EN', {
       style: 'currency',
       currency: 'USD',
-    }).format(price)}`;
-  }
-  return '';
+    }).format(price)
+  );
 };
 
 export const calculateUSDPriceRaw = (
