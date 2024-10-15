@@ -58,7 +58,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
   const numAmount = Number.parseFloat(amount);
 
   // Don't show errors when no amount is set or it's loading
-  if (!amount || !numAmount || props.isLoading || props.disabled) {
+  if (!amount || !numAmount || props.disabled) {
     return {};
   }
 
