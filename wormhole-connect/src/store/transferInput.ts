@@ -124,6 +124,7 @@ export interface TransferInputState {
   amount: string;
   receiveAmount: DataWrapper<string>;
   route?: string;
+  preferredRouteName?: string | undefined;
   balances: WalletBalances;
   foreignAsset: string;
   associatedTokenAddress: string;
@@ -157,9 +158,10 @@ function getInitialState(): TransferInputState {
     fromChain: config.ui.defaultInputs?.fromChain || undefined,
     toChain: config.ui.defaultInputs?.toChain || undefined,
     token: config.ui.defaultInputs?.tokenKey || '',
-    destToken: '',
+    destToken: config.ui.defaultInputs?.toTokenKey || '',
     amount: '',
     receiveAmount: getEmptyDataWrapper(),
+    preferredRouteName: config.ui.defaultInputs?.preferredRouteName,
     route: undefined,
     balances: {},
     foreignAsset: '',

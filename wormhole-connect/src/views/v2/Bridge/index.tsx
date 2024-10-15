@@ -126,6 +126,7 @@ const Bridge = () => {
     token: sourceToken,
     destToken,
     route,
+    preferredRouteName,
     routeStates,
     supportedDestTokens: supportedDestTokensBase,
     supportedSourceTokens,
@@ -170,7 +171,11 @@ const Bridge = () => {
     if (validRoutes.length === 0) {
       setSelectedRoute('');
     } else {
-      const autoselectedRoute = route || validRoutes[0].route.name;
+      const preferredRoute = validRoutes.find(
+        (route) => route.route.name === preferredRouteName,
+      );
+      const autoselectedRoute =
+        route ?? preferredRoute?.route.name ?? validRoutes[0].route.name;
       const isSelectedRouteValid =
         validRoutes.findIndex((r) => r.route.name === selectedRoute) > -1;
 
