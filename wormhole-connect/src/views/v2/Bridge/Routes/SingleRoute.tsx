@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
-import { amount, routes } from '@wormhole-foundation/sdk';
+import { amount, routes, Chain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
@@ -262,26 +262,36 @@ const SingleRoute = (props: Props) => {
       );
     }
 
+    // Scan for any warnings that might indicate a risk of transfer delay
+    const maxDelay =
+      quote?.warnings?.reduce((max, warning) => {
+        if (
+          warning.type === 'DestinationCapacityWarning' &&
+          warning.delayDurationSec
+        ) {
+          return Math.max(max, warning.delayDurationSec);
+        } else if (warning.type === 'GovernorLimitWarning') {
+          return Math.max(max, 24 * 60 * 60);
+        } else {
+          return max;
+        }
+      }, 0) || 0;
+
+    if (maxDelay > 0) {
+      messages.push(
+        <TransferDelayWarning
+          chain={destChain}
+          token={config.tokens[destToken].symbol}
+          duration={maxDelay}
+        />,
+      );
+    }
+
     for (const warning of quote?.warnings || []) {
       if (
         warning.type === 'DestinationCapacityWarning' &&
         warning.delayDurationSec
       ) {
-        const symbol = config.tokens[destToken].symbol;
-        const duration = formatDuration(warning.delayDurationSec);
-        messages.push(
-          <div key={`${warning.type}-${warning.delayDurationSec}`}>
-            <Divider flexItem sx={{ marginTop: '8px' }} />
-            <Stack direction="row" alignItems="center">
-              <WarningIcon htmlColor={theme.palette.warning.main} />
-              <Stack sx={{ padding: '16px' }}>
-                <Typography color={theme.palette.warning.main} fontSize={14}>
-                  {`Your transfer to ${destChain} may be delayed due to rate limits set by ${symbol}. If your transfer is delayed, you will need to return after ${duration} to complete the transfer. Please consider this before proceeding.`}
-                </Typography>
-              </Stack>
-            </Stack>
-          </div>,
-        );
       }
     }
 
@@ -455,6 +465,33 @@ const SingleRoute = (props: Props) => {
           </CardContent>
         </CardActionArea>
       </Card>
+    </div>
+  );
+};
+
+const TransferDelayWarning = (props: {
+  token: string;
+  chain?: Chain;
+  duration: number;
+}) => {
+  const theme = useTheme();
+  const duration = formatDuration(props.duration);
+
+  return (
+    <div key="TransferDelayWarning">
+      <Divider flexItem sx={{ marginTop: '8px' }} />
+      <Stack direction="row" alignItems="center">
+        <WarningIcon htmlColor={theme.palette.warning.main} />
+        <Stack sx={{ padding: '16px' }}>
+          <Typography color={theme.palette.warning.main} fontSize={14}>
+            {`Your transfer ${
+              props.chain ? `to ${props.chain} ` : ''
+            }may be delayed due to rate limits set by ${
+              props.token
+            }. If your transfer is delayed, you will need to return after ${duration} to complete the transfer. Please consider this before proceeding.`}
+          </Typography>
+        </Stack>
+      </Stack>
     </div>
   );
 };
