@@ -157,7 +157,7 @@ const WidgetItem = (props: Props) => {
       //   3- we have the remaining eta
       restart(new Date(Date.now() + etaRemaining), true);
     }
-  }, [etaRemaining, isCompleted]);
+  }, [etaRemaining, isCompleted, isRunning]);
 
   if (!transaction) {
     return <></>;
