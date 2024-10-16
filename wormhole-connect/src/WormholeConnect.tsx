@@ -11,6 +11,10 @@ import { WormholeConnectConfig } from './config/types';
 import { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 
+// fixes "styled_default is not a function" error
+// https://github.com/vitejs/vite/issues/12423#issuecomment-2264770378
+import '@mui/material/styles/styled';
+
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
   theme?: WormholeConnectTheme;
