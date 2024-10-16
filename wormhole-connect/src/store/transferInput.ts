@@ -39,12 +39,9 @@ export const formatBalance = (
     return null;
   }
   const decimals = getTokenDecimals(chain, token.tokenId);
-  const balanceNum = amount.whole({
+  return amount.display({
     amount: balance.toString(),
     decimals,
-  });
-  return balanceNum.toLocaleString('en', {
-    maximumFractionDigits: 6,
   });
 };
 
