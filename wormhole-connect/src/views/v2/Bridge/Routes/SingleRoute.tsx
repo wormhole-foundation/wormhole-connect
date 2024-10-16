@@ -140,7 +140,7 @@ const SingleRoute = (props: Props) => {
 
     const feePriceFormatted = getUSDFormat(feePrice);
 
-    let feeValue = `${toFixedDecimals(quote!.relayFee!.toString(), 4)} ${
+    let feeValue = `${amount.display(quote!.relayFee!.amount, 4)} ${
       feeTokenConfig.symbol
     } (${feePriceFormatted})`;
 
