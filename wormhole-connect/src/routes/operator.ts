@@ -346,8 +346,5 @@ class QuoteCacheEntry {
 //   ...nttRoutes({ ... }),
 // ]
 export const nttRoutes = (nc: NttRoute.Config): routes.RouteConstructor[] => {
-  // TODO: REMOVE THIS BEFORE MERGING
-  // SEMVER doesn't work with the -beta.0 suffix, so the portico contracts aren't found!
-  // @ts-ignore
   return [nttManualRoute(nc), nttAutomaticRoute(nc)];
 };
