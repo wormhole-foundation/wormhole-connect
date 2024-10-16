@@ -124,7 +124,7 @@ const AmountInput = (props: Props) => {
   );
 
   const tokenBalance = useMemo(
-    () => balances?.[sourceToken]?.balance || '',
+    () => balances?.[sourceToken]?.balance || '0',
     [balances, sourceToken],
   );
 
@@ -151,12 +151,15 @@ const AmountInput = (props: Props) => {
         {isFetching ? (
           <CircularProgress size={14} />
         ) : (
+          // TODO AMOUNT HACK... fix amount formatting in amount.Amount balance refactor
           <Typography
             fontSize={14}
             textAlign="right"
             className={classes.balance}
           >
-            {tokenBalance}
+            {parseFloat(tokenBalance).toLocaleString('en', {
+              maximumFractionDigits: 6,
+            })}
           </Typography>
         )}
       </Stack>
