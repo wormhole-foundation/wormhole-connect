@@ -18,16 +18,20 @@ export function toDecimals(
   );
 }
 
-export function toFixedDecimals(number: string, numDecimals: number) {
-  if (number === '0.0') {
+export function toFixedDecimals(val: string, numDecimals: number) {
+  if (typeof val !== 'string') {
+    throw new Error('Invalid argument');
+  }
+
+  if (val === '0.0') {
     return '0';
   }
 
-  if (!number.includes('.')) {
-    return number;
+  if (!val.includes('.')) {
+    return val;
   }
 
-  return parseFloat(number).toFixed(numDecimals);
+  return parseFloat(val).toFixed(numDecimals);
 }
 
 // Cache that stores calls to the coingecko API
