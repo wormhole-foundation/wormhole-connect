@@ -1,3 +1,4 @@
+import { circle } from '@wormhole-foundation/sdk';
 import { Icon, TokensConfig, TokenAddressesByChain } from '../types';
 
 export const TESTNET_TOKENS: TokensConfig = {
@@ -177,6 +178,19 @@ export const TESTNET_TOKENS: TokensConfig = {
     coinGeckoId: 'Sui',
     color: '#8457EF',
     decimals: 9,
+  },
+  USDCsui: {
+    key: 'USDCsui',
+    symbol: 'USDC',
+    nativeChain: 'Sui',
+    tokenId: {
+      chain: 'Sui',
+      address: circle.usdcContract.get('Testnet', 'Sui')!,
+    },
+    icon: Icon.USDC,
+    coinGeckoId: 'usd-coin',
+    color: '#8457EF',
+    decimals: 6,
   },
   APT: {
     key: 'APT',
