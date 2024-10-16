@@ -23,6 +23,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
+    marginBottom: '16px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',

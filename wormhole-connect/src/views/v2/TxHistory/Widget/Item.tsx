@@ -16,10 +16,10 @@ import TokenIcon from 'icons/TokenIcons';
 import TxCompleteIcon from 'icons/TxComplete';
 import { toFixedDecimals } from 'utils/balance';
 import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
-import { poll } from 'utils/polling';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 
 import type { TransactionLocal } from 'config/types';
+import useTrackTransferInProgress from 'hooks/useTrackTransferInProgress';
 
 const useStyles = makeStyles()((theme: any) => ({
   arrowIcon: {
@@ -59,10 +59,7 @@ type Props = {
 };
 
 const WidgetItem = (props: Props) => {
-  const [senderTimestamp, setSenderTimestamp] = useState('');
   const [etaExpired, setEtaExpired] = useState(false);
-  const [inProgress, setInProgress] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
 
   const { classes } = useStyles();
 
@@ -74,7 +71,10 @@ const WidgetItem = (props: Props) => {
     amount,
     sourceChain,
     destChain,
+    timestamp,
     tokenKey,
+    receipt,
+    route,
   } = transaction;
 
   // Initialize the countdown
@@ -84,96 +84,39 @@ const WidgetItem = (props: Props) => {
     onExpire: () => setEtaExpired(true),
   });
 
-  // Side-effect to poll the transaction info from the respective API
-  useEffect(() => {
-    if (!transaction) {
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchTransaction = async () => {
-      setIsFetching(true);
-
-      try {
-        const res = await fetch(explorerInfo.apiUrl);
-        const resPayload = await res.json();
-
-        if (!cancelled) {
-          let txInProgress = true;
-          let txSenderTimestamp = '';
-          if (explorerInfo.apiUrl.startsWith(config.mayanApi)) {
-            txInProgress =
-              resPayload?.clientStatus?.toLowerCase() !== 'completed' &&
-              resPayload?.clientStatus?.toLowerCase() !== 'refunded';
-            txSenderTimestamp = resPayload?.initiatedAt;
-          } else {
-            const txData = resPayload?.operations?.[0];
-            if (txData) {
-              txInProgress =
-                txData.sourceChain?.status?.toLowerCase() === 'confirmed' &&
-                txData.targetChain?.status?.toLowerCase() !== 'completed';
-              txSenderTimestamp = txData.sourceChain?.timestamp;
-            }
-          }
-
-          setInProgress(txInProgress);
-          setSenderTimestamp(txSenderTimestamp);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.log(
-            `Error fetching transaction history from Mayan: ${error}`,
-          );
-        }
-      } finally {
-        setIsFetching(false);
-      }
-    };
-
-    poll(fetchTransaction, 5000, () => cancelled || !inProgress);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [explorerInfo.apiUrl]);
+  const { isCompleted } = useTrackTransferInProgress({
+    eta,
+    receipt,
+    route,
+  });
 
   useEffect(() => {
-    if (!inProgress && txHash) {
+    if (isCompleted && txHash) {
       // Remove this transaction from local storage
       removeTxFromLocalStorage(txHash);
     }
-  }, [inProgress, txHash]);
-
-  // Sender time in milliseconds
-  const senderTime = useMemo(() => {
-    if (!senderTimestamp) {
-      return 0;
-    }
-
-    return new Date(senderTimestamp).getTime();
-  }, [senderTimestamp]);
+  }, [isCompleted, txHash]);
 
   // Remaining from the original ETA since the creation of this transaction
   const etaRemaining = useMemo(() => {
-    if (!senderTime) {
+    if (!timestamp) {
       // We need the sender timestamp to be able to calculate the remaining time
       // Otherwise do not render the remaining eta counter
       return 0;
     }
 
-    const timePassed = Date.now() - senderTime;
+    const timePassed = Date.now() - timestamp;
 
     if (eta < timePassed) {
       return 0;
     }
 
     return eta - timePassed;
-  }, [senderTime, eta, totalSeconds]);
+  }, [eta, timestamp, totalSeconds]);
 
   // Displays the countdown
   const etaCountdown = useMemo(() => {
-    if (etaExpired) {
+    if (etaExpired || etaRemaining === 0) {
       return 'Wrapping up...';
     }
 
@@ -182,7 +125,7 @@ const WidgetItem = (props: Props) => {
     }
 
     return <CircularProgress size={16} />;
-  }, [etaExpired, isRunning, minutes, seconds, senderTime, isFetching]);
+  }, [etaExpired, etaRemaining, isRunning, minutes, seconds]);
 
   // A number value between 0-100
   const progressBarValue = useMemo(() => {
@@ -203,18 +146,18 @@ const WidgetItem = (props: Props) => {
     }
 
     return ((eta - etaRemaining) / eta) * 100;
-  }, [eta, etaRemaining, inProgress]);
+  }, [eta, etaRemaining, isCompleted]);
 
   // Start the countdown timer
   useEffect(() => {
-    if (!isRunning && inProgress && etaRemaining) {
+    if (!isRunning && !isCompleted && etaRemaining) {
       // Start only when:
       //   1- the timer hasn't been started yet and
       //   2- transaction is in progress and
       //   3- we have the remaining eta
       restart(new Date(Date.now() + etaRemaining), true);
     }
-  }, [etaRemaining, inProgress]);
+  }, [etaRemaining, isCompleted, isRunning]);
 
   if (!transaction) {
     return <></>;
@@ -237,10 +180,10 @@ const WidgetItem = (props: Props) => {
               justifyContent="space-between"
             >
               <Typography display="flex" justifyContent="space-between">
-                {inProgress ? (
-                  etaCountdown
-                ) : (
+                {isCompleted ? (
                   <TxCompleteIcon className={classes.completedIcon} />
+                ) : (
+                  etaCountdown
                 )}
               </Typography>
               <Stack direction="row" alignItems="center">
@@ -264,7 +207,7 @@ const WidgetItem = (props: Props) => {
                 </Box>
               </Stack>
             </Stack>
-            {inProgress && (
+            {!isCompleted && (
               <LinearProgress
                 className={classes.progressBar}
                 variant="determinate"
