@@ -15,6 +15,7 @@ import {
 
 import { RootState } from 'store';
 import { disconnectWallet as disconnectFromStore } from 'store/wallet';
+import { useWalletManager } from 'utils/wallet/wallet-manager';
 import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from 'utils';
 
@@ -22,7 +23,6 @@ import DownIcon from 'icons/Down';
 import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
-import WalletSidebar from './Sidebar';
 import { Tooltip } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -78,7 +78,7 @@ const ConnectedWallet = (props: Props) => {
 
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const { connectWallet: _connectWallet } = useWalletManager();
   const [isCopied, setIsCopied] = useState(false);
 
   const popupState = usePopupState({
@@ -88,8 +88,8 @@ const ConnectedWallet = (props: Props) => {
 
   const connectWallet = useCallback(() => {
     popupState?.close();
-    setIsOpen(true);
-  }, []);
+    _connectWallet(props.type);
+  }, [_connectWallet]);
 
   const copyAddress = useCallback(() => {
     copyTextToClipboard(wallet.address);
@@ -162,13 +162,6 @@ const ConnectedWallet = (props: Props) => {
           </ListItemButton>
         </List>
       </Popover>
-      <WalletSidebar
-        open={isOpen}
-        type={props.type}
-        onClose={() => {
-          setIsOpen(false);
-        }}
-      />
     </>
   );
 };

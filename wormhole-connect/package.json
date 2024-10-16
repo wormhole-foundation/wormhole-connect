@@ -17,11 +17,14 @@
     "dist"
   ],
   "dependencies": {
-    "vite-plugin-checker": "^0.8.0",
     "@coral-xyz/anchor": "^0.29.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",
     "@cosmjs/tendermint-rpc": "^0.31.3",
+    "@dynamic-labs/cosmos": "^3.3.0",
+    "@dynamic-labs/ethereum": "^3.3.0",
+    "@dynamic-labs/sdk-react-core": "^3.3.0",
+    "@dynamic-labs/solana": "^3.3.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@injectivelabs/sdk-ts": "1.10.72",
@@ -72,6 +75,7 @@
     "sha3": "^2.1.4",
     "tss-react": "^4.7.7",
     "use-debounce": "^9.0.4",
+    "vite-plugin-checker": "^0.8.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

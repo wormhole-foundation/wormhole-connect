@@ -28,6 +28,7 @@ import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
+import { useWalletManager } from 'utils/wallet/wallet-manager';
 import { interpretTransferError } from 'utils/errors';
 import { joinClass } from 'utils/style';
 import {
@@ -40,7 +41,6 @@ import {
   switchChain,
 } from 'utils/wallet';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
-import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
@@ -131,8 +131,7 @@ const Redeem = () => {
   const [transferSuccessEventFired, setTransferSuccessEventFired] =
     useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
-
-  const [isWalletSidebarOpen, setIsWalletSidebarOpen] = useState(false);
+  const { connectWallet } = useWalletManager()
 
   // Start tracking changes in the transaction
   useTrackTransfer();
@@ -633,7 +632,7 @@ const Redeem = () => {
           <Button
             variant="primary"
             className={classes.actionButton}
-            onClick={() => setIsWalletSidebarOpen(true)}
+            onClick={() => connectWallet(TransferWallet.RECEIVING)}
           >
             <Typography textTransform="none">
               Connect receiving wallet
@@ -705,7 +704,7 @@ const Redeem = () => {
         complete your transfer.`}
       </Typography>
     );
-  }, [routeContext.receipt, config, receivedTokenKey]);
+  }, [routeContext.receipt, config, receivedTokenKey, connectWallet]);
 
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
@@ -734,13 +733,6 @@ const Redeem = () => {
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
       </div>
-      <WalletSidebar
-        open={isWalletSidebarOpen}
-        type={TransferWallet.RECEIVING}
-        onClose={() => {
-          setIsWalletSidebarOpen(false);
-        }}
-      />
     </div>
   );
 };
