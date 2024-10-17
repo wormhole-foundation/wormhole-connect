@@ -143,22 +143,24 @@ const Routes = ({ ...props }: Props) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', width: '100%' }}>
-        <Typography
-          align="left"
-          fontSize={16}
-          paddingBottom={0}
-          marginTop="8px"
-          marginBottom={0}
-          width="100%"
-          textAlign="left"
-        >
-          Routes
-        </Typography>
-        {props.isLoading ? (
-          <CircularProgress sx={{ alignSelf: 'flex-end' }} size={20} />
-        ) : null}
-      </Box>
+      {props.isLoading || renderRoutes.length > 0 ? (
+        <Box sx={{ display: 'flex', width: '100%' }}>
+          <Typography
+            align="left"
+            fontSize={16}
+            paddingBottom={0}
+            marginTop="8px"
+            marginBottom={0}
+            width="100%"
+            textAlign="left"
+          >
+            Routes
+          </Typography>
+          {props.isLoading ? (
+            <CircularProgress sx={{ alignSelf: 'flex-end' }} size={20} />
+          ) : null}
+        </Box>
+      ) : null}
 
       {props.isLoading && renderRoutes.length === 0 ? (
         <Skeleton variant="rounded" height={153} width="100%" />
