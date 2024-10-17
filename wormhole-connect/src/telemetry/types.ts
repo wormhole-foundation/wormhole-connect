@@ -22,6 +22,8 @@ export type TransferEventType =
   | 'transfer.initiate'
   | 'transfer.start'
   | 'transfer.success'
+  | 'transfer.failed'
+  | 'transfer.refunded'
   | 'transfer.redeem.initiate'
   | 'transfer.redeem.start'
   | 'transfer.redeem.success';
