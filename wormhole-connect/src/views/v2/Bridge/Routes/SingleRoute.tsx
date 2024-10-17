@@ -25,7 +25,7 @@ import {
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
-import { formatBalance } from 'store/transferInput';
+import { formatAmount } from 'utils/amount';
 import { toFixedDecimals } from 'utils/balance';
 import { TokenConfig } from 'config/types';
 import FastestRoute from 'icons/FastestRoute';
@@ -356,10 +356,11 @@ const SingleRoute = (props: Props) => {
 
   const receiveAmountTrunc = useMemo(() => {
     return quote && destChain && destTokenConfig
-      ? formatBalance(
+      ? formatAmount(
           destChain,
           destTokenConfig,
           quote.destinationToken.amount.amount,
+          6,
         )
       : undefined;
   }, [quote]);

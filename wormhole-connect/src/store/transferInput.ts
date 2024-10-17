@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Context } from 'sdklegacy';
 import config from 'config';
 import { TokenConfig } from 'config/types';
-import { getTokenDecimals } from 'utils';
 import {
   switchChain,
   TransferWallet,
@@ -16,7 +15,7 @@ import {
   getEmptyDataWrapper,
   receiveDataWrapper,
 } from './helpers';
-import { amount, Chain } from '@wormhole-foundation/sdk';
+import { Chain } from '@wormhole-foundation/sdk';
 
 export type Balance = {
   lastUpdated: number;
@@ -29,24 +28,6 @@ export type ChainBalances = {
 export type BalancesCache = { [key in Chain]?: ChainBalances };
 type WalletAddress = string;
 export type WalletBalances = { [key: WalletAddress]: BalancesCache };
-
-export const formatBalance = (
-  chain: Chain,
-  token: TokenConfig,
-  balance: string | bigint | null,
-): string | null => {
-  if (!balance) {
-    return null;
-  }
-  const decimals = getTokenDecimals(chain, token.tokenId);
-  const balanceNum = amount.whole({
-    amount: balance.toString(),
-    decimals,
-  });
-  return balanceNum.toLocaleString('en', {
-    maximumFractionDigits: 6,
-  });
-};
 
 export const formatStringAmount = (amountStr = '0'): string => {
   const amountNum = parseFloat(amountStr);

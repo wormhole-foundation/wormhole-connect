@@ -100,8 +100,13 @@ function TokenItem(props: TokenItemProps) {
       <Typography fontSize={14}>
         {props.isFetchingBalance ? (
           <CircularProgress size={24} />
+        ) : props.balance ? (
+          // TODO AMOUNT HACK... fix amount formatting in amount.Amount balance refactor
+          parseFloat(props.balance).toLocaleString('en', {
+            maximumFractionDigits: 6,
+          })
         ) : (
-          props.balance
+          ''
         )}
       </Typography>
     </ListItemButton>

@@ -36,7 +36,7 @@ export function interpretTransferError(
       uiErrorMessage = 'Transfer timed out, please try again';
       internalErrorCode = ERR_TIMEOUT;
     } else if (InsufficientFundsForGasError.MESSAGE_REGEX.test(e?.message)) {
-      uiErrorMessage = e.message;
+      uiErrorMessage = 'Insufficient funds';
       internalErrorCode = ERR_INSUFFICIENT_GAS;
     } else if (USER_REJECTED_REGEX.test(e?.message)) {
       uiErrorMessage = 'Transfer rejected in wallet, please try again';
