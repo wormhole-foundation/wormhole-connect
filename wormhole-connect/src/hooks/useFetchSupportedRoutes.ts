@@ -28,7 +28,7 @@ const useFetchSupportedRoutes = (): void => {
     let isActive = true;
 
     const getSupportedRoutes = async () => {
-      let routes: RouteState[] = [];
+      const routes: RouteState[] = [];
       await config.routes.forEach(async (name, route) => {
         let supported = false;
 
@@ -55,21 +55,6 @@ const useFetchSupportedRoutes = (): void => {
 
         routes.push({ name, supported });
       });
-
-      // If automatic NTT is available, always prefer that
-      const autoNttRoute = routes.find(
-        (route) => route.supported && route.name === 'AutomaticNtt',
-      );
-      if (autoNttRoute) {
-        routes = [autoNttRoute];
-      } else {
-        // TODO figure out better approach to sorting routes... probably by ETA
-        routes = routes.sort((a, b) => {
-          const idxA = config.routes.preference.indexOf(a.name);
-          const idxB = config.routes.preference.indexOf(b.name);
-          return idxA - idxB;
-        });
-      }
 
       if (isActive) {
         dispatch(setRoutes(routes));
