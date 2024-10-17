@@ -28,7 +28,7 @@ const useFetchSupportedRoutes = (): void => {
     let isActive = true;
 
     const getSupportedRoutes = async () => {
-      let routes: RouteState[] = [];
+      const routes: RouteState[] = [];
       await config.routes.forEach(async (name, route) => {
         let supported = false;
 
