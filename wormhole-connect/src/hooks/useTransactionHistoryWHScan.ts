@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { amount as sdkAmount, chainIdToChain } from '@wormhole-foundation/sdk';
+import {
+  amount as sdkAmount,
+  chainIdToChain,
+  toNative,
+  Wormhole,
+} from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
-import { getTokenById, getWrappedToken } from 'utils';
+import { getGasToken, getTokenById, getWrappedToken } from 'utils';
 
 import type { Chain, ChainId } from '@wormhole-foundation/sdk';
 import type { Transaction } from 'config/types';
+import { getNativeVersionOfToken } from 'store/transferInput';
+import { toFixedDecimals } from 'utils/balance';
 
 interface WormholeScanTransaction {
   id: string;
@@ -69,6 +76,20 @@ interface WormholeScanTransaction {
     tokenAmount: string;
     usdAmount: string;
   };
+}
+
+// TODO: SDKV2 route specific details don't belong here
+interface WormholeScanPorticoParsedPayload {
+  finalTokenAddress: string;
+  flagSet: {
+    flags: {
+      shouldWrapNative: boolean;
+      shouldUnwrapNative: boolean;
+    };
+  };
+  minAmountFinish: string;
+  recipientAddress: string;
+  relayerFee: string;
 }
 
 type Props = {
@@ -135,13 +156,13 @@ const useTransactionHistoryWHScan = (
     const toChain = chainIdToChain(toChainId) as Chain;
 
     // If the sent token is native to the destination chain, use sent token.
-    // Otherwise get the wrapepd token for the destination chain.
+    // Otherwise get the wrapped token for the destination chain.
     const receivedTokenKey =
       tokenConfig.nativeChain === toChain
         ? tokenConfig.key
         : getWrappedToken(tokenConfig)?.key;
 
-    // data.tokenAmount holds the normalized token ammount value.
+    // data.tokenAmount holds the normalized token amount value.
     // Otherwise we need to format standarizedProperties.amount using decimals
     const sentAmountDisplay =
       tokenAmount ??
@@ -155,7 +176,7 @@ const useTransactionHistoryWHScan = (
 
     const receiveAmountValue =
       BigInt(standarizedProperties.amount) - BigInt(standarizedProperties.fee);
-    // It's unlikely, but in case the above substraction returns a non-positive number,
+    // It's unlikely, but in case the above subtraction returns a non-positive number,
     // we should not show that at all.
     const receiveAmountDisplay =
       receiveAmountValue > 0
@@ -221,10 +242,73 @@ const useTransactionHistoryWHScan = (
     return parseSingleTx(tx);
   };
 
+  // Parser for Portico transactions (appId === ETH_BRIDGE or USDT_BRIDGE)
+  // IMPORTANT: This is where we can add any customizations specific to Portico data
+  // that we have retrieved from WHScan API
+  const parsePorticoTx = (tx: WormholeScanTransaction) => {
+    const txData = parseSingleTx(tx);
+    if (!txData) return;
+
+    const payload = tx.content.payload
+      .parsedPayload as unknown as WormholeScanPorticoParsedPayload;
+
+    const {
+      finalTokenAddress,
+      flagSet,
+      minAmountFinish,
+      recipientAddress,
+      relayerFee,
+    } = payload;
+
+    const nativeTokenKey = getNativeVersionOfToken(
+      tx.data.symbol,
+      txData.fromChain,
+    );
+    const nativeToken = config.tokens[nativeTokenKey];
+    if (!nativeToken) return;
+
+    const startToken = flagSet.flags.shouldWrapNative
+      ? getGasToken(txData.fromChain)
+      : nativeToken;
+
+    const finalTokenConfig = config.sdkConverter.findTokenConfigV1(
+      Wormhole.tokenId(
+        txData.toChain,
+        toNative(txData.toChain, finalTokenAddress).toString(),
+      ),
+      config.tokensArr,
+    );
+    if (!finalTokenConfig) return;
+
+    const receiveAmount = BigInt(minAmountFinish) - BigInt(relayerFee);
+
+    // Override with Portico specific data
+    txData.tokenKey = startToken.key;
+    txData.tokenAddress = startToken.tokenId?.address || 'native';
+    txData.receivedTokenKey = flagSet.flags.shouldUnwrapNative
+      ? getGasToken(txData.toChain).key
+      : finalTokenConfig.key;
+    txData.receiveAmount =
+      receiveAmount > 0
+        ? toFixedDecimals(
+            sdkAmount.display(
+              sdkAmount.fromBaseUnits(receiveAmount, finalTokenConfig.decimals),
+              0,
+            ),
+            DECIMALS,
+          )
+        : '';
+    txData.recipient = toNative(txData.toChain, recipientAddress).toString();
+
+    return txData;
+  };
+
   const PARSERS = {
     PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
     NATIVE_TOKEN_TRANSFER: parseNTTTx,
     CCTP_WORMHOLE_INTEGRATION: parseCCTPTx,
+    ETH_BRIDGE: parsePorticoTx,
+    USDT_BRIDGE: parsePorticoTx,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -235,6 +319,13 @@ const useTransactionHistoryWHScan = (
           // Locate the appIds
           const appIds: Array<string> =
             tx.content?.standarizedProperties?.appIds || [];
+
+          // TODO: SDKV2
+          // Some integrations may compose with multiple protocols and have multiple appIds
+          // Choose a more specific parser if available
+          if (appIds.includes('ETH_BRIDGE') || appIds.includes('USDT_BRIDGE')) {
+            return parsePorticoTx(tx);
+          }
 
           for (const appId of appIds) {
             // Retrieve the parser for an appId

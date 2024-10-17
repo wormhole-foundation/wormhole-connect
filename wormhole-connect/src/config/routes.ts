@@ -80,6 +80,15 @@ export const RoutesConfig: Record<string, RouteData> = {
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   */
+  AutomaticPortico: {
+    name: 'AutomaticPortico',
+    displayName: 'Portico',
+    providedBy: 'xLabs',
+    link: 'https://xlabs.xyz',
+    icon: WormholeIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
+
   ManualNtt: {
     name: 'ManualNtt',
     displayName: 'Native Token Transfer',
