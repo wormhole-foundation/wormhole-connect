@@ -7,11 +7,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
-  isCompleted,
+  isAttested,
   isDestinationQueued,
+  isRefunded,
   isFailed,
   routes,
-  TransferState,
+  FailedTransferReceipt,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -147,14 +148,15 @@ const Redeem = () => {
     txData,
   } = useSelector((state: RootState) => state.redeem);
 
-  const { state: receiptState } = routeContext.receipt || {};
-  const isTxAttested = receiptState && receiptState >= TransferState.Attested;
-  const isTxRefunded = receiptState === TransferState.Refunded;
-  const isTxFailed = receiptState === TransferState.Failed;
-  const isTxDestQueued = receiptState === TransferState.DestinationQueued;
-
   const [unhandledManualClaimError, setUnhandledManualClaimError] =
     useState<any>(undefined);
+
+  const { receipt } = routeContext;
+  const isTxAttested = receipt && isAttested(receipt);
+  const isTxRefunded = receipt && isRefunded(receipt);
+  const isTxFailed =
+    (receipt && isFailed(receipt)) || !!unhandledManualClaimError;
+  const isTxDestQueued = receipt && isDestinationQueued(receipt);
 
   const {
     recipient,
@@ -196,7 +198,7 @@ const Redeem = () => {
 
     if (!receipt) return;
 
-    if (isCompleted(receipt)) {
+    if (isTxComplete) {
       if (!transferSuccessEventFired) {
         // When we see the transfer was complete for the first time,
         // fire a transfer.success telemetry event.
@@ -223,9 +225,11 @@ const Redeem = () => {
         type: 'transfer.refunded',
         details,
       });
-    } else if (isFailed(receipt)) {
+    } else if (isTxFailed) {
+      const failedReceipt = receipt as FailedTransferReceipt<any>;
+
       const [uiError, transferError] = interpretTransferError(
-        receipt.error,
+        failedReceipt.error,
         toChain,
       );
       setClaimError(uiError);
@@ -237,7 +241,7 @@ const Redeem = () => {
       });
 
       console.error(
-        `Transfer failed with error ${transferError}: ${receipt.error}`,
+        `Transfer failed with error ${transferError}: ${failedReceipt.error}`,
       );
     } else if (unhandledManualClaimError) {
       const [uiError, transferError] = interpretTransferError(
@@ -260,7 +264,7 @@ const Redeem = () => {
       // Don't handle error more than once
       setUnhandledManualClaimError(undefined);
     }
-  }, [receiptState, unhandledManualClaimError]);
+  }, [receipt?.state, unhandledManualClaimError]);
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
