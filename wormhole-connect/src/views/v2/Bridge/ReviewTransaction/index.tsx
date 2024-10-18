@@ -27,7 +27,6 @@ import { setRoute as setAppRoute } from 'store/router';
 import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
 import { getTokenDecimals, getWrappedToken, getWrappedTokenId } from 'utils';
 import { interpretTransferError } from 'utils/errors';
-import { getExplorerInfo } from 'utils/sdkv2';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   registerWalletSigner,
@@ -247,17 +246,33 @@ const ReviewTransaction = (props: Props) => {
       }
 
       const txTimestamp = Date.now();
+      const txDetails = {
+        sendTx: txId,
+        sender: sendingWallet.address,
+        amount,
+        recipient: receivingWallet.address,
+        toChain: receipt.to,
+        fromChain: receipt.from,
+        tokenAddress: getWrappedToken(sourceTokenConfig).tokenId!.address,
+        tokenKey: sourceTokenConfig.key,
+        tokenDecimals: getTokenDecimals(
+          sourceChain,
+          getWrappedTokenId(sourceTokenConfig),
+        ),
+        receivedTokenKey: config.tokens[destToken].key, // TODO: possibly wrong (e..g if portico swap fails)
+        relayerFee,
+        receiveAmount: sdkAmount
+          .whole(quote.destinationToken.amount)
+          .toString(),
+        receiveNativeAmount,
+        eta: quote.eta || 0,
+      };
 
       // Add the new transaction to local storage
       addTxToLocalStorage({
+        txDetails,
         txHash: txId,
-        amount,
-        tokenKey: sourceTokenConfig.key,
-        sourceChain: receipt.from,
-        destChain: receipt.to,
         timestamp: txTimestamp,
-        eta: quote.eta || 0,
-        explorerInfo: getExplorerInfo(sdkRoute, txId),
         receipt,
         route,
       });
@@ -270,29 +285,7 @@ const ReviewTransaction = (props: Props) => {
       // or we may not have all the data (e.g. block)
       // TODO: we don't need all of these details
       // The SDK should provide a way to get the details from the chain (e.g. route.lookupSourceTxDetails)
-      dispatch(
-        setTxDetails({
-          sendTx: txId,
-          sender: sendingWallet.address,
-          amount,
-          recipient: receivingWallet.address,
-          toChain: receipt.to,
-          fromChain: receipt.from,
-          tokenAddress: getWrappedToken(sourceTokenConfig).tokenId!.address,
-          tokenKey: sourceTokenConfig.key,
-          tokenDecimals: getTokenDecimals(
-            sourceChain,
-            getWrappedTokenId(sourceTokenConfig),
-          ),
-          receivedTokenKey: config.tokens[destToken].key, // TODO: possibly wrong (e..g if portico swap fails)
-          relayerFee,
-          receiveAmount: sdkAmount
-            .whole(quote.destinationToken.amount)
-            .toString(),
-          receiveNativeAmount,
-          eta: quote.eta || 0,
-        }),
-      );
+      dispatch(setTxDetails(txDetails));
 
       // Reset the amount for a successful transaction
       dispatch(setAmount(''));

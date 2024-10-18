@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { isCompleted, routes } from '@wormhole-foundation/sdk';
+import { isCompleted, routes, TransferState } from '@wormhole-foundation/sdk';
 
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
@@ -18,10 +18,12 @@ type Props = {
 
 type ReturnProps = {
   isCompleted: boolean;
+  isReadyToClaim: boolean;
 };
 
 const useTrackTransferV2 = (props: Props): ReturnProps => {
   const [completed, setCompleted] = useState(false);
+  const [readyToClaim, setReadyToClaim] = useState(false);
   const [receipt, setReceipt] = useState<routes.Receipt<AttestationReceipt>>();
 
   const { eta, route: routeName } = props;
@@ -83,6 +85,14 @@ const useTrackTransferV2 = (props: Props): ReturnProps => {
                 stateChanged = true;
                 break;
               }
+
+              // Check whether this is a manual transaction ready to claim
+              if (
+                !route.AUTOMATIC_DEPOSIT &&
+                currentReceipt.state >= TransferState.Attested
+              ) {
+                setReadyToClaim(true);
+              }
             }
           }
         } catch (e) {
@@ -105,6 +115,7 @@ const useTrackTransferV2 = (props: Props): ReturnProps => {
 
   return {
     isCompleted: completed,
+    isReadyToClaim: readyToClaim,
   };
 };
 

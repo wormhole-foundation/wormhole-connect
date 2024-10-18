@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
+import useTrackTransferInProgress from 'hooks/useTrackTransferInProgress';
+import useResumeTransaction from 'hooks/useResumeTransaction';
 import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
 import TxCompleteIcon from 'icons/TxComplete';
@@ -19,7 +21,6 @@ import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 
 import type { TransactionLocal } from 'config/types';
-import useTrackTransferInProgress from 'hooks/useTrackTransferInProgress';
 
 const useStyles = makeStyles()((theme: any) => ({
   arrowIcon: {
@@ -60,22 +61,15 @@ type Props = {
 
 const WidgetItem = (props: Props) => {
   const [etaExpired, setEtaExpired] = useState(false);
+  const [resumeTxLocal, setResumeTxLocal] = useState<
+    TransactionLocal | undefined
+  >();
 
   const { classes } = useStyles();
 
   const { data: transaction } = props;
-  const {
-    txHash,
-    eta,
-    explorerInfo,
-    amount,
-    sourceChain,
-    destChain,
-    timestamp,
-    tokenKey,
-    receipt,
-    route,
-  } = transaction;
+  const { receipt, route, timestamp, txDetails, txHash } = transaction;
+  const { amount, eta, fromChain, toChain, tokenKey } = txDetails || {};
 
   // Initialize the countdown
   const { seconds, minutes, totalSeconds, isRunning, restart } = useTimer({
@@ -84,11 +78,13 @@ const WidgetItem = (props: Props) => {
     onExpire: () => setEtaExpired(true),
   });
 
-  const { isCompleted } = useTrackTransferInProgress({
+  const { isCompleted, isReadyToClaim } = useTrackTransferInProgress({
     eta,
     receipt,
     route,
   });
+
+  const { isLoading: isLoadingResume } = useResumeTransaction(resumeTxLocal);
 
   useEffect(() => {
     if (isCompleted && txHash) {
@@ -99,7 +95,7 @@ const WidgetItem = (props: Props) => {
 
   // Remaining from the original ETA since the creation of this transaction
   const etaRemaining = useMemo(() => {
-    if (!timestamp) {
+    if (!eta || !timestamp) {
       // We need the sender timestamp to be able to calculate the remaining time
       // Otherwise do not render the remaining eta counter
       return 0;
@@ -116,6 +112,10 @@ const WidgetItem = (props: Props) => {
 
   // Displays the countdown
   const etaCountdown = useMemo(() => {
+    if (isReadyToClaim) {
+      return 'Ready to claim...';
+    }
+
     if (etaExpired || etaRemaining === 0) {
       return 'Wrapping up...';
     }
@@ -125,13 +125,13 @@ const WidgetItem = (props: Props) => {
     }
 
     return <CircularProgress size={16} />;
-  }, [etaExpired, etaRemaining, isRunning, minutes, seconds]);
+  }, [etaExpired, etaRemaining, isReadyToClaim, isRunning, minutes, seconds]);
 
   // A number value between 0-100
   const progressBarValue = useMemo(() => {
     // etaRemaining is guaranteed to be smaller than or equal to eta,
     // but we still check here as well to be on the safe side.
-    if (etaRemaining > eta) {
+    if (!eta || etaRemaining > eta) {
       return 0;
     }
 
@@ -168,9 +168,16 @@ const WidgetItem = (props: Props) => {
       <Card className={classes.card}>
         <CardActionArea
           disableTouchRipple
+          disabled={isLoadingResume || !txDetails}
           className={classes.cardActionArea}
-          onClick={() => {
-            window.open(explorerInfo.url, '_blank');
+          onClick={async () => {
+            setResumeTxLocal({
+              txDetails,
+              timestamp,
+              route,
+              receipt,
+              txHash,
+            });
           }}
         >
           <CardContent>
@@ -194,16 +201,13 @@ const WidgetItem = (props: Props) => {
                 </Typography>
                 <Box className={classes.chainIcon}>
                   <TokenIcon
-                    icon={config.chains[sourceChain]?.icon}
+                    icon={config.chains[fromChain]?.icon}
                     height={24}
                   />
                 </Box>
                 <ArrowRight className={classes.arrowIcon} />
                 <Box className={classes.chainIcon}>
-                  <TokenIcon
-                    icon={config.chains[destChain]?.icon}
-                    height={24}
-                  />
+                  <TokenIcon icon={config.chains[toChain]?.icon} height={24} />
                 </Box>
               </Stack>
             </Stack>

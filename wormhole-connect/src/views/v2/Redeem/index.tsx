@@ -4,6 +4,8 @@ import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
@@ -29,6 +31,7 @@ import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import { interpretTransferError } from 'utils/errors';
+import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
 import { joinClass } from 'utils/style';
 import {
   millisToMinutesAndSeconds,
@@ -51,7 +54,7 @@ import { PublicKey } from '@solana/web3.js';
 import TxReadyForClaim from 'icons/TxReadyForClaim';
 
 type StyleProps = {
-  transitionDuration?: string;
+  transitionDuration?: string | undefined;
 };
 
 const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
@@ -81,6 +84,11 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
     maxWidth: '420px',
     width: '100%',
   },
+  backButton: {
+    alignItems: 'start',
+    maxWidth: '420px',
+    width: '100%',
+  },
   claimButton: {
     backgroundColor: theme.palette.warning.light,
     color:
@@ -98,6 +106,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
     strokeLinecap: 'round',
     transitionDuration,
     transitionProperty: 'all',
+    transitionTimingFunction: 'linear',
   },
   circularProgressRoot: {
     animationDuration: '1s',
@@ -164,28 +173,33 @@ const Redeem = () => {
     eta = 0,
   } = txData!;
 
-  const { classes } = useStyles({ transitionDuration: `${eta}ms` });
-
   const getUSDAmount = useUSDamountGetter();
 
   useEffect(() => {
     // When we see the transfer was complete for the first time,
-    // fire a transfer.success telemetry event.
-    if (isTxComplete && !transferSuccessEventFired) {
-      setTransferSuccessEventFired(true);
+    // fire a transfer.success telemetry event
+    if (isTxComplete) {
+      if (!transferSuccessEventFired) {
+        setTransferSuccessEventFired(true);
 
-      config.triggerEvent({
-        type: 'transfer.success',
-        details: getTransferDetails(
-          routeName!,
-          tokenKey,
-          receivedTokenKey,
-          fromChain,
-          toChain,
-          amount,
-          getUSDAmount,
-        ),
-      });
+        config.triggerEvent({
+          type: 'transfer.success',
+          details: getTransferDetails(
+            routeName!,
+            tokenKey,
+            receivedTokenKey,
+            fromChain,
+            toChain,
+            amount,
+            getUSDAmount,
+          ),
+        });
+      }
+
+      // Remove the in-progress tx from local storage
+      if (txData?.sendTx) {
+        removeTxFromLocalStorage(txData?.sendTx);
+      }
     }
   }, [isTxComplete]);
 
@@ -209,6 +223,21 @@ const Redeem = () => {
 
     restart(new Date(txTimestamp + eta), true);
   }, [eta, txTimestamp]);
+
+  // Time remaining to reach the estimated completion of the transaction
+  const remainingEta = useMemo(() => {
+    const etaCompletion = txTimestamp + eta;
+    const now = Date.now();
+    if (etaCompletion > now) {
+      return etaCompletion - now;
+    }
+
+    return 0;
+  }, [txTimestamp, eta]);
+
+  const { classes } = useStyles({
+    transitionDuration: `${remainingEta}ms`,
+  });
 
   const isAutomaticRoute = useMemo(() => {
     if (!routeName) {
@@ -314,14 +343,24 @@ const Redeem = () => {
 
   // Value for determinate circular progress bar
   const etaProgressValue = useMemo(() => {
-    if (eta && txTimestamp && isRunning) {
-      // We return the full bar value when the ETA timer is running
-      // and simulate the progress by setting transitionDuration the eta (see useStyles above)
-      return 100;
+    if (eta) {
+      if (isRunning || remainingEta === 0) {
+        // We return the full bar value when the ETA timer is running
+        // and simulate the progress by setting transitionDuration (see useStyles above)
+        return 100;
+      }
+
+      // This happens during Redeem view's initial loading before the ETA timer starts
+      // We calculate progress bar's initial value from completed eta
+      // This value should be between 0-100
+      const completedEta = eta - remainingEta;
+      const percentRatio = completedEta / eta;
+      return Math.floor(percentRatio * 100);
     }
 
+    // Set initial value to zero if we don't have an ETA
     return 0;
-  }, [eta, txTimestamp, isRunning]);
+  }, [eta, remainingEta, isRunning]);
 
   // In-progress circular progress bar
   const etaCircularProgress = useMemo(() => {
@@ -628,8 +667,18 @@ const Redeem = () => {
       !isTxFailed &&
       (isTxDestQueued || !isAutomaticRoute)
     ) {
-      if (isTxAttested && !isConnectedToReceivingWallet) {
-        return (
+      if (isTxAttested) {
+        return isConnectedToReceivingWallet ? (
+          <Button
+            className={joinClass([classes.actionButton, classes.claimButton])}
+            variant={claimError ? 'error' : 'primary'}
+            onClick={handleManualClaim}
+          >
+            <Typography textTransform="none">
+              Claim tokens to complete transfer
+            </Typography>
+          </Button>
+        ) : (
           <Button
             variant="primary"
             className={classes.actionButton}
@@ -641,26 +690,6 @@ const Redeem = () => {
           </Button>
         );
       }
-
-      return (
-        <Button
-          className={joinClass([classes.actionButton, classes.claimButton])}
-          disabled={isClaimInProgress || !isTxAttested}
-          variant={claimError ? 'error' : 'primary'}
-          onClick={handleManualClaim}
-        >
-          {isClaimInProgress || !isTxAttested ? (
-            <Stack direction="row" alignItems="center">
-              <CircularProgress size={24} />
-              <Typography textTransform="none">Transfer in progress</Typography>
-            </Stack>
-          ) : (
-            <Typography textTransform="none">
-              Claim tokens to complete transfer
-            </Typography>
-          )}
-        </Button>
-      );
     }
 
     return (
@@ -710,6 +739,14 @@ const Redeem = () => {
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
+      <Stack className={classes.backButton}>
+        <IconButton
+          sx={{ padding: 0 }}
+          onClick={() => dispatch(setRoute('bridge'))}
+        >
+          <ChevronLeft sx={{ fontSize: '32px' }} />
+        </IconButton>
+      </Stack>
       {statusHeader}
       <Box
         sx={{
