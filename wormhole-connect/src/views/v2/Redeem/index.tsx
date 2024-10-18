@@ -41,6 +41,7 @@ import {
 } from 'utils/wallet';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
 import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
+import { useConnectToLastUsedWallet } from 'utils/wallet';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
@@ -138,6 +139,8 @@ const Redeem = () => {
   useTrackTransfer();
 
   const routeContext = React.useContext(RouteContext);
+
+  useConnectToLastUsedWallet();
 
   const {
     transferComplete: isTxComplete,
