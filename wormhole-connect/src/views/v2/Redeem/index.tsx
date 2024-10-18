@@ -107,7 +107,6 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
     maxWidth: '420px',
   },
   txStatusIcon: {
-    color: theme.palette.primary.light,
     width: '105px',
     height: '105px',
   },
@@ -474,23 +473,24 @@ const Redeem = () => {
   // Circular progress indicator component for ETA countdown
   const etaCircle = useMemo(() => {
     if (isTxComplete) {
-      return <TxCompleteIcon className={classes.txStatusIcon} />;
+      return (
+        <TxCompleteIcon
+          className={classes.txStatusIcon}
+          sx={{ color: theme.palette.primary.light }}
+        />
+      );
     } else if (isTxRefunded || isTxDestQueued) {
       return (
         <TxWarningIcon
           className={classes.txStatusIcon}
-          sx={{
-            color: theme.palette.warning.main,
-          }}
+          sx={{ color: theme.palette.warning.main }}
         />
       );
     } else if (isTxFailed) {
       return (
         <TxFailedIcon
           className={classes.txStatusIcon}
-          sx={{
-            color: theme.palette.error.light,
-          }}
+          sx={{ color: theme.palette.error.light }}
         />
       );
     } else if (!isAutomaticRoute && isTxAttested) {
@@ -498,9 +498,7 @@ const Redeem = () => {
       return (
         <TxReadyForClaim
           className={classes.txStatusIcon}
-          sx={{
-            color: theme.palette.warning.light,
-          }}
+          sx={{ color: theme.palette.warning.light }}
         />
       );
     } else {
