@@ -12,7 +12,6 @@ import {
   isRefunded,
   isFailed,
   routes,
-  FailedTransferReceipt,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -225,11 +224,9 @@ const Redeem = () => {
         type: 'transfer.refunded',
         details,
       });
-    } else if (isTxFailed) {
-      const failedReceipt = receipt as FailedTransferReceipt<any>;
-
+    } else if (isFailed(receipt)) {
       const [uiError, transferError] = interpretTransferError(
-        failedReceipt.error,
+        receipt.error,
         toChain,
       );
       setClaimError(uiError);
@@ -241,8 +238,10 @@ const Redeem = () => {
       });
 
       console.error(
-        `Transfer failed with error ${transferError}: ${failedReceipt.error}`,
+        `Transfer failed with error ${transferError}: ${receipt.error}`,
       );
+
+      setIsClaimInProgress(false);
     } else if (unhandledManualClaimError) {
       const [uiError, transferError] = interpretTransferError(
         unhandledManualClaimError,
@@ -258,11 +257,10 @@ const Redeem = () => {
       });
 
       console.error(
-        `Caught unhandled error while manually redeeming: ${transferError}: ${unhandledManualClaimError}`,
+        `Error while manually redeeming: ${transferError.type} - ${unhandledManualClaimError}`,
       );
 
-      // Don't handle error more than once
-      setUnhandledManualClaimError(undefined);
+      setIsClaimInProgress(false);
     }
   }, [receipt?.state, unhandledManualClaimError]);
 
@@ -681,12 +679,21 @@ const Redeem = () => {
 
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
-    if (
-      !isTxComplete &&
-      !isTxRefunded &&
-      !isTxFailed &&
-      (isTxDestQueued || !isAutomaticRoute)
-    ) {
+    if (isTxComplete || isTxRefunded) {
+      return (
+        <Button
+          variant="primary"
+          className={classes.actionButton}
+          onClick={() => {
+            dispatch(setRoute('bridge'));
+          }}
+        >
+          <Typography textTransform="none">Start a new transaction</Typography>
+        </Button>
+      );
+    }
+
+    if (isTxDestQueued || !isAutomaticRoute) {
       if (isTxAttested && !isConnectedToReceivingWallet) {
         return (
           <Button
@@ -721,18 +728,6 @@ const Redeem = () => {
         </Button>
       );
     }
-
-    return (
-      <Button
-        variant="primary"
-        className={classes.actionButton}
-        onClick={() => {
-          dispatch(setRoute('bridge'));
-        }}
-      >
-        <Typography textTransform="none">Start a new transaction</Typography>
-      </Button>
-    );
   }, [
     isAutomaticRoute,
     isClaimInProgress,
