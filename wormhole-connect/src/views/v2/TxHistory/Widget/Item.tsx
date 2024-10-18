@@ -78,7 +78,7 @@ const WidgetItem = (props: Props) => {
     onExpire: () => setEtaExpired(true),
   });
 
-  const { isCompleted } = useTrackTransferInProgress({
+  const { isCompleted, isReadyToClaim } = useTrackTransferInProgress({
     eta,
     receipt,
     route,
@@ -112,6 +112,10 @@ const WidgetItem = (props: Props) => {
 
   // Displays the countdown
   const etaCountdown = useMemo(() => {
+    if (isReadyToClaim) {
+      return 'Ready to claim...';
+    }
+
     if (etaExpired || etaRemaining === 0) {
       return 'Wrapping up...';
     }
@@ -121,7 +125,7 @@ const WidgetItem = (props: Props) => {
     }
 
     return <CircularProgress size={16} />;
-  }, [etaExpired, etaRemaining, isRunning, minutes, seconds]);
+  }, [etaExpired, etaRemaining, isReadyToClaim, isRunning, minutes, seconds]);
 
   // A number value between 0-100
   const progressBarValue = useMemo(() => {

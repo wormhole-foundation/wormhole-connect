@@ -4,6 +4,8 @@ import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
@@ -29,6 +31,7 @@ import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import { interpretTransferError } from 'utils/errors';
+import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
 import { joinClass } from 'utils/style';
 import {
   millisToMinutesAndSeconds,
@@ -78,6 +81,11 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
     backgroundColor: theme.palette.primary.main,
     borderRadius: '8px',
     margin: 'auto',
+    maxWidth: '420px',
+    width: '100%',
+  },
+  backButton: {
+    alignItems: 'start',
     maxWidth: '420px',
     width: '100%',
   },
@@ -169,22 +177,29 @@ const Redeem = () => {
 
   useEffect(() => {
     // When we see the transfer was complete for the first time,
-    // fire a transfer.success telemetry event.
-    if (isTxComplete && !transferSuccessEventFired) {
-      setTransferSuccessEventFired(true);
+    // fire a transfer.success telemetry event
+    if (isTxComplete) {
+      if (!transferSuccessEventFired) {
+        setTransferSuccessEventFired(true);
 
-      config.triggerEvent({
-        type: 'transfer.success',
-        details: getTransferDetails(
-          routeName!,
-          tokenKey,
-          receivedTokenKey,
-          fromChain,
-          toChain,
-          amount,
-          getUSDAmount,
-        ),
-      });
+        config.triggerEvent({
+          type: 'transfer.success',
+          details: getTransferDetails(
+            routeName!,
+            tokenKey,
+            receivedTokenKey,
+            fromChain,
+            toChain,
+            amount,
+            getUSDAmount,
+          ),
+        });
+      }
+
+      // Remove the in-progress tx from local storage
+      if (txData?.sendTx) {
+        removeTxFromLocalStorage(txData?.sendTx);
+      }
     }
   }, [isTxComplete]);
 
@@ -724,6 +739,14 @@ const Redeem = () => {
   return (
     <div className={joinClass([classes.container, classes.spacer])}>
       {header}
+      <Stack className={classes.backButton}>
+        <IconButton
+          sx={{ padding: 0 }}
+          onClick={() => dispatch(setRoute('bridge'))}
+        >
+          <ChevronLeft sx={{ fontSize: '32px' }} />
+        </IconButton>
+      </Stack>
       {statusHeader}
       <Box
         sx={{
