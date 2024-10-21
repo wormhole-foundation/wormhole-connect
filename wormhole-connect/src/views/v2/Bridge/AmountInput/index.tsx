@@ -19,6 +19,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
@@ -124,7 +125,7 @@ const AmountInput = (props: Props) => {
   );
 
   const tokenBalance = useMemo(
-    () => balances?.[sourceToken]?.balance || '0',
+    () => balances?.[sourceToken]?.balance || null,
     [balances, sourceToken],
   );
 
@@ -157,9 +158,9 @@ const AmountInput = (props: Props) => {
             textAlign="right"
             className={classes.balance}
           >
-            {parseFloat(tokenBalance).toLocaleString('en', {
-              maximumFractionDigits: 6,
-            })}
+            {tokenBalance === null
+              ? '0'
+              : sdkAmount.display(sdkAmount.truncate(tokenBalance, 6))}
           </Typography>
         )}
       </Stack>
@@ -174,8 +175,7 @@ const AmountInput = (props: Props) => {
         onClick={() => {
           if (tokenBalance) {
             // TODO: Remove this when useGetTokenBalances returns non formatted amounts
-            const trimmedTokenBalance = tokenBalance.replaceAll(',', '');
-            dispatch(setAmount(trimmedTokenBalance));
+            dispatch(setAmount(sdkAmount.display(tokenBalance)));
           }
         }}
       >

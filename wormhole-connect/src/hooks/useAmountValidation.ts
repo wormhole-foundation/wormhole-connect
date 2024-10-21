@@ -12,7 +12,7 @@ type HookReturn = {
 };
 
 type Props = {
-  balance?: string | null;
+  balance?: sdkAmount.Amount | null;
   routes: RouteState[];
   quotesMap: Record<string, QuoteResult | undefined>;
   tokenSymbol: string;
@@ -67,16 +67,6 @@ export const useAmountValidation = (props: Props): HookReturn => {
     return {
       error: 'Amount must be a number.',
     };
-  }
-
-  // Balance errors
-  if (props.balance) {
-    const balanceNum = Number.parseFloat(props.balance.replaceAll(',', ''));
-    if (numAmount > balanceNum) {
-      return {
-        error: 'Amount exceeds available balance.',
-      };
-    }
   }
 
   // All quotes fail.

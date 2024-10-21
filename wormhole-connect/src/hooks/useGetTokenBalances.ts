@@ -5,13 +5,11 @@ import { useEffect, useState } from 'react';
 import { accessBalance, Balances, updateBalances } from 'store/transferInput';
 import config, { getWormholeContextV2 } from 'config';
 import { TokenConfig } from 'config/types';
-import { formatAmount } from 'utils/amount';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
-import { Chain, TokenAddress } from '@wormhole-foundation/sdk';
+import { Chain, TokenAddress, amount } from '@wormhole-foundation/sdk';
+import { getTokenDecimals } from 'utils';
 
-// TODO: This hook shouldn't format amounts
-// Instead the view should format and render accordingly
 const useGetTokenBalances = (
   walletAddress: string,
   chain: Chain | undefined,
@@ -75,8 +73,10 @@ const useGetTokenBalances = (
           const tokenIdMapping: Record<string, TokenConfig> = {};
           const tokenAddresses: string[] = [];
           for (const tokenConfig of needsUpdate) {
+            const decimals = getTokenDecimals(chain, tokenConfig.tokenId);
+
             updatedBalances[tokenConfig.key] = {
-              balance: '0',
+              balance: amount.fromBaseUnits(0n, decimals),
               lastUpdated: now,
             };
 
@@ -126,13 +126,12 @@ const useGetTokenBalances = (
 
           for (const tokenAddress in result) {
             const tokenConfig = tokenIdMapping[tokenAddress];
-            const balance = result[tokenAddress];
-            let formatted: string | null = null;
-            if (balance !== null) {
-              formatted = formatAmount(chain, tokenConfig, balance);
-            }
+            const decimals = getTokenDecimals(chain, tokenConfig.tokenId);
+            const bus = result[tokenAddress];
+            const balance = amount.fromBaseUnits(bus ?? 0n, decimals);
+
             updatedBalances[tokenConfig.key] = {
-              balance: formatted,
+              balance,
               lastUpdated: now,
             };
           }

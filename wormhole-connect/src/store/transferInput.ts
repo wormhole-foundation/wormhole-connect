@@ -15,11 +15,11 @@ import {
   getEmptyDataWrapper,
   receiveDataWrapper,
 } from './helpers';
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, amount } from '@wormhole-foundation/sdk';
 
 export type Balance = {
   lastUpdated: number;
-  balance: string | null;
+  balance: amount.Amount | null;
 };
 export type Balances = { [key: string]: Balance };
 export type ChainBalances = {

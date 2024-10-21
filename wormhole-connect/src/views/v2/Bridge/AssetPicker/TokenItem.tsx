@@ -6,6 +6,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import TokenIcon from 'icons/TokenIcons';
@@ -44,7 +45,7 @@ type TokenItemProps = {
   chain: Chain;
   disabled?: boolean;
   onClick: () => void;
-  balance?: string;
+  balance: sdkAmount.Amount | null;
   isFetchingBalance?: boolean;
 };
 
@@ -102,9 +103,7 @@ function TokenItem(props: TokenItemProps) {
           <CircularProgress size={24} />
         ) : props.balance ? (
           // TODO AMOUNT HACK... fix amount formatting in amount.Amount balance refactor
-          parseFloat(props.balance).toLocaleString('en', {
-            maximumFractionDigits: 6,
-          })
+          sdkAmount.display(sdkAmount.truncate(props.balance, 6))
         ) : (
           ''
         )}
