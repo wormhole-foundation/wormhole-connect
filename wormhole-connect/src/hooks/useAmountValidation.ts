@@ -56,10 +56,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
     }
 
     return props.routes.every((route) => {
-      return (
-        props.quotesMap[route.name] !== undefined &&
-        props.quotesMap[route.name]!.success === false
-      );
+      return props.quotesMap[route.name]?.success === false;
     });
   }, [props.routes, props.quotesMap]);
 
