@@ -112,11 +112,11 @@ const AmountInput = (props: Props) => {
     (state: RootState) => state.wallet,
   );
 
-  const {
-    fromChain: sourceChain,
-    token: sourceToken,
-    amount,
-  } = useSelector((state: RootState) => state.transferInput);
+  const [amountInput, setAmountInput] = useState('');
+
+  const { fromChain: sourceChain, token: sourceToken } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
@@ -166,6 +166,11 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, balances, tokenBalance, sendingWallet.address]);
 
+  const handleChange = useCallback((newValue: string): void => {
+    dispatch(setAmount(newValue));
+    setAmountInput(newValue);
+  }, []);
+
   const maxButton = useMemo(() => {
     return (
       <Button
@@ -173,7 +178,7 @@ const AmountInput = (props: Props) => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            dispatch(setAmount(sdkAmount.display(tokenBalance)));
+            handleChange(sdkAmount.display(tokenBalance));
           }
         }}
       >
@@ -183,10 +188,6 @@ const AmountInput = (props: Props) => {
       </Button>
     );
   }, [isInputDisabled, tokenBalance]);
-
-  const handleChange = useCallback((newValue: string): void => {
-    dispatch(setAmount(newValue));
-  }, []);
 
   return (
     <div className={classes.amountContainer}>
@@ -220,7 +221,7 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={amount}
+            value={amountInput}
             onChange={handleChange}
             InputProps={{
               disableUnderline: true,

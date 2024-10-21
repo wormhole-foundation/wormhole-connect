@@ -3,10 +3,11 @@ import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { getTokenPrice } from 'utils';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 export const useUSDamountGetter = (): ((args: {
   token: string;
-  amount: string;
+  amount: sdkAmount.Amount;
 }) => number | undefined) => {
   const {
     usdPrices: { data },
@@ -15,7 +16,7 @@ export const useUSDamountGetter = (): ((args: {
   return useCallback(
     ({ token, amount }) => {
       const prices = data || {};
-      const numericAmount = Number(amount);
+      const numericAmount = sdkAmount.whole(amount);
       const tokenPrice = Number(getTokenPrice(prices, config.tokens[token]));
       const USDAmount = tokenPrice * numericAmount;
 

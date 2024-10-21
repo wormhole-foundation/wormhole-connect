@@ -1,6 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
@@ -9,7 +7,6 @@ import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
-import type { RootState } from 'store';
 import { RouteState } from 'store/transferInput';
 import { routes } from '@wormhole-foundation/sdk';
 import { Box, CircularProgress, Skeleton } from '@mui/material';
@@ -57,12 +54,6 @@ const Routes = ({ ...props }: Props) => {
   const { classes } = useStyles();
   const [showAll, setShowAll] = useState(false);
 
-  const { amount } = useSelector((state: RootState) => state.transferInput);
-
-  const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
-    (state: RootState) => state.wallet,
-  );
-
   const routes = useMemo(() => {
     return props.routes.filter((rs) => props.quotes[rs.name] !== undefined);
   }, [props.routes, props.quotes]);
@@ -70,11 +61,6 @@ const Routes = ({ ...props }: Props) => {
   const supportedRoutes = useMemo(() => {
     return routes.filter((rs) => rs.supported);
   }, [routes]);
-
-  const walletsConnected = useMemo(
-    () => !!sendingWallet.address && !!receivingWallet.address,
-    [sendingWallet.address, receivingWallet.address],
-  );
 
   const renderRoutes = useMemo(() => {
     if (showAll) {
@@ -126,16 +112,6 @@ const Routes = ({ ...props }: Props) => {
       { name: '', amountOut: 0n },
     );
   }, [routes, props.quotes]);
-
-  if (walletsConnected && !(Number(amount) > 0)) {
-    return (
-      <Tooltip title="Please enter the amount to view available routes">
-        <div className={classes.connectWallet}>
-          <div>View routes</div>
-        </div>
-      </Tooltip>
-    );
-  }
 
   if (props.hasError) {
     return null;

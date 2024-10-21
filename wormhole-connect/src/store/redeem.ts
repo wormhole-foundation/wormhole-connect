@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransferInfo } from 'utils/sdkv2';
-import { TransferDestInfo } from 'routes';
 
 export enum MessageType {
   BRIDGE = 1,
@@ -15,7 +14,6 @@ export interface RedeemState {
   isVaaEnqueued: boolean;
   isInvalidVaa: boolean;
   route?: string;
-  transferDestInfo: TransferDestInfo | undefined;
   isResumeTx: boolean;
   timestamp: number;
 }
@@ -28,7 +26,6 @@ const initialState: RedeemState = {
   isVaaEnqueued: false,
   isInvalidVaa: false,
   route: undefined,
-  transferDestInfo: undefined,
   isResumeTx: false,
   timestamp: 0,
 };
@@ -64,12 +61,6 @@ export const redeemSlice = createSlice({
     ) => {
       state.isVaaEnqueued = payload;
     },
-    setTransferDestInfo: (
-      state: RedeemState,
-      { payload }: PayloadAction<TransferDestInfo | undefined>,
-    ) => {
-      state.transferDestInfo = payload;
-    },
     clearRedeem: (state: RedeemState) => {
       Object.keys(state).forEach((key) => {
         // @ts-ignore
@@ -101,7 +92,6 @@ export const {
   setTransferComplete,
   setIsVaaEnqueued,
   setInvalidVaa,
-  setTransferDestInfo,
   clearRedeem,
   setRoute,
   setIsResumeTx,

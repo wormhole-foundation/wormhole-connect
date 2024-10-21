@@ -73,7 +73,7 @@ const useGetTokenBalances = (
           const tokenIdMapping: Record<string, TokenConfig> = {};
           const tokenAddresses: string[] = [];
           for (const tokenConfig of needsUpdate) {
-            const decimals = getTokenDecimals(chain, tokenConfig.tokenId);
+            const decimals = getTokenDecimals(chain, tokenConfig);
 
             updatedBalances[tokenConfig.key] = {
               balance: amount.fromBaseUnits(0n, decimals),
@@ -126,7 +126,7 @@ const useGetTokenBalances = (
 
           for (const tokenAddress in result) {
             const tokenConfig = tokenIdMapping[tokenAddress];
-            const decimals = getTokenDecimals(chain, tokenConfig.tokenId);
+            const decimals = getTokenDecimals(chain, tokenConfig);
             const bus = result[tokenAddress];
             const balance = amount.fromBaseUnits(bus ?? 0n, decimals);
 

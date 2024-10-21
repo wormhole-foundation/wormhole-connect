@@ -13,25 +13,13 @@ import {
 } from '@wormhole-foundation/sdk';
 import { TokenId as TokenIdV1 } from 'sdklegacy';
 import { TokenConfig } from 'config/types';
-import {
-  TransferDestInfo,
-  TransferDestInfoBaseParams,
-  TransferDisplayData,
-  TransferInfoBaseParams,
-} from 'routes/types';
-import { TokenPrices } from 'store/tokenPrices';
-import {
-  getTokenBridgeWrappedTokenAddressSync,
-  TransferInfo,
-} from 'utils/sdkv2';
+import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 
 import { SDKv2Signer } from './signer';
 
-import { amount } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 import {
-  calculateUSDPrice,
-  getDisplayName,
   getGasToken,
   getWrappedToken,
   getWrappedTokenId,
@@ -39,8 +27,8 @@ import {
   isWrappedToken,
 } from 'utils';
 import { TransferWallet } from 'utils/wallet';
-import { RelayerFee } from 'store/relay';
-import { toFixedDecimals } from 'utils/balance';
+
+type Amount = sdkAmount.Amount;
 
 // =^o^=
 export class SDKv2Route {
@@ -79,7 +67,7 @@ export class SDKv2Route {
   async isRouteSupported(
     sourceToken: string,
     destToken: string,
-    _amount: string, // Amount is validated later, when getting a quote
+    _amount: Amount, // Amount is validated later, when getting a quote
     fromChain: Chain,
     toChain: Chain,
   ): Promise<boolean> {
@@ -217,7 +205,7 @@ export class SDKv2Route {
   }
 
   async getQuote(
-    amount: string,
+    amount: Amount,
     sourceTokenV1: string,
     destTokenV1: string,
     sourceChain: Chain,
@@ -240,7 +228,7 @@ export class SDKv2Route {
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
     const validationResult = await route.validate(req, {
-      amount,
+      amount: sdkAmount.display(amount),
       options,
     });
 
@@ -254,7 +242,7 @@ export class SDKv2Route {
   }
 
   async createRequest(
-    amount: string,
+    amount: Amount,
     sourceTokenV1: string,
     destTokenV1: string,
     sourceChain: Chain,
@@ -299,22 +287,18 @@ export class SDKv2Route {
   }
 
   async computeReceiveAmount(
-    amountIn: number,
+    amountIn: Amount,
     sourceToken: string,
     destToken: string,
     fromChain: Chain | undefined,
     toChain: Chain | undefined,
     options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<number> {
-    if (isNaN(amountIn)) {
-      return 0;
-    }
-
+  ): Promise<Amount> {
     if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
 
     const [, quote] = await this.getQuote(
-      amountIn.toString(),
+      amountIn,
       sourceToken,
       destToken,
       fromChain,
@@ -323,36 +307,14 @@ export class SDKv2Route {
     );
 
     if (quote.success) {
-      return amount.whole(quote.destinationToken.amount);
+      return quote.destinationToken.amount;
     } else {
       throw quote.error;
     }
   }
 
-  async computeReceiveAmountWithFees(
-    amount: number,
-    sourceToken: string,
-    destToken: string,
-    fromChain: Chain | undefined,
-    toChain: Chain | undefined,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<number> {
-    if (!fromChain || !toChain)
-      throw new Error('Need both chains to get a quote from SDKv2');
-
-    // TODO handle fees?
-    return this.computeReceiveAmount(
-      amount,
-      sourceToken,
-      destToken,
-      fromChain,
-      toChain,
-      options,
-    );
-  }
-
   async computeQuote(
-    amountIn: string,
+    amountIn: Amount,
     sourceToken: string,
     destToken: string,
     fromChain: Chain,
@@ -380,7 +342,7 @@ export class SDKv2Route {
 
   public validate(
     token: TokenIdV1 | 'native',
-    amount: string,
+    amount: Amount,
     sendingChain: Chain,
     senderAddress: string,
     recipientChain: Chain,
@@ -402,7 +364,7 @@ export class SDKv2Route {
 
   async send(
     sourceToken: TokenConfig,
-    amount: string,
+    amount: Amount,
     fromChain: Chain,
     senderAddress: string,
     toChain: Chain,
@@ -411,7 +373,7 @@ export class SDKv2Route {
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<[routes.Route<Network>, routes.Receipt]> {
     const [route, quote, req] = await this.getQuote(
-      amount.toString(),
+      amount,
       sourceToken.key,
       destToken,
       fromChain,
@@ -454,152 +416,6 @@ export class SDKv2Route {
     }
 
     throw new Error('Never got a SourceInitiated state in receipt');
-  }
-
-  async getPreview(
-    token: TokenConfig,
-    destToken: TokenConfig,
-    amount: number,
-    sendingChain: Chain,
-    recipientChain: Chain,
-    sendingGasEst: string,
-    claimingGasEst: string,
-    receiveAmount: string,
-    tokenPrices: TokenPrices,
-    relayerFee?: RelayerFee,
-    receiveNativeAmt?: number,
-  ): Promise<TransferDisplayData> {
-    const displayData = [
-      this.createDisplayItem(
-        'Amount',
-        amount,
-        destToken,
-        tokenPrices,
-        recipientChain,
-      ),
-    ];
-
-    if (relayerFee) {
-      const { fee, tokenKey } = relayerFee;
-      displayData.push(
-        this.createDisplayItem(
-          'Relayer fee',
-          fee,
-          config.tokens[tokenKey],
-          tokenPrices,
-          recipientChain,
-        ),
-      );
-    }
-
-    if (receiveNativeAmt) {
-      const destGasToken =
-        config.tokens[config.chains[recipientChain]?.gasToken || ''];
-      displayData.push(
-        this.createDisplayItem(
-          'Native gas on destination',
-          receiveNativeAmt,
-          destGasToken,
-          tokenPrices,
-          recipientChain,
-        ),
-      );
-    }
-
-    return displayData;
-  }
-
-  createDisplayItem(
-    title: string,
-    amount: number,
-    token: TokenConfig,
-    tokenPrices: TokenPrices,
-    chain: Chain,
-  ) {
-    return {
-      title,
-      value: `${
-        !isNaN(amount)
-          ? Number(toFixedDecimals(amount.toFixed(18).toString(), 6))
-          : '0'
-      } ${getDisplayName(token, chain)}`,
-      valueUSD: calculateUSDPrice(amount, tokenPrices, token),
-    };
-  }
-
-  async getTransferSourceInfo<T extends TransferInfoBaseParams>(
-    params: T,
-  ): Promise<TransferDisplayData> {
-    const txData = params.txData as TransferInfo;
-    const token = config.tokens[txData.tokenKey];
-    const displayData = [
-      this.createDisplayItem(
-        'Amount',
-        Number(txData.amount),
-        token,
-        params.tokenPrices,
-        txData.toChain,
-      ),
-    ];
-    const { relayerFee, toChain } = txData;
-    if (relayerFee) {
-      displayData.push(
-        this.createDisplayItem(
-          'Relayer fee',
-          relayerFee.fee,
-          config.tokens[relayerFee.tokenKey],
-          params.tokenPrices,
-          toChain,
-        ),
-      );
-    }
-    return displayData;
-  }
-
-  async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
-    params: T,
-  ): Promise<TransferDestInfo> {
-    const info: TransferDestInfo = {
-      route: this.rc.meta.name,
-      displayData: [],
-    };
-    const txData = params.txData as TransferInfo;
-    const token = config.tokens[txData.receivedTokenKey];
-    if (txData.receiveAmount) {
-      info.displayData.push(
-        this.createDisplayItem(
-          'Amount',
-          Number(txData.receiveAmount),
-          token,
-          params.tokenPrices,
-          txData.toChain,
-        ),
-      );
-    }
-    if (txData.receiveNativeAmount && txData.receiveNativeAmount > 0) {
-      info.displayData.push(
-        this.createDisplayItem(
-          'Native gas amount',
-          Number(txData.receiveNativeAmount.toFixed(6)),
-          config.tokens[config.chains[txData.toChain]?.gasToken || ''],
-          params.tokenPrices,
-          txData.toChain,
-        ),
-      );
-    }
-    return info;
-  }
-
-  async getForeignAsset(
-    token: TokenIdV1,
-    chain: Chain,
-    destToken?: TokenConfig | undefined,
-  ): Promise<string | null> {
-    return 'test';
-  }
-
-  tryFetchRedeemTx(txData: TransferInfo): Promise<string | undefined> {
-    throw new Error('Method not implemented.');
   }
 
   async resumeIfManual(tx: TransactionId): Promise<routes.Receipt | null> {

@@ -21,10 +21,10 @@ import {
   trimTxHash,
 } from 'utils';
 import { getExplorerInfo } from 'utils/sdkv2';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import type { RootState } from 'store';
 import { toFixedDecimals } from 'utils/balance';
-import { formatStringAmount } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -79,7 +79,7 @@ const TransactionDetails = () => {
 
     const senderAddress = sender ? trimAddress(sender) : '';
 
-    const formattedAmount = formatStringAmount(amount);
+    const formattedAmount = sdkAmount.display(sdkAmount.truncate(amount, 6));
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
@@ -130,7 +130,9 @@ const TransactionDetails = () => {
 
     const recipientAddress = recipient ? trimAddress(recipient) : '';
 
-    const formattedReceiveAmount = formatStringAmount(receiveAmount);
+    const formattedReceiveAmount = receiveAmount
+      ? sdkAmount.display(sdkAmount.truncate(receiveAmount, 6))
+      : '-';
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">

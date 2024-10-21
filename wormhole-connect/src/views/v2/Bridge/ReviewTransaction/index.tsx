@@ -25,7 +25,7 @@ import {
 } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
-import { getTokenDecimals, getWrappedToken, getWrappedTokenId } from 'utils';
+import { getTokenDecimals, getWrappedToken } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { getExplorerInfo } from 'utils/sdkv2';
 import { validate, isTransferValid } from 'utils/transferValidation';
@@ -251,7 +251,7 @@ const ReviewTransaction = (props: Props) => {
       // Add the new transaction to local storage
       addTxToLocalStorage({
         txHash: txId,
-        amount,
+        amount: sdkAmount.display(amount),
         tokenKey: sourceTokenConfig.key,
         sourceChain: receipt.from,
         destChain: receipt.to,
@@ -282,13 +282,11 @@ const ReviewTransaction = (props: Props) => {
           tokenKey: sourceTokenConfig.key,
           tokenDecimals: getTokenDecimals(
             sourceChain,
-            getWrappedTokenId(sourceTokenConfig),
+            getWrappedToken(sourceTokenConfig),
           ),
           receivedTokenKey: config.tokens[destToken].key, // TODO: possibly wrong (e..g if portico swap fails)
           relayerFee,
-          receiveAmount: sdkAmount
-            .whole(quote.destinationToken.amount)
-            .toString(),
+          receiveAmount: quote.destinationToken.amount,
           receiveNativeAmount,
           eta: quote.eta || 0,
         }),

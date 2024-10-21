@@ -1,7 +1,12 @@
 import config from 'config';
 import { TokenConfig } from 'config/types';
 
-import { Chain, routes, TransactionId } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  routes,
+  TransactionId,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';
 
@@ -37,7 +42,7 @@ export interface QuoteParams {
   sourceToken: string;
   destChain: Chain;
   destToken: string;
-  amount: string;
+  amount: sdkAmount.Amount;
   nativeGas: number;
 }
 

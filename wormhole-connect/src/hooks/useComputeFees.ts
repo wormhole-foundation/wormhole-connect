@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Chain, finality } from '@wormhole-foundation/sdk-base';
+import { Chain, finality, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 
@@ -15,7 +15,7 @@ type Props = {
   destChain: Chain | undefined;
   destToken: string;
   route?: string;
-  amount: string;
+  amount: sdkAmount.Amount;
   toNativeToken: number;
 };
 
@@ -90,8 +90,8 @@ const useComputeFees = (props: Props): returnProps => {
 
         const receiveAmount = await config.routes
           .get(route)
-          .computeReceiveAmountWithFees(
-            Number.parseFloat(amount),
+          .computeReceiveAmount(
+            amount,
             sourceToken,
             destToken,
             sourceChain,

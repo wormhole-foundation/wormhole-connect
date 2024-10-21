@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 import { DataWrapper } from 'store/helpers';
 import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { getTokenDecimals } from 'utils';
 
 export const validateFromChain = (chain: Chain | undefined): ValidationErr => {
   if (!chain) return 'Select a source chain';
@@ -92,32 +91,22 @@ export const validateDestToken = (
 };
 
 export const validateAmount = (
-  amount: string,
+  amount: sdkAmount.Amount | undefined,
   balance: sdkAmount.Amount | null,
-  fromChain: Chain | undefined,
-  token: string,
 ): ValidationErr => {
-  if (amount === '') return '';
+  if (!amount) return '';
 
-  const numAmount = Number.parseFloat(amount);
-  if (isNaN(numAmount)) return 'Amount must be a number';
+  // If user has selected chain, token, and has a balance entry, we can compare
+  // their amount input to their balance (using base units)
+  const amountBaseUnits = sdkAmount.units(amount);
+  if (amountBaseUnits === 0n) {
+    return 'Amount must be greater than 0';
+  }
 
-  if (fromChain && token) {
-    // If user has selected chain, token, and has a balance entry, we can compare
-    // their amount input to their balance (using base units)
-    const tokenConfig = config.tokens[token];
-    const decimals = getTokenDecimals(fromChain, tokenConfig.tokenId);
-    const amountInput = sdkAmount.parse(amount, decimals);
-    const amountBaseUnits = sdkAmount.units(amountInput);
-    if (amountBaseUnits === 0n) {
-      return 'Amount must be greater than 0';
-    }
-
-    if (balance) {
-      const balanceBaseUnits = sdkAmount.units(balance);
-      if (amountBaseUnits > balanceBaseUnits) {
-        return 'Amount exceeds available balance';
-      }
+  if (balance) {
+    const balanceBaseUnits = sdkAmount.units(balance);
+    if (amountBaseUnits > balanceBaseUnits) {
+      return 'Amount exceeds available balance';
     }
   }
   return '';
@@ -211,12 +200,7 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
-    amount: validateAmount(
-      amount,
-      sendingTokenBalance?.balance || null,
-      fromChain,
-      token,
-    ),
+    amount: validateAmount(amount, sendingTokenBalance?.balance || null),
     toNativeToken: '',
     relayerFee: '',
     receiveAmount: '',
@@ -269,7 +253,6 @@ export const validate = async (
     transferInput.token &&
     transferInput.destToken &&
     transferInput.amount &&
-    Number.parseFloat(transferInput.amount) >= 0 &&
     transferInput.routeStates?.some((rs) => rs.supported) !== undefined
       ? true
       : false;
