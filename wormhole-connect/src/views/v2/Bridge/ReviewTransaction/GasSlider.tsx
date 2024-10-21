@@ -12,13 +12,12 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import { amount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { getDisplayName, calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
-
-import { toFixedDecimals } from 'utils/balance';
 
 const useStyles = makeStyles()(() => ({
   card: {
@@ -83,7 +82,7 @@ const StyledSwitch = styled(Switch)(({ theme }) => ({
 }));
 
 const GasSlider = (props: {
-  destinationGasDrop: number;
+  destinationGasDrop: amount.Amount;
   disabled: boolean;
 }) => {
   const { classes } = useStyles();
@@ -115,10 +114,10 @@ const GasSlider = (props: {
       return null;
     }
 
-    const tokenAmount = toFixedDecimals(
-      props.destinationGasDrop?.toString() || '0',
-      6,
+    const tokenAmount = amount.display(
+      amount.truncate(props.destinationGasDrop, 6),
     );
+    console.log(tokenAmount);
 
     const tokenPrice = calculateUSDPrice(
       props.destinationGasDrop,

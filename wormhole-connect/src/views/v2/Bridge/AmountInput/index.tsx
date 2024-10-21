@@ -111,8 +111,11 @@ const AmountInput = (props: Props) => {
   const { sending: sendingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
+  const { amount } = useSelector((state: RootState) => state.transferInput);
 
-  const [amountInput, setAmountInput] = useState('');
+  const [amountInput, setAmountInput] = useState(
+    amount ? sdkAmount.display(amount) : '',
+  );
 
   const { fromChain: sourceChain, token: sourceToken } = useSelector(
     (state: RootState) => state.transferInput,

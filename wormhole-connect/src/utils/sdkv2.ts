@@ -49,8 +49,7 @@ export interface TransferInfo {
   relayerFee?: RelayerFee;
 
   // Amount of native gas being received, in destination gas token units
-  // For example 1.0 is 1.0 ETH, not 1 wei
-  receiveNativeAmount?: number;
+  receiveNativeAmount?: amount.Amount;
 
   // ETA for the route this transfer was initiated on
   eta?: number;
@@ -248,8 +247,9 @@ const parseTokenBridgeReceipt = async (
     txData.receivedTokenKey = tokenV1.key;
     txData.receiveAmount = txData.amount;
     if (payload.payload?.toNativeTokenAmount) {
-      txData.receiveNativeAmount = Number(
-        amount.fmt(payload.payload.toNativeTokenAmount, Math.min(8, decimals)),
+      txData.receiveNativeAmount = amount.fromBaseUnits(
+        payload.payload.toNativeTokenAmount,
+        Math.min(8, decimals),
       );
     }
     if (payload.payload?.targetRelayerFee) {

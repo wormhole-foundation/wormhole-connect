@@ -428,7 +428,7 @@ const Bridge = () => {
     destToken &&
     sendingWallet.address &&
     receivingWallet.address &&
-    Number(amount) > 0 &&
+    amount &&
     !hasError;
 
   const supportedRouteSelected = useMemo(

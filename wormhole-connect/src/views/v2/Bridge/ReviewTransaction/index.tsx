@@ -113,9 +113,7 @@ const ReviewTransaction = (props: Props) => {
   const quoteResult = props.quotes[route ?? ''];
   const quote = quoteResult?.success ? quoteResult : undefined;
 
-  const receiveNativeAmount = quote?.destinationNativeGas
-    ? sdkAmount.whole(quote.destinationNativeGas)
-    : undefined;
+  const receiveNativeAmount = quote?.destinationNativeGas;
 
   const send = async () => {
     setSendError(undefined);
@@ -340,7 +338,7 @@ const ReviewTransaction = (props: Props) => {
       !destChain ||
       !destToken ||
       !route ||
-      !(Number(amount) > 0)
+      !amount
     ) {
       return null;
     }
@@ -411,7 +409,9 @@ const ReviewTransaction = (props: Props) => {
       {showGasSlider && (
         <Collapse in={showGasSlider}>
           <GasSlider
-            destinationGasDrop={receiveNativeAmount || 0}
+            destinationGasDrop={
+              receiveNativeAmount || sdkAmount.fromBaseUnits(0n, 8)
+            }
             disabled={isGasSliderDisabled}
           />
         </Collapse>
