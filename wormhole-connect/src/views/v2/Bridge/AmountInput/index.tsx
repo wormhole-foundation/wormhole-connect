@@ -152,7 +152,6 @@ const AmountInput = (props: Props) => {
         {isFetching ? (
           <CircularProgress size={14} />
         ) : (
-          // TODO AMOUNT HACK... fix amount formatting in amount.Amount balance refactor
           <Typography
             fontSize={14}
             textAlign="right"
@@ -174,7 +173,6 @@ const AmountInput = (props: Props) => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            // TODO: Remove this when useGetTokenBalances returns non formatted amounts
             dispatch(setAmount(sdkAmount.display(tokenBalance)));
           }
         }}

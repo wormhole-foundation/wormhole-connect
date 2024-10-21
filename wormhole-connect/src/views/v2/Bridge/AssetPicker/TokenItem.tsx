@@ -102,7 +102,6 @@ function TokenItem(props: TokenItemProps) {
         {props.isFetchingBalance ? (
           <CircularProgress size={24} />
         ) : props.balance ? (
-          // TODO AMOUNT HACK... fix amount formatting in amount.Amount balance refactor
           sdkAmount.display(sdkAmount.truncate(props.balance, 6))
         ) : (
           ''
