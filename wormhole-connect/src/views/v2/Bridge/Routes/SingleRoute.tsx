@@ -25,7 +25,6 @@ import {
 
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
-import { formatAmount } from 'utils/amount';
 import { toFixedDecimals } from 'utils/balance';
 import { TokenConfig } from 'config/types';
 import FastestRoute from 'icons/FastestRoute';
@@ -355,14 +354,11 @@ const SingleRoute = (props: Props) => {
   }, [quote]);
 
   const receiveAmountTrunc = useMemo(() => {
-    return quote && destChain && destTokenConfig
-      ? formatAmount(
-          destChain,
-          destTokenConfig,
-          quote.destinationToken.amount.amount,
-          6,
-        )
-      : undefined;
+    if (quote) {
+      return amount.display(amount.truncate(quote.destinationToken.amount, 6));
+    } else {
+      return undefined;
+    }
   }, [quote]);
 
   const routeCardHeader = useMemo(() => {
