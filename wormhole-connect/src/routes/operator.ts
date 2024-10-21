@@ -250,7 +250,11 @@ class QuoteCache {
   }
 
   quoteParamsKey(routeName: string, params: QuoteParams): string {
-    return `${routeName}:${params.sourceChain}:${params.sourceToken}:${params.destChain}:${params.destToken}:${params.amount}:${params.nativeGas}`;
+    return `${routeName}:${params.sourceChain}:${params.sourceToken}:${
+      params.destChain
+    }:${params.destToken}:${sdkAmount.units(params.amount)}:${
+      params.nativeGas
+    }`;
   }
 
   get(routeName: string, params: QuoteParams): QuoteResult | null {
