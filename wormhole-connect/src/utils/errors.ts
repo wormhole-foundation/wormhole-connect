@@ -1,4 +1,8 @@
-import type { TransferErrorType, TransferError } from 'telemetry/types';
+import type {
+  TransferErrorType,
+  TransferError,
+  TransferDetails,
+} from 'telemetry/types';
 import {
   ERR_INSUFFICIENT_ALLOWANCE,
   //ERR_SWAP_FAILED,
@@ -6,10 +10,9 @@ import {
   ERR_TIMEOUT,
   ERR_UNKNOWN,
   ERR_USER_REJECTED,
+  ERR_AMOUNT_TOO_LARGE,
 } from 'telemetry/types';
 import { InsufficientFundsForGasError } from 'sdklegacy';
-import { Chain } from '@wormhole-foundation/sdk';
-//import { SWAP_ERROR } from 'routes/porticoBridge/consts';
 
 // TODO SDKV2
 // attempt to capture errors using regex
@@ -21,7 +24,7 @@ export const USER_REJECTED_REGEX = new RegExp(
 
 export function interpretTransferError(
   e: any,
-  chain: Chain,
+  transferDetails: TransferDetails,
 ): [string, TransferError] {
   // Fall-back values
   let uiErrorMessage = 'Error with transfer, please try again';
@@ -41,11 +44,22 @@ export function interpretTransferError(
     } else if (USER_REJECTED_REGEX.test(e?.message)) {
       uiErrorMessage = 'Transfer rejected in wallet, please try again';
       internalErrorCode = ERR_USER_REJECTED;
-      /* TODO SDKV2
-    } else if (e.message === SWAP_ERROR) {
-      uiErrorMessage = SWAP_ERROR;
-      internalErrorCode = ERR_SWAP_FAILED;
-      */
+    } else if (
+      transferDetails.route.includes('CCTP') &&
+      /burn\s.*\sexceed/i.test(e?.toString())
+    ) {
+      // As of this code being written the CCTP limit is 1,000,000 USDC in a single transfer
+      // It's possible Circle could change this in the future and we're not reading the limit
+      // from their contracts dynamically for now so we assume it's 1M and tell users that if
+      // their amount exceeded 1M
+      const assumedCircleLimit = 1_000_000;
+      const { amount } = transferDetails;
+      const limitString =
+        amount !== undefined && amount > assumedCircleLimit
+          ? ` of 1,000,000`
+          : '';
+      uiErrorMessage = `Amount exceeds Circle limit${limitString}. Please reduce transfer amount.`;
+      internalErrorCode = ERR_AMOUNT_TOO_LARGE;
     }
   }
 

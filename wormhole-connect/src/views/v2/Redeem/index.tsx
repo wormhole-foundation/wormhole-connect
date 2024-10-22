@@ -229,7 +229,7 @@ const Redeem = () => {
     } else if (isFailed(receipt)) {
       const [uiError, transferError] = interpretTransferError(
         receipt.error,
-        toChain,
+        details,
       );
       setClaimError(uiError);
 
@@ -247,7 +247,7 @@ const Redeem = () => {
     } else if (unhandledManualClaimError) {
       const [uiError, transferError] = interpretTransferError(
         unhandledManualClaimError,
-        toChain,
+        details,
       );
 
       setClaimError(uiError);

@@ -300,7 +300,10 @@ const ReviewTransaction = (props: Props) => {
       dispatch(setAppRoute('redeem'));
       setSendError(undefined);
     } catch (e: any) {
-      const [uiError, transferError] = interpretTransferError(e, sourceChain);
+      const [uiError, transferError] = interpretTransferError(
+        e,
+        transferDetails,
+      );
 
       if (transferError.type === ERR_USER_REJECTED) {
         // User intentionally rejected in their wallet. This is not an error in the sense
