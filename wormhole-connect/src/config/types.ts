@@ -307,4 +307,5 @@ export interface TransactionLocal {
   timestamp: number;
   txHash: string;
   txDetails: TransferInfo;
+  isReadyToClaim?: boolean;
 }

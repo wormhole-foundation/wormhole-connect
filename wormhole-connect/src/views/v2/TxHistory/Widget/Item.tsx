@@ -112,7 +112,7 @@ const WidgetItem = (props: Props) => {
 
   // Displays the countdown
   const etaCountdown = useMemo(() => {
-    if (isReadyToClaim) {
+    if (isReadyToClaim || transaction.isReadyToClaim) {
       return 'Ready to claim...';
     }
 
@@ -125,7 +125,15 @@ const WidgetItem = (props: Props) => {
     }
 
     return <CircularProgress size={16} />;
-  }, [etaExpired, etaRemaining, isReadyToClaim, isRunning, minutes, seconds]);
+  }, [
+    etaExpired,
+    etaRemaining,
+    isReadyToClaim,
+    isRunning,
+    minutes,
+    seconds,
+    transaction,
+  ]);
 
   // A number value between 0-100
   const progressBarValue = useMemo(() => {

@@ -31,7 +31,10 @@ import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import { interpretTransferError } from 'utils/errors';
-import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
+import {
+  removeTxFromLocalStorage,
+  updateTxInLocalStorage,
+} from 'utils/inProgressTxCache';
 import { joinClass } from 'utils/style';
 import {
   millisToMinutesAndSeconds,
@@ -175,6 +178,20 @@ const Redeem = () => {
 
   const getUSDAmount = useUSDamountGetter();
 
+  const isAutomaticRoute = useMemo(() => {
+    if (!routeName) {
+      return false;
+    }
+
+    const route = config.routes.get(routeName);
+
+    if (!route) {
+      return false;
+    }
+
+    return route.AUTOMATIC_DEPOSIT;
+  }, [routeName]);
+
   useEffect(() => {
     // When we see the transfer was complete for the first time,
     // fire a transfer.success telemetry event
@@ -200,8 +217,12 @@ const Redeem = () => {
       if (txData?.sendTx) {
         removeTxFromLocalStorage(txData?.sendTx);
       }
+    } else if (isTxAttested && !isAutomaticRoute && txData?.sendTx) {
+      // If this is a manual transaction in attested state,
+      // we will mark the local storage item as readyToClaim
+      updateTxInLocalStorage(txData?.sendTx, 'isReadyToClaim', true);
     }
-  }, [isTxComplete]);
+  }, [isAutomaticRoute, isTxAttested, isTxComplete]);
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
@@ -238,20 +259,6 @@ const Redeem = () => {
   const { classes } = useStyles({
     transitionDuration: `${remainingEta}ms`,
   });
-
-  const isAutomaticRoute = useMemo(() => {
-    if (!routeName) {
-      return false;
-    }
-
-    const route = config.routes.get(routeName);
-
-    if (!route) {
-      return false;
-    }
-
-    return route.AUTOMATIC_DEPOSIT;
-  }, [routeName]);
 
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {

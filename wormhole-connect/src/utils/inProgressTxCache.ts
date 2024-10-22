@@ -75,3 +75,23 @@ export const removeTxFromLocalStorage = (txHash: string) => {
     }
   }
 };
+
+// Updates a specified transaction property in localStorage
+export const updateTxInLocalStorage = (
+  txHash: string,
+  key: string,
+  value: any,
+) => {
+  const ls = window.localStorage;
+  const items = getTxsFromLocalStorage();
+
+  if (items && items.length > 0) {
+    // Find the item to update
+    const idx = items.findIndex((tx) => tx.txHash === txHash);
+    if (idx > -1) {
+      // Update item property and put back in local storage
+      items[idx][key] = value;
+      ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items, JSONReplacer));
+    }
+  }
+};

@@ -393,7 +393,11 @@ const ReviewTransaction = (props: Props) => {
   return (
     <Stack className={classes.container}>
       <div>
-        <IconButton sx={{ padding: 0 }} onClick={() => props.onClose?.()}>
+        <IconButton
+          disabled={isTransactionInProgress}
+          sx={{ padding: 0 }}
+          onClick={() => props.onClose?.()}
+        >
           <ChevronLeft sx={{ fontSize: '32px' }} />
         </IconButton>
       </div>
