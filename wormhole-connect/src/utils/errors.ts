@@ -46,7 +46,7 @@ export function interpretTransferError(
       internalErrorCode = ERR_USER_REJECTED;
     } else if (
       transferDetails.route.includes('CCTP') &&
-      /burn\s.*\sexceed/i.test(e?.toString())
+      /burn.*exceed/i.test(e?.toString())
     ) {
       // As of this code being written the CCTP limit is 1,000,000 USDC in a single transfer
       // It's possible Circle could change this in the future and we're not reading the limit
