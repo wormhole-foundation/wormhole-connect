@@ -700,8 +700,11 @@ const Redeem = () => {
       );
     }
 
-    if (isTxDestQueued || !isAutomaticRoute) {
-      if (isTxAttested && !isConnectedToReceivingWallet) {
+    const canBeManuallyClaimed =
+      isTxDestQueued || (!isAutomaticRoute && isTxAttested);
+
+    if (canBeManuallyClaimed) {
+      if (!isConnectedToReceivingWallet) {
         return (
           <Button
             variant="primary"
