@@ -264,7 +264,13 @@ const Redeem = () => {
 
       setIsClaimInProgress(false);
     }
-  }, [receipt?.state, unhandledManualClaimError]);
+  }, [
+    receipt?.state,
+    isTxComplete,
+    isTxRefunded,
+    unhandledManualClaimError,
+    unhandledManualClaimError,
+  ]);
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
