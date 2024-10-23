@@ -22,6 +22,7 @@ export type TransferEventType =
   | 'transfer.initiate'
   | 'transfer.start'
   | 'transfer.success'
+  | 'transfer.refunded'
   | 'transfer.redeem.initiate'
   | 'transfer.redeem.start'
   | 'transfer.redeem.success';
@@ -60,6 +61,7 @@ export const ERR_SOURCE_CONTRACT_PAUSED = 'source_contract_paused';
 export const ERR_DESTINATION_CONTRACT_PAUSED = 'destination_contract_paused';
 export const ERR_UNSUPPORTED_ABI_VERSION = 'unsupported_abi_version';
 export const ERR_INSUFFICIENT_GAS = 'insufficient_gas';
+export const ERR_AMOUNT_TOO_LARGE = 'amount_too_large';
 
 export const ERR_USER_REJECTED = 'user_rejected';
 export const ERR_TIMEOUT = 'user_timeout';
@@ -73,6 +75,7 @@ export type TransferErrorType =
   | typeof ERR_DESTINATION_CONTRACT_PAUSED
   | typeof ERR_UNSUPPORTED_ABI_VERSION
   | typeof ERR_INSUFFICIENT_GAS
+  | typeof ERR_AMOUNT_TOO_LARGE
   | typeof ERR_USER_REJECTED
   | typeof ERR_TIMEOUT
   | typeof ERR_UNKNOWN;

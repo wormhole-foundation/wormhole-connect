@@ -7,11 +7,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
-  isCompleted,
+  isAttested,
   isDestinationQueued,
-  isRedeemed,
+  isRefunded,
+  isFailed,
   routes,
-  TransferState,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -41,6 +41,7 @@ import {
 } from 'utils/wallet';
 import TransactionDetails from 'views/v2/Redeem/TransactionDetails';
 import WalletSidebar from 'views/v2/Bridge/WalletConnector/Sidebar';
+import { useConnectToLastUsedWallet } from 'utils/wallet';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
@@ -106,7 +107,6 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
     maxWidth: '420px',
   },
   txStatusIcon: {
-    color: theme.palette.primary.light,
     width: '105px',
     height: '105px',
   },
@@ -139,6 +139,8 @@ const Redeem = () => {
 
   const routeContext = React.useContext(RouteContext);
 
+  useConnectToLastUsedWallet();
+
   const {
     transferComplete: isTxComplete,
     route: routeName,
@@ -147,11 +149,15 @@ const Redeem = () => {
     txData,
   } = useSelector((state: RootState) => state.redeem);
 
-  const { state: receiptState } = routeContext.receipt || {};
-  const isTxAttested = receiptState && receiptState >= TransferState.Attested;
-  const isTxRefunded = receiptState === TransferState.Refunded;
-  const isTxFailed = receiptState === TransferState.Failed;
-  const isTxDestQueued = receiptState === TransferState.DestinationQueued;
+  const [unhandledManualClaimError, setUnhandledManualClaimError] =
+    useState<any>(undefined);
+
+  const { receipt } = routeContext;
+  const isTxAttested = receipt && isAttested(receipt);
+  const isTxRefunded = receipt && isRefunded(receipt);
+  const isTxFailed =
+    (receipt && isFailed(receipt)) || !!unhandledManualClaimError;
+  const isTxDestQueued = receipt && isDestinationQueued(receipt);
 
   const {
     recipient,
@@ -164,30 +170,107 @@ const Redeem = () => {
     eta = 0,
   } = txData!;
 
-  const { classes } = useStyles({ transitionDuration: `${eta}ms` });
-
   const getUSDAmount = useUSDamountGetter();
 
+  const details = getTransferDetails(
+    routeName!,
+    tokenKey,
+    receivedTokenKey,
+    fromChain,
+    toChain,
+    amount,
+    getUSDAmount,
+  );
+
+  const { classes } = useStyles({ transitionDuration: `${eta}ms` });
+
+  // Handle changes to receiptState as well as uncaught errors when initiating manual redeems
+  // There are four cases this handles, in this order:
+  //
+  // - receipt.state === DestinationFinalized
+  // - receipt.state === Refunded
+  // - receipt.state === Failed
+  // - Unhandled error when manually redeeming
+  //
+  // Because the unhandled manual redeem error is at the end, we ignore it if
+  // we already saw one of the first three cases.
   useEffect(() => {
-    // When we see the transfer was complete for the first time,
-    // fire a transfer.success telemetry event.
-    if (isTxComplete && !transferSuccessEventFired) {
-      setTransferSuccessEventFired(true);
+    const { receipt } = routeContext;
+
+    if (!receipt) return;
+
+    if (isTxComplete) {
+      if (!transferSuccessEventFired) {
+        // When we see the transfer was complete for the first time,
+        // fire a transfer.success telemetry event.
+        setTransferSuccessEventFired(true);
+
+        config.triggerEvent({
+          type: 'transfer.success',
+          details,
+        });
+
+        if (!isAutomaticRoute) {
+          // Manual routes also fire a second success event specific to manual redeems
+          config.triggerEvent({
+            type: 'transfer.redeem.success',
+            details,
+          });
+        }
+
+        setIsClaimInProgress(false);
+        setClaimError('');
+      }
+    } else if (isTxRefunded) {
+      config.triggerEvent({
+        type: 'transfer.refunded',
+        details,
+      });
+    } else if (isFailed(receipt)) {
+      const [uiError, transferError] = interpretTransferError(
+        receipt.error,
+        details,
+      );
+      setClaimError(uiError);
 
       config.triggerEvent({
-        type: 'transfer.success',
-        details: getTransferDetails(
-          routeName!,
-          tokenKey,
-          receivedTokenKey,
-          fromChain,
-          toChain,
-          amount,
-          getUSDAmount,
-        ),
+        type: 'transfer.error',
+        details,
+        error: transferError,
       });
+
+      console.error(
+        `Transfer failed with error ${transferError}: ${receipt.error}`,
+      );
+
+      setIsClaimInProgress(false);
+    } else if (unhandledManualClaimError) {
+      const [uiError, transferError] = interpretTransferError(
+        unhandledManualClaimError,
+        details,
+      );
+
+      setClaimError(uiError);
+
+      config.triggerEvent({
+        type: 'transfer.redeem.error',
+        details,
+        error: transferError,
+      });
+
+      console.error(
+        `Error while manually redeeming: ${transferError.type} - ${unhandledManualClaimError}`,
+      );
+
+      setIsClaimInProgress(false);
     }
-  }, [isTxComplete]);
+  }, [
+    receipt?.state,
+    isTxComplete,
+    isTxRefunded,
+    unhandledManualClaimError,
+    unhandledManualClaimError,
+  ]);
 
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
@@ -396,23 +479,24 @@ const Redeem = () => {
   // Circular progress indicator component for ETA countdown
   const etaCircle = useMemo(() => {
     if (isTxComplete) {
-      return <TxCompleteIcon className={classes.txStatusIcon} />;
+      return (
+        <TxCompleteIcon
+          className={classes.txStatusIcon}
+          sx={{ color: theme.palette.primary.light }}
+        />
+      );
     } else if (isTxRefunded || isTxDestQueued) {
       return (
         <TxWarningIcon
           className={classes.txStatusIcon}
-          sx={{
-            color: theme.palette.warning.main,
-          }}
+          sx={{ color: theme.palette.warning.main }}
         />
       );
     } else if (isTxFailed) {
       return (
         <TxFailedIcon
           className={classes.txStatusIcon}
-          sx={{
-            color: theme.palette.error.light,
-          }}
+          sx={{ color: theme.palette.error.light }}
         />
       );
     } else if (!isAutomaticRoute && isTxAttested) {
@@ -420,9 +504,7 @@ const Redeem = () => {
       return (
         <TxReadyForClaim
           className={classes.txStatusIcon}
-          sx={{
-            color: theme.palette.warning.light,
-          }}
+          sx={{ color: theme.palette.warning.light }}
         />
       );
     } else {
@@ -515,6 +597,7 @@ const Redeem = () => {
 
   // Callback for claim action in Manual route transactions
   const handleManualClaim = async () => {
+    // This will be set back to false by a hook above which looks out for isTxComplete=true
     setIsClaimInProgress(true);
     setClaimError('');
 
@@ -553,8 +636,6 @@ const Redeem = () => {
 
     const route = routeContext.route!;
 
-    let txId: string | undefined;
-
     try {
       if (
         chainConfig!.context === Context.ETH &&
@@ -575,60 +656,55 @@ const Redeem = () => {
         TransferWallet.RECEIVING,
       );
 
-      let receipt: routes.Receipt | undefined;
+      const finishPromise = (() => {
+        if (isTxDestQueued && routes.isFinalizable(route)) {
+          return route.finalize(signer, routeContext.receipt);
+        } else if (!isTxDestQueued && routes.isManual(route)) {
+          return route.complete(signer, routeContext.receipt);
+        } else {
+          // Should be unreachable
+          return undefined;
+        }
+      })();
 
-      if (isTxDestQueued && routes.isFinalizable(route)) {
-        receipt = await route.finalize(signer, routeContext.receipt);
-      } else if (!isTxDestQueued && routes.isManual(route)) {
-        receipt = await route.complete(signer, routeContext.receipt);
+      if (finishPromise) {
+        config.triggerEvent({
+          type: 'transfer.redeem.start',
+          details,
+        });
+
+        // Await this promise just so that we catch any errors thrown by it and handle them below
+        await finishPromise;
       }
-
-      if (!receipt || (!isRedeemed(receipt) && !isCompleted(receipt))) {
-        throw new Error('Transfer not completed');
-      }
-
-      if (receipt.destinationTxs && receipt.destinationTxs.length > 0) {
-        txId = receipt.destinationTxs[receipt.destinationTxs.length - 1].txid;
-      }
-
-      config.triggerEvent({
-        type: 'transfer.redeem.start',
-        details: transferDetails,
-      });
-
-      setIsClaimInProgress(false);
-      setClaimError('');
     } catch (e: any) {
-      const [uiError, transferError] = interpretTransferError(e, toChain);
-
-      setClaimError(uiError);
-
-      config.triggerEvent({
-        type: 'transfer.redeem.error',
-        details: transferDetails,
-        error: transferError,
-      });
-
+      // This could be all kinds of unexpected errors
+      // Kick it up to the main useEffect where we handle receipt state changes
+      setUnhandledManualClaimError(e);
       setIsClaimInProgress(false);
-      console.error(e);
-    }
-    if (txId !== undefined) {
-      config.triggerEvent({
-        type: 'transfer.redeem.success',
-        details: transferDetails,
-      });
     }
   };
 
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
-    if (
-      !isTxComplete &&
-      !isTxRefunded &&
-      !isTxFailed &&
-      (isTxDestQueued || !isAutomaticRoute)
-    ) {
-      if (isTxAttested && !isConnectedToReceivingWallet) {
+    if (isTxComplete || isTxRefunded) {
+      return (
+        <Button
+          variant="primary"
+          className={classes.actionButton}
+          onClick={() => {
+            dispatch(setRoute('bridge'));
+          }}
+        >
+          <Typography textTransform="none">Start a new transaction</Typography>
+        </Button>
+      );
+    }
+
+    const canBeManuallyClaimed =
+      isTxDestQueued || (!isAutomaticRoute && isTxAttested);
+
+    if (canBeManuallyClaimed) {
+      if (!isConnectedToReceivingWallet) {
         return (
           <Button
             variant="primary"
@@ -662,18 +738,6 @@ const Redeem = () => {
         </Button>
       );
     }
-
-    return (
-      <Button
-        variant="primary"
-        className={classes.actionButton}
-        onClick={() => {
-          dispatch(setRoute('bridge'));
-        }}
-      >
-        <Typography textTransform="none">Start a new transaction</Typography>
-      </Button>
-    );
   }, [
     isAutomaticRoute,
     isClaimInProgress,
