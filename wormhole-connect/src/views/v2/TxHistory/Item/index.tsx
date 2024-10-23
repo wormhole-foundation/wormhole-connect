@@ -101,7 +101,7 @@ const TxHistoryItem = (props: Props) => {
       : undefined;
 
     const receiveAmountPrice = calculateUSDPrice(
-      receiveAmount,
+      parseFloat(receiveAmount),
       props.tokenPrices,
       destTokenConfig,
     );

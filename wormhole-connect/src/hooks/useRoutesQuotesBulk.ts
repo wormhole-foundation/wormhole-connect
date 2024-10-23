@@ -1,3 +1,4 @@
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { useState, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
@@ -19,7 +20,7 @@ type Params = {
   sourceToken: string;
   destChain?: Chain;
   destToken: string;
-  amount: string;
+  amount?: sdkAmount.Amount;
   nativeGas: number;
 };
 
@@ -62,8 +63,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       !params.sourceChain ||
       !params.sourceToken ||
       !params.destChain ||
-      !params.destToken ||
-      !parseFloat(params.amount)
+      !params.destToken
     ) {
       return;
     }
@@ -127,7 +127,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     const quote = quotesMap[name];
     if (quote !== undefined && quote.success) {
       const usdValueOut = calculateUSDPriceRaw(
-        amount.whole(quote.destinationToken.amount),
+        quote.destinationToken.amount,
         usdPrices.data,
         destTokenConfig,
       );
@@ -175,7 +175,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
             sourceTokenConfig,
           );
           const approxOutputUsdValue = calculateUSDPriceRaw(
-            amount.display(mayanQuote.destinationToken.amount),
+            mayanQuote.destinationToken.amount,
             usdPrices.data,
             config.tokens[params.destToken],
           );

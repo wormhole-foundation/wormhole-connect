@@ -12,7 +12,7 @@ type HookReturn = {
 };
 
 type Props = {
-  balance?: string | null;
+  balance?: sdkAmount.Amount | null;
   routes: RouteState[];
   quotesMap: Record<string, QuoteResult | undefined>;
   tokenSymbol: string;
@@ -50,36 +50,30 @@ export const useAmountValidation = (props: Props): HookReturn => {
     [props.quotesMap],
   );
 
-  const allRoutesFailed = useMemo(
-    () => props.routes.every((route) => !props.quotesMap[route.name]?.success),
-    [props.routes, props.quotesMap],
-  );
+  const allRoutesFailed = useMemo(() => {
+    if (Object.keys(props.quotesMap).length === 0) {
+      return false;
+    }
 
-  const numAmount = Number.parseFloat(amount);
+    return props.routes.every((route) => {
+      return props.quotesMap[route.name]?.success === false;
+    });
+  }, [props.routes, props.quotesMap]);
 
   // Don't show errors when no amount is set or it's loading
-  if (!amount || !numAmount || props.disabled) {
+  if (!amount || props.disabled) {
     return {};
-  }
-
-  // Input errors
-  if (Number.isNaN(numAmount)) {
-    return {
-      error: 'Amount must be a number.',
-    };
   }
 
   // Balance errors
   if (props.balance) {
-    const balanceNum = Number.parseFloat(props.balance.replaceAll(',', ''));
-    if (numAmount > balanceNum) {
+    if (sdkAmount.units(amount) > sdkAmount.units(props.balance)) {
       return {
         error: 'Amount exceeds available balance.',
       };
     }
   }
 
-  // All quotes fail.
   if (allRoutesFailed) {
     if (minAmount) {
       const formattedAmount = sdkAmount.display(minAmount);

@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { TokenDetails, TransferDetails } from './types';
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 export function getTokenDetails(token: string): TokenDetails {
   const tokenConfig = config.tokens[token]!;
@@ -19,8 +19,11 @@ export function getTransferDetails(
   destToken: string,
   sourceChain: Chain,
   destChain: Chain,
-  amount: string,
-  getUSDAmount: (args: { token: string; amount: string }) => number | undefined,
+  amount: sdkAmount.Amount,
+  getUSDAmount: (args: {
+    token: string;
+    amount: sdkAmount.Amount;
+  }) => number | undefined,
 ): TransferDetails {
   return {
     route,
@@ -28,7 +31,7 @@ export function getTransferDetails(
     toToken: getTokenDetails(destToken),
     fromChain: sourceChain,
     toChain: destChain,
-    amount: Number(amount),
+    amount,
     USDAmount: getUSDAmount({ token: sourceToken, amount }),
   };
 }

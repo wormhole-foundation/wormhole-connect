@@ -20,7 +20,7 @@ const useFetchSupportedRoutes = (): void => {
   const [debouncedAmount] = useDebounce(amount, 500);
 
   useEffect(() => {
-    if (!fromChain || !toChain || !token || !destToken) {
+    if (!fromChain || !toChain || !token || !destToken || !debouncedAmount) {
       dispatch(setRoutes([]));
       return;
     }

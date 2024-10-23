@@ -18,7 +18,7 @@ import { walletAcceptedChains } from './wallet';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
 import { DataWrapper } from 'store/helpers';
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 export const validateFromChain = (chain: Chain | undefined): ValidationErr => {
   if (!chain) return 'Select a source chain';
@@ -91,20 +91,23 @@ export const validateDestToken = (
 };
 
 export const validateAmount = (
-  amount: string,
-  balance: string | null,
-  maxAmount: number,
+  amount: sdkAmount.Amount | undefined,
+  balance: sdkAmount.Amount | null,
 ): ValidationErr => {
-  if (amount === '') return '';
-  const numAmount = Number.parseFloat(amount);
-  if (isNaN(numAmount)) return 'Amount must be a number';
-  if (numAmount <= 0) return 'Amount must be greater than 0';
-  if (balance) {
-    const b = Number.parseFloat(balance.replaceAll(',', ''));
-    if (numAmount > b) return 'Amount exceeds available balance.';
+  if (!amount) return '';
+
+  // If user has selected chain, token, and has a balance entry, we can compare
+  // their amount input to their balance (using base units)
+  const amountBaseUnits = sdkAmount.units(amount);
+  if (amountBaseUnits === 0n) {
+    return 'Amount must be greater than 0';
   }
-  if (numAmount > maxAmount) {
-    return `At the moment, amount cannot exceed ${maxAmount}`;
+
+  if (balance) {
+    const balanceBaseUnits = sdkAmount.units(balance);
+    if (amountBaseUnits > balanceBaseUnits) {
+      return 'Amount exceeds available balance';
+    }
   }
   return '';
 };
@@ -159,13 +162,6 @@ export const validateReceiveAmount = (
   return '';
 };
 
-export const getMaxAmt = (route?: string): number => {
-  if (!route) return Infinity;
-  const r = config.routes.get(route);
-  if (!r) return Infinity;
-  return r.getMaxSendAmount();
-};
-
 export const getIsAutomatic = (route?: string): boolean => {
   if (!route) return false;
   const r = config.routes.get(route);
@@ -197,7 +193,6 @@ export const validateAll = async (
     fromChain,
     token,
   );
-  const maxSendAmount = getMaxAmt(route);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
@@ -205,11 +200,7 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
-    amount: validateAmount(
-      amount,
-      sendingTokenBalance?.balance || null,
-      maxSendAmount,
-    ),
+    amount: validateAmount(amount, sendingTokenBalance?.balance || null),
     toNativeToken: '',
     relayerFee: '',
     receiveAmount: '',
@@ -262,7 +253,6 @@ export const validate = async (
     transferInput.token &&
     transferInput.destToken &&
     transferInput.amount &&
-    Number.parseFloat(transferInput.amount) >= 0 &&
     transferInput.routeStates?.some((rs) => rs.supported) !== undefined
       ? true
       : false;

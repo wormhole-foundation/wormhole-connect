@@ -34,6 +34,7 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
     destToken,
     preferredRouteName,
   } = useSelector((state: RootState) => state.transferInput);
+
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const supportedRoutes = useMemo(
@@ -55,7 +56,7 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
       destToken,
       nativeGas: toNativeToken,
     }),
-    [parseFloat(amount), fromChain, token, toChain, destToken, toNativeToken],
+    [amount, fromChain, token, toChain, destToken, toNativeToken],
   );
 
   const { quotesMap, isFetching } = useRoutesQuotesBulk(

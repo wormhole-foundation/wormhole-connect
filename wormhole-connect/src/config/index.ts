@@ -36,7 +36,7 @@ import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 import RouteOperator from 'routes/operator';
-import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { getTokenDecimals, getWrappedToken } from 'utils';
 import { CHAIN_ORDER } from './constants';
 import { getTokenBridgeWrappedTokenAddressSync } from 'utils/sdkv2';
 import { createUiConfig } from './ui';
@@ -229,7 +229,7 @@ export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
         const fa = getTokenBridgeWrappedTokenAddressSync(token, chain);
         if (fa) {
           tokenV2.address = fa.toString();
-          tokenV2.decimals = getTokenDecimals(chain, getWrappedTokenId(token));
+          tokenV2.decimals = getTokenDecimals(chain, getWrappedToken(token));
         } else {
           continue;
         }

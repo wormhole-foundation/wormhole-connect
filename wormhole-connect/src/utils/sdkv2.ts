@@ -21,7 +21,7 @@ import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
-import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { getTokenDecimals, getWrappedToken } from 'utils';
 import { WORMSCAN } from 'config/constants';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
@@ -33,7 +33,7 @@ export interface TransferInfo {
   sender?: string;
   recipient: string;
 
-  amount: string;
+  amount: amount.Amount;
 
   toChain: Chain;
   fromChain: Chain;
@@ -45,12 +45,11 @@ export interface TransferInfo {
 
   // Destination token
   receivedTokenKey: string;
-  receiveAmount?: string;
+  receiveAmount?: amount.Amount;
   relayerFee?: RelayerFee;
 
   // Amount of native gas being received, in destination gas token units
-  // For example 1.0 is 1.0 ETH, not 1 wei
-  receiveNativeAmount?: number;
+  receiveNativeAmount?: amount.Amount;
 
   // ETA for the route this transfer was initiated on
   eta?: number;
@@ -234,22 +233,23 @@ const parseTokenBridgeReceipt = async (
 
     const fromChain = receipt.from;
 
-    const decimals = getTokenDecimals(fromChain, getWrappedTokenId(tokenV1));
+    const decimals = getTokenDecimals(fromChain, getWrappedToken(tokenV1));
 
     txData.tokenDecimals = decimals;
 
-    txData.amount = amount.display({
-      amount: payload.token.amount.toString(),
+    txData.amount = amount.fromBaseUnits(
+      payload.token.amount,
       // VAAs are truncated to a max of 8 decimal places
-      decimals: Math.min(8, decimals),
-    });
+      Math.min(8, decimals),
+    );
     txData.tokenAddress = tokenAddress;
     txData.tokenKey = tokenV1.key;
     txData.receivedTokenKey = tokenV1.key;
     txData.receiveAmount = txData.amount;
     if (payload.payload?.toNativeTokenAmount) {
-      txData.receiveNativeAmount = Number(
-        amount.fmt(payload.payload.toNativeTokenAmount, Math.min(8, decimals)),
+      txData.receiveNativeAmount = amount.fromBaseUnits(
+        payload.payload.toNativeTokenAmount,
+        Math.min(8, decimals),
       );
     }
     if (payload.payload?.targetRelayerFee) {
@@ -323,16 +323,10 @@ const parseCCTPReceipt = async (
   txData.tokenAddress = sourceTokenId.address.toString();
   txData.tokenKey = usdcLegacy.key;
 
-  const decimals = getTokenDecimals(
-    receipt.from,
-    getWrappedTokenId(usdcLegacy),
-  );
+  const decimals = getTokenDecimals(receipt.from, getWrappedToken(usdcLegacy));
 
   txData.tokenDecimals = decimals;
-  txData.amount = amount.display({
-    amount: payload.amount.toString(),
-    decimals,
-  });
+  txData.amount = amount.fromBaseUnits(payload.amount, decimals);
   txData.receiveAmount = txData.amount;
 
   txData.sender = payload.messageSender.toNative(receipt.from).toString();
@@ -414,10 +408,10 @@ const parseNttReceipt = (
       ? attestation
       : attestation.payload;
   const { trimmedAmount } = payload.nttManagerPayload.payload;
-  const amt = amount.display({
-    amount: trimmedAmount.amount.toString(),
-    decimals: trimmedAmount.decimals,
-  });
+  const amt = amount.fromBaseUnits(
+    trimmedAmount.amount,
+    trimmedAmount.decimals,
+  );
   return {
     toChain: receipt.to,
     fromChain: receipt.from,

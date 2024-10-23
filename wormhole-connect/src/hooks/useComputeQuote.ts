@@ -14,7 +14,7 @@ type Props = {
   destChain: Chain | undefined;
   destToken: string;
   route?: string;
-  amount: string;
+  amount: sdkAmount.Amount;
   toNativeToken: number;
 };
 
@@ -53,13 +53,6 @@ const useComputeQuote = (props: Props): returnProps => {
     const computeQuote = async () => {
       try {
         setIsFetching(true);
-
-        if (Number.isNaN(Number.parseFloat(amount))) {
-          dispatch(setReceiveAmount('0'));
-          dispatch(setReceiveNativeAmt(0));
-          dispatch(setRelayerFee(undefined));
-          return;
-        }
 
         const quote = (
           await config.routes.getQuotes([route], {

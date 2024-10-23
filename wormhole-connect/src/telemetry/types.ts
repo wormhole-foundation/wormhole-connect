@@ -1,4 +1,4 @@
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { WormholeConnectConfig } from 'config/types';
 import { TransferWallet } from 'utils/wallet';
 
@@ -15,7 +15,7 @@ export interface TransferDetails {
   toChain: Chain;
   txId?: string;
   USDAmount?: number;
-  amount?: number;
+  amount?: sdkAmount.Amount;
 }
 
 export type TransferEventType =

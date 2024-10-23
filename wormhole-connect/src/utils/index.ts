@@ -7,7 +7,11 @@ import config from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
-import { Chain, chainToPlatform } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  chainToPlatform,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 import { getNativeVersionOfToken } from 'store/transferInput';
 
 export const MAX_DECIMALS = 6;
@@ -135,24 +139,18 @@ export function getGasToken(chain: Chain): TokenConfig {
   return gasToken;
 }
 
-export function getTokenDecimals(
-  chain: Chain,
-  tokenId: TokenId | 'native' = 'native',
-): number {
+export function getTokenDecimals(chain: Chain, token: TokenConfig): number {
   const chainConfig = config.chains[chain];
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
 
-  if (tokenId === 'native') {
+  /*
+  if (token?.tokenId === 'native') {
     const { decimals } = getGasToken(chain);
     return decimals;
   }
+  */
 
-  const tokenConfig = getTokenById(tokenId);
-  if (!tokenConfig) {
-    throw new Error('token config not found');
-  }
-
-  const { nativeChain, decimals } = tokenConfig;
+  const { nativeChain, decimals } = token;
 
   const platform = chainToPlatform(chain);
   const tokenPlatform = chainToPlatform(nativeChain);
@@ -308,27 +306,26 @@ export const getUSDFormat = (price: number | undefined): string => {
 };
 
 export const calculateUSDPriceRaw = (
-  amount?: number | string,
+  amount?: sdkAmount.Amount | number,
   tokenPrices?: TokenPrices | null,
   token?: TokenConfig,
 ): number | undefined => {
-  if (
-    typeof amount === 'undefined' ||
-    amount === '' ||
-    !tokenPrices ||
-    !token
-  ) {
+  if (typeof amount === 'undefined' || !tokenPrices || !token) {
     return undefined;
   }
 
   const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
   if (usdPrice > 0) {
-    return Number.parseFloat(`${amount}`) * usdPrice;
+    if (typeof amount === 'number') {
+      return amount * usdPrice;
+    } else {
+      return sdkAmount.whole(amount) * usdPrice;
+    }
   }
 };
 
 export const calculateUSDPrice = (
-  amount?: number | string,
+  amount?: sdkAmount.Amount | number,
   tokenPrices?: TokenPrices | null,
   token?: TokenConfig,
 ): string => {

@@ -6,6 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
@@ -123,7 +124,7 @@ const TokenList = (props: Props) => {
 
     // Fourth: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
-      if (val?.balance && Number(val.balance.replaceAll(',', '')) > 0) {
+      if (val?.balance && sdkAmount.units(val.balance) > 0n) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);
 
         if (tokenConfig && !tokenSet.has(tokenConfig.key)) {
@@ -254,7 +255,7 @@ const TokenList = (props: Props) => {
             onClick={() => {
               props.onSelectToken(token.key);
             }}
-            balance={balance ?? ''}
+            balance={balance}
             isFetchingBalance={isFetchingTokenBalances}
           />
         );
