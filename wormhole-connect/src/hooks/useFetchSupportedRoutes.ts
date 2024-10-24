@@ -59,9 +59,8 @@ const useFetchSupportedRoutes = (): HookReturn => {
         _routes.push(name);
       });
 
-      setIsFetching(false);
-
       if (isActive) {
+        setIsFetching(false);
         setRoutes(_routes);
       }
     };
