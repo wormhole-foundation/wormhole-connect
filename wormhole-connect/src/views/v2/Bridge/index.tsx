@@ -174,8 +174,12 @@ const Bridge = () => {
       const isSelectedRouteValid =
         sortedRoutesWithQuotes.findIndex((r) => r.route === selectedRoute) > -1;
 
+      if (!isSelectedRouteValid) {
+        setSelectedRoute('');
+      }
+
       // If no route is autoselected or we already have a valid selected route,
-      // we should avoid to overwrite it
+      // we should avoid overwriting it
       if (!autoselectedRoute || (selectedRoute && isSelectedRouteValid)) {
         return;
       }
@@ -426,23 +430,12 @@ const Bridge = () => {
     Number(amount) > 0 &&
     !hasError;
 
-  const supportedRouteSelected = true; /*useMemo(
-    () =>
-      routeStates?.find?.((rs) => rs.name === selectedRoute && !!rs.supported),
-    [routeStates, selectedRoute],
-  );*/
-
   // Review transaction button is shown only when everything is ready
   const reviewTransactionButton = (
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={
-        !isValid ||
-        isFetchingQuotes ||
-        !supportedRouteSelected ||
-        !selectedRoute
-      }
+      disabled={!isValid || isFetchingQuotes || !selectedRoute}
       onClick={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);

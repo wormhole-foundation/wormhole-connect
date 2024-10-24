@@ -50,7 +50,8 @@ export const useAmountValidation = (props: Props): HookReturn => {
   );
 
   const allRoutesFailed = useMemo(
-    () => props.routes.every((route) => !props.quotesMap[route]?.success),
+    () =>
+      props.routes.every((route) => props.quotesMap[route]?.success === false),
     [props.routes, props.quotesMap],
   );
 
