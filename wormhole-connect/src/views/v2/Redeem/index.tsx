@@ -269,7 +269,7 @@ const Redeem = () => {
     isTxComplete,
     isTxRefunded,
     unhandledManualClaimError,
-    unhandledManualClaimError,
+    transferSuccessEventFired,
   ]);
 
   const receivingWallet = useSelector(
