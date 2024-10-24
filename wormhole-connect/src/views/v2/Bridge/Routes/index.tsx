@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
@@ -14,21 +13,6 @@ import { routes } from '@wormhole-foundation/sdk';
 import { Box, CircularProgress, Skeleton } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
-  connectWallet: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    backgroundColor: theme.palette.button.primary,
-    cursor: 'not-allowed',
-    opacity: 0.7,
-    marginTop: '16px',
-    maxWidth: '420px',
-    height: '48px',
-    width: '100%',
-  },
   otherRoutesToggle: {
     display: 'block',
     width: '100%',
@@ -119,17 +103,7 @@ const Routes = ({ ...props }: Props) => {
     );
   }, [routes, props.quotes]);
 
-  if (walletsConnected && !(Number(amount) > 0)) {
-    return (
-      <Tooltip title="Please enter the amount to view available routes">
-        <div className={classes.connectWallet}>
-          <div>View routes</div>
-        </div>
-      </Tooltip>
-    );
-  }
-
-  if (props.hasError) {
+  if ((walletsConnected && !(Number(amount) > 0)) || props.hasError) {
     return null;
   }
 

@@ -204,6 +204,11 @@ const Bridge = () => {
   // Fetch token prices
   useFetchTokenPrices();
 
+  const walletsConnected = useMemo(
+    () => !!sendingWallet.address && !!receivingWallet.address,
+    [sendingWallet.address, receivingWallet.address],
+  );
+
   const sourceTokenArray = useMemo(() => {
     return sourceToken ? [config.tokens[sourceToken]] : [];
   }, [sourceToken]);
@@ -425,17 +430,19 @@ const Bridge = () => {
     sourceToken &&
     destChain &&
     destToken &&
-    sendingWallet.address &&
-    receivingWallet.address &&
-    Number(amount) > 0 &&
+    walletsConnected &&
     !hasError;
+
+  const hasEnteredAmount = Number(amount) > 0;
 
   // Review transaction button is shown only when everything is ready
   const reviewTransactionButton = (
     <Button
       variant="primary"
       className={classes.reviewTransaction}
-      disabled={!isValid || isFetchingQuotes || !selectedRoute}
+      disabled={
+        !isValid || isFetchingQuotes || !selectedRoute || !hasEnteredAmount
+      }
       onClick={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);
@@ -446,6 +453,14 @@ const Bridge = () => {
       </Typography>
     </Button>
   );
+
+  const reviewButtonTooltip = !hasEnteredAmount
+    ? 'Please enter an amount'
+    : isFetchingQuotes
+    ? 'Loading quotes...'
+    : !selectedRoute
+    ? 'Please select a quote'
+    : '';
 
   if (willReviewTransaction) {
     return (
@@ -478,9 +493,13 @@ const Bridge = () => {
         hasError={hasError}
       />
       <span className={classes.ctaContainer}>
-        {showReviewTransactionButton
-          ? reviewTransactionButton
-          : walletConnector}
+        {showReviewTransactionButton ? (
+          <Tooltip title={reviewButtonTooltip}>
+            <span>{reviewTransactionButton}</span>
+          </Tooltip>
+        ) : (
+          walletConnector
+        )}
       </span>
       {config.ui.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
