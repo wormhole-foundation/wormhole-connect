@@ -425,10 +425,6 @@ const SingleRoute = (props: Props) => {
     return 'pointer';
   }, [props.error, props.isSelected, props.onSelect]);
 
-  if (isEmptyObject(props.route)) {
-    return <></>;
-  }
-
   const routeCardBadge = useMemo(() => {
     if (props.isFastest) {
       return (
@@ -447,6 +443,10 @@ const SingleRoute = (props: Props) => {
       return null;
     }
   }, [props.isFastest, props.isCheapest]);
+
+  if (isEmptyObject(props.route)) {
+    return <></>;
+  }
 
   return (
     <div key={name} className={classes.container}>
