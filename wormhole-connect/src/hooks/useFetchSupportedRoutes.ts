@@ -67,6 +67,10 @@ const useFetchSupportedRoutes = (): HookReturn => {
     };
 
     getSupportedRoutes();
+
+    return () => {
+      isActive = false;
+    };
   }, [token, destToken, amount, fromChain, toChain, toNativeToken]);
 
   return useMemo(() => {
