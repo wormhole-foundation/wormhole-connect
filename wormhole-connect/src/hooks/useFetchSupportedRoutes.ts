@@ -72,12 +72,10 @@ const useFetchSupportedRoutes = (): HookReturn => {
     };
   }, [token, destToken, amount, fromChain, toChain, toNativeToken]);
 
-  return useMemo(() => {
-    return {
-      supportedRoutes: routes,
-      isFetching,
-    };
-  }, [routes, isFetching]);
+  return {
+    supportedRoutes: routes,
+    isFetching,
+  };
 };
 
 export default useFetchSupportedRoutes;
