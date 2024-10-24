@@ -89,15 +89,9 @@ export type TransferValidations = {
   receiveAmount: ValidationErr;
 };
 
-export type RouteState = {
-  name: string;
-  supported: boolean;
-};
-
 export interface TransferInputState {
   showValidationState: boolean;
   validations: TransferValidations;
-  routeStates: RouteState[] | undefined;
   fromChain: Chain | undefined;
   toChain: Chain | undefined;
   token: string;
@@ -135,7 +129,6 @@ function getInitialState(): TransferInputState {
       relayerFee: '',
       receiveAmount: '',
     },
-    routeStates: undefined,
     fromChain: config.ui.defaultInputs?.fromChain || undefined,
     toChain: config.ui.defaultInputs?.toChain || undefined,
     token: config.ui.defaultInputs?.tokenKey || '',
@@ -235,12 +228,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.route = payload;
     },
-    setRoutes: (
-      state: TransferInputState,
-      { payload }: PayloadAction<RouteState[]>,
-    ) => {
-      state.routeStates = payload;
-    },
     // user input
     setToken: (
       state: TransferInputState,
@@ -336,14 +323,7 @@ export const transferInputSlice = createSlice({
         state.route = undefined;
         return;
       }
-      if (
-        state.routeStates &&
-        state.routeStates.some((rs) => rs.name === payload && rs.supported)
-      ) {
-        state.route = payload;
-      } else {
-        state.route = undefined;
-      }
+      state.route = payload;
     },
     // clear inputs
     clearTransfer: (state: TransferInputState) => {
@@ -444,7 +424,6 @@ export const selectChain = async (
 export const {
   setValidations,
   setRoute,
-  setRoutes,
   setToken,
   setDestToken,
   setFromChain,

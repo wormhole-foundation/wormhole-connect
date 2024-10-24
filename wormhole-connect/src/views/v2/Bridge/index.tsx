@@ -127,7 +127,6 @@ const Bridge = () => {
     destToken,
     route,
     preferredRouteName,
-    routeStates,
     supportedDestTokens: supportedDestTokensBase,
     supportedSourceTokens,
     amount,
@@ -139,7 +138,7 @@ const Bridge = () => {
     sortedRoutes,
     sortedRoutesWithQuotes,
     quotesMap,
-    isFetchingQuotes,
+    isFetching: isFetchingQuotes,
   } = useSortedRoutesWithQuotes();
 
   // Compute and set source tokens
@@ -164,20 +163,16 @@ const Bridge = () => {
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    const validRoutes = sortedRoutesWithQuotes.filter(
-      (rs) => rs.route.supported,
-    );
-
-    if (validRoutes.length === 0) {
+    if (sortedRoutesWithQuotes.length === 0) {
       setSelectedRoute('');
     } else {
-      const preferredRoute = validRoutes.find(
-        (route) => route.route.name === preferredRouteName,
+      const preferredRoute = sortedRoutesWithQuotes.find(
+        (route) => route.route === preferredRouteName,
       );
       const autoselectedRoute =
-        route ?? preferredRoute?.route.name ?? validRoutes[0].route.name;
+        route ?? preferredRoute?.route ?? sortedRoutesWithQuotes[0].route;
       const isSelectedRouteValid =
-        validRoutes.findIndex((r) => r.route.name === selectedRoute) > -1;
+        sortedRoutesWithQuotes.findIndex((r) => r.route === selectedRoute) > -1;
 
       // If no route is autoselected or we already have a valid selected route,
       // we should avoid to overwrite it
@@ -185,11 +180,11 @@ const Bridge = () => {
         return;
       }
 
-      const routeData = validRoutes?.find(
-        (rs) => rs.route.name === autoselectedRoute,
+      const routeData = sortedRoutesWithQuotes?.find(
+        (rs) => rs.route === autoselectedRoute,
       );
 
-      if (routeData) setSelectedRoute(routeData.route.name);
+      if (routeData) setSelectedRoute(routeData.route);
     }
   }, [route, sortedRoutesWithQuotes]);
 
@@ -431,11 +426,11 @@ const Bridge = () => {
     Number(amount) > 0 &&
     !hasError;
 
-  const supportedRouteSelected = useMemo(
+  const supportedRouteSelected = true; /*useMemo(
     () =>
       routeStates?.find?.((rs) => rs.name === selectedRoute && !!rs.supported),
     [routeStates, selectedRoute],
-  );
+  );*/
 
   // Review transaction button is shown only when everything is ready
   const reviewTransactionButton = (

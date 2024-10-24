@@ -1,15 +1,18 @@
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useDebounce } from 'use-debounce';
-
-import { RouteState, setRoutes } from 'store/transferInput';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import type { RootState } from 'store';
 import config from 'config';
 import { getTokenDetails } from 'telemetry';
 
-const useFetchSupportedRoutes = (): void => {
-  const dispatch = useDispatch();
+type HookReturn = {
+  supportedRoutes: string[];
+  isFetching: boolean;
+};
+
+const useFetchSupportedRoutes = (): HookReturn => {
+  const [routes, setRoutes] = useState<string[]>([]);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   const { token, destToken, fromChain, toChain, amount } = useSelector(
     (state: RootState) => state.transferInput,
@@ -17,18 +20,18 @@ const useFetchSupportedRoutes = (): void => {
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
-  const [debouncedAmount] = useDebounce(amount, 500);
-
   useEffect(() => {
     if (!fromChain || !toChain || !token || !destToken) {
-      dispatch(setRoutes([]));
+      setRoutes([]);
+      setIsFetching(false);
       return;
     }
 
     let isActive = true;
 
     const getSupportedRoutes = async () => {
-      const routes: RouteState[] = [];
+      setIsFetching(true);
+      const _routes: string[] = [];
       await config.routes.forEach(async (name, route) => {
         let supported = false;
 
@@ -36,7 +39,7 @@ const useFetchSupportedRoutes = (): void => {
           supported = await route.isRouteSupported(
             token,
             destToken,
-            debouncedAmount,
+            amount,
             fromChain,
             toChain,
           );
@@ -53,28 +56,25 @@ const useFetchSupportedRoutes = (): void => {
           console.error('Error when checking route is supported:', e, name);
         }
 
-        routes.push({ name, supported });
+        _routes.push(name);
       });
 
+      setIsFetching(false);
+
       if (isActive) {
-        dispatch(setRoutes(routes));
+        setRoutes(_routes);
       }
     };
 
     getSupportedRoutes();
+  }, [token, destToken, amount, fromChain, toChain, toNativeToken]);
 
-    return () => {
-      isActive = false;
+  return useMemo(() => {
+    return {
+      supportedRoutes: routes,
+      isFetching,
     };
-  }, [
-    dispatch,
-    token,
-    destToken,
-    debouncedAmount,
-    fromChain,
-    toChain,
-    toNativeToken,
-  ]);
+  }, [routes, isFetching]);
 };
 
 export default useFetchSupportedRoutes;

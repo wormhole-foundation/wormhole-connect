@@ -4,7 +4,7 @@ import type { RootState } from 'store';
 import { routes } from '@wormhole-foundation/sdk';
 import useRoutesQuotesBulk from 'hooks/useRoutesQuotesBulk';
 import config from 'config';
-import { RouteState } from 'store/transferInput';
+import useFetchSupportedRoutes from './useFetchSupportedRoutes';
 
 type Quote = routes.Quote<
   routes.Options,
@@ -12,39 +12,26 @@ type Quote = routes.Quote<
 >;
 
 export type RouteWithQuote = {
-  route: RouteState;
+  route: string;
   quote: Quote;
 };
 
 type HookReturn = {
-  allSupportedRoutes: RouteState[];
-  sortedRoutes: RouteState[];
+  allSupportedRoutes: string[];
+  sortedRoutes: string[];
   sortedRoutesWithQuotes: RouteWithQuote[];
   quotesMap: ReturnType<typeof useRoutesQuotesBulk>['quotesMap'];
-  isFetchingQuotes: boolean;
+  isFetching: boolean;
 };
 
 export const useSortedRoutesWithQuotes = (): HookReturn => {
-  const {
-    amount,
-    routeStates,
-    fromChain,
-    token,
-    toChain,
-    destToken,
-    preferredRouteName,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { amount, fromChain, token, toChain, destToken, preferredRouteName } =
+    useSelector((state: RootState) => state.transferInput);
+
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
-  const supportedRoutes = useMemo(
-    () => (routeStates || []).filter((rs) => rs.supported),
-    [routeStates],
-  );
-
-  const supportedRoutesNames = useMemo(
-    () => supportedRoutes.map((r) => r.name),
-    [supportedRoutes],
-  );
+  const { supportedRoutes, isFetching: isFetchingSupportedRoutes } =
+    useFetchSupportedRoutes();
 
   const useQuotesBulkParams = useMemo(
     () => ({
@@ -58,15 +45,15 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
     [parseFloat(amount), fromChain, token, toChain, destToken, toNativeToken],
   );
 
-  const { quotesMap, isFetching } = useRoutesQuotesBulk(
-    supportedRoutesNames,
+  const { quotesMap, isFetching: isFetchingQuotes } = useRoutesQuotesBulk(
+    supportedRoutes,
     useQuotesBulkParams,
   );
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
       .map((route) => {
-        const quote = quotesMap[route.name];
+        const quote = quotesMap[route];
         if (quote?.success) {
           return {
             route,
@@ -83,15 +70,15 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
   // Only routes with quotes are sorted.
   const sortedRoutesWithQuotes = useMemo(() => {
     return [...routesWithQuotes].sort((routeA, routeB) => {
-      const routeConfigA = config.routes.get(routeA.route.name);
-      const routeConfigB = config.routes.get(routeB.route.name);
+      const routeConfigA = config.routes.get(routeA.route);
+      const routeConfigB = config.routes.get(routeB.route);
 
       // Prioritize preferred route to avoid flickering the UI
       // when the preferred route gets autoselected
       if (preferredRouteName) {
-        if (routeA.route.name === preferredRouteName) {
+        if (routeA.route === preferredRouteName) {
           return -1;
-        } else if (routeB.route.name === preferredRouteName) {
+        } else if (routeB.route === preferredRouteName) {
           return 1;
         }
       }
@@ -135,8 +122,14 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
       sortedRoutes,
       sortedRoutesWithQuotes,
       quotesMap,
-      isFetchingQuotes: isFetching,
+      isFetching: isFetchingSupportedRoutes || isFetchingQuotes,
     }),
-    [supportedRoutes, sortedRoutesWithQuotes, quotesMap, isFetching],
+    [
+      supportedRoutes,
+      sortedRoutesWithQuotes,
+      quotesMap,
+      isFetchingSupportedRoutes,
+      isFetchingQuotes,
+    ],
   );
 };
