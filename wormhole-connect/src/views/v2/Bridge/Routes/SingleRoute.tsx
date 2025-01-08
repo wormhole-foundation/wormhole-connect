@@ -5,6 +5,7 @@ import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
+import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -12,6 +13,7 @@ import { makeStyles } from 'tss-react/mui';
 import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
+import { useGasSlider } from 'hooks/useGasSlider';
 import ErrorIcon from 'icons/Error';
 import WarningIcon from 'icons/Warning';
 import TokenIcon from 'icons/TokenIcons';
@@ -30,6 +32,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import { Token } from 'config/tokens';
 import { opacify } from 'utils/theme';
+import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -105,17 +108,28 @@ const SingleRoute = (props: Props) => {
   const theme = useTheme();
   const routeConfig = config.routes.get(props.route);
 
-  const { toChain: destChain, fromChain: sourceChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    toChain: destChain,
+    fromChain: sourceChain,
+    isTransactionInProgress,
+  } = useSelector((state: RootState) => state.transferInput);
 
   const { getTokenPrice, isFetchingTokenPrices } = useTokens();
 
   const { quote } = props;
+  const receiveNativeAmount = quote?.destinationNativeGas;
 
   const { sourceToken, destToken } = useGetTokens();
 
-  const [feePrice, isHighFee, feeToken]: [
+  const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
+    destChain,
+    destToken: destToken?.key,
+    route: props.route,
+    valid: true,
+    isTransactionInProgress,
+  });
+
+  const [feePrice, isHighFee, feeTokenConfig]: [
     number | undefined,
     boolean,
     Token | undefined,
@@ -140,7 +154,7 @@ const SingleRoute = (props: Props) => {
       return <>You pay gas on {destChain}</>;
     }
 
-    if (!quote || !feePrice || !feeToken) {
+    if (!quote || !feePrice || !feeTokenConfig) {
       return <></>;
     }
 
@@ -148,7 +162,7 @@ const SingleRoute = (props: Props) => {
 
     let feeValue = `${amount.display(
       amount.truncate(quote!.relayFee!.amount, 6),
-    )} ${feeToken.display} (${feePriceFormatted})`;
+    )} ${feeTokenConfig.display} (${feePriceFormatted})`;
 
     // Wesley made me do it
     // Them PMs :-/
@@ -179,7 +193,7 @@ const SingleRoute = (props: Props) => {
   }, [
     destChain,
     feePrice,
-    feeToken,
+    feeTokenConfig,
     props.route,
     quote,
     routeConfig.AUTOMATIC_DEPOSIT,
@@ -609,6 +623,16 @@ const SingleRoute = (props: Props) => {
             {errorMessage}
             {warningMessages}
           </CardContent>
+          {showGasSlider && (
+            <Collapse in={showGasSlider}>
+              <GasSlider
+                destinationGasDrop={
+                  receiveNativeAmount || amount.fromBaseUnits(0n, 8)
+                }
+                disabled={isGasSliderDisabled}
+              />
+            </Collapse>
+          )}
         </CardActionArea>
       </Card>
     </div>

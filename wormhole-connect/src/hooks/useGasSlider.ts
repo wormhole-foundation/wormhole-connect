@@ -5,7 +5,7 @@ import { Chain } from '@wormhole-foundation/sdk';
 
 type Props = {
   destChain: Chain | undefined;
-  destToken: string;
+  destToken: string | undefined;
   route?: string;
   valid: boolean;
   isTransactionInProgress: boolean;

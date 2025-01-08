@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery, useTheme } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -25,8 +26,8 @@ import {
   selectFromChain,
   selectToChain,
   setToken,
-  setTransferRoute,
   setDestToken,
+  setTransferRoute,
 } from 'store/transferInput';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
@@ -35,9 +36,9 @@ import AssetPicker from 'views/v2/Bridge/AssetPicker';
 import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
-import ReviewTransaction from 'views/v2/Bridge/ReviewTransaction';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v2/TxHistory/Widget';
+import SendError from 'views/v2/Bridge/ReviewTransaction/SendError';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 //import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
@@ -50,6 +51,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
+import useSendTransaction from 'hooks/useSendTransaction';
 
 const useStyles = makeStyles()((theme: any) => ({
   assetPickerContainer: {
@@ -82,6 +84,14 @@ const useStyles = makeStyles()((theme: any) => ({
     alignItems: 'center',
     width: '100%',
   },
+  confirmTransaction: {
+    padding: '8px 16px',
+    borderRadius: '8px',
+    height: '48px',
+    margin: 'auto',
+    maxWidth: '420px',
+    width: '100%',
+  },
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -110,9 +120,6 @@ const Bridge = () => {
     (state: RootState) => state.wallet,
   );
 
-  const [selectedRoute, setSelectedRoute] = useState<string>();
-  const [willReviewTransaction, setWillReviewTransaction] = useState(false);
-
   const {
     fromChain: sourceChain,
     toChain: destChain,
@@ -121,6 +128,7 @@ const Bridge = () => {
     supportedSourceTokens,
     amount,
     validations,
+    isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
 
   const { sourceToken, destToken } = useGetTokens();
@@ -140,7 +148,7 @@ const Bridge = () => {
       destChain,
       sourceToken,
       destToken,
-      route: selectedRoute,
+      route,
     });
 
   // Compute and set destination tokens
@@ -149,14 +157,20 @@ const Bridge = () => {
       sourceChain,
       destChain,
       sourceToken,
-      route: selectedRoute,
+      route,
     });
+
+  const {
+    send,
+    error: sendError,
+    errorInternal: sendErrorInternal,
+  } = useSendTransaction({ quotes: quotesMap });
 
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
     if (sortedRoutesWithQuotes.length === 0) {
-      setSelectedRoute('');
+      setTransferRoute('');
     } else {
       const preferredRoute = sortedRoutesWithQuotes.find(
         (route) => route.route === preferredRouteName,
@@ -164,15 +178,15 @@ const Bridge = () => {
       const autoselectedRoute =
         route ?? preferredRoute?.route ?? sortedRoutesWithQuotes[0].route;
       const isSelectedRouteValid =
-        sortedRoutesWithQuotes.findIndex((r) => r.route === selectedRoute) > -1;
+        sortedRoutesWithQuotes.findIndex((r) => r.route === route) > -1;
 
       if (!isSelectedRouteValid) {
-        setSelectedRoute('');
+        setTransferRoute('');
       }
 
       // If no route is autoselected or we already have a valid selected route,
       // we should avoid overwriting it
-      if (!autoselectedRoute || (selectedRoute && isSelectedRouteValid)) {
+      if (!autoselectedRoute || (route && isSelectedRouteValid)) {
         return;
       }
 
@@ -180,9 +194,9 @@ const Bridge = () => {
         (rs) => rs.route === autoselectedRoute,
       );
 
-      if (routeData) setSelectedRoute(routeData.route);
+      if (routeData) setTransferRoute(routeData.route);
     }
-  }, [route, sortedRoutesWithQuotes]);
+  }, [preferredRouteName, route, sortedRoutesWithQuotes]);
 
   // Pre-fetch available routes
   useFetchSupportedRoutes();
@@ -308,14 +322,17 @@ const Bridge = () => {
       </div>
     );
   }, [
+    classes.assetPickerContainer,
+    classes.assetPickerTitle,
     sourceChain,
     supportedSourceChains,
     sourceToken,
     sourceTokens,
     lastTokenCacheUpdate,
     supportedSourceTokens,
-    sendingWallet,
     isFetchingSupportedSourceTokens,
+    sendingWallet,
+    dispatch,
   ]);
 
   // Asset picker for the destination network and token
@@ -347,12 +364,16 @@ const Bridge = () => {
       </div>
     );
   }, [
+    classes.assetPickerContainer,
+    classes.assetPickerTitle,
     destChain,
     supportedDestChains,
     destToken,
+    sourceToken,
     supportedDestTokens,
-    receivingWallet,
     isFetchingSupportedDestTokens,
+    receivingWallet,
+    dispatch,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -380,7 +401,7 @@ const Bridge = () => {
         </Tooltip>
       </div>
     );
-  }, [sendingWallet?.address, config.ui]);
+  }, [sendingWallet?.address, classes.bridgeHeader, dispatch]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
@@ -422,36 +443,72 @@ const Bridge = () => {
   const showRoutes =
     hasConnectedWallets && isWalletCompatible && hasEnteredAmount && !hasError;
 
-  const reviewTransactionDisabled =
+  const confirmTransactionDisabled =
     !sourceChain ||
     !sourceToken ||
     !destChain ||
     !destToken ||
     !hasConnectedWallets ||
     !isWalletCompatible ||
-    !selectedRoute ||
+    !route ||
     !isValid ||
     isFetchingQuotes ||
     !hasEnteredAmount ||
+    isTransactionInProgress ||
     hasError;
 
   // Review transaction button is shown only when everything is ready
-  const reviewTransactionButton = (
-    <Button
-      variant="primary"
-      disabled={reviewTransactionDisabled}
-      onMouseDown={() => {
-        dispatch(setTransferRoute(selectedRoute));
-        setWillReviewTransaction(true);
-      }}
-    >
-      <Typography textTransform="none">
-        {mobile ? 'Review' : 'Review transaction'}
-      </Typography>
-    </Button>
-  );
+  const confirmTransactionButton = useMemo(() => {
+    return (
+      <Button
+        disabled={confirmTransactionDisabled}
+        variant="primary"
+        className={classes.confirmTransaction}
+        onClick={() => {
+          send();
+        }}
+      >
+        {isTransactionInProgress ? (
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            <CircularProgress
+              size={16}
+              sx={{ color: theme.palette.primary.contrastText }}
+            />
+            {mobile ? 'Preparing' : 'Preparing transaction'}
+          </Typography>
+        ) : !isTransactionInProgress && isFetchingQuotes ? (
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            <CircularProgress color="secondary" size={16} />
+            {mobile ? 'Refreshing' : 'Refreshing quote'}
+          </Typography>
+        ) : (
+          <Typography textTransform="none">
+            {mobile ? 'Confirm' : 'Confirm transaction'}
+          </Typography>
+        )}
+      </Button>
+    );
+  }, [
+    confirmTransactionDisabled,
+    classes.confirmTransaction,
+    isTransactionInProgress,
+    theme.palette.primary.contrastText,
+    mobile,
+    isFetchingQuotes,
+    send,
+  ]);
 
-  const reviewButtonTooltip =
+  const confirmButtonTooltip =
     !sourceChain || !sourceToken
       ? 'Please select a source asset'
       : !destChain || !destToken
@@ -460,19 +517,9 @@ const Bridge = () => {
       ? 'Please enter an amount'
       : isFetchingQuotes
       ? 'Loading quotes...'
-      : !selectedRoute
+      : !route
       ? 'Please select a quote'
       : '';
-
-  if (willReviewTransaction) {
-    return (
-      <ReviewTransaction
-        quotes={quotesMap}
-        isFetchingQuotes={isFetchingQuotes}
-        onClose={() => setWillReviewTransaction(false)}
-      />
-    );
-  }
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
@@ -492,17 +539,20 @@ const Bridge = () => {
       {showRoutes && (
         <Routes
           routes={sortedRoutes}
-          selectedRoute={selectedRoute}
-          onRouteChange={setSelectedRoute}
+          selectedRoute={route}
+          onRouteChange={(r) => {
+            dispatch(setTransferRoute(r));
+          }}
           quotes={quotesMap}
           isLoading={isFetchingQuotes || isFetchingBalances}
           hasError={hasError}
         />
       )}
+      <SendError humanError={sendError} internalError={sendErrorInternal} />
       <span className={classes.ctaContainer}>
         {hasConnectedWallets ? (
-          <Tooltip title={reviewButtonTooltip}>
-            <span>{reviewTransactionButton}</span>
+          <Tooltip title={confirmButtonTooltip}>
+            <span>{confirmTransactionButton}</span>
           </Tooltip>
         ) : (
           walletConnector
