@@ -81,6 +81,7 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   data: TransactionLocal;
+  disabled: boolean;
 };
 
 const WidgetItem = (props: Props) => {
@@ -270,7 +271,7 @@ const WidgetItem = (props: Props) => {
       <Card className={classes.card}>
         <CardActionArea
           disableTouchRipple
-          disabled={!txDetails}
+          disabled={props.disabled || !txDetails}
           className={classes.cardActionArea}
           onClick={resumeTransaction}
         >

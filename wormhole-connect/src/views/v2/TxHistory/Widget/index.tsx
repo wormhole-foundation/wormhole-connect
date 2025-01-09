@@ -36,7 +36,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-const TxHistoryWidget = () => {
+const TxHistoryWidget = (props: { disabled: boolean }) => {
   const { classes } = useStyles();
   const theme = useTheme();
 
@@ -77,7 +77,7 @@ const TxHistoryWidget = () => {
         </Typography>
       </div>
       {transactions.map((tx) => (
-        <WidgetItem key={tx.txHash} data={tx} />
+        <WidgetItem key={tx.txHash} data={tx} disabled={props.disabled} />
       ))}
     </div>
   );
