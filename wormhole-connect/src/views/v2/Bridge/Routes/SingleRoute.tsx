@@ -125,7 +125,6 @@ const SingleRoute = (props: Props) => {
     destChain,
     destToken: destToken?.key,
     route: props.route,
-    valid: true,
     isTransactionInProgress,
   });
 
