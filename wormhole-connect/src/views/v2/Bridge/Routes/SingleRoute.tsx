@@ -31,8 +31,12 @@ import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import { Token } from 'config/tokens';
+<<<<<<< HEAD
 import { opacify } from 'utils/theme';
 import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
+=======
+import GasSlider from 'views/v2/Bridge/GasSlider';
+>>>>>>> f16701a1 (Refactor)
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 

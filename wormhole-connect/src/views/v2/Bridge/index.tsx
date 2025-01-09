@@ -1,26 +1,33 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery, useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-
+import CopyIcon from '@mui/icons-material/ContentCopy';
+import DoneIcon from '@mui/icons-material/Done';
 import HistoryIcon from '@mui/icons-material/History';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 
-import type { RootState } from 'store';
-
+import FooterNavBar from 'components/FooterNavBar';
+import Header, { Alignment } from 'components/Header';
+import PageHeader from 'components/PageHeader';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
-import { joinClass } from 'utils/style';
-import PoweredByIcon from 'icons/PoweredBy';
-import PageHeader from 'components/PageHeader';
-import Header, { Alignment } from 'components/Header';
-import FooterNavBar from 'components/FooterNavBar';
 import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
+import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
+import { useAmountValidation } from 'hooks/useAmountValidation';
+import useConfirmTransaction from 'hooks/useConfirmTransaction';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import PoweredByIcon from 'icons/PoweredBy';
+import type { RootState } from 'store';
 import { setRoute as setAppRoute } from 'store/router';
 import {
   selectFromChain,
@@ -29,6 +36,8 @@ import {
   setDestToken,
   setTransferRoute,
 } from 'store/transferInput';
+import { copyTextToClipboard } from 'utils';
+import { joinClass } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
@@ -38,20 +47,12 @@ import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v2/TxHistory/Widget';
-import SendError from 'views/v2/Bridge/ReviewTransaction/SendError';
-import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
-//import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
-import type { Chain } from '@wormhole-foundation/sdk';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { useAmountValidation } from 'hooks/useAmountValidation';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
-import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
-import useSendTransaction from 'hooks/useSendTransaction';
 
 const useStyles = makeStyles()((theme: any) => ({
   assetPickerContainer: {
@@ -74,15 +75,9 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'flex',
     alignItems: 'center',
   },
-  ctaContainer: {
-    marginTop: '8px',
-    width: '100%',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
+  doneIcon: {
+    fontSize: '14px',
+    color: theme.palette.success.main,
   },
   confirmTransaction: {
     padding: '8px 16px',
@@ -90,6 +85,13 @@ const useStyles = makeStyles()((theme: any) => ({
     height: '48px',
     margin: 'auto',
     maxWidth: '420px',
+    width: '100%',
+  },
+  copyIcon: {
+    fontSize: '14px',
+  },
+  ctaContainer: {
+    marginTop: '8px',
     width: '100%',
   },
   spacer: {
@@ -112,6 +114,7 @@ const Bridge = () => {
   const dispatch = useDispatch();
 
   const { lastTokenCacheUpdate } = useTokens();
+  const [errorCopied, setErrorCopied] = useState(false);
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -161,10 +164,10 @@ const Bridge = () => {
     });
 
   const {
-    send,
-    error: sendError,
-    errorInternal: sendErrorInternal,
-  } = useSendTransaction({ quotes: quotesMap });
+    error: txError,
+    errorInternal: txErrorInternal,
+    onConfirm,
+  } = useConfirmTransaction({ quotes: quotesMap });
 
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
@@ -243,7 +246,7 @@ const Bridge = () => {
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
     () => config.routes.allSupportedChains(),
-    [config.chainsArr],
+    [config.chains],
   );
 
   const sourceTokens = useMemo(() => {
@@ -263,7 +266,7 @@ const Bridge = () => {
         supportedChains.includes(chain.key)
       );
     });
-  }, [config.chainsArr, destChain, supportedChains]);
+  }, [destChain, supportedChains]);
 
   // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
@@ -273,7 +276,7 @@ const Bridge = () => {
         !chain.disabledAsDestination &&
         supportedChains.includes(chain.key),
     );
-  }, [config.chainsArr, sourceChain, supportedChains]);
+  }, [sourceChain, supportedChains]);
 
   // Connect bridge header, which renders any custom overrides for the header
   const header = useMemo(() => {
@@ -291,7 +294,7 @@ const Bridge = () => {
     }
 
     return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
-  }, [config.ui]);
+  }, []);
 
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
@@ -434,6 +437,54 @@ const Bridge = () => {
       routes: sortedRoutes,
     });
 
+  const transactionError = useMemo(() => {
+    if (!txError) {
+      return null;
+    }
+
+    return (
+      <Box sx={{ marginBottom: 2 }}>
+        <AlertBannerV2
+          error
+          content={txError}
+          show={true}
+          testId="send-error-message"
+        />
+        {txErrorInternal && txErrorInternal.message && config.ui.getHelpUrl ? (
+          <Typography fontSize={14} sx={{ marginTop: 1 }}>
+            Having trouble?{' '}
+            <a
+              href="#"
+              onClick={() => {
+                copyTextToClipboard(txErrorInternal.message);
+                setErrorCopied(true);
+                setTimeout(() => setErrorCopied(false), 3000);
+              }}
+            >
+              Copy the error logs{' '}
+              {errorCopied ? (
+                <DoneIcon className={classes.doneIcon} />
+              ) : (
+                <CopyIcon className={classes.copyIcon} />
+              )}
+            </a>
+            {' and '}
+            <a href={config.ui.getHelpUrl} target="_blank">
+              ask for help
+            </a>
+            .
+          </Typography>
+        ) : null}
+      </Box>
+    );
+  }, [
+    classes.copyIcon,
+    classes.doneIcon,
+    errorCopied,
+    txError,
+    txErrorInternal,
+  ]);
+
   const hasError = !!amountValidation.error;
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
@@ -464,9 +515,7 @@ const Bridge = () => {
         disabled={confirmTransactionDisabled}
         variant="primary"
         className={classes.confirmTransaction}
-        onClick={() => {
-          send();
-        }}
+        onClick={() => onConfirm()}
       >
         {isTransactionInProgress ? (
           <Typography
@@ -505,7 +554,7 @@ const Bridge = () => {
     theme.palette.primary.contrastText,
     mobile,
     isFetchingQuotes,
-    send,
+    onConfirm,
   ]);
 
   const confirmButtonTooltip =
@@ -548,7 +597,7 @@ const Bridge = () => {
           hasError={hasError}
         />
       )}
-      <SendError humanError={sendError} internalError={sendErrorInternal} />
+      {transactionError}
       <span className={classes.ctaContainer}>
         {hasConnectedWallets ? (
           <Tooltip title={confirmButtonTooltip}>

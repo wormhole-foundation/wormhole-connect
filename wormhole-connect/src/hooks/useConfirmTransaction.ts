@@ -1,21 +1,11 @@
-import React, { useContext, useMemo, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
-import { useMediaQuery, useTheme } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
-import Collapse from '@mui/material/Collapse';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import ChevronLeft from '@mui/icons-material/ChevronLeft';
-import IconButton from '@mui/material/IconButton';
-import { getTransferDetails } from 'telemetry';
 import { Context } from 'sdklegacy';
 
-import Button from 'components/v2/Button';
 import config from 'config';
-import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { RouteContext } from 'contexts/RouteContext';
-import { useGasSlider } from 'hooks/useGasSlider';
+import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
+import { useGetTokens } from 'hooks/useGetTokens';
 import {
   setTxDetails,
   setSendTx,
@@ -24,57 +14,40 @@ import {
 } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
-import { getWrappedToken } from 'utils';
+import { getTransferDetails } from 'telemetry';
+import { ERR_USER_REJECTED } from 'telemetry/types';
+import { toDecimals } from 'utils/balance';
 import { interpretTransferError } from 'utils/errors';
+import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   registerWalletSigner,
   switchChain,
   TransferWallet,
 } from 'utils/wallet';
-import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
-import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
-import { RelayerFee } from 'store/relay';
-
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { toDecimals } from 'utils/balance';
-import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
-import SendError from './SendError';
-import { ERR_USER_REJECTED } from 'telemetry/types';
-import { useGetTokens } from 'hooks/useGetTokens';
-
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    gap: '16px',
-    width: '100%',
-    maxWidth: '420px',
-  },
-  confirmTransaction: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-  },
-}));
+import type { RelayerFee } from 'store/relay';
+import type { QuoteResult } from 'routes/operator';
 
 type Props = {
-  onClose: () => void;
-  quotes: any;
-  isFetchingQuotes: boolean;
+  quotes: Record<string, QuoteResult | undefined>;
 };
 
-const ReviewTransaction = (props: Props) => {
-  const { classes } = useStyles();
+type ReturnProps = {
+  error: string | undefined;
+  // errorInternal can be a result of custom validation, hence of any type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errorInternal: any | undefined;
+  onConfirm: () => void;
+};
+
+const useSendTransaction = (props: Props): ReturnProps => {
   const dispatch = useDispatch();
-  const theme = useTheme();
 
-  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const [sendError, setSendError] = useState<string | undefined>(undefined);
-  const [sendErrorInternal, setSendErrorInternal] = useState<any | undefined>(
+  const [error, setError] = useState<string | undefined>(undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [errorInternal, setErrorInternal] = useState<any | undefined>(
     undefined,
   );
 
@@ -86,10 +59,11 @@ const ReviewTransaction = (props: Props) => {
     amount,
     fromChain: sourceChain,
     toChain: destChain,
-    isTransactionInProgress,
     route,
     validations,
   } = transferInput;
+
+  const { sourceToken, destToken } = useGetTokens();
 
   const wallet = useSelector((state: RootState) => state.wallet);
   const { sending: sendingWallet, receiving: receivingWallet } = wallet;
@@ -97,28 +71,20 @@ const ReviewTransaction = (props: Props) => {
   const relay = useSelector((state: RootState) => state.relay);
   const { toNativeToken } = relay;
 
-  const getUSDAmount = useUSDamountGetter();
-
-  const { sourceToken, destToken } = useGetTokens();
-
-  const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
-    destChain,
-    destToken: destToken!.key,
-    route,
-    valid: true,
-    isTransactionInProgress,
-  });
-
   const quoteResult = props.quotes[route ?? ''];
   const quote = quoteResult?.success ? quoteResult : undefined;
-
   const receiveNativeAmount = quote?.destinationNativeGas;
 
-  const send = async () => {
-    setSendError(undefined);
+  const getUSDAmount = useUSDamountGetter();
+
+  const onConfirm = async () => {
+    // Clear previous errors
+    if (error) {
+      setError(undefined);
+    }
 
     if (config.ui.previewMode) {
-      setSendError('Connect is in preview mode');
+      setError('Connect is in preview mode');
       return;
     }
 
@@ -135,11 +101,11 @@ const ReviewTransaction = (props: Props) => {
       return;
     }
 
+    // Validate all inputs
+    // The results of this check will be written back to Redux store (see transferInput.validations).
     await validate({ transferInput, relay, wallet }, dispatch, () => false);
 
-    const valid = isTransferValid(validations);
-
-    if (!valid || !route) {
+    if (!isTransferValid(validations)) {
       return;
     }
 
@@ -162,12 +128,12 @@ const ReviewTransaction = (props: Props) => {
           toWalletAddress: receivingWallet.address,
         });
         if (!isValid) {
-          setSendError(error ?? 'Transfer validation failed');
+          setError(error ?? 'Transfer validation failed');
           return;
         }
-      } catch (e) {
-        setSendError('Error validating transfer');
-        setSendErrorInternal(e);
+      } catch (e: unknown) {
+        setError('Error validating transfer');
+        setErrorInternal(e);
         console.error(e);
         return;
       }
@@ -176,9 +142,9 @@ const ReviewTransaction = (props: Props) => {
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = config.chains[sourceChain!];
+      const fromConfig = config.chains[sourceChain];
 
-      if (fromConfig?.context === Context.ETH) {
+      if (fromConfig && fromConfig?.context === Context.ETH) {
         const chainId = fromConfig.chainId;
 
         if (typeof chainId !== 'number') {
@@ -235,6 +201,7 @@ const ReviewTransaction = (props: Props) => {
       }
 
       const txTimestamp = Date.now();
+
       const txDetails = {
         sendTx: txId,
         sender: sendingWallet.address,
@@ -242,10 +209,11 @@ const ReviewTransaction = (props: Props) => {
         recipient: receivingWallet.address,
         toChain: receipt.to,
         fromChain: receipt.from,
-        tokenAddress: getWrappedToken(sourceToken).tokenId!.address.toString(),
+        receivedToken: destToken.tuple,
         token: sourceToken.tuple,
+        tokenAddress: sourceToken.tuple[1],
+        tokenKey: sourceToken.key,
         tokenDecimals: sourceToken.decimals,
-        receivedToken: destToken.tuple, // TODO: possibly wrong (e..g if portico swap fails)
         relayerFee,
         receiveAmount: quote.destinationToken.amount,
         receiveNativeAmount,
@@ -280,8 +248,8 @@ const ReviewTransaction = (props: Props) => {
       dispatch(setSendTx(txId));
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      setSendError(undefined);
-    } catch (e: any) {
+      setError(undefined);
+    } catch (e: unknown) {
       const [uiError, transferError] = interpretTransferError(
         e,
         transferDetails,
@@ -294,8 +262,8 @@ const ReviewTransaction = (props: Props) => {
         console.error('Wormhole Connect: error completing transfer', e);
 
         // Show error in UI
-        setSendError(uiError);
-        setSendErrorInternal(e);
+        setError(uiError);
+        setErrorInternal(e);
 
         // Trigger transfer error event to integrator
         config.triggerEvent({
@@ -309,108 +277,11 @@ const ReviewTransaction = (props: Props) => {
     }
   };
 
-  const walletsConnected = useMemo(
-    () => !!sendingWallet.address && !!receivingWallet.address,
-    [sendingWallet.address, receivingWallet.address],
-  );
-
-  // Review transaction button is shown only when everything is ready
-  const confirmTransactionButton = useMemo(() => {
-    if (
-      !sourceChain ||
-      !sourceToken ||
-      !destChain ||
-      !destToken ||
-      !route ||
-      !amount
-    ) {
-      return null;
-    }
-
-    return (
-      <Button
-        disabled={props.isFetchingQuotes || isTransactionInProgress}
-        variant="primary"
-        className={classes.confirmTransaction}
-        onClick={() => send()}
-      >
-        {isTransactionInProgress ? (
-          <Typography
-            display="flex"
-            alignItems="center"
-            gap={1}
-            textTransform="none"
-          >
-            <CircularProgress
-              size={16}
-              sx={{ color: theme.palette.primary.contrastText }}
-            />
-            {mobile ? 'Preparing' : 'Preparing transaction'}
-          </Typography>
-        ) : !isTransactionInProgress && props.isFetchingQuotes ? (
-          <Typography
-            display="flex"
-            alignItems="center"
-            gap={1}
-            textTransform="none"
-          >
-            <CircularProgress color="secondary" size={16} />
-            {mobile ? 'Refreshing' : 'Refreshing quote'}
-          </Typography>
-        ) : (
-          <Typography textTransform="none">
-            {mobile ? 'Confirm' : 'Confirm transaction'}
-          </Typography>
-        )}
-      </Button>
-    );
-  }, [
-    props.isFetchingQuotes,
-    isTransactionInProgress,
-    sourceChain,
-    sourceToken,
-    destChain,
-    destToken,
-    route,
-    amount,
-    send,
-  ]);
-
-  if (!route || !walletsConnected) {
-    return <></>;
-  }
-
-  return (
-    <Stack className={classes.container}>
-      <div>
-        <IconButton
-          disabled={isTransactionInProgress}
-          sx={{ padding: 0 }}
-          onClick={() => props.onClose?.()}
-        >
-          <ChevronLeft sx={{ fontSize: '32px' }} />
-        </IconButton>
-      </div>
-      <SingleRoute
-        route={route}
-        isSelected={true}
-        destinationGasDrop={receiveNativeAmount}
-        quote={quote}
-      />
-      {showGasSlider && (
-        <Collapse in={showGasSlider}>
-          <GasSlider
-            destinationGasDrop={
-              receiveNativeAmount || sdkAmount.fromBaseUnits(0n, 8)
-            }
-            disabled={isGasSliderDisabled}
-          />
-        </Collapse>
-      )}
-      <SendError humanError={sendError} internalError={sendErrorInternal} />
-      {confirmTransactionButton}
-    </Stack>
-  );
+  return {
+    onConfirm,
+    error,
+    errorInternal,
+  };
 };
 
-export default ReviewTransaction;
+export default useSendTransaction;
