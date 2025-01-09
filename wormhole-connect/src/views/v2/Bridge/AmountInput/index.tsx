@@ -161,6 +161,10 @@ const AmountInput = (props: Props) => {
     amount ? sdkAmount.display(amount) : '',
   );
 
+  const { fromChain: sourceChain, isTransactionInProgress } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
   const { sourceToken } = useGetTokens();
 
   const { getTokenPrice } = useTokens();
@@ -177,8 +181,8 @@ const AmountInput = (props: Props) => {
   }, [amount]);
 
   const isInputDisabled = useMemo(
-    () => !props.sourceChain || !sourceToken,
-    [props.sourceChain, sourceToken],
+    () => isTransactionInProgress || !sourceChain || !sourceToken,
+    [isTransactionInProgress, sourceChain, sourceToken],
   );
 
   const balance = useMemo(() => {
@@ -211,16 +215,20 @@ const AmountInput = (props: Props) => {
       </Stack>
     );
   }, [
-    classes.balance,
     isInputDisabled,
+    sendingWallet.address,
+    classes.balance,
     props.isFetchingTokenBalance,
     props.tokenBalance,
-    sendingWallet.address,
   ]);
 
-  const handleChange = useCallback((newValue: string): void => {
-    setAmountInput(newValue);
-  }, []);
+  const handleChange = useCallback(
+    (newValue: string): void => {
+      dispatch(setAmount(newValue));
+      setAmountInput(newValue);
+    },
+    [dispatch],
+  );
 
   const tokenPriceAdornment = useMemo(() => {
     const price = calculateUSDPrice(

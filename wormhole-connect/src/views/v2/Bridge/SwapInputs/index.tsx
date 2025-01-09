@@ -34,6 +34,7 @@ function SwapInputs() {
   } = useSelector((state: RootState) => state.transferInput);
 
   const canSwap =
+    !isTransactionInProgress &&
     fromChain &&
     !config.chains[fromChain]?.disabledAsDestination &&
     toChain &&

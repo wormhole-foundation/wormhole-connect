@@ -320,6 +320,7 @@ const Bridge = () => {
           }}
           wallet={sendingWallet}
           isSource={true}
+          isTransactionInProgress={isTransactionInProgress}
         />
         <SwapInputs />
       </div>
@@ -334,6 +335,7 @@ const Bridge = () => {
     lastTokenCacheUpdate,
     supportedSourceTokens,
     isFetchingSupportedSourceTokens,
+    isTransactionInProgress,
     sendingWallet,
     dispatch,
   ]);
@@ -363,6 +365,7 @@ const Bridge = () => {
           }}
           wallet={receivingWallet}
           isSource={false}
+          isTransactionInProgress={isTransactionInProgress}
         />
       </div>
     );
@@ -375,13 +378,16 @@ const Bridge = () => {
     sourceToken,
     supportedDestTokens,
     isFetchingSupportedDestTokens,
+    isTransactionInProgress,
     receivingWallet,
     dispatch,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
   const bridgeHeader = useMemo(() => {
-    const isTxHistoryDisabled = !sendingWallet?.address;
+    const isTxHistoryDisabled =
+      !sendingWallet?.address || isTransactionInProgress;
+
     return (
       <div className={classes.bridgeHeader}>
         <Header
@@ -390,7 +396,7 @@ const Bridge = () => {
           size={18}
         />
         <Tooltip
-          title={isTxHistoryDisabled ? 'No connected wallets found' : ''}
+          title={!sendingWallet?.address ? 'No connected wallets found' : ''}
         >
           <span>
             <IconButton
@@ -404,7 +410,12 @@ const Bridge = () => {
         </Tooltip>
       </div>
     );
-  }, [sendingWallet?.address, classes.bridgeHeader, dispatch]);
+  }, [
+    classes.bridgeHeader,
+    dispatch,
+    isTransactionInProgress,
+    sendingWallet?.address,
+  ]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {

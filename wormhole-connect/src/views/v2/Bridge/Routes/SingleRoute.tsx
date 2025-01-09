@@ -24,6 +24,7 @@ import {
   millisToHumanString,
   formatDuration,
 } from 'utils';
+import { joinClass } from 'utils/style';
 
 import type { RootState } from 'store';
 import FastestRoute from 'icons/FastestRoute';
@@ -31,12 +32,8 @@ import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import { Token } from 'config/tokens';
-<<<<<<< HEAD
 import { opacify } from 'utils/theme';
-import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
-=======
 import GasSlider from 'views/v2/Bridge/GasSlider';
->>>>>>> f16701a1 (Refactor)
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -93,6 +90,11 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '34px',
     marginRight: '12px',
   },
+  disabled: {
+    opacity: '0.6',
+    cursor: 'default',
+    clickEvent: 'none',
+  },
 }));
 
 type Props = {
@@ -118,9 +120,9 @@ const SingleRoute = (props: Props) => {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { getTokenPrice, isFetchingTokenPrices } = useTokens();
+  const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
-  const { quote } = props;
+  const { quote, isSelected } = props;
   const receiveNativeAmount = quote?.destinationNativeGas;
 
   const { sourceToken, destToken } = useGetTokens();
@@ -150,7 +152,7 @@ const SingleRoute = (props: Props) => {
     }
 
     return [feePrice, feePrice > HIGH_FEE_THRESHOLD, feeToken];
-  }, [quote?.relayFee]);
+  }, [getTokenPrice, quote?.relayFee]);
 
   const relayerFee = useMemo(() => {
     if (!routeConfig.AUTOMATIC_DEPOSIT) {
@@ -250,12 +252,17 @@ const SingleRoute = (props: Props) => {
         >{`${gasTokenAmount} ${nativeGasToken.symbol}${gasTokenPriceStr}`}</Typography>
       </Stack>
     );
+    // ES Lint complains that lastTokenPriceUpdate is unused/unnecessary here... but that's wrong.
+    // We want to recompute the price after we update conversion rates.
+    //
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     destChain,
     props.destinationGasDrop,
-    theme.palette.text.primary,
+    getTokenPrice,
+    lastTokenPriceUpdate,
     theme.palette.text.secondary,
-    isFetchingTokenPrices,
+    theme.palette.text.primary,
   ]);
 
   const timeToDestination = useMemo(
@@ -536,6 +543,7 @@ const SingleRoute = (props: Props) => {
   }, [
     destChain,
     destToken,
+    getTokenPrice,
     props.error,
     providerText,
     receiveAmount,
@@ -546,7 +554,7 @@ const SingleRoute = (props: Props) => {
   // 1- If no action handler provided, fall back to default
   // 2- Otherwise there is an action handler, "pointer"
   const cursor = useMemo(() => {
-    if (props.isSelected || typeof props.onSelect !== 'function') {
+    if (isSelected || typeof props.onSelect !== 'function') {
       return 'default';
     }
 
@@ -555,7 +563,7 @@ const SingleRoute = (props: Props) => {
     }
 
     return 'pointer';
-  }, [props.error, props.isSelected, props.onSelect]);
+  }, [props.error, isSelected, props.onSelect]);
 
   const routeCardBadge = useMemo(() => {
     if (props.isFastest) {
@@ -589,20 +597,22 @@ const SingleRoute = (props: Props) => {
   return (
     <div key={props.route} className={classes.container}>
       <Card
-        className={`${classes.card} ${
-          props.isSelected ? classes.cardSelected : ''
-        }`}
+        className={joinClass([
+          classes.card,
+          isSelected && classes.cardSelected,
+          isTransactionInProgress && classes.disabled,
+        ])}
         sx={{
           border: '1px solid',
-          borderColor: props.isSelected
-            ? theme.palette.primary.main
-            : 'transparent',
+          borderColor: isSelected ? theme.palette.primary.main : 'transparent',
           opacity: 1,
         }}
       >
         <CardActionArea
           disabled={
-            typeof props.onSelect !== 'function' || props.error !== undefined
+            isTransactionInProgress ||
+            typeof props.onSelect !== 'function' ||
+            props.error !== undefined
           }
           disableTouchRipple
           sx={{ cursor }}

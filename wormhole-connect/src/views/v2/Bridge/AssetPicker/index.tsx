@@ -3,7 +3,11 @@ import { makeStyles } from 'tss-react/mui';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Popover from '@mui/material/Popover';
-import { usePopupState, bindPopover } from 'material-ui-popup-state/hooks';
+import {
+  usePopupState,
+  bindPopover,
+  bindTrigger,
+} from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 
 import DownIcon from '@mui/icons-material/ExpandMore';
@@ -20,6 +24,7 @@ import { Chain } from '@wormhole-foundation/sdk';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { Backdrop } from '@mui/material';
+import { joinClass } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
@@ -50,8 +55,8 @@ const useStyles = makeStyles()((theme: any) => ({
     justifyContent: 'space-between',
   },
   disabled: {
-    opacity: '0.4',
-    cursor: 'not-allowed',
+    opacity: '0.6',
+    cursor: 'default',
     clickEvent: 'none',
   },
   popover: {
@@ -81,6 +86,7 @@ type Props = {
   setChain: (value: Chain) => void;
   wallet: WalletData;
   isSource: boolean;
+  isTransactionInProgress: boolean;
 };
 
 const AssetPicker = (props: Props) => {
@@ -161,15 +167,23 @@ const AssetPicker = (props: Props) => {
     );
   }, [chainConfig, props.token]);
 
+  const triggerProps = props.isTransactionInProgress
+    ? {}
+    : bindTrigger(popupState);
+
   return (
     <>
       <Backdrop open={popupState.isOpen} className={classes.backdrop} />
       <Card
-        className={`${classes.inputArea} ${
-          chainConfig ? '' : classes.inputAreaEmpty
-        }`}
+        className={joinClass([
+          classes.inputArea,
+          !chainConfig && classes.inputAreaEmpty,
+          props.isTransactionInProgress && classes.disabled,
+        ])}
+        variant="elevation"
         onMouseDown={popupState.open}
         onTouchStart={popupState.open}
+        {...triggerProps}
       >
         <CardContent className={classes.cardContent}>
           <Typography
