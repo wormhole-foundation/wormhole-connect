@@ -17,7 +17,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   disabled: {
     cursor: 'not-allowed',
-    clickEvents: 'none',
+    pointerEvents: 'none',
     backgroundColor: theme.palette.button.disabled + ' !important',
     color: theme.palette.button.disabledText + ' !important',
   },
