@@ -21,6 +21,7 @@ import {
   nttAutomaticRoute,
   nttManualRoute,
 } from '@wormhole-foundation/sdk-route-ntt';
+import { HyperliquidRoute } from 'routes/hyperliquid';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 
@@ -63,6 +64,7 @@ export {
   MayanRouteWH,
   MayanRouteMCTP,
   MayanRouteSWIFT,
+  HyperliquidRoute,
 
   // Utility function for CDN-hosted version of Connect
   wormholeConnectHosted,

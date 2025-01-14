@@ -171,7 +171,7 @@ const Redeem = () => {
   const [unhandledManualClaimError, setUnhandledManualClaimError] =
     useState<any>(undefined);
 
-  const { receipt } = routeContext;
+  const { receipt, route } = routeContext;
   const isTxAttested = receipt && isAttested(receipt);
   const isTxRefunded = receipt && isRefunded(receipt);
   const isTxFailed =
@@ -218,7 +218,8 @@ const Redeem = () => {
   // Start tracking changes in the transaction
   const txTrackingResult = useTrackTransfer({
     receipt,
-    route: routeName,
+    routeName,
+    sdkRoute: route,
     eta: etaDate,
   });
 

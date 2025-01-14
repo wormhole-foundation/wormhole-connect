@@ -133,7 +133,7 @@ const WidgetItem = (props: Props) => {
   } = useTrackTransfer({
     eta: etaDate,
     receipt: initialReceipt,
-    route,
+    routeName: route,
   });
 
   useEffect(() => {
@@ -254,7 +254,7 @@ const WidgetItem = (props: Props) => {
 
       // Setting the receipt for Redeem view
       routeContext.setReceipt(receipt);
-      // Navigate user to Redeem view
+      // Setting the route for Redeem view
       routeContext.setRoute(sdkRoute);
     } catch (e: unknown) {
       setError(`Error resuming transaction: ${txDetails.sendTx}`);
