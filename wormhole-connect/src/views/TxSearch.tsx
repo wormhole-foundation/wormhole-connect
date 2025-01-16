@@ -41,6 +41,7 @@ import {
 import ChainIconComponent from 'icons/ChainIcons';
 import { RootState } from 'store';
 import { clearSearch } from 'store/search';
+import { useTokens } from 'contexts/TokensContext';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -91,6 +92,7 @@ function TxSearch() {
   const theme = useTheme();
 
   const routeContext = useContext(RouteContext);
+  const { getOrFetchToken } = useTokens();
 
   function setChain(e: any) {
     setState((prevState) => ({ ...prevState, chain: e.target.value }));
@@ -141,6 +143,7 @@ function TxSearch() {
     const txDetails = await parseReceipt(
       route,
       receipt as AttestedTransferReceipt<any>,
+      getOrFetchToken,
     );
 
     if (txDetails) {

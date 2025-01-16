@@ -33,6 +33,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Worldchain: 'https://worldchain-sepolia.g.alchemy.com/public',
     Unichain: 'https://sepolia.unichain.org',
     Mezo: 'https://rpc.test.mezo.org',
+    Monad: 'https://testnet-rpc.monad.xyz',
   },
 };
 

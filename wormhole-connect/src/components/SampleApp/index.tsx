@@ -42,6 +42,7 @@ import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { nttRoutes } from 'exports/ntt';
 import { cctpExecutorRoute } from 'exports/executor';
+import { MonadBridgeRoute } from 'exports/monad';
 import { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -83,6 +84,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
       /* @ts-ignore */
       window.cctpExecutorRoute = cctpExecutorRoute;
+      /* @ts-ignore */
+      window.MonadBridgeRoute = () => MonadBridgeRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -299,6 +302,10 @@ function SampleApp() {
                   <li>
                     <pre>cctpExecutorRoute</pre>
                     <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MonadBridgeRoute</pre>
+                    <i>{'RouteConstructor'}</i>
                   </li>
                 </ul>
               </div>

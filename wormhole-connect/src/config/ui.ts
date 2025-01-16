@@ -80,8 +80,6 @@ export function createUiConfig(customConfig: UiConfig): UiConfig {
   return {
     ...customConfig,
     experimental: customConfig.experimental ?? {},
-    walletConnectProjectId:
-      customConfig?.walletConnectProjectId ??
-      import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+    walletConnectProjectId: customConfig?.walletConnectProjectId,
   };
 }

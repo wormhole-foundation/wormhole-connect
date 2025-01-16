@@ -20,6 +20,7 @@ const {
   REACT_APP_WORLDCHAIN_TESTNET_RPC,
   REACT_APP_UNICHAIN_TESTNET_RPC,
   REACT_APP_MEZO_TESTNET_RPC,
+  REACT_APP_MONAD_TESTNET_RPC,
 } = import.meta.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -43,4 +44,5 @@ export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('Worldchain', REACT_APP_WORLDCHAIN_TESTNET_RPC),
   ...populateRpcField('Unichain', REACT_APP_UNICHAIN_TESTNET_RPC),
   ...populateRpcField('Mezo', REACT_APP_MEZO_TESTNET_RPC),
+  ...populateRpcField('Monad', REACT_APP_MONAD_TESTNET_RPC),
 };

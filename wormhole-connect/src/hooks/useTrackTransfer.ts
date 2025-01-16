@@ -4,7 +4,8 @@ import { isCompleted, routes, TransferState } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 
-import type { AttestationReceipt } from '@wormhole-foundation/sdk';
+import type { AttestationReceipt, TokenId } from '@wormhole-foundation/sdk';
+import { useTokens } from 'contexts/TokensContext';
 
 // We don't start trying to fetch transfer updates until 1 minute from ETA
 const MINIMUM_ETA = 60 * 1000;
@@ -16,6 +17,7 @@ type Props = {
   receipt: routes.Receipt<AttestationReceipt> | null;
   // Timestamp the transfer was estimated to be finished
   eta?: Date;
+  receivedTokenId?: TokenId;
 };
 
 type ReturnProps = {
@@ -29,7 +31,9 @@ const useTrackTransfer = (props: Props): ReturnProps => {
   const [readyToClaim, setReadyToClaim] = useState(false);
   const [receipt, setReceipt] = useState<routes.Receipt<AttestationReceipt>>();
 
-  const { eta, route: routeName } = props;
+  const { getOrFetchToken } = useTokens();
+
+  const { eta, route: routeName, receivedTokenId } = props;
 
   // Set initial receipt from the caller
   useEffect(() => {
@@ -89,6 +93,12 @@ const useTrackTransfer = (props: Props): ReturnProps => {
 
               if (isCompleted(currentReceipt)) {
                 setCompleted(true);
+                if (receivedTokenId) {
+                  // Attempt to add the received token to the cache, forcing unattested tokens to be fetched
+                  getOrFetchToken(receivedTokenId, true).catch((e) =>
+                    console.error('Error fetching token:', e),
+                  );
+                }
                 break;
               }
 
@@ -125,7 +135,7 @@ const useTrackTransfer = (props: Props): ReturnProps => {
     return () => {
       isActive = false;
     };
-  }, [eta, receipt, routeName]);
+  }, [eta, receipt, routeName, receivedTokenId]);
 
   return {
     isCompleted: completed,

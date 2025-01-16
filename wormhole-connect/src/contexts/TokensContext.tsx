@@ -18,7 +18,10 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getAddress } from 'ethers';
 
 interface TokensContextType {
-  getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>;
+  getOrFetchToken: (
+    tokenId: TokenId,
+    fetchUnattested?: boolean,
+  ) => Promise<Token | undefined>;
   isFetchingToken: boolean;
   lastTokenCacheUpdate: Date;
 
@@ -65,7 +68,10 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   const [lastTokenPriceUpdate, setLastPriceUpdate] = useState(new Date());
 
   const getOrFetchToken = useCallback(
-    async (tokenId: TokenId): Promise<Token | undefined> => {
+    async (
+      tokenId: TokenId,
+      fetchUnattested: boolean = false,
+    ): Promise<Token | undefined> => {
       if (
         !isNative(tokenId.address) &&
         chainToPlatform(tokenId.chain) === 'Evm'
@@ -82,7 +88,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
       }
 
       const cached = config.tokens.get(tokenId);
-      if (cached) return cached;
+      if (cached && !(cached.isUnattested && fetchUnattested)) return cached;
 
       try {
         setIsFetchingToken(true);

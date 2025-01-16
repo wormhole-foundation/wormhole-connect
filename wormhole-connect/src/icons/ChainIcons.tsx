@@ -29,6 +29,7 @@ import BERA from './Chains/BERA';
 import MEZO from './Chains/MEZO';
 import LINEA from './Chains/LINEA';
 import SONIC from './Chains/SONIC';
+import MONAD from './Chains/MONAD';
 
 const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
@@ -78,6 +79,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Mezo: MEZO(),
   Linea: LINEA(),
   Sonic: SONIC(),
+  Monad: MONAD(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

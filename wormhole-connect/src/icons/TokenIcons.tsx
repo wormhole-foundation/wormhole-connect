@@ -40,6 +40,7 @@ import BLAST from './Tokens/BLAST';
 import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
 import BTC from './Tokens/BTC';
+import MON from './Tokens/MON';
 
 const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
@@ -112,6 +113,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.WORLDCHAIN]: WORLD(),
   [TokenIcon.BERA]: BERA(),
   [TokenIcon.BTC]: BTC(),
+  [TokenIcon.MONAD]: MON(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {
