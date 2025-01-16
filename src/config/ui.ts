@@ -84,8 +84,6 @@ export function createUiConfig(customConfig: UiConfig): UiConfig {
     ...customConfig,
     showFooter: customConfig.showFooter ?? true, // Footer is shown by default if not specified
     experimental: customConfig.experimental ?? {},
-    walletConnectProjectId:
-      customConfig?.walletConnectProjectId ??
-      import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+    walletConnectProjectId: customConfig?.walletConnectProjectId,
   };
 }

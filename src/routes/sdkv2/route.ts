@@ -91,6 +91,14 @@ export class SDKv2Route {
       return true;
     }
 
+    if (
+      this.rc.meta.name === 'MonadBridge' &&
+      sourceToken.isTokenBridgeWrappedToken
+    ) {
+      // Prevent double wrapping
+      return false;
+    }
+
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
         name,
@@ -119,6 +127,14 @@ export class SDKv2Route {
     toChain?: Chain | undefined,
   ): Promise<TokenId[]> {
     if (!fromChain || !toChain || !sourceToken) return [];
+
+    if (
+      this.rc.meta.name === 'MonadBridge' &&
+      sourceToken?.isTokenBridgeWrappedToken
+    ) {
+      // Prevent double wrapping
+      return [];
+    }
 
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
@@ -219,13 +235,14 @@ export class SDKv2Route {
     const wh = await getWormholeContextV2();
     const req = await routes.RouteTransferRequest.create(
       wh,
-      /* @ts-ignore */
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
         recipient: recipient
           ? Wormhole.chainAddress(destChain, recipient)
           : undefined,
+        sourceDecimals: sourceToken.decimals,
+        destinationDecimals: destToken.decimals,
       },
       sourceContext,
       destContext,

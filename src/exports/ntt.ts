@@ -7,8 +7,6 @@ import '@wormhole-foundation/sdk-solana-ntt';
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import {
   nttAutomaticRoute,
-  type NttExecutorRoute,
-  nttExecutorRoute,
   nttManualRoute,
 } from '@wormhole-foundation/sdk-route-ntt';
 
@@ -20,18 +18,11 @@ import {
 //   ...DEFAULT_ROUTES,
 //   ...nttRoutes({ ... }),
 // ]
-const nttRoutes = (
-  nc: NttRoute.Config,
-  executorOptions?: Omit<NttExecutorRoute.Config, 'ntt'>,
-): routes.RouteConstructor[] => {
+const nttRoutes = (nc: NttRoute.Config): routes.RouteConstructor[] => {
   return [
     nttManualRoute(nc) as routes.RouteConstructor,
     nttAutomaticRoute(nc) as routes.RouteConstructor,
-    nttExecutorRoute({
-      ntt: nc,
-      ...executorOptions,
-    }) as routes.RouteConstructor,
   ];
 };
 
-export { nttAutomaticRoute, nttExecutorRoute, nttManualRoute, nttRoutes };
+export { nttAutomaticRoute, nttManualRoute, nttRoutes };

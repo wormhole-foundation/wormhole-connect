@@ -188,6 +188,11 @@ const Redeem = () => {
 
   const getUSDAmount = useUSDamountGetter();
 
+  const receivedTokenId = useMemo(
+    () => tokenIdFromTuple(receivedToken),
+    [receivedToken],
+  );
+
   const etaDate: Date | undefined = useMemo(() => {
     if (eta && txTimestamp) {
       return new Date(txTimestamp + eta);
@@ -218,6 +223,7 @@ const Redeem = () => {
     receipt,
     route: routeName,
     eta: etaDate,
+    receivedTokenId,
   });
 
   // We need check the initial receipt state and tracking result together
