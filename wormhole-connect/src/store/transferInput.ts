@@ -81,7 +81,6 @@ export interface TransferInputState {
   };
   isTransactionInProgress: boolean;
   receiverNativeBalance: string | undefined;
-  supportedSourceTokens: TokenTuple[];
 }
 
 // This is a function because config might have changed since we last cleared this store
@@ -127,7 +126,6 @@ function getInitialState(): TransferInputState {
     },
     isTransactionInProgress: false,
     receiverNativeBalance: '',
-    supportedSourceTokens: [],
   };
 }
 
@@ -303,12 +301,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.isTransactionInProgress = payload;
     },
-    setSupportedSourceTokens: (
-      state: TransferInputState,
-      { payload }: PayloadAction<TokenTuple[]>,
-    ) => {
-      state.supportedSourceTokens = payload;
-    },
     swapInputs: (state: TransferInputState) => {
       const tmpChain = state.fromChain;
       state.fromChain = state.toChain;
@@ -386,7 +378,6 @@ export const {
   updateBalances,
   clearTransfer,
   setIsTransactionInProgress,
-  setSupportedSourceTokens,
   swapInputs,
 } = transferInputSlice.actions;
 

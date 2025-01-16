@@ -21,7 +21,6 @@ import Button from 'components/v2/Button';
 import config from 'config';
 import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
-import useComputeSourceTokens from 'hooks/useComputeSourceTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
 import useConfirmTransaction from 'hooks/useConfirmTransaction';
@@ -128,7 +127,6 @@ const Bridge = () => {
     toChain: destChain,
     route,
     preferredRouteName,
-    supportedSourceTokens,
     amount,
     validations,
     isTransactionInProgress,
@@ -143,16 +141,6 @@ const Bridge = () => {
     quotesMap,
     isFetching: isFetchingQuotes,
   } = useSortedRoutesWithQuotes();
-
-  // Compute and set source tokens
-  const { isFetching: isFetchingSupportedSourceTokens } =
-    useComputeSourceTokens({
-      sourceChain,
-      destChain,
-      sourceToken,
-      destToken,
-      route,
-    });
 
   // Compute and set destination tokens
   const { isFetching: isFetchingSupportedDestTokens, supportedDestTokens } =
@@ -311,9 +299,7 @@ const Bridge = () => {
           chainList={supportedSourceChains}
           token={sourceToken}
           tokenList={sourceTokens}
-          isFetching={
-            sourceTokens.length === 0 && isFetchingSupportedSourceTokens
-          }
+          isFetching={false}
           setChain={(value: Chain) => {
             selectFromChain(dispatch, value, sendingWallet);
           }}
@@ -335,8 +321,6 @@ const Bridge = () => {
     sourceToken,
     sourceTokens,
     lastTokenCacheUpdate,
-    supportedSourceTokens,
-    isFetchingSupportedSourceTokens,
     isTransactionInProgress,
     sendingWallet,
     dispatch,
@@ -594,7 +578,7 @@ const Bridge = () => {
       {destAssetPicker}
       <AmountInput
         sourceChain={sourceChain}
-        supportedSourceTokens={config.tokens.getList(supportedSourceTokens)}
+        supportedSourceTokens={sourceTokens}
         tokenBalance={sourceToken ? balances[sourceToken.key]?.balance : null}
         isFetchingTokenBalance={isFetchingBalances}
         error={amountValidation.error}

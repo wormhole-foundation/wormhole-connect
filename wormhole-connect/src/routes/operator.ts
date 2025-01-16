@@ -20,7 +20,6 @@ import {
 import '@wormhole-foundation/sdk-definitions-ntt';
 import '@wormhole-foundation/sdk-evm-ntt';
 import '@wormhole-foundation/sdk-solana-ntt';
-import { maybeLogSdkError } from 'utils/errors';
 
 export interface TxInfo {
   route: string;
@@ -153,22 +152,6 @@ export default class RouteOperator {
       });
     }
     return Array.from(supported);
-  }
-
-  async allSupportedSourceTokens(sourceChain?: Chain): Promise<Token[]> {
-    const supported: { [key: string]: Token } = {};
-    await this.forEach(async (_name, route) => {
-      try {
-        const sourceTokens = await route.supportedSourceTokens(sourceChain);
-
-        for (const token of sourceTokens) {
-          supported[token.key] = token;
-        }
-      } catch (e) {
-        maybeLogSdkError(e);
-      }
-    });
-    return Object.values(supported);
   }
 
   async allSupportedDestTokens(
