@@ -1,16 +1,24 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from 'store';
 import { useEffect, useState } from 'react';
-import { accessBalance, Balances, updateBalances } from 'store/transferInput';
-import config, { getWormholeContextV2 } from 'config';
-import { Token } from 'config/tokens';
+import { useDispatch, useSelector } from 'react-redux';
+
+import {
+  type Chain,
+  type TokenAddress,
+  amount,
+} from '@wormhole-foundation/sdk';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
-import { Chain, TokenAddress, amount } from '@wormhole-foundation/sdk';
-import { WalletData } from 'store/wallet';
+
+import config, { getWormholeContextV2 } from 'config';
+import { accessBalance, Balances, updateBalances } from 'store/transferInput';
+
+import type { WalletData } from 'store/wallet';
+import type { Token } from 'config/tokens';
+import { ChainConfig, nonSDKChains, type NonSDKChain } from 'config/types';
+import type { RootState } from 'store';
 
 const useGetTokenBalances = (
   wallet: WalletData | undefined,
-  chain: Chain | undefined,
+  chainConfig: ChainConfig | undefined,
   tokens: Token[],
 ): { isFetching: boolean; balances: Balances } => {
   const [isFetching, setIsFetching] = useState(false);
@@ -21,23 +29,23 @@ const useGetTokenBalances = (
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // Skip balance update if selected chain is a non-SDK type
+    if (nonSDKChains[chainConfig?.displayName as NonSDKChain]) {
+      return;
+    }
+
     setIsFetching(true);
     setBalances({});
-    if (
-      !wallet ||
-      !wallet.address ||
-      !chain ||
-      !config.chains[chain] ||
-      tokens.length === 0
-    ) {
+    if (!wallet || !wallet.address || !chainConfig || tokens.length === 0) {
       setIsFetching(false);
       return;
     }
-    const chainConfig = config.chains[chain];
+
     if (!chainConfig) {
       setIsFetching(false);
       return;
     }
+
     if (chainConfig.context !== wallet.type) {
       // Invalid wallet
       setIsFetching(false);
@@ -57,7 +65,7 @@ const useGetTokenBalances = (
         const cachedBalance = accessBalance(
           cachedBalances,
           wallet.address,
-          chain,
+          chainConfig.key,
           token,
         );
 
@@ -71,8 +79,8 @@ const useGetTokenBalances = (
       if (needsUpdate.length > 0) {
         try {
           const wh = await getWormholeContextV2();
-          const platform = wh.getPlatform(chainToPlatform(chain));
-          const rpc = platform.getRpc(chain);
+          const platform = wh.getPlatform(chainToPlatform(chainConfig.key));
+          const rpc = platform.getRpc(chainConfig.key);
           const tokenAddresses: TokenAddress<Chain>[] = [];
 
           // Default it to 0 in case the RPC call fails
@@ -92,16 +100,16 @@ const useGetTokenBalances = (
           const result = await platform
             .utils()
             .getBalances(
-              chain,
+              chainConfig.key,
               rpc,
               wallet.address,
               tokenAddresses.map((addr) => addr.toString()) as TokenAddress<
-                typeof chain
+                typeof chainConfig.key
               >[],
             );
 
           for (const tokenAddress in result) {
-            const token = config.tokens.get(chain, tokenAddress);
+            const token = config.tokens.get(chainConfig.key, tokenAddress);
 
             if (token) {
               const bus = result[tokenAddress];
@@ -127,7 +135,7 @@ const useGetTokenBalances = (
           dispatch(
             updateBalances({
               address: wallet.address,
-              chain,
+              chain: chainConfig.key,
               balances: updatedBalances,
             }),
           );
@@ -140,7 +148,7 @@ const useGetTokenBalances = (
     return () => {
       isActive = false;
     };
-  }, [cachedBalances, chain, dispatch, tokens, wallet]);
+  }, [cachedBalances, chainConfig, dispatch, tokens, wallet]);
 
   return { isFetching, balances };
 };

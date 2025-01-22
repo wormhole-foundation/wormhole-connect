@@ -12,11 +12,10 @@ import Typography from '@mui/material/Typography';
 import ChainIcon from 'icons/ChainIcons';
 import PlusIcon from 'icons/Plus';
 
-import type { ChainConfig } from 'config/types';
+import { nonSDKChains, type ChainConfig, type NonSDKChain } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 
-import { Chain } from '@wormhole-foundation/sdk';
 import { useMediaQuery, useTheme } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
@@ -66,12 +65,13 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  chainList?: ChainConfig[];
+  chainList?: Array<ChainConfig>;
   selectedChainConfig?: ChainConfig;
+  selectedNonSDKChain?: NonSDKChain | undefined;
   showSearch: boolean;
   setShowSearch: (value: boolean) => void;
   wallet: WalletData;
-  onChainSelect: (chain: Chain) => void;
+  onChainSelect: (chain: string) => void;
 };
 
 const SHORT_LIST_SIZE = 5;
@@ -84,6 +84,7 @@ const ChainList = (props: Props) => {
   const {
     chainList,
     selectedChainConfig,
+    selectedNonSDKChain,
     showSearch,
     setShowSearch,
     onChainSelect,
@@ -95,6 +96,9 @@ const ChainList = (props: Props) => {
 
     // Find the selected chain in supported chains
     const selectedChainIndex = allChains.findIndex((chain) => {
+      if (selectedNonSDKChain) {
+        return chain.symbol === 'HYPE';
+      }
       return chain.key === selectedChain?.key;
     });
     const shortListSize = mobile ? SHORT_LIST_SIZE_MOBILE : SHORT_LIST_SIZE;
@@ -109,30 +113,45 @@ const ChainList = (props: Props) => {
     }
 
     return allChains.slice(0, shortListSize);
-  }, [mobile, chainList, selectedChainConfig]);
+  }, [mobile, chainList, selectedChainConfig, selectedNonSDKChain]);
 
   const shortList = useMemo(() => {
     return (
       <List component={Stack} direction="row">
-        {topChains.map((chain: ChainConfig) => (
-          <Tooltip key={chain.key} title={chain.displayName}>
-            <ListItemButton
-              selected={selectedChainConfig?.key === chain.key}
-              className={classes.chainButton}
-              onClick={() => onChainSelect(chain.key)}
+        {topChains.map((chain: ChainConfig) => {
+          return (
+            <Tooltip
+              key={`${chain.key}-${chain.symbol}`}
+              title={chain.displayName}
             >
-              <ChainIcon icon={chain.icon} />
-              <Typography
-                fontSize="12px"
-                lineHeight="12px"
-                marginTop="8px"
-                whiteSpace="nowrap"
+              <ListItemButton
+                selected={
+                  selectedNonSDKChain
+                    ? selectedChainConfig?.symbol === chain.symbol
+                    : selectedChainConfig?.key === chain.key
+                }
+                className={classes.chainButton}
+                onClick={() => {
+                  if (nonSDKChains[chain.displayName]) {
+                    onChainSelect(chain.displayName);
+                  } else {
+                    onChainSelect(chain.key);
+                  }
+                }}
               >
-                {chain.symbol}
-              </Typography>
-            </ListItemButton>
-          </Tooltip>
-        ))}
+                <ChainIcon icon={chain.icon} />
+                <Typography
+                  fontSize="12px"
+                  lineHeight="12px"
+                  marginTop="8px"
+                  whiteSpace="nowrap"
+                >
+                  {chain.symbol}
+                </Typography>
+              </ListItemButton>
+            </Tooltip>
+          );
+        })}
         <ListItemButton
           className={classes.chainButton}
           onClick={() => {
@@ -155,6 +174,8 @@ const ChainList = (props: Props) => {
     classes.chainButton,
     onChainSelect,
     selectedChainConfig?.key,
+    selectedChainConfig?.symbol,
+    selectedNonSDKChain,
     setShowSearch,
     topChains,
   ]);
@@ -171,11 +192,13 @@ const ChainList = (props: Props) => {
         }
         renderFn={(chain) => (
           <ListItemButton
-            key={chain.key}
+            key={`${chain.key}-${chain.symbol}`}
             dense
             className={classes.chainItem}
             onClick={() => {
-              onChainSelect(chain.key);
+              onChainSelect(
+                nonSDKChains[chain.displayName] ? chain.displayName : chain.key,
+              );
               setShowSearch(false);
             }}
           >

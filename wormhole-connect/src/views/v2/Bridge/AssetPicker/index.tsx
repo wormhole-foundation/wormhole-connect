@@ -9,20 +9,20 @@ import {
   bindPopover,
 } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
-
 import DownIcon from '@mui/icons-material/ExpandMore';
 import UpIcon from '@mui/icons-material/ExpandLess';
 
+import { Chain } from '@wormhole-foundation/sdk';
+
 import config from 'config';
 
-import type { ChainConfig } from 'config/types';
+import { Token } from 'config/tokens';
+import { nonSDKChains, type ChainConfig, type NonSDKChain } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
-import { Chain } from '@wormhole-foundation/sdk';
 import AssetBadge from 'components/AssetBadge';
-import { Token } from 'config/tokens';
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {
@@ -68,9 +68,10 @@ type Props = {
   tokenList?: Array<Token> | undefined;
   isFetching?: boolean;
   setToken: (value: Token) => void;
-  setChain: (value: Chain) => void;
+  setChain: (value: Chain | NonSDKChain) => void;
   wallet: WalletData;
   isSource: boolean;
+  selectedNonSDKChain?: NonSDKChain | undefined;
 };
 
 const AssetPicker = (props: Props) => {
@@ -110,8 +111,11 @@ const AssetPicker = (props: Props) => {
   }, [popupState.isOpen]);
 
   const chainConfig: ChainConfig | undefined = useMemo(() => {
+    if (props.selectedNonSDKChain) {
+      return nonSDKChains[props.selectedNonSDKChain] as ChainConfig;
+    }
     return props.chain ? config.chains[props.chain] : undefined;
-  }, [props.chain]);
+  }, [props.chain, props.selectedNonSDKChain]);
 
   const selection = useMemo(() => {
     if (!chainConfig && !props.token) {
@@ -191,11 +195,12 @@ const AssetPicker = (props: Props) => {
         <ChainList
           chainList={props.chainList}
           selectedChainConfig={chainConfig}
+          selectedNonSDKChain={props.selectedNonSDKChain}
           showSearch={showChainSearch}
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
           onChainSelect={(key) => {
-            props.setChain(key);
+            props.setChain(key as Chain | NonSDKChain);
           }}
         />
         {!showChainSearch && chainConfig && (

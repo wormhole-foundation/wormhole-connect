@@ -27,6 +27,7 @@ import {
   setToken,
   setTransferRoute,
   setDestToken,
+  setToNonSDKChain,
 } from 'store/transferInput';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
@@ -50,6 +51,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
+import { ChainConfig, NonSDKChain, nonSDKChains } from 'config/types';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -124,6 +126,7 @@ const Bridge = () => {
   const {
     fromChain: sourceChain,
     toChain: destChain,
+    toNonSDKChain,
     route,
     preferredRouteName,
     supportedSourceTokens,
@@ -207,7 +210,7 @@ const Bridge = () => {
 
   const { balances, isFetching: isFetchingBalances } = useGetTokenBalances(
     sendingWallet,
-    sourceChain,
+    sourceChain ? config.chains[sourceChain] : undefined,
     sourceTokenArray,
   );
 
@@ -257,16 +260,27 @@ const Bridge = () => {
         supportedChains.includes(chain.key)
       );
     });
+    // config.chainsArr is needed here as config can be rebuilt after component is created
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.chainsArr, destChain, supportedChains]);
 
   // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
-    return config.chainsArr.filter(
+    const sdkChains = config.chainsArr.filter(
       (chain) =>
         chain.key !== sourceChain &&
         !chain.disabledAsDestination &&
         supportedChains.includes(chain.key),
     );
+
+    // Manually add HP chain config if HP route is present
+    if (config.routes.get('HyperliquidRoute')) {
+      sdkChains.push(nonSDKChains.Hyperliquid as ChainConfig);
+    }
+
+    return sdkChains;
+    // config.chainsArr is needed here as config can be rebuilt after component is created
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.chainsArr, sourceChain, supportedChains]);
 
   // Connect bridge header, which renders any custom overrides for the header
@@ -285,7 +299,9 @@ const Bridge = () => {
     }
 
     return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
-  }, [config.ui]);
+    // config.ui.pageHeader is needed here as config can be rebuilt after component is created
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.ui.pageHeader]);
 
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
@@ -303,8 +319,8 @@ const Bridge = () => {
           isFetching={
             sourceTokens.length === 0 && isFetchingSupportedSourceTokens
           }
-          setChain={(value: Chain) => {
-            selectFromChain(dispatch, value, sendingWallet);
+          setChain={(value: string) => {
+            selectFromChain(dispatch, value as Chain, sendingWallet);
           }}
           setToken={(value: Token) => {
             dispatch(setToken(value.tuple));
@@ -316,14 +332,15 @@ const Bridge = () => {
       </div>
     );
   }, [
+    classes.assetPickerContainer,
+    classes.assetPickerTitle,
     sourceChain,
     supportedSourceChains,
     sourceToken,
     sourceTokens,
-    lastTokenCacheUpdate,
-    supportedSourceTokens,
-    sendingWallet,
     isFetchingSupportedSourceTokens,
+    sendingWallet,
+    dispatch,
   ]);
 
   // Asset picker for the destination network and token
@@ -343,24 +360,47 @@ const Bridge = () => {
           isFetching={
             supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
           }
-          setChain={(value: Chain) => {
-            selectToChain(dispatch, value, receivingWallet);
+          setChain={(value: Chain | NonSDKChain) => {
+            const nonSDKChain = nonSDKChains[value as NonSDKChain];
+            // Check whether selected chain is a non-SDK chain
+            if (nonSDKChain) {
+              dispatch(setToNonSDKChain(value as NonSDKChain));
+              // Still need to set the SDK counterpart as the chain
+              // e.g. Hyperliquid -> Arbitrum
+              selectToChain(
+                dispatch,
+                nonSDKChain.sdkName as Chain,
+                receivingWallet,
+              );
+            } else {
+              // Clear previously selected non-SDK chain
+              if (toNonSDKChain) {
+                dispatch(setToNonSDKChain());
+              }
+              selectToChain(dispatch, value as Chain, receivingWallet);
+            }
           }}
           setToken={(value: Token) => {
             dispatch(setDestToken(value.tuple));
           }}
           wallet={receivingWallet}
           isSource={false}
+          selectedNonSDKChain={toNonSDKChain}
         />
       </div>
     );
   }, [
+    classes.assetPickerContainer,
+    classes.assetPickerTitle,
     destChain,
     supportedDestChains,
     destToken,
+    sourceToken,
     supportedDestTokens,
-    receivingWallet,
     isFetchingSupportedDestTokens,
+    receivingWallet,
+    toNonSDKChain,
+    dispatch,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -388,7 +428,9 @@ const Bridge = () => {
         </Tooltip>
       </div>
     );
-  }, [sendingWallet?.address, config.ui]);
+    // config.ui.title is needed here as config can be rebuilt after component is created
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.ui.title, sendingWallet?.address, classes.bridgeHeader, dispatch]);
 
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {

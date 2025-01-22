@@ -1,5 +1,6 @@
 import { Chain } from '@wormhole-foundation/sdk';
 import { Alignment } from 'components/Header';
+import { NonSDKChain } from './types';
 
 export type UiConfig = {
   title?: string;
@@ -30,6 +31,7 @@ export interface DefaultInputs {
   toChain?: Chain;
   fromToken?: string; // Address or symbol
   toToken?: string; // Address or symbol
+  toNonSDKChain?: NonSDKChain;
   requiredChain?: Chain;
   preferredRouteName?: string;
 }

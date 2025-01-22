@@ -11,6 +11,7 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { Chain, amount } from '@wormhole-foundation/sdk';
+import { NonSDKChain } from 'config/types';
 
 export type Balance = {
   lastUpdated: number;
@@ -66,6 +67,7 @@ export interface TransferInputState {
   validations: TransferValidations;
   fromChain: Chain | undefined;
   toChain: Chain | undefined;
+  toNonSDKChain: NonSDKChain | undefined;
   token: TokenTuple | undefined;
   destToken: TokenTuple | undefined;
   amount?: amount.Amount;
@@ -86,7 +88,7 @@ export interface TransferInputState {
 
 // This is a function because config might have changed since we last cleared this store
 function getInitialState(): TransferInputState {
-  const { fromChain, toChain, fromToken, toToken } =
+  const { fromChain, toChain, toNonSDKChain, fromToken, toToken } =
     config.ui.defaultInputs || {};
 
   const fromTokenTuple =
@@ -112,6 +114,7 @@ function getInitialState(): TransferInputState {
     },
     fromChain,
     toChain,
+    toNonSDKChain,
     token: fromTokenTuple,
     destToken: toTokenTuple,
     amount: undefined,
@@ -223,6 +226,12 @@ export const transferInputSlice = createSlice({
     ) => {
       state.toChain = payload;
       performModificationsIfToChainChanged(state);
+    },
+    setToNonSDKChain: (
+      state: TransferInputState,
+      { payload }: PayloadAction<NonSDKChain | undefined>,
+    ) => {
+      state.toNonSDKChain = payload;
     },
     setAmount: (
       state: TransferInputState,
@@ -381,6 +390,7 @@ export const {
   clearDestToken,
   setFromChain,
   setToChain,
+  setToNonSDKChain,
   setAmount,
   setTransferRoute,
   updateBalances,

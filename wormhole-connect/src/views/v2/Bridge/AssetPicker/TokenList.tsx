@@ -57,7 +57,7 @@ const TokenList = (props: Props) => {
 
   const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
     props.wallet,
-    props.selectedChainConfig.key,
+    props.selectedChainConfig,
     props.tokenList || [],
   );
 

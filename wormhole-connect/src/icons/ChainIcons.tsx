@@ -3,6 +3,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 
+import { NonSDKChain } from 'config/types';
+
 import { CENTER } from 'utils/style';
 import GLMR from './Chains/GLMR';
 import AVAX from './Chains/AVAX';
@@ -26,6 +28,7 @@ import XLAYER from './Chains/XLAYER';
 import OSMO from './Chains/OSMO';
 import WORLD from './Chains/WORLD';
 import UNI from './Chains/UNI';
+import HYPE from './Chains/HYPE';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -43,7 +46,7 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   },
 }));
 
-const iconMap: { [key in Chain]?: React.JSX.Element } = {
+const iconMap: { [key in Chain | NonSDKChain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
   Avalanche: AVAX(),
   Bsc: BSC(),
@@ -65,6 +68,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Osmosis: OSMO(),
   Worldchain: WORLD(),
   Unichain: UNI(),
+  Hyperliquid: HYPE(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {
