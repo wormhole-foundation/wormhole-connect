@@ -122,9 +122,23 @@ export class HyperliquidRoute<N extends Network>
     quote: Q,
     to: ChainAddress,
   ): Promise<R> {
+    // Check min amount requirement for Hyperliquid
     if (quote.details!.minReceived < 5) {
       throw new Error('Hyperliquid requires a minimum of 5 USDC to deposit');
     }
+
+    // If source chain is already Arbitrum, we can simply return a completed receipt and move to manual claim
+    if (request.fromChain.chain === 'Arbitrum') {
+      return {
+        attestation: { id: undefined },
+        originTxs: [],
+        destinationTxs: [],
+        from: 'Arbitrum',
+        to: 'Arbitrum',
+        state: TransferState.DestinationFinalized,
+      };
+    }
+
     return this.mayanRoute.initiate(request, signer, quote, to);
   }
 
