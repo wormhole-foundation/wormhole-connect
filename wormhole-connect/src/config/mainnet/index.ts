@@ -3,6 +3,7 @@ import { MAINNET_CHAINS } from './chains';
 import { MAINNET_RPC_MAPPING } from './rpcs';
 import { MAINNET_TOKENS } from './tokens';
 import { MAINNET_WRAPPED_TOKENS } from './wrappedTokens';
+import { MAINNET_NON_SDK_CHAINS } from './nonSDKchains';
 
 export * from './chains';
 export * from './rpcs';
@@ -10,6 +11,7 @@ export * from './tokens';
 
 const MAINNET: NetworkData = {
   chains: MAINNET_CHAINS,
+  nonSDKChains: MAINNET_NON_SDK_CHAINS,
   tokens: MAINNET_TOKENS,
   wrappedTokens: MAINNET_WRAPPED_TOKENS,
   rpcs: MAINNET_RPC_MAPPING,

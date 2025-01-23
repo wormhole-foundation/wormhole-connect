@@ -4,7 +4,6 @@ import {
   ChainResourceMap,
   WormholeContext,
   WormholeConfig,
-  Context,
 } from 'sdklegacy';
 
 // SDKv2
@@ -151,6 +150,7 @@ export interface InternalConfig<N extends Network> {
 
   chains: ChainsConfig;
   chainsArr: ChainConfig[];
+  nonSDKChains?: NonSDKChainsConfig;
 
   routes: RouteOperator;
 
@@ -180,26 +180,11 @@ export type TokenConfig = {
 
 export type TokensConfig = { [key: string]: TokenConfig };
 
-export const nonSDKChains = {
-  Hyperliquid: {
-    key: 'Arbitrum',
-    id: 23,
-    context: Context.ETH,
-    finalityThreshold: 0,
-    displayName: 'Hyperliquid',
-    sdkName: 'Arbitrum',
-    explorerUrl: 'https://app.hyperliquid.xyz/explorer',
-    explorerName: 'Hyperliquid Explorer',
-    gasToken: 'ETHarbitrum',
-    chainId: 42161,
-    icon: 'Hyperliquid',
-    maxBlockSearch: 2000,
-    symbol: 'HYPE',
-    wrappedGasToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-  },
-};
+export type NonSDKChain = 'Hyperliquid';
 
-export type NonSDKChain = keyof typeof nonSDKChains;
+export type NonSDKChainsConfig = {
+  [chain in NonSDKChain]?: ChainConfig;
+};
 
 export interface ChainConfig extends BaseChainConfig {
   sdkName: Chain;
@@ -225,6 +210,7 @@ export type GuardianSetData = {
 
 export type NetworkData = {
   chains: ChainsConfig;
+  nonSDKChains?: NonSDKChainsConfig;
   tokens: TokenConfig[];
   wrappedTokens: WrappedTokenAddresses;
   rpcs: RpcMapping;

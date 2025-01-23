@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { makeStyles } from 'tss-react/mui';
+import { useMediaQuery, useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import List from '@mui/material/List';
@@ -9,14 +10,13 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import config from 'config';
 import ChainIcon from 'icons/ChainIcons';
 import PlusIcon from 'icons/Plus';
-
-import { nonSDKChains, type ChainConfig, type NonSDKChain } from 'config/types';
-import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 
-import { useMediaQuery, useTheme } from '@mui/material';
+import type { ChainConfig, NonSDKChain } from 'config/types';
+import type { WalletData } from 'store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   card: {
@@ -132,7 +132,7 @@ const ChainList = (props: Props) => {
                 }
                 className={classes.chainButton}
                 onClick={() => {
-                  if (nonSDKChains[chain.displayName]) {
+                  if (config.nonSDKChains?.[chain.displayName]) {
                     onChainSelect(chain.displayName);
                   } else {
                     onChainSelect(chain.key);
@@ -197,7 +197,9 @@ const ChainList = (props: Props) => {
             className={classes.chainItem}
             onClick={() => {
               onChainSelect(
-                nonSDKChains[chain.displayName] ? chain.displayName : chain.key,
+                config.nonSDKChains?.[chain.displayName]
+                  ? chain.displayName
+                  : chain.key,
               );
               setShowSearch(false);
             }}

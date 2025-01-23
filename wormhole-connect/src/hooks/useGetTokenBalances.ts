@@ -13,7 +13,7 @@ import { accessBalance, Balances, updateBalances } from 'store/transferInput';
 
 import type { WalletData } from 'store/wallet';
 import type { Token } from 'config/tokens';
-import { ChainConfig, nonSDKChains, type NonSDKChain } from 'config/types';
+import type { ChainConfig, NonSDKChain } from 'config/types';
 import type { RootState } from 'store';
 
 const useGetTokenBalances = (
@@ -30,7 +30,7 @@ const useGetTokenBalances = (
 
   useEffect(() => {
     // Skip balance update if selected chain is a non-SDK type
-    if (nonSDKChains[chainConfig?.displayName as NonSDKChain]) {
+    if (config.nonSDKChains?.[chainConfig?.displayName as NonSDKChain]) {
       return;
     }
 

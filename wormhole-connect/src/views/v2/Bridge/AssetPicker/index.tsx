@@ -17,7 +17,7 @@ import { Chain } from '@wormhole-foundation/sdk';
 import config from 'config';
 
 import { Token } from 'config/tokens';
-import { nonSDKChains, type ChainConfig, type NonSDKChain } from 'config/types';
+import type { ChainConfig, NonSDKChain } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
@@ -112,7 +112,7 @@ const AssetPicker = (props: Props) => {
 
   const chainConfig: ChainConfig | undefined = useMemo(() => {
     if (props.selectedNonSDKChain) {
-      return nonSDKChains[props.selectedNonSDKChain] as ChainConfig;
+      return config.nonSDKChains?.[props.selectedNonSDKChain] as ChainConfig;
     }
     return props.chain ? config.chains[props.chain] : undefined;
   }, [props.chain, props.selectedNonSDKChain]);

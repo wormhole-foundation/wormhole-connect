@@ -51,7 +51,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
-import { ChainConfig, NonSDKChain, nonSDKChains } from 'config/types';
+import { ChainConfig, NonSDKChain } from 'config/types';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -275,7 +275,7 @@ const Bridge = () => {
 
     // Manually add HP chain config if HP route is present
     if (config.routes.get('HyperliquidRoute')) {
-      sdkChains.push(nonSDKChains.Hyperliquid as ChainConfig);
+      sdkChains.push(config.nonSDKChains?.Hyperliquid as ChainConfig);
     }
 
     return sdkChains;
@@ -361,7 +361,7 @@ const Bridge = () => {
             supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
           }
           setChain={(value: Chain | NonSDKChain) => {
-            const nonSDKChain = nonSDKChains[value as NonSDKChain];
+            const nonSDKChain = config.nonSDKChains?.[value as NonSDKChain];
             // Check whether selected chain is a non-SDK chain
             if (nonSDKChain) {
               dispatch(setToNonSDKChain(value as NonSDKChain));
