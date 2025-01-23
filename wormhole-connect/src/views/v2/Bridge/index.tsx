@@ -273,8 +273,8 @@ const Bridge = () => {
         supportedChains.includes(chain.key),
     );
 
-    // Manually add HP chain config if HP route is present
-    if (config.routes.get('HyperliquidRoute')) {
+    // Manually add HP chain config if HP route is present and source chain is not Arbitrum
+    if (config.routes.get('HyperliquidRoute') && sourceChain !== 'Arbitrum') {
       sdkChains.push(config.nonSDKChains?.Hyperliquid as ChainConfig);
     }
 
