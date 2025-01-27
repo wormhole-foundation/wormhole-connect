@@ -171,7 +171,11 @@ const WidgetItem = (props: Props) => {
   // Displays the countdown
   const etaCountdown = useMemo(() => {
     if (isReadyToClaim || transaction.isReadyToClaim) {
-      return 'Ready to claim...';
+      if (route === 'HyperliquidRoute') {
+        return 'Ready to deposit...';
+      } else {
+        return 'Ready to claim...';
+      }
     }
 
     if (etaExpired || etaRemaining === 0) {
@@ -189,8 +193,9 @@ const WidgetItem = (props: Props) => {
     isReadyToClaim,
     isRunning,
     minutes,
+    route,
     seconds,
-    transaction,
+    transaction.isReadyToClaim,
   ]);
 
   // A number value between 0-100
@@ -207,12 +212,12 @@ const WidgetItem = (props: Props) => {
     }
 
     // Return full bar when countdown expires
-    if (etaExpired) {
+    if (etaExpired || isCompleted) {
       return 100;
     }
 
     return ((eta - etaRemaining) / eta) * 100;
-  }, [eta, etaExpired, etaRemaining]);
+  }, [eta, etaExpired, etaRemaining, isCompleted]);
 
   // Start the countdown timer
   useEffect(() => {
