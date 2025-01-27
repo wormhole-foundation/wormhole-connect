@@ -25,11 +25,16 @@ import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 
 const useStyles = makeStyles()((theme: any) => ({
-  card: {
+  inputArea: {
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
     borderRadius: '8px',
+    border: `1px solid ${theme.palette.modal.background}`,
+  },
+  inputAreaPopulated: {
+    background: 'transparent',
+    border: `1px solid color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.modal.background} 90%)`,
   },
   cardContent: {
     display: 'flex',
@@ -154,8 +159,9 @@ const AssetPicker = (props: Props) => {
   return (
     <>
       <Card
-        className={classes.card}
-        variant="elevation"
+        className={`${classes.inputArea} ${
+          chainConfig ? classes.inputAreaPopulated : ''
+        }`}
         {...bindTrigger(popupState)}
       >
         <CardContent className={classes.cardContent}>

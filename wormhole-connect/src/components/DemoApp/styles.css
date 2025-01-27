@@ -1,3 +1,30 @@
+html,
+body {
+  height: 100%;
+}
+
+main {
+  width: 100%;
+  min-height: 100%;
+  background-color: white;
+  color: black;
+}
+
+main.dark {
+  background-color: black;
+  color: white;
+}
+
+main.dark textarea {
+  color: white;
+  background: black;
+}
+
+main.light textarea {
+  color: black;
+  background: white;
+}
+
 article {
   display: flex;
 }
@@ -24,7 +51,6 @@ header h1 {
 }
 
 #custom-config-toggle {
-  color: white;
   align-self: end;
   text-decoration: none;
 }
@@ -42,10 +68,8 @@ header h1 {
 }
 
 #custom-config textarea {
-  background: black;
   border: 1px solid #444;
   min-height: 400px;
-  color: white;
   width: calc(100% - 10px);
   resize: vertical;
 }

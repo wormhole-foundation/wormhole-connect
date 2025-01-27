@@ -5,7 +5,7 @@ import DemoApp from './components/DemoApp';
 
 // This is the demo app used for local development
 
-const root = ReactDOM.createRoot(document.querySelector('main') as HTMLElement);
+const root = ReactDOM.createRoot(document.querySelector('body') as HTMLElement);
 
 root.render(
   <React.StrictMode>

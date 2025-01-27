@@ -15,7 +15,6 @@ import SUI from './Chains/SUI';
 import BASE from './Chains/BASE';
 import POLY from './Chains/POLY';
 import BSC from './Chains/BSC';
-import emptyChain from './Chains/empty';
 import ARBITRUM from './Chains/ARBITRUM';
 import OPTIMISM from './Chains/OPTIMISM';
 import KAIA from './Chains/KAIA';
@@ -28,7 +27,7 @@ import WORLD from './Chains/WORLD';
 import UNI from './Chains/UNI';
 import BERA from './Chains/BERA';
 
-const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
+const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
     height: size,
     width: size,
@@ -41,6 +40,12 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   icon: {
     maxHeight: '100%',
     maxWidth: '100%',
+  },
+  emptyIcon: {
+    width: size,
+    height: size,
+    background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.modal.background} 80%)`,
+    borderRadius: '3px',
   },
 }));
 
@@ -78,15 +83,20 @@ type Props = {
   height?: number;
 };
 
+function emptyIcon(size: number) {
+  const { classes } = useStyles({ size });
+  return <div className={classes.emptyIcon} />;
+}
+
 function ChainIconComponent(props: Props) {
   const size = props.height || 36;
   const { classes } = useStyles({ size });
 
   // Default, if icon is undefined
-  let icon = emptyChain;
+  let icon = emptyIcon(size);
 
-  if (isBuiltinChainIcon(props.icon)) {
-    icon = iconMap[props.icon] || emptyChain;
+  if (isBuiltinChainIcon(props.icon) && iconMap[props.icon]) {
+    icon = iconMap[props.icon]!;
   } else if (typeof props.icon === 'string') {
     icon = <img className={classes.iconImage} src={props.icon} />;
   }

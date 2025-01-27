@@ -23,7 +23,6 @@ import BASE from './Tokens/BASE';
 import POLY from './Tokens/POLY';
 import BSC from './Tokens/BSC';
 import USDC from './Tokens/USDC';
-import emptyToken from './Tokens/empty';
 import ARBITRUM from './Tokens/ARBITRUM';
 import OPTIMISM from './Tokens/OPTIMISM';
 import OSMO from './Tokens/OSMO';
@@ -41,7 +40,7 @@ import BLAST from './Tokens/BLAST';
 import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
 
-const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
+const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
     height: size,
     width: size,
@@ -55,6 +54,12 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   icon: {
     maxHeight: '100%',
     maxWidth: '100%',
+  },
+  emptyIcon: {
+    width: size,
+    height: size,
+    borderRadius: '50px',
+    background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.modal.background} 80%)`,
   },
 }));
 
@@ -116,15 +121,20 @@ type Props = {
   height?: number;
 };
 
+function emptyIcon(size: number) {
+  const { classes } = useStyles({ size });
+  return <div className={classes.emptyIcon} />;
+}
+
 function TokenIconComponent(props: Props) {
   const size = props.height || 36;
   const { classes } = useStyles({ size });
 
   // Default, if icon is undefined
-  let icon = emptyToken;
+  let icon = emptyIcon(size);
 
-  if (isBuiltinTokenIcon(props.icon)) {
-    icon = iconMap[props.icon] || emptyToken;
+  if (isBuiltinTokenIcon(props.icon) && iconMap[props.icon]) {
+    icon = iconMap[props.icon];
   } else if (typeof props.icon === 'string') {
     icon = <img className={classes.iconImage} src={props.icon} />;
   }

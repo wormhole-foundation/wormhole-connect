@@ -43,8 +43,6 @@ export type WormholeConnectTheme = {
   error?: string;
   // Success message color
   success?: string;
-  // Background color for badges in asset picker
-  badge?: string;
   // Font family
   font?: string;
 };
@@ -58,7 +56,6 @@ export type InternalTheme = {
   divider: string;
   background: {
     default: string;
-    badge: string;
   };
   text: {
     primary: string;
@@ -120,7 +117,6 @@ export const light: InternalTheme = {
   divider: '#a0a2a9',
   background: {
     default: 'transparent',
-    badge: '#E5E8F2',
   },
   text: {
     primary: grey[900],
@@ -217,7 +213,6 @@ export const dark: InternalTheme = {
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: 'transparent',
-    badge: '#010101',
   },
   text: {
     primary: '#ffffff',
@@ -360,9 +355,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         main: customTheme.success,
       };
     }
-    if (customTheme.badge) {
-      theme.background.badge = customTheme.badge;
-    }
   }
 
   return createTheme({
@@ -370,7 +362,8 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       MuiPaper: {
         styleOverrides: {
           root: {
-            background: theme.modal.background + ' !important',
+            background: theme.modal.background,
+            boxShadow: 'none',
           },
         },
       },
