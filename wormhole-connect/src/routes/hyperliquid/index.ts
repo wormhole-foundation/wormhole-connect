@@ -127,7 +127,12 @@ export class HyperliquidRoute<N extends Network>
       throw new Error('Hyperliquid requires a minimum of 5 USDC to deposit');
     }
 
-    return this.mayanRoute.initiate(request, signer, quote, to);
+    return (await this.mayanRoute.initiate(
+      request,
+      signer,
+      quote,
+      to,
+    )) as routes.Receipt;
   }
 
   async complete(signer: Signer, receipt: R): Promise<R> {
@@ -212,7 +217,7 @@ export class HyperliquidRoute<N extends Network>
   public override async *track(receipt: R, timeout?: number) {
     let trackReceipt;
     for await (const mayanReceipt of this.mayanRoute.track(receipt, timeout)) {
-      if (isCompleted(mayanReceipt)) {
+      if (isCompleted(mayanReceipt as routes.Receipt)) {
         // Mayan tx is completed
         if (this.finalReceipt) {
           // final receipt is set after manual claim is completed (see async complete(...))
