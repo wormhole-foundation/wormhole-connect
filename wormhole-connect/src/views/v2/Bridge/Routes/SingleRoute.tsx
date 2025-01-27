@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
@@ -102,9 +102,11 @@ const SingleRoute = (props: Props) => {
   const theme = useTheme();
   const routeConfig = config.routes.get(props.route.name);
 
-  const { toChain: destChain, fromChain: sourceChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    toChain: destChain,
+    fromChain: sourceChain,
+    toNonSDKChain,
+  } = useSelector((state: RootState) => state.transferInput);
 
   const { getTokenPrice, isFetchingTokenPrices } = useTokens();
 
@@ -131,7 +133,7 @@ const SingleRoute = (props: Props) => {
     }
 
     return [feePrice, feePrice > HIGH_FEE_THRESHOLD, feeToken];
-  }, [quote?.relayFee]);
+  }, [getTokenPrice, quote?.relayFee]);
 
   const relayerFee = useMemo(() => {
     if (!routeConfig.AUTOMATIC_DEPOSIT) {
@@ -248,7 +250,7 @@ const SingleRoute = (props: Props) => {
           fontSize="14px"
           lineHeight="14px"
         >
-          {`Time to ${destChain}`}
+          {`Time to ${toNonSDKChain ?? destChain}`}
         </Typography>
         <Typography
           component="div"
@@ -319,38 +321,74 @@ const SingleRoute = (props: Props) => {
     theme.palette.error.main,
   ]);
 
+  const generateWarningMessage = useCallback(
+    ({
+      key,
+      warningMsg,
+      secondaryMsg,
+    }: {
+      key: string;
+      warningMsg: string;
+      secondaryMsg: string;
+    }) => (
+      <div key={key}>
+        {messageDivider}
+        <Stack
+          className={classes.messageContainer}
+          direction="row"
+          alignItems="center"
+        >
+          <WarningIcon className={classes.warningIcon} />
+          <Stack>
+            <Typography
+              color={theme.palette.warning.main}
+              fontSize={14}
+              lineHeight="18px"
+            >
+              {warningMsg}
+            </Typography>
+            <Typography
+              color={theme.palette.text.secondary}
+              fontSize={14}
+              lineHeight="18px"
+            >
+              {secondaryMsg}
+            </Typography>
+          </Stack>
+        </Stack>
+      </div>
+    ),
+    [
+      classes.messageContainer,
+      classes.warningIcon,
+      messageDivider,
+      theme.palette.text.secondary,
+      theme.palette.warning.main,
+    ],
+  );
+
   const warningMessages = useMemo(() => {
     const messages: React.JSX.Element[] = [];
 
-    if (isManual) {
+    // Special warning message for Hyperliquid route
+    if (props.route.name === 'HyperliquidRoute') {
       messages.push(
-        <div key="ManualTransactionWarning">
-          {messageDivider}
-          <Stack
-            className={classes.messageContainer}
-            direction="row"
-            alignItems="center"
-          >
-            <WarningIcon className={classes.warningIcon} />
-            <Stack>
-              <Typography
-                color={theme.palette.warning.main}
-                fontSize={14}
-                lineHeight="18px"
-              >
-                This transfer requires two transactions.
-              </Typography>
-              <Typography
-                color={theme.palette.text.secondary}
-                fontSize={14}
-                lineHeight="18px"
-              >
-                You will need to make two wallet approvals and have gas on the
-                destination chain.
-              </Typography>
-            </Stack>
-          </Stack>
-        </div>,
+        generateWarningMessage({
+          key: 'HyperliquidTransactionWarning',
+          warningMsg:
+            'This transfer will first deposit to Arbitrum and then to Hyperliquid.',
+          secondaryMsg:
+            'You will need to make two wallet approvals and have gas on Arbitrum.',
+        }),
+      );
+    } else if (isManual) {
+      messages.push(
+        generateWarningMessage({
+          key: 'ManualTransactionWarning',
+          warningMsg: 'This transfer requires two transactions.',
+          secondaryMsg:
+            'You will need to make two wallet approvals and have gas on the destination chain.',
+        }),
       );
     }
 
@@ -386,47 +424,27 @@ const SingleRoute = (props: Props) => {
 
     if (isHighFee) {
       messages.push(
-        <div key="HighFee">
-          {messageDivider}
-          <Stack
-            className={classes.messageContainer}
-            direction="row"
-            alignItems="center"
-          >
-            <WarningIcon className={classes.warningIcon} />
-            <Stack>
-              <Typography
-                color={theme.palette.warning.main}
-                fontSize={14}
-                lineHeight="18px"
-              >
-                Output amount is much lower than input amount.
-              </Typography>
-              <Typography
-                color={theme.palette.text.secondary}
-                fontSize={14}
-                lineHeight="18px"
-              >
-                Double check before proceeding.
-              </Typography>
-            </Stack>
-          </Stack>
-        </div>,
+        generateWarningMessage({
+          key: 'HighFee',
+          warningMsg: 'Output amount is much lower than input amount.',
+          secondaryMsg: 'Double check before proceeding.',
+        }),
       );
     }
 
     return messages;
   }, [
+    props.route.name,
     isManual,
     isHighFee,
-    messageDivider,
-    classes.warningIcon,
-    classes.messageContainer,
-    theme.palette.warning.main,
-    theme.palette.text.secondary,
+    generateWarningMessage,
     quote?.warnings,
-    destToken,
+    messageDivider,
+    classes.messageContainer,
+    classes.warningIcon,
+    theme.palette.warning.main,
     destChain,
+    destToken,
   ]);
 
   const providerText = useMemo(() => {
