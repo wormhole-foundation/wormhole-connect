@@ -71,7 +71,12 @@ export function getExplorerInfo(
       ? route
       : (route.constructor as routes.RouteConstructor).meta.name;
 
-  if (routeName.startsWith('MayanSwap')) {
+  // IMPORTANT: HyperliquidRoute uses MayanSwap to bridge funds into Arbitrum,
+  // therefore we need to show Mayan explorer link for HL as well.
+  if (
+    routeName.startsWith('MayanSwap') ||
+    routeName.startsWith('HyperliquidRoute')
+  ) {
     return {
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',

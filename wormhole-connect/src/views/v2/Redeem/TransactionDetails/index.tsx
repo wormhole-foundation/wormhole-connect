@@ -20,7 +20,7 @@ import {
   trimTxHash,
 } from 'utils';
 import { getExplorerInfo } from 'utils/sdkv2';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount, isCompleted } from '@wormhole-foundation/sdk';
 
 import type { RootState } from 'store';
 import { toFixedDecimals } from 'utils/balance';
@@ -63,6 +63,11 @@ const TransactionDetails = () => {
 
   const { getTokenPrice, isFetchingTokenPrices, lastTokenPriceUpdate } =
     useTokens();
+
+  const isTxCompleted = useMemo(
+    () => routeContext.receipt && isCompleted(routeContext.receipt),
+    [routeContext.receipt],
+  );
 
   // Separator with a unicode dot in the middle
   const separator = useMemo(
@@ -297,7 +302,15 @@ const TransactionDetails = () => {
     }
 
     // Get explorer name and url for the route
-    const { name, url } = getExplorerInfo(route, sendTx);
+    let { name, url } = getExplorerInfo(route, sendTx);
+
+    // Hyperliquid transactions has two states with different explorer links:
+    // 1- During MayanSwap when we show Mayan explorer link (see getExplorerInfo).
+    // 2- After MayanSwap is completed and user approves the amount into Hyperliquid, then we show Hyperliquid explorer link.
+    if (isTxCompleted && routeName === 'HyperliquidRoute') {
+      name = 'Hyperliquid Explorer';
+      url = `https://app.hyperliquid.xyz/explorer/address/${sender}`;
+    }
 
     return (
       <Stack alignItems="center" padding="24px 12px">
@@ -316,7 +329,14 @@ const TransactionDetails = () => {
         </Link>
       </Stack>
     );
-  }, [routeContext.route, routeName, sendTx, theme.palette.text.primary]);
+  }, [
+    isTxCompleted,
+    routeContext.route,
+    routeName,
+    sendTx,
+    sender,
+    theme.palette.text.primary,
+  ]);
 
   const timeToDestination = useMemo(() => {
     let etaDisplay: string | ReactNode = <CircularProgress size={14} />;
