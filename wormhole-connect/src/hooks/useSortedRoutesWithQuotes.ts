@@ -55,7 +55,13 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
-      .filter((r) => (toNonSDKChain ? r === 'HyperliquidRoute' : true))
+      .filter((r) =>
+        // When Hyperliquid chain is selected as destination, show ONLY Hyperliquid route;
+        // otherwise do NOT show Hyperliquid route
+        toNonSDKChain === 'Hyperliquid'
+          ? r === 'HyperliquidRoute'
+          : r !== 'HyperliquidRoute',
+      )
       .map((route) => {
         const quote = quotesMap[route];
         if (quote?.success) {
