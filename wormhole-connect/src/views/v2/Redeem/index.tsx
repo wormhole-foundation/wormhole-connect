@@ -406,7 +406,11 @@ const Redeem = () => {
     } else if (isTxDestQueued) {
       statusText = 'Transaction delayed';
     } else if (isTxAttested && !isAutomaticRoute) {
-      statusText = `Ready to claim on ${toChain}`;
+      if (routeName === 'HyperliquidRoute') {
+        statusText = `Complete transfer below`;
+      } else {
+        statusText = `Ready to claim on ${toChain}`;
+      }
     }
 
     return (
@@ -421,6 +425,7 @@ const Redeem = () => {
     isTxDestQueued,
     isTxAttested,
     isAutomaticRoute,
+    routeName,
     toChain,
   ]);
 
@@ -785,6 +790,7 @@ const Redeem = () => {
     routeContext.route,
     routeName,
     toChain,
+    receivedToken,
   ]);
 
   // Main CTA button which has separate states for automatic and manual claims
@@ -832,7 +838,9 @@ const Redeem = () => {
             onClick={handleManualClaim}
           >
             <Typography textTransform="none">
-              Claim tokens to complete transfer
+              {routeName === 'HyperliquidRoute'
+                ? 'Approve deposit to Hyperliquid'
+                : 'Claim tokens to complete transfer'}
             </Typography>
           </Button>
         );
@@ -869,6 +877,7 @@ const Redeem = () => {
     isTxAttested,
     isTxCompleted,
     isTxDestQueued,
+    routeName,
     theme.palette.primary.contrastText,
   ]);
 
