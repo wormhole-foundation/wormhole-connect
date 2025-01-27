@@ -161,6 +161,7 @@ const Bridge = () => {
       destChain,
       sourceToken,
       route: selectedRoute,
+      toNonSDKChain,
     });
 
   // Set selectedRoute if the route is auto-selected

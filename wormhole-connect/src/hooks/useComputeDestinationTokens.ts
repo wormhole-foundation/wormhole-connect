@@ -8,11 +8,13 @@ import { Token } from 'config/tokens';
 
 import { Chain, TokenId } from '@wormhole-foundation/sdk';
 import { useTokens } from 'contexts/TokensContext';
+import { NonSDKChain } from 'config/types';
 
 type Props = {
   sourceChain: Chain | undefined;
   sourceToken: Token | undefined;
   destChain: Chain | undefined;
+  toNonSDKChain?: NonSDKChain;
   route?: string;
 };
 
@@ -76,7 +78,15 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
         return;
       }
 
-      setSupportedDestTokens(supported);
+      setSupportedDestTokens(
+        supported.filter((t) =>
+          // When Hyperliquid chain is selected as destination, show Arbitrum/USDC token only
+          props.toNonSDKChain === 'Hyperliquid'
+            ? t.tuple[0] === 'Arbitrum' &&
+              t.tuple[1] === '0xaf88d065e77c8cC2239327C5EDb3A432268e5831'
+            : true,
+        ),
+      );
 
       // Auto-select if there's only one option
       if (destChain && supported.length === 1) {
@@ -98,6 +108,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
     dispatch,
     lastTokenCacheUpdate,
     getOrFetchToken,
+    props.toNonSDKChain,
   ]);
 
   return {
