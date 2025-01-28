@@ -190,6 +190,11 @@ const Redeem = () => {
 
   const getUSDAmount = useUSDamountGetter();
 
+  const isHyperliquid = useMemo(
+    () => routeName === 'HyperliquidRoute',
+    [routeName],
+  );
+
   const etaDate: Date | undefined = useMemo(() => {
     if (eta && txTimestamp) {
       return new Date(txTimestamp + eta);
@@ -309,6 +314,7 @@ const Redeem = () => {
       const [uiError, transferError] = interpretTransferError(
         receipt.error,
         details,
+        isHyperliquid,
       );
       setClaimError(uiError);
 
@@ -327,6 +333,7 @@ const Redeem = () => {
       const [uiError, transferError] = interpretTransferError(
         unhandledManualClaimError,
         details,
+        isHyperliquid,
       );
 
       setClaimError(uiError);
@@ -406,7 +413,7 @@ const Redeem = () => {
     } else if (isTxDestQueued) {
       statusText = 'Transaction delayed';
     } else if (isTxAttested && !isAutomaticRoute) {
-      if (routeName === 'HyperliquidRoute') {
+      if (isHyperliquid) {
         statusText = `Complete transfer below`;
       } else {
         statusText = `Ready to claim on ${toChain}`;
@@ -425,7 +432,7 @@ const Redeem = () => {
     isTxDestQueued,
     isTxAttested,
     isAutomaticRoute,
-    routeName,
+    isHyperliquid,
     toChain,
   ]);
 
@@ -838,7 +845,7 @@ const Redeem = () => {
             onClick={handleManualClaim}
           >
             <Typography textTransform="none">
-              {routeName === 'HyperliquidRoute'
+              {isHyperliquid
                 ? 'Approve deposit to Hyperliquid'
                 : 'Claim tokens to complete transfer'}
             </Typography>
@@ -874,10 +881,10 @@ const Redeem = () => {
     isAutomaticRoute,
     isClaimInProgress,
     isConnectedToReceivingWallet,
+    isHyperliquid,
     isTxAttested,
     isTxCompleted,
     isTxDestQueued,
-    routeName,
     theme.palette.primary.contrastText,
   ]);
 
