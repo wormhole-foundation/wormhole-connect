@@ -22,6 +22,22 @@ const useStyles = makeStyles()((theme: any) => ({
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
+    boxShadow: 'none',
+    backgroundColor: theme.palette.button.primary,
+    color: theme.palette.button.primaryText,
+    '&:disabled': {
+      backgroundColor: theme.palette.button.disabled,
+      color: theme.palette.button.disabledText,
+    },
+    '&:hover': {
+      boxShadow: 'none',
+      backgroundColor: theme.palette.button.hover,
+    },
+    '&:active': {
+      boxShadow: 'none',
+      backgroundColor: theme.palette.button.action,
+      color: theme.palette.button.actionText,
+    },
   },
   connected: {
     display: 'flex',
@@ -87,6 +103,7 @@ const WalletConnector = (props: Props) => {
     const button = (
       <span style={{ width: '100%' }}>
         <Button
+          disableRipple
           variant="primary"
           className={classes.connectWallet}
           data-testid={`${props.side}-section-connect-wallet-button`}

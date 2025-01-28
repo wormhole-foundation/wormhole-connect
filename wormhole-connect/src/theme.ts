@@ -1,30 +1,16 @@
 import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
-import green from '@mui/material/colors/green';
-import orange from '@mui/material/colors/orange';
-import purple from '@mui/material/colors/purple';
-import red from '@mui/material/colors/red';
-import { PaletteMode, PaletteColorOptions, Theme } from '@mui/material';
+import { PaletteMode, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
-
-export type PaletteColor = {
-  25?: string;
-  50: string;
-  100: string;
-  200: string;
-  300: string;
-  400: string;
-  500: string;
-  600: string;
-  700: string;
-  800: string;
-  900: string;
-  950?: string;
-  A100?: string;
-  A200?: string;
-  A400?: string;
-  A700?: string;
-};
+import {
+  hslToRgb,
+  mixColors,
+  rgbToHex,
+  rgbToHsl,
+  hexToRgb,
+  hexToHsl,
+  hslToHex,
+} from './utils/theme';
 
 export type WormholeConnectTheme = {
   // "dark" or "light"
@@ -47,7 +33,7 @@ export type WormholeConnectTheme = {
   font?: string;
 };
 
-type Color = PaletteColor | PaletteColorOptions;
+type Color = { main: string };
 
 export type InternalTheme = {
   mode: PaletteMode;
@@ -97,23 +83,8 @@ export type InternalTheme = {
 
 export const light: InternalTheme = {
   mode: 'light',
-  primary: {
-    50: '#161718',
-    100: '#2d2e30',
-    200: '#444548',
-    300: '#5b5c60',
-    400: '#727479',
-    500: '#898b91',
-    600: '#a0a2a9',
-    700: '#b7b9c1',
-    800: '#ced0d9',
-    900: '#E5E8F2',
-    A100: '#ceced1',
-    A200: '#9d9ea4',
-    A400: '#535660',
-    A700: '#0a0e1c',
-  },
-  secondary: grey,
+  primary: { main: '#c0bbf2' },
+  secondary: { main: '#cccccc' },
   divider: '#a0a2a9',
   background: {
     default: 'transparent',
@@ -122,25 +93,12 @@ export const light: InternalTheme = {
     primary: grey[900],
     secondary: grey[800],
   },
-  error: red,
+  error: { main: '#f44336' },
   info: {
-    50: '#d1e3f9',
-    100: '#c8def7',
-    200: '#bfd8f6',
-    300: '#b6d3f5',
-    400: '#adcdf4',
-    500: '#A4C8F3',
-    600: '#93b4da',
-    700: '#83a0c2',
-    800: '#728caa',
-    900: '#627891',
-    A100: '#A4C8F3',
-    A200: '#A4C8F3',
-    A400: '#A4C8F3',
-    A700: '#A4C8F3',
+    main: '#A4C8F3',
   },
-  success: green,
-  warning: orange,
+  success: { main: '#4caf50' },
+  warning: { main: '#ff9800' },
   button: {
     primary: '#ffffff',
     primaryText: grey[900],
@@ -174,42 +132,8 @@ export const light: InternalTheme = {
 // wormhole styled theme
 export const dark: InternalTheme = {
   mode: 'dark',
-  primary: {
-    25: '#FCFAFF',
-    50: '#F9F5FF',
-    100: '#F4EBFF',
-    200: '#E9D7FE',
-    300: '#D6BBFB',
-    400: '#B692F6',
-    500: '#9E77ED',
-    600: '#7F56D9',
-    700: '#6941C6',
-    800: '#53389E',
-    900: '#42307D',
-    950: '#2C1C5F',
-    A100: purple.A100,
-    A200: purple.A200,
-    A400: purple.A400,
-    A700: purple.A700,
-  },
-  secondary: {
-    25: '#FCFCFD',
-    50: '#F9FAFB',
-    100: '#F2F4F7',
-    200: '#E4E7EC',
-    300: '#D0D5DD',
-    400: '#98A2B3',
-    500: '#667085',
-    600: '#475467',
-    700: '#344054',
-    800: '#1D2939',
-    900: '#101828',
-    950: '#0C111D',
-    A100: grey.A100,
-    A200: grey.A200,
-    A400: grey.A400,
-    A700: grey.A700,
-  },
+  primary: { main: '#9E77ED' },
+  secondary: { main: '#667085' },
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: 'transparent',
@@ -219,74 +143,16 @@ export const dark: InternalTheme = {
     secondary: '#79859e',
   },
   info: {
-    50: '#97a5b7',
-    100: '#8293a9',
-    200: '#6e819a',
-    300: '#596f8c',
-    400: '#445d7e',
-    500: '#304C70',
-    600: '#2b4464',
-    700: '#263c59',
-    800: '#21354e',
-    900: '#1c2d43',
-    A100: '#304C70',
-    A200: '#304C70',
-    A400: '#304C70',
-    A700: '#304C70',
+    main: '#304C70',
   },
   error: {
-    25: '#FFFBFA',
-    50: '#FEF3F2',
-    100: '#FEE4E2',
-    200: '#FECDCA',
-    300: '#FDA29B',
-    400: '#F97066',
-    500: '#F04438',
-    600: '#D92D20',
-    700: '#B42318',
-    800: '#912018',
-    900: '#7A271A',
-    950: '#55160C',
-    A100: red.A100,
-    A200: red.A200,
-    A400: red.A400,
-    A700: red.A700,
+    main: '#F04438',
   },
   success: {
-    25: '#F6FEF9',
-    50: '#ECFDF3',
-    100: '#D1FADF',
-    200: '#A6F4C5',
-    300: '#6CE9A6',
-    400: '#32D583',
-    500: '#12B76A',
-    600: '#039855',
-    700: '#027A48',
-    800: '#05603A',
-    900: '#054F31',
-    950: '#053321',
-    A100: green.A100,
-    A200: green.A200,
-    A400: green.A400,
-    A700: green.A700,
+    main: '#12B76A',
   },
   warning: {
-    25: '#FFFCF5',
-    50: '#FFFAEB',
-    100: '#FEF0C7',
-    200: '#FEDF89',
-    300: '#FEC84B',
-    400: '#FDB022',
-    500: '#F79009',
-    600: '#DC6803',
-    700: '#B54708',
-    800: '#93370D',
-    900: '#7A2E0E',
-    950: '#4E1D09',
-    A100: orange.A100,
-    A200: orange.A200,
-    A400: orange.A400,
-    A700: orange.A700,
+    main: '#F79009',
   },
   button: {
     primary: '#ffffff' + OPACITY[10],
@@ -355,6 +221,25 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         main: customTheme.success,
       };
     }
+
+    if (customTheme.primary) {
+      const [h, s, l] = hexToHsl(customTheme.primary);
+      const buttonTextColor = hslToHex(h, s, l > 0.75 ? 0.35 : 0.95);
+
+      console.log(customTheme.primary, hslToHex(h, s, l));
+
+      theme.button = {
+        primary: customTheme.primary,
+        primaryText: buttonTextColor,
+        disabled: hslToHex(h, s * 0.5, l),
+        disabledText: buttonTextColor,
+        action: hslToHex(h, s, l > 0.75 ? l * 1.05 : l * 0.85),
+        actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
+        hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
+      };
+
+      console.log(theme.button);
+    }
   }
 
   return createTheme({
@@ -362,7 +247,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       MuiPaper: {
         styleOverrides: {
           root: {
-            background: theme.modal.background,
             boxShadow: 'none',
           },
         },

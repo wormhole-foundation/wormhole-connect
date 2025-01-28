@@ -62,6 +62,7 @@ header h1 {
 }
 
 aside {
+  box-shadow: 0px 0px 7px 4px #0000003b;
   background: black;
 }
 

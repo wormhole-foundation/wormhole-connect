@@ -23,6 +23,7 @@ import TokenList from './TokenList';
 import { Chain } from '@wormhole-foundation/sdk';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
+import { Backdrop } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
@@ -30,11 +31,12 @@ const useStyles = makeStyles()((theme: any) => ({
     cursor: 'pointer',
     maxWidth: '420px',
     borderRadius: '8px',
-    border: `1px solid ${theme.palette.modal.background}`,
-  },
-  inputAreaPopulated: {
     background: 'transparent',
-    border: `1px solid color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.modal.background} 90%)`,
+    border: `1px solid color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 50%)`,
+  },
+  inputAreaEmpty: {
+    borderColor: `color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 80%)`,
+    background: `color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 80%)`,
   },
   cardContent: {
     display: 'flex',
@@ -158,9 +160,13 @@ const AssetPicker = (props: Props) => {
 
   return (
     <>
+      <Backdrop
+        open={popupState.isOpen}
+        sx={{ background: 'rgba(0,0,0,0.20)' }}
+      />
       <Card
         className={`${classes.inputArea} ${
-          chainConfig ? classes.inputAreaPopulated : ''
+          chainConfig ? '' : classes.inputAreaEmpty
         }`}
         {...bindTrigger(popupState)}
       >

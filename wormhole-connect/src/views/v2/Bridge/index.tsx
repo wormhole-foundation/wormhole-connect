@@ -51,7 +51,7 @@ import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   assetPickerContainer: {
     width: '100%',
     position: 'relative',
@@ -89,6 +89,22 @@ const useStyles = makeStyles()((theme) => ({
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
+    boxShadow: 'none',
+    backgroundColor: theme.palette.button.primary,
+    color: theme.palette.button.primaryText,
+    '&:disabled': {
+      backgroundColor: theme.palette.button.disabled,
+      color: theme.palette.button.disabledText,
+    },
+    '&:hover': {
+      boxShadow: 'none',
+      backgroundColor: theme.palette.button.hover,
+    },
+    '&:active': {
+      boxShadow: 'none',
+      backgroundColor: theme.palette.button.action,
+      color: theme.palette.button.actionText,
+    },
   },
   spacer: {
     display: 'flex',
