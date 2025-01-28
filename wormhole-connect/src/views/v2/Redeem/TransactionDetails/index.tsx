@@ -64,6 +64,11 @@ const TransactionDetails = () => {
   const { getTokenPrice, isFetchingTokenPrices, lastTokenPriceUpdate } =
     useTokens();
 
+  const isHyperliquid = useMemo(
+    () => routeName === 'HyperliquidRoute',
+    [routeName],
+  );
+
   const isTxCompleted = useMemo(
     () => routeContext.receipt && isCompleted(routeContext.receipt),
     [routeContext.receipt],
@@ -165,7 +170,7 @@ const TransactionDetails = () => {
               <>
                 {usdAmount}
                 {usdAmount ? separator : null}
-                {destChainConfig.displayName}
+                {isHyperliquid ? 'Hyperliquid' : destChainConfig.displayName}
                 {separator}
                 {recipientAddress}
               </>
@@ -202,7 +207,7 @@ const TransactionDetails = () => {
   );
 
   const bridgeFee = useMemo(() => {
-    if (!relayerFee || !relayerFee.token) {
+    if (!relayerFee || !relayerFee.token || !relayerFee.fee) {
       return <></>;
     }
 
@@ -307,7 +312,7 @@ const TransactionDetails = () => {
     // Hyperliquid transactions has two states with different explorer links:
     // 1- During MayanSwap when we show Mayan explorer link (see getExplorerInfo).
     // 2- After MayanSwap is completed and user approves the amount into Hyperliquid, then we show Hyperliquid explorer link.
-    if (isTxCompleted && routeName === 'HyperliquidRoute') {
+    if (isTxCompleted && isHyperliquid) {
       name = 'Hyperliquid Explorer';
       url = `https://app.hyperliquid.xyz/explorer/address/${sender}`;
     }
@@ -330,6 +335,7 @@ const TransactionDetails = () => {
       </Stack>
     );
   }, [
+    isHyperliquid,
     isTxCompleted,
     routeContext.route,
     routeName,
@@ -348,12 +354,12 @@ const TransactionDetails = () => {
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          {`Time to ${toChain}`}
+          {`Time to ${isHyperliquid ? 'Hyperliquid' : toChain}`}
         </Typography>
         <Typography fontSize={14}>{etaDisplay}</Typography>
       </Stack>
     );
-  }, [eta, theme.palette.text.secondary, toChain]);
+  }, [eta, isHyperliquid, theme.palette.text.secondary, toChain]);
 
   return (
     <div className={classes.container}>

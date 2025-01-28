@@ -115,6 +115,8 @@ const SingleRoute = (props: Props) => {
 
   const { sourceToken, destToken } = useGetTokens();
 
+  const isHyperliquid = useMemo(() => name === 'HyperliquidRoute', [name]);
+
   const [feePrice, isHighFee, feeToken]: [
     number | undefined,
     boolean,
@@ -371,7 +373,7 @@ const SingleRoute = (props: Props) => {
     const messages: React.JSX.Element[] = [];
 
     // Special warning message for Hyperliquid route
-    if (props.route.name === 'HyperliquidRoute') {
+    if (isHyperliquid) {
       messages.push(
         generateWarningMessage({
           key: 'HyperliquidTransactionWarning',
@@ -434,7 +436,7 @@ const SingleRoute = (props: Props) => {
 
     return messages;
   }, [
-    props.route.name,
+    isHyperliquid,
     isManual,
     isHighFee,
     generateWarningMessage,
