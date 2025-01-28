@@ -1,28 +1,31 @@
 html,
 body {
   height: 100%;
+  background: black;
+  color: white;
+  font-family: sans-serif;
 }
 
 main {
   width: 100%;
   min-height: 100%;
-  background-color: white;
-  color: black;
 }
 
-main.dark {
-  background-color: black;
+aside textarea,
+aside input[type='text'] {
+  background: #2c2b38;
   color: white;
+  border: none;
+  padding: 3px;
 }
 
-main.dark textarea {
-  color: white;
-  background: black;
+main a {
+  color: #c0bbf1;
+  text-decoration: none;
 }
 
-main.light textarea {
-  color: black;
-  background: white;
+main a:hover {
+  text-decoration: underline;
 }
 
 article {
@@ -34,7 +37,6 @@ article {
 }
 
 header {
-  font-family: sans-serif;
   border-bottom: 1px solid #444;
 }
 
@@ -59,6 +61,10 @@ header h1 {
   text-decoration: underline;
 }
 
+aside {
+  background: black;
+}
+
 #custom-config {
   flex-grow: 1;
   flex-direction: column;
@@ -69,7 +75,7 @@ header h1 {
 
 #custom-config textarea {
   border: 1px solid #444;
-  min-height: 400px;
+  min-height: 200px;
   width: calc(100% - 10px);
   resize: vertical;
 }
@@ -78,20 +84,28 @@ header h1 {
   color: #1f75fe;
 }
 
-#available-exports li {
+.available-properties li {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-#available-exports li pre {
+.available-properties li pre {
   margin: 0;
   padding: 0;
   display: inline;
 }
 
-#available-exports li i {
+.available-properties li i {
   opacity: 0.5;
   margin-left: 10px;
   font-size: 14px;
+}
+
+#floating-config-button {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  padding: 5px;
+  background: black;
 }

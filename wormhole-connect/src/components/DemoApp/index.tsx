@@ -116,12 +116,11 @@ const parseTheme = (theme: string): WormholeConnectTheme | undefined => {
 };
 
 const loadInitialTheme = (): string => {
-  const themeCached = localStorage.getItem(LOCAL_STORAGE_KEY_THEME);
-  if (themeCached) {
-    return themeCached;
-  } else {
-    return '';
-  }
+  return localStorage.getItem(LOCAL_STORAGE_KEY_THEME) || '';
+};
+
+const loadBackgroundColor = (): string => {
+  return localStorage.getItem(LOCAL_STORAGE_KEY_BG) || 'black';
 };
 
 const setUrlQueryParam = (configInput: string) => {
@@ -137,6 +136,7 @@ const setUrlQueryParam = (configInput: string) => {
   history.replaceState({}, '', url.toString());
 };
 
+const LOCAL_STORAGE_KEY_BG = 'wormhole-connect:demo:custom-bg';
 const LOCAL_STORAGE_KEY_CONFIG = 'wormhole-connect:demo:custom-config';
 const LOCAL_STORAGE_KEY_THEME = 'wormhole-connect:demo:custom-theme';
 
@@ -153,7 +153,8 @@ function DemoApp() {
     WormholeConnectTheme | undefined
   >(undefined);
   const [customThemeInput, setCustomThemeInput] = useState(loadInitialTheme());
-  console.log(customThemeInput);
+
+  const [backgroundColor, setBackgroundColor] = useState(loadBackgroundColor());
 
   const updateCustomConfig = (e: any) => {
     const input = e.target.value;
@@ -191,17 +192,222 @@ function DemoApp() {
     }
   };
 
+  const updateBackgroundColor = (input: string) => {
+    setBackgroundColor(input);
+    console.log(input);
+    localStorage.setItem(LOCAL_STORAGE_KEY_BG, input);
+  };
+
   useEffect(emitCustomConfig, []);
   useEffect(emitCustomTheme, []);
 
-  console.log(customTheme);
-  const isDark = customTheme ? customTheme.mode === 'dark' : true;
-
   return (
-    <main className={isDark ? 'dark' : 'light'}>
-      <header>
-        <div>
-          <h1>Wormhole Connect - demo app</h1>
+    <main style={{ background: backgroundColor }}>
+      <article>
+        <div id="demo-contents">
+          {!isLoadingCustomConfig && (
+            <WormholeConnect
+              key={customConfigNonce}
+              config={customConfig}
+              theme={customTheme}
+            />
+          )}
+        </div>
+
+        {customConfigOpen ? (
+          <aside>
+            <header>
+              <div>
+                <h1>Wormhole Connect - demo app</h1>
+              </div>
+            </header>
+
+            <div id="custom-config">
+              <div>
+                <b>Custom Config</b>
+                <textarea
+                  style={{ minHeight: '400px' }}
+                  onChange={updateCustomConfig}
+                  placeholder={'{\n  "network": "Mainnet"\n}'}
+                  onBlur={() => {
+                    emitCustomConfig();
+                  }}
+                  value={customConfigInput}
+                />
+                Available exports:
+                <ul className="available-properties">
+                  <li>
+                    <pre>DEFAULT_ROUTES</pre>
+                    <i>{'RouteConstructor[]'}</i>
+                  </li>
+                  <li>
+                    <pre>AutomaticTokenBridgeRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>TokenBridgeRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>AutomaticCCTPRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>CCTPRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>AutomaticPorticoRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MayanRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MayanRouteWH</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MayanRouteMCTP</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MayanRouteSWIFT</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>nttRoutes</pre>{' '}
+                    <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
+                  </li>
+                  <li>
+                    <pre>testNttRoutesMainnet</pre>
+                    <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
+                  </li>
+                  <li>
+                    <pre>testNttRoutesTestnet</pre>
+                    <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <hr />
+                <b
+                  style={{
+                    background:
+                      'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    display: 'inline-block',
+                  }}
+                >
+                  Custom Theme
+                </b>
+                <div>
+                  Background:
+                  <input
+                    type="color"
+                    value={backgroundColor}
+                    onChange={(e) => {
+                      updateBackgroundColor(e.target.value);
+                    }}
+                  />{' '}
+                  <input
+                    type="text"
+                    value={backgroundColor}
+                    onChange={(e) => {
+                      updateBackgroundColor(e.target.value);
+                    }}
+                  />{' '}
+                  <a
+                    href="#"
+                    onClick={() => {
+                      updateBackgroundColor('#000000');
+                    }}
+                  >
+                    Black
+                  </a>{' '}
+                  <a
+                    href="#"
+                    onClick={() => {
+                      updateBackgroundColor('#FFFFFF');
+                    }}
+                  >
+                    White
+                  </a>{' '}
+                  <a
+                    href="#"
+                    onClick={() => {
+                      updateBackgroundColor('#CCCCCC');
+                    }}
+                  >
+                    Light Grey
+                  </a>
+                  <textarea
+                    onChange={updateCustomTheme}
+                    placeholder={'{\n  "mode": "dark"\n}'}
+                    onBlur={() => {
+                      emitCustomTheme();
+                    }}
+                    value={customThemeInput}
+                  />
+                  Available theme properties:
+                  <ul className="available-properties">
+                    <li>
+                      {' '}
+                      <pre>mode</pre>
+                      <i>'dark' | 'light'</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>input</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>primary</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>secondary</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>text</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>textSecondary</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>error</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>success</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      {' '}
+                      <pre>font</pre>
+                      <i>string;</i>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </aside>
+        ) : null}
+        </article>
+
+        <header>
+        <div id="floating-config-button">
           <a
             href="#"
             id="custom-config-toggle"
@@ -218,118 +424,6 @@ function DemoApp() {
         </div>
       </header>
 
-      <article>
-        <div id="demo-contents">
-          {!isLoadingCustomConfig && (
-            <WormholeConnect
-              key={customConfigNonce}
-              config={customConfig}
-              theme={customTheme}
-            />
-          )}
-        </div>
-
-        {customConfigOpen ? (
-          <div id="custom-config">
-            <div>
-              <b>Custom Config</b>
-              <textarea
-                onChange={updateCustomConfig}
-                placeholder={'{\n  "network": "Mainnet"\n}'}
-                onBlur={() => {
-                  emitCustomConfig();
-                }}
-                value={customConfigInput}
-              />
-              Available exports:
-              <ul id="available-exports">
-                <li>
-                  <pre>DEFAULT_ROUTES</pre>
-                  <i>{'RouteConstructor[]'}</i>
-                </li>
-                <li>
-                  <pre>AutomaticTokenBridgeRoute</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>TokenBridgeRoute</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>AutomaticCCTPRoute</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>CCTPRoute</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>AutomaticPorticoRoute</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>MayanRoute</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>MayanRouteWH</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>MayanRouteMCTP</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>MayanRouteSWIFT</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>MayanRouteSHUTTLE</pre>
-                  <i>{'RouteConstructor'}</i>
-                </li>
-                <li>
-                  <pre>nttRoutes</pre>{' '}
-                  <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
-                </li>
-                <li>
-                  <pre>testNttRoutesMainnet</pre>
-                  <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
-                </li>
-                <li>
-                  <pre>testNttRoutesTestnet</pre>
-                  <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <hr />
-              <b
-                style={{
-                  background:
-                    'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  display: 'inline-block',
-                }}
-              >
-                Custom Theme
-              </b>
-              <div>
-                Background:
-                <input type="color" />
-                <textarea
-                  onChange={updateCustomTheme}
-                  placeholder={'{\n  "mode": "dark"\n}'}
-                  onBlur={() => {
-                    emitCustomTheme();
-                  }}
-                  value={customThemeInput}
-                />
-              </div>
-            </div>
-          </div>
-        ) : undefined}
-      </article>
     </main>
   );
 }
