@@ -18,7 +18,6 @@ import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from 'utils';
 
-import DownIcon from 'icons/Down';
 import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
 import ExplorerLink from './ExplorerLink';

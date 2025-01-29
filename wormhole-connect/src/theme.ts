@@ -8,7 +8,7 @@ export type WormholeConnectTheme = {
   // "dark" or "light"
   mode: PaletteMode;
   // Background of surrounding application
-  background: PaletteMode;
+  background?: PaletteMode;
   // Color of input fields, like asset picker and dropdowns
   input?: string;
   // Primary brand color
@@ -192,8 +192,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
   // Override built-in theme with whichever custom values we've been provided
   if (customTheme) {
     if (customTheme.input) {
-      const inputHsl = hexToHsl(customTheme.input);
-
       theme.input = {
         background: customTheme.input,
         border: customTheme.secondary || theme.secondary.main,
