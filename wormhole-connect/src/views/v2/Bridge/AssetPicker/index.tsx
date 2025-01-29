@@ -59,9 +59,14 @@ const useStyles = makeStyles()((theme: any) => ({
     cursor: 'not-allowed',
     clickEvent: 'none',
   },
+  popover: {
+    marginLeft: '-1px',
+    marginTop: '-1px',
+    width: '422px',
+  },
   popoverSlot: {
     width: '100%',
-    maxWidth: '420px',
+    maxWidth: '422px',
     borderRadius: '8px',
     background: theme.palette.input.background,
   },

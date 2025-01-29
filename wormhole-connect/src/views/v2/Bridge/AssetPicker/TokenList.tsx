@@ -361,6 +361,7 @@ const TokenList = (props: Props) => {
             }}
             balance={balance}
             price={price}
+            isSelected={token.key === props.selectedToken?.key}
             isFetchingBalance={isFetchingTokenBalances}
           />
         );
