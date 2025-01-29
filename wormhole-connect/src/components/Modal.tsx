@@ -44,7 +44,7 @@ const useStyles = makeStyles<{ width: number }>()((theme: any, { width }) => ({
     },
   },
   background: {
-    background: theme.palette.modal.background,
+    background: theme.palette.input.background,
   },
 }));
 

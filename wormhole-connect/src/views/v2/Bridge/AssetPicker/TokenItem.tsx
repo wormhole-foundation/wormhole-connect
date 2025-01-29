@@ -22,8 +22,8 @@ const useStyles = makeStyles()((theme) => ({
   tokenListItem: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingLeft: 8,
-    borderRadius: 8,
+    padding: '8px 16px',
+    borderRadius: 0,
   },
   tokenDetails: {
     display: 'flex',
@@ -70,7 +70,7 @@ function TokenItem(props: TokenItemProps) {
       className={classes.tokenListItem}
       dense
       disabled={props.disabled}
-      onClick={props.onClick}
+      onMouseDown={props.onClick}
     >
       <div className={classes.tokenDetails}>
         <ListItemIcon>

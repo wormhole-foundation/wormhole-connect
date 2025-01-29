@@ -354,47 +354,42 @@ function DemoApp() {
                   Available theme properties:
                   <ul className="available-properties">
                     <li>
-                      {' '}
                       <pre>mode</pre>
                       <i>'dark' | 'light'</i>
                     </li>
                     <li>
-                      {' '}
+                      <pre>background</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
                       <pre>input</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>primary</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>secondary</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>text</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>textSecondary</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>error</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>success</pre>
                       <i>string;</i>
                     </li>
                     <li>
-                      {' '}
                       <pre>font</pre>
                       <i>string;</i>
                     </li>

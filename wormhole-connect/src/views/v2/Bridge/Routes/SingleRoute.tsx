@@ -29,6 +29,7 @@ import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import { Token } from 'config/tokens';
+import { opacify } from 'utils/theme';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -42,6 +43,10 @@ const useStyles = makeStyles()((theme: any) => ({
     borderRadius: '8px',
     width: '100%',
     maxWidth: '420px',
+  },
+  cardSelected: {
+    backgroundColor: opacify(theme.palette.primary.main, 0.05),
+    borderColor: theme.palette.primary.main,
   },
   cardHeader: {
     padding: '20px 20px 0px',
@@ -567,7 +572,9 @@ const SingleRoute = (props: Props) => {
   return (
     <div key={props.route} className={classes.container}>
       <Card
-        className={classes.card}
+        className={`${classes.card} ${
+          props.isSelected ? classes.cardSelected : ''
+        }`}
         sx={{
           border: '1px solid',
           borderColor: props.isSelected

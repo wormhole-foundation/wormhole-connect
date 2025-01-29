@@ -61,8 +61,7 @@ const useStyles = makeStyles()((theme: any) => ({
     height: '72px',
   },
   chainIcon: {
-    background: theme.palette.background.default,
-    border: `2px solid ${theme.palette.modal.background}`,
+    border: `2px solid ${theme.palette.input.background}`,
     borderRadius: '6px',
   },
   completedIcon: {

@@ -44,7 +44,7 @@ const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   emptyIcon: {
     width: size,
     height: size,
-    background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.modal.background} 80%)`,
+    background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
     borderRadius: '3px',
   },
 }));

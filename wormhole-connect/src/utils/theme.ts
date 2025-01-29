@@ -23,15 +23,11 @@ export function mixRgb(
   return hslToRgb(hsl[0], hsl[1], hsl[2]);
 }
 
-export function mixColors(
-  color1: string,
-  color2: string,
-  ratio: number,
-): string {
-  const rgb1 = hexToRgb(color1);
-  const rgb2 = hexToRgb(color2);
-  const rgb = mixRgb(rgb1, rgb2, ratio);
-  return rgbToHex(rgb[0], rgb[1], rgb[2]);
+export function mixHex(color1: string, color2: string, ratio: number): string {
+  const rgb1 = hexToHsl(color1);
+  const rgb2 = hexToHsl(color2);
+  const hsl = mixHsl(rgb1, rgb2, ratio);
+  return hslToHex(...hsl);
 }
 
 export function rgbToHsl(
@@ -125,4 +121,15 @@ export function hexToHsl(hex: string): [number, number, number] {
 export function hslToHex(h: number, s: number, l: number): string {
   const [r, g, b] = hslToRgb(h, s, l);
   return rgbToHex(r, g, b);
+}
+
+export function lighten(color: string, background: string, amount: number) {
+  let [h, s] = hexToHsl(color);
+  let [, , l] = hexToHsl(background);
+  return hslToHex(h, s, l > 0.5 ? l - amount : l + amount);
+}
+
+export function opacify(color: string, opacity: number) {
+  let [r, g, b] = hexToRgb(color);
+  return `rgba(${r},${g},${b},${opacity})`;
 }

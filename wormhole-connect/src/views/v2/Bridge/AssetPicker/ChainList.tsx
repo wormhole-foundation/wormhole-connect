@@ -19,8 +19,9 @@ import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import { Chain } from '@wormhole-foundation/sdk';
 import { useMediaQuery, useTheme } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   card: {
+    background: theme.palette.input.background,
     width: '420px',
     [theme.breakpoints.down('sm')]: {
       maxWidth: '420px',

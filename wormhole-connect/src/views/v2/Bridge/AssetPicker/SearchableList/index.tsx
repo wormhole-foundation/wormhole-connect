@@ -12,6 +12,7 @@ const useStyles = makeStyles()(() => ({
     maxHeight: 240,
     display: 'flex',
     flexDirection: 'column',
+    padding: 0,
   },
   searchList: {
     marginTop: 12,
@@ -54,7 +55,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         placeholder={props.searchPlaceholder}
       />
       <List className={joinClass([classes.searchList, scrollbarClass])}>
-        {props.listTitle}
+        <Box sx={{ padding: '0 16px' }}>{props.listTitle}</Box>
         {props.loading || filteredList.map(props.renderFn)}
       </List>
     </Box>

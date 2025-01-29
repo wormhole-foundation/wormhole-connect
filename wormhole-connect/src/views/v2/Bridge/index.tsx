@@ -465,7 +465,7 @@ const Bridge = () => {
       variant="primary"
       className={classes.reviewTransaction}
       disabled={reviewTransactionDisabled}
-      onClick={() => {
+      onMouseDown={() => {
         dispatch(setTransferRoute(selectedRoute));
         setWillReviewTransaction(true);
       }}

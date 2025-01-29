@@ -15,12 +15,13 @@ import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { calculateUSDPrice, isFrankensteinToken } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-const useStyles = makeStyles()((_theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   card: {
+    background: theme.palette.input.background,
     maxWidth: '420px',
   },
-  cardContent: {
-    paddingTop: 0,
+  tokenListContainer: {
+    padding: '0 !important',
   },
   title: {
     fontSize: 14,
@@ -369,8 +370,8 @@ const TokenList = (props: Props) => {
 
   return (
     <Card className={classes.card} variant="elevation">
-      <CardContent className={classes.cardContent}>
-        <Box sx={{ display: 'flex', width: '100%' }}>
+      <CardContent className={classes.tokenListContainer}>
+        <Box sx={{ display: 'flex', width: '100%', padding: '0 16px' }}>
           <Typography width="100%" className={classes.title}>
             Select a token
           </Typography>

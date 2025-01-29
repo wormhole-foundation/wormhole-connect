@@ -12,7 +12,7 @@ import { Token } from 'config/tokens';
 
 const useStyles = makeStyles()((theme: any) => ({
   badgeContent: {
-    border: `1.5px solid ${theme.palette.modal.background}`,
+    border: `1.5px solid ${theme.palette.input.background}`,
     borderRadius: '4px',
   },
 }));
@@ -34,6 +34,7 @@ function AssetBadge(props: Props) {
         </Box>
       }
       sx={{
+        zIndex: 0,
         height: '38px', // Icon height (36px) + the distance from badge's bottom (2px)
         marginRight: '8px',
         '& .MuiBadge-badge': {

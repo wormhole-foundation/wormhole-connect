@@ -36,16 +36,8 @@ const useStyles = makeStyles()((theme: any) => ({
     opacity: 1.0,
   },
   walletAddress: {
-    color: theme.palette.primary.main,
+    color: theme.palette.textSecondary,
     marginLeft: '8px',
-  },
-  down: {
-    color: theme.palette.primary.main,
-    transition: 'transform 0.15s ease-in',
-    strokeWidth: '2px',
-  },
-  up: {
-    transform: 'scaleY(-1)',
   },
   dropdown: {
     backgroundColor: theme.palette.popover.background,
@@ -127,9 +119,6 @@ const ConnectedWallet = (props: Props) => {
             {displayWalletAddress(wallet.type, wallet.address)}
           </Typography>
         </Tooltip>
-        <DownIcon
-          className={`${classes.down} ${popupState.isOpen ? classes.up : ''}`}
-        />
       </div>
       <Popover
         {...bindPopover(popupState)}

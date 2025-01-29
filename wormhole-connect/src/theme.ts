@@ -7,6 +7,8 @@ import { hexToHsl, hslToHex } from './utils/theme';
 export type WormholeConnectTheme = {
   // "dark" or "light"
   mode: PaletteMode;
+  // Background of surrounding application
+  background: PaletteMode;
   // Color of input fields, like asset picker and dropdowns
   input?: string;
   // Primary brand color
@@ -35,6 +37,7 @@ export type InternalTheme = {
   background: {
     default: string;
   };
+  appBackground: string;
   text: {
     primary: string;
     secondary: string;
@@ -66,8 +69,9 @@ export type InternalTheme = {
     elevation: string;
     secondary: string;
   };
-  modal: {
+  input: {
     background: string;
+    border: string;
   };
   font: string;
   logo: string;
@@ -75,15 +79,16 @@ export type InternalTheme = {
 
 export const light: InternalTheme = {
   mode: 'light',
-  primary: { main: '#c0bbf2' },
+  primary: { main: '#9892e6' },
   secondary: { main: '#cccccc' },
   divider: '#a0a2a9',
   background: {
     default: 'transparent',
   },
+  appBackground: '#ffffff',
   text: {
     primary: grey[900],
-    secondary: grey[800],
+    secondary: '#7d7d7d',
   },
   error: { main: '#f44336' },
   info: {
@@ -114,8 +119,9 @@ export const light: InternalTheme = {
     elevation: '10px 10px 30px 15px #CCD2E7',
     secondary: '#F0F0F5',
   },
-  modal: {
-    background: '#ffffff',
+  input: {
+    background: '#f9f9f9',
+    border: '#DEE0E3',
   },
   font: '"Inter", sans-serif',
   logo: '#000000',
@@ -130,6 +136,7 @@ export const dark: InternalTheme = {
   background: {
     default: 'transparent',
   },
+  appBackground: '#000000',
   text: {
     primary: '#ffffff',
     secondary: '#79859e',
@@ -169,23 +176,29 @@ export const dark: InternalTheme = {
     secondary: '#ffffff' + OPACITY[5],
     elevation: 'none',
   },
-  modal: {
-    background: '#181a2d',
+  input: {
+    background: '#1a1928',
+    border: '#1e1f35',
   },
   font: '"Inter", sans-serif',
   logo: '#ffffff',
 };
 
 export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
-  const baseTheme = customTheme.mode === 'light' ? light : dark;
+  const isLightMode = customTheme.mode === 'light';
+  const baseTheme = isLightMode ? light : dark;
   const theme = Object.assign({}, baseTheme) as InternalTheme;
 
   // Override built-in theme with whichever custom values we've been provided
   if (customTheme) {
     if (customTheme.input) {
-      theme.modal = {
+      const inputHsl = hexToHsl(customTheme.input);
+
+      theme.input = {
         background: customTheme.input,
+        border: customTheme.secondary || theme.secondary.main,
       };
+      console.log(theme.input);
     }
     if (customTheme.primary) {
       theme.primary = {
@@ -213,25 +226,25 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         main: customTheme.success,
       };
     }
-
-    if (customTheme.primary) {
-      const [h, s, l] = hexToHsl(customTheme.primary);
-      const buttonTextColor = hslToHex(h, s, l > 0.75 ? 0.35 : 0.95);
-
-      console.log(customTheme.primary, hslToHex(h, s, l));
-
-      theme.button = {
-        primary: customTheme.primary,
-        primaryText: buttonTextColor,
-        disabled: hslToHex(h, s * 0.5, l),
-        disabledText: buttonTextColor,
-        action: hslToHex(h, s, l > 0.75 ? l * 1.05 : l * 0.85),
-        actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
-        hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
-      };
-
-      console.log(theme.button);
+    if (customTheme.background) {
+      theme.appBackground = customTheme.background;
     }
+
+    const primary = customTheme.primary || theme.primary.main;
+    const [h, s, l] = hexToHsl(primary);
+    const buttonTextColor = hslToHex(h, s, l > 0.75 ? 0.35 : 0.95);
+
+    theme.button = {
+      primary,
+      primaryText: buttonTextColor,
+      disabled: hslToHex(h, s * 0.5, l),
+      disabledText: buttonTextColor,
+      action: hslToHex(h, s, l > 0.75 ? l * 1.05 : l * 0.85),
+      actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
+      hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
+    };
+
+    console.log(theme.button);
   }
 
   return createTheme({

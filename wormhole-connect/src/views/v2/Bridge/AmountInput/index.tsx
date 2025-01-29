@@ -98,12 +98,12 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   amountInput: {
     borderRadius: '8px',
-    background: theme.palette.modal.background,
-    border: `1px solid color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 50%)`,
+    background: 'transparent',
+    border: `1px solid ${theme.palette.input.border}`,
   },
   amountInputEmpty: {
-    background: `color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 80%)`,
-    borderColor: `color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 80%)`,
+    background: theme.palette.input.background,
+    borderColor: theme.palette.input.background,
   },
   amountCardContent: {
     display: 'flex',

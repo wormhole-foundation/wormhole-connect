@@ -93,17 +93,18 @@ export const changeOpacity = (
 const useScrollbarClassName = makeStyles()((theme) => ({
   scrollbar: {
     '&::-webkit-scrollbar': {
-      backgroundColor: 'transparent',
-      width: '8px',
+      display: 'none',
     },
     '&::-webkit-scrollbar-track': {
+      display: 'none',
       backgroundColor: 'transparent',
     },
     '&::-webkit-scrollbar-thumb': {
+      display: 'none',
       backgroundColor: 'transparent',
-      borderRadius: '16px',
     },
     '&:hover::-webkit-scrollbar-thumb': {
+      display: 'none',
       backgroundColor: `${theme.palette.text.primary}1a`,
     },
     '&::-webkit-scrollbar-button': {

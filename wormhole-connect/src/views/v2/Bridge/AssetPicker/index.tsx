@@ -24,6 +24,7 @@ import { Chain } from '@wormhole-foundation/sdk';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { Backdrop } from '@mui/material';
+import { opacify } from 'utils/theme';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
@@ -32,11 +33,11 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
     borderRadius: '8px',
     background: 'transparent',
-    border: `1px solid color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 50%)`,
+    border: `1px solid ${theme.palette.input.border}`,
   },
   inputAreaEmpty: {
-    borderColor: `color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 80%)`,
-    background: `color-mix(in hsl, ${theme.palette.secondary.main}, ${theme.palette.modal.background} 80%)`,
+    borderColor: theme.palette.input.background,
+    background: theme.palette.input.background,
   },
   cardContent: {
     display: 'flex',
@@ -58,12 +59,14 @@ const useStyles = makeStyles()((theme: any) => ({
     cursor: 'not-allowed',
     clickEvent: 'none',
   },
-  popover: {
-    marginTop: '4px',
-  },
   popoverSlot: {
     width: '100%',
     maxWidth: '420px',
+    borderRadius: '8px',
+    background: theme.palette.input.background,
+  },
+  backdrop: {
+    backgroundColor: `rgba(0,0,0,0.2)`,
   },
 }));
 
@@ -160,15 +163,13 @@ const AssetPicker = (props: Props) => {
 
   return (
     <>
-      <Backdrop
-        open={popupState.isOpen}
-        sx={{ background: 'rgba(0,0,0,0.20)' }}
-      />
+      <Backdrop open={popupState.isOpen} className={classes.backdrop} />
       <Card
         className={`${classes.inputArea} ${
           chainConfig ? '' : classes.inputAreaEmpty
         }`}
-        {...bindTrigger(popupState)}
+        onMouseDown={popupState.open}
+        onTouchStart={popupState.open}
       >
         <CardContent className={classes.cardContent}>
           <Typography
@@ -184,6 +185,7 @@ const AssetPicker = (props: Props) => {
       </Card>
       <Popover
         {...bindPopover(popupState)}
+        transitionDuration={200}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'center',
