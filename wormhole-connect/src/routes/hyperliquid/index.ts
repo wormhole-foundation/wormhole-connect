@@ -3,6 +3,7 @@ import { Quote as MayanQuote } from '@mayanfinance/swap-sdk';
 import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route';
 import { TransactionStatus } from '@mayanfinance/wormhole-sdk-route/dist/esm/utils';
 import {
+  amount,
   type Chain,
   type ChainAddress,
   type ChainContext,
@@ -54,6 +55,11 @@ type Vr = routes.ValidationResult<Op>;
 const USDC_ARBITRUM = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831';
 // Hyperliquid bridge on Arbitrum
 const HL_BRIDGE_ARB = '0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7';
+// Minimum USDC amount required for Hyperliquid deposits
+const MIN_AMOUNT_REQUIRED = {
+  amount: '5000000',
+  decimals: 6,
+};
 
 export class HyperliquidRoute<N extends Network>
   extends routes.ManualRoute<N, Op, Vp, R>
@@ -113,7 +119,25 @@ export class HyperliquidRoute<N extends Network>
     request: routes.RouteTransferRequest<N>,
     params: Vp,
   ): Promise<QR> {
-    return this.mayanRoute.quote(request, params);
+    const quoteResult = await this.mayanRoute.quote(request, params);
+    const minRequiredOut = amount.whole(MIN_AMOUNT_REQUIRED);
+    if (
+      quoteResult.success &&
+      quoteResult.details &&
+      quoteResult.details.minAmountOut < minRequiredOut
+    ) {
+      const error = new Error(
+        `Minimum transfer output amount is ${minRequiredOut} ${request.destination.symbol}`,
+      );
+      error['min'] = MIN_AMOUNT_REQUIRED;
+      // Return error for minimum amount required
+      return {
+        success: false,
+        error,
+      };
+    }
+
+    return quoteResult;
   }
 
   async initiate(
