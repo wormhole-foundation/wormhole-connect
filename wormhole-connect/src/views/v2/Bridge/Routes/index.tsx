@@ -50,7 +50,7 @@ const Routes = ({ ...props }: Props) => {
     const selectedRoute = routes.find((route) => route === props.selectedRoute);
 
     return selectedRoute ? [selectedRoute] : routes.slice(0, 1);
-  }, [showAll, routes]);
+  }, [showAll, routes, props.selectedRoute]);
 
   const fastestRoute = useMemo(() => {
     return routes.reduce(

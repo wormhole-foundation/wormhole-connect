@@ -72,10 +72,7 @@ const TxHistoryItem = (props: Props) => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <AssetBadge
-          chainConfig={sourceChainConfig}
-          token={fromToken}
-        />
+        <AssetBadge chainConfig={sourceChainConfig} token={fromToken} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {amount} {fromToken?.symbol}
@@ -102,7 +99,6 @@ const TxHistoryItem = (props: Props) => {
     const destChainConfig = config.chains[toChain]!;
     const destTokenConfig = toToken;
 
-
     const receiveAmountPrice = calculateUSDPrice(
       getTokenPrice,
       parseFloat(receiveAmount),
@@ -118,10 +114,7 @@ const TxHistoryItem = (props: Props) => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <AssetBadge
-          chainConfig={destChainConfig}
-          token={destTokenConfig}
-        />
+        <AssetBadge chainConfig={destChainConfig} token={destTokenConfig} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {receiveAmount} {destTokenConfig?.symbol}
@@ -134,7 +127,6 @@ const TxHistoryItem = (props: Props) => {
       </Stack>
     );
   }, [
-
     isFetchingTokenPrices,
     lastTokenPriceUpdate,
     receiveAmount,

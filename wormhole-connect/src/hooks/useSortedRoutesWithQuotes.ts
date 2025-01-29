@@ -26,8 +26,9 @@ type HookReturn = {
 };
 
 export const useSortedRoutesWithQuotes = (): HookReturn => {
-  const { amount, fromChain, toChain, toNonSDKChain, preferredRouteName } =
-    useSelector((state: RootState) => state.transferInput);
+  const { amount, fromChain, toChain, preferredRouteName } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
@@ -55,13 +56,6 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
-      .filter((r) =>
-        // When Hyperliquid chain is selected as destination, show ONLY Hyperliquid route;
-        // otherwise do NOT show Hyperliquid route
-        toNonSDKChain === 'Hyperliquid'
-          ? r === 'HyperliquidRoute'
-          : r !== 'HyperliquidRoute',
-      )
       .map((route) => {
         const quote = quotesMap[route];
         if (quote?.success) {
@@ -75,7 +69,7 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
       })
       .filter(Boolean) as RouteWithQuote[];
     // Safe to cast, as falsy values are filtered
-  }, [supportedRoutes, toNonSDKChain, quotesMap]);
+  }, [supportedRoutes, quotesMap]);
 
   // Only routes with quotes are sorted.
   const sortedRoutesWithQuotes = useMemo(() => {

@@ -74,9 +74,6 @@ const useStyles = makeStyles()((theme: any) => ({
     marginRight: '3px',
     fill: theme.palette.primary.main,
   },
-  messageContainer: {
-    padding: '12px 0px 0px',
-  },
   warningIcon: {
     color: theme.palette.warning.main,
     height: '34px',
@@ -108,7 +105,7 @@ const SingleRoute = (props: Props) => {
     toNonSDKChain,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { getTokenPrice, isFetchingTokenPrices } = useTokens();
+  const { getTokenPrice } = useTokens();
 
   const { name } = props.route;
   const { quote } = props;
@@ -238,9 +235,9 @@ const SingleRoute = (props: Props) => {
   }, [
     destChain,
     props.destinationGasDrop,
-    theme.palette.text.primary,
+    getTokenPrice,
     theme.palette.text.secondary,
-    isFetchingTokenPrices,
+    theme.palette.text.primary,
   ]);
 
   const timeToDestination = useMemo(
@@ -275,6 +272,7 @@ const SingleRoute = (props: Props) => {
       theme.palette.success.main,
       theme.palette.text.primary,
       theme.palette.text.secondary,
+      toNonSDKChain,
     ],
   );
 
@@ -287,7 +285,7 @@ const SingleRoute = (props: Props) => {
   }, [props.route, routeConfig.AUTOMATIC_DEPOSIT]);
 
   const messageDivider = useMemo(
-    () => <Divider flexItem sx={{ marginTop: '24px' }} />,
+    () => <Divider flexItem sx={{ margin: '18px 0' }} />,
     [],
   );
 
@@ -299,11 +297,7 @@ const SingleRoute = (props: Props) => {
     return (
       <>
         {messageDivider}
-        <Stack
-          className={classes.messageContainer}
-          direction="row"
-          alignItems="center"
-        >
+        <Stack direction="row" alignItems="center">
           <ErrorIcon className={classes.errorIcon} />
           <Typography
             color={theme.palette.error.main}
@@ -317,7 +311,6 @@ const SingleRoute = (props: Props) => {
     );
   }, [
     classes.errorIcon,
-    classes.messageContainer,
     messageDivider,
     props.error,
     theme.palette.error.main,
@@ -335,11 +328,7 @@ const SingleRoute = (props: Props) => {
     }) => (
       <div key={key}>
         {messageDivider}
-        <Stack
-          className={classes.messageContainer}
-          direction="row"
-          alignItems="center"
-        >
+        <Stack direction="row" alignItems="center">
           <WarningIcon className={classes.warningIcon} />
           <Stack>
             <Typography
@@ -361,7 +350,6 @@ const SingleRoute = (props: Props) => {
       </div>
     ),
     [
-      classes.messageContainer,
       classes.warningIcon,
       messageDivider,
       theme.palette.text.secondary,
@@ -403,11 +391,7 @@ const SingleRoute = (props: Props) => {
         messages.push(
           <div key={`${warning.type}-${warning.delayDurationSec}`}>
             {messageDivider}
-            <Stack
-              className={classes.messageContainer}
-              direction="row"
-              alignItems="center"
-            >
+            <Stack direction="row" alignItems="center">
               <WarningIcon className={classes.warningIcon} />
               <Typography
                 color={theme.palette.warning.main}
@@ -442,7 +426,6 @@ const SingleRoute = (props: Props) => {
     generateWarningMessage,
     quote?.warnings,
     messageDivider,
-    classes.messageContainer,
     classes.warningIcon,
     theme.palette.warning.main,
     destChain,
@@ -544,6 +527,7 @@ const SingleRoute = (props: Props) => {
   }, [
     destChain,
     destToken,
+    getTokenPrice,
     props.error,
     providerText,
     receiveAmount,

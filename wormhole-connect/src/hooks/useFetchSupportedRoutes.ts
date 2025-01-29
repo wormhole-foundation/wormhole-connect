@@ -17,7 +17,7 @@ const useFetchSupportedRoutes = (): HookReturn => {
   const [routes, setRoutes] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  const { fromChain, toChain, amount } = useSelector(
+  const { fromChain, toChain, toNonSDKChain, amount } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -90,7 +90,15 @@ const useFetchSupportedRoutes = (): HookReturn => {
 
       if (isActive) {
         setIsFetching(false);
-        setRoutes(_routes);
+        setRoutes(
+          _routes.filter((r) =>
+            // When Hyperliquid chain is selected as destination, show ONLY Hyperliquid route;
+            // otherwise do NOT show Hyperliquid route
+            toNonSDKChain === 'Hyperliquid'
+              ? r === 'HyperliquidRoute'
+              : r !== 'HyperliquidRoute',
+          ),
+        );
       }
     };
 
@@ -99,7 +107,16 @@ const useFetchSupportedRoutes = (): HookReturn => {
     return () => {
       isActive = false;
     };
-  }, [sourceToken, destToken, amount, fromChain, toChain, toNativeToken, receivingWallet]);
+  }, [
+    sourceToken,
+    destToken,
+    amount,
+    fromChain,
+    toChain,
+    toNativeToken,
+    receivingWallet,
+    toNonSDKChain,
+  ]);
 
   return {
     supportedRoutes: routes,
