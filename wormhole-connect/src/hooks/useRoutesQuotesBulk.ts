@@ -32,9 +32,10 @@ type HookReturn = {
 };
 
 const QUOTE_REFRESH_INTERVAL = 20_000;
-
-const MAYAN_BETA_LIMIT = 10_000; // USD
-const MAYAN_BETA_PROTOCOLS = ['MCTP', 'SWIFT'];
+const MAYAN_BETA_PROTOCOL_LIMITS = {
+  MCTP: 10_000,
+  SHUTTLE: 5_000,
+};
 
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [nonce, setNonce] = useState(new Date().valueOf());
@@ -171,27 +172,28 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     if (name.startsWith('MayanSwap')) {
       const mayanQuote = quotesMap[name];
 
-      if (
-        mayanQuote !== undefined &&
-        mayanQuote.success &&
-        MAYAN_BETA_PROTOCOLS.includes(mayanQuote.details?.type.toUpperCase())
-      ) {
+      if (mayanQuote !== undefined && mayanQuote.success) {
         // There are two special cases here for Mayan Swift transfers
         //
-        // 1) Disallow transfers >$10,000 (temporary, while in beta)
+        // 1) Apply limits for the specified protocols, see MAYAN_BETA_PROTOCOL_LIMITS (temporary, while in beta).
         // 2) For transfers <=$10,000, calculate network costs manually, because Mayan API doesn't
         //    expose relayer fee info for Swift quotes.
         //
         // TODO all of the code here is horrible and would ideally not exist
 
-        if (usdValue !== undefined && usdValue > MAYAN_BETA_LIMIT) {
-          // Temporarily disallow Swift quotes above $10,000
+        const protocolLimit =
+          MAYAN_BETA_PROTOCOL_LIMITS[mayanQuote.details?.type.toUpperCase()];
+
+        if (
+          protocolLimit &&
+          usdValue !== undefined &&
+          usdValue > protocolLimit
+        ) {
+          // Temporarily disallow quotes above the limit
           // TODO revisit this
           quotesMap[name] = {
             success: false,
-            error: new Error(
-              `Amount exceeds limit of $${MAYAN_BETA_LIMIT} USD`,
-            ),
+            error: new Error(`Amount exceeds limit of $${protocolLimit} USD`),
           };
         } else {
           const approxInputUsdValue = calculateUSDPriceRaw(
