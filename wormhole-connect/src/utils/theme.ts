@@ -124,12 +124,12 @@ export function hslToHex(h: number, s: number, l: number): string {
 }
 
 export function lighten(color: string, background: string, amount: number) {
-  let [h, s] = hexToHsl(color);
-  let [, , l] = hexToHsl(background);
+  const [h, s] = hexToHsl(color);
+  const [, , l] = hexToHsl(background);
   return hslToHex(h, s, l > 0.5 ? l - amount : l + amount);
 }
 
 export function opacify(color: string, opacity: number) {
-  let [r, g, b] = hexToRgb(color);
+  const [r, g, b] = hexToRgb(color);
   return `rgba(${r},${g},${b},${opacity})`;
 }

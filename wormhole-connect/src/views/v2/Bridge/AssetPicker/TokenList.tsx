@@ -21,7 +21,7 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
   },
   tokenListContainer: {
-    padding: '0 !important',
+    padding: '16px 0 0 0 !important',
   },
   title: {
     fontSize: 14,
