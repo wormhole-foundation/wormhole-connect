@@ -16,6 +16,7 @@ import {
   MayanRouteWH,
   MayanRouteMCTP,
   MayanRouteSWIFT,
+  MayanRouteSHUTTLE,
 } from '@mayanfinance/wormhole-sdk-route';
 import {
   nttAutomaticRoute,
@@ -63,6 +64,7 @@ export {
   MayanRouteWH,
   MayanRouteMCTP,
   MayanRouteSWIFT,
+  MayanRouteSHUTTLE,
 
   // Utility function for CDN-hosted version of Connect
   wormholeConnectHosted,
