@@ -28,6 +28,7 @@ const useStyles = makeStyles()((theme: any) => ({
   card: {
     width: '100%',
     borderRadius: '8px',
+    border: `1px solid ${theme.palette.input.border}`,
   },
   cardHeader: {
     paddingBottom: 0,
