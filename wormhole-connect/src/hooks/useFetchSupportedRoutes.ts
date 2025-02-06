@@ -40,7 +40,7 @@ const useFetchSupportedRoutes = (): HookReturn => {
 
     const getSupportedRoutes = async () => {
       setIsFetching(true);
-      const _routes: string[] = [];
+      let _routes: string[] = [];
       await config.routes.forEach(async (name, route) => {
         // Disable manual routes when the receiving wallet is a ReadOnlyWallet
         // because the receiving wallet can't sign/complete the transaction
@@ -90,15 +90,14 @@ const useFetchSupportedRoutes = (): HookReturn => {
 
       if (isActive) {
         setIsFetching(false);
-        setRoutes(
-          _routes.filter((r) =>
-            // When Hyperliquid chain is selected as destination, show ONLY Hyperliquid route;
-            // otherwise do NOT show Hyperliquid route
-            toNonSDKChain === 'Hyperliquid'
-              ? r === 'HyperliquidRoute'
-              : r !== 'HyperliquidRoute',
-          ),
-        );
+        // When Hyperliquid chain is selected as destination, show ONLY Hyperliquid route;
+        // otherwise do NOT show Hyperliquid route
+        if (toNonSDKChain === 'Hyperliquid') {
+          _routes = _routes.filter((r) => r === 'HyperliquidRoute');
+        } else {
+          _routes = _routes.filter((r) => r !== 'HyperliquidRoute');
+        }
+        setRoutes(_routes);
       }
     };
 

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { circle } from '@wormhole-foundation/sdk';
+
 import config from 'config';
 import { setDestToken } from 'store/transferInput';
 
@@ -78,15 +80,16 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
         return;
       }
 
-      setSupportedDestTokens(
-        supported.filter((t) =>
-          // When Hyperliquid chain is selected as destination, show Arbitrum/USDC token only
-          props.toNonSDKChain === 'Hyperliquid'
-            ? t.tuple[0] === 'Arbitrum' &&
-              t.tuple[1] === '0xaf88d065e77c8cC2239327C5EDb3A432268e5831'
-            : true,
-        ),
-      );
+      // When Hyperliquid chain is selected as destination, show Arbitrum/USDC token only
+      if (props.toNonSDKChain === 'Hyperliquid') {
+        supported = supported.filter(
+          (t) =>
+            t.tuple[0] === 'Arbitrum' &&
+            t.tuple[1] === circle.usdcContract.get('Mainnet', 'Arbitrum'),
+        );
+      }
+
+      setSupportedDestTokens(supported);
 
       // Auto-select if there's only one option
       if (destChain && supported.length === 1) {

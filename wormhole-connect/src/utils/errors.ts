@@ -27,12 +27,12 @@ export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
 export function interpretTransferError(
   e: any,
   transferDetails: TransferDetails,
-  isHyperliquidTransfer = false,
 ): [string, TransferError] {
   // Fall-back values
-  let uiErrorMessage = isHyperliquidTransfer
-    ? 'Hyperliquid deposit error. USDC has been deposited in your wallet on Arbitrum'
-    : 'Error with transfer, please try again';
+  let uiErrorMessage =
+    transferDetails.route === 'HyperliquidRoute'
+      ? 'Hyperliquid deposit error. USDC has been deposited in your wallet on Arbitrum'
+      : 'Error with transfer, please try again';
   let internalErrorCode: TransferErrorType = ERR_UNKNOWN;
 
   if (e.message) {

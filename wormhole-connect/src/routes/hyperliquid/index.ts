@@ -26,6 +26,7 @@ import {
   EvmPlatform,
   EvmUnsignedTransaction,
 } from '@wormhole-foundation/sdk-evm';
+import { circle } from '@wormhole-foundation/sdk';
 
 export namespace HyperliquidRoute {
   export type Options = {
@@ -105,7 +106,9 @@ export class HyperliquidRoute<N extends Network>
     _toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
     // HL route supports only USDCarbitrum as destination token
-    return [Wormhole.tokenId('Arbitrum', USDC_ARBITRUM)];
+    const arbUsdc =
+      circle.usdcContract.get('Mainnet', 'Arbitrum') || USDC_ARBITRUM;
+    return [Wormhole.tokenId('Arbitrum', arbUsdc)];
   }
 
   async validate(
@@ -161,9 +164,7 @@ export class HyperliquidRoute<N extends Network>
 
   async complete(signer: Signer, receipt: R): Promise<R> {
     if (!isAttested(receipt)) {
-      throw new Error(
-        'The source must be finalized in order to complete the transfer',
-      );
+      throw new Error('Transaction must be attested in order to be completed');
     }
 
     const txs: TransactionId[] = [];

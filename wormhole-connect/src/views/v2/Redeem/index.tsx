@@ -314,7 +314,6 @@ const Redeem = () => {
       const [uiError, transferError] = interpretTransferError(
         receipt.error,
         details,
-        isHyperliquid,
       );
       setClaimError(uiError);
 
@@ -333,7 +332,6 @@ const Redeem = () => {
       const [uiError, transferError] = interpretTransferError(
         unhandledManualClaimError,
         details,
-        isHyperliquid,
       );
 
       setClaimError(uiError);
