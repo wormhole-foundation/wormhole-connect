@@ -52,8 +52,6 @@ type R = routes.Receipt;
 type Tp = routes.TransferParams<Op>;
 type Vr = routes.ValidationResult<Op>;
 
-// USDC contract on Arbitrum
-const USDC_ARBITRUM = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831';
 // Hyperliquid bridge on Arbitrum
 const HL_BRIDGE_ARB = '0x2Df1c51E09aECF9cacB7bc98cB1742757f163dF7';
 // Minimum USDC amount required for Hyperliquid deposits
@@ -106,9 +104,12 @@ export class HyperliquidRoute<N extends Network>
     _toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
     // HL route supports only USDCarbitrum as destination token
-    const arbUsdc =
-      circle.usdcContract.get('Mainnet', 'Arbitrum') || USDC_ARBITRUM;
-    return [Wormhole.tokenId('Arbitrum', arbUsdc)];
+    return [
+      Wormhole.tokenId(
+        'Arbitrum',
+        circle.usdcContract.get('Mainnet', 'Arbitrum')!,
+      ),
+    ];
   }
 
   async validate(
@@ -175,7 +176,10 @@ export class HyperliquidRoute<N extends Network>
       const rpc = await arb.getRpc();
       const txStatus = receipt['txstatus'] as TransactionStatus;
 
-      const usdcToken = EvmPlatform.getTokenImplementation(rpc, USDC_ARBITRUM);
+      const usdcToken = EvmPlatform.getTokenImplementation(
+        rpc,
+        circle.usdcContract.get('Mainnet', 'Arbitrum')!,
+      );
 
       const txReq = await usdcToken.transfer.populateTransaction(
         HL_BRIDGE_ARB,
