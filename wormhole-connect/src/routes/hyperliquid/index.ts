@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { Quote as MayanQuote } from '@mayanfinance/swap-sdk';
 import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route';
-import { TransactionStatus } from '@mayanfinance/wormhole-sdk-route/dist/esm/utils';
 import {
   amount,
   type Chain,
@@ -66,11 +65,11 @@ export class HyperliquidRoute<N extends Network>
 {
   mayanRoute: MayanRouteSWIFT<N>;
   finalReceipt: routes.Receipt | undefined;
+  finalQuote: Q | undefined;
 
   constructor(wh: Wormhole<N>) {
     super(wh);
     this.mayanRoute = new MayanRouteSWIFT(wh);
-    this.finalReceipt = undefined;
   }
 
   static meta = { name: 'HyperliquidRoute' };
@@ -155,6 +154,8 @@ export class HyperliquidRoute<N extends Network>
       throw new Error('Hyperliquid requires a minimum of 5 USDC to deposit');
     }
 
+    this.finalQuote = quote;
+
     return (await this.mayanRoute.initiate(
       request,
       signer,
@@ -174,7 +175,6 @@ export class HyperliquidRoute<N extends Network>
     try {
       const arb = this.wh.getChain('Arbitrum');
       const rpc = await arb.getRpc();
-      const txStatus = receipt['txstatus'] as TransactionStatus;
 
       const usdcToken = EvmPlatform.getTokenImplementation(
         rpc,
@@ -183,7 +183,7 @@ export class HyperliquidRoute<N extends Network>
 
       const txReq = await usdcToken.transfer.populateTransaction(
         HL_BRIDGE_ARB,
-        BigInt(txStatus.minAmountOut64),
+        BigInt(this.finalQuote!.destinationToken.amount.amount),
       );
 
       const nativeChainId = nativeChainIds.networkChainToNativeChainId.get(
