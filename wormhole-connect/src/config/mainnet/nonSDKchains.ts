@@ -7,6 +7,7 @@ export const MAINNET_NON_SDK_CHAINS: NonSDKChainsConfig = {
     id: 23,
     context: Context.ETH,
     finalityThreshold: 0,
+    disabledAsSource: true,
     displayName: 'Hyperliquid',
     sdkName: 'Arbitrum',
     explorerUrl: 'https://app.hyperliquid.xyz/explorer',

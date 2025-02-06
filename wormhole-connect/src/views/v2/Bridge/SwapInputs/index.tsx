@@ -25,19 +25,15 @@ function SwapInputs() {
   const dispatch = useDispatch();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
-  const {
-    isTransactionInProgress,
-    fromChain,
-    toChain,
-    destToken,
-    token: sourceToken,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { isTransactionInProgress, fromChain, toChain, toNonSDKChain } =
+    useSelector((state: RootState) => state.transferInput);
 
   const canSwap =
     fromChain &&
     !config.chains[fromChain]?.disabledAsDestination &&
     toChain &&
-    !config.chains[toChain]?.disabledAsSource;
+    !config.chains[toChain]?.disabledAsSource &&
+    toNonSDKChain !== 'Hyperliquid';
 
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;
@@ -49,15 +45,7 @@ function SwapInputs() {
     dispatch(swapInputs());
     dispatch(swapWallets());
     dispatch(setAmount(''));
-  }, [
-    fromChain,
-    toChain,
-    sourceToken,
-    destToken,
-    canSwap,
-    isTransactionInProgress,
-    dispatch,
-  ]);
+  }, [canSwap, isTransactionInProgress, dispatch]);
 
   const { classes } = useStyles();
 
