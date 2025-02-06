@@ -4,7 +4,7 @@ import { isCompleted, routes, TransferState } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 
-import type { AttestationReceipt } from '@wormhole-foundation/sdk';
+import type { AttestationReceipt, Network } from '@wormhole-foundation/sdk';
 
 // We don't start trying to fetch transfer updates until 1 minute from ETA
 const MINIMUM_ETA = 60 * 1000;
@@ -17,7 +17,7 @@ type Props = {
   // Timestamp the transfer was estimated to be finished
   eta?: Date;
   sdkRoute?: routes.Route<
-    'Mainnet' | 'Testnet' | 'Devnet',
+    Network,
     routes.Options,
     routes.ValidatedTransferParams<routes.Options>,
     routes.Receipt
@@ -60,7 +60,7 @@ const useTrackTransfer = (props: Props): ReturnProps => {
         eta.valueOf() - new Date().valueOf();
 
       let sdkRoute: routes.Route<
-        'Mainnet' | 'Testnet' | 'Devnet',
+        Network,
         routes.Options,
         routes.ValidatedTransferParams<routes.Options>,
         routes.Receipt<AttestationReceipt>
