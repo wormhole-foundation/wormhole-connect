@@ -34,7 +34,7 @@ type HookReturn = {
 const QUOTE_REFRESH_INTERVAL = 20_000;
 const MAYAN_BETA_PROTOCOL_LIMITS = {
   MCTP: 10_000,
-  SHUTTLE: 5_000,
+  SHUTTLE: 1_000,
 };
 
 const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
