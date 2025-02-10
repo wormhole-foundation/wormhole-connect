@@ -21,6 +21,8 @@ import { getTokenMetadataFromRpc } from 'utils/tokens';
 
 const TOKEN_CACHE_VERSION = 1;
 
+const HAS_LOCALSTORAGE = typeof localStorage !== 'undefined';
+
 export class Token {
   chain: Chain;
   address: TokenAddress<Chain>;
@@ -401,7 +403,7 @@ export class TokenCache extends TokenMapping<Token> {
   }
 
   persist() {
-    if (this._localStorageKey) {
+    if (HAS_LOCALSTORAGE && this._localStorageKey) {
       const asJson = {
         version: TOKEN_CACHE_VERSION,
         tokens: {},
@@ -416,22 +418,24 @@ export class TokenCache extends TokenMapping<Token> {
   }
 
   static load(localStorageKey: string): TokenCache {
-    const jsonString = localStorage.getItem(localStorageKey);
-    if (jsonString) {
-      try {
-        const asJson = JSON.parse(jsonString);
-        const mapping = new TokenCache();
+    if (HAS_LOCALSTORAGE) {
+      const jsonString = localStorage.getItem(localStorageKey);
+      if (jsonString) {
+        try {
+          const asJson = JSON.parse(jsonString);
+          const mapping = new TokenCache();
 
-        mapping.setLocalStorageKey(localStorageKey);
+          mapping.setLocalStorageKey(localStorageKey);
 
-        for (const [, tokenData] of Object.entries(asJson.tokens)) {
-          const token = Token.fromJson(tokenData as TokenJson);
-          mapping.add(token);
+          for (const [, tokenData] of Object.entries(asJson.tokens)) {
+            const token = Token.fromJson(tokenData as TokenJson);
+            mapping.add(token);
+          }
+
+          return mapping;
+        } catch (e) {
+          console.error('Error parsing cached TokenCache', e);
         }
-
-        return mapping;
-      } catch (e) {
-        console.error('Error parsing cached TokenCache', e);
       }
     }
 

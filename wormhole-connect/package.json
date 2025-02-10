@@ -35,7 +35,7 @@
     "@mui/material": "^5.11.4",
     "@mysten/sui.js": "^0.32.2",
     "@project-serum/anchor": "^0.26.0",
-    "@reduxjs/toolkit": "^1.9.1",
+    "@reduxjs/toolkit": "^2.5.1",
     "@solana/spl-token": "^0.3.9",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.95.8",
@@ -43,6 +43,8 @@
     "@wormhole-foundation/sdk-definitions": "1.6.1-beta.3",
     "@wormhole-foundation/sdk-definitions-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-evm-ntt": "^0.6.1",
+    "react": "^19",
+    "react-dom": "^19",
     "@wormhole-foundation/sdk-icons": "^1.0.0",
     "@wormhole-foundation/sdk-route-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-solana-ntt": "^0.6.1",
@@ -56,10 +58,8 @@
     "ethers": "^6.4.2",
     "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "react-infinite-scroller": "^1.2.6",
-    "react-redux": "^8.0.5",
+    "react-redux": "^9.2.0",
     "react-timer-hook": "^3.0.7",
     "rpc-websockets": "^7.11.0",
     "sha3": "^2.1.4",
@@ -129,8 +129,8 @@
     "webpack-bundle-analyzer": "^4.9.1"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^19",
+    "react-dom": "^19"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
@@ -204,6 +204,27 @@
     },
     "vite-plugin-dts": {
       "vue-tsc": "2.0.0"
+    },
+    "@solana/wallet-adapter-base": {
+      "react": "^19"
+    },
+    "@keystonehq/sdk": {
+      "react": "^19"
+    },
+    "@fractalwagmi/solana-wallet-adapter": {
+      "react": "^19"
+    },
+    "@binance/w3w-qrcode-modal": {
+      "react": "^19"
+    },
+    "@apollo/client": {
+      "react": "^19"
+    },
+    "@web3modal/core": {
+      "react": "^19"
+    },
+    "react-infinite-scroller": {
+      "react": "^19"
     }
   }
 }
