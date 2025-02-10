@@ -17,7 +17,7 @@ import { Chain } from '@wormhole-foundation/sdk';
 import config from 'config';
 
 import { Token } from 'config/tokens';
-import type { ChainConfig, NonSDKChain } from 'config/types';
+import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
@@ -68,10 +68,9 @@ type Props = {
   tokenList?: Array<Token> | undefined;
   isFetching?: boolean;
   setToken: (value: Token) => void;
-  setChain: (value: Chain | NonSDKChain) => void;
+  setChain: (value: Chain) => void;
   wallet: WalletData;
   isSource: boolean;
-  selectedNonSDKChain?: NonSDKChain | undefined;
 };
 
 const AssetPicker = (props: Props) => {
@@ -111,11 +110,8 @@ const AssetPicker = (props: Props) => {
   }, [popupState.isOpen]);
 
   const chainConfig: ChainConfig | undefined = useMemo(() => {
-    if (props.selectedNonSDKChain) {
-      return config.nonSDKChains?.[props.selectedNonSDKChain] as ChainConfig;
-    }
     return props.chain ? config.chains[props.chain] : undefined;
-  }, [props.chain, props.selectedNonSDKChain]);
+  }, [props.chain]);
 
   const selection = useMemo(() => {
     if (!chainConfig && !props.token) {
@@ -195,12 +191,11 @@ const AssetPicker = (props: Props) => {
         <ChainList
           chainList={props.chainList}
           selectedChainConfig={chainConfig}
-          selectedNonSDKChain={props.selectedNonSDKChain}
           showSearch={showChainSearch}
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
           onChainSelect={(key) => {
-            props.setChain(key as Chain | NonSDKChain);
+            props.setChain(key as Chain);
           }}
         />
         {!showChainSearch && chainConfig && (

@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 import { amount as sdkAmount, toNative } from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
-import type { ChainConfig, NonSDKChain } from 'config/types';
+import type { ChainConfig } from 'config/types';
 import { isTokenTuple, Token, tokenIdFromTuple } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
@@ -44,7 +44,6 @@ type Props = {
   wallet: WalletData;
   onSelectToken: (key: Token) => void;
   isSource: boolean;
-  selectedNonSDKChain?: NonSDKChain | undefined;
 };
 
 const TokenList = (props: Props) => {

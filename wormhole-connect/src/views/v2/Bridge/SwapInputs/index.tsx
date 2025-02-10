@@ -25,15 +25,15 @@ function SwapInputs() {
   const dispatch = useDispatch();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
-  const { isTransactionInProgress, fromChain, toChain, toNonSDKChain } =
-    useSelector((state: RootState) => state.transferInput);
+  const { isTransactionInProgress, fromChain, toChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const canSwap =
     fromChain &&
     !config.chains[fromChain]?.disabledAsDestination &&
     toChain &&
-    !config.chains[toChain]?.disabledAsSource &&
-    toNonSDKChain !== 'Hyperliquid';
+    !config.chains[toChain]?.disabledAsSource;
 
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;

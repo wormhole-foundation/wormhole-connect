@@ -99,11 +99,9 @@ const SingleRoute = (props: Props) => {
   const theme = useTheme();
   const routeConfig = config.routes.get(props.route.name);
 
-  const {
-    toChain: destChain,
-    fromChain: sourceChain,
-    toNonSDKChain,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { toChain: destChain, fromChain: sourceChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { getTokenPrice } = useTokens();
 
@@ -252,7 +250,7 @@ const SingleRoute = (props: Props) => {
           fontSize="14px"
           lineHeight="14px"
         >
-          {`Time to ${toNonSDKChain ?? destChain}`}
+          {`Time to ${destChain}`}
         </Typography>
         <Typography
           component="div"
@@ -275,7 +273,6 @@ const SingleRoute = (props: Props) => {
       theme.palette.success.main,
       theme.palette.text.primary,
       theme.palette.text.secondary,
-      toNonSDKChain,
     ],
   );
 

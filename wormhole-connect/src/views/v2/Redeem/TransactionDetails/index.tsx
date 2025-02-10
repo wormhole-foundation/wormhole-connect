@@ -142,9 +142,7 @@ const TransactionDetails = () => {
       return <></>;
     }
 
-    const destChainConfig = isHyperliquid
-      ? config.nonSDKChains?.Hyperliquid
-      : config.chains[toChain]!;
+    const destChainConfig = config.chains[toChain]!;
 
     const usdAmount = calculateUSDPrice(
       getTokenPrice,

@@ -220,4 +220,17 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'UNI',
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
+  Hyperliquid: {
+    ...chains.Hyperliquid!,
+    id: -1,
+    disabledAsSource: true,
+    displayName: 'Hyperliquid',
+    sdkName: 'Hyperliquid',
+    explorerUrl: 'https://app.hyperliquid.xyz/explorer',
+    explorerName: 'Hyperliquid Explorer',
+    chainId: 42161,
+    icon: 'Hyperliquid',
+    symbol: 'HYPE',
+    wrappedGasToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  },
 };

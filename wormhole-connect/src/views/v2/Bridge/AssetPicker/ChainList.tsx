@@ -10,12 +10,11 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import config from 'config';
 import ChainIcon from 'icons/ChainIcons';
 import PlusIcon from 'icons/Plus';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 
-import type { ChainConfig, NonSDKChain } from 'config/types';
+import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
@@ -67,7 +66,6 @@ const useStyles = makeStyles()((theme) => ({
 type Props = {
   chainList?: Array<ChainConfig>;
   selectedChainConfig?: ChainConfig;
-  selectedNonSDKChain?: NonSDKChain | undefined;
   showSearch: boolean;
   setShowSearch: (value: boolean) => void;
   wallet: WalletData;
@@ -84,7 +82,6 @@ const ChainList = (props: Props) => {
   const {
     chainList,
     selectedChainConfig,
-    selectedNonSDKChain,
     showSearch,
     setShowSearch,
     onChainSelect,
@@ -96,9 +93,6 @@ const ChainList = (props: Props) => {
 
     // Find the selected chain in supported chains
     const selectedChainIndex = allChains.findIndex((chain) => {
-      if (selectedNonSDKChain) {
-        return chain.symbol === 'HYPE';
-      }
       return chain.key === selectedChain?.key;
     });
     const shortListSize = mobile ? SHORT_LIST_SIZE_MOBILE : SHORT_LIST_SIZE;
@@ -113,7 +107,7 @@ const ChainList = (props: Props) => {
     }
 
     return allChains.slice(0, shortListSize);
-  }, [mobile, chainList, selectedChainConfig, selectedNonSDKChain]);
+  }, [mobile, chainList, selectedChainConfig]);
 
   const shortList = useMemo(() => {
     return (
@@ -125,18 +119,10 @@ const ChainList = (props: Props) => {
               title={chain.displayName}
             >
               <ListItemButton
-                selected={
-                  selectedNonSDKChain
-                    ? selectedChainConfig?.symbol === chain.symbol
-                    : selectedChainConfig?.key === chain.key
-                }
+                selected={selectedChainConfig?.key === chain.key}
                 className={classes.chainButton}
                 onClick={() => {
-                  if (config.nonSDKChains?.[chain.displayName]) {
-                    onChainSelect(chain.displayName);
-                  } else {
-                    onChainSelect(chain.key);
-                  }
+                  onChainSelect(chain.key);
                 }}
               >
                 <ChainIcon icon={chain.icon} />
@@ -175,7 +161,6 @@ const ChainList = (props: Props) => {
     onChainSelect,
     selectedChainConfig?.key,
     selectedChainConfig?.symbol,
-    selectedNonSDKChain,
     setShowSearch,
     topChains,
   ]);
@@ -196,11 +181,7 @@ const ChainList = (props: Props) => {
             dense
             className={classes.chainItem}
             onClick={() => {
-              onChainSelect(
-                config.nonSDKChains?.[chain.displayName]
-                  ? chain.displayName
-                  : chain.key,
-              );
+              onChainSelect(chain.key);
               setShowSearch(false);
             }}
           >

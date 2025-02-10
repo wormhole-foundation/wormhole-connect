@@ -27,7 +27,6 @@ import {
   setToken,
   setTransferRoute,
   setDestToken,
-  setToNonSDKChain,
 } from 'store/transferInput';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
@@ -51,7 +50,6 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
-import { ChainConfig, NonSDKChain } from 'config/types';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -126,7 +124,6 @@ const Bridge = () => {
   const {
     fromChain: sourceChain,
     toChain: destChain,
-    toNonSDKChain,
     route,
     preferredRouteName,
     supportedSourceTokens,
@@ -161,7 +158,6 @@ const Bridge = () => {
       destChain,
       sourceToken,
       route: selectedRoute,
-      toNonSDKChain,
     });
 
   // Set selectedRoute if the route is auto-selected
@@ -274,11 +270,6 @@ const Bridge = () => {
         supportedChains.includes(chain.key),
     );
 
-    // Manually add HP chain config if HP route is present and source chain is not Arbitrum
-    if (config.routes.get('HyperliquidRoute') && sourceChain !== 'Arbitrum') {
-      sdkChains.push(config.nonSDKChains?.Hyperliquid as ChainConfig);
-    }
-
     return sdkChains;
     // config.chainsArr is needed here as config can be rebuilt after component is created
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -361,32 +352,15 @@ const Bridge = () => {
           isFetching={
             supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
           }
-          setChain={(value: Chain | NonSDKChain) => {
-            const nonSDKChain = config.nonSDKChains?.[value as NonSDKChain];
-            // Check whether selected chain is a non-SDK chain
-            if (nonSDKChain) {
-              dispatch(setToNonSDKChain(value as NonSDKChain));
-              // Still need to set the SDK counterpart as the chain
-              // e.g. Hyperliquid -> Arbitrum
-              selectToChain(
-                dispatch,
-                nonSDKChain.sdkName as Chain,
-                receivingWallet,
-              );
-            } else {
-              // Clear previously selected non-SDK chain
-              if (toNonSDKChain) {
-                dispatch(setToNonSDKChain());
-              }
-              selectToChain(dispatch, value as Chain, receivingWallet);
-            }
+          setChain={(value: Chain) => {
+            // Clear previously selected non-SDK chain
+            selectToChain(dispatch, value as Chain, receivingWallet);
           }}
           setToken={(value: Token) => {
             dispatch(setDestToken(value.tuple));
           }}
           wallet={receivingWallet}
           isSource={false}
-          selectedNonSDKChain={toNonSDKChain}
         />
       </div>
     );
@@ -400,7 +374,6 @@ const Bridge = () => {
     supportedDestTokens,
     isFetchingSupportedDestTokens,
     receivingWallet,
-    toNonSDKChain,
     dispatch,
   ]);
 
