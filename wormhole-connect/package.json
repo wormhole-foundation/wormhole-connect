@@ -206,25 +206,32 @@
       "vue-tsc": "2.0.0"
     },
     "@solana/wallet-adapter-base": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     },
     "@keystonehq/sdk": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     },
     "@fractalwagmi/solana-wallet-adapter": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     },
     "@binance/w3w-qrcode-modal": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     },
     "@apollo/client": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     },
     "@web3modal/core": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     },
     "react-infinite-scroller": {
-      "react": "^19"
+      "react": "^19",
+      "react-dom": "^19"
     }
   }
 }
