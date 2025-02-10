@@ -59,6 +59,9 @@ const MIN_AMOUNT_REQUIRED = {
   amount: '5000000',
   decimals: 6,
 };
+// The default amount for gas drop
+// This is to ensure the sufficient gas on Arbitrum to complete the deposit to Hyperliquid
+const DEFAULT_GAS_DROP = 0.00001;
 
 export class HyperliquidRoute<N extends Network>
   extends routes.ManualRoute<N, Op, Vp, R>
@@ -122,7 +125,14 @@ export class HyperliquidRoute<N extends Network>
     request: routes.RouteTransferRequest<N>,
     params: Vp,
   ): Promise<QR> {
-    const quoteResult = await this.mayanRoute.quote(request, params);
+    // Fallback to default gas drop if none specified
+    const gasDrop = params.options.gasDrop || DEFAULT_GAS_DROP;
+    const quoteParams = {
+      ...params,
+      options: { ...params.options, gasDrop },
+    };
+
+    const quoteResult = await this.mayanRoute.quote(request, quoteParams);
     const minRequiredOut = amount.whole(MIN_AMOUNT_REQUIRED);
     if (
       quoteResult.success &&
