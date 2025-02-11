@@ -366,9 +366,9 @@ const SingleRoute = (props: Props) => {
         generateWarningMessage({
           key: 'HyperliquidTransactionWarning',
           warningMsg:
-            'This transfer will first deposit to Arbitrum and then to Hyperliquid.',
+            'This transfer requires two wallet approvals, one on Arbitrum and another for Hyperliquid.',
           secondaryMsg:
-            'You will need to make two wallet approvals and have gas on Arbitrum.',
+            "Withdrawals from Hyperliquid must be initiated directly on Hyperliquid's site.",
         }),
       );
     } else if (isManual) {
