@@ -194,7 +194,7 @@ export default defineConfig(({ command, mode }) => {
               index: 'src/index.ts',
             },
             output,
-            external: ['react', 'react-dom', ...external],
+            external: ['react', 'react/jsx-runtime', ...external],
           },
         },
         plugins,
