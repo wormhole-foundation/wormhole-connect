@@ -62,13 +62,16 @@ const checkEnvConfig = async (
 
   for (const { tokenId } of tokensConfig) {
     const nativeChain = wh.getChain(tokenId.chain);
-    const nativeTb = await nativeChain.getTokenBridge();
+    const nativeTb = await nativeChain.getTokenBridge().catch((_) => undefined);
+    if (!nativeTb) continue;
+
     let universalAddress: UniversalAddress | null = null;
     if (tokenId.address !== 'native') {
       universalAddress = await nativeTb.getTokenUniversalAddress(
         toNative(nativeChain.chain, tokenId.address),
       );
     }
+
     await Promise.all(
       Object.keys(chainsConfig).map((unTypedChain) => {
         return (async () => {
