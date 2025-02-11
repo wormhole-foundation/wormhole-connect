@@ -214,7 +214,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     displayName: 'Unichain',
     sdkName: 'Unichain',
     explorerUrl: 'https://uniscan.xyz/',
-    explorerName: 'Unichain Explorer',
+    explorerName: 'Uniscan',
     chainId: 130,
     icon: 'Unichain',
     symbol: 'UNI',
