@@ -139,6 +139,11 @@ const useTransactionHistoryWHScan = (
 
     const tokenChain = chainIdToChain(tokenChainId);
 
+    // Skip if we don't have the token chain
+    if (!tokenChain) {
+      return;
+    }
+
     let token = config.tokens.get(
       tokenChain,
       standarizedProperties.tokenAddress,
@@ -161,7 +166,7 @@ const useTransactionHistoryWHScan = (
       return;
     }
 
-    const toChain = chainIdToChain(toChainId) as Chain;
+    const toChain = chainIdToChain(toChainId);
 
     // data.tokenAmount holds the normalized token amount value.
     // Otherwise we need to format standarizedProperties.amount using decimals
@@ -313,6 +318,16 @@ const useTransactionHistoryWHScan = (
     [parseSingleTx],
   );
 
+  // Parser for WLL or FAST_TRANSFERS transactions (appId === WORMHOLE_LIQUIDITY_LAYER, FAST_TRANSFERS)
+  // IMPORTANT: This is where we can add any customizations specific to WLL data
+  // that we have retrieved from WHScan API
+  const parseLLTx = useCallback(
+    (tx: WormholeScanTransaction) => {
+      return parseSingleTx(tx);
+    },
+    [parseSingleTx],
+  );
+
   const PARSERS = useMemo(
     () => ({
       PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
@@ -320,8 +335,10 @@ const useTransactionHistoryWHScan = (
       CCTP_WORMHOLE_INTEGRATION: parseCCTPTx,
       ETH_BRIDGE: parsePorticoTx,
       USDT_BRIDGE: parsePorticoTx,
+      FAST_TRANSFERS: parseLLTx,
+      WORMHOLE_LIQUIDITY_LAYER: parseLLTx,
     }),
-    [parseCCTPTx, parseNTTTx, parsePorticoTx, parseTokenBridgeTx],
+    [parseCCTPTx, parseNTTTx, parsePorticoTx, parseTokenBridgeTx, parseLLTx],
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
