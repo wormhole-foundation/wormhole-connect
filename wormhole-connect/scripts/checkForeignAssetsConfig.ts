@@ -74,7 +74,12 @@ const checkEnvConfig = async (
         return (async () => {
           const chain = unTypedChain as Chain;
           const context = wh.getChain(chain);
-          const tb = await context.getTokenBridge();
+          const tb = await context.getTokenBridge().catch((_) => undefined);
+          if (!tb) {
+            // Some chains don't have token bridge deployed
+            console.log(`No token bridge for ${chain}`);
+            return;
+          }
 
           const configForeignAddress =
             wrappedTokens[tokenId.chain]?.[tokenId.address]?.[chain];
