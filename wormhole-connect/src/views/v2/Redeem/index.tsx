@@ -737,6 +737,7 @@ const Redeem = () => {
     }
 
     const route = routeContext.route!;
+    const destChain = toChain === 'Hyperliquid' ? 'Arbitrum' : toChain;
 
     try {
       if (
@@ -744,7 +745,7 @@ const Redeem = () => {
         typeof chainConfig.chainId === 'number'
       ) {
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
-        await registerWalletSigner(toChain, TransferWallet.RECEIVING);
+        await registerWalletSigner(destChain, TransferWallet.RECEIVING);
       }
 
       if (!routes.isManual(route) && !routes.isFinalizable(route)) {
@@ -752,7 +753,7 @@ const Redeem = () => {
       }
 
       const signer = await SDKv2Signer.fromChain(
-        toChain,
+        destChain,
         receivingWallet.address,
         {},
         TransferWallet.RECEIVING,

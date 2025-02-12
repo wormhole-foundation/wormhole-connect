@@ -138,10 +138,12 @@ export class HyperliquidRoute<N extends Network>
       ...request,
       /* @ts-ignore */
       toChain: this.wh.getChain('Arbitrum'),
-      options: { ...params.options, gasDrop },
     };
 
-    const quoteResult = await this.mayanRoute.quote(firstHop, params);
+    const quoteResult = await this.mayanRoute.quote(firstHop, {
+      ...params,
+      options: { ...params.options, gasDrop },
+    });
     const minRequiredOut = amount.whole(MIN_AMOUNT_REQUIRED);
     if (
       quoteResult.success &&
