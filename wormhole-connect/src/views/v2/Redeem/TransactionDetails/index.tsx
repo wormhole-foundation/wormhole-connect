@@ -269,10 +269,14 @@ const TransactionDetails = () => {
       return <></>;
     }
 
+    const destChainSdkName =
+      destChainConfig.sdkName === 'Hyperliquid'
+        ? 'Arbitrum'
+        : destChainConfig.sdkName;
     const gasTokenPrice = calculateUSDPrice(
       getTokenPrice,
       receiveNativeAmount,
-      config.tokens.getGasToken(destChainConfig.sdkName),
+      config.tokens.getGasToken(destChainSdkName),
     );
 
     return (
