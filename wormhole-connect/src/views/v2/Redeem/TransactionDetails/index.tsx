@@ -316,7 +316,7 @@ const TransactionDetails = () => {
     // 2- After MayanSwap is completed and user approves the amount into Hyperliquid, then we show Hyperliquid explorer link.
     if (isTxCompleted && isHyperliquid) {
       name = 'Hyperliquid Explorer';
-      url = `https://app.hyperliquid.xyz/explorer/address/${sender}`;
+      url = `https://app.hyperliquid.xyz/explorer/address/${recipient}`;
     }
 
     return (
@@ -339,10 +339,10 @@ const TransactionDetails = () => {
   }, [
     isHyperliquid,
     isTxCompleted,
+    recipient,
     routeContext.route,
     routeName,
     sendTx,
-    sender,
     theme.palette.text.primary,
   ]);
 

@@ -135,7 +135,10 @@ const SingleRoute = (props: Props) => {
   }, [getTokenPrice, quote?.relayFee]);
 
   const relayerFee = useMemo(() => {
-    if (!routeConfig.AUTOMATIC_DEPOSIT) {
+    // Display the message to pay gas on the destination chain for manual routes
+    // Hyperliquid is technically a manual route, but we don't need to show the message
+    // since a default amount of gas is already topped up in the transaction.
+    if (!routeConfig.AUTOMATIC_DEPOSIT && !isHyperliquid) {
       return <>You pay gas on {destChain}</>;
     }
 
