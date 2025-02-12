@@ -193,7 +193,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         background: customTheme.input,
         border: customTheme.secondary || theme.secondary.main,
       };
-      console.log(theme.input);
     }
     if (customTheme.primary) {
       theme.primary = {
@@ -235,8 +234,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
       hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
     };
-
-    console.log(theme.button);
   }
 
   return createTheme({
