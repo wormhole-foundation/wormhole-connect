@@ -43,8 +43,6 @@
     "@wormhole-foundation/sdk-definitions": "1.6.1-beta.3",
     "@wormhole-foundation/sdk-definitions-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-evm-ntt": "^0.6.1",
-    "react": "^19",
-    "react-dom": "^19",
     "@wormhole-foundation/sdk-icons": "^1.0.0",
     "@wormhole-foundation/sdk-route-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-solana-ntt": "^0.6.1",
@@ -120,6 +118,8 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
     "prettier": "^2.8.8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "ts-unused-exports": "^10.1.0",
     "typescript": "^5.3.3",
     "vite": "^5.3.1",
@@ -129,8 +129,8 @@
     "webpack-bundle-analyzer": "^4.9.1"
   },
   "peerDependencies": {
-    "react": "^19",
-    "react-dom": "^19"
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
@@ -206,32 +206,32 @@
       "vue-tsc": "2.0.0"
     },
     "@solana/wallet-adapter-base": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     },
     "@keystonehq/sdk": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     },
     "@fractalwagmi/solana-wallet-adapter": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     },
     "@binance/w3w-qrcode-modal": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     },
     "@apollo/client": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     },
     "@web3modal/core": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     },
     "react-infinite-scroller": {
-      "react": "^19",
-      "react-dom": "^19"
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     }
   }
 }
