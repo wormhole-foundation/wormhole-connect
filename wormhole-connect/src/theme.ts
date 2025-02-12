@@ -37,7 +37,6 @@ export type InternalTheme = {
   background: {
     default: string;
   };
-  appBackground: string;
   text: {
     primary: string;
     secondary: string;
@@ -85,7 +84,6 @@ export const light: InternalTheme = {
   background: {
     default: 'transparent',
   },
-  appBackground: '#ffffff',
   text: {
     primary: grey[900],
     secondary: '#7d7d7d',
@@ -136,7 +134,6 @@ export const dark: InternalTheme = {
   background: {
     default: 'transparent',
   },
-  appBackground: '#000000',
   text: {
     primary: '#ffffff',
     secondary: '#79859e',
@@ -223,9 +220,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       theme.success = {
         main: customTheme.success,
       };
-    }
-    if (customTheme.background) {
-      theme.appBackground = customTheme.background;
     }
 
     const primary = customTheme.primary || theme.primary.main;
