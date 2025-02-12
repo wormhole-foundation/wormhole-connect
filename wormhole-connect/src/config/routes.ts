@@ -135,4 +135,12 @@ export const RoutesConfig: Record<string, RouteData> = {
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  M0AutomaticRoute: {
+    name: 'M0AutomaticRoute',
+    displayName: 'M^0',
+    providedBy: 'M^0',
+    link: 'https://m0.org/',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
 };
