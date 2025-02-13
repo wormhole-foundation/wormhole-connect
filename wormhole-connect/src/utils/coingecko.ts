@@ -45,16 +45,16 @@ const coingeckoRequest = async (
 ): Promise<Response> => {
   const headers = new Headers({
     'Content-Type': 'application/json',
-    ...(config.coinGeckoApiKey
-      ? { 'x-cg-pro-api-key': config.coinGeckoApiKey }
+    ...(config.coingecko?.apiKey
+      ? { 'x-cg-pro-api-key': config.coingecko.apiKey }
       : {}),
   });
 
-  const hostname = config.coinGeckoCustomUrl
-  ? config.coinGeckoCustomUrl
-  : config.coinGeckoApiKey
-  ? COINGECKO_URL_PRO
-  : COINGECKO_URL;
+  const hostname = config.coingecko?.customUrl
+    ? config.coingecko.customUrl
+    : config.coingecko?.apiKey
+    ? COINGECKO_URL_PRO
+    : COINGECKO_URL;
 
   return fetch(`${hostname}${path}`, {
     signal: params?.abort?.signal,

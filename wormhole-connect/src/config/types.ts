@@ -94,8 +94,10 @@ export interface WormholeConnectConfig {
 
   // External resources
   rpcs?: ChainResourceMap;
-  coinGeckoApiKey?: string;
-  coinGeckoCustomUrl?: string;
+  coingecko?: {
+    apiKey?: string;
+    customUrl?: string;
+  };
 
   // White lists
   chains?: Chain[];
@@ -138,8 +140,10 @@ export interface InternalConfig<N extends Network> {
   mayanApi: string;
   wormholeApi: string;
   wormholeRpcHosts: string[];
-  coinGeckoApiKey?: string;
-  coinGeckoCustomUrl?: string;
+  coingecko?: {
+    apiKey?: string;
+    customUrl?: string;
+  };
 
   tokens: TokenCache;
   tokenWhitelist?: (string | TokenTuple)[];
