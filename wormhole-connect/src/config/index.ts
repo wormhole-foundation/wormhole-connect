@@ -120,6 +120,7 @@ export function buildConfig(
       Devnet: ['http://localhost:7071'],
     }[network],
     coinGeckoApiKey: customConfig.coinGeckoApiKey,
+    coinGeckoCustomUrl: customConfig.coinGeckoCustomUrl,
 
     // Callbacks
     triggerEvent: wrapEventHandler(customConfig.eventHandler),

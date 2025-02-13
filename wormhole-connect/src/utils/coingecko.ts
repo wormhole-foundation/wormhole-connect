@@ -50,7 +50,11 @@ const coingeckoRequest = async (
       : {}),
   });
 
-  const hostname = config.coinGeckoApiKey ? COINGECKO_URL_PRO : COINGECKO_URL;
+  const hostname = config.coinGeckoCustomUrl
+  ? config.coinGeckoCustomUrl
+  : config.coinGeckoApiKey
+  ? COINGECKO_URL_PRO
+  : COINGECKO_URL;
 
   return fetch(`${hostname}${path}`, {
     signal: params?.abort?.signal,

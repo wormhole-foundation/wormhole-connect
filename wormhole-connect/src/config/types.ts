@@ -95,6 +95,7 @@ export interface WormholeConnectConfig {
   // External resources
   rpcs?: ChainResourceMap;
   coinGeckoApiKey?: string;
+  coinGeckoCustomUrl?: string;
 
   // White lists
   chains?: Chain[];
@@ -138,6 +139,7 @@ export interface InternalConfig<N extends Network> {
   wormholeApi: string;
   wormholeRpcHosts: string[];
   coinGeckoApiKey?: string;
+  coinGeckoCustomUrl?: string;
 
   tokens: TokenCache;
   tokenWhitelist?: (string | TokenTuple)[];
