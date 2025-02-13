@@ -1,5 +1,6 @@
 // This code was written by Claude <3
 
+// Mixes two hsl colors using a ratio
 export function mixHsl(
   hsl1: [number, number, number],
   hsl2: [number, number, number],
@@ -12,6 +13,7 @@ export function mixHsl(
   ];
 }
 
+// Mixes two rgb colors using a ratio
 export function mixRgb(
   rgb1: [number, number, number],
   rgb2: [number, number, number],
@@ -23,6 +25,7 @@ export function mixRgb(
   return hslToRgb(hsl[0], hsl[1], hsl[2]);
 }
 
+// Mixes two hex colors using a ratio
 export function mixHex(color1: string, color2: string, ratio: number): string {
   const rgb1 = hexToHsl(color1);
   const rgb2 = hexToHsl(color2);
@@ -123,12 +126,7 @@ export function hslToHex(h: number, s: number, l: number): string {
   return rgbToHex(r, g, b);
 }
 
-export function lighten(color: string, background: string, amount: number) {
-  const [h, s] = hexToHsl(color);
-  const [, , l] = hexToHsl(background);
-  return hslToHex(h, s, l > 0.5 ? l - amount : l + amount);
-}
-
+// Changes the opacity of a hex color code, returns rgba() format
 export function opacify(color: string, opacity: number) {
   const [r, g, b] = hexToRgb(color);
   return `rgba(${r},${g},${b},${opacity})`;
