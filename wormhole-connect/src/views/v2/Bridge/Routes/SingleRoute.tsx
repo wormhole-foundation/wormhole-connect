@@ -16,7 +16,6 @@ import ErrorIcon from 'icons/Error';
 import WarningIcon from 'icons/Warning';
 import TokenIcon from 'icons/TokenIcons';
 import {
-  isEmptyObject,
   calculateUSDPrice,
   calculateUSDPriceRaw,
   getUSDFormat,
@@ -24,7 +23,6 @@ import {
   formatDuration,
 } from 'utils';
 
-import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
 import FastestRoute from 'icons/FastestRoute';
 import CheapestRoute from 'icons/CheapestRoute';
@@ -86,7 +84,7 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 type Props = {
-  route: RouteData;
+  route: string;
   isSelected: boolean;
   error?: string;
   destinationGasDrop?: amount.Amount;
@@ -100,7 +98,7 @@ type Props = {
 const SingleRoute = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
-  const routeConfig = config.routes.get(props.route.name);
+  const routeConfig = config.routes.get(props.route);
 
   const { toChain: destChain, fromChain: sourceChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -108,7 +106,6 @@ const SingleRoute = (props: Props) => {
 
   const { getTokenPrice, isFetchingTokenPrices } = useTokens();
 
-  const { name } = props.route;
   const { quote } = props;
 
   const { sourceToken, destToken } = useGetTokens();
@@ -150,7 +147,7 @@ const SingleRoute = (props: Props) => {
 
     // Wesley made me do it
     // Them PMs :-/
-    if (props.route.name.startsWith('MayanSwap')) {
+    if (props.route.startsWith('MayanSwap')) {
       feeValue = feePriceFormatted;
     }
 
@@ -178,7 +175,7 @@ const SingleRoute = (props: Props) => {
     destChain,
     feePrice,
     feeToken,
-    props.route.name,
+    props.route,
     quote,
     routeConfig.AUTOMATIC_DEPOSIT,
     theme.palette.text.primary,
@@ -434,27 +431,23 @@ const SingleRoute = (props: Props) => {
       return '';
     }
 
-    const { providedBy, name } = props.route;
-
     let provider = '';
 
     // Special case for Lido NTT
     if (
-      name === 'AutomaticNtt' &&
+      props.route === 'AutomaticNtt' &&
       sourceToken &&
       sourceToken.symbol === 'wstETH' &&
       ((sourceChain === 'Ethereum' && destChain === 'Bsc') ||
         (sourceChain === 'Bsc' && destChain === 'Ethereum'))
     ) {
       provider = 'via NTT: Wormhole + Axelar';
-    }
-    // We are skipping the provider text (e.g. "via ...") for xLabs
-    else if (providedBy && !providedBy.toLowerCase().includes('xlabs')) {
-      provider = `via ${props.route.providedBy}`;
+    } else {
+      provider = routeConfig.rc.meta.provider || '';
     }
 
     return provider;
-  }, [props.route, sourceChain, sourceToken, destChain]);
+  }, [props.route, routeConfig, sourceChain, sourceToken, destChain]);
 
   const receiveAmount = useMemo(() => {
     return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
@@ -570,12 +563,12 @@ const SingleRoute = (props: Props) => {
     classes.cheapestBadge,
   ]);
 
-  if (isEmptyObject(props.route)) {
+  if (!props.route) {
     return <></>;
   }
 
   return (
-    <div key={name} className={classes.container}>
+    <div key={props.route} className={classes.container}>
       <Card
         className={classes.card}
         sx={{
@@ -593,7 +586,7 @@ const SingleRoute = (props: Props) => {
           disableTouchRipple
           sx={{ cursor }}
           onClick={() => {
-            props.onSelect?.(props.route.name);
+            props.onSelect?.(props.route);
           }}
         >
           <CardHeader

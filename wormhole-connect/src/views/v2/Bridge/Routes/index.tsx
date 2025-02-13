@@ -4,7 +4,6 @@ import Link from '@mui/material/Link';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-import { RoutesConfig } from 'config/routes';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import { routes } from '@wormhole-foundation/sdk';
@@ -119,8 +118,7 @@ const Routes = ({ ...props }: Props) => {
         <Skeleton variant="rounded" height={153} width="100%" />
       ) : (
         renderRoutes.map((name, index) => {
-          const routeConfig = RoutesConfig[name];
-          const isSelected = routeConfig.name === props.selectedRoute;
+          const isSelected = name === props.selectedRoute;
           const quoteResult = props.quotes[name];
           const quote = quoteResult?.success ? quoteResult : undefined;
           // Default message added as precaution, as 'Error' type cannot be trusted
@@ -132,7 +130,7 @@ const Routes = ({ ...props }: Props) => {
           return (
             <SingleRoute
               key={name}
-              route={routeConfig}
+              route={name}
               error={quoteError}
               isSelected={isSelected && !quoteError}
               isFastest={name === fastestRoute.name}

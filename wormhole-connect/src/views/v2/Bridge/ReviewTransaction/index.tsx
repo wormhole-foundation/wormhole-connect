@@ -14,7 +14,6 @@ import { Context } from 'sdklegacy';
 import Button from 'components/v2/Button';
 import config from 'config';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
-import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
 import { useGasSlider } from 'hooks/useGasSlider';
 import {
@@ -393,7 +392,7 @@ const ReviewTransaction = (props: Props) => {
         </IconButton>
       </div>
       <SingleRoute
-        route={RoutesConfig[route]}
+        route={route}
         isSelected={false}
         destinationGasDrop={receiveNativeAmount}
         quote={quote}
