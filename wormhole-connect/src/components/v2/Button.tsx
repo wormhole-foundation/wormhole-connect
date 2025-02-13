@@ -2,16 +2,32 @@ import React, { forwardRef } from 'react';
 import { styled } from '@mui/material';
 import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
-const PrimaryButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-
-  '&:disabled': {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    opacity: 0.4,
-  },
-}));
+const PrimaryButton = styled(MUIButton)<ButtonProps>(
+  ({ theme }: { theme: any }) => ({
+    padding: '8px 16px',
+    borderRadius: '8px',
+    height: '48px',
+    margin: 'auto',
+    maxWidth: '420px',
+    width: '100%',
+    boxShadow: 'none',
+    backgroundColor: theme.palette.button.primary,
+    color: theme.palette.button.primaryText,
+    '&:disabled': {
+      backgroundColor: theme.palette.button.disabled,
+      color: theme.palette.button.disabledText,
+    },
+    '&:hover': {
+      boxShadow: 'none',
+      backgroundColor: theme.palette.button.hover,
+    },
+    '&:active': {
+      boxShadow: 'none',
+      backgroundColor: theme.palette.button.action,
+      color: theme.palette.button.actionText,
+    },
+  }),
+);
 
 const ErrorButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
   backgroundColor: theme.palette.error.main,

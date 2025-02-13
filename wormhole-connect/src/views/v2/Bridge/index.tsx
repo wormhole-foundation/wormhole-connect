@@ -82,30 +82,6 @@ const useStyles = makeStyles()((theme: any) => ({
     alignItems: 'center',
     width: '100%',
   },
-  reviewTransaction: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    height: '48px',
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-    boxShadow: 'none',
-    backgroundColor: theme.palette.button.primary,
-    color: theme.palette.button.primaryText,
-    '&:disabled': {
-      backgroundColor: theme.palette.button.disabled,
-      color: theme.palette.button.disabledText,
-    },
-    '&:hover': {
-      boxShadow: 'none',
-      backgroundColor: theme.palette.button.hover,
-    },
-    '&:active': {
-      boxShadow: 'none',
-      backgroundColor: theme.palette.button.action,
-      color: theme.palette.button.actionText,
-    },
-  },
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -463,7 +439,6 @@ const Bridge = () => {
   const reviewTransactionButton = (
     <Button
       variant="primary"
-      className={classes.reviewTransaction}
       disabled={reviewTransactionDisabled}
       onMouseDown={() => {
         dispatch(setTransferRoute(selectedRoute));
