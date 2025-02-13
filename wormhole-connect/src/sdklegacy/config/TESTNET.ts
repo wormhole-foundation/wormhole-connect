@@ -6,109 +6,96 @@ const TESTNET: { [chain in Chain]?: ChainConfig } = {
     key: 'Solana',
     id: 1,
     context: Context.SOLANA,
-    finalityThreshold: 32,
   },
   Bsc: {
     key: 'Bsc',
     id: 4,
     context: Context.ETH,
-    finalityThreshold: 3,
   },
   Avalanche: {
     key: 'Avalanche',
     id: 6,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Fantom: {
     key: 'Fantom',
     id: 10,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Celo: {
     key: 'Celo',
     id: 14,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Moonbeam: {
     key: 'Moonbeam',
     id: 16,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Sui: {
     key: 'Sui',
     id: 21,
     context: Context.SUI,
-    finalityThreshold: 0,
   },
   Aptos: {
     key: 'Aptos',
     id: 22,
     context: Context.APTOS,
-    finalityThreshold: 0,
   },
   Klaytn: {
     key: 'Klaytn',
     id: 13,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Scroll: {
     key: 'Scroll',
     id: 34,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Blast: {
     key: 'Blast',
     id: 36,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Xlayer: {
     key: 'Xlayer',
     id: 37,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Sepolia: {
     key: 'Sepolia',
     id: 10002,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   ArbitrumSepolia: {
     key: 'ArbitrumSepolia',
     id: 10003,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   BaseSepolia: {
     key: 'BaseSepolia',
     id: 10004,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   OptimismSepolia: {
     key: 'OptimismSepolia',
     id: 10005,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Mantle: {
     key: 'Mantle',
     id: 35,
     context: Context.ETH,
-    finalityThreshold: 0,
+  },
+  Unichain: {
+    key: 'Unichain',
+    id: 44,
+    context: Context.ETH,
   },
   Worldchain: {
     key: 'Worldchain',
     id: 45,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
 } as const;
 
@@ -143,17 +130,9 @@ const TESTNET_CONFIG: WormholeConfig = {
     Xlayer: 'https://testrpc.xlayer.tech',
     Mantle: 'https://rpc.sepolia.mantle.xyz',
     Worldchain: 'https://worldchain-sepolia.g.alchemy.com/public',
-  },
-  rest: {
-    Sei: 'https://rest.atlantic-2.seinetwork.io',
-    Evmos: 'https://evmos-testnet-api.polkachu.com',
-    Injective: 'https://injective-testnet-api.polkachu.com',
-  },
-  graphql: {
-    Aptos: 'https://indexer-testnet.staging.gcp.aptosdev.com/v1/graphql',
+    Unichain: 'https://sepolia.unichain.org',
   },
   chains: TESTNET,
-  wormholeHosts: ['https://wormhole-v2-testnet-api.certus.one'],
 };
 
 export default TESTNET_CONFIG;

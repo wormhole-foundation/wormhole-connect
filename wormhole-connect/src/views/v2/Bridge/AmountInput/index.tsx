@@ -25,7 +25,9 @@ import AlertBannerV2 from 'components/v2/AlertBanner';
 import { setAmount } from 'store/transferInput';
 import { Token } from 'config/tokens';
 import type { RootState } from 'store';
+import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
+import { useTokens } from 'contexts/TokensContext';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -33,14 +35,19 @@ const DebouncedTextField = memo(
   ({
     value,
     onChange,
+    onDebouncedChange,
     ...props
-  }: Omit<ComponentProps<typeof TextField>, 'onChange' | 'value'> & {
+  }: Omit<ComponentProps<typeof TextField>, 'value' | 'onChange'> & {
     value: string;
     onChange: (event: string) => void;
+    onDebouncedChange: (event: string) => void;
   }) => {
     const [innerValue, setInnerValue] = useState<string>(value);
     const [isFocused, setIsFocused] = useState(false);
-    const deferredOnChange = useDebouncedCallback(onChange, INPUT_DEBOUNCE);
+    const deferredOnChange = useDebouncedCallback(
+      onDebouncedChange,
+      INPUT_DEBOUNCE,
+    );
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e) => {
@@ -55,9 +62,10 @@ const DebouncedTextField = memo(
         }
 
         setInnerValue(e.target.value);
+        onChange(e.target.value); // callback with no delay
         deferredOnChange(e.target.value);
       },
-      [],
+      [deferredOnChange, onChange],
     );
 
     // Propagate any outside changes to the inner TextField value
@@ -94,6 +102,11 @@ const useStyles = makeStyles()((theme) => ({
   amountCardContent: {
     display: 'flex',
     alignItems: 'center',
+    height: '72px',
+    padding: '12px 20px',
+    ':last-child': {
+      padding: '12px 20px',
+    },
   },
   amountTitle: {
     color: theme.palette.text.secondary,
@@ -107,6 +120,9 @@ const useStyles = makeStyles()((theme) => ({
   },
   balance: {
     color: theme.palette.text.secondary,
+    fontSize: '14px',
+    lineHeight: '14px',
+    textAlign: 'right',
   },
 }));
 
@@ -135,14 +151,20 @@ const AmountInput = (props: Props) => {
   const [amountInput, setAmountInput] = useState(
     amount ? sdkAmount.display(amount) : '',
   );
+  const [debouncedAmountInput, setDebouncedAmountInput] = useState(
+    amount ? sdkAmount.display(amount) : '',
+  );
 
   const { sourceToken } = useGetTokens();
+
+  const { getTokenPrice } = useTokens();
 
   // Clear the amount input value if the amount is reset outside of this component
   // This can happen if user swaps selected source and destination assets.
   useEffect(() => {
-    if (!amount && amountInput) {
-      setAmountInput('');
+    if (!amount && (amountInput || debouncedAmountInput)) {
+      handleChange('');
+      handleDebouncedChange('');
     }
     // We should run this sife-effect only when the amount changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,10 +183,9 @@ const AmountInput = (props: Props) => {
     return (
       <Stack direction="row" alignItems="center">
         <Typography
-          fontSize={14}
-          textAlign="right"
-          sx={{ marginRight: '4px' }}
           className={classes.balance}
+          component="span"
+          sx={{ marginRight: '4px' }}
         >
           Balance:
         </Typography>
@@ -183,12 +204,59 @@ const AmountInput = (props: Props) => {
         )}
       </Stack>
     );
-  }, [isInputDisabled, props.tokenBalance, sendingWallet.address]);
+  }, [
+    classes.balance,
+    isInputDisabled,
+    props.isFetchingTokenBalance,
+    props.tokenBalance,
+    sendingWallet.address,
+  ]);
 
   const handleChange = useCallback((newValue: string): void => {
-    dispatch(setAmount(newValue));
     setAmountInput(newValue);
   }, []);
+
+  const tokenPriceAdornment = useMemo(() => {
+    const price = calculateUSDPrice(
+      getTokenPrice,
+      Number(amountInput === '.' ? '0.' : amountInput),
+      sourceToken,
+    );
+
+    if (!price) {
+      return null;
+    }
+
+    return (
+      <InputAdornment
+        position="end"
+        sx={{
+          position: 'absolute',
+          top: '38px',
+          margin: 0,
+        }}
+      >
+        <Stack alignItems="start">
+          <Typography
+            color={theme.palette.text.secondary}
+            component="span"
+            fontSize="14px"
+            lineHeight="14px"
+          >
+            {price}
+          </Typography>
+        </Stack>
+      </InputAdornment>
+    );
+  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
+
+  const handleDebouncedChange = useCallback(
+    (newValue: string): void => {
+      dispatch(setAmount(newValue));
+      setDebouncedAmountInput(newValue);
+    },
+    [dispatch],
+  );
 
   const maxButton = useMemo(() => {
     const maxButtonDisabled =
@@ -199,7 +267,9 @@ const AmountInput = (props: Props) => {
         disabled={maxButtonDisabled}
         onClick={() => {
           if (props.tokenBalance) {
-            handleChange(sdkAmount.display(props.tokenBalance));
+            const tokenBalance = sdkAmount.display(props.tokenBalance);
+            handleChange(tokenBalance);
+            handleDebouncedChange(tokenBalance);
           }
         }}
       >
@@ -212,7 +282,13 @@ const AmountInput = (props: Props) => {
         </Typography>
       </Button>
     );
-  }, [handleChange, isInputDisabled, sendingWallet.address, props.tokenBalance]);
+  }, [
+    isInputDisabled,
+    sendingWallet.address,
+    props.tokenBalance,
+    handleChange,
+    handleDebouncedChange,
+  ]);
 
   return (
     <div className={classes.amountContainer}>
@@ -220,10 +296,7 @@ const AmountInput = (props: Props) => {
         <Typography variant="body2">Amount</Typography>
       </div>
       <Card className={classes.amountCard} variant="elevation">
-        <CardContent
-          className={classes.amountCardContent}
-          style={{ paddingBottom: '16px' }}
-        >
+        <CardContent className={classes.amountCardContent}>
           <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}
@@ -233,8 +306,9 @@ const AmountInput = (props: Props) => {
                   ? theme.palette.error.main
                   : theme.palette.text.primary,
                 fontSize: 24,
-                height: '40px',
-                padding: '4px',
+                height: '28px',
+                marginBottom: tokenPriceAdornment ? '16px' : 0, // make sure there is enough space for token price
+                padding: 0,
               },
               onWheel: (e) => {
                 // IMPORTANT: We need to prevent the scroll behavior on number inputs.
@@ -246,13 +320,15 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={amountInput}
+            value={debouncedAmountInput}
             onChange={handleChange}
+            onDebouncedChange={handleDebouncedChange}
             InputProps={{
               disableUnderline: true,
+              startAdornment: tokenPriceAdornment,
               endAdornment: (
                 <InputAdornment position="end">
-                  <Stack alignItems="end">
+                  <Stack alignItems="end" justifyContent="space-between">
                     {maxButton}
                     {balance}
                   </Stack>

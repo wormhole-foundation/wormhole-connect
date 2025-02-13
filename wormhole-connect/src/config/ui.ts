@@ -20,13 +20,16 @@ export type UiConfig = {
 
   // Shows in-progress widgets
   showInProgressWidget?: boolean;
+
+  // Set to true to disable the ability to paste in a token address
+  disableUserInputtedTokens?: boolean;
 };
 
 export interface DefaultInputs {
   fromChain?: Chain;
   toChain?: Chain;
-  tokenKey?: string;
-  toTokenKey?: string;
+  fromToken?: string; // Address or symbol
+  toToken?: string; // Address or symbol
   requiredChain?: Chain;
   preferredRouteName?: string;
 }

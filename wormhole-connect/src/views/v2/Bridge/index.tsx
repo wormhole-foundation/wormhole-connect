@@ -44,6 +44,7 @@ import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import type { Chain } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { useAmountValidation } from 'hooks/useAmountValidation';
+import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { Token } from 'config/tokens';
@@ -411,13 +412,23 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
+  const { isCompatible: isWalletCompatible, warning: walletWarning } =
+    useWalletCompatibility({
+      sendingWallet,
+      receivingWallet,
+      sourceChain,
+      destChain,
+      routes: sortedRoutes,
+    });
+
   const hasError = !!amountValidation.error;
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
 
   const hasConnectedWallets = sendingWallet.address && receivingWallet.address;
 
-  const showRoutes = hasConnectedWallets && hasEnteredAmount && !hasError;
+  const showRoutes =
+    hasConnectedWallets && isWalletCompatible && hasEnteredAmount && !hasError;
 
   const reviewTransactionDisabled =
     !sourceChain ||
@@ -425,6 +436,7 @@ const Bridge = () => {
     !destChain ||
     !destToken ||
     !hasConnectedWallets ||
+    !isWalletCompatible ||
     !selectedRoute ||
     !isValid ||
     isFetchingQuotes ||
@@ -484,7 +496,7 @@ const Bridge = () => {
         tokenBalance={sourceToken ? balances[sourceToken.key]?.balance : null}
         isFetchingTokenBalance={isFetchingBalances}
         error={amountValidation.error}
-        warning={amountValidation.warning}
+        warning={amountValidation.warning || walletWarning}
       />
       {showRoutes && (
         <Routes

@@ -106,7 +106,7 @@ const GasSlider = (props: {
 
   useEffect(() => {
     dispatch(setToNativeToken(debouncedPercentage / 100));
-  }, [debouncedPercentage]);
+  }, [debouncedPercentage, dispatch]);
 
   const nativeGasPrice = useMemo(() => {
     if (!destChain || !nativeGasToken) {

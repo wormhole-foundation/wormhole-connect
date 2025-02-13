@@ -1,6 +1,7 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import type { Network as AptosNetwork } from '@aptos-labs/wallet-adapter-core';
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
+import { Aptos } from '@aptos-labs/ts-sdk';
 
 import { Network } from '@wormhole-foundation/sdk';
 import {
@@ -8,8 +9,7 @@ import {
   AptosChains,
 } from '@wormhole-foundation/sdk-aptos';
 
-import config from 'config';
-import { InputEntryFunctionData } from '@aptos-labs/ts-sdk';
+import config, { getWormholeContextV2 } from 'config';
 
 export function fetchOptions() {
   const aptosWalletConfig = {
@@ -25,25 +25,12 @@ export function fetchOptions() {
   return aptosWallets;
 }
 
-function isInputEntryFunctionData(data: any): data is InputEntryFunctionData {
-  return (
-    data &&
-    typeof data === 'object' &&
-    'function' in data &&
-    'functionArguments' in data
-  );
-}
-
 export async function signAndSendTransaction(
   request: AptosUnsignedTransaction<Network, AptosChains>,
   wallet: Wallet | undefined,
 ) {
   const payload = request.transaction;
-  if (!isInputEntryFunctionData(payload)) {
-    throw new Error('Unsupported transaction type');
-  }
   // The wallets do not handle Uint8Array serialization
-  // const payload = request.transaction as Types.EntryFunctionPayload;
   payload.functionArguments = payload.functionArguments.map((a: any) => {
     if (a instanceof Uint8Array) {
       return Array.from(a);
@@ -54,16 +41,19 @@ export async function signAndSendTransaction(
     }
   });
 
+  const context = await getWormholeContextV2();
+  const aptos = context.getPlatform('Aptos');
+  const rpc = (await aptos.getRpc('Aptos')) as Aptos;
+
   const tx = await (wallet as AptosWallet).signAndSendTransaction({
     data: payload,
+    options: {
+      // this is set to 5 minutes in case the user takes a while to sign the transaction
+      expireTimestamp: Math.floor(Date.now() / 1000) + 60 * 5,
+    },
   });
-  /*
-   * TODO SDKV2
-  const aptosClient = (
-    config.wh.getContext('Aptos') as AptosContext<WormholeContext>
-  ).aptosClient;
-  await aptosClient.waitForTransaction(tx.id);
-  */
+
+  await rpc.waitForTransaction({ transactionHash: tx.id });
 
   return tx;
 }

@@ -2,8 +2,8 @@ import { Chain, isNative, TokenId, Wormhole } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { TokenMapping } from 'config/tokens';
 
-const COINGECKO_URL = 'https://api.coingecko.com/';
-const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
+const COINGECKO_URL = 'https://api.coingecko.com';
+const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com';
 
 const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Solana: 'solana',

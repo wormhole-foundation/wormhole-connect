@@ -2,14 +2,12 @@ import { TokenIcon, TokenConfig } from '../types';
 
 export const TESTNET_TOKENS: TokenConfig[] = [
   {
-    key: 'BNB',
     symbol: 'BNB',
     icon: TokenIcon.BNB,
     decimals: 18,
     tokenId: { chain: 'Bsc', address: 'native' },
   },
   {
-    key: 'WBNB',
     symbol: 'WBNB',
     icon: TokenIcon.BNB,
     decimals: 18,
@@ -19,14 +17,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'AVAX',
     symbol: 'AVAX',
     icon: TokenIcon.AVAX,
     decimals: 18,
     tokenId: { chain: 'Avalanche', address: 'native' },
   },
   {
-    key: 'WAVAX',
     symbol: 'WAVAX',
     icon: TokenIcon.AVAX,
     decimals: 18,
@@ -36,7 +32,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'USDCavax',
     symbol: 'USDC',
     icon: TokenIcon.USDC,
     decimals: 6,
@@ -46,14 +41,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'FTM',
     symbol: 'FTM',
     icon: TokenIcon.FANTOM,
     decimals: 18,
     tokenId: { chain: 'Fantom', address: 'native' },
   },
   {
-    key: 'WFTM',
     symbol: 'WFTM',
     icon: TokenIcon.FANTOM,
     decimals: 18,
@@ -63,7 +56,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'CELO',
     symbol: 'CELO',
     icon: TokenIcon.CELO,
     decimals: 18,
@@ -73,7 +65,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'USDCalfajores',
     symbol: 'USDC.e',
     icon: TokenIcon.USDC,
     decimals: 6,
@@ -83,14 +74,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'GLMR',
     symbol: 'GLMR',
     icon: TokenIcon.GLMR,
     decimals: 18,
     tokenId: { chain: 'Moonbeam', address: 'native' },
   },
   {
-    key: 'WGLMR',
     symbol: 'WGLMR',
     icon: TokenIcon.GLMR,
     decimals: 18,
@@ -100,14 +89,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'SOL',
     symbol: 'SOL',
     icon: TokenIcon.SOLANA,
     decimals: 9,
     tokenId: { chain: 'Solana', address: 'native' },
   },
   {
-    key: 'WSOL',
     symbol: 'WSOL',
     tokenId: {
       chain: 'Solana',
@@ -117,7 +104,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 9,
   },
   {
-    key: 'USDCsol',
     symbol: 'USDC',
     tokenId: {
       chain: 'Solana',
@@ -127,14 +113,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 6,
   },
   {
-    key: 'SUI',
     symbol: 'SUI',
     tokenId: { chain: 'Sui', address: 'native' },
     icon: TokenIcon.SUI,
     decimals: 9,
   },
   {
-    key: 'USDCsui',
     symbol: 'USDC',
     decimals: 6,
     tokenId: {
@@ -145,21 +129,28 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDC,
   },
   {
-    key: 'APT',
     symbol: 'APT',
     tokenId: { chain: 'Aptos', address: 'native' },
     icon: TokenIcon.APT,
     decimals: 8,
   },
   {
-    key: 'KLAY',
+    symbol: 'USDC',
+    decimals: 6,
+    tokenId: {
+      chain: 'Aptos',
+      address:
+        '0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832',
+    },
+    icon: TokenIcon.USDC,
+  },
+  {
     symbol: 'KLAY',
     icon: TokenIcon.KLAY,
     decimals: 18,
     tokenId: { chain: 'Klaytn', address: 'native' },
   },
   {
-    key: 'WKLAY',
     symbol: 'WKLAY',
     name: 'wKLAY',
     icon: TokenIcon.KLAY,
@@ -170,14 +161,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHsepolia',
     symbol: 'ETH',
     icon: TokenIcon.ETH,
     decimals: 18,
     tokenId: { chain: 'Sepolia', address: 'native' },
   },
   {
-    key: 'WETHsepolia',
     symbol: 'WETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -187,7 +176,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'USDCsepolia',
     symbol: 'USDC',
     icon: TokenIcon.USDC,
     decimals: 6,
@@ -197,14 +185,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHarbitrum_sepolia',
     symbol: 'ETH',
     icon: TokenIcon.ETH,
     decimals: 18,
     tokenId: { chain: 'ArbitrumSepolia', address: 'native' },
   },
   {
-    key: 'WETHarbitrum_sepolia',
     symbol: 'WETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -214,14 +200,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHbase_sepolia',
     symbol: 'ETH',
     icon: TokenIcon.ETH,
     decimals: 18,
     tokenId: { chain: 'BaseSepolia', address: 'native' },
   },
   {
-    key: 'WETHbase_sepolia',
     symbol: 'WETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -231,14 +215,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHoptimism_sepolia',
     symbol: 'ETH',
     icon: TokenIcon.ETH,
     decimals: 18,
     tokenId: { chain: 'OptimismSepolia', address: 'native' },
   },
   {
-    key: 'WETHoptimism_sepolia',
     symbol: 'WETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -248,14 +230,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHscroll',
     symbol: 'ETH',
     icon: TokenIcon.SCROLL,
     decimals: 18,
     tokenId: { chain: 'Scroll', address: 'native' },
   },
   {
-    key: 'WETHscroll',
     symbol: 'WETH',
     icon: TokenIcon.SCROLL,
     decimals: 18,
@@ -265,14 +245,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHblast',
     symbol: 'ETH',
     icon: TokenIcon.BLAST,
     decimals: 18,
     tokenId: { chain: 'Blast', address: 'native' },
   },
   {
-    key: 'WETHblast',
     symbol: 'WETH',
     icon: TokenIcon.BLAST,
     decimals: 18,
@@ -282,14 +260,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'OKB',
     symbol: 'OKB',
     icon: TokenIcon.XLAYER,
     decimals: 18,
     tokenId: { chain: 'Xlayer', address: 'native' },
   },
   {
-    key: 'WOKB',
     symbol: 'WOKB',
     icon: TokenIcon.XLAYER,
     decimals: 18,
@@ -299,14 +275,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'MNT',
     symbol: 'MNT',
     icon: TokenIcon.MANTLE,
     decimals: 18,
     tokenId: { chain: 'Mantle', address: 'native' },
   },
   {
-    key: 'WMNT',
     symbol: 'WMNT',
     icon: TokenIcon.MANTLE,
     decimals: 18,
@@ -316,7 +290,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'ETHworldchain',
     symbol: 'ETH',
     tokenId: {
       chain: 'Worldchain',
@@ -326,7 +299,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.WORLDCHAIN,
   },
   {
-    key: 'WETHworldchain',
     symbol: 'WETH',
     tokenId: {
       chain: 'Worldchain',
@@ -334,5 +306,32 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
     decimals: 18,
     icon: TokenIcon.WORLDCHAIN,
+  },
+  {
+    symbol: 'ETH',
+    tokenId: {
+      chain: 'Unichain',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'WETH',
+    tokenId: {
+      chain: 'Unichain',
+      address: '0x4200000000000000000000000000000000000006',
+    },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Unichain',
+      address: '0x31d0220469e10c4E71834a79b1f276d740d3768F',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
   },
 ];

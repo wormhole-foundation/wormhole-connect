@@ -156,9 +156,12 @@ export class TokenMapping<T> {
   // Mapping of Chain -> token address -> T
   _mapping: Map<Chain, Map<string, T>>;
 
+  size: number;
+
   constructor() {
     this.lastUpdate = new Date();
     this._mapping = new Map();
+    this.size = 0;
   }
 
   add(token: TokenId, value: T) {
@@ -168,6 +171,7 @@ export class TokenMapping<T> {
 
     this._mapping.get(token.chain)!.set(token.address.toString(), value);
     this.lastUpdate = new Date();
+    this.size += 1;
   }
 
   // You can get a token either using its string key, TokenId, or with (chain, address)
@@ -233,9 +237,28 @@ export class TokenMapping<T> {
     );
   }
 
+  getAllTokenIds(): TokenId[] {
+    return Array.from(this._mapping.keys()).flatMap((chain) =>
+      Array.from(this._mapping.get(chain)!.keys()).map((address) =>
+        Wormhole.tokenId(chain, address),
+      ),
+    );
+  }
+
+  get chains(): Chain[] {
+    return Array.from(this._mapping.keys());
+  }
+
   // Merge values from another TokenMapping into this one
   merge(other: TokenMapping<T>) {
     other.forEach(this.add);
+  }
+
+  // Removes all records from the TokenMapping
+  clear() {
+    this.lastUpdate = new Date();
+    this._mapping = new Map();
+    this.size = 0;
   }
 
   forEach(callback: (tokenId: TokenId, val: T) => void) {
@@ -246,10 +269,14 @@ export class TokenMapping<T> {
       });
     });
   }
+
+  get empty(): boolean {
+    return this.size === 0;
+  }
 }
 
 export class TokenCache extends TokenMapping<Token> {
-  add(id: TokenId, token: Token) {
+  add(token: Token) {
     if (token.tokenBridgeOriginalTokenId) {
       const original = this.get(token.tokenBridgeOriginalTokenId);
       if (original) {
@@ -258,7 +285,7 @@ export class TokenCache extends TokenMapping<Token> {
         token.symbol = original.symbol;
       }
     }
-    super.add(id, token);
+    super.add(token, token);
   }
 
   // Fetches token metadata (decimals, symbol)
@@ -271,13 +298,36 @@ export class TokenCache extends TokenMapping<Token> {
     return this.get(chain, 'native');
   }
 
+  findByAddressOrSymbol(
+    chain: Chain,
+    addressOrSymbol: string,
+  ): Token | undefined {
+    const byAddress = this.get(chain, addressOrSymbol);
+    if (byAddress) return byAddress;
+
+    const bySymbol = this.findBySymbol(chain, addressOrSymbol);
+    if (bySymbol) return bySymbol;
+
+    return undefined;
+  }
+
   // This should be used sparingly/never... use addresses instead.
+  // Excludes wrapped tokens
   findBySymbol(chain: Chain, symbol: string): Token | undefined {
-    const matching = this.getAllForChain(chain).filter(
+    let matching = this.getAllForChain(chain).filter(
       (t) => t.symbol === symbol,
     );
+
+    if (matching.length > 1) {
+      // Exclude wrapped tokens if there's multiple matches
+      matching = matching.filter((t) => !t.isTokenBridgeWrappedToken);
+    }
+
     if (matching.length === 1) {
       return matching[0];
+    } else if (matching.length > 1) {
+      // This means there's more than one native token (not wrapped) with this symbol
+      console.error(`Ambiguous token symbol: ${symbol}`);
     }
 
     return undefined;
@@ -345,7 +395,7 @@ export class TokenCache extends TokenMapping<Token> {
       tokenBridgeOriginalTokenId,
     );
 
-    this.add(tokenId, t);
+    this.add(t);
 
     return t;
   }
@@ -374,10 +424,9 @@ export class TokenCache extends TokenMapping<Token> {
 
         mapping.setLocalStorageKey(localStorageKey);
 
-        for (const [key, tokenData] of Object.entries(asJson.tokens)) {
-          const tokenId = parseTokenKey(key);
+        for (const [, tokenData] of Object.entries(asJson.tokens)) {
           const token = Token.fromJson(tokenData as TokenJson);
-          mapping.add(tokenId, token);
+          mapping.add(token);
         }
 
         return mapping;
@@ -398,8 +447,10 @@ export function buildTokenCache(
   network: Network,
   tokens: TokenConfig[],
   wrappedTokens: WrappedTokenAddresses,
+  tokenFilter?: string[],
 ): TokenCache {
   const cache = TokenCache.load(`wormhole-connect:token-cache:${network}`);
+
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
     const token = new Token(
       tokenId.chain,
@@ -409,7 +460,7 @@ export function buildTokenCache(
       name,
       icon,
     );
-    cache.add(token, token);
+    cache.add(token);
   }
 
   // Temporary hack... use wrappedTokens to populate the cache with all of the known
@@ -438,14 +489,13 @@ export function buildTokenCache(
             originalToken,
           );
 
-          cache.add(wrappedToken, wrappedToken);
+          cache.add(wrappedToken);
         }
       }
     }
   }
 
   cache.persist();
-
   return cache;
 }
 

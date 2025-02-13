@@ -6,14 +6,16 @@ import { sleep } from 'utils';
 
 import type { AttestationReceipt } from '@wormhole-foundation/sdk';
 
-const TRACK_INTERVAL = 5000;
-const TRACK_INTERVAL_FAST = 1000;
+// We don't start trying to fetch transfer updates until 1 minute from ETA
+const MINIMUM_ETA = 60 * 1000;
+
 const TRACK_TIMEOUT = 120 * 1000;
 
 type Props = {
   route: string | undefined;
   receipt: routes.Receipt<AttestationReceipt> | null;
-  eta?: number;
+  // Timestamp the transfer was estimated to be finished
+  eta?: Date;
 };
 
 type ReturnProps = {
@@ -39,13 +41,6 @@ const useTrackTransfer = (props: Props): ReturnProps => {
   useEffect(() => {
     let isActive = true;
 
-    let sleepTime = TRACK_INTERVAL;
-
-    if (eta && eta < 30_000) {
-      // Poll aggressively for very fast transfers
-      sleepTime = TRACK_INTERVAL_FAST;
-    }
-
     const track = async () => {
       if (!routeName || !receipt) {
         return;
@@ -57,12 +52,23 @@ const useTrackTransfer = (props: Props): ReturnProps => {
         return;
       }
 
+      const millisUntilEta = (eta: Date) =>
+        eta.valueOf() - new Date().valueOf();
+
       const wh = await getWormholeContextV2();
       const sdkRoute = new route.rc(wh);
 
-      let stateChanged = false;
+      while (isActive && !isCompleted(receipt)) {
+        if (eta !== undefined) {
+          // If we have an ETA, and it's longer than 1 minute out, we wait until 1 minute is left
+          // before trying to track the transfer's progress.
+          const msRemaining = millisUntilEta(eta);
 
-      while (isActive && !isCompleted(receipt) && !stateChanged) {
+          if (msRemaining > MINIMUM_ETA) {
+            await sleep(msRemaining - MINIMUM_ETA);
+          }
+        }
+
         try {
           // We need to consume all of the values the track generator yields in case any of them
           // update the receipt state.
@@ -83,7 +89,6 @@ const useTrackTransfer = (props: Props): ReturnProps => {
 
               if (isCompleted(currentReceipt)) {
                 setCompleted(true);
-                stateChanged = true;
                 break;
               }
 
@@ -98,11 +103,19 @@ const useTrackTransfer = (props: Props): ReturnProps => {
           }
         } catch (e) {
           console.error('Error tracking transfer:', e);
-          sleepTime = TRACK_INTERVAL; // Back off if we were polling aggressively
+        }
+
+        let sleepTime = 5_000;
+
+        // For automatic routes which are estimated to be done soon, we re-attempt more frequently
+        if (eta !== undefined && route.AUTOMATIC_DEPOSIT) {
+          const msRemaining = millisUntilEta(eta);
+          if (msRemaining < 10_000) {
+            sleepTime = 1_000;
+          }
         }
 
         // Retry
-        // TODO: exponential backoff depending on the current state?
         await sleep(sleepTime);
       }
     };

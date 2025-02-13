@@ -62,19 +62,27 @@ const checkEnvConfig = async (
 
   for (const { tokenId } of tokensConfig) {
     const nativeChain = wh.getChain(tokenId.chain);
-    const nativeTb = await nativeChain.getTokenBridge();
+    const nativeTb = await nativeChain.getTokenBridge().catch((_) => undefined);
+    if (!nativeTb) continue;
+
     let universalAddress: UniversalAddress | null = null;
     if (tokenId.address !== 'native') {
       universalAddress = await nativeTb.getTokenUniversalAddress(
         toNative(nativeChain.chain, tokenId.address),
       );
     }
+
     await Promise.all(
       Object.keys(chainsConfig).map((unTypedChain) => {
         return (async () => {
           const chain = unTypedChain as Chain;
           const context = wh.getChain(chain);
-          const tb = await context.getTokenBridge();
+          const tb = await context.getTokenBridge().catch((_) => undefined);
+          if (!tb) {
+            // Some chains don't have token bridge deployed
+            console.log(`No token bridge for ${chain}`);
+            return;
+          }
 
           const configForeignAddress =
             wrappedTokens[tokenId.chain]?.[tokenId.address]?.[chain];

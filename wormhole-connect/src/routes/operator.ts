@@ -358,5 +358,8 @@ class QuoteCacheEntry {
 //   ...nttRoutes({ ... }),
 // ]
 export const nttRoutes = (nc: NttRoute.Config): routes.RouteConstructor[] => {
-  return [nttManualRoute(nc), nttAutomaticRoute(nc)];
+  return [
+    nttManualRoute(nc) as routes.RouteConstructor,
+    nttAutomaticRoute(nc) as routes.RouteConstructor,
+  ];
 };

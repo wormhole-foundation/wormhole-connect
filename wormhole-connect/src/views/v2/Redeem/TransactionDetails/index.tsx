@@ -93,10 +93,7 @@ const TransactionDetails = () => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <AssetBadge
-          chainConfig={sourceChainConfig}
-          token={sourceTokenConfig}
-        />
+        <AssetBadge chainConfig={sourceChainConfig} token={sourceTokenConfig} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {formattedAmount} {sourceToken.symbol}
@@ -107,7 +104,7 @@ const TransactionDetails = () => {
             ) : (
               <>
                 {usdAmount}
-                {separator}
+                {usdAmount ? separator : null}
                 {sourceChainConfig.displayName}
                 {separator}
                 {senderAddress}
@@ -118,14 +115,15 @@ const TransactionDetails = () => {
       </Stack>
     );
   }, [
-    amount,
+    sourceToken,
     fromChain,
-    sender,
-    separator,
     token,
+    getTokenPrice,
+    amount,
+    sender,
     theme.palette.text.secondary,
     isFetchingTokenPrices,
-    lastTokenPriceUpdate,
+    separator,
   ]);
 
   // Render details for the received amount
@@ -150,10 +148,7 @@ const TransactionDetails = () => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <AssetBadge
-          chainConfig={destChainConfig}
-          token={destToken}
-        />
+        <AssetBadge chainConfig={destChainConfig} token={destToken} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {formattedReceiveAmount} {destToken!.symbol}
@@ -164,7 +159,7 @@ const TransactionDetails = () => {
             ) : (
               <>
                 {usdAmount}
-                {separator}
+                {usdAmount ? separator : null}
                 {destChainConfig.displayName}
                 {separator}
                 {recipientAddress}
@@ -174,10 +169,13 @@ const TransactionDetails = () => {
         </Stack>
       </Stack>
     );
+    // ESLint complains that lastTokenPriceUpdate is unused/unnecessary here, but that's wrong.
+    // We want to recompute the price after we update conversion rates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    destToken,
+    getTokenPrice,
     receiveAmount,
-
-    receivedToken,
     recipient,
     separator,
     theme.palette.text.secondary,
@@ -238,8 +236,13 @@ const TransactionDetails = () => {
         {isFetchingTokenPrices ? <CircularProgress size={14} /> : feeValue}
       </Stack>
     );
-
-  }, [relayerFee, routeName, theme.palette.text.secondary, isFetchingTokenPrices]);
+  }, [
+    relayerFee,
+    getTokenPrice,
+    routeName,
+    theme.palette.text.secondary,
+    isFetchingTokenPrices,
+  ]);
 
   const destinationGas = useMemo(() => {
     if (
@@ -274,6 +277,9 @@ const TransactionDetails = () => {
         )}
       </Stack>
     );
+    // ESLint complains that lastTokenPriceUpdate is unused/unnecessary here, but that's wrong.
+    // We want to recompute the price after we update conversion rates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     receiveNativeAmount,
     theme.palette.text.secondary,
@@ -281,7 +287,6 @@ const TransactionDetails = () => {
     isFetchingTokenPrices,
     lastTokenPriceUpdate,
   ]);
-
 
   const explorerLink = useMemo(() => {
     // Fallback to routeName if RouteContext value is not available

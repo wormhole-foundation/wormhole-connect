@@ -271,7 +271,7 @@ const useTransactionHistoryWHScan = (
       } = payload;
 
       const nativeToken = config.tokens.get(
-        txData.fromChain,
+        chainIdToChain(tx.content.standarizedProperties.tokenChain) as Chain,
         tx.content.standarizedProperties.tokenAddress,
       );
       if (!nativeToken) return;

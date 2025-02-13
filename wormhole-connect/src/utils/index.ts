@@ -284,12 +284,18 @@ export const isEmptyObject = (value: object | null | undefined) => {
   return true;
 };
 
-export const getExplorerUrl = (chain: Chain, address: string) => {
+export const getTokenExplorerUrl = (chain: Chain, address: string) => {
   const chainConfig = config.chains[chain]!;
   let explorerUrl = '';
 
   if (chain === 'Sui') {
     explorerUrl = `${chainConfig.explorerUrl}coin/${address}`;
+  } else if (chain === 'Aptos') {
+    if (isHexString(address)) {
+      explorerUrl = `${chainConfig.explorerUrl}fungible_asset/${address}`;
+    } else {
+      explorerUrl = `${chainConfig.explorerUrl}coin/${address}`;
+    }
   } else {
     explorerUrl = `${chainConfig.explorerUrl}address/${address}`;
   }

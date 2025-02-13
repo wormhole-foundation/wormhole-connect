@@ -25,6 +25,7 @@ import MANTLE from './Chains/MANTLE';
 import XLAYER from './Chains/XLAYER';
 import OSMO from './Chains/OSMO';
 import WORLD from './Chains/WORLD';
+import UNI from './Chains/UNI';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -63,6 +64,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Mantle: MANTLE(),
   Osmosis: OSMO(),
   Worldchain: WORLD(),
+  Unichain: UNI(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

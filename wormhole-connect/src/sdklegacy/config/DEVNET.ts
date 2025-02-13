@@ -6,26 +6,7 @@ const DEVNET: { [chain in Chain]?: ChainConfig } = {
     key: 'Ethereum',
     id: 2,
     context: Context.ETH,
-    finalityThreshold: 64,
   },
-  //Osmosis: {
-  //  key: 'Osmosis',
-  //  id: 20,
-  //  context: Context.COSMOS,
-  //  finalityThreshold: 0,
-  //},
-  //Wormchain: {
-  //  context: Context.COSMOS,
-  //  key: 'Wormchain',
-  //  id: 3104,
-  //  finalityThreshold: 0,
-  //},
-  //Terra2: {
-  //  context: Context.COSMOS,
-  //  key: 'Terra2',
-  //  id: 18,
-  //  finalityThreshold: 0,
-  //},
 } as const;
 
 /**
@@ -39,10 +20,7 @@ const DEVNET_CONFIG: WormholeConfig = {
     Osmosis: 'http://localhost:33043',
     Terra2: 'http://localhost:26658',
   },
-  rest: {},
-  graphql: {},
   chains: DEVNET,
-  wormholeHosts: ['http://localhost:7071'],
 };
 
 export default DEVNET_CONFIG;

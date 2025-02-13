@@ -29,13 +29,13 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
-    minHeight: '72px',
     borderRadius: '8px',
   },
   cardContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    height: '72px',
     padding: '16px 20px',
     ':last-child': {
       padding: '16px 20px',

@@ -15,6 +15,8 @@ import {
   routes,
 } from '@wormhole-foundation/sdk';
 
+import { PriorityFeeOptions } from '@wormhole-foundation/sdk-solana';
+
 import {
   TransferDetails,
   TriggerEventHandler,
@@ -24,7 +26,7 @@ import {
 import RouteOperator from 'routes/operator';
 import { UiConfig } from './ui';
 import { TransferInfo } from 'utils/sdkv2';
-import { Token, TokenCache } from './tokens';
+import { Token, TokenCache, TokenTuple } from './tokens';
 
 export enum TokenIcon {
   'AVAX' = 1,
@@ -62,6 +64,7 @@ export enum TokenIcon {
   'XLAYER',
   'MANTLE',
   'WORLDCHAIN',
+  'UNICHAIN',
 }
 
 // Used in bridging components
@@ -91,13 +94,11 @@ export interface WormholeConnectConfig {
 
   // External resources
   rpcs?: ChainResourceMap;
-  rest?: ChainResourceMap;
-  graphql?: ChainResourceMap;
   coinGeckoApiKey?: string;
 
   // White lists
   chains?: Chain[];
-  tokens?: string[];
+  tokens?: (string | TokenTuple)[];
   routes?: routes.RouteConstructor<any>[];
 
   // Custom tokens
@@ -113,6 +114,9 @@ export interface WormholeConnectConfig {
 
   // UI details
   ui?: UiConfig;
+
+  // Transaction settings (e.g. priority / gas fees)
+  transactionSettings?: TransactionSettings;
 }
 
 // This is the exported config value used throughout the code base
@@ -130,19 +134,16 @@ export interface InternalConfig<N extends Network> {
 
   // External resources
   rpcs: ChainResourceMap;
-  rest: ChainResourceMap;
-  graphql: ChainResourceMap;
   mayanApi: string;
   wormholeApi: string;
   wormholeRpcHosts: string[];
   coinGeckoApiKey?: string;
 
   tokens: TokenCache;
+  tokenWhitelist?: (string | TokenTuple)[];
 
-  // White lists
   chains: ChainsConfig;
   chainsArr: ChainConfig[];
-  tokensConfig?: TokensConfig;
 
   routes: RouteOperator;
 
@@ -155,10 +156,11 @@ export interface InternalConfig<N extends Network> {
   ui: UiConfig;
 
   guardianSet: GuardianSetData;
+
+  transactionSettings: TransactionSettings;
 }
 
 export type TokenConfig = {
-  key: string;
   symbol: string;
   name?: string;
   decimals: number;
@@ -176,11 +178,9 @@ export interface ChainConfig extends BaseChainConfig {
   displayName: string;
   explorerUrl: string;
   explorerName: string;
-  gasToken: string;
   wrappedGasToken?: string;
   chainId: number | string;
   icon: Chain;
-  maxBlockSearch: number;
   symbol?: string;
 }
 
@@ -200,8 +200,6 @@ export type NetworkData = {
   tokens: TokenConfig[];
   wrappedTokens: WrappedTokenAddresses;
   rpcs: RpcMapping;
-  rest: RpcMapping;
-  graphql: RpcMapping;
   guardianSet: GuardianSetData;
 };
 
@@ -251,4 +249,10 @@ export interface TransactionLocal {
   txHash: string;
   txDetails: TransferInfo;
   isReadyToClaim?: boolean;
+}
+
+export interface TransactionSettings {
+  Solana?: {
+    priorityFee?: PriorityFeeOptions;
+  };
 }

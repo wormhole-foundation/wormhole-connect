@@ -8,7 +8,7 @@ import { amount as sdkAmount, toNative } from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig } from 'config/types';
-import { Token } from 'config/tokens';
+import { isTokenTuple, Token, tokenIdFromTuple } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
@@ -49,6 +49,7 @@ type Props = {
 const TokenList = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
+  const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
 
   const { getOrFetchToken, isFetchingToken, getTokenPrice } = useTokens();
 
@@ -64,22 +65,24 @@ const TokenList = (props: Props) => {
     // When the search query or chain changes, see if the search query is a valid address on the selected chain.
     // If it is, see if we have a token in the token cache for that address.
     // If not, try to find it.
-    try {
-      if (searchQuery !== '') {
-        const chain = props.selectedChainConfig.sdkName;
-        const address = toNative(chain, searchQuery);
+    if (tokenPastingIsEnabled) {
+      try {
+        if (searchQuery !== '') {
+          const chain = props.selectedChainConfig.sdkName;
+          const address = toNative(chain, searchQuery);
 
-        if (address) {
-          const existing = config.tokens.get(chain, searchQuery);
-          if (!existing) {
-            getOrFetchToken({ chain, address });
+          if (address) {
+            const existing = config.tokens.get(chain, searchQuery);
+            if (!existing) {
+              getOrFetchToken({ chain, address });
+            }
           }
         }
+      } catch (_e) {
+        // Failed to parse the search query as an address... this is expected to happen a lot
       }
-    } catch (_e) {
-      // Failed to parse the search query as an address... this is expected to happen a lot
     }
-  }, [searchQuery, props.selectedChainConfig.sdkName]);
+  }, [searchQuery, props.selectedChainConfig.sdkName, getOrFetchToken]);
 
   const sortedTokens = useMemo(() => {
     const nativeToken = config.tokens.getGasToken(
@@ -179,12 +182,73 @@ const TokenList = (props: Props) => {
       });
     }
 
+    if (config.tokenWhitelist && config.tokenWhitelist.length > 0) {
+      // If integrator has specified a token whitelist, the last step is to filter the token list by this whitelist.
+      //
+      // The logic behind how this works is a little complicated. The whitelist is an array of (string | TokenTuple).
+      // The strings can be symbols like "USDC", which lets the integrator easily whitelist tokens across all supported chains.
+      //
+      // The way we handle symbols is that for each chain:
+      // 1. If there is a single native token with that symbol, we simply use that
+      // 2. If there is NO native token with that symbol but there is a wrapped token, we show that.
+      // 3. If there are somehow multiple wrapped tokens with that symbol, which all passed through the isFrankensteinToken check above,
+      //    we include them all but log a warning to the console for the integrator's benefit.
+      //
+      // The integrator can also specify exact tokens using TokenTuples like ["Solana", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"].
+
+      const filteredTokens: Set<string> = new Set();
+      const desiredSymbols: string[] = [];
+
+      for (const item of config.tokenWhitelist) {
+        if (typeof item === 'string') {
+          // Treated as a symbol
+          desiredSymbols.push(item);
+        } else if (isTokenTuple(item)) {
+          const tokenId = tokenIdFromTuple(item);
+          if (tokenId.chain === props.selectedChainConfig.sdkName) {
+            filteredTokens.add(tokenId.address.toString());
+          }
+        }
+      }
+
+      for (const symbol of desiredSymbols) {
+        let foundNative = false;
+        const wrapped: Token[] = [];
+
+        for (const token of tokens) {
+          if (token.symbol === symbol) {
+            if (!token.isTokenBridgeWrappedToken) {
+              filteredTokens.add(token.address.toString());
+              foundNative = true;
+            } else {
+              wrapped.push(token);
+            }
+          }
+        }
+
+        if (!foundNative && wrapped.length > 0) {
+          for (const { address } of wrapped) {
+            filteredTokens.add(address.toString());
+          }
+
+          if (wrapped.length > 1) {
+            console.warn(
+              `Ambigous token whitelist item "${symbol}"; found ${wrapped.length} matching wrapped tokens.`,
+            );
+          }
+        }
+      }
+
+      return tokens.filter(({ address }) =>
+        filteredTokens.has(address.toString()),
+      );
+    }
+
     return tokens;
   }, [
     balances,
     props.tokenList,
     props.selectedChainConfig.key,
-    props.selectedChainConfig.gasToken,
     props.sourceToken,
     props.isSource,
     props.wallet?.address,
@@ -204,9 +268,13 @@ const TokenList = (props: Props) => {
   const shouldShowEmptyMessage =
     sortedTokens.length === 0 && !isFetchingTokenBalances && !props.isFetching;
 
+  const placeholder = `Search for a token${
+    tokenPastingIsEnabled ? ' or paste an address' : ''
+  }`;
+
   const searchList = (
     <SearchableList<Token>
-      searchPlaceholder="Search for a token"
+      searchPlaceholder={placeholder}
       className={classes.tokenList}
       listTitle={
         shouldShowEmptyMessage ? (
@@ -227,21 +295,6 @@ const TokenList = (props: Props) => {
       items={sortedTokens}
       onQueryChange={(query) => {
         setSearchQuery(query);
-
-        try {
-          const chain = props.selectedChainConfig.sdkName;
-          const address = toNative(chain, query);
-
-          if (address) {
-            // Parsed valid token :)
-            const existing = config.tokens.get(chain, query);
-            if (!existing) {
-              getOrFetchToken({ chain, address });
-            }
-          }
-        } catch (e) {
-          console.error(e);
-        }
       }}
       filterFn={(token, query) => {
         if (query.length === 0) return true;

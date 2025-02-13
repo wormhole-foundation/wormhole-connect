@@ -22,7 +22,6 @@ export type ChainConfig = {
   key: Chain;
   id: ChainId;
   context: Context;
-  finalityThreshold: number;
   disabledAsSource?: boolean;
   disabledAsDestination?: boolean;
 };
@@ -30,9 +29,6 @@ export type ChainConfig = {
 export type WormholeConfig = {
   env: Network;
   rpcs: ChainResourceMap;
-  rest: ChainResourceMap;
-  graphql: ChainResourceMap;
-  wormholeHosts: string[];
   chains: {
     [chain in Chain]?: ChainConfig;
   };

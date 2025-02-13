@@ -2,7 +2,6 @@ import { TokenIcon, TokenConfig } from '../types';
 
 export const DEVNET_TOKENS: TokenConfig[] = [
   {
-    key: 'ETH',
     symbol: 'ETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -12,7 +11,6 @@ export const DEVNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'WETH',
     symbol: 'WETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -22,7 +20,6 @@ export const DEVNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    key: 'TKN',
     symbol: 'TKN',
     icon: TokenIcon.ETH,
     decimals: 18,

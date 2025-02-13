@@ -10,10 +10,17 @@ const checkSdnListForUpdates = async () => {
   const newAddresses = addresses.filter(
     (address) => !SANCTIONED_WALLETS.has(address),
   );
+  const updatedAddresses = [
+    ...new Set(
+      [...SANCTIONED_WALLETS, ...newAddresses]
+        // Sort by length and then alphabetically
+        .sort((a, b) => a.length - b.length || a.localeCompare(b)),
+    ),
+  ];
 
   // Always update file to ensure it's correctly formatted
   const sourceCode = `export const SANCTIONED_WALLETS = Object.freeze(new Set(${JSON.stringify(
-    addresses,
+    updatedAddresses,
     null,
     4,
   )}));`;

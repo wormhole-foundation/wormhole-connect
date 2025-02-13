@@ -15,7 +15,7 @@ import TokenIcon from 'icons/TokenIcons';
 import { Token } from 'config/tokens';
 
 import type { Chain } from '@wormhole-foundation/sdk';
-import { chainDisplayName, getExplorerUrl } from 'utils';
+import { chainDisplayName, getTokenExplorerUrl } from 'utils';
 import ChainIcon from 'icons/ChainIcons';
 
 const useStyles = makeStyles()((theme) => ({
@@ -62,7 +62,7 @@ function TokenItem(props: TokenItemProps) {
   // If the token is native to the chain, show the token's address.
   // Otherwise, show the wrapped token's address.
   const address = token.tokenId?.address.toString();
-  const explorerURL = address ? getExplorerUrl(chain, address) : undefined;
+  const explorerURL = address ? getTokenExplorerUrl(chain, address) : undefined;
   const addressDisplay = `${token.shortAddress}`;
 
   return (

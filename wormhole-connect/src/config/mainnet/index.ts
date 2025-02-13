@@ -1,10 +1,6 @@
 import { NetworkData } from 'config/types';
 import { MAINNET_CHAINS } from './chains';
-import {
-  MAINNET_GRAPHQL_MAPPING,
-  MAINNET_REST_MAPPING,
-  MAINNET_RPC_MAPPING,
-} from './rpcs';
+import { MAINNET_RPC_MAPPING } from './rpcs';
 import { MAINNET_TOKENS } from './tokens';
 import { MAINNET_WRAPPED_TOKENS } from './wrappedTokens';
 
@@ -17,8 +13,6 @@ const MAINNET: NetworkData = {
   tokens: MAINNET_TOKENS,
   wrappedTokens: MAINNET_WRAPPED_TOKENS,
   rpcs: MAINNET_RPC_MAPPING,
-  rest: MAINNET_REST_MAPPING,
-  graphql: MAINNET_GRAPHQL_MAPPING,
   // From VAA https://wormholescan.io/#/tx/1/0000000000000000000000000000000000000000000000000000000000000004/18252082506122526004
   guardianSet: {
     index: 4,

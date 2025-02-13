@@ -13,6 +13,8 @@ import {
   routes,
   CircleTransfer,
   circle,
+  ChainContext,
+  nativeTokenId,
 } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
@@ -155,49 +157,47 @@ const parseTokenBridgeReceipt = async (
 
   if (payload.token) {
     const wh = await getWormholeContextV2();
-    const chainContext = wh.getChain(payload.token.chain);
-    const tb = await chainContext.getTokenBridge();
-    const tokenAddress = (
-      await tb.getTokenNativeAddress(payload.token.chain, payload.token.address)
-    ).toString();
+    const fromChain = wh.getChain(receipt.from);
+    const toChain = wh.getChain(receipt.to);
 
-    const tokenId = Wormhole.tokenId(payload.token.chain, tokenAddress);
-    const token = config.tokens.get(tokenId);
+    const getToken = async (context: ChainContext<Network>, token: any) => {
+      const tb = await context.getTokenBridge();
+      const { chain } = context;
 
-    if (!token) {
-      // This is a token Connect is not aware of
-      throw new Error('Unknown token');
-    }
+      const tokenAddress =
+        token.chain === chain
+          ? await tb.getTokenNativeAddress(token.chain, token.address)
+          : await tb.getWrappedAsset({
+              chain: token.chain,
+              address: token.address,
+            });
 
-    txData.tokenDecimals = token.decimals;
+      const wrappedNative = await tb.getWrappedNative();
 
+      const tokenId =
+        wrappedNative.toString() === tokenAddress.toString()
+          ? nativeTokenId(chain)
+          : Wormhole.tokenId(chain, tokenAddress.toString());
+
+      return config.tokens.get(tokenId);
+    };
+
+    const sourceToken = await getToken(fromChain, payload.token);
+    if (!sourceToken) throw new Error(`Unknown source token`);
+
+    const destinationToken = await getToken(toChain, payload.token);
+    if (!destinationToken) throw new Error(`Unknown destination token`);
+
+    txData.tokenDecimals = sourceToken.decimals;
     txData.amount = amount.fromBaseUnits(
       payload.token.amount,
       // VAAs are truncated to a max of 8 decimal places
-      Math.min(8, token.decimals),
+      Math.min(8, sourceToken.decimals),
     );
-    txData.tokenAddress = tokenAddress;
-    txData.token = token.tuple;
-    // TODO token refactor this is technically wrong but I think it still displays correctly...
-    txData.receivedToken = token.tuple;
+    txData.tokenAddress = sourceToken.address.toString();
+    txData.token = sourceToken.tuple;
+    txData.receivedToken = destinationToken.tuple;
     txData.receiveAmount = txData.amount;
-    if (payload.payload?.toNativeTokenAmount) {
-      txData.receiveNativeAmount = amount.fromBaseUnits(
-        payload.payload.toNativeTokenAmount,
-        Math.min(8, token.decimals),
-      );
-    }
-    if (payload.payload?.targetRelayerFee) {
-      txData.relayerFee = {
-        fee: Number(
-          amount.fmt(
-            payload.payload.targetRelayerFee,
-            Math.min(8, token.decimals),
-          ),
-        ),
-        token: token.tuple,
-      };
-    }
   }
 
   if (payload.to) {

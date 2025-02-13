@@ -6,115 +6,101 @@ const MAINNET: { [chain in Chain]?: ChainConfig } = {
     key: 'Ethereum',
     id: 2,
     context: Context.ETH,
-    finalityThreshold: 64,
   },
   Solana: {
     key: 'Solana',
     id: 1,
     context: Context.SOLANA,
-    finalityThreshold: 32,
   },
   Polygon: {
     key: 'Polygon',
     id: 5,
     context: Context.ETH,
-    finalityThreshold: 42,
   },
   Bsc: {
     key: 'Bsc',
     id: 4,
     context: Context.ETH,
-    finalityThreshold: 3,
   },
   Avalanche: {
     key: 'Avalanche',
     id: 6,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Fantom: {
     key: 'Fantom',
     id: 10,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Celo: {
     key: 'Celo',
     id: 14,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Moonbeam: {
     key: 'Moonbeam',
     id: 16,
     context: Context.ETH,
-    finalityThreshold: 1,
   },
   Sui: {
     key: 'Sui',
     id: 21,
     context: Context.SUI,
-    finalityThreshold: 0,
   },
   Aptos: {
     key: 'Aptos',
     id: 22,
     context: Context.APTOS,
-    finalityThreshold: 0,
   },
   Arbitrum: {
     key: 'Arbitrum',
     id: 23,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Optimism: {
     key: 'Optimism',
     id: 24,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Base: {
     key: 'Base',
     id: 30,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Klaytn: {
     key: 'Klaytn',
     id: 13,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Scroll: {
     key: 'Scroll',
     id: 34,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Blast: {
     key: 'Blast',
     id: 36,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Mantle: {
     key: 'Mantle',
     id: 35,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
   Xlayer: {
     key: 'Xlayer',
     id: 37,
     context: Context.ETH,
-    finalityThreshold: 0,
+  },
+  Unichain: {
+    key: 'Unichain',
+    id: 44,
+    context: Context.ETH,
   },
   Worldchain: {
     key: 'Worldchain',
     id: 45,
     context: Context.ETH,
-    finalityThreshold: 0,
   },
 } as const;
 
@@ -150,22 +136,9 @@ const MAINNET_CONFIG: WormholeConfig = {
     Xlayer: 'https://rpc.xlayer.tech',
     Mantle: 'https://rpc.mantle.xyz',
     Worldchain: 'https://worldchain-mainnet.g.alchemy.com/public',
-  },
-  rest: {
-    Sei: '',
-    Evmos: 'https://evmos-api.polkachu.com',
-    Injective: 'https://injective-api.polkachu.com',
-  },
-  graphql: {
-    Aptos: 'https://indexer.mainnet.aptoslabs.com/v1/graphql',
+    Unichain: 'https://mainnet.unichain.org',
   },
   chains: MAINNET,
-  wormholeHosts: [
-    'https://wormhole-v2-mainnet-api.certus.one',
-    'https://wormhole-v2-mainnet-api.mcf.rocks',
-    'https://wormhole-v2-mainnet-api.chainlayer.network',
-    'https://wormhole-v2-mainnet-api.staking.fund',
-  ],
 };
 
 export default MAINNET_CONFIG;

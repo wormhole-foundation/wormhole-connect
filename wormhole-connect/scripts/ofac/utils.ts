@@ -2,20 +2,17 @@ import { getAddress } from 'ethers';
 
 export const getSanctionedAddresses = async (): Promise<string[]> => {
   const data = await readFileFromUrl(OFAC_SDN_LIST_URL);
-  const ethAddresses =
-    data
-      .match(/Digital Currency Address - [a-zA-Z0-9]+ [a-zA-Z0-9]+/g)
-      ?.map((m) => ensure0xForEvmAddress(m.split(' ').pop() ?? ''))
-      .map((addr) => {
-        try {
-          // Convert to checksum addresses
-          return getAddress(addr);
-        } catch {
-          return addr;
-        }
-      })
-      // Sort by length and then alphabetically
-      .sort((a, b) => a.length - b.length || a.localeCompare(b)) ?? [];
+  const ethAddresses = data
+    .match(/Digital Currency Address - [a-zA-Z0-9]+ [a-zA-Z0-9]+/g)
+    ?.map((m) => ensure0xForEvmAddress(m.split(' ').pop() ?? ''))
+    .map((addr) => {
+      try {
+        // Convert to checksum addresses
+        return getAddress(addr);
+      } catch {
+        return addr;
+      }
+    });
   return [...new Set(ethAddresses)];
 };
 

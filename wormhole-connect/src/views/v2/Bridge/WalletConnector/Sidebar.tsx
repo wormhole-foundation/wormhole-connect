@@ -55,10 +55,13 @@ const useStyles = makeStyles()((theme) => ({
   },
   addressInputContainer: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     gap: '8px',
     width: '100%',
     padding: '16px',
+  },
+  addressField: {
+    flex: 1,
   },
   submitButton: {
     width: '100%',
@@ -244,8 +247,9 @@ const WalletSidebar = (props: Props) => {
               {props.showAddressInput && !search && (
                 <ListItem className={classes.addressInputContainer}>
                   <TextField
+                    className={classes.addressField}
                     fullWidth
-                    placeholder="Send to wallet address"
+                    placeholder="Send to a wallet address"
                     size="small"
                     variant="outlined"
                     value={address}
@@ -261,7 +265,6 @@ const WalletSidebar = (props: Props) => {
                     color="primary"
                     onClick={submitAddress}
                     disabled={!address}
-                    className={classes.submitButton}
                   >
                     Submit
                   </Button>

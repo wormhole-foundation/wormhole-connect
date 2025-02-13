@@ -190,10 +190,36 @@ const Redeem = () => {
 
   const getUSDAmount = useUSDamountGetter();
 
+  const etaDate: Date | undefined = useMemo(() => {
+    if (eta && txTimestamp) {
+      return new Date(txTimestamp + eta);
+    } else {
+      return undefined;
+    }
+  }, [eta, txTimestamp]);
+
+  // Initialize the countdown with 0, 0 as we might not have eta or txTimestamp yet
+  const { seconds, minutes, isRunning, restart } = useTimer({
+    expiryTimestamp: new Date(),
+    autoStart: false,
+    onExpire: () => setEtaExpired(true),
+  });
+
+  // Side-effect to start the ETA timer when we have the ETA and tx timestamp
+  useEffect(() => {
+    // Only start when we have the required values and if the timer hasn't been started yet
+    if (!txTimestamp || !eta || isRunning) {
+      return;
+    }
+
+    restart(new Date(txTimestamp + eta), true);
+  }, [eta, isRunning, restart, txTimestamp]);
+
   // Start tracking changes in the transaction
   const txTrackingResult = useTrackTransfer({
     receipt,
     route: routeName,
+    eta: etaDate,
   });
 
   // We need check the initial receipt state and tracking result together
@@ -334,23 +360,6 @@ const Redeem = () => {
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
   );
-
-  // Initialize the countdown with 0, 0 as we might not have eta or txTimestamp yet
-  const { seconds, minutes, isRunning, restart } = useTimer({
-    expiryTimestamp: new Date(),
-    autoStart: false,
-    onExpire: () => setEtaExpired(true),
-  });
-
-  // Side-effect to start the ETA timer when we have the ETA and tx timestamp
-  useEffect(() => {
-    // Only start when we have the required values and if the timer hasn't been started yet
-    if (!txTimestamp || !eta || isRunning) {
-      return;
-    }
-
-    restart(new Date(txTimestamp + eta), true);
-  }, [eta, isRunning, restart, txTimestamp]);
 
   // Time remaining to reach the estimated completion of the transaction
   const remainingEta = useMemo(() => {
