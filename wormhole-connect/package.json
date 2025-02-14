@@ -232,6 +232,10 @@
     "react-infinite-scroller": {
       "react": ">=18.0.0",
       "react-dom": ">=18.0.0"
+    },
+    "@xlabs-libs/wallet-aggregator-evm": {
+      "react": ">=18.0.0",
+      "react-dom": ">=18.0.0"
     }
   }
 }
