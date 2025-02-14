@@ -134,16 +134,18 @@ export class HyperliquidRoute<N extends Network>
     // Fallback to default gas drop if none specified
     const gasDrop = params.options.gasDrop || DEFAULT_GAS_DROP;
 
-    const firstHop: routes.RouteTransferRequest<N> = {
-      ...request,
-      /* @ts-ignore */
-      toChain: this.wh.getChain('Arbitrum'),
-    };
+    const quoteResult = await this.mayanRoute.quote(
+      {
+        ...request,
+        /* @ts-ignore */
+        toChain: this.wh.getChain('Arbitrum'), // Make sure we have Arbitrum as destination instead of Hyperliquid
+      },
+      {
+        ...params,
+        options: { ...params.options, gasDrop },
+      },
+    );
 
-    const quoteResult = await this.mayanRoute.quote(firstHop, {
-      ...params,
-      options: { ...params.options, gasDrop },
-    });
     const minRequiredOut = amount.whole(MIN_AMOUNT_REQUIRED);
     if (
       quoteResult.success &&
