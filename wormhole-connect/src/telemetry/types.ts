@@ -65,6 +65,7 @@ export const ERR_AMOUNT_TOO_SMALL = 'amount_too_small';
 
 export const ERR_USER_REJECTED = 'user_rejected';
 export const ERR_TIMEOUT = 'user_timeout';
+export const ERR_HYPERLIQUID_DEPOSIT = 'hyperliquid_deposit_error';
 export const ERR_UNKNOWN = 'unknown';
 
 export type TransferErrorType =
@@ -78,6 +79,7 @@ export type TransferErrorType =
   | typeof ERR_AMOUNT_TOO_SMALL
   | typeof ERR_USER_REJECTED
   | typeof ERR_TIMEOUT
+  | typeof ERR_HYPERLIQUID_DEPOSIT
   | typeof ERR_UNKNOWN;
 
 export interface ConnectWalletEvent {

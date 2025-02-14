@@ -11,6 +11,7 @@ import {
   ERR_USER_REJECTED,
   ERR_AMOUNT_TOO_LARGE,
   ERR_AMOUNT_TOO_SMALL,
+  ERR_HYPERLIQUID_DEPOSIT,
 } from 'telemetry/types';
 import { InsufficientFundsForGasError } from 'sdklegacy';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
@@ -29,10 +30,7 @@ export function interpretTransferError(
   transferDetails: TransferDetails,
 ): [string, TransferError] {
   // Fall-back values
-  let uiErrorMessage =
-    transferDetails.route === 'HyperliquidRoute'
-      ? 'Hyperliquid deposit error. USDC has been deposited in your wallet on Arbitrum'
-      : 'Error with transfer, please try again';
+  let uiErrorMessage = 'Error with transfer, please try again';
   let internalErrorCode: TransferErrorType = ERR_UNKNOWN;
 
   if (e.message) {
@@ -71,6 +69,9 @@ export function interpretTransferError(
           : '';
       uiErrorMessage = `Amount exceeds Circle limit${limitString}. Please reduce transfer amount.`;
       internalErrorCode = ERR_AMOUNT_TOO_LARGE;
+    } else if (e.name === 'HyperliquidDepositError') {
+      uiErrorMessage = e.message;
+      internalErrorCode = ERR_HYPERLIQUID_DEPOSIT;
     }
   }
 

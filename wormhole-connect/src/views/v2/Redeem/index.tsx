@@ -782,7 +782,19 @@ const Redeem = () => {
     } catch (e: any) {
       // This could be all kinds of unexpected errors
       // Kick it up to the main useEffect where we handle receipt state changes
-      setUnhandledManualClaimError(e);
+
+      // If this is an Hyperliquid error during manual claim,
+      // we need to override the error with an HL specific message
+      if (isHyperliquid) {
+        const err = new Error(
+          'Hyperliquid deposit error. USDC has been deposited in your wallet on Arbitrum.',
+        );
+        err.name = 'HyperliquidDepositError';
+        setUnhandledManualClaimError(err);
+      } else {
+        setUnhandledManualClaimError(e);
+      }
+
       setIsClaimInProgress(false);
     }
   }, [

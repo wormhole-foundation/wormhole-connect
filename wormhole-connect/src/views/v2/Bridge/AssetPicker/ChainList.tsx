@@ -10,6 +10,8 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import { type Chain } from '@wormhole-foundation/sdk';
+
 import ChainIcon from 'icons/ChainIcons';
 import PlusIcon from 'icons/Plus';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
@@ -69,7 +71,7 @@ type Props = {
   showSearch: boolean;
   setShowSearch: (value: boolean) => void;
   wallet: WalletData;
-  onChainSelect: (chain: string) => void;
+  onChainSelect: (chain: Chain) => void;
 };
 
 const SHORT_LIST_SIZE = 5;
@@ -160,7 +162,6 @@ const ChainList = (props: Props) => {
     classes.chainButton,
     onChainSelect,
     selectedChainConfig?.key,
-    selectedChainConfig?.symbol,
     setShowSearch,
     topChains,
   ]);
