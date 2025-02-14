@@ -27,7 +27,7 @@
     "@ledgerhq/hw-transport": "6.27.1",
     "@ledgerhq/hw-transport-webhid": "6.27.1",
     "@ledgerhq/logs": "6.12.0",
-    "@mayanfinance/wormhole-sdk-route": "1.1.0",
+    "@mayanfinance/wormhole-sdk-route": "1.5.0",
     "@metaplex-foundation/mpl-token-metadata": "^3.3.0",
     "@metaplex-foundation/umi": "^0.9.2",
     "@metaplex-foundation/umi-bundle-defaults": "^0.9.2",
@@ -39,8 +39,8 @@
     "@solana/spl-token": "^0.3.9",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.95.8",
-    "@wormhole-foundation/sdk": "1.6.1-beta.3",
-    "@wormhole-foundation/sdk-definitions": "1.6.1-beta.3",
+    "@wormhole-foundation/sdk": "1.9.0",
+    "@wormhole-foundation/sdk-definitions": "1.9.0",
     "@wormhole-foundation/sdk-definitions-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-evm-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-icons": "^1.0.0",
@@ -167,28 +167,28 @@
       "axios": "1.4.0"
     },
     "@mayanfinance/wormhole-sdk-route": {
-      "@wormhole-foundation/sdk-connect": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-evm": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-solana": "1.6.1-beta.3"
+      "@wormhole-foundation/sdk-connect": "1.9.0",
+      "@wormhole-foundation/sdk-evm": "1.9.0",
+      "@wormhole-foundation/sdk-solana": "1.9.0"
     },
     "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-definitions": "1.6.1-beta.3"
+      "@wormhole-foundation/sdk-base": "1.9.0",
+      "@wormhole-foundation/sdk-definitions": "1.9.0"
     },
     "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-definitions": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-evm": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-evm-core": "1.6.1-beta.3"
+      "@wormhole-foundation/sdk-base": "1.9.0",
+      "@wormhole-foundation/sdk-definitions": "1.9.0",
+      "@wormhole-foundation/sdk-evm": "1.9.0",
+      "@wormhole-foundation/sdk-evm-core": "1.9.0"
     },
     "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "1.6.1-beta.3"
+      "@wormhole-foundation/sdk-connect": "1.9.0"
     },
     "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-definitions": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-solana": "1.6.1-beta.3",
-      "@wormhole-foundation/sdk-solana-core": "1.6.1-beta.3"
+      "@wormhole-foundation/sdk-base": "1.9.0",
+      "@wormhole-foundation/sdk-definitions": "1.9.0",
+      "@wormhole-foundation/sdk-solana": "1.9.0",
+      "@wormhole-foundation/sdk-solana-core": "1.9.0"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"
