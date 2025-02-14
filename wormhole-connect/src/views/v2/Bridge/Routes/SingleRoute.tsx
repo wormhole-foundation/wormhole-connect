@@ -431,20 +431,17 @@ const SingleRoute = (props: Props) => {
       return '';
     }
 
-    let provider = '';
-
-    // Special case for Lido NTT
-    if (
+    const isLidoNttSpecialCase =
       props.route === 'AutomaticNtt' &&
-      sourceToken &&
-      sourceToken.symbol === 'wstETH' &&
+      sourceToken?.symbol === 'wstETH' &&
       ((sourceChain === 'Ethereum' && destChain === 'Bsc') ||
-        (sourceChain === 'Bsc' && destChain === 'Ethereum'))
-    ) {
-      provider = 'via NTT: Wormhole + Axelar';
-    } else {
-      provider = routeConfig.rc.meta.provider || '';
-    }
+        (sourceChain === 'Bsc' && destChain === 'Ethereum'));
+
+    const provider = isLidoNttSpecialCase
+      ? 'via NTT: Wormhole + Axelar'
+      : routeConfig.rc.meta.provider
+      ? `via ${routeConfig.rc.meta.provider}`
+      : '';
 
     return provider;
   }, [props.route, routeConfig, sourceChain, sourceToken, destChain]);
