@@ -798,17 +798,18 @@ const Redeem = () => {
       setIsClaimInProgress(false);
     }
   }, [
-    details,
-    fromChain,
-    isConnectedToReceivingWallet,
-    isTxDestQueued,
-    receivingWallet.address,
-    token,
+    routeName,
     routeContext.receipt,
     routeContext.route,
-    routeName,
-    toChain,
+    token,
     receivedToken,
+    fromChain,
+    toChain,
+    isConnectedToReceivingWallet,
+    receivingWallet.address,
+    isTxDestQueued,
+    details,
+    isHyperliquid,
   ]);
 
   // Main CTA button which has separate states for automatic and manual claims

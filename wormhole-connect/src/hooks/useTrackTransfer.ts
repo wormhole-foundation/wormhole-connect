@@ -66,6 +66,8 @@ const useTrackTransfer = (props: Props): ReturnProps => {
         routes.Receipt<AttestationReceipt>
       >;
 
+      // If a route object is provided, we need to use that to prevent creating extra instances
+      // Otherwise, we can safely create a new route
       if (props.sdkRoute) {
         sdkRoute = props.sdkRoute;
       } else {

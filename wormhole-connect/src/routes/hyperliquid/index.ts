@@ -134,6 +134,7 @@ export class HyperliquidRoute<N extends Network>
     // Fallback to default gas drop if none specified
     const gasDrop = params.options.gasDrop || DEFAULT_GAS_DROP;
 
+    /* @ts-ignore */
     const firstHop: routes.RouteTransferRequest<N> = {
       ...request,
       /* @ts-ignore */
