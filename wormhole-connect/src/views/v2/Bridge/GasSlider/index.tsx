@@ -98,7 +98,7 @@ const GasSlider = (props: {
     (state: RootState) => state.transferInput,
   );
 
-  const { getTokenPrice, isFetchingTokenPrices } = useTokens();
+  const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   const destChainConfig = config.chains[destChain!];
   const nativeGasToken = config.tokens.getGasToken(destChain!);
@@ -132,9 +132,11 @@ const GasSlider = (props: {
         {`${tokenAmount} ${nativeGasToken.symbol} ${tokenPrice}`}
       </Typography>
     );
+    // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     nativeGasToken,
-    isFetchingTokenPrices,
+    lastTokenPriceUpdate,
     props.destinationGasDrop,
     destChain,
   ]);

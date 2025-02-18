@@ -37,9 +37,11 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const scrollbarClass = useCustomScrollbar();
   const [query, setQuery] = useState('');
 
+  const { items, filterFn } = props;
+
   const filteredList = useMemo(() => {
-    return props.items.filter((item) => props.filterFn(item, query));
-  }, [props.items, props.filterFn, query]);
+    return items.filter((item) => filterFn(item, query));
+  }, [items, filterFn, query]);
 
   return (
     <Box className={`${classes.wrapper} ${props?.className ?? ''}`}>

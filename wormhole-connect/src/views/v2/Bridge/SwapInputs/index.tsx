@@ -25,13 +25,9 @@ function SwapInputs() {
   const dispatch = useDispatch();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
-  const {
-    isTransactionInProgress,
-    fromChain,
-    toChain,
-    destToken,
-    token: sourceToken,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { isTransactionInProgress, fromChain, toChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const canSwap =
     !isTransactionInProgress &&
@@ -50,15 +46,7 @@ function SwapInputs() {
     dispatch(swapInputs());
     dispatch(swapWallets());
     dispatch(setAmount(''));
-  }, [
-    fromChain,
-    toChain,
-    sourceToken,
-    destToken,
-    canSwap,
-    isTransactionInProgress,
-    dispatch,
-  ]);
+  }, [canSwap, isTransactionInProgress, dispatch]);
 
   const { classes } = useStyles();
 

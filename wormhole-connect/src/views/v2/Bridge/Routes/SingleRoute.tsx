@@ -252,12 +252,11 @@ const SingleRoute = (props: Props) => {
         >{`${gasTokenAmount} ${nativeGasToken.symbol}${gasTokenPriceStr}`}</Typography>
       </Stack>
     );
-    // ES Lint complains that lastTokenPriceUpdate is unused/unnecessary here... but that's wrong.
-    // We want to recompute the price after we update conversion rates.
-    //
+    // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     destChain,
+    lastTokenPriceUpdate,
     props.destinationGasDrop,
     getTokenPrice,
     lastTokenPriceUpdate,
@@ -540,10 +539,13 @@ const SingleRoute = (props: Props) => {
         component="div"
       >{`${usdValue} ${providerText}`}</Typography>
     );
+    // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     destChain,
     destToken,
     getTokenPrice,
+    lastTokenPriceUpdate,
     props.error,
     providerText,
     receiveAmount,
