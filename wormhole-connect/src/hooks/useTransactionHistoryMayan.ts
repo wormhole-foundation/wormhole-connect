@@ -111,7 +111,7 @@ const useTransactionHistoryMayan = (
         tx.toTokenSymbol,
       );
       if (toTokenBySymbol) {
-        fromToken = toTokenBySymbol;
+        toToken = toTokenBySymbol;
       }
     }
 
