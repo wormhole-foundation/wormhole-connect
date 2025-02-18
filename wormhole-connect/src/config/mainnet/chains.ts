@@ -222,7 +222,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
   },
   Hyperliquid: {
     ...chains.Hyperliquid!,
-    id: -1,
+    id: 50000,
     disabledAsSource: true,
     displayName: 'Hyperliquid',
     sdkName: 'Hyperliquid',

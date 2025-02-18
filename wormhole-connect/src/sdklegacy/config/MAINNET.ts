@@ -104,7 +104,7 @@ const MAINNET: { [chain in Chain]?: ChainConfig } = {
   },
   Hyperliquid: {
     key: 'Hyperliquid',
-    id: -1,
+    id: 50000,
     context: Context.ETH,
   },
 } as const;
