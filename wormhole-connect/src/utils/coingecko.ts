@@ -23,6 +23,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Mantle: 'mantle',
   Aptos: 'aptos',
   Sui: 'sui',
+  Berachain: 'berachain-bera',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms

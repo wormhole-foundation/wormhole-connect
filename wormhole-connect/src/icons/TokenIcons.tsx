@@ -39,7 +39,7 @@ import NTT from './Tokens/NTT';
 import SCROLL from './Tokens/SCROLL';
 import BLAST from './Tokens/BLAST';
 import WORLD from './Tokens/WORLD';
-import UNI from './Chains/UNI';
+import BERA from './Tokens/BERA';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -104,7 +104,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
     />
   ),
   [TokenIcon.WORLDCHAIN]: WORLD(),
-  [TokenIcon.UNICHAIN]: UNI(),
+  [TokenIcon.BERA]: BERA(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {

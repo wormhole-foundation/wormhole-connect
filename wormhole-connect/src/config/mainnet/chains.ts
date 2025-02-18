@@ -220,4 +220,15 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'UNI',
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
+  Berachain: {
+    ...chains.Berachain!,
+    displayName: 'Berachain',
+    sdkName: 'Berachain',
+    explorerUrl: 'https://berascan.com/',
+    explorerName: 'Berascan',
+    chainId: 80094,
+    icon: 'Berachain',
+    symbol: 'BERA',
+    wrappedGasToken: '0x6969696969696969696969696969696969696969',
+  },
 };

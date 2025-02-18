@@ -92,6 +92,11 @@ const MAINNET: { [chain in Chain]?: ChainConfig } = {
     id: 37,
     context: Context.ETH,
   },
+  Berachain: {
+    key: 'Berachain',
+    id: 39,
+    context: Context.ETH,
+  },
   Unichain: {
     key: 'Unichain',
     id: 44,
@@ -137,6 +142,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     Mantle: 'https://rpc.mantle.xyz',
     Worldchain: 'https://worldchain-mainnet.g.alchemy.com/public',
     Unichain: 'https://mainnet.unichain.org',
+    Berachain: 'https://rpc.berachain.com',
   },
   chains: MAINNET,
 };

@@ -28,6 +28,7 @@ interface ImportMetaEnv {
   REACT_APP_MANTLE_RPC: string;
   REACT_APP_WORLDCHAIN_RPC: string;
   REACT_APP_UNICHAIN_RPC: string;
+  REACT_APP_BERACHAIN_RPC: string;
 
   // testnet
   REACT_APP_SEPOLIA_RPC: string;

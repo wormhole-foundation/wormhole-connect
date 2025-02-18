@@ -638,4 +638,22 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 6,
     icon: TokenIcon.USDC,
   },
+  {
+    symbol: 'BERA',
+    tokenId: {
+      chain: 'Berachain',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.BERA,
+  },
+  {
+    symbol: 'WBERA',
+    tokenId: {
+      chain: 'Berachain',
+      address: '0x6969696969696969696969696969696969696969',
+    },
+    decimals: 18,
+    icon: TokenIcon.BERA,
+  },
 ];

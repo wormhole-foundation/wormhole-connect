@@ -26,4 +26,5 @@ export const CHAIN_ORDER: Chain[] = [
   'Scroll',
   'Evmos',
   'Mantle',
+  'Berachain',
 ];

@@ -159,6 +159,7 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Mantle | Mantle |
 | Worldchain | Worldchain |
 | Unichain | Unichain |
+| Berachain | |
 
 ### RPC Endpoints (`rpcs`):
 
