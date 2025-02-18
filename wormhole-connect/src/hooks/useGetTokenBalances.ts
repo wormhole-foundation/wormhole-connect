@@ -113,10 +113,12 @@ const useGetTokenBalances = (
               };
             }
           }
-
-          updateCache = true;
         } catch (e) {
           console.error('Failed to get token balances', e);
+        } finally {
+          // There can be failures for some tokens,
+          // but we'll still update the cache with latest balances
+          updateCache = true;
         }
       }
       if (isActive) {
