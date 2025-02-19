@@ -173,18 +173,20 @@ const Bridge = () => {
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
     if (sortedRoutesWithQuotes.length === 0) {
-      setTransferRoute('');
+      dispatch(setTransferRoute(''));
     } else {
       const preferredRoute = sortedRoutesWithQuotes.find(
         (route) => route.route === preferredRouteName,
       );
       const autoselectedRoute =
         route ?? preferredRoute?.route ?? sortedRoutesWithQuotes[0].route;
+
       const isSelectedRouteValid =
-        sortedRoutesWithQuotes.findIndex((r) => r.route === route) > -1;
+        sortedRoutesWithQuotes.findIndex((r) => r.route === autoselectedRoute) >
+        -1;
 
       if (!isSelectedRouteValid) {
-        setTransferRoute('');
+        dispatch(setTransferRoute(''));
       }
 
       // If no route is autoselected or we already have a valid selected route,
@@ -197,7 +199,7 @@ const Bridge = () => {
         (rs) => rs.route === autoselectedRoute,
       );
 
-      if (routeData) setTransferRoute(routeData.route);
+      if (routeData) dispatch(setTransferRoute(routeData.route));
     }
   }, [preferredRouteName, route, sortedRoutesWithQuotes]);
 
