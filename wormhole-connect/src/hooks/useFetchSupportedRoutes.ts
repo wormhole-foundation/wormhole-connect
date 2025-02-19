@@ -99,7 +99,15 @@ const useFetchSupportedRoutes = (): HookReturn => {
     return () => {
       isActive = false;
     };
-  }, [sourceToken, destToken, amount, fromChain, toChain, toNativeToken, receivingWallet]);
+  }, [
+    sourceToken,
+    destToken,
+    amount,
+    fromChain,
+    toChain,
+    toNativeToken,
+    receivingWallet,
+  ]);
 
   return {
     supportedRoutes: routes,

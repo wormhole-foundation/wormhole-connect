@@ -124,125 +124,128 @@ const useTransactionHistoryWHScan = (
   // Common parsing logic for a single transaction from WHScan API.
   // IMPORTANT: Anything specific to a route, please use that route's parser:
   // parseTokenBridgeTx | parseNTTTx | parseCCTPTx | parsePorticoTx
-  const parseSingleTx = useCallback(async (tx: WormholeScanTransaction) => {
-    const { content, data, sourceChain, targetChain } = tx;
-    const { standarizedProperties } = content || {};
+  const parseSingleTx = useCallback(
+    async (tx: WormholeScanTransaction) => {
+      const { content, data, sourceChain, targetChain } = tx;
+      const { standarizedProperties } = content || {};
 
-    const fromChainId = standarizedProperties.fromChain || sourceChain?.chainId;
-    const toChainId = standarizedProperties.toChain || targetChain?.chainId;
-    const tokenChainId = standarizedProperties.tokenChain;
+      const fromChainId =
+        standarizedProperties.fromChain || sourceChain?.chainId;
+      const toChainId = standarizedProperties.toChain || targetChain?.chainId;
+      const tokenChainId = standarizedProperties.tokenChain;
 
-    const fromChain = chainIdToChain(fromChainId);
+      const fromChain = chainIdToChain(fromChainId);
 
-    // Skip if we don't have the source chain
-    if (!fromChain) {
-      debugger;
-      return;
-    }
-
-    const tokenChain = tokenChainId
-      ? chainIdToChain(tokenChainId)
-      : chainIdToChain(toChainId);
-
-    // Skip if we don't have the token chain
-    if (!tokenChain) {
-      return;
-    }
-
-    let token: Token | undefined;
-    try {
-      token = await getOrFetchToken(
-        Wormhole.tokenId(tokenChain, standarizedProperties.tokenAddress),
-      );
-    } catch (e) {
-      // This is ok
-    }
-
-    if (!token) {
-      // IMPORTANT:
-      // If we don't have the token config from the token address,
-      // we can check if we can use the symbol to get it.
-      // So far this case is only for SUI and APT
-      const foundBySymbol =
-        data?.symbol && config.tokens.findBySymbol(tokenChain, data.symbol);
-      if (foundBySymbol) {
-        token = foundBySymbol;
+      // Skip if we don't have the source chain
+      if (!fromChain) {
+        return;
       }
-    }
 
-    if (!token) {
-      console.warn("Can't find token", tx);
-    }
+      const tokenChain = tokenChainId
+        ? chainIdToChain(tokenChainId)
+        : chainIdToChain(toChainId);
 
-    const toChain = chainIdToChain(toChainId);
+      // Skip if we don't have the token chain
+      if (!tokenChain) {
+        return;
+      }
 
-    let sentAmountDisplay: string | undefined = undefined;
-    let receiveAmountDisplay: string | undefined = undefined;
-    let usdAmount: number | undefined = undefined;
+      let token: Token | undefined;
+      try {
+        token = await getOrFetchToken(
+          Wormhole.tokenId(tokenChain, standarizedProperties.tokenAddress),
+        );
+      } catch (e) {
+        // This is ok
+      }
 
-    if (data && data.tokenAmount) {
-      sentAmountDisplay = data.tokenAmount;
-    } else if (standarizedProperties.amount) {
-      sentAmountDisplay = sdkAmount.display(
-        {
-          amount: standarizedProperties.amount,
-          decimals: standarizedProperties.normalizedDecimals ?? DECIMALS,
-        },
-        0,
-      );
-    }
+      if (!token) {
+        // IMPORTANT:
+        // If we don't have the token config from the token address,
+        // we can check if we can use the symbol to get it.
+        // So far this case is only for SUI and APT
+        const foundBySymbol =
+          data?.symbol && config.tokens.findBySymbol(tokenChain, data.symbol);
+        if (foundBySymbol) {
+          token = foundBySymbol;
+        }
+      }
 
-    if (standarizedProperties.amount && standarizedProperties.fee) {
-      const receiveAmountValue =
-        BigInt(standarizedProperties.amount) -
-        BigInt(standarizedProperties.fee);
-      // It's unlikely, but in case the above subtraction returns a non-positive number,
-      // we should not show that at all.
-      if (receiveAmountValue > 0) {
-        receiveAmountDisplay = sdkAmount.display(
+      if (!token) {
+        console.warn("Can't find token", tx);
+      }
+
+      const toChain = chainIdToChain(toChainId);
+
+      let sentAmountDisplay: string | undefined = undefined;
+      let receiveAmountDisplay: string | undefined = undefined;
+      let usdAmount: number | undefined = undefined;
+
+      if (data && data.tokenAmount) {
+        sentAmountDisplay = data.tokenAmount;
+      } else if (standarizedProperties.amount) {
+        sentAmountDisplay = sdkAmount.display(
           {
-            amount: receiveAmountValue.toString(),
-            decimals: DECIMALS,
+            amount: standarizedProperties.amount,
+            decimals: standarizedProperties.normalizedDecimals ?? DECIMALS,
           },
           0,
         );
       }
-    }
 
-    if (data && data.usdAmount) {
-      usdAmount = Number(data.usdAmount);
-    }
+      if (standarizedProperties.amount && standarizedProperties.fee) {
+        const receiveAmountValue =
+          BigInt(standarizedProperties.amount) -
+          BigInt(standarizedProperties.fee);
+        // It's unlikely, but in case the above subtraction returns a non-positive number,
+        // we should not show that at all.
+        if (receiveAmountValue > 0) {
+          receiveAmountDisplay = sdkAmount.display(
+            {
+              amount: receiveAmountValue.toString(),
+              decimals: DECIMALS,
+            },
+            0,
+          );
+        }
+      }
 
-    const txHash = sourceChain.transaction?.txHash;
+      if (data && data.usdAmount) {
+        usdAmount = Number(data.usdAmount);
+      }
 
-    // Transaction is in-progress when the below are both true:
-    //   1- Source chain has confirmed
-    //   2- Target has either not received, or received but not completed
-    const inProgress =
-      sourceChain?.status?.toLowerCase() === 'confirmed' &&
-      targetChain?.status?.toLowerCase() !== 'completed';
+      const txHash = sourceChain.transaction?.txHash;
 
-    const txData: Transaction = {
-      txHash,
-      sender: standarizedProperties.fromAddress || sourceChain.from,
-      recipient: standarizedProperties.toAddress,
-      amount: sentAmountDisplay,
-      amountUsd: usdAmount,
-      receiveAmount: receiveAmountDisplay,
-      fromChain,
-      fromToken: token,
-      toChain,
-      toToken: token,
-      senderTimestamp: sourceChain?.timestamp,
-      receiverTimestamp: targetChain?.timestamp,
-      explorerLink: `${WORMSCAN}tx/${txHash}${
-        config.isMainnet ? '' : '?network=TESTNET'
-      }`,
-      inProgress,
-    };
+      // Transaction is in-progress when the below are both true:
+      //   1- Source chain has confirmed
+      //   2- Target has either not received, or received but not completed
+      const inProgress =
+        sourceChain?.status?.toLowerCase() === 'confirmed' &&
+        targetChain?.status?.toLowerCase() !== 'completed';
 
-    return txData;
-  }, []);
+      const txData: Transaction = {
+        txHash,
+        sender: standarizedProperties.fromAddress || sourceChain.from,
+        recipient: standarizedProperties.toAddress,
+        amount: sentAmountDisplay,
+        amountUsd: usdAmount,
+        receiveAmount: receiveAmountDisplay,
+        fromChain,
+        fromToken: token,
+        toChain,
+        toToken: token,
+        senderTimestamp: sourceChain?.timestamp,
+        receiverTimestamp: targetChain?.timestamp,
+        explorerLink: `${WORMSCAN}tx/${txHash}${
+          config.isMainnet ? '' : '?network=TESTNET'
+        }`,
+        inProgress,
+      };
+
+      return txData;
+    },
+    [getOrFetchToken],
+  );
 
   // Parser for Portal Token Bridge transactions (appId === PORTAL_TOKEN_BRIDGE)
   // IMPORTANT: This is where we can add any customizations specific to Token Bridge data
@@ -367,7 +370,14 @@ const useTransactionHistoryWHScan = (
       FAST_TRANSFERS: parseLLTx,
       WORMHOLE_LIQUIDITY_LAYER: parseLLTx,
     }),
-    [parseCCTPTx, parseNTTTx, parsePorticoTx, parseTokenBridgeTx, parseLLTx],
+    [
+      parseCCTPTx,
+      parseNTTTx,
+      parsePorticoTx,
+      parseTokenBridgeTx,
+      parseLLTx,
+      parseGenericRelayer,
+    ],
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
