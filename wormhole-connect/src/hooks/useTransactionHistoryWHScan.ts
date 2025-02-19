@@ -155,7 +155,7 @@ const useTransactionHistoryWHScan = (
         Wormhole.tokenId(tokenChain, standarizedProperties.tokenAddress),
       );
     } catch (e) {
-      // ok we dont know the token here
+      // This is ok
     }
 
     if (!token) {
