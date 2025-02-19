@@ -39,8 +39,8 @@
     "@solana/spl-token": "^0.3.9",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.95.8",
-    "@wormhole-foundation/sdk": "1.10.0",
-    "@wormhole-foundation/sdk-definitions": "1.10.0",
+    "@wormhole-foundation/sdk": "1.10.1-beta.0",
+    "@wormhole-foundation/sdk-definitions": "1.10.1-beta.0",
     "@wormhole-foundation/sdk-definitions-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-evm-ntt": "^0.6.1",
     "@wormhole-foundation/sdk-icons": "^1.0.0",
@@ -167,28 +167,28 @@
       "axios": "1.4.0"
     },
     "@mayanfinance/wormhole-sdk-route": {
-      "@wormhole-foundation/sdk-connect": "1.10.0",
-      "@wormhole-foundation/sdk-evm": "1.10.0",
-      "@wormhole-foundation/sdk-solana": "1.10.0"
+      "@wormhole-foundation/sdk-connect": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-evm": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-solana": "1.10.1-beta.0"
     },
     "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "1.10.0",
-      "@wormhole-foundation/sdk-definitions": "1.10.0"
+      "@wormhole-foundation/sdk-base": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-definitions": "1.10.1-beta.0"
     },
     "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "1.10.0",
-      "@wormhole-foundation/sdk-definitions": "1.10.0",
-      "@wormhole-foundation/sdk-evm": "1.10.0",
-      "@wormhole-foundation/sdk-evm-core": "1.10.0"
+      "@wormhole-foundation/sdk-base": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-definitions": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-evm": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-evm-core": "1.10.1-beta.0"
     },
     "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "1.10.0"
+      "@wormhole-foundation/sdk-connect": "1.10.1-beta.0"
     },
     "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "1.10.0",
-      "@wormhole-foundation/sdk-definitions": "1.10.0",
-      "@wormhole-foundation/sdk-solana": "1.10.0",
-      "@wormhole-foundation/sdk-solana-core": "1.10.0"
+      "@wormhole-foundation/sdk-base": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-definitions": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-solana": "1.10.1-beta.0",
+      "@wormhole-foundation/sdk-solana-core": "1.10.1-beta.0"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"
