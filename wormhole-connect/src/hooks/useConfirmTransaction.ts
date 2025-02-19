@@ -105,7 +105,9 @@ const useSendTransaction = (props: Props): ReturnProps => {
     // The results of this check will be written back to Redux store (see transferInput.validations).
     await validate({ transferInput, relay, wallet }, dispatch, () => false);
 
-    if (!isTransferValid(validations)) {
+    const valid = isTransferValid(validations);
+
+    if (!valid || !route) {
       return;
     }
 
@@ -142,9 +144,9 @@ const useSendTransaction = (props: Props): ReturnProps => {
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = config.chains[sourceChain];
+      const fromConfig = config.chains[sourceChain!];
 
-      if (fromConfig && fromConfig?.context === Context.ETH) {
+      if (fromConfig?.context === Context.ETH) {
         const chainId = fromConfig.chainId;
 
         if (typeof chainId !== 'number') {
@@ -201,7 +203,6 @@ const useSendTransaction = (props: Props): ReturnProps => {
       }
 
       const txTimestamp = Date.now();
-
       const txDetails = {
         sendTx: txId,
         sender: sendingWallet.address,
