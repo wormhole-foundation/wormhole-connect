@@ -72,17 +72,18 @@ const TxHistoryItem = (props: Props) => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <AssetBadge
-          chainConfig={sourceChainConfig}
-          token={fromToken}
-        />
+        <AssetBadge chainConfig={sourceChainConfig} token={fromToken} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {amount} {fromToken?.symbol}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {getUSDFormat(amountUsd)}
-            {separator}
+            {amountUsd ? (
+              <>
+                {getUSDFormat(amountUsd)}
+                {separator}
+              </>
+            ) : null}
             {sourceChainConfig?.displayName}
           </Typography>
         </Stack>
@@ -102,12 +103,13 @@ const TxHistoryItem = (props: Props) => {
     const destChainConfig = config.chains[toChain]!;
     const destTokenConfig = toToken;
 
-
-    const receiveAmountPrice = calculateUSDPrice(
-      getTokenPrice,
-      parseFloat(receiveAmount),
-      destTokenConfig,
-    );
+    const receiveAmountPrice = receiveAmount
+      ? calculateUSDPrice(
+          getTokenPrice,
+          parseFloat(receiveAmount),
+          destTokenConfig,
+        )
+      : 0;
 
     const receiveAmountDisplay = receiveAmountPrice ? (
       <>
@@ -118,10 +120,7 @@ const TxHistoryItem = (props: Props) => {
 
     return (
       <Stack alignItems="center" direction="row" justifyContent="flex-start">
-        <AssetBadge
-          chainConfig={destChainConfig}
-          token={destTokenConfig}
-        />
+        <AssetBadge chainConfig={destChainConfig} token={destTokenConfig} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
             {receiveAmount} {destTokenConfig?.symbol}
@@ -134,7 +133,6 @@ const TxHistoryItem = (props: Props) => {
       </Stack>
     );
   }, [
-
     isFetchingTokenPrices,
     lastTokenPriceUpdate,
     receiveAmount,

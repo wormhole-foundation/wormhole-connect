@@ -226,15 +226,15 @@ export interface Transaction {
   sender?: string;
   recipient: string;
 
-  amount: string;
-  amountUsd: number;
-  receiveAmount: string;
+  amount?: string;
+  amountUsd?: number;
+  receiveAmount?: string;
 
   fromChain: Chain;
-  fromToken: Token;
+  fromToken?: Token;
 
   toChain: Chain;
-  toToken: Token;
+  toToken?: Token;
 
   // Timestamps
   senderTimestamp: string;
