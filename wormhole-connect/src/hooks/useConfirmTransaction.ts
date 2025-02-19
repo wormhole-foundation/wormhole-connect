@@ -144,7 +144,7 @@ const useSendTransaction = (props: Props): ReturnProps => {
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = config.chains[sourceChain!];
+      const fromConfig = config.chains[sourceChain];
 
       if (fromConfig?.context === Context.ETH) {
         const chainId = fromConfig.chainId;
