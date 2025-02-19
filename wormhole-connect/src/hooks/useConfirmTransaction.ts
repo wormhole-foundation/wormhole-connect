@@ -42,10 +42,11 @@ type ReturnProps = {
   onConfirm: () => void;
 };
 
-const useSendTransaction = (props: Props): ReturnProps => {
+const useConfirmTransaction = (props: Props): ReturnProps => {
   const dispatch = useDispatch();
 
   const [error, setError] = useState<string | undefined>(undefined);
+  // errorInternal can be a result of custom validation, hence of any type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [errorInternal, setErrorInternal] = useState<any | undefined>(
     undefined,
@@ -285,4 +286,4 @@ const useSendTransaction = (props: Props): ReturnProps => {
   };
 };
 
-export default useSendTransaction;
+export default useConfirmTransaction;
