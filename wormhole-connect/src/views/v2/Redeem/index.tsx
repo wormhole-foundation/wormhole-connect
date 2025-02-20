@@ -66,11 +66,7 @@ import TxReadyForClaim from 'icons/TxReadyForClaim';
 import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
 
-type StyleProps = {
-  transitionDuration?: string | undefined;
-};
-
-const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
+const useStyles = makeStyles()((theme: any) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -117,7 +113,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
   },
   circularProgressCircleDeterminite: {
     strokeLinecap: 'round',
-    transitionDuration,
+    transitionDuration: '1s',
     transitionProperty: 'all',
     transitionTimingFunction: 'linear',
   },
@@ -139,6 +135,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { transitionDuration }) => ({
 const Redeem = () => {
   const dispatch = useDispatch();
   const theme = useTheme();
+  const { classes } = useStyles();
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
@@ -370,11 +367,9 @@ const Redeem = () => {
     }
 
     return 0;
-  }, [txTimestamp, eta]);
-
-  const { classes } = useStyles({
-    transitionDuration: `${remainingEta}ms`,
-  });
+    // We need to update the remaining ETA every second, that's why we have seconds in the deps array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txTimestamp, eta, etaExpired, seconds]);
 
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
@@ -465,23 +460,14 @@ const Redeem = () => {
   // Value for determinate circular progress bar
   const etaProgressValue = useMemo(() => {
     if (eta) {
-      if (isRunning || remainingEta === 0) {
-        // We return the full bar value when the ETA timer is running
-        // and simulate the progress by setting transitionDuration (see useStyles above)
-        return 100;
-      }
-
-      // This happens during Redeem view's initial loading before the ETA timer starts
-      // We calculate progress bar's initial value from completed eta
-      // This value should be between 0-100
       const completedEta = eta - remainingEta;
       const percentRatio = completedEta / eta;
-      return Math.floor(percentRatio * 100);
+      return percentRatio * 100; // Circular progress value range is 0-100
     }
 
     // Set initial value to zero if we don't have an ETA
     return 0;
-  }, [eta, remainingEta, isRunning]);
+  }, [eta, remainingEta]);
 
   // In-progress circular progress bar
   const etaCircularProgress = useMemo(() => {
@@ -778,12 +764,13 @@ const Redeem = () => {
     fromChain,
     isConnectedToReceivingWallet,
     isTxDestQueued,
+    receivedToken,
     receivingWallet.address,
-    token,
     routeContext.receipt,
     routeContext.route,
     routeName,
     toChain,
+    token,
   ]);
 
   // Main CTA button which has separate states for automatic and manual claims
