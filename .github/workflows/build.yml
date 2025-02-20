@@ -55,7 +55,11 @@ jobs:
 
   check-token-list:
     runs-on: ubuntu-latest
-
+    on:
+      push:
+        paths:
+          - wormhole-connect/src/config/mainnet/wrappedTokens.ts
+          - wormhole-connect/src/config/testnet/wrappedTokens.ts
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -67,6 +71,7 @@ jobs:
         working-directory: wormhole-connect
       - run: npm run checkForeignAssets
         working-directory: wormhole-connect
+
   build-hosted:
     runs-on: ubuntu-latest
 
