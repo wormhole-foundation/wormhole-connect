@@ -36,10 +36,6 @@ article {
   flex-grow: 2;
 }
 
-header {
-  border-bottom: 1px solid #444;
-}
-
 header > div {
   padding: 5px;
   display: flex;
