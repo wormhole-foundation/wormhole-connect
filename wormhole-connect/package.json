@@ -73,6 +73,7 @@
     "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "build:netlify": "VITE_BUILD_NETLIFY=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "lint": "scripts/lint.sh",
+    "lint:errors": "scripts/lint.sh --quiet",
     "lint:ci": "scripts/lint_ci.sh",
     "prettier": "prettier --write ./src",
     "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-visualizer",

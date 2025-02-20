@@ -118,10 +118,6 @@ const ChainList = (props: Props) => {
     ];
   }, [mobile, chainList, selectedChainConfig]);
 
-  if (topChains.length < 2) {
-    return null;
-  }
-
   const shortList = useMemo(() => {
     return (
       <List component={Stack} direction="row">
@@ -211,6 +207,10 @@ const ChainList = (props: Props) => {
       setShowSearch,
     ],
   );
+
+  if (topChains.length < 2) {
+    return null;
+  }
 
   return (
     <Card className={classes.card} variant="elevation">

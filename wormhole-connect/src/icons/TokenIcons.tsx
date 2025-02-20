@@ -121,8 +121,8 @@ type Props = {
   height?: number;
 };
 
-function emptyIcon(size: number) {
-  const { classes } = useStyles({ size });
+function EmptyIcon(props: { size: number }) {
+  const { classes } = useStyles(props);
   return <div className={classes.emptyIcon} />;
 }
 
@@ -131,7 +131,7 @@ function TokenIconComponent(props: Props) {
   const { classes } = useStyles({ size });
 
   // Default, if icon is undefined
-  let icon = emptyIcon(size);
+  let icon = <EmptyIcon size={size} />;
 
   if (isBuiltinTokenIcon(props.icon) && iconMap[props.icon]) {
     icon = iconMap[props.icon];

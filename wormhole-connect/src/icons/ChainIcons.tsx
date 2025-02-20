@@ -83,8 +83,8 @@ type Props = {
   height?: number;
 };
 
-function emptyIcon(size: number) {
-  const { classes } = useStyles({ size });
+function EmptyIcon(props: { size: number }) {
+  const { classes } = useStyles(props);
   return <div className={classes.emptyIcon} />;
 }
 
@@ -93,7 +93,7 @@ function ChainIconComponent(props: Props) {
   const { classes } = useStyles({ size });
 
   // Default, if icon is undefined
-  let icon = emptyIcon(size);
+  let icon = <EmptyIcon size={size} />;
 
   if (isBuiltinChainIcon(props.icon) && iconMap[props.icon]) {
     icon = iconMap[props.icon]!;
