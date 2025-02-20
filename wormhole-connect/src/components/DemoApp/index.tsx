@@ -277,6 +277,10 @@ function DemoApp() {
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>
+                    <pre>MayanRouteSHUTTLE</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
                     <pre>nttRoutes</pre>{' '}
                     <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
                   </li>
@@ -399,9 +403,9 @@ function DemoApp() {
             </div>
           </aside>
         ) : null}
-        </article>
+      </article>
 
-        <header>
+      <header>
         <div id="floating-config-button">
           <a
             href="#"
@@ -418,7 +422,6 @@ function DemoApp() {
           </a>
         </div>
       </header>
-
     </main>
   );
 }
