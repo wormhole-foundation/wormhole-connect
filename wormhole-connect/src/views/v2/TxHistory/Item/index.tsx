@@ -47,7 +47,6 @@ const TxHistoryItem = (props: Props) => {
     txHash,
     amount,
     amountUsd,
-    recipient,
     fromChain,
     fromToken,
     toChain,
@@ -64,8 +63,7 @@ const TxHistoryItem = (props: Props) => {
     ),
     [],
   );
-  const { getTokenPrice, isFetchingTokenPrices, lastTokenPriceUpdate } =
-    useTokens();
+  const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   // Render details for the sent amount
   const sentAmount = useMemo(() => {
@@ -133,15 +131,17 @@ const TxHistoryItem = (props: Props) => {
         </Stack>
       </Stack>
     );
+    // ESLint complains that lastTokenPriceUpdate is unused/unnecessary here,
+    // but we want to recompute the price after we update conversion rates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    isFetchingTokenPrices,
     lastTokenPriceUpdate,
-    receiveAmount,
+    toChain,
     toToken,
-    recipient,
+    receiveAmount,
+    getTokenPrice,
     separator,
     theme.palette.text.secondary,
-    toChain,
   ]);
 
   // Vertical line that connects sender and receiver token icons

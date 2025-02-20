@@ -289,7 +289,7 @@ const WidgetItem = (props: Props) => {
               </Typography>
               <Stack direction="row" alignItems="center">
                 <Typography fontSize={14} marginRight="8px">
-                  {`${sdkAmount.display(sdkAmount.truncate(amount, 4))} ${
+                  {`${sdkAmount.display(sdkAmount.truncate(amount, 6))} ${
                     token.symbol
                   }`}
                 </Typography>
