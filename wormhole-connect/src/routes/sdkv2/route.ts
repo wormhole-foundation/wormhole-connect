@@ -387,10 +387,12 @@ const isNttSupportedToken = async (
     return isSourceTokenSupported && destTokens.length > 0;
   };
 
-  const [isManualSupported, isAutomaticSupported] = await Promise.all([
-    checkRouteSupport('ManualNtt'),
-    checkRouteSupport('AutomaticNtt'),
-  ]);
+  const [isManualSupported, isAutomaticSupported, isM0Supported] =
+    await Promise.all([
+      checkRouteSupport('ManualNtt'),
+      checkRouteSupport('AutomaticNtt'),
+      checkRouteSupport('M0AutomaticRoute'),
+    ]);
 
-  return isManualSupported || isAutomaticSupported;
+  return isManualSupported || isAutomaticSupported || isM0Supported;
 };
