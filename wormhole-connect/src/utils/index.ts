@@ -284,23 +284,34 @@ export const isEmptyObject = (value: object | null | undefined) => {
   return true;
 };
 
-export const getTokenExplorerUrl = (chain: Chain, address: string) => {
-  const chainConfig = config.chains[chain]!;
-  let explorerUrl = '';
+export type ExplorerPathType = 'wallet' | 'tx' | 'token';
 
-  if (chain === 'Sui') {
-    explorerUrl = `${chainConfig.explorerUrl}coin/${address}`;
-  } else if (chain === 'Aptos') {
-    if (isHexString(address)) {
-      explorerUrl = `${chainConfig.explorerUrl}fungible_asset/${address}`;
-    } else {
-      explorerUrl = `${chainConfig.explorerUrl}coin/${address}`;
-    }
-  } else {
-    explorerUrl = `${chainConfig.explorerUrl}address/${address}`;
+export const getExplorerUrl = (
+  chain: Chain,
+  path: string,
+  pathType: ExplorerPathType,
+) => {
+  const chainConfig = config.chains[chain]!;
+  const baseUrl = chainConfig.explorerUrl;
+
+  if (pathType === 'wallet') {
+    return `${baseUrl}address/${path}`;
   }
 
-  return explorerUrl;
+  if (pathType === 'tx') {
+    return `${baseUrl}tx/${path}`;
+  }
+
+  switch (chain) {
+    case 'Sui':
+      return `${baseUrl}coin/${path}`;
+    case 'Aptos':
+      return `${baseUrl}${
+        isHexString(path) ? 'fungible_asset' : 'coin'
+      }/${path}`;
+    default:
+      return `${baseUrl}address/${path}`;
+  }
 };
 
 // Frankenstein tokens are wormhole-wrapped tokens that are not native to the chain
