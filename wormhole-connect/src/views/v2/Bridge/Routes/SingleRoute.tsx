@@ -639,14 +639,17 @@ const SingleRoute = (props: Props) => {
             {warningMessages}
           </CardContent>
           {showGasSlider && (
-            <Collapse in={showGasSlider}>
-              <GasSlider
-                destinationGasDrop={
-                  receiveNativeAmount || amount.fromBaseUnits(0n, 8)
-                }
-                disabled={isGasSliderDisabled}
-              />
-            </Collapse>
+            <>
+              <Divider flexItem sx={{ margin: '0px 16px' }} />
+              <Collapse in={showGasSlider}>
+                <GasSlider
+                  destinationGasDrop={
+                    receiveNativeAmount || amount.fromBaseUnits(0n, 8)
+                  }
+                  disabled={isGasSliderDisabled}
+                />
+              </Collapse>
+            </>
           )}
         </CardActionArea>
       </Card>

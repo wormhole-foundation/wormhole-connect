@@ -7,10 +7,11 @@ import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Collapse from '@mui/material/Collapse';
-import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import { amount } from '@wormhole-foundation/sdk';
 
@@ -40,34 +41,8 @@ const useStyles = makeStyles()(() => ({
     alignItems: 'center',
     width: '100%',
   },
-}));
-
-type SliderProps = {
-  baseColor: string;
-  railColor: string;
-};
-
-const StyledSlider = styled(Slider, {
-  shouldForwardProp: (prop) =>
-    !['baseColor', 'railColor'].includes(prop.toString()),
-})<SliderProps>(({ baseColor, railColor, theme }) => ({
-  alignSelf: 'start',
-  color: baseColor,
-  height: 8,
-  left: '10px',
-  width: 'calc(100% - 20px)',
-  '& .MuiSlider-rail': {
-    height: '8px',
-    backgroundColor: railColor,
-    opacity: 0.1,
-  },
-  '& .MuiSlider-track': {
-    height: '8px',
-  },
-  '& .MuiSlider-thumb': {
-    height: 20,
-    width: 20,
-    backgroundColor: theme.palette.primary.main,
+  gasButton: {
+    borderRadius: '8px',
   },
 }));
 
@@ -105,6 +80,7 @@ const GasSlider = (props: {
 
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
   const [percentage, setPercentage] = useState(0);
+  const [gasSelection, setGasSelection] = useState();
 
   const [debouncedPercentage] = useDebounce(percentage, 500);
 
@@ -154,7 +130,7 @@ const GasSlider = (props: {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Typography>{`Need more gas on ${destChain}?`}</Typography>
+          <Typography>{`Need extra ${nativeGasToken.symbol} on ${destChain}?`}</Typography>
           <StyledSwitch
             checked={isGasSliderOpen}
             disabled={props.disabled}
@@ -165,41 +141,63 @@ const GasSlider = (props: {
 
               if (!checked) {
                 setPercentage(0);
+                setGasSelection(undefined);
                 dispatch(setToNativeToken(0));
               }
             }}
           />
         </Stack>
         <Collapse in={isGasSliderOpen} unmountOnExit>
-          <div className={classes.container}>
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              {`Use the slider to buy extra ${nativeGasToken.symbol} for future transactions.`}
-            </Typography>
-            <div>
-              <StyledSlider
-                aria-label="Native gas conversion amount"
-                defaultValue={0}
-                disabled={props.disabled}
-                value={percentage}
-                baseColor={theme.palette.primary.main}
-                railColor={theme.palette.secondary.main}
-                step={1}
-                min={0}
-                max={100}
-                valueLabelFormat={() => `${percentage}%`}
-                valueLabelDisplay="auto"
-                onChange={(e: any) => setPercentage(e.target.value)}
-              />
-              <div className={classes.amounts}>
-                <Typography color={theme.palette.text.secondary} fontSize={14}>
-                  Additional gas
-                </Typography>
-                <Typography color={theme.palette.text.secondary} fontSize={14}>
-                  {nativeGasPrice}
-                </Typography>
-              </div>
+          <Stack className={classes.container}>
+            <ToggleButtonGroup
+              color="primary"
+              value={gasSelection}
+              exclusive
+              fullWidth
+              onChange={(_, selection) => {
+                setGasSelection(selection);
+                setPercentage(
+                  selection === 'small'
+                    ? 25
+                    : selection === 'medium'
+                    ? 50
+                    : selection === 'large'
+                    ? 100
+                    : 0,
+                );
+              }}
+            >
+              <ToggleButton
+                disableRipple
+                className={classes.gasButton}
+                value="small"
+              >
+                Small
+              </ToggleButton>
+              <ToggleButton
+                disableRipple
+                className={classes.gasButton}
+                value="medium"
+              >
+                Medium
+              </ToggleButton>
+              <ToggleButton
+                disableRipple
+                className={classes.gasButton}
+                value="large"
+              >
+                Large
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <div className={classes.amounts}>
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                Additional gas
+              </Typography>
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                {nativeGasPrice}
+              </Typography>
             </div>
-          </div>
+          </Stack>
         </Collapse>
       </CardContent>
     </Card>
