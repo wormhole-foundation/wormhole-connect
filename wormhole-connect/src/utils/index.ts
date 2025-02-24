@@ -294,23 +294,22 @@ export const getExplorerUrl = (
   const chainConfig = config.chains[chain]!;
   const baseUrl = chainConfig.explorerUrl;
 
-  if (pathType === 'wallet') {
-    return `${baseUrl}address/${path}`;
-  }
-
-  if (pathType === 'tx') {
-    return `${baseUrl}tx/${path}`;
-  }
-
-  switch (chain) {
-    case 'Sui':
-      return `${baseUrl}coin/${path}`;
-    case 'Aptos':
-      return `${baseUrl}${
-        isHexString(path) ? 'fungible_asset' : 'coin'
-      }/${path}`;
-    default:
+  switch (pathType) {
+    case 'wallet':
       return `${baseUrl}address/${path}`;
+    case 'tx':
+      return `${baseUrl}tx/${path}`;
+    default:
+      switch (chain) {
+        case 'Sui':
+          return `${baseUrl}coin/${path}`;
+        case 'Aptos':
+          return `${baseUrl}${
+            isHexString(path) ? 'fungible_asset' : 'coin'
+          }/${path}`;
+        default:
+          return `${baseUrl}token/${path}`;
+      }
   }
 };
 
