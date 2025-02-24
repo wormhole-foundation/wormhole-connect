@@ -125,7 +125,6 @@ const TransactionDetails = () => {
     getTokenPrice,
     amount,
     sender,
-    sendTx,
     theme.palette.text.secondary,
     isFetchingTokenPrices,
     separator,
