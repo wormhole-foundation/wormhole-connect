@@ -42,6 +42,8 @@ interface Props {
   config?: WormholeConnectConfig;
 }
 
+let _HAS_SET_CONFIG = false;
+
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
 function AppRouter(props: Props) {
   const { classes } = useStyles();
@@ -53,7 +55,7 @@ function AppRouter(props: Props) {
   //
   // We don't allow config changes afterwards because they could lead to lots of
   // broken and undesired behavior.
-  React.useEffect(() => {
+  if (!_HAS_SET_CONFIG) {
     if (!isEmptyObject(props.config)) {
       setConfig(props.config);
       dispatch(clearTransfer());
@@ -63,7 +65,9 @@ function AppRouter(props: Props) {
       type: 'load',
       config: props.config,
     });
-  }, []);
+
+    _HAS_SET_CONFIG = true;
+  }
 
   const route = useSelector((state: RootState) => state.router.route);
   const prevRoute = usePrevious(route);

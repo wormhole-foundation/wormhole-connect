@@ -99,7 +99,7 @@ export interface WormholeConnectEventMeta {
   meta: {
     version: string;
     hash: string;
-    host: string;
+    host?: string;
   };
 }
 

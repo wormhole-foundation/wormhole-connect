@@ -9,12 +9,15 @@ import {
 export function wrapEventHandler(
   integrationHandler?: WormholeConnectEventHandler,
 ): TriggerEventHandler {
+  const host =
+    typeof window === 'undefined' ? undefined : window.location?.host;
+
   return function (event: WormholeConnectEventCore) {
     const eventWithMeta: WormholeConnectEvent = {
       meta: {
         version: CONNECT_VERSION,
         hash: CONNECT_GIT_HASH,
-        host: window?.location?.host,
+        host,
       },
       ...event,
     };
