@@ -296,9 +296,13 @@ export const getExplorerUrl = (
 
   switch (pathType) {
     case 'wallet':
-      return `${baseUrl}address/${path}`;
+      return chain === 'Aptos'
+        ? `${baseUrl}account/${path}`
+        : `${baseUrl}address/${path}`;
     case 'tx':
-      return `${baseUrl}tx/${path}`;
+      return chain === 'Aptos'
+        ? `${baseUrl}txn/${path}`
+        : `${baseUrl}tx/${path}`;
     default:
       switch (chain) {
         case 'Sui':
@@ -307,12 +311,13 @@ export const getExplorerUrl = (
           return `${baseUrl}${
             isHexString(path) ? 'fungible_asset' : 'coin'
           }/${path}`;
+        case 'Solana':
+          return `${baseUrl}address/${path}`;
         default:
           return `${baseUrl}token/${path}`;
       }
   }
 };
-
 // Frankenstein tokens are wormhole-wrapped tokens that are not native to the chain
 // and likely have no liquidity.
 // An example of a Frankenstein token is wormhole-wrapped Arbitrum WETH on Solana.
