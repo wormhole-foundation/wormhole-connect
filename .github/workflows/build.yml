@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
@@ -30,8 +30,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
@@ -56,7 +56,7 @@ jobs:
   check-token-list:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -64,7 +64,7 @@ jobs:
             tokens:
               - 'wormhole-connect/config/mainnet/wrappedTokens.ts'
               - 'wormhole-connect/config/testnet/wrappedTokens.ts'
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         if: steps.filter.outputs.tokens == 'true'
         with:
           node-version: 20
@@ -76,12 +76,13 @@ jobs:
       - run: npm run checkForeignAssets
         if: steps.filter.outputs.tokens == 'true'
         working-directory: wormhole-connect
+
   build-hosted:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
@@ -94,8 +95,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
