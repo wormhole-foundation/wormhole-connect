@@ -62,14 +62,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            tokens:
+              - 'wormhole-connect/config/mainnet/wrappedTokens.ts'
+              - 'wormhole-connect/config/testnet/wrappedTokens.ts'
       - uses: actions/setup-node@v3
+        if: steps.filter.outputs.tokens == 'true'
         with:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: npm ci
+        if: steps.filter.outputs.tokens == 'true'
         working-directory: wormhole-connect
       - run: npm run checkForeignAssets
+        if: steps.filter.outputs.tokens == 'true'
         working-directory: wormhole-connect
   build-hosted:
     runs-on: ubuntu-latest
