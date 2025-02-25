@@ -9,9 +9,6 @@ on:
         - staging
         - production
         - mainnet
-    paths:
-      - wormhole-connect/src/config/mainnet/wrappedTokens.ts
-      - wormhole-connect/src/config/testnet/wrappedTokens.ts
 
 jobs: 
   check-wrapped-token-cache:
