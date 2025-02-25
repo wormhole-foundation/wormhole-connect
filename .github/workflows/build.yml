@@ -62,8 +62,8 @@ jobs:
         with:
           filters: |
             tokens:
-              - 'wormhole-connect/config/mainnet/wrappedTokens.ts'
-              - 'wormhole-connect/config/testnet/wrappedTokens.ts'
+              - 'wormhole-connect/src/config/mainnet/wrappedTokens.ts'
+              - 'wormhole-connect/src/config/testnet/wrappedTokens.ts'
       - uses: actions/setup-node@v4
         if: steps.filter.outputs.tokens == 'true'
         with:
