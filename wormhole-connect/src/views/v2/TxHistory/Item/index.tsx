@@ -12,6 +12,7 @@ import config from 'config';
 import AssetBadge from 'components/AssetBadge';
 import {
   calculateUSDPrice,
+  getExplorerUrl,
   getUSDFormat,
   millisToRelativeTime,
   trimTxHash,
@@ -19,6 +20,7 @@ import {
 
 import type { Transaction } from 'config/types';
 import { useTokens } from 'contexts/TokensContext';
+import ExplorerLink from 'components/ExplorerLink';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
@@ -176,6 +178,15 @@ const TxHistoryItem = (props: Props) => {
     return `${dateTimeFormat.format(senderDate)}`;
   }, [senderTimestamp]);
 
+  const chainExplorerLink = useMemo(() => {
+    return (
+      <ExplorerLink
+        url={getExplorerUrl(fromChain, txHash, 'tx')}
+        text={trimTxHash(txHash, 4, 4)}
+      />
+    );
+  }, [fromChain, txHash]);
+
   return (
     <div className={classes.container}>
       <Card className={classes.card}>
@@ -193,7 +204,7 @@ const TxHistoryItem = (props: Props) => {
                 color={theme.palette.text.secondary}
                 display="flex"
               >
-                <span>{`Transaction #${trimTxHash(txHash, 4, 4)}`}</span>
+                <span>Transaction #{chainExplorerLink}</span>
                 <span>{transactionDateTime}</span>
               </Typography>
             }
