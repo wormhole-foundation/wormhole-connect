@@ -1,16 +1,10 @@
 name: Check wrapped tokens cache
 
 on:
-  pull_request:
   push:
-    branches:
-      - development
-      - staging
-      - production
-      - mainnet
-  paths:
-    - wormhole-connect/src/config/mainnet/wrappedTokens.ts
-    - wormhole-connect/src/config/testnet/wrappedTokens.ts
+    paths:
+      - wormhole-connect/src/config/mainnet/wrappedTokens.ts
+      - wormhole-connect/src/config/testnet/wrappedTokens.ts
 
 jobs: 
   check-wrapped-token-cache:
