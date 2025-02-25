@@ -55,11 +55,6 @@ jobs:
 
   check-token-list:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'push' &&
-      (contains(github.event.commits.*.modified, 'wormhole-connect/src/config/mainnet/wrappedTokens.ts') ||
-       contains(github.event.commits.*.modified, 'wormhole-connect/src/config/testnet/wrappedTokens.ts'))
-
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v3
