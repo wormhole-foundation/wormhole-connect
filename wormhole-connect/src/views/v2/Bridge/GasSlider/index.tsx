@@ -4,8 +4,6 @@ import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
 import { useTheme } from '@mui/material';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Collapse from '@mui/material/Collapse';
 import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
@@ -21,18 +19,12 @@ import { setToNativeToken } from 'store/relay';
 import { useTokens } from 'contexts/TokensContext';
 
 const useStyles = makeStyles()(() => ({
-  card: {
+  content: {
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
     overflow: 'visible',
-    padding: '0 4px',
-  },
-  cardContent: {
-    paddingTop: '8px',
-    ':last-child': {
-      padding: '16px 20px',
-    },
+    padding: '16px 20px',
   },
   container: {
     display: 'flex',
@@ -153,62 +145,56 @@ const GasSlider = (props: {
   }
 
   return (
-    <Card className={classes.card} variant="elevation">
-      <CardContent className={classes.cardContent}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <Typography>{`Need more gas on ${destChain}?`}</Typography>
-          <StyledSwitch
-            checked={isGasSliderOpen}
-            disabled={props.disabled}
-            onClick={(e: any) => {
-              const { checked } = e.target;
+    <div className={classes.content}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Typography>{`Need more gas on ${destChain}?`}</Typography>
+        <StyledSwitch
+          checked={isGasSliderOpen}
+          disabled={props.disabled}
+          onClick={(e: any) => {
+            const { checked } = e.target;
 
-              setIsGasSliderOpen(checked);
+            setIsGasSliderOpen(checked);
 
-              if (!checked) {
-                setPercentage(0);
-                dispatch(setToNativeToken(0));
-              }
-            }}
-          />
-        </Stack>
-        <Collapse in={isGasSliderOpen} unmountOnExit>
-          <div className={classes.container}>
-            <Typography color={theme.palette.text.secondary} fontSize={14}>
-              {`Use the slider to buy extra ${nativeGasToken.symbol} for future transactions.`}
-            </Typography>
-            <div>
-              <StyledSlider
-                aria-label="Native gas conversion amount"
-                defaultValue={0}
-                disabled={props.disabled}
-                value={percentage}
-                baseColor={theme.palette.primary.main}
-                railColor={theme.palette.secondary.main}
-                step={1}
-                min={0}
-                max={100}
-                valueLabelFormat={() => `${percentage}%`}
-                valueLabelDisplay="auto"
-                onChange={(e: any) => setPercentage(e.target.value)}
-              />
-              <div className={classes.amounts}>
-                <Typography color={theme.palette.text.secondary} fontSize={14}>
-                  Additional gas
-                </Typography>
-                <Typography color={theme.palette.text.secondary} fontSize={14}>
-                  {nativeGasPrice}
-                </Typography>
-              </div>
+            if (!checked) {
+              setPercentage(0);
+              dispatch(setToNativeToken(0));
+            }
+          }}
+        />
+      </Stack>
+      <Collapse in={isGasSliderOpen} unmountOnExit>
+        <div className={classes.container}>
+          <Typography color={theme.palette.text.secondary} fontSize={14}>
+            {`Use the slider to buy extra ${nativeGasToken.symbol} for future transactions.`}
+          </Typography>
+          <div>
+            <StyledSlider
+              aria-label="Native gas conversion amount"
+              defaultValue={0}
+              disabled={props.disabled}
+              value={percentage}
+              baseColor={theme.palette.primary.main}
+              railColor={theme.palette.secondary.main}
+              step={1}
+              min={0}
+              max={100}
+              valueLabelFormat={() => `${percentage}%`}
+              valueLabelDisplay="auto"
+              onChange={(e: any) => setPercentage(e.target.value)}
+            />
+            <div className={classes.amounts}>
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                Additional gas
+              </Typography>
+              <Typography color={theme.palette.text.secondary} fontSize={14}>
+                {nativeGasPrice}
+              </Typography>
             </div>
           </div>
-        </Collapse>
-      </CardContent>
-    </Card>
+        </div>
+      </Collapse>
+    </div>
   );
 };
 
