@@ -28,6 +28,12 @@ const useStyles = makeStyles()(() => ({
     overflow: 'visible',
     padding: '0 4px',
   },
+  cardContent: {
+    paddingTop: '8px',
+    ':last-child': {
+      padding: '16px 20px',
+    },
+  },
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -148,7 +154,7 @@ const GasSlider = (props: {
 
   return (
     <Card className={classes.card} variant="elevation">
-      <CardContent>
+      <CardContent className={classes.cardContent}>
         <Stack
           direction="row"
           alignItems="center"
@@ -182,7 +188,7 @@ const GasSlider = (props: {
                 disabled={props.disabled}
                 value={percentage}
                 baseColor={theme.palette.primary.main}
-                railColor={theme.palette.background.default}
+                railColor={theme.palette.secondary.main}
                 step={1}
                 min={0}
                 max={100}
