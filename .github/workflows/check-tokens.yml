@@ -1,0 +1,31 @@
+name: Check wrapped tokens cache
+
+on:
+  push:
+    pull_request:
+    push:
+      branches:
+        - development
+        - staging
+        - production
+        - mainnet
+    paths:
+      - wormhole-connect/src/config/mainnet/wrappedTokens.ts
+      - wormhole-connect/src/config/testnet/wrappedTokens.ts
+
+jobs: 
+  check-wrapped-token-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: "wormhole-connect/package-lock.json"
+      - run: npm ci
+        working-directory: wormhole-connect
+      - run: npm run checkForeignAssets
+        working-directory: wormhole-connect
+
+
