@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
-import { Select, MenuItem, CircularProgress } from '@mui/material';
+import { Select, MenuItem, CircularProgress, useTheme } from '@mui/material';
 
 import config, { getWormholeContextV2 } from 'config';
 import { isValidTxId } from 'utils';
@@ -71,6 +71,8 @@ function TxSearch() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const theme = useTheme();
 
   const routeContext = useContext(RouteContext);
 
@@ -210,7 +212,16 @@ function TxSearch() {
       <AlertBanner show={!!error} content={error} error margin="0 0 16px 0" />
 
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
-        {loading ? <CircularProgress size={24} /> : 'Search'}
+        {loading ? (
+          <CircularProgress
+            size={24}
+            sx={{
+              color: theme.palette.primary.contrastText,
+            }}
+          />
+        ) : (
+          'Search'
+        )}
       </Button>
       <div className={classes.footerNavBar}>
         <FooterNavBar />
