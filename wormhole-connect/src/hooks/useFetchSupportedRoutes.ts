@@ -77,12 +77,6 @@ const useFetchSupportedRoutes = (): HookReturn => {
           );
         }
 
-        // HAX
-        // TODO token refactor
-        if (route.rc.name.includes('Mayan')) {
-          supported = true;
-        }
-
         if (supported) {
           _routes.push(name);
         }
