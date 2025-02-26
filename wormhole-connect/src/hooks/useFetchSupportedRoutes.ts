@@ -81,7 +81,7 @@ const useFetchSupportedRoutes = (): HookReturn => {
         // TODO token refactor
         if (
           route.rc.name.includes('Mayan') &&
-          route.rc.name !== 'MayanSwapSHUTTLE'
+          route.rc.name !== 'MayanRouteSHUTTLE'
         ) {
           supported = true;
         }
