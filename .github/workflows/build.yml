@@ -65,16 +65,16 @@ jobs:
               - 'wormhole-connect/src/config/mainnet/wrappedTokens.ts'
               - 'wormhole-connect/src/config/testnet/wrappedTokens.ts'
       - uses: actions/setup-node@v4
-        if: steps.filter.outputs.tokens == 'true'
+        if: steps.filter.outputs.tokens == 'true' || github.ref == 'refs/heads/development'
         with:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: npm ci
-        if: steps.filter.outputs.tokens == 'true'
+        if: steps.filter.outputs.tokens == 'true' || github.ref == 'refs/heads/development'
         working-directory: wormhole-connect
       - run: npm run checkForeignAssets
-        if: steps.filter.outputs.tokens == 'true'
+        if: steps.filter.outputs.tokens == 'true' || github.ref == 'refs/heads/development'
         working-directory: wormhole-connect
 
   build-hosted:
