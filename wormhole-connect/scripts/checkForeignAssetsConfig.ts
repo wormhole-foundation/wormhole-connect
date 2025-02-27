@@ -86,6 +86,13 @@ const checkEnvConfig = async (
 
           const configForeignAddress =
             wrappedTokens[tokenId.chain]?.[tokenId.address]?.[chain];
+
+          if (!configForeignAddress) {
+            // Skip chain for which there is no foreign asset configured
+            // Connect can fetch them dynamically at runtime anyway
+            return;
+          }
+
           if (chain === tokenId.chain) {
             if (configForeignAddress) {
               throw new Error(
@@ -120,7 +127,9 @@ const checkEnvConfig = async (
                     `❌ Invalid foreign address detected! Env: ${env}, Token ${tokenId.chain} ${tokenId.address}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress}`,
                   );
                 } else {
-                  console.log('✅ Config matches');
+                  console.log(
+                    `✅ ${tokenId.chain} ${tokenId.address} on ${chain} is correctly set to ${foreignAddress}`,
+                  );
                 }
               } else {
                 if (!recommendedUpdates[tokenId.chain]) {
