@@ -28,3 +28,9 @@ yarn-debug.log*
 yarn-error.log*
 
 tsconfig.tsbuildinfo
+
+# Playwright
+/blob-report/
+/playwright/.cache/
+/playwright-report/
+/test-results/

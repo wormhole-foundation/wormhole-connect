@@ -32,7 +32,7 @@ article {
   display: flex;
 }
 
-#demo-contents {
+#sample-app {
   flex-grow: 2;
 }
 

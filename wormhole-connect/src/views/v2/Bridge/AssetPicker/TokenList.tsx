@@ -289,6 +289,7 @@ const TokenList = (props: Props) => {
     <SearchableList<Token>
       searchPlaceholder={placeholder}
       className={classes.tokenList}
+      dataTestId="token-search-list"
       listTitle={
         shouldShowEmptyMessage ? (
           noTokensMessage

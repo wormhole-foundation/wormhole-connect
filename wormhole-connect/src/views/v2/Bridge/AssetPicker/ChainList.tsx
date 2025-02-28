@@ -114,12 +114,13 @@ const ChainList = (props: Props) => {
 
   const shortList = useMemo(() => {
     return (
-      <List component={Stack} direction="row">
+      <List component={Stack} direction="row" data-testid="chain-short-list">
         {topChains.map((chain: ChainConfig) => (
           <Tooltip key={chain.key} title={chain.displayName}>
             <ListItemButton
               selected={selectedChainConfig?.key === chain.key}
               className={classes.chainButton}
+              data-testid={`chain-button-${chain.key.toLocaleLowerCase()}`}
               onClick={() => onChainSelect(chain.key)}
             >
               <ChainIcon icon={chain.icon} />

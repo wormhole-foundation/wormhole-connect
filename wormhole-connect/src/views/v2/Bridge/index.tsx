@@ -308,6 +308,7 @@ const Bridge = () => {
           wallet={sendingWallet}
           isSource={true}
           isTransactionInProgress={isTransactionInProgress}
+          dataTestId="source-asset-picker"
         />
         <SwapInputs />
       </div>
@@ -351,6 +352,7 @@ const Bridge = () => {
           wallet={receivingWallet}
           isSource={false}
           isTransactionInProgress={isTransactionInProgress}
+          dataTestId="dest-asset-picker"
         />
       </div>
     );
@@ -379,6 +381,7 @@ const Bridge = () => {
           align="left"
           text={config.ui.title ?? 'Wormhole Connect'}
           size={18}
+          testId="bridge-view-header"
         />
         <Tooltip
           title={!sendingWallet?.address ? 'No connected wallets found' : ''}
@@ -509,6 +512,7 @@ const Bridge = () => {
     return (
       <Button
         disabled={confirmTransactionDisabled}
+        data-testid="confirm-transaction-button"
         variant="primary"
         className={classes.confirmTransaction}
         onClick={() => onConfirm()}
@@ -567,7 +571,10 @@ const Bridge = () => {
       : '';
 
   return (
-    <div className={joinClass([classes.bridgeContent, classes.spacer])}>
+    <div
+      className={joinClass([classes.bridgeContent, classes.spacer])}
+      data-testid="bridge-view"
+    >
       {header}
       {config.ui.showInProgressWidget && (
         <TxHistoryWidget disabled={isTransactionInProgress} />

@@ -597,7 +597,11 @@ const SingleRoute = (props: Props) => {
   }
 
   return (
-    <div key={props.route} className={classes.container}>
+    <div
+      key={props.route}
+      className={classes.container}
+      data-testid={`route-${props.route}${isSelected ? '-selected' : ''}`}
+    >
       <Card
         className={joinClass([
           classes.card,

@@ -82,7 +82,9 @@
     "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts",
     "checkForeignAssets": "npx tsx scripts/checkForeignAssetsConfig.ts",
     "preview": "vite preview",
-    "unused:exports": "ts-unused-exports ./tsconfig.json --ignoreLocallyUsed"
+    "unused:exports": "ts-unused-exports ./tsconfig.json --ignoreLocallyUsed",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "browserslist": {
     "production": [
@@ -103,6 +105,7 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.24.4",
     "@kev1n-peters/vite-plugin-node-polyfills": "^0.17.4",
+    "@playwright/test": "^1.50.1",
     "@types/node": "^20",
     "@types/node-fetch": "^2.6.3",
     "@types/react": "^18.0.26",

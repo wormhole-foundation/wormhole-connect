@@ -93,6 +93,7 @@ type Props = {
   wallet: WalletData;
   isSource: boolean;
   isTransactionInProgress: boolean;
+  dataTestId?: string;
 };
 
 const AssetPicker = (props: Props) => {
@@ -191,6 +192,7 @@ const AssetPicker = (props: Props) => {
           !chainConfig && classes.inputAreaEmpty,
           props.isTransactionInProgress && classes.disabled,
         ])}
+        data-testid={props.dataTestId}
         variant="elevation"
         onMouseDown={(e) => {
           if (mobile) {

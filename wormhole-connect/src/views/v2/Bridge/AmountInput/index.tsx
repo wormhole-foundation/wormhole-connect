@@ -81,6 +81,7 @@ const DebouncedTextField = memo(
     return (
       <TextField
         {...props}
+        data-testid="amount-input"
         value={innerValue}
         focused={isFocused}
         onChange={onInnerChange}

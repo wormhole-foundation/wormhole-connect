@@ -32,7 +32,7 @@ function Header(props: Props) {
   };
   const { classes } = useStyles(styleProps);
   return (
-    <div className={classes.title} data-test-id={props.testId}>
+    <div className={classes.title} data-testid={props.testId}>
       {props.text}
     </div>
   );

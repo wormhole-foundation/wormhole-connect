@@ -27,6 +27,7 @@ type SearchableListProps<T> = {
   className?: string;
   items: T[];
   loading?: ReactNode;
+  dataTestId?: string;
   renderFn: (item: T, index: number) => ReactNode;
   filterFn: (item: T, query: string) => boolean;
   onQueryChange?: (query: string) => void;
@@ -56,7 +57,10 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         }}
         placeholder={props.searchPlaceholder}
       />
-      <List className={joinClass([classes.searchList, scrollbarClass])}>
+      <List
+        className={joinClass([classes.searchList, scrollbarClass])}
+        data-testid={props.dataTestId}
+      >
         <Box sx={{ padding: '0 16px' }}>{props.listTitle}</Box>
         {props.loading || filteredList.map(props.renderFn)}
       </List>

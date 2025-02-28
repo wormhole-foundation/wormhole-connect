@@ -145,8 +145,9 @@ const Routes = ({ ...props }: Props) => {
 
       {routes.length > 1 && (
         <Link
-          onClick={() => setShowAll((prev) => !prev)}
           className={classes.otherRoutesToggle}
+          data-testid="other-routes-toggle"
+          onClick={() => setShowAll((prev) => !prev)}
         >
           {showAll ? 'Hide other routes' : 'View other routes'}
         </Link>

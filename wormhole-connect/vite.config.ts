@@ -133,7 +133,7 @@ export default defineConfig(({ command, mode }) => {
         outDir: './build',
         rollupOptions: {
           input: {
-            main: 'src/demo.tsx',
+            main: 'src/SampleApp.tsx',
             index: 'index.html',
           },
           output,

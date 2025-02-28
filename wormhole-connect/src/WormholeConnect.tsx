@@ -26,6 +26,15 @@ export default function WormholeConnect({
   config,
   theme,
 }: WormholeConnectProps) {
+  React.useEffect(() => {
+    // IMPORTANT: This is a workaround to expose the Redux store to the window object so it can be used in automated tests.
+    if (!globalThis.dispatchReduxAction) {
+      (window as any).dispatchReduxAction = (action: any) => {
+        store.dispatch(action);
+      };
+    }
+  }, []);
+
   // Handle theme changes at any time
   const muiTheme = React.useMemo(
     () => generateTheme(theme ?? { mode: 'dark' }),
