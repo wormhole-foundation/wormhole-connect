@@ -299,7 +299,6 @@ const Bridge = () => {
           chainList={supportedSourceChains}
           token={sourceToken}
           tokenList={sourceTokens}
-          isFetching={false}
           setChain={(value: Chain) => {
             selectFromChain(dispatch, value, sendingWallet);
           }}
