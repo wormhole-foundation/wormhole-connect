@@ -70,12 +70,6 @@ export class SDKv2Route {
     const fromChainSupported = supportedChains.includes(fromContext.chain);
     const toChainSupported = supportedChains.includes(toContext.chain);
 
-    const fromTokenSupported = !!(
-      await this.rc.supportedSourceTokens(fromContext.context)
-    ).find((tokenId) => {
-      return isSameToken(tokenId, sourceToken);
-    });
-
     if (
       this.IS_TOKEN_BRIDGE_ROUTE &&
       (await isNttSupportedToken(
@@ -98,25 +92,13 @@ export class SDKv2Route {
     });
 
     const isSupported =
-      fromChainSupported &&
-      toChainSupported &&
-      fromTokenSupported &&
-      toTokenSupported;
+      fromChainSupported && toChainSupported && toTokenSupported;
 
     return isSupported;
   }
 
   isSupportedChain(chain: Chain): boolean {
     return this.rc.supportedChains(config.network).includes(chain);
-  }
-
-  async supportedSourceTokens(fromChain?: Chain | undefined): Promise<Token[]> {
-    if (!fromChain) return [];
-
-    const fromContext = await this.getV2ChainContext(fromChain);
-    return (await this.rc.supportedSourceTokens(fromContext.context))
-      .map((t: TokenId) => config.tokens.get(t))
-      .filter((tc) => tc != undefined) as Token[];
   }
 
   async supportedDestTokens(
@@ -375,16 +357,13 @@ const isNttSupportedToken = async (
     const route: SDKv2Route | undefined = config.routes.get(routeName);
     if (!route) return false;
 
-    const [sourceTokens, destTokens] = await Promise.all([
-      route.rc.supportedSourceTokens(fromContext),
-      route.rc.supportedDestinationTokens(token, fromContext, toContext),
-    ]);
-
-    const isSourceTokenSupported = sourceTokens.some((t) =>
-      isSameToken(t, token),
+    const destTokens = await route.rc.supportedDestinationTokens(
+      token,
+      fromContext,
+      toContext,
     );
 
-    return isSourceTokenSupported && destTokens.length > 0;
+    return destTokens.length > 0;
   };
 
   const [isManualSupported, isAutomaticSupported, isM0Supported] =
