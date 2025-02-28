@@ -24,12 +24,17 @@ export const useWalletCompatibility = ({
   return useMemo(() => {
     const isManualCCTPRoute = routes.length === 1 && routes[0] === 'ManualCCTP';
 
+    console.log(sendingWallet.name);
+
     if (isManualCCTPRoute) {
       // Aptos CCTP requires modern (AIP-62 standard) wallets with support for signing move script transaction types
       const compatibleWallets: AvailableWallets[] = [
         'Petra',
         'Pontem Wallet',
         'Nightly',
+        'Continue with Google',
+        // @ts-ignore
+        'Continue with Apple',
       ];
       if (
         (sourceChain === 'Aptos' &&
@@ -41,9 +46,7 @@ export const useWalletCompatibility = ({
       ) {
         return {
           isCompatible: false,
-          warning: `Please use ${compatibleWallets.join(
-            ' or ',
-          )} with the Aptos CCTP route.`,
+          warning: 'Please use a compatible wallet for this route.',
         };
       }
     }
