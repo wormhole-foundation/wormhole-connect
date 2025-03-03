@@ -5,8 +5,15 @@ import type { WormholeConnectTheme } from './theme';
 import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 import { buildConfig } from './config';
-import type { WormholeConnectConfig } from './config/types';
-import type { WormholeConnectEvent } from './telemetry/types';
+import type {
+  ExtendedTransferDetails,
+  WormholeConnectConfig,
+} from './config/types';
+import type {
+  TokenDetails,
+  TransferDetails,
+  WormholeConnectEvent,
+} from './telemetry/types';
 
 // Routes
 import { DEFAULT_ROUTES, nttRoutes } from './routes/operator';
@@ -49,6 +56,9 @@ export {
   Chain,
   WormholeConnectTheme,
   WormholeConnectEvent,
+  TransferDetails,
+  ExtendedTransferDetails,
+  TokenDetails,
 
   // Routes
   DEFAULT_ROUTES,
