@@ -58,12 +58,13 @@ export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
   walletConnection[type] = wallet;
 };
 
+// Returns false if the wallet connection was rejected by the user
 export const connectWallet = async (
   type: TransferWallet,
   chain: Chain,
   walletInfo: WalletData,
   dispatch: Dispatch<any>,
-) => {
+): Promise<boolean> => {
   const { wallet, name } = walletInfo;
 
   setWalletConnection(type, wallet);
@@ -74,7 +75,18 @@ export const connectWallet = async (
   }
 
   const { chainId, context } = chainConfig;
-  await wallet.connect({ chainId });
+
+  try {
+    await wallet.connect({ chainId });
+  } catch (e: any) {
+    if (e.message && e.message.toLowerCase().includes('rejected')) {
+      console.info('User rejected wallet connection');
+      // If user doesn't want to connect to this wallet, this is not an error we need to throw
+      return false;
+    } else {
+      throw e;
+    }
+  }
 
   config.triggerEvent({
     type: 'wallet.connect',
@@ -126,6 +138,8 @@ export const connectWallet = async (
   if (name !== ReadOnlyWallet.NAME) {
     localStorage.setItem(`wormhole-connect:wallet:${context}`, name);
   }
+
+  return true;
 };
 
 // Checks localStorage for previously used wallet for this chain
@@ -135,25 +149,19 @@ export const connectLastUsedWallet = async (
   chain: Chain,
   dispatch: Dispatch<any>,
 ) => {
-  const localStorageKey = `wormhole-connect:wallet:${chainConfig.context}`;
   const chainConfig = config.chains[chain!]!;
+  const localStorageKey = `wormhole-connect:wallet:${chainConfig.context}`;
   const lastUsedWallet = localStorage.getItem(localStorageKey);
 
-  try {
-    // if the last used wallet is not WalletConnect, try to connect to it
-    if (lastUsedWallet && lastUsedWallet !== 'WalletConnect') {
-      const options = await getWalletOptions(chainConfig);
-      const wallet = options.find((w) => w.name === lastUsedWallet);
-      if (wallet) {
-        await connectWallet(type, chain, wallet, dispatch);
+  // if the last used wallet is not WalletConnect, try to connect to it
+  if (lastUsedWallet && lastUsedWallet !== 'WalletConnect') {
+    const options = await getWalletOptions(chainConfig);
+    const wallet = options.find((w) => w.name === lastUsedWallet);
+    if (wallet) {
+      const connected = await connectWallet(type, chain, wallet, dispatch);
+      if (!connected) {
+        localStorage.removeItem(localStorageKey);
       }
-    }
-  } catch (e: any) {
-    if (e.message && e.message.includes('UserRejectedRequestError')) {
-      // If user doesn't want to connect to this wallet, remove it from localStorage
-      localStorage.removeItem(localStorageKey);
-    } else {
-      throw e;
     }
   }
 };
