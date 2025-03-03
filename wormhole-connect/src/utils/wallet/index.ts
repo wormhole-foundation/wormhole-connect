@@ -135,17 +135,25 @@ export const connectLastUsedWallet = async (
   chain: Chain,
   dispatch: Dispatch<any>,
 ) => {
+  const localStorageKey = `wormhole-connect:wallet:${chainConfig.context}`;
   const chainConfig = config.chains[chain!]!;
-  const lastUsedWallet = localStorage.getItem(
-    `wormhole-connect:wallet:${chainConfig.context}`,
-  );
+  const lastUsedWallet = localStorage.getItem(localStorageKey);
 
-  // if the last used wallet is not WalletConnect, try to connect to it
-  if (lastUsedWallet && lastUsedWallet !== 'WalletConnect') {
-    const options = await getWalletOptions(chainConfig);
-    const wallet = options.find((w) => w.name === lastUsedWallet);
-    if (wallet) {
-      await connectWallet(type, chain, wallet, dispatch);
+  try {
+    // if the last used wallet is not WalletConnect, try to connect to it
+    if (lastUsedWallet && lastUsedWallet !== 'WalletConnect') {
+      const options = await getWalletOptions(chainConfig);
+      const wallet = options.find((w) => w.name === lastUsedWallet);
+      if (wallet) {
+        await connectWallet(type, chain, wallet, dispatch);
+      }
+    }
+  } catch (e: any) {
+    if (e.message && e.message.includes('UserRejectedRequestError')) {
+      // If user doesn't want to connect to this wallet, remove it from localStorage
+      localStorage.removeItem(localStorageKey);
+    } else {
+      throw e;
     }
   }
 };
