@@ -2,6 +2,8 @@ import { TokenDetails, TransferDetails } from './types';
 import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { Token } from 'config/tokens';
 
+export * from './types';
+
 export function getTokenDetails(token: Token): TokenDetails {
   return {
     symbol: token.symbol,
