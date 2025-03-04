@@ -348,7 +348,7 @@ export const isStableCoin = (token: Token) => {
 };
 
 export const millisToHumanString = (ts: number): string => {
-  if (ts > 60000) {
+  if (ts >= 2 * 60000) {
     const minutes = Math.ceil(ts / 60000);
     return `~${minutes} min`;
   } else {
