@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -42,7 +42,7 @@ interface Props {
   config?: WormholeConnectConfig;
 }
 
-let _HAS_SET_CONFIG = false;
+let _HAS_SET_CONFIG_SSG = false;
 
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
 function AppRouter(props: Props) {
@@ -55,19 +55,32 @@ function AppRouter(props: Props) {
   //
   // We don't allow config changes afterwards because they could lead to lots of
   // broken and undesired behavior.
-  if (!_HAS_SET_CONFIG) {
-    if (!isEmptyObject(props.config)) {
-      setConfig(props.config);
+  const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
+    if (!isEmptyObject(customConfig)) {
+      setConfig(customConfig);
       dispatch(clearTransfer());
     }
 
     config.triggerEvent({
       type: 'load',
-      config: props.config,
+      config: customConfig,
     });
+  }, []);
 
-    _HAS_SET_CONFIG = true;
+  if (!_HAS_SET_CONFIG_SSG) {
+    // This runs once in SSG step (server-side pre-rendering)
+    if (props.config) {
+      loadConfig(props.config);
+    }
+    _HAS_SET_CONFIG_SSG = true;
   }
+
+  useEffect(() => {
+    if (props.config) {
+      loadConfig(props.config);
+    }
+  }, [props.config]);
+  // END config loading code
 
   const route = useSelector((state: RootState) => state.router.route);
   const prevRoute = usePrevious(route);
