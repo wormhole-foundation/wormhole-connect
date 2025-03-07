@@ -26,6 +26,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 
 import { wormholeConnectHosted } from './hosted';
 import type { HostedParameters } from './hosted';
+import { Token } from 'config/tokens';
 
 const {
   AutomaticTokenBridgeRoute,
@@ -47,6 +48,7 @@ export {
   WormholeConnectConfig,
   Chain,
   WormholeConnectTheme,
+  Token,
 
   // Routes
   DEFAULT_ROUTES,
