@@ -173,10 +173,28 @@ export const useConnectToLastUsedWallet = (): void => {
   );
 
   useEffect(() => {
-    if (fromChain)
-      connectLastUsedWallet(TransferWallet.SENDING, fromChain, dispatch);
-    if (toChain)
-      connectLastUsedWallet(TransferWallet.RECEIVING, toChain, dispatch);
+    let canceled = false;
+
+    const connect = async () => {
+      if (fromChain && !canceled)
+        await connectLastUsedWallet(
+          TransferWallet.SENDING,
+          fromChain,
+          dispatch,
+        );
+      if (toChain && !canceled)
+        await connectLastUsedWallet(
+          TransferWallet.RECEIVING,
+          toChain,
+          dispatch,
+        );
+    };
+
+    connect();
+
+    return () => {
+      canceled = true;
+    };
   }, [fromChain, toChain]);
 };
 
