@@ -126,6 +126,7 @@ function TokenItem(props: TokenItemProps) {
               <Typography fontSize={10} color={theme.palette.text.secondary}>
                 {!isNative(address) && (
                   <Link
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
                     className={classes.addressLink}
                     href={explorerURL}
