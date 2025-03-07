@@ -91,7 +91,7 @@ const TokenList = (props: Props) => {
     );
 
     const tokenSet: Set<string> = new Set();
-    const tokens: Array<Token> = [];
+    let tokens: Array<Token> = [];
 
     // First: Add previously selected token at the top of the list,
     // only if it's the selected token's chain
@@ -184,7 +184,7 @@ const TokenList = (props: Props) => {
     }
 
     if (config.tokenWhitelist && config.tokenWhitelist.length > 0) {
-      // If integrator has specified a token whitelist, the last step is to filter the token list by this whitelist.
+      // If integrator has specified a token whitelist, filter the token list by this whitelist.
       //
       // The logic behind how this works is a little complicated. The whitelist is an array of (string | TokenTuple).
       // The strings can be symbols like "USDC", which lets the integrator easily whitelist tokens across all supported chains.
@@ -240,9 +240,14 @@ const TokenList = (props: Props) => {
         }
       }
 
-      return tokens.filter(({ address }) =>
+      tokens = tokens.filter(({ address }) =>
         filteredTokens.has(address.toString()),
       );
+    }
+
+    if (config.isTokenSupportedHandler) {
+      // The last step is to filter the tokens by the integrator's token support handler
+      tokens = tokens.filter(config.isTokenSupportedHandler);
     }
 
     return tokens;

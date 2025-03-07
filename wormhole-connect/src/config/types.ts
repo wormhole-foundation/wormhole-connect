@@ -88,6 +88,8 @@ export type IsRouteSupportedHandler = (
   transferDetails: TransferDetails,
 ) => Promise<boolean>;
 
+export type IsTokenSupportedHandler = (token: Token) => boolean;
+
 // This is the integrator-provided config
 export interface WormholeConnectConfig {
   network?: Network; // New name for this, consistent with SDKv2
@@ -112,8 +114,15 @@ export interface WormholeConnectConfig {
 
   // Callbacks
   eventHandler?: WormholeConnectEventHandler;
+
+  // validateTransferHandler can be used to validate the transfer before signing the transaction
   validateTransferHandler?: ValidateTransferHandler;
+
+  // isRouteSupportedHandler can be used to disable certain routes from being selected
   isRouteSupportedHandler?: IsRouteSupportedHandler;
+
+  // isTokenSupportedHandler can be used to disable certain tokens from being selected
+  isTokenSupportedHandler?: IsTokenSupportedHandler;
 
   // UI details
   ui?: UiConfig;
@@ -157,6 +166,7 @@ export interface InternalConfig<N extends Network> {
   triggerEvent: TriggerEventHandler;
   validateTransfer?: ValidateTransferHandler;
   isRouteSupportedHandler?: IsRouteSupportedHandler;
+  isTokenSupportedHandler?: IsTokenSupportedHandler;
 
   // UI configuration
   ui: UiConfig;
