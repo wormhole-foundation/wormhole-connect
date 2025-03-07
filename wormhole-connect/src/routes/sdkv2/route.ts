@@ -9,6 +9,7 @@ import {
   TokenId as TokenId,
   TransferState,
   TransactionId,
+  Signer,
 } from '@wormhole-foundation/sdk';
 import { Token } from 'config/tokens';
 
@@ -262,12 +263,18 @@ export class SDKv2Route {
       throw quote.error;
     }
 
-    const signer = await SDKv2Signer.fromChain(
-      fromChain,
-      senderAddress,
-      {},
-      TransferWallet.SENDING,
-    );
+    let signer: Signer;
+
+    if (config.ui.testOptions?.enableHeadlessSigner) {
+      signer = await SDKv2Signer.fromPrivateKey(fromChain);
+    } else {
+      signer = await SDKv2Signer.fromChain(
+        fromChain,
+        senderAddress,
+        {},
+        TransferWallet.SENDING,
+      );
+    }
 
     let receipt = await route.initiate(
       req,

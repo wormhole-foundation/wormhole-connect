@@ -147,7 +147,10 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
     try {
       const fromConfig = config.chains[sourceChain];
 
-      if (fromConfig?.context === Context.ETH) {
+      if (
+        fromConfig?.context === Context.ETH &&
+        !config.ui.testOptions?.enableHeadlessSigner
+      ) {
         const chainId = fromConfig.chainId;
 
         if (typeof chainId !== 'number') {

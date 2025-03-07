@@ -405,7 +405,9 @@ const Redeem = () => {
 
     return (
       <Stack>
-        <Typography fontSize={18}>{statusText}</Typography>
+        <Typography data-testid="redeem-view-status-header" fontSize={18}>
+          {statusText}
+        </Typography>
       </Stack>
     );
   }, [
@@ -886,7 +888,10 @@ const Redeem = () => {
   ]);
 
   return (
-    <div className={joinClass([classes.container, classes.spacer])}>
+    <div
+      className={joinClass([classes.container, classes.spacer])}
+      data-testid="redeem-view"
+    >
       {header}
       <Stack className={classes.backButton}>
         <IconButton

@@ -23,6 +23,13 @@ export type UiConfig = {
 
   // Set to true to disable the ability to paste in a token address
   disableUserInputtedTokens?: boolean;
+
+  // UI test options
+  testOptions?: TestOptions;
+};
+
+export type TestOptions = {
+  enableHeadlessSigner?: boolean;
 };
 
 export interface DefaultInputs {
