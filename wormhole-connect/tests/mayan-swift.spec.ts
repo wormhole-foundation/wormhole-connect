@@ -19,7 +19,6 @@ import { test, expect, Page } from '@playwright/test';
 const DEFAULT_CONFIG =
   'N4KABGB2CmAuDuB7ATgawFxgOQFsCGAlpDLFgDThgDGiRA4tFaogIIAOBA0tAJ6ZYBhOgFoAogBEAMgDNYkvADFRAdQCaARwBaAOQDOABQBq8AELiWnAaPKUArgUygIEXQAtE8AJKR9yRAHNkaF1dZQIAE384TFhkW2gKZzBYYNgAeTZYAkRIXUdKJOhIPAAjABtoAAloPHCKkIBlAn8YZBi4hIKwAF9Enr6%2FWxS8sABtLoA6KfFRBRYAVUkAFQB9ACU0%2BaXRBr6IAFk8HjxINcQh6AblTwUlvoBdEG6AbhAgA';
 
-const WALLET_ADDRESS = '0x49887A216375FDED17DC1aAAD4920c3777265614';
 const ARB_USDC_CONTRACT = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831';
 const BASE_USDC_CONTRACT = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 
@@ -65,7 +64,7 @@ test('should configure transaction', async () => {
         },
       });
     },
-    { address: WALLET_ADDRESS },
+    { address: process.env.REACT_APP_TEST_EVM_ADDR },
   );
 
   // Select sending asset
@@ -86,7 +85,7 @@ test('should configure transaction', async () => {
         },
       });
     },
-    { address: WALLET_ADDRESS },
+    { address: process.env.REACT_APP_TEST_EVM_ADDR },
   );
 
   // Select receiving asset and set amount

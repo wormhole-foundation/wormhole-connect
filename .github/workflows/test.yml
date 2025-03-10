@@ -20,7 +20,8 @@ jobs:
         run: npm test:e2e
         working-directory: wormhole-connect
         env:
-          REACT_APP_TEST_EVM_PRIVATE_KEY: ${{ secrets.REACT_APP_TEST_EVM_PRIVATE_KEY }}
+          REACT_APP_TEST_EVM_ADDR: ${{ secrets.REACT_APP_TEST_EVM_ADDR }}
+          REACT_APP_TEST_EVM_PK: ${{ secrets.REACT_APP_TEST_EVM_PK }}
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
