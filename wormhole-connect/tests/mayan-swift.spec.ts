@@ -1,4 +1,11 @@
 import { test, expect, Page } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Read from .env* files
+// This is only for local testing overrides
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') });
 
 /**
  * Default config will have the following settings:

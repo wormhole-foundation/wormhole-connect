@@ -115,6 +115,7 @@
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "dotenv": "^16.4.7",
     "env-cmd": "^10.1.0",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
