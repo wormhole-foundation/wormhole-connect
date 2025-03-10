@@ -30,17 +30,6 @@ test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
-
-  // Mock CoinGecko API call for Arbitrum/USDC price
-  await page.route('**/api/v3/simple/token_price/arbitrum-one?**', (route) => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        [ARB_USDC_CONTRACT]: { usd: 0.999999 },
-      }),
-    });
-  });
 });
 
 test.afterAll(async () => {
@@ -63,7 +52,7 @@ test('should configure transaction', async () => {
   await expect(page.getByTestId('dest-asset-picker')).toBeVisible();
   await expect(page.getByTestId('amount-input')).toBeVisible();
 
-  // Set sending wallet and balances
+  // Set sending wallet
   await page.evaluate(
     (payload) => {
       globalThis.dispatchReduxAction({
@@ -73,29 +62,6 @@ test('should configure transaction', async () => {
           type: 'Ethereum',
           icon: '',
           name: 'Rabby Wallet',
-        },
-      });
-      globalThis.dispatchReduxAction({
-        type: 'transfer/updateBalances',
-        payload: {
-          address: payload.address,
-          chain: 'Arbitrum',
-          balances: {
-            '["Arbitrum","native"]': {
-              balance: {
-                amount: '3463966950309885',
-                decimals: 18,
-              },
-              lastUpdated: 1741189053957,
-            },
-            '["Arbitrum","0xaf88d065e77c8cC2239327C5EDb3A432268e5831"]': {
-              balance: {
-                amount: '205068313',
-                decimals: 6,
-              },
-              lastUpdated: 1741189053957,
-            },
-          },
         },
       });
     },
