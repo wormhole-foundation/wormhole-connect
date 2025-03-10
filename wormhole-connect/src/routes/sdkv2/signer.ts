@@ -70,13 +70,13 @@ export class SDKv2Signer<N extends Network, C extends Chain>
 
     switch (platform) {
       case 'Evm':
-        if (!import.meta.env.REACT_APP_ETH_PRIVATE_KEY) {
+        if (!import.meta.env.REACT_APP_TEST_EVM_PRIVATE_KEY) {
           throw new Error('Missing Ethereum private key');
         }
         rpc = await chainContextV2.getRpc();
         signer = await getEvmSigner(
           rpc,
-          import.meta.env.REACT_APP_ETH_PRIVATE_KEY,
+          import.meta.env.REACT_APP_TEST_EVM_PRIVATE_KEY,
           {
             debug: true,
             maxGasLimit: amount.units(amount.parse(1, 18)),
