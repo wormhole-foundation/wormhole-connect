@@ -178,8 +178,19 @@ const useTransactionHistory = (
     // Update the indexes to the next item in respective data sources
     updateWHScanIndex(whScanLocalIdx);
     updateMayanIndex(mayanLocalIdx);
+
+    // Check duplicates in merged transactions
+    const mergedTxsSet = new Set<string>();
+    const uniqMergedTxs = appendTxs(transactions, mergedTxs).filter((tx) => {
+      if (tx.txHash && mergedTxsSet.has(tx.txHash)) {
+        return false;
+      }
+      mergedTxsSet.add(tx.txHash);
+      return true;
+    });
+
     // Append the merged transactions and exit
-    setTransactions((txs) => appendTxs(txs, mergedTxs));
+    setTransactions((txs) => uniqMergedTxs);
     // We only need to re-run this side-effect when either of the transaction data changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [whScanTxs, mayanTxs]);
