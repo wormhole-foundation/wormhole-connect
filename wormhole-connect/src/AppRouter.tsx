@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -42,13 +42,13 @@ interface Props {
   config?: WormholeConnectConfig;
 }
 
-let _HAS_SET_CONFIG_SSG = false;
-
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
 function AppRouter(props: Props) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const routeContext = useContext(RouteContext);
+
+  const [hasSetSsgConfig, setHasSetSsgConfig] = useState(false);
 
   // We update the global config once when WormholeConnect is first mounted, if a custom
   // config was provided.
@@ -67,12 +67,12 @@ function AppRouter(props: Props) {
     });
   }, []);
 
-  if (!_HAS_SET_CONFIG_SSG) {
+  if (!hasSetSsgConfig) {
     // This runs once in SSG step (server-side pre-rendering)
     if (props.config) {
       loadConfig(props.config);
     }
-    _HAS_SET_CONFIG_SSG = true;
+    setHasSetSsgConfig(true);
   }
 
   useEffect(() => {
