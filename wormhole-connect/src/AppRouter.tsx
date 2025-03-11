@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -48,7 +48,7 @@ function AppRouter(props: Props) {
   const dispatch = useDispatch();
   const routeContext = useContext(RouteContext);
 
-  const [hasSetSsgConfig, setHasSetSsgConfig] = useState(false);
+  const hasSetSsgConfig = useRef(false);
 
   // We update the global config once when WormholeConnect is first mounted, if a custom
   // config was provided.
@@ -58,7 +58,6 @@ function AppRouter(props: Props) {
   const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
     if (!isEmptyObject(customConfig)) {
       setConfig(customConfig);
-      dispatch(clearTransfer());
     }
 
     config.triggerEvent({
@@ -67,12 +66,12 @@ function AppRouter(props: Props) {
     });
   }, []);
 
-  if (!hasSetSsgConfig) {
+  if (!hasSetSsgConfig.current) {
     // This runs once in SSG step (server-side pre-rendering)
     if (props.config) {
       loadConfig(props.config);
     }
-    setHasSetSsgConfig(true);
+    hasSetSsgConfig.current = true;
   }
 
   useEffect(() => {
