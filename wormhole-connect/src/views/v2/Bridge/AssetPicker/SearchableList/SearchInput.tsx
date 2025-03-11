@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMediaQuery, useTheme } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { makeStyles } from 'tss-react/mui';
@@ -33,12 +34,14 @@ type SearchInputProps = {
 
 export default function SearchInput(props: SearchInputProps) {
   const { classes } = useStyles();
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Box sx={{ padding: '0 16px' }}>
       <TextField
         className={classes.input}
-        autoFocus
+        autoFocus={!mobile}
         fullWidth
         inputProps={{
           style: {
