@@ -19,7 +19,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 // attempt to capture errors using regex
 export const INSUFFICIENT_ALLOWANCE_REGEX = /insufficient token allowance/im;
 export const USER_REJECTED_REGEX = new RegExp(
-  'user rejected|rejected the request|rejected from user|user cancel|aborted by user|plugin closed',
+  'user rejected|rejected the request|rejected from user|user cancel|aborted by user|plugin closed|denied request signature',
   'mi',
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
