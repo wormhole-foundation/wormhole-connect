@@ -3,6 +3,7 @@ on: workflow_dispatch
 jobs:
   playwright:
     runs-on: ubuntu-latest
+    permissions: read-all
     defaults:
       run:
         working-directory: "./wormhole-connect"
