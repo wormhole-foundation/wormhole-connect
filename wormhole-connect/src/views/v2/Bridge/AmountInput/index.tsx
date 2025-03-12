@@ -224,7 +224,6 @@ const AmountInput = (props: Props) => {
 
   const handleChange = useCallback(
     (newValue: string): void => {
-      dispatch(setAmount(newValue));
       setAmountInput(newValue);
     },
     [dispatch],
