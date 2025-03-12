@@ -357,13 +357,17 @@ const isNttSupportedToken = async (
     const route: SDKv2Route | undefined = config.routes.get(routeName);
     if (!route) return false;
 
-    const destTokens = await route.rc.supportedDestinationTokens(
-      token,
-      fromContext,
-      toContext,
-    );
+    try {
+      const destTokens = await route.rc.supportedDestinationTokens(
+        token,
+        fromContext,
+        toContext,
+      );
 
-    return destTokens.length > 0;
+      return destTokens.length > 0;
+    } catch (e) {
+      return false;
+    }
   };
 
   const [isManualSupported, isAutomaticSupported, isM0Supported] =
