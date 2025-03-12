@@ -146,7 +146,6 @@ function DemoApp() {
   const [customConfigInput, setCustomConfigInput] = useState(
     loadInitialConfig(),
   );
-  const [customConfigNonce, setCustomConfigNonce] = useState(1);
   const [isLoadingCustomConfig, setIsLoadingCustomConfig] = useState(true);
 
   const [customTheme, setCustomTheme] = useState<
@@ -168,7 +167,6 @@ function DemoApp() {
     try {
       const parsed = parseConfig(customConfigInput);
       setCustomConfig(parsed);
-      setCustomConfigNonce(customConfigNonce + 1);
     } catch (e) {
       console.error(e);
     }
@@ -206,11 +204,7 @@ function DemoApp() {
       <article>
         <div id="demo-contents">
           {!isLoadingCustomConfig && (
-            <WormholeConnect
-              key={customConfigNonce}
-              config={customConfig}
-              theme={customTheme}
-            />
+            <WormholeConnect config={customConfig} theme={customTheme} />
           )}
         </div>
 

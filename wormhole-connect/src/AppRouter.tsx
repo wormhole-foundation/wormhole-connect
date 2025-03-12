@@ -49,6 +49,7 @@ function AppRouter(props: Props) {
   const routeContext = useContext(RouteContext);
 
   const hasSetSsgConfig = useRef(false);
+  const isInitialLoad = useRef(true);
 
   // We update the global config once when WormholeConnect is first mounted, if a custom
   // config was provided.
@@ -60,8 +61,9 @@ function AppRouter(props: Props) {
       setConfig(customConfig);
     }
 
+    hasSetSsgConfig.current = true;
     config.triggerEvent({
-      type: 'load',
+      type: 'config',
       config: customConfig,
     });
   }, []);
@@ -71,12 +73,20 @@ function AppRouter(props: Props) {
     if (props.config) {
       loadConfig(props.config);
     }
-    hasSetSsgConfig.current = true;
   }
 
   useEffect(() => {
-    if (props.config) {
-      loadConfig(props.config);
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+
+      config.triggerEvent({
+        type: 'load',
+        config: props.config,
+      });
+    } else {
+      if (props.config) {
+        loadConfig(props.config);
+      }
     }
   }, [props.config]);
   // END config loading code

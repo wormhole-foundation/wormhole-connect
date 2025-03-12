@@ -7,6 +7,11 @@ export interface LoadEvent {
   config?: WormholeConnectConfig;
 }
 
+export interface UpdateConfigEvent {
+  type: 'config';
+  config?: WormholeConnectConfig;
+}
+
 export interface TransferDetails {
   route: string;
   fromToken: TokenDetails;
@@ -91,6 +96,7 @@ export interface ConnectWalletEvent {
 
 export type WormholeConnectEventCore =
   | LoadEvent
+  | UpdateConfigEvent
   | TransferEvent
   | TransferErrorEvent
   | ConnectWalletEvent;
