@@ -1,29 +1,29 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Ref, useEffect, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
+import { useMediaQuery, useTheme } from '@mui/material';
+import Backdrop from '@mui/material/Backdrop';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Popover from '@mui/material/Popover';
+import Slide, { SlideProps } from '@mui/material/Slide';
+import Popover, { PopoverProps } from '@mui/material/Popover';
 import {
   usePopupState,
   bindPopover,
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
-
 import DownIcon from '@mui/icons-material/ExpandMore';
 import UpIcon from '@mui/icons-material/ExpandLess';
+import { Chain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
-import { Chain } from '@wormhole-foundation/sdk';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
-import { Backdrop } from '@mui/material';
 import { joinClass } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -62,13 +62,16 @@ const useStyles = makeStyles()((theme: any) => ({
   popover: {
     marginLeft: '-1px',
     marginTop: '-1px',
-    width: '422px',
+    width: '420px',
   },
   popoverSlot: {
     width: '100%',
-    maxWidth: '422px',
+    maxWidth: '420px',
     borderRadius: '8px',
     background: theme.palette.input.background,
+    [theme.breakpoints.down('sm')]: {
+      width: 'calc(100vw - 8px)', // Force full-width on mobile with 4px padding on each side
+    },
   },
   backdrop: {
     backgroundColor: `rgba(0,0,0,0.2)`,
@@ -89,7 +92,14 @@ type Props = {
   isTransactionInProgress: boolean;
 };
 
+// Transition component for mobile to simulate a slide-up effect
+const TransitionMobile = (props: SlideProps, ref: Ref<unknown>) => (
+  <Slide direction="up" ref={ref} {...props} />
+);
+
 const AssetPicker = (props: Props) => {
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [showChainSearch, setShowChainSearch] = useState(false);
   const { classes } = useStyles();
 
@@ -171,6 +181,23 @@ const AssetPicker = (props: Props) => {
     ? {}
     : bindTrigger(popupState);
 
+  // Popover props for mobile
+  // This will change the popover behavior from Grow to Slide
+  // "open" property is omitted as it's managed by popupState
+  const mobilePopoverProps: Omit<PopoverProps, 'open'> = mobile
+    ? {
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center',
+        },
+        transformOrigin: {
+          vertical: 'top',
+          horizontal: 'center',
+        },
+        TransitionComponent: TransitionMobile,
+      }
+    : {};
+
   return (
     <>
       <Backdrop open={popupState.isOpen} className={classes.backdrop} />
@@ -199,7 +226,7 @@ const AssetPicker = (props: Props) => {
       </Card>
       <Popover
         {...bindPopover(popupState)}
-        transitionDuration={200}
+        transitionDuration={300}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'center',
@@ -215,6 +242,7 @@ const AssetPicker = (props: Props) => {
             className: classes.popoverSlot,
           },
         }}
+        {...mobilePopoverProps}
       >
         <ChainList
           chainList={props.chainList}

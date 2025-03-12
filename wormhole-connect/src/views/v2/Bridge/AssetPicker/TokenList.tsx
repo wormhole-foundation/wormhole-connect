@@ -32,7 +32,7 @@ const useStyles = makeStyles()((theme: any) => ({
     justifyContent: 'space-between',
   },
   tokenList: {
-    maxHeight: 340,
+    maxHeight: 360,
   },
 }));
 
