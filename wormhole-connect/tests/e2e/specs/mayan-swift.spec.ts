@@ -1,6 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
+import { BridgeView } from '../views/bridge';
 
 // Read from .env* files
 // This is only for local testing overrides
@@ -51,55 +52,29 @@ test('should configure transaction', async () => {
     state: 'visible',
   });
 
-  // Verify key elements are present in bridge view
-  await expect(page.getByTestId('bridge-view')).toBeVisible();
-  await expect(page.getByTestId('bridge-view-header')).toBeVisible();
-  await expect(page.getByTestId('source-asset-picker')).toBeVisible();
-  await expect(page.getByTestId('dest-asset-picker')).toBeVisible();
-  await expect(page.getByTestId('amount-input')).toBeVisible();
+  const bridgeView = new BridgeView(page);
+  await bridgeView.verifyElements();
 
-  // Set sending wallet
-  await page.evaluate(
-    (payload) => {
-      globalThis.dispatchReduxAction({
-        type: 'wallet/connectWallet',
-        payload: {
-          address: payload.address,
-          type: 'Ethereum',
-          icon: '',
-          name: 'Rabby Wallet',
-        },
-      });
-    },
-    { address: process.env.REACT_APP_TEST_EVM_ADDR },
+  // Set source wallet
+  await bridgeView.connectSrcWallet(process.env.REACT_APP_TEST_EVM_ADDR);
+
+  // Select source asset
+  await bridgeView.selectSrcAsset(
+    'chain-button-arbitrum',
+    `token-button-arbitrum-${ARB_USDC_CONTRACT}`,
   );
 
-  // Select sending asset
-  await page.getByTestId('source-asset-picker').click();
-  await page.getByTestId('chain-button-arbitrum').click();
-  await page.getByTestId(`token-button-arbitrum-${ARB_USDC_CONTRACT}`).click();
+  // Set destination wallet
+  await bridgeView.connectDestWallet(process.env.REACT_APP_TEST_EVM_ADDR);
 
-  // Set receiving wallet
-  await page.evaluate(
-    (payload) => {
-      globalThis.dispatchReduxAction({
-        type: 'wallet/connectReceivingWallet',
-        payload: {
-          address: payload.address,
-          type: 'Ethereum',
-          icon: '',
-          name: 'Rabby Wallet',
-        },
-      });
-    },
-    { address: process.env.REACT_APP_TEST_EVM_ADDR },
+  // Select destination asset
+  await bridgeView.selectDestAsset(
+    'chain-button-base',
+    `token-button-base-${BASE_USDC_CONTRACT}`,
   );
 
-  // Select receiving asset and set amount
-  await page.getByTestId('dest-asset-picker').click();
-  await page.getByTestId('chain-button-base').click();
-  await page.getByTestId(`token-button-base-${BASE_USDC_CONTRACT}`).click();
-  await page.getByTestId('amount-input').getByPlaceholder('0').fill('1');
+  // Enter amount
+  await bridgeView.enterAmount('1');
 
   // Mayan Swift route should be visible and selected by default
   await expect(page.getByTestId('route-MayanSwapSWIFT-selected')).toBeVisible();
