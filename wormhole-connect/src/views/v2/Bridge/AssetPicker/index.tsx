@@ -1,4 +1,4 @@
-import React, { Ref, useEffect, useMemo, useState } from 'react';
+import React, { Ref, useCallback, useEffect, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { Box, Stack, useMediaQuery, useTheme } from '@mui/material';
 import Backdrop from '@mui/material/Backdrop';
@@ -23,6 +23,7 @@ import { isDisabledChain } from 'store/transferInput';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
+import Swiper from 'components/mobile/swiper';
 import { Token } from 'config/tokens';
 import { joinClass } from 'utils/style';
 
@@ -70,8 +71,8 @@ const useStyles = makeStyles()((theme: any) => ({
     borderRadius: '8px',
     background: theme.palette.input.background,
     [theme.breakpoints.down('sm')]: {
-      height: 'calc(100vh - 40px)', // Force full-height on mobile with 40px padding at the top
-      width: 'calc(100vw - 8px)', // Force full-width on mobile with 4px padding on each side
+      height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
+      width: '100vw', // Force full-width on small mobile devices
     },
   },
   backdrop: {
@@ -178,6 +179,19 @@ const AssetPicker = (props: Props) => {
     );
   }, [chainConfig, props.token]);
 
+  const handleSwipe = useCallback(
+    ({ deltaX, deltaY }) => {
+      // Check if swipe is vertical
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        // Check if swipe is down
+        if (deltaY > 0) {
+          popupState.close();
+        }
+      }
+    },
+    [popupState],
+  );
+
   const triggerProps = props.isTransactionInProgress
     ? {}
     : bindTrigger(popupState);
@@ -241,7 +255,6 @@ const AssetPicker = (props: Props) => {
         slotProps={{
           paper: {
             className: classes.popoverSlot,
-            variant: 'outlined',
             sx: {
               borderRadius: '8px',
             },
@@ -249,16 +262,23 @@ const AssetPicker = (props: Props) => {
         }}
         {...mobilePopoverProps}
       >
-        <Stack alignItems="center" paddingTop="8px" onClick={popupState.close}>
-          <Box
-            sx={{
-              width: '40px',
-              height: '5px',
-              backgroundColor: theme.palette.text.secondary,
-              borderRadius: '8px',
-            }}
-          ></Box>
-        </Stack>
+        <Swiper onSwipe={handleSwipe}>
+          <Stack
+            alignItems="center"
+            paddingBottom="4px"
+            paddingTop="8px"
+            onClick={popupState.close}
+          >
+            <Box
+              sx={{
+                width: '40px',
+                height: '5px',
+                backgroundColor: theme.palette.text.secondary,
+                borderRadius: '8px',
+              }}
+            ></Box>
+          </Stack>
+        </Swiper>
         <ChainList
           chainList={props.chainList}
           selectedChainConfig={chainConfig}
