@@ -4,18 +4,16 @@ export class BridgeView {
   private readonly srcAssetPicker: Locator;
   private readonly destAssetPicker: Locator;
   private readonly amountInput: Locator;
+  private readonly confirmButton: Locator;
 
   constructor(public readonly page: Page) {
-    this.srcAssetPicker = this.page.getByTestId('source-asset-picker');
-    this.destAssetPicker = this.page.getByTestId('dest-asset-picker');
-    this.amountInput = this.page.getByTestId('amount-input');
+    this.srcAssetPicker = page.getByTestId('source-asset-picker');
+    this.destAssetPicker = page.getByTestId('dest-asset-picker');
+    this.amountInput = page.getByTestId('amount-input');
+    this.confirmButton = page.getByTestId('confirm-transaction-button');
   }
 
-  async goto(config: string) {
-    await this.page.goto(`http://localhost:5173/?config=${config}`);
-  }
-
-  // Verify key elements are present in bridge view
+  // Verify key elements are present in Bridge view
   async verifyElements() {
     await expect(this.srcAssetPicker).toBeVisible();
     await expect(this.destAssetPicker).toBeVisible();
@@ -72,5 +70,12 @@ export class BridgeView {
 
   async enterAmount(amount: string) {
     await this.amountInput.getByPlaceholder('0').fill(amount);
+  }
+
+  async startTransaction() {
+    await expect(this.confirmButton).toHaveText('Confirm transaction');
+    await expect(this.confirmButton).toBeEnabled();
+    await this.confirmButton.click();
+    await expect(this.confirmButton).toHaveText('Preparing transaction');
   }
 }

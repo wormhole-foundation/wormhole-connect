@@ -2,6 +2,7 @@ import { test, expect, Page } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 import { BridgeView } from '../views/bridge';
+import { RedeemView } from '../views/redeem';
 
 // Read from .env* files
 // This is only for local testing overrides
@@ -31,12 +32,16 @@ const ARB_USDC_CONTRACT = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831';
 const BASE_USDC_CONTRACT = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 
 let page: Page;
+let bridgeView: BridgeView;
+let redeemView: RedeemView;
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
+  bridgeView = new BridgeView(page);
+  redeemView = new RedeemView(page);
 });
 
 test.afterAll(async () => {
@@ -44,15 +49,10 @@ test.afterAll(async () => {
 });
 
 test('should configure transaction', async () => {
-  // Navigate to the root page
+  // Navigate to brige view
   await page.goto(`http://localhost:5173/?config=${DEFAULT_CONFIG}`);
 
-  // Wait for the main container to be visible
-  await page.waitForSelector('#sample-app', {
-    state: 'visible',
-  });
-
-  const bridgeView = new BridgeView(page);
+  // Verify key elements are present in bridge view
   await bridgeView.verifyElements();
 
   // Set source wallet
@@ -78,28 +78,18 @@ test('should configure transaction', async () => {
 
   // Mayan Swift route should be visible and selected by default
   await expect(page.getByTestId('route-MayanSwapSWIFT-selected')).toBeVisible();
-
-  // Verify Confirm transaction button and start transaction
-  const confirmButton = page.getByTestId('confirm-transaction-button');
-  await expect(confirmButton).toHaveText('Confirm transaction');
-  await expect(confirmButton).toBeEnabled();
 });
 
 test('should initiate transaction', async () => {
   // Start transaction
-  const confirmButton = page.getByTestId('confirm-transaction-button');
-  await confirmButton.click();
-  // Wait for Confirm transaction button to be in Preparing state
-  await expect(confirmButton).toHaveText('Preparing transaction');
+  await bridgeView.startTransaction();
 
   // Wait for Redeem view
-  await expect(page.getByTestId('redeem-view')).toBeVisible({ timeout: 30000 });
+  await redeemView.verifyElements();
 
   // Verify transaction status as submitted
-  const statusHeader = page.getByTestId('redeem-view-status-header');
-  await expect(statusHeader).toHaveText('Transaction submitted');
+  await redeemView.confirmTransactionState('Transaction submitted');
+
   // Wait for transaction completion
-  await expect(statusHeader).toHaveText('Transaction complete', {
-    timeout: 30000,
-  });
+  await redeemView.confirmTransactionState('Transaction completed');
 });

@@ -392,7 +392,7 @@ const Redeem = () => {
   const statusHeader = useMemo(() => {
     let statusText = 'Transaction submitted';
     if (isTxCompleted) {
-      statusText = 'Transaction complete';
+      statusText = 'Transaction completed';
     } else if (isTxRefunded) {
       statusText = 'Transaction was refunded';
     } else if (isTxFailed) {
