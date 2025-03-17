@@ -21,10 +21,12 @@ interface WormholeScanTransaction {
   content: {
     payload: {
       amount: string;
+      fee?: string;
       callerAppId: string;
       fromAddress: string;
       parsedPayload: {
-        feeAmount: string;
+        feeAmount?: string;
+        relayerFee?: string;
         recipientWallet: string;
         toNativeAmount: string;
       };
@@ -127,7 +129,7 @@ const useTransactionHistoryWHScan = (
   const parseSingleTx = useCallback(
     async (tx: WormholeScanTransaction) => {
       const { content, data, sourceChain, targetChain } = tx;
-      const { standarizedProperties } = content || {};
+      const { standarizedProperties, payload } = content || {};
 
       const fromChainId =
         standarizedProperties.fromChain || sourceChain?.chainId;
@@ -193,10 +195,21 @@ const useTransactionHistoryWHScan = (
         );
       }
 
-      if (standarizedProperties.amount && standarizedProperties.fee) {
+      if (standarizedProperties.amount) {
+        // Parse fee to calculate receive amount
+        // WHScan API should parse the payload and set it under standarizedProperties, but that's not the case.
+        // There are multiple props that can persist the fee value depending on the protocol.
+        // There is no clear documentation around the set of props specific to protocols, therefore we need to check them all.
+        const fee =
+          standarizedProperties.fee ||
+          payload.fee ||
+          payload.parsedPayload?.feeAmount ||
+          payload.parsedPayload?.relayerFee ||
+          '0';
+
         const receiveAmountValue =
-          BigInt(standarizedProperties.amount) -
-          BigInt(standarizedProperties.fee);
+          BigInt(standarizedProperties.amount) - BigInt(fee);
+
         // It's unlikely, but in case the above subtraction returns a non-positive number,
         // we should not show that at all.
         if (receiveAmountValue > 0) {
