@@ -5,7 +5,7 @@ import {
   NativeAddress,
   toNative,
 } from '@wormhole-foundation/sdk';
-import { isValidSuiAddress } from '@mysten/sui.js';
+import { isValidSuiAddress } from '@mysten/sui/utils';
 import { Connection, PublicKey } from '@solana/web3.js';
 import {
   getAccount,

@@ -1,4 +1,4 @@
-import { TransactionBlock } from '@mysten/sui.js';
+import { Transaction } from '@mysten/sui/transactions';
 import { SuiWallet, getWallets } from '@xlabs-libs/wallet-aggregator-sui';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
@@ -25,7 +25,6 @@ export const signAndSendTransaction = async (
   }
 
   return await wallet.signAndSendTransaction({
-    /* @ts-ignore */
-    transactionBlock: request.transaction as TransactionBlock,
+    transactionBlock: request.transaction as Transaction,
   });
 };

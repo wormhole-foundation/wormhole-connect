@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { isHexString } from 'ethers';
-import { isValidTransactionDigest } from '@mysten/sui.js';
+import { isValidTransactionDigest } from '@mysten/sui/utils';
 import { Context } from 'sdklegacy';
 
 import config from 'config';
