@@ -22,7 +22,7 @@ export function wrapEventHandler(
       ...event,
     };
 
-    console.info('Wormhole Connect event:', eventWithMeta);
+    console.debug('Wormhole Connect event:', eventWithMeta);
     if (integrationHandler) {
       try {
         integrationHandler(eventWithMeta);
