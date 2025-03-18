@@ -61,9 +61,11 @@ const useStyles = makeStyles()((theme: any) => ({
     pointerEvents: 'none',
   },
   popover: {
-    marginLeft: '-1px',
-    marginTop: '-1px',
+    marginLeft: '-4px',
     width: '420px',
+    [theme.breakpoints.down('sm')]: {
+      width: '100vw', // Force full-width on small mobile devices
+    },
   },
   popoverSlot: {
     width: '100%',
@@ -72,7 +74,7 @@ const useStyles = makeStyles()((theme: any) => ({
     background: theme.palette.input.background,
     [theme.breakpoints.down('sm')]: {
       height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
-      width: '100vw', // Force full-width on small mobile devices
+      maxWidth: '100vw', // Force full-width on small mobile devices
     },
   },
   backdrop: {
@@ -278,17 +280,17 @@ const AssetPicker = (props: Props) => {
               }}
             ></Box>
           </Stack>
+          <ChainList
+            chainList={props.chainList}
+            selectedChainConfig={chainConfig}
+            showSearch={showChainSearch}
+            setShowSearch={setShowChainSearch}
+            wallet={props.wallet}
+            onChainSelect={(key) => {
+              props.setChain(key);
+            }}
+          />
         </Swiper>
-        <ChainList
-          chainList={props.chainList}
-          selectedChainConfig={chainConfig}
-          showSearch={showChainSearch}
-          setShowSearch={setShowChainSearch}
-          wallet={props.wallet}
-          onChainSelect={(key) => {
-            props.setChain(key);
-          }}
-        />
         {!showChainSearch && chainConfig && (
           <TokenList
             tokenList={props.tokenList}

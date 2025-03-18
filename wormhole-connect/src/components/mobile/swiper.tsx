@@ -26,8 +26,6 @@ function Swiper(props: Props) {
       return;
     }
 
-    e.preventDefault();
-
     setStartX(e.touches[0].clientX);
     setStartY(e.touches[0].clientY);
   }, []);
@@ -37,9 +35,6 @@ function Swiper(props: Props) {
       if (!(wrapperRef.current as any).contains(e.target)) {
         return;
       }
-
-      e.preventDefault();
-
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
       const deltaX = endX - startX;
