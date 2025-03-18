@@ -64,6 +64,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.AutomaticPorticoRoute = routes.AutomaticPorticoRoute;
       /* @ts-ignore */
+      window.TBTCRoute = routes.TBTCRoute;
+      /* @ts-ignore */
       window.MayanRoute = MayanRoute;
       /* @ts-ignore */
       window.MayanRouteWH = MayanRouteWH;
@@ -252,6 +254,10 @@ function SampleApp() {
                   </li>
                   <li>
                     <pre>AutomaticPorticoRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>TBTCRoute</pre>
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>

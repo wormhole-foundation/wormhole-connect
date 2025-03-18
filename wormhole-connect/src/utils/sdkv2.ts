@@ -15,6 +15,7 @@ import {
   circle,
   ChainContext,
   nativeTokenId,
+  TBTCBridge,
 } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
@@ -128,6 +129,10 @@ export async function parseReceipt(
           params: NttRoute.ValidatedParams;
         },
       );
+    case 'ManualTBTC':
+      return parseTBTCReceipt(
+        receipt as ReceiptWithAttestation<TBTCBridge.VAA>,
+      );
     default:
       throw new Error(`Unknown route type ${route}`);
   }
@@ -160,32 +165,10 @@ const parseTokenBridgeReceipt = async (
     const fromChain = wh.getChain(receipt.from);
     const toChain = wh.getChain(receipt.to);
 
-    const getToken = async (context: ChainContext<Network>, token: any) => {
-      const tb = await context.getTokenBridge();
-      const { chain } = context;
-
-      const tokenAddress =
-        token.chain === chain
-          ? await tb.getTokenNativeAddress(token.chain, token.address)
-          : await tb.getWrappedAsset({
-              chain: token.chain,
-              address: token.address,
-            });
-
-      const wrappedNative = await tb.getWrappedNative();
-
-      const tokenId =
-        wrappedNative.toString() === tokenAddress.toString()
-          ? nativeTokenId(chain)
-          : Wormhole.tokenId(chain, tokenAddress.toString());
-
-      return config.tokens.get(tokenId);
-    };
-
-    const sourceToken = await getToken(fromChain, payload.token);
+    const sourceToken = await getTokenBridgeToken(fromChain, payload.token);
     if (!sourceToken) throw new Error(`Unknown source token`);
 
-    const destinationToken = await getToken(toChain, payload.token);
+    const destinationToken = await getTokenBridgeToken(toChain, payload.token);
     if (!destinationToken) throw new Error(`Unknown destination token`);
 
     txData.tokenDecimals = sourceToken.decimals;
@@ -371,6 +354,66 @@ const parseNttReceipt = (
   };
 };
 
+const parseTBTCReceipt = async (
+  receipt: ReceiptWithAttestation<TBTCBridge.VAA>,
+): Promise<TransferInfo> => {
+  const txData: Partial<TransferInfo> = {
+    toChain: receipt.to,
+    fromChain: receipt.from,
+  };
+
+  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+    txData.sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
+
+  /* @ts-ignore */
+  // TODO typescript is complaining about the second attestation property not existing when it does
+  const { payload } = receipt.attestation.attestation;
+
+  if (!payload.token) {
+    throw new Error(`Attestation is missing token.`);
+  }
+
+  const wh = await getWormholeContextV2();
+  const fromChain = wh.getChain(receipt.from);
+  const toChain = wh.getChain(receipt.to);
+
+  const getToken = async (context: ChainContext<Network>, token: any) => {
+    const nativeTbtc = TBTCBridge.getNativeTbtcToken(context.chain);
+    if (nativeTbtc) {
+      return config.tokens.get(nativeTbtc);
+    }
+
+    return await getTokenBridgeToken(context, token);
+  };
+
+  const sourceToken = await getToken(fromChain, payload.token);
+  if (!sourceToken) throw new Error(`Unknown source token`);
+
+  const destinationToken = await getToken(toChain, payload.token);
+  if (!destinationToken) throw new Error(`Unknown destination token`);
+
+  txData.tokenDecimals = sourceToken.decimals;
+  txData.amount = amount.fromBaseUnits(
+    payload.token.amount,
+    // VAAs are truncated to a max of 8 decimal places
+    Math.min(8, sourceToken.decimals),
+  );
+  txData.tokenAddress = sourceToken.address.toString();
+  txData.token = sourceToken.tuple;
+  txData.receivedToken = destinationToken.tuple;
+  txData.receiveAmount = txData.amount;
+
+  // payload3 or normal token bridge transfer
+  txData.recipient = (payload.payload?.recipient ?? payload.to.address)
+    .toNative(receipt.to)
+    .toString();
+
+  return txData as TransferInfo;
+};
+
 const isAmount = (amount: any): amount is amount.Amount => {
   return (
     typeof amount === 'object' &&
@@ -385,4 +428,29 @@ export const isMinAmountError = (
 ): error is routes.MinAmountError => {
   const unsafeCastError = error as routes.MinAmountError;
   return isAmount(unsafeCastError?.min);
+};
+
+const getTokenBridgeToken = async (
+  context: ChainContext<Network>,
+  token: any,
+) => {
+  const tb = await context.getTokenBridge();
+  const { chain } = context;
+
+  const tokenAddress =
+    token.chain === chain
+      ? await tb.getTokenNativeAddress(token.chain, token.address)
+      : await tb.getWrappedAsset({
+          chain: token.chain,
+          address: token.address,
+        });
+
+  const wrappedNative = await tb.getWrappedNative();
+
+  const tokenId =
+    wrappedNative.toString() === tokenAddress.toString()
+      ? nativeTokenId(chain)
+      : Wormhole.tokenId(chain, tokenAddress.toString());
+
+  return config.tokens.get(tokenId);
 };

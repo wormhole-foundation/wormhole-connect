@@ -37,6 +37,7 @@ export const DEFAULT_ROUTES = [
   routes.AutomaticTokenBridgeRoute,
   routes.TokenBridgeRoute,
   routes.AutomaticPorticoRoute,
+  routes.TBTCRoute,
 ];
 
 export interface QuoteParams {
