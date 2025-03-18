@@ -15,6 +15,7 @@ import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { calculateUSDPrice, isFrankensteinToken } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
+
 const useStyles = makeStyles()((theme: any) => ({
   card: {
     background: theme.palette.input.background,
@@ -32,7 +33,10 @@ const useStyles = makeStyles()((theme: any) => ({
     justifyContent: 'space-between',
   },
   tokenList: {
-    maxHeight: 360,
+    maxHeight: '360px',
+    [theme.breakpoints.down('sm')]: {
+      maxHeight: '480px',
+    },
   },
 }));
 
@@ -83,7 +87,9 @@ const TokenList = (props: Props) => {
         // Failed to parse the search query as an address... this is expected to happen a lot
       }
     }
-  }, [searchQuery, props.selectedChainConfig.sdkName, getOrFetchToken]);
+    // Run the side-effect only when search query or chain changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, props.selectedChainConfig.sdkName]);
 
   const sortedTokens = useMemo(() => {
     const nativeToken = config.tokens.getGasToken(
@@ -252,13 +258,14 @@ const TokenList = (props: Props) => {
 
     return tokens;
   }, [
-    balances,
-    props.tokenList,
+    props.selectedChainConfig.sdkName,
     props.selectedChainConfig.key,
+    props.selectedToken,
+    props.tokenList,
     props.sourceToken,
     props.isSource,
     props.wallet?.address,
-    props.selectedToken,
+    balances,
     searchQuery,
   ]);
 

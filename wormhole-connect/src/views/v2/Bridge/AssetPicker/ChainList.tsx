@@ -17,18 +17,13 @@ import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 
 import { Chain } from '@wormhole-foundation/sdk';
-import { useMediaQuery, useTheme } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {
     background: theme.palette.input.background,
     width: '420px',
     [theme.breakpoints.down('sm')]: {
-      maxWidth: '420px',
-      width: '360px',
-    },
-    '@media (max-width: 366px)': {
-      width: '330px',
+      width: '100vw',
     },
   },
   cardContent: {
@@ -46,6 +41,9 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   chainSearch: {
     maxHeight: '400px',
+    [theme.breakpoints.down('sm')]: {
+      maxHeight: '600px',
+    },
   },
   chainButton: {
     display: 'flex',
@@ -76,12 +74,9 @@ type Props = {
 };
 
 const SHORT_LIST_SIZE = 5;
-const SHORT_LIST_SIZE_MOBILE = 4;
 
 const ChainList = (props: Props) => {
   const { classes } = useStyles();
-  const theme = useTheme();
-  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const {
     chainList,
     selectedChainConfig,
@@ -98,25 +93,24 @@ const ChainList = (props: Props) => {
     const selectedChainIndex = allChains.findIndex((chain) => {
       return chain.key === selectedChain?.key;
     });
-    const shortListSize = mobile ? SHORT_LIST_SIZE_MOBILE : SHORT_LIST_SIZE;
     // If the selected chain is outside the top list, we add it to the top;
     // otherwise we do not change its index in the top list
     if (
       selectedChain &&
       selectedChainIndex &&
-      selectedChainIndex >= shortListSize
+      selectedChainIndex >= SHORT_LIST_SIZE
     ) {
       return [
-        [selectedChain, ...allChains.slice(0, shortListSize - 1)],
-        allChains.length > shortListSize,
+        [selectedChain, ...allChains.slice(0, SHORT_LIST_SIZE - 1)],
+        allChains.length > SHORT_LIST_SIZE,
       ];
     }
 
     return [
-      allChains.slice(0, shortListSize),
-      allChains.length > shortListSize,
+      allChains.slice(0, SHORT_LIST_SIZE),
+      allChains.length > SHORT_LIST_SIZE,
     ];
-  }, [mobile, chainList, selectedChainConfig]);
+  }, [chainList, selectedChainConfig]);
 
   const shortList = useMemo(() => {
     return (
@@ -166,6 +160,7 @@ const ChainList = (props: Props) => {
     onChainSelect,
     selectedChainConfig?.key,
     setShowSearch,
+    showMoreButton,
     topChains,
   ]);
 
