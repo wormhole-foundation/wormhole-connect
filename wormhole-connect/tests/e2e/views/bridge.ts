@@ -22,6 +22,7 @@ export class BridgeView {
 
   async connectSrcWallet(address: string | undefined) {
     expect(address).not.toBeUndefined();
+    console.log(`Connecting to source wallet: ${address}`);
     await this.page.evaluate(
       (payload) => {
         globalThis.dispatchReduxAction({
@@ -40,6 +41,7 @@ export class BridgeView {
 
   async connectDestWallet(address: string | undefined) {
     expect(address).not.toBeUndefined();
+    console.log(`Connecting to destination wallet: ${address}`);
     await this.page.evaluate(
       (payload) => {
         globalThis.dispatchReduxAction({
