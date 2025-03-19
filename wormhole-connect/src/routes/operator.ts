@@ -1,5 +1,6 @@
 import config from 'config';
 import { parseTokenKey, Token, tokenKey } from 'config/tokens';
+import { maybeLogSdkError } from 'utils/errors';
 
 import {
   Chain,
@@ -20,7 +21,6 @@ import {
 import '@wormhole-foundation/sdk-definitions-ntt';
 import '@wormhole-foundation/sdk-evm-ntt';
 import '@wormhole-foundation/sdk-solana-ntt';
-import { maybeLogSdkError } from 'utils/errors';
 
 export interface TxInfo {
   route: string;
