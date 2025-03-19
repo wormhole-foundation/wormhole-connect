@@ -20,6 +20,7 @@ import {
 import '@wormhole-foundation/sdk-definitions-ntt';
 import '@wormhole-foundation/sdk-evm-ntt';
 import '@wormhole-foundation/sdk-solana-ntt';
+import { maybeLogSdkError } from 'utils/errors';
 
 export interface TxInfo {
   route: string;
@@ -180,7 +181,7 @@ export default class RouteOperator {
           }
         }
       } catch (e) {
-        console.error(e);
+        maybeLogSdkError(e);
       }
     });
 
