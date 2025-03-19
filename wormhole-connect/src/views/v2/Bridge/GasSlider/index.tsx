@@ -4,11 +4,14 @@ import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
 import { useTheme } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Collapse from '@mui/material/Collapse';
-import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import { amount } from '@wormhole-foundation/sdk';
 
@@ -17,8 +20,9 @@ import { calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 import { useTokens } from 'contexts/TokensContext';
+import { opacify } from 'utils/theme';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme: any) => ({
   content: {
     width: '100%',
     cursor: 'pointer',
@@ -36,36 +40,23 @@ const useStyles = makeStyles()(() => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: '8px',
     width: '100%',
   },
-}));
-
-type SliderProps = {
-  baseColor: string;
-  railColor: string;
-};
-
-const StyledSlider = styled(Slider, {
-  shouldForwardProp: (prop) =>
-    !['baseColor', 'railColor'].includes(prop.toString()),
-})<SliderProps>(({ baseColor, railColor, theme }) => ({
-  alignSelf: 'start',
-  color: baseColor,
-  height: 8,
-  left: '10px',
-  width: 'calc(100% - 20px)',
-  '& .MuiSlider-rail': {
-    height: '8px',
-    backgroundColor: railColor,
-    opacity: 0.1,
-  },
-  '& .MuiSlider-track': {
-    height: '8px',
-  },
-  '& .MuiSlider-thumb': {
-    height: 20,
-    width: 20,
-    backgroundColor: theme.palette.primary.main,
+  toggleButton: {
+    backgroundColor: opacify(theme.palette.text.primary, 0.1),
+    border: '1px solid transparent',
+    borderRadius: '8px',
+    '&.Mui-selected': {
+      border: `1px solid ${theme.palette.primary.main}`,
+      borderRadius: '8px',
+    },
+    '&.MuiToggleButtonGroup-middleButton': {
+      margin: '0 2px',
+    },
+    '&.MuiToggleButtonGroup-lastButton': {
+      margin: '0',
+    },
   },
 }));
 
@@ -124,10 +115,11 @@ const GasSlider = (props: {
       props.destinationGasDrop,
       nativeGasToken,
     );
+    const tokenPriceWithParanthesis = tokenPrice ? `(${tokenPrice})` : '';
 
     return (
-      <Typography fontSize={14}>
-        {`${tokenAmount} ${nativeGasToken.symbol} ${tokenPrice}`}
+      <Typography color={theme.palette.primary.main} fontSize={14}>
+        {`+${tokenAmount} ${nativeGasToken.symbol} ${tokenPriceWithParanthesis}`}
       </Typography>
     );
     // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
@@ -147,7 +139,7 @@ const GasSlider = (props: {
   return (
     <div className={classes.content}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography>{`Need more gas on ${destChain}?`}</Typography>
+        <Typography>{`Need extra ${nativeGasToken.symbol} on ${destChain}?`}</Typography>
         <StyledSwitch
           checked={isGasSliderOpen}
           disabled={props.disabled}
@@ -165,33 +157,50 @@ const GasSlider = (props: {
       </Stack>
       <Collapse in={isGasSliderOpen} unmountOnExit>
         <div className={classes.container}>
-          <Typography color={theme.palette.text.secondary} fontSize={14}>
-            {`Use the slider to buy extra ${nativeGasToken.symbol} for future transactions.`}
-          </Typography>
-          <div>
-            <StyledSlider
-              aria-label="Native gas conversion amount"
-              defaultValue={0}
-              disabled={props.disabled}
-              value={percentage}
-              baseColor={theme.palette.primary.main}
-              railColor={theme.palette.secondary.main}
-              step={1}
-              min={0}
-              max={100}
-              valueLabelFormat={() => `${percentage}%`}
-              valueLabelDisplay="auto"
-              onChange={(e: any) => setPercentage(e.target.value)}
-            />
+          <Stack>
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              value={percentage.toString()}
+              onChange={(_e, percentValue: string | null) => {
+                if (percentValue) {
+                  setPercentage(Number(percentValue));
+                }
+              }}
+            >
+              <ToggleButton className={classes.toggleButton} value="5">
+                5%
+              </ToggleButton>
+              <ToggleButton className={classes.toggleButton} value="10">
+                10%
+              </ToggleButton>
+              <ToggleButton className={classes.toggleButton} value="15">
+                15%
+              </ToggleButton>
+            </ToggleButtonGroup>
             <div className={classes.amounts}>
-              <Typography color={theme.palette.text.secondary} fontSize={14}>
-                Additional gas
-              </Typography>
+              <Stack alignItems="center" flexDirection="row">
+                <Typography
+                  color={theme.palette.text.secondary}
+                  fontSize={14}
+                  marginRight="4px"
+                >
+                  Gas amount
+                </Typography>
+                <Tooltip title="This additional gas is swapped from a percentage of your transfer amount.">
+                  <InfoOutlinedIcon
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      fontSize: '16px',
+                    }}
+                  />
+                </Tooltip>
+              </Stack>
               <Typography color={theme.palette.text.secondary} fontSize={14}>
                 {nativeGasPrice}
               </Typography>
             </div>
-          </div>
+          </Stack>
         </div>
       </Collapse>
     </div>
