@@ -305,22 +305,6 @@ const TokenList = (props: Props) => {
       filterFn={(token, query) => {
         if (query.length === 0) return true;
 
-        const chain = props.selectedChainConfig.key;
-
-        // Exclude frankenstein tokens with no balance
-        const balance = balances?.[token.key]?.balance;
-        const hasBalance = balance && sdkAmount.units(balance) > 0n;
-
-        if (isFrankensteinToken(token, chain) && !hasBalance) {
-          return false;
-        }
-
-        // Exclude wormhole-wrapped tokens with no balance
-        // unless it's canonical
-        if (props.isSource && token.isTokenBridgeWrappedToken && !hasBalance) {
-          return false;
-        }
-
         const queryLC = query.toLowerCase();
 
         const symbolMatch = [token.symbol, token.name].some((criteria) =>
