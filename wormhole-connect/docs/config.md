@@ -17,8 +17,10 @@ const config: WormholeConnectConfig = {
   networks: ['Ethereum', 'Polygon', 'Solana'],
   tokens: ['ETH', 'WETH', 'POL', 'WPOL'],
   rpcs: {
-    Ethereum: 'https://rpc.ankr.com/eth',
-    Solana: 'https://rpc.ankr.com/solana',
+    // NOTE: It's recommended to use your own RPC endpoints with increased rate limits.
+    Ethereum: 'https://ethereum-rpc.publicnode.com',
+    Polygon: 'https://polygon-bor-rpc.publicnode.com',
+    Solana: 'https://solana-rpc.publicnode.com',
   },
 };
 
