@@ -40,7 +40,7 @@ const useFetchSupportedRoutes = (): HookReturn => {
 
     const getSupportedRoutes = async () => {
       setIsFetching(true);
-      const _routes: string[] = [];
+      let _routes: string[] = [];
       await config.routes.forEach(async (name, route) => {
         // Disable manual routes when the receiving wallet is a ReadOnlyWallet
         // because the receiving wallet can't sign/complete the transaction
@@ -90,6 +90,15 @@ const useFetchSupportedRoutes = (): HookReturn => {
           _routes.push(name);
         }
       });
+
+      // HAX - We don't want users to use the token bridge route when the TBTC route is available
+      // or they might receive frankenstein TBTC
+      if (_routes.includes('ManualTBTC')) {
+        _routes = _routes.filter(
+          (route) =>
+            !['ManualTokenBridge', 'AutomaticTokenBridge'].includes(route),
+        );
+      }
 
       if (isActive) {
         setIsFetching(false);
