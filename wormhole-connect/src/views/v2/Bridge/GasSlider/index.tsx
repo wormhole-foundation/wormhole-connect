@@ -162,19 +162,35 @@ const GasSlider = (props: {
               exclusive
               fullWidth
               value={percentage.toString()}
-              onChange={(_e, percentValue: string | null) => {
-                if (percentValue) {
-                  setPercentage(Number(percentValue));
+              onChange={(e: any) => {
+                const newPercentValue = Number(e.currentTarget.value);
+                if (newPercentValue === percentage) {
+                  // Unselect if user clicks on the same value
+                  setPercentage(0);
+                } else {
+                  setPercentage(newPercentValue);
                 }
               }}
             >
-              <ToggleButton className={classes.toggleButton} value="5">
+              <ToggleButton
+                className={classes.toggleButton}
+                disableRipple
+                value="5"
+              >
                 5%
               </ToggleButton>
-              <ToggleButton className={classes.toggleButton} value="10">
+              <ToggleButton
+                className={classes.toggleButton}
+                disableRipple
+                value="10"
+              >
                 10%
               </ToggleButton>
-              <ToggleButton className={classes.toggleButton} value="15">
+              <ToggleButton
+                className={classes.toggleButton}
+                disableRipple
+                value="15"
+              >
                 15%
               </ToggleButton>
             </ToggleButtonGroup>
