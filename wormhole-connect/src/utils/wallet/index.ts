@@ -171,10 +171,12 @@ export const connectLastUsedWallet = async (
           // Previously used wallet isn't available anymore.
           // This isn't an error to throw. We simply don't
           // auto-connect to it.
-        } else {
-          throw e;
+          console.error(
+            `Failed to autoconnect to wallet ${lastUsedWallet} for ${chain} (${chainConfig.context})`,
+          );
         }
         localStorage.removeItem(localStorageKey);
+        throw e;
       }
     }
   }
