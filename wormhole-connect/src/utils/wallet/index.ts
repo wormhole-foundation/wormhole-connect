@@ -158,8 +158,22 @@ export const connectLastUsedWallet = async (
     const options = await getWalletOptions(chainConfig);
     const wallet = options.find((w) => w.name === lastUsedWallet);
     if (wallet) {
-      const connected = await connectWallet(type, chain, wallet, dispatch);
-      if (!connected) {
+      try {
+        const connected = await connectWallet(type, chain, wallet, dispatch);
+        if (!connected) {
+          localStorage.removeItem(localStorageKey);
+        }
+      } catch (e: any) {
+        if (
+          e.message.includes('ConnectorNotFound') ||
+          e.message.toLowerCase().includes('connector not found')
+        ) {
+          // Previously used wallet isn't available anymore.
+          // This isn't an error to throw. We simply don't
+          // auto-connect to it.
+        } else {
+          throw e;
+        }
         localStorage.removeItem(localStorageKey);
       }
     }
