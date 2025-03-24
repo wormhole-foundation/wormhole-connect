@@ -10,12 +10,12 @@ export class RedeemView {
   }
 
   // Verify key elements are present in Redeem view
-  async verifyElements(timeout = 30000) {
-    await expect(this.mainContainer).toBeVisible({ timeout });
-    await expect(this.statusHeader).toBeVisible({ timeout });
+  async verifyElements() {
+    await expect(this.mainContainer).toBeVisible();
+    await expect(this.statusHeader).toBeVisible();
   }
 
-  async confirmTransactionState(status: string, timeout = 30000) {
-    await expect(this.statusHeader).toHaveText(status, { timeout });
+  async confirmTransactionState(status: string) {
+    await expect(this.statusHeader).toHaveText(status);
   }
 }

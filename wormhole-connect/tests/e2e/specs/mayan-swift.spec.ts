@@ -84,6 +84,12 @@ test('should initiate transaction', async () => {
   // Start transaction
   await bridgeView.startTransaction();
 
+  // Check for nonce error and retry once
+  if (await bridgeView.hasNonceError()) {
+    console.log('Nonce error detected, retrying transaction');
+    await bridgeView.startTransaction();
+  }
+
   // Wait for Redeem view
   await redeemView.verifyElements();
 

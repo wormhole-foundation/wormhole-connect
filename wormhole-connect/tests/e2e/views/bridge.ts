@@ -1,16 +1,24 @@
 import { expect, Locator, Page } from '@playwright/test';
 
+const NONCE_ERROR = new RegExp('nonce has already been used', 'mi');
+
 export class BridgeView {
   private readonly srcAssetPicker: Locator;
   private readonly destAssetPicker: Locator;
   private readonly amountInput: Locator;
   private readonly confirmButton: Locator;
+  private readonly logs: Array<{ text: string; type: string }> = [];
 
   constructor(public readonly page: Page) {
     this.srcAssetPicker = page.getByTestId('source-asset-picker');
     this.destAssetPicker = page.getByTestId('dest-asset-picker');
     this.amountInput = page.getByTestId('amount-input');
     this.confirmButton = page.getByTestId('confirm-transaction-button');
+
+    // Start listening for console logs
+    page.on('console', (msg) => {
+      this.logs.push({ text: msg.text(), type: msg.type() });
+    });
   }
 
   // Verify key elements are present in Bridge view
@@ -79,5 +87,13 @@ export class BridgeView {
     await expect(this.confirmButton).toBeEnabled();
     await this.confirmButton.click();
     await expect(this.confirmButton).toHaveText('Preparing transaction');
+  }
+
+  async hasNonceError() {
+    // Wait for the confirm button not to be in progress before checking the logs
+    await expect(this.confirmButton).not.toHaveText('Preparing transaction');
+    return this.logs.some(
+      (log) => log.type === 'error' && NONCE_ERROR.test(log.text),
+    );
   }
 }
