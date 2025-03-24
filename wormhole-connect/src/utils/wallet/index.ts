@@ -164,19 +164,10 @@ export const connectLastUsedWallet = async (
           localStorage.removeItem(localStorageKey);
         }
       } catch (e: any) {
-        if (
-          e.message.includes('ConnectorNotFound') ||
-          e.message.toLowerCase().includes('connector not found')
-        ) {
-          // Previously used wallet isn't available anymore.
-          // This isn't an error to throw. We simply don't
-          // auto-connect to it.
-          console.error(
-            `Failed to autoconnect to wallet ${lastUsedWallet} for ${chain} (${chainConfig.context})`,
-          );
-        }
         localStorage.removeItem(localStorageKey);
-        throw e;
+        throw new Error(
+          `Failed to autoconnect to wallet ${lastUsedWallet} for ${chain} (${chainConfig.context}): ${e.message}`,
+        );
       }
     }
   }
