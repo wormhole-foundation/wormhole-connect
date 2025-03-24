@@ -6,8 +6,8 @@ import { RedeemView } from '../views/redeem';
 
 // Read from .env* files
 // This is only for local testing overrides
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
-dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '../../..', '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../..', '.env.local') });
 
 /**
  * Default config will have the following settings:
