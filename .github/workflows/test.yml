@@ -26,6 +26,7 @@ jobs:
         env:
           REACT_APP_TEST_EVM_ADDR: ${{ secrets.REACT_APP_TEST_EVM_ADDR }}
           REACT_APP_TEST_EVM_PK: ${{ secrets.REACT_APP_TEST_EVM_PK }}
+          REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

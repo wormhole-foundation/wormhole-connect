@@ -1,6 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
+import { compressToBase64 } from 'lz-string';
+
 import { BridgeView } from '../views/bridge';
 import { RedeemView } from '../views/redeem';
 
@@ -9,28 +11,10 @@ import { RedeemView } from '../views/redeem';
 dotenv.config({ path: path.resolve(__dirname, '../../..', '.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../..', '.env.local') });
 
-/**
- * Default config will have the following settings:
- * {
-      network: 'mainnet',
-      coinGeckoApiKey: 'CG-EDLftLaFEWYqZNsPVwBDAKCE',
-      ui: {
-        showInProgressWidget: true,
-        testOptions: {
-          enableHeadlessSigner: true,
-        },
-      },
-      routes: [
-        MayanRouteSWIFT,
-      ]
-    };
- */
-const DEFAULT_CONFIG =
-  'N4KABGB2CmAuDuB7ATgawFxgOQFsCGAlpDLFgDThgDGiRA4tFaogIIAOBA0tAJ6ZYBhOgFoAogBEAMgDNYkvADFRAdQCaARwBaAOQDOABQBq8AELiWnAaPKUArgUygIEXQAtE8AJKR9yRAHNkaF1dZQIAE384TFhkW2gKZzBYYNgAeTZYAkRIXUdKJOhIPAAjABtoAAloPHCKkIBlAn8YZBi4hIKwAF9Enr6%2FWxS8sABtLoA6KfFRBRYAVUkAFQB9ACU0%2BaXRBr6IAFk8HjxINcQh6AblTwUlvoBdEG6AbhAgA';
-
 const ARB_USDC_CONTRACT = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831';
 const BASE_USDC_CONTRACT = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 
+let configQuery: string;
 let page: Page;
 let bridgeView: BridgeView;
 let redeemView: RedeemView;
@@ -39,6 +23,26 @@ let redeemView: RedeemView;
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async ({ browser }) => {
+  // Generate query param for the default config
+  const coinGeckoApiKey = process.env.REACT_APP_TEST_CG_AK;
+  expect(coinGeckoApiKey).toBeDefined();
+  const defaultConfig = `{
+  network: 'mainnet',
+  coinGeckoApiKey: '${coinGeckoApiKey}',
+  ui: {
+    showInProgressWidget: true,
+    testOptions: {
+      enableHeadlessSigner: true,
+    },
+  },
+  routes: [
+    MayanRouteSWIFT,
+  ],
+}`;
+
+  configQuery = compressToBase64(defaultConfig);
+
+  // Set up Bridge and Redeem views
   page = await browser.newPage();
   bridgeView = new BridgeView(page);
   redeemView = new RedeemView(page);
@@ -50,7 +54,7 @@ test.afterAll(async () => {
 
 test('should configure transaction', async () => {
   // Navigate to brige view
-  await page.goto(`http://localhost:5173/?config=${DEFAULT_CONFIG}`);
+  await page.goto(`http://localhost:5173/?config=${configQuery}`);
 
   // Verify key elements are present in bridge view
   await bridgeView.verifyElements();
