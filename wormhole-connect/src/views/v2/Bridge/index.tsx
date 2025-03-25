@@ -210,14 +210,6 @@ const Bridge = () => {
     sourceTokenArray,
   );
 
-  const disableValidation =
-    !sendingWallet.address ||
-    !receivingWallet.address ||
-    !sourceChain ||
-    !sourceToken ||
-    !destChain ||
-    !destToken;
-
   // Validate amount
   const amountValidation = useAmountValidation({
     balance: sourceToken ? balances[sourceToken.key]?.balance : null,
@@ -225,7 +217,7 @@ const Bridge = () => {
     quotesMap,
     tokenSymbol: sourceToken?.symbol ?? '',
     isLoading: isFetchingBalances || isFetchingQuotes,
-    disabled: disableValidation,
+    disabled: !sendingWallet.address || !sourceChain || !sourceToken,
   });
 
   //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
@@ -490,9 +482,6 @@ const Bridge = () => {
 
   const hasConnectedWallets = sendingWallet.address && receivingWallet.address;
 
-  const showRoutes =
-    hasConnectedWallets && isWalletCompatible && hasEnteredAmount && !hasError;
-
   const confirmTransactionDisabled =
     !sourceChain ||
     !sourceToken ||
@@ -590,7 +579,7 @@ const Bridge = () => {
         error={amountValidation.error}
         warning={amountValidation.warning || walletWarning}
       />
-      {showRoutes && (
+      {hasEnteredAmount && (
         <Routes
           routes={sortedRoutes}
           selectedRoute={route}
@@ -599,7 +588,6 @@ const Bridge = () => {
           }}
           quotes={quotesMap}
           isLoading={isFetchingQuotes || isFetchingBalances}
-          hasError={hasError}
         />
       )}
       {transactionError}

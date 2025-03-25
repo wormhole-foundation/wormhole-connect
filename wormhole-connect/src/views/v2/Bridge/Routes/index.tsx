@@ -30,7 +30,6 @@ type Props = {
   onRouteChange: (route: string) => void;
   quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
   isLoading: boolean;
-  hasError: boolean;
 };
 
 const Routes = ({ ...props }: Props) => {
@@ -88,10 +87,6 @@ const Routes = ({ ...props }: Props) => {
       { name: '', amountOut: 0n },
     );
   }, [routes, props.quotes]);
-
-  if (props.hasError) {
-    return null;
-  }
 
   return (
     <>
