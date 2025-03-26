@@ -2,17 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   amount as sdkAmount,
   chainIdToChain,
-  toNative,
   Wormhole,
 } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
-import { getGasToken } from 'utils';
 
-import type { Chain, ChainId } from '@wormhole-foundation/sdk';
+import type { ChainId } from '@wormhole-foundation/sdk';
 import type { Transaction } from 'config/types';
-import { toFixedDecimals } from 'utils/balance';
 import { useTokens } from 'contexts/TokensContext';
 import { Token } from 'config/tokens';
 
@@ -82,20 +79,6 @@ interface WormholeScanTransaction {
   };
 }
 
-// TODO: SDKV2 route specific details don't belong here
-interface WormholeScanPorticoParsedPayload {
-  finalTokenAddress: string;
-  flagSet: {
-    flags: {
-      shouldWrapNative: boolean;
-      shouldUnwrapNative: boolean;
-    };
-  };
-  minAmountFinish: string;
-  recipientAddress: string;
-  relayerFee: string;
-}
-
 type Props = {
   address: string;
   page?: number;
@@ -125,7 +108,7 @@ const useTransactionHistoryWHScan = (
 
   // Common parsing logic for a single transaction from WHScan API.
   // IMPORTANT: Anything specific to a route, please use that route's parser:
-  // parseTokenBridgeTx | parseNTTTx | parseCCTPTx | parsePorticoTx
+  // parseTokenBridgeTx | parseNTTTx | parseCCTPTx
   const parseSingleTx = useCallback(
     async (tx: WormholeScanTransaction) => {
       const { content, data, sourceChain, targetChain } = tx;
@@ -300,68 +283,6 @@ const useTransactionHistoryWHScan = (
     [parseSingleTx],
   );
 
-  // Parser for Portico transactions (appId === ETH_BRIDGE or USDT_BRIDGE)
-  // IMPORTANT: This is where we can add any customizations specific to Portico data
-  // that we have retrieved from WHScan API
-  const parsePorticoTx = useCallback(
-    async (tx: WormholeScanTransaction) => {
-      const txData = await parseSingleTx(tx);
-      if (!txData) return;
-
-      const payload = tx.content.payload
-        .parsedPayload as unknown as WormholeScanPorticoParsedPayload;
-
-      const {
-        finalTokenAddress,
-        flagSet,
-        minAmountFinish,
-        recipientAddress,
-        relayerFee,
-      } = payload;
-
-      const nativeToken = config.tokens.get(
-        chainIdToChain(tx.content.standarizedProperties.tokenChain) as Chain,
-        tx.content.standarizedProperties.tokenAddress,
-      );
-      if (!nativeToken) return;
-
-      const startToken = flagSet.flags?.shouldWrapNative
-        ? getGasToken(txData.fromChain)
-        : nativeToken;
-
-      const finalToken = config.tokens.get(
-        Wormhole.tokenId(
-          txData.toChain,
-          toNative(txData.toChain, finalTokenAddress).toString(),
-        ),
-      );
-
-      if (!finalToken) return;
-
-      const receiveAmount = BigInt(minAmountFinish) - BigInt(relayerFee);
-
-      // Override with Portico specific data
-      txData.fromToken = startToken;
-      txData.toToken = flagSet.flags.shouldUnwrapNative
-        ? getGasToken(txData.toChain)
-        : finalToken;
-      txData.receiveAmount =
-        receiveAmount > 0
-          ? toFixedDecimals(
-              sdkAmount.display(
-                sdkAmount.fromBaseUnits(receiveAmount, finalToken.decimals),
-                0,
-              ),
-              DECIMALS,
-            )
-          : '';
-      txData.recipient = toNative(txData.toChain, recipientAddress).toString();
-
-      return txData;
-    },
-    [parseSingleTx],
-  );
-
   // Parser for WLL or FAST_TRANSFERS transactions (appId === WORMHOLE_LIQUIDITY_LAYER, FAST_TRANSFERS)
   // IMPORTANT: This is where we can add any customizations specific to WLL data
   // that we have retrieved from WHScan API
@@ -378,15 +299,12 @@ const useTransactionHistoryWHScan = (
       GENERIC_RELAYER: parseGenericRelayer,
       NATIVE_TOKEN_TRANSFER: parseNTTTx,
       CCTP_WORMHOLE_INTEGRATION: parseCCTPTx,
-      ETH_BRIDGE: parsePorticoTx,
-      USDT_BRIDGE: parsePorticoTx,
       FAST_TRANSFERS: parseLLTx,
       WORMHOLE_LIQUIDITY_LAYER: parseLLTx,
     }),
     [
       parseCCTPTx,
       parseNTTTx,
-      parsePorticoTx,
       parseTokenBridgeTx,
       parseLLTx,
       parseGenericRelayer,
@@ -403,16 +321,6 @@ const useTransactionHistoryWHScan = (
             const appIds: Array<string> =
               tx.content?.standarizedProperties?.appIds || [];
 
-            // TODO: SDKV2
-            // Some integrations may compose with multiple protocols and have multiple appIds
-            // Choose a more specific parser if available
-            if (
-              appIds.includes('ETH_BRIDGE') ||
-              appIds.includes('USDT_BRIDGE')
-            ) {
-              return parsePorticoTx(tx);
-            }
-
             for (const appId of appIds) {
               // Retrieve the parser for an appId
               const parser = PARSERS[appId];
@@ -426,7 +334,7 @@ const useTransactionHistoryWHScan = (
         )
       ).filter((tx) => !!tx); // Filter out unsupported transactions
     },
-    [PARSERS, parsePorticoTx],
+    [PARSERS],
   );
 
   useEffect(() => {

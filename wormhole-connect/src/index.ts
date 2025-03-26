@@ -33,7 +33,6 @@ const {
   TokenBridgeRoute,
   AutomaticCCTPRoute,
   CCTPRoute,
-  AutomaticPorticoRoute,
 } = routes;
 
 export default WormholeConnect;
@@ -59,7 +58,6 @@ export {
   TokenBridgeRoute,
   AutomaticCCTPRoute,
   CCTPRoute,
-  AutomaticPorticoRoute,
   MayanRoute,
   MayanRouteWH,
   MayanRouteMCTP,
