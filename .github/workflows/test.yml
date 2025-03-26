@@ -1,8 +1,8 @@
-name: e2e
+name: Test
 on: workflow_dispatch
 
 jobs:
-  playwright:
+  e2e:
     runs-on: ubuntu-latest
     environment: ci
     permissions: read-all
