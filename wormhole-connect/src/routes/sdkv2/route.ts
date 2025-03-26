@@ -71,17 +71,6 @@ export class SDKv2Route {
     const fromChainSupported = supportedChains.includes(fromContext.chain);
     const toChainSupported = supportedChains.includes(toContext.chain);
 
-    if (
-      this.IS_TOKEN_BRIDGE_ROUTE &&
-      (await isNttSupportedToken(
-        sourceToken,
-        fromContext.context,
-        toContext.context,
-      ))
-    ) {
-      return false;
-    }
-
     const supportedDestinationTokens = await this.rc.supportedDestinationTokens(
       sourceToken,
       fromContext.context,
@@ -109,14 +98,15 @@ export class SDKv2Route {
   ): Promise<TokenId[]> {
     if (!fromChain || !toChain || !sourceToken) return [];
 
-    if (this.IS_TOKEN_BRIDGE_ROUTE) {
-      if (this.isIlliquidDestToken(sourceToken, toChain)) {
-        return [];
-      }
-    }
-
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
+
+    const isIlliquid = await this.isIlliquidDestToken(
+      sourceToken,
+      fromContext.context,
+      toContext.context,
+    );
+    if (isIlliquid) return [];
 
     const destTokenIds = await this.rc.supportedDestinationTokens(
       sourceToken.tokenId,
@@ -332,10 +322,27 @@ export class SDKv2Route {
   // Prevent receiving illiquid wormhole-wrapped tokens
   // This is not a perfect solution or an exhaustive list of all illiquid tokens,
   // but it should cover the most common cases
-  isIlliquidDestToken(token: Token, toChain: Chain): boolean {
+  async isIlliquidDestToken(
+    token: Token,
+    fromContext: ChainContext<Network, Chain>,
+    toContext: ChainContext<Network, Chain>,
+  ): Promise<boolean> {
+    if (!this.IS_TOKEN_BRIDGE_ROUTE) return false;
+
     const { symbol, nativeChain } = token;
 
-    if (isFrankensteinToken(token, toChain)) {
+    if (isFrankensteinToken(token, toContext.chain)) {
+      return true;
+    }
+
+    // Exclude wormhole-wrapped tokens on the destination chain
+    // if the NTT route is supported
+    const isNttSupported = await isNttSupportedToken(
+      token,
+      fromContext,
+      toContext,
+    );
+    if (isNttSupported) {
       return true;
     }
 
@@ -344,7 +351,7 @@ export class SDKv2Route {
       ['ETH', 'WETH'].includes(symbol) &&
       nativeChain === 'Ethereum' &&
       (['Scroll', 'Blast', 'Xlayer', 'Mantle', 'Unichain'] as Chain[]).includes(
-        toChain,
+        toContext.chain,
       )
     ) {
       return true;
