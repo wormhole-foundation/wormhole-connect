@@ -635,6 +635,7 @@ const Redeem = () => {
       isResumeTx &&
       toChain === 'Solana' &&
       receivingWallet.address &&
+      receivingWallet.type === Context.SOLANA &&
       receivingWallet.address !== recipient &&
       routeName &&
       // These routes set the recipient address to the associated token address
