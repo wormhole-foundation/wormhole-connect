@@ -658,9 +658,10 @@ const Redeem = () => {
 
     const walletAddress = receivingWallet.address.toLowerCase();
     const walletCurrentAddress = receivingWallet.currentAddress.toLowerCase();
+    // const recipientAddress = recipient.toLowerCase();
 
     // Connected wallet should be the current recipient wallet
-    return walletAddress === walletCurrentAddress;
+    return walletAddress && walletAddress === walletCurrentAddress;
   }, [
     receivingWallet,
     recipient,
