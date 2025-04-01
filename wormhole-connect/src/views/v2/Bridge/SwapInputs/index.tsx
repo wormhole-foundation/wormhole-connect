@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { makeStyles } from 'tss-react/mui';
@@ -13,7 +14,7 @@ const useStyles = makeStyles()(() => ({
   swapButton: {
     display: 'block',
     position: 'absolute',
-    bottom: -44,
+    bottom: '-24px',
     left: 'calc(50% - 20px)',
     width: 40,
     height: 40,
@@ -23,6 +24,7 @@ const useStyles = makeStyles()(() => ({
 
 function SwapInputs() {
   const dispatch = useDispatch();
+  const theme: any = useTheme();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(
@@ -36,24 +38,36 @@ function SwapInputs() {
     toChain &&
     !config.chains[toChain]?.disabledAsSource;
 
-  const swap = useCallback(() => {
-    if (!canSwap || isTransactionInProgress) return;
+  const swap = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    setRotateAnimation((val) =>
-      val === 'spinRight' ? 'spinLeft' : 'spinRight',
-    );
+      if (!canSwap || isTransactionInProgress) return;
 
-    dispatch(swapInputs());
-    dispatch(swapWallets());
-    dispatch(setAmount(''));
-  }, [canSwap, isTransactionInProgress, dispatch]);
+      setRotateAnimation((val) =>
+        val === 'spinRight' ? 'spinLeft' : 'spinRight',
+      );
+
+      dispatch(swapInputs());
+      dispatch(swapWallets());
+      dispatch(setAmount(''));
+    },
+    [canSwap, isTransactionInProgress, dispatch],
+  );
 
   const { classes } = useStyles();
 
   return (
     <IconButton
       className={classes.swapButton}
+      disableRipple={!canSwap}
       sx={{
+        border: canSwap ? `1px solid ${theme.palette.input.border}` : 'none',
+        backgroundColor: canSwap ? theme.palette.popover.background : 'black',
+        '&:hover': {
+          backgroundColor: canSwap ? theme.palette.popover.background : 'black',
+        },
         animation: `${rotateAnimation} 0.3s linear 1`,
         '@keyframes spinRight': {
           '0%': {
@@ -73,7 +87,6 @@ function SwapInputs() {
         },
       }}
       onClick={swap}
-      disabled={!canSwap}
     >
       <SwapVertIcon />
     </IconButton>

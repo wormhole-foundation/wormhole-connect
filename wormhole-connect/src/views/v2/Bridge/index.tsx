@@ -41,7 +41,6 @@ import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
-import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
@@ -57,13 +56,6 @@ const useStyles = makeStyles()((theme: any) => ({
   assetPickerContainer: {
     width: '100%',
     position: 'relative',
-  },
-  assetPickerTitle: {
-    color: theme.palette.text.secondary,
-    display: 'flex',
-    minHeight: '40px',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   bridgeContent: {
     margin: 'auto',
@@ -282,10 +274,6 @@ const Bridge = () => {
   const sourceAssetPicker = useMemo(() => {
     return (
       <div className={classes.assetPickerContainer}>
-        <div className={classes.assetPickerTitle}>
-          <Typography variant="body2">From</Typography>
-          <WalletController type={TransferWallet.SENDING} />
-        </div>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -307,12 +295,10 @@ const Bridge = () => {
     );
   }, [
     classes.assetPickerContainer,
-    classes.assetPickerTitle,
     sourceChain,
     supportedSourceChains,
     sourceToken,
     sourceTokens,
-    lastTokenCacheUpdate,
     isTransactionInProgress,
     sendingWallet,
     dispatch,
@@ -322,10 +308,6 @@ const Bridge = () => {
   const destAssetPicker = useMemo(() => {
     return (
       <div className={classes.assetPickerContainer}>
-        <div className={classes.assetPickerTitle}>
-          <Typography variant="body2">To</Typography>
-          <WalletController type={TransferWallet.RECEIVING} />
-        </div>
         <AssetPicker
           chain={destChain}
           chainList={supportedDestChains}
@@ -350,7 +332,6 @@ const Bridge = () => {
     );
   }, [
     classes.assetPickerContainer,
-    classes.assetPickerTitle,
     destChain,
     supportedDestChains,
     destToken,

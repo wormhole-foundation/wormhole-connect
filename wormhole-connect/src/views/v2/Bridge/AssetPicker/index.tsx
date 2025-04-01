@@ -25,6 +25,8 @@ import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { joinClass } from 'utils/style';
+import { TransferWallet } from 'utils/wallet';
+import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
@@ -41,6 +43,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   cardContent: {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
     height: '72px',
@@ -48,6 +51,12 @@ const useStyles = makeStyles()((theme: any) => ({
     ':last-child': {
       padding: '16px 20px',
     },
+  },
+  cardSection: {
+    color: theme.palette.text.secondary,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   chainSelector: {
     display: 'flex',
@@ -194,32 +203,46 @@ const AssetPicker = (props: Props) => {
         ])}
         data-testid={props.dataTestId}
         variant="elevation"
-        onMouseDown={(e) => {
-          if (mobile) {
-            setIsDrawerOpen(true);
-          } else {
-            popupState.open(e);
-          }
-        }}
-        onTouchStart={(e) => {
-          if (mobile) {
-            setIsDrawerOpen(true);
-          } else {
-            popupState.open(e);
-          }
-        }}
-        {...triggerProps}
       >
-        <CardContent className={classes.cardContent}>
-          <Typography
-            className={classes.chainSelector}
-            component={'div'}
-            gap={1}
-          >
-            <AssetBadge chainConfig={chainConfig} token={props.token} />
-            {selection}
+        <Stack className={classes.cardSection}>
+          <Typography variant="body2">
+            {props.isSource ? 'From' : 'To'}
           </Typography>
-          {popupState.isOpen || isDrawerOpen ? <UpIcon /> : <DownIcon />}
+          <WalletController
+            type={
+              props.isSource ? TransferWallet.SENDING : TransferWallet.RECEIVING
+            }
+          />
+        </Stack>
+        <CardContent
+          className={classes.cardContent}
+          onMouseDown={(e) => {
+            if (mobile) {
+              setIsDrawerOpen(true);
+            } else {
+              popupState.open(e);
+            }
+          }}
+          onTouchStart={(e) => {
+            if (mobile) {
+              setIsDrawerOpen(true);
+            } else {
+              popupState.open(e);
+            }
+          }}
+          {...triggerProps}
+        >
+          <Stack className={classes.cardSection}>
+            <Typography
+              className={classes.chainSelector}
+              component={'div'}
+              gap={1}
+            >
+              <AssetBadge chainConfig={chainConfig} token={props.token} />
+              {selection}
+            </Typography>
+            {popupState.isOpen || isDrawerOpen ? <UpIcon /> : <DownIcon />}
+          </Stack>
         </CardContent>
       </Card>
       {mobile ? (
@@ -278,7 +301,7 @@ const AssetPicker = (props: Props) => {
           {...bindPopover(popupState)}
           transitionDuration={200}
           anchorOrigin={{
-            vertical: 'top',
+            vertical: 'bottom',
             horizontal: 'center',
           }}
           className={classes.popover}
