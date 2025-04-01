@@ -21,6 +21,7 @@ import {
   isRefunded,
   isFailed,
   routes,
+  isNative,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -60,7 +61,7 @@ import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
 import TxWarningIcon from 'icons/TxWarning';
 import TxFailedIcon from 'icons/TxFailed';
-import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { getAssociatedTokenAddressSync, NATIVE_MINT } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 import TxReadyForClaim from 'icons/TxReadyForClaim';
 import { useGetRedeemTokens } from 'hooks/useGetTokens';
@@ -644,7 +645,11 @@ const Redeem = () => {
       const { address: receiveTokenAddress } = tokenIdFromTuple(receivedToken);
 
       const ata = getAssociatedTokenAddressSync(
-        new PublicKey(receiveTokenAddress.toString()),
+        new PublicKey(
+          isNative(receiveTokenAddress)
+            ? NATIVE_MINT
+            : receiveTokenAddress.toString(),
+        ),
         new PublicKey(receivingWallet.address),
       );
       if (!ata.equals(new PublicKey(recipient))) {
