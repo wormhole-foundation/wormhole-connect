@@ -25,6 +25,15 @@ jobs:
       - run: npm run lint:ci
         working-directory: wormhole-connect
 
+  # TODO: figure out why GitHub still runs this test job
+  # even when we remove it and clear the workflow cache
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Tests
+        if: false
+        run: echo "Skipping test"
+
   check-sdn-list:
     runs-on: ubuntu-latest
 
