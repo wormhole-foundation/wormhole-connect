@@ -28,10 +28,10 @@ jobs:
   # TODO: figure out why GitHub still runs this test job
   # even when we remove it and clear the workflow cache
   test:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Run Tests
-        if: false
         run: echo "Skipping test"
 
   check-sdn-list:
