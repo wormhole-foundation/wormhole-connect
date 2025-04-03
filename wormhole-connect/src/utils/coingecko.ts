@@ -60,21 +60,22 @@ const coingeckoRequest = async (
   return fetch(`${hostname}${path}`, {
     signal: params?.abort?.signal,
     headers,
-  }).then((resp) => resp.json());
+  })
+    .then((resp) => resp.json())
+    .catch((err) => {
+      console.error('Error fetching from Coingecko', err);
+      return null;
+    });
 };
 
 export const fetchTokenMetadata = async (
   tokenId: TokenId,
   params?: CoingeckoParams,
 ): Promise<any> => {
-  try {
-    return await coingeckoRequest(
-      `/api/v3/coins/${tokenId.chain.toLowerCase()}/contract/${tokenId.address.toString()}`,
-      params,
-    );
-  } catch (_) {
-    return null;
-  }
+  return coingeckoRequest(
+    `/api/v3/coins/${tokenId.chain.toLowerCase()}/contract/${tokenId.address.toString()}`,
+    params,
+  );
 };
 
 export const fetchTokenPrices = async (
