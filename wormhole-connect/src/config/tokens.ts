@@ -346,9 +346,9 @@ export class TokenCache extends TokenMapping<Token> {
 
     const metadata = await fetchTokenMetadata(tokenId);
 
-    let symbol = metadata.symbol?.toUpperCase() || '';
-    let name = metadata.name;
-    let image = metadata.image?.large || null;
+    let symbol = metadata?.symbol?.toUpperCase() || '';
+    let name = metadata?.name || '';
+    let image = metadata?.image?.large || null;
 
     if (!symbol) {
       // Attempt to get the symbol from on-chain

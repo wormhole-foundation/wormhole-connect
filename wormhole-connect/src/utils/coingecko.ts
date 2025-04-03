@@ -43,7 +43,7 @@ export interface CoingeckoParams {
 const coingeckoRequest = async (
   path: string,
   params?: CoingeckoParams,
-): Promise<Response> => {
+): Promise<any> => {
   const headers = new Headers({
     'Content-Type': 'application/json',
     ...(config.coingecko?.apiKey
@@ -67,10 +67,14 @@ export const fetchTokenMetadata = async (
   tokenId: TokenId,
   params?: CoingeckoParams,
 ): Promise<any> => {
-  return coingeckoRequest(
-    `/api/v3/coins/${tokenId.chain.toLowerCase()}/contract/${tokenId.address.toString()}`,
-    params,
-  );
+  try {
+    return await coingeckoRequest(
+      `/api/v3/coins/${tokenId.chain.toLowerCase()}/contract/${tokenId.address.toString()}`,
+      params,
+    );
+  } catch (_) {
+    return null;
+  }
 };
 
 export const fetchTokenPrices = async (
