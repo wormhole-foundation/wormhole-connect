@@ -34,11 +34,6 @@ const useStyles = makeStyles()((theme: any) => ({
     cursor: 'pointer',
     maxWidth: '420px',
     borderRadius: '8px',
-    background: 'transparent',
-    border: `1px solid ${theme.palette.input.border}`,
-  },
-  inputAreaEmpty: {
-    borderColor: theme.palette.input.background,
     background: theme.palette.input.background,
   },
   cardContent: {
@@ -46,13 +41,26 @@ const useStyles = makeStyles()((theme: any) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: '72px',
-    padding: '16px 20px',
+    height: '92px',
+    padding: '12px 20px',
+    paddingBottom: '32px',
     ':last-child': {
-      padding: '16px 20px',
+      padding: '12px 20px',
+      paddingBottom: '32px',
     },
   },
+  cardTopSection: {
+    alignItems: 'center',
+    color: theme.palette.text.secondary,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: '32px',
+    width: '100%',
+    padding: '12px 20px',
+    paddingBottom: '0px',
+  },
   cardSection: {
+    alignItems: 'center',
     color: theme.palette.text.secondary,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -198,13 +206,12 @@ const AssetPicker = (props: Props) => {
       <Card
         className={joinClass([
           classes.inputArea,
-          !chainConfig && classes.inputAreaEmpty,
           props.isTransactionInProgress && classes.disabled,
         ])}
         data-testid={props.dataTestId}
         variant="elevation"
       >
-        <Stack className={classes.cardSection}>
+        <Stack className={classes.cardTopSection}>
           <Typography variant="body2">
             {props.isSource ? 'From' : 'To'}
           </Typography>

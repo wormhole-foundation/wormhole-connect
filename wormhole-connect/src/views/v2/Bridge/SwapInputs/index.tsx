@@ -63,10 +63,9 @@ function SwapInputs() {
       className={classes.swapButton}
       disableRipple={!canSwap}
       sx={{
-        border: canSwap ? `1px solid ${theme.palette.input.border}` : 'none',
-        backgroundColor: canSwap ? theme.palette.popover.background : 'black',
+        backgroundColor: theme.palette.background.default,
         '&:hover': {
-          backgroundColor: canSwap ? theme.palette.popover.background : 'black',
+          backgroundColor: theme.palette.background.default,
         },
         animation: `${rotateAnimation} 0.3s linear 1`,
         '@keyframes spinRight': {
@@ -88,7 +87,9 @@ function SwapInputs() {
       }}
       onClick={swap}
     >
-      <SwapVertIcon />
+      <SwapVertIcon
+        htmlColor={canSwap ? theme.palette.text : theme.palette.text.disabled}
+      />
     </IconButton>
   );
 }

@@ -188,6 +188,11 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
 
   // Override built-in theme with whichever custom values we've been provided
   if (customTheme) {
+    if (customTheme.background) {
+      theme.background = {
+        default: customTheme.background,
+      };
+    }
     if (customTheme.input) {
       theme.input = {
         background: customTheme.input,
