@@ -308,7 +308,7 @@ const AssetPicker = (props: Props) => {
           {...bindPopover(popupState)}
           transitionDuration={200}
           anchorOrigin={{
-            vertical: 'bottom',
+            vertical: 'top',
             horizontal: 'center',
           }}
           className={classes.popover}
