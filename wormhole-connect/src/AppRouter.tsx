@@ -59,6 +59,10 @@ function AppRouter(props: Props) {
   const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
     if (!isEmptyObject(customConfig)) {
       setConfig(customConfig);
+      
+      // Any time we set a new config, we should clear in progress transfers and navigate to the bridge view
+      dispatch(clearTransfer());
+      dispatch(setRoute('bridge'));
     }
 
     hasSetSsgConfig.current = true;
