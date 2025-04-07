@@ -206,11 +206,18 @@ export class MultiProvider<T extends Domain> {
    * @param nameOrDomain A domain name or number.
    * @param rpc The HTTP RPC Url
    */
-  registerRpcProvider(nameOrDomain: string | number, rpc: string): void {
+  registerRpcProvider(
+    nameOrDomain: string | number,
+    chainId: string | bigint | undefined,
+    rpc: string,
+  ): void {
     const domain = this.resolveDomain(nameOrDomain);
 
     if (rpc.startsWith('http://') || rpc.startsWith('https://')) {
-      const provider = new ethers.JsonRpcProvider(rpc);
+      const provider = new ethers.JsonRpcProvider(rpc, chainId, {
+        staticNetwork: true,
+        polling: false,
+      });
       this.registerProvider(domain, provider);
     } else if (rpc.startsWith('ws://') || rpc.startsWith('wss://')) {
       const provider = new ethers.WebSocketProvider(rpc);

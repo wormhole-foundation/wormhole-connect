@@ -4,7 +4,12 @@ import MAINNET_CONFIG from './config/MAINNET';
 import TESTNET_CONFIG from './config/TESTNET';
 import { AnyContext, Context, WormholeConfig } from './types';
 import DEVNET_CONFIG from './config/DEVNET';
-import { Network, Chain, toChainId } from '@wormhole-foundation/sdk';
+import {
+  Network,
+  Chain,
+  toChainId,
+  nativeChainIds,
+} from '@wormhole-foundation/sdk';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -67,7 +72,11 @@ export class WormholeContext extends MultiProvider<Domain> {
       });
       // register RPC provider
       if (this.conf.chains[chain]?.context === Context.ETH) {
-        this.registerRpcProvider(chain, this.conf.rpcs[chain]);
+        const chainId = nativeChainIds.networkChainToNativeChainId.get(
+          this.conf.env,
+          chain,
+        );
+        this.registerRpcProvider(chain, chainId, this.conf.rpcs[chain]);
       }
     }
   }
