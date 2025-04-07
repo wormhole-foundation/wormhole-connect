@@ -23,8 +23,6 @@ SOFTWARE.
 */
 import * as ethers from 'ethers';
 
-type Provider = ethers.Provider;
-
 /**
  * The MultiProvider manages a collection of [Domains]{@link Domain} and allows
  * developers to enroll ethers Providers and Signers for each domain. It is
@@ -57,12 +55,10 @@ type Provider = ethers.Provider;
  */
 export class MultiProvider<T extends Domain> {
   protected domains: Map<string, T>;
-  protected providers: Map<string, Provider>;
   protected signers: Map<string, ethers.Signer>;
 
   constructor() {
     this.domains = new Map();
-    this.providers = new Map();
     this.signers = new Map();
   }
 
@@ -89,7 +85,7 @@ export class MultiProvider<T extends Domain> {
   }
 
   get missingProviders(): string[] {
-    return this.domainNames.filter((name) => !this.providers.has(name));
+    return this.domainNames.filter((name) => !this.signers.has(name));
   }
 
   /**
@@ -182,80 +178,6 @@ export class MultiProvider<T extends Domain> {
   }
 
   /**
-   * Register an ethers Provider for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param provider An ethers Provider to be used by requests to that domain.
-   */
-  registerProvider(nameOrDomain: string | number, provider: Provider): void {
-    const domain = this.mustGetDomain(nameOrDomain).name;
-    try {
-      const signer = this.signers.get(domain);
-      if (signer) {
-        this.signers.set(domain, signer.connect(provider));
-      }
-    } catch (e) {
-      this.unregisterSigner(domain);
-    }
-    this.providers.set(domain, provider);
-  }
-
-  /**
-   * Shortcut to register a provider by its HTTP RPC URL.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param rpc The HTTP RPC Url
-   */
-  registerRpcProvider(
-    nameOrDomain: string | number,
-    chainId: string | bigint | undefined,
-    rpc: string,
-  ): void {
-    const domain = this.resolveDomain(nameOrDomain);
-
-    if (rpc.startsWith('http://') || rpc.startsWith('https://')) {
-      const provider = new ethers.JsonRpcProvider(rpc, chainId, {
-        staticNetwork: true,
-        polling: false,
-      });
-      this.registerProvider(domain, provider);
-    } else if (rpc.startsWith('ws://') || rpc.startsWith('wss://')) {
-      const provider = new ethers.WebSocketProvider(rpc);
-      this.registerProvider(domain, provider);
-    } else {
-      throw new Error(
-        'Unknown RPC string scheme. Expected an http or websocket URI',
-      );
-    }
-  }
-
-  /**
-   * Get the Provider associated with a doman (if any)
-   *
-   * @param nameOrDomain A domain name or number.
-   * @returns The currently registered Provider (or none)
-   */
-  getProvider(nameOrDomain: string | number): Provider | undefined {
-    const domain = this.resolveDomainName(nameOrDomain);
-    return this.providers.get(domain);
-  }
-
-  /**
-   * Get the Provider associated with a doman (or error)
-   *
-   * @param nameOrDomain A domain name or number.
-   * @returns A Provider
-   * @throws If no provider has been registered for the specified domain
-   */
-  mustGetProvider(nameOrDomain: string | number): Provider {
-    const provider = this.getProvider(nameOrDomain);
-    if (!provider) {
-      throw new NoProviderError(this, nameOrDomain);
-    }
-    return provider;
-  }
-
-  /**
    * Register an ethers Signer for a specified domain.
    *
    * @param nameOrDomain A domain name or number.
@@ -263,35 +185,14 @@ export class MultiProvider<T extends Domain> {
    */
   registerSigner(nameOrDomain: string | number, signer: ethers.Signer): void {
     const domain = this.resolveDomainName(nameOrDomain);
-    const provider = this.providers.get(domain);
-    if (!provider && !signer.provider)
-      throw new NoProviderError(this, nameOrDomain);
-
-    if (provider) {
-      try {
-        signer = signer.connect(provider);
-        this.signers.set(domain, signer);
-        return;
-      } catch (_) {
-        // do nothing
-      }
-    }
     if (!signer.provider) {
       throw new Error('Signer does not permit reconnect and has no provider');
     }
-    // else and fallback
-    // Note: we don't want to register the `signer.provider` here,
-    // because multiple domains could end up sharing a reference to the same
-    // provider. This would cause unexpected behavior when the provider is
-    // not connected to the network corresponding to the domain.
-    // this.registerProvider(domain, signer.provider);
     this.signers.set(domain, signer);
   }
 
   /**
-   * Remove the registered ethers Signer from a domain. This function will
-   * attempt to preserve any Provider that was previously connected to this
-   * domain.
+   * Remove the registered ethers Signer from a domain.
    *
    * @param nameOrDomain A domain name or number.
    */
@@ -300,16 +201,7 @@ export class MultiProvider<T extends Domain> {
     if (!this.signers.has(domain)) {
       return;
     }
-
-    const signer = this.signers.get(domain);
-    if (signer == null || signer.provider == null) {
-      throw new UnreachableError('signer was missing provider.');
-    }
-
     this.signers.delete(domain);
-    if (!this.getProvider(nameOrDomain)) {
-      this.providers.set(domain, signer.provider);
-    }
   }
 
   /**
@@ -327,7 +219,6 @@ export class MultiProvider<T extends Domain> {
    */
   registerWalletSigner(nameOrDomain: string | number, privkey: string): void {
     const domain = this.resolveDomain(nameOrDomain);
-
     const wallet = new ethers.Wallet(privkey);
     this.registerSigner(domain, wallet);
   }
@@ -359,36 +250,27 @@ export class MultiProvider<T extends Domain> {
   }
 
   /**
-   * Returns the most privileged connection registered to a domain. E.g.
-   * this function will attempt to return a Signer, then attempt to return the
-   * Provider (if no Signer is registered). If neither Signer nor Provider is
-   * registered for a domain, it will return undefined
+   * Returns the signer registered to a domain.
    *
    * @param nameOrDomain A domain name or number.
-   * @returns A Signer (if any), otherwise a Provider (if any), otherwise
-   *          undefined
+   * @returns A Signer (if any), otherwise undefined
    */
-  getConnection(
-    nameOrDomain: string | number,
-  ): ethers.Signer | ethers.Provider | undefined {
-    return this.getSigner(nameOrDomain) ?? this.getProvider(nameOrDomain);
+  getConnection(nameOrDomain: string | number): ethers.Signer | undefined {
+    return this.getSigner(nameOrDomain);
   }
 
   /**
-   * Get the Connection associated with a doman (or error)
+   * Get the Signer associated with a domain (or error)
    *
    * @param nameOrDomain A domain name or number.
    * @returns A Signer
-   * @returns A Signer (if any), otherwise a Provider (if any), otherwise error
+   * @throws If no signer has been registered for the specified domain
    */
-  mustGetConnection(
-    nameOrDomain: string | number,
-  ): ethers.Signer | ethers.Provider {
+  mustGetConnection(nameOrDomain: string | number): ethers.Signer {
     const connection = this.getConnection(nameOrDomain);
     if (!connection) {
       throw new NoProviderError(this, nameOrDomain);
     }
-
     return connection;
   }
 

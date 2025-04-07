@@ -102,7 +102,6 @@ function AppRouter(props: Props) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
       routeContext.clear();
-      config.whLegacy.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
     const isEnteringBridge = route === bridgeRoute && prevRoute !== bridgeRoute;

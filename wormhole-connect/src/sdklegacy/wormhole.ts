@@ -2,14 +2,9 @@ import { Domain, MultiProvider } from './multi-provider';
 
 import MAINNET_CONFIG from './config/MAINNET';
 import TESTNET_CONFIG from './config/TESTNET';
-import { AnyContext, Context, WormholeConfig } from './types';
+import { AnyContext, WormholeConfig } from './types';
 import DEVNET_CONFIG from './config/DEVNET';
-import {
-  Network,
-  Chain,
-  toChainId,
-  nativeChainIds,
-} from '@wormhole-foundation/sdk';
+import { Network, Chain } from '@wormhole-foundation/sdk';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -50,35 +45,10 @@ export class WormholeContext extends MultiProvider<Domain> {
     } else {
       this.conf = WormholeContext.getConfig(env);
     }
-
-    this.registerProviders();
   }
 
   get environment(): string {
     return this.conf.env;
-  }
-
-  /**
-   * Registers evm providers
-   */
-  registerProviders() {
-    for (const chain of Object.keys(this.conf.rpcs)) {
-      const chainId = toChainId(chain);
-      if (!chainId) throw new Error(`Unknown chain ${chain}`);
-      // register domain
-      this.registerDomain({
-        domain: chainId,
-        name: chain,
-      });
-      // register RPC provider
-      if (this.conf.chains[chain]?.context === Context.ETH) {
-        const chainId = nativeChainIds.networkChainToNativeChainId.get(
-          this.conf.env,
-          chain,
-        );
-        this.registerRpcProvider(chain, chainId, this.conf.rpcs[chain]);
-      }
-    }
   }
 
   /**
