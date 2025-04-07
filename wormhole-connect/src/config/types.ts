@@ -2,7 +2,6 @@
 import {
   ChainConfig as BaseChainConfig,
   ChainResourceMap,
-  WormholeContext,
   WormholeConfig,
 } from 'sdklegacy';
 
@@ -136,9 +135,6 @@ export interface InternalConfig<N extends Network> {
   network: N;
   // Cache. To be accessed via getWormholeContextV2(), not directly
   _v2Wormhole?: WormholeV2<N>;
-
-  // Legacy TODO SDKV2 remove
-  whLegacy: WormholeContext;
 
   sdkConfig: WormholeConfig;
 

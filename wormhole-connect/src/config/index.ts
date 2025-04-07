@@ -1,8 +1,4 @@
-import {
-  WormholeContext as LegacyWormholeContext,
-  WormholeConfig,
-  ChainResourceMap,
-} from 'sdklegacy';
+import { CONFIG as LEGACY_CONFIG } from 'sdklegacy';
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
@@ -64,7 +60,7 @@ export function buildConfig(
     wrappedTokens,
   );
 
-  const sdkConfig = LegacyWormholeContext.getConfig(network);
+  const sdkConfig = LEGACY_CONFIG[network.toUpperCase()];
 
   const rpcs = Object.assign(
     {},
@@ -72,8 +68,6 @@ export function buildConfig(
     networkData.rpcs,
     customConfig.rpcs,
   );
-
-  const whLegacy = getLegacyWormholeContext(network, sdkConfig, rpcs);
 
   if (customConfig.ui?.defaultInputs) {
     validateDefaults(customConfig.ui.defaultInputs, networkData.chains, tokens);
@@ -92,7 +86,6 @@ export function buildConfig(
   }
 
   return {
-    whLegacy,
     sdkConfig,
 
     network,
@@ -162,20 +155,6 @@ export function buildConfig(
 // Running buildConfig with no argument generates the default configuration
 const config = buildConfig();
 export default config;
-
-// TODO SDKV2: REMOVE
-export function getLegacyWormholeContext(
-  network: Network,
-  sdkConfig: WormholeConfig,
-  rpcs: ChainResourceMap,
-): LegacyWormholeContext {
-  const wh: LegacyWormholeContext = new LegacyWormholeContext(network, {
-    ...sdkConfig,
-    ...{ rpcs },
-  });
-
-  return wh;
-}
 
 export async function getWormholeContextV2(): Promise<WormholeV2<Network>> {
   if (config._v2Wormhole) return config._v2Wormhole;

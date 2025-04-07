@@ -34,6 +34,7 @@ import {
 } from '@wormhole-foundation/sdk-aptos';
 import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import { ReadOnlyWallet } from './ReadOnlyWallet';
+import { evmSignerCache } from 'utils/wallet/evm';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -222,7 +223,7 @@ export const registerWalletSigner = async (
   const w = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
   const signer = await w.getSigner();
-  config.whLegacy.registerSigner(chain, signer);
+  evmSignerCache.registerSigner(chain, signer);
 };
 
 export const switchChain = async (
