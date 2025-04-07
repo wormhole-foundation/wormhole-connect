@@ -70,14 +70,14 @@ for (const name in sdkPackages) {
   progressBar(progress, total);
 }
 
-execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
+execSync(`npm link ${Object.keys(sdkPackages).join(' ')} --force`, {
   cwd: path.join(__dirname, '../'),
 });
 
 function linkLocalSdkPackages(dir) {
   let keys = Object.keys(sdkPackages);
   if (keys.length === 0) return;
-  execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
+  execSync(`npm link ${keys.join(' ')} --force`, { cwd: dir });
 }
 
 function progressBar(completed, total) {
