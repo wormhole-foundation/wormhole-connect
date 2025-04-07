@@ -47,10 +47,11 @@ function AppRouter(props: Props) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const routeContext = useContext(RouteContext);
-
+  const route = useSelector((state: RootState) => state.router.route);
+  
   const hasSetSsgConfig = useRef(false);
   const isInitialLoad = useRef(true);
-
+  
   // We update the global config once when WormholeConnect is first mounted, if a custom
   // config was provided.
   //
@@ -59,10 +60,6 @@ function AppRouter(props: Props) {
   const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
     if (!isEmptyObject(customConfig)) {
       setConfig(customConfig);
-      
-      // Any time we set a new config, we should clear in progress transfers and navigate to the bridge view
-      dispatch(clearTransfer());
-      dispatch(setRoute('bridge'));
     }
 
     hasSetSsgConfig.current = true;
@@ -75,14 +72,17 @@ function AppRouter(props: Props) {
   if (!hasSetSsgConfig.current) {
     // This runs once in SSG step (server-side pre-rendering)
     if (props.config) {
-      loadConfig(props.config);
+        loadConfig(props.config);
+    }
+    if (route !== 'bridge') {
+      // The route may not be bridge on initial load if the component was re-rendered after client side navigation
+      dispatch(setRoute('bridge'));
     }
   }
 
   useEffect(() => {
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
-
       config.triggerEvent({
         type: 'load',
         config: props.config,
@@ -95,7 +95,6 @@ function AppRouter(props: Props) {
   }, [props.config]);
   // END config loading code
 
-  const route = useSelector((state: RootState) => state.router.route);
   const prevRoute = usePrevious(route);
   const { hasExternalSearch } = useExternalSearch();
   useEffect(() => {
