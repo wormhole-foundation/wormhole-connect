@@ -98,9 +98,13 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
   },
   amountInput: {
-    background: theme.palette.input.background,
-    border: `1px solid ${theme.palette.input.background}`,
     borderRadius: '8px',
+    background: theme.palette.input.filled,
+    border: `1px solid ${theme.palette.input.border}`,
+  },
+  amountInputEmpty: {
+    background: theme.palette.input.background,
+    borderColor: theme.palette.input.background,
   },
   amountCardContent: {
     display: 'flex',
@@ -302,7 +306,11 @@ const AmountInput = (props: Props) => {
       <div className={classes.amountTitle}>
         <Typography variant="body2">Amount</Typography>
       </div>
-      <Card className={classes.amountInput}>
+      <Card
+        className={`${classes.amountInput} ${
+          amountInput === '' ? classes.amountInputEmpty : ''
+        }`}
+      >
         <CardContent className={classes.amountCardContent}>
           <DebouncedTextField
             fullWidth
