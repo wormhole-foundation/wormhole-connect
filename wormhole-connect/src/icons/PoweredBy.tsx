@@ -16,6 +16,7 @@ const useStyles = makeStyles()((theme) => ({
     maxWidth: '100%',
     flexWrap: 'wrap',
     gap: '20px 4px',
+    margin: '8px 0',
   },
   partnerLogo: {
     maxHeight: theme.spacing(3),
@@ -130,7 +131,9 @@ function PoweredByIcon(props: { color: string }) {
       <PartnerLogo src={config.ui.partnerLogo} />
     </Box>
   ) : (
-    <WormholeLogo color={props.color} />
+    <Box className={classes.container}>
+      <WormholeLogo color={props.color} />
+    </Box>
   );
 }
 

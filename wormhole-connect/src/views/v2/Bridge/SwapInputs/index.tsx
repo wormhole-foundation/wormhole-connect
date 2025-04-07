@@ -63,9 +63,9 @@ function SwapInputs() {
       className={classes.swapButton}
       disableRipple={!canSwap}
       sx={{
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: theme.palette.background.form,
         '&:hover': {
-          backgroundColor: theme.palette.background.default,
+          backgroundColor: theme.palette.background.form,
         },
         animation: `${rotateAnimation} 0.3s linear 1`,
         '@keyframes spinRight': {

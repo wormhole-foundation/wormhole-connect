@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -21,10 +22,17 @@ import TxHistoryItem from 'views/v2/TxHistory/Item';
 
 import type { RootState } from 'store';
 
-const useStyles = makeStyles()((_theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   container: {
     margin: 'auto',
-    maxWidth: '420px',
+    maxWidth: '452px',
+    width: '100%',
+  },
+  formContent: {
+    backgroundColor: theme.palette.background.form,
+    borderRadius: '8px',
+    padding: '20px 16px',
+    width: '100%',
   },
   header: {
     display: 'flex',
@@ -41,11 +49,11 @@ const useStyles = makeStyles()((_theme) => ({
     width: '100%',
     display: 'flex',
     alignItems: 'center',
+    paddingBottom: '20px',
   },
   spacer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -108,24 +116,24 @@ const TxHistory = () => {
     }
 
     return (
-      <div className={joinClass([classes.infiniteScroller])}>
-        <InfiniteScroll
-          hasMore={hasMore}
-          loadMore={(p) => setPage(p)}
-          useWindow={false}
-          style={{ scrollbarWidth: 'thin' }}
-        >
-          <div className={joinClass([classes.spacer])}>
+      <Box className={classes.formContent}>
+        <div className={classes.infiniteScroller}>
+          <InfiniteScroll
+            hasMore={hasMore}
+            loadMore={(p) => setPage(p)}
+            useWindow={false}
+            style={{ scrollbarWidth: 'thin' }}
+          >
             {transactions.map((tx, idx) => {
               return <TxHistoryItem key={idx} data={tx} />;
             })}
-          </div>
-        </InfiniteScroll>
-      </div>
+          </InfiniteScroll>
+        </div>
+      </Box>
     );
   }, [
+    classes.formContent,
     classes.infiniteScroller,
-    classes.spacer,
     hasMore,
     sendingWallet.address,
     theme.palette.text.secondary,

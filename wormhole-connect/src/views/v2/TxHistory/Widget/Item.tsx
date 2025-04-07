@@ -50,6 +50,7 @@ const useStyles = makeStyles()((theme: any) => ({
   card: {
     width: '100%',
     boxShadow: `0px 0px 3.5px 0px ${theme.palette.primary.main}`,
+    borderRadius: '8px',
   },
   cardContent: {
     padding: '16px 20px',
@@ -71,7 +72,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   container: {
     width: '100%',
-    maxWidth: '420px',
+    maxWidth: '452px',
   },
   progressBar: {
     borderRadius: '4px',

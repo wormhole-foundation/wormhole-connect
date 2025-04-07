@@ -14,6 +14,7 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'block',
     width: '100%',
     textAlign: 'center',
+    margin: '8px 0 16px',
     fontSize: 14,
     color: theme.palette.text.secondary,
     textDecoration: 'none',

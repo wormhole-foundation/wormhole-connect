@@ -11,7 +11,7 @@ import { getTxsFromLocalStorage } from 'utils/inProgressTxCache';
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
-    maxWidth: '420px',
+    maxWidth: '452px',
   },
   card: {
     width: '100%',
@@ -24,7 +24,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
-    marginBottom: '16px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',

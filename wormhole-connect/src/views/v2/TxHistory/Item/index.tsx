@@ -26,6 +26,7 @@ const useStyles = makeStyles()((theme: any) => ({
   container: {
     width: '100%',
     maxWidth: '420px',
+    marginBottom: '16px',
   },
   card: {
     width: '100%',

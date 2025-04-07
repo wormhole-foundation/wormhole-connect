@@ -10,7 +10,7 @@ import React, {
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebouncedCallback } from 'use-debounce';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -96,6 +96,7 @@ const useStyles = makeStyles()((theme: any) => ({
   amountContainer: {
     width: '100%',
     maxWidth: '420px',
+    margin: '16px 0',
   },
   amountInput: {
     borderRadius: '8px',
@@ -105,7 +106,7 @@ const useStyles = makeStyles()((theme: any) => ({
   amountCardContent: {
     display: 'flex',
     alignItems: 'center',
-    height: '72px',
+    height: '124px',
     padding: '12px 20px',
     ':last-child': {
       padding: '12px 20px',
@@ -223,40 +224,6 @@ const AmountInput = (props: Props) => {
     setAmountInput(newValue);
   }, []);
 
-  const tokenPriceAdornment = useMemo(() => {
-    const price = calculateUSDPrice(
-      getTokenPrice,
-      Number(amountInput === '.' ? '0.' : amountInput),
-      sourceToken,
-    );
-
-    if (!price) {
-      return null;
-    }
-
-    return (
-      <InputAdornment
-        position="end"
-        sx={{
-          position: 'absolute',
-          top: '38px',
-          margin: 0,
-        }}
-      >
-        <Stack alignItems="start">
-          <Typography
-            color={theme.palette.text.secondary}
-            component="span"
-            fontSize="14px"
-            lineHeight="14px"
-          >
-            {price}
-          </Typography>
-        </Stack>
-      </InputAdornment>
-    );
-  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
-
   const handleDebouncedChange = useCallback(
     (newValue: string): void => {
       dispatch(setAmount(newValue));
@@ -297,11 +264,82 @@ const AmountInput = (props: Props) => {
     handleDebouncedChange,
   ]);
 
+  const startAdornment = useMemo(() => {
+    const price = calculateUSDPrice(
+      getTokenPrice,
+      Number(amountInput === '.' ? '0.' : amountInput),
+      sourceToken,
+    );
+
+    return (
+      <>
+        <InputAdornment
+          position="start"
+          sx={{
+            position: 'absolute',
+            top: '-26px',
+            margin: 0,
+          }}
+        >
+          <Stack alignItems="start">
+            <Typography
+              color={theme.palette.text.secondary}
+              component="span"
+              fontSize="14px"
+              lineHeight="14px"
+            >
+              Amount
+            </Typography>
+          </Stack>
+        </InputAdornment>
+        {price && (
+          <InputAdornment
+            position="start"
+            sx={{
+              position: 'absolute',
+              top: '56px',
+              margin: 0,
+            }}
+          >
+            <Stack alignItems="start">
+              <Typography
+                color={theme.palette.text.secondary}
+                component="span"
+                fontSize="14px"
+                lineHeight="14px"
+              >
+                {price}
+              </Typography>
+            </Stack>
+          </InputAdornment>
+        )}
+      </>
+    );
+  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
+
+  const endAdornment = useMemo(
+    () => (
+      <InputAdornment position="end">
+        <Stack alignItems="end" justifyContent="space-between">
+          {maxButton}
+        </Stack>
+        <Box
+          sx={{
+            position: 'absolute',
+            right: '0px',
+            top: '48px',
+            margin: 0,
+          }}
+        >
+          {balance}
+        </Box>
+      </InputAdornment>
+    ),
+    [balance, maxButton],
+  );
+
   return (
     <div className={classes.amountContainer}>
-      <div className={classes.amountTitle}>
-        <Typography variant="body2">Amount</Typography>
-      </div>
       <Card className={classes.amountInput}>
         <CardContent className={classes.amountCardContent}>
           <DebouncedTextField
@@ -314,7 +352,6 @@ const AmountInput = (props: Props) => {
                   : theme.palette.text.primary,
                 fontSize: 24,
                 height: '28px',
-                marginBottom: tokenPriceAdornment ? '16px' : 0, // make sure there is enough space for token price
                 padding: 0,
               },
               onWheel: (e) => {
@@ -332,15 +369,8 @@ const AmountInput = (props: Props) => {
             onDebouncedChange={handleDebouncedChange}
             InputProps={{
               disableUnderline: true,
-              startAdornment: tokenPriceAdornment,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Stack alignItems="end" justifyContent="space-between">
-                    {maxButton}
-                    {balance}
-                  </Stack>
-                </InputAdornment>
-              ),
+              startAdornment,
+              endAdornment,
             }}
           />
         </CardContent>

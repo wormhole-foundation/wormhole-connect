@@ -9,6 +9,8 @@ export type WormholeConnectTheme = {
   mode: PaletteMode;
   // Background of surrounding application
   background?: PaletteMode;
+  // Background of the container surrounding form fields (asset pickers, amount input and confirm button)
+  formBackground?: PaletteMode;
   // Color of input fields, like asset picker and dropdowns
   input?: string;
   // Primary brand color
@@ -28,15 +30,17 @@ export type WormholeConnectTheme = {
 };
 
 type Color = { main: string };
+type bgType = {
+  default: string;
+  form?: string;
+};
 
 export type InternalTheme = {
   mode: PaletteMode;
   primary: Color;
   secondary: Color;
   divider: string;
-  background: {
-    default: string;
-  };
+  background: bgType;
   text: {
     primary: string;
     secondary: string;
@@ -72,6 +76,10 @@ export type InternalTheme = {
     background: string;
     border: string;
   };
+  formContainer?: {
+    background: string;
+    border: string;
+  };
   font: string;
   logo: string;
 };
@@ -83,6 +91,7 @@ export const light: InternalTheme = {
   divider: '#a0a2a9',
   background: {
     default: 'transparent',
+    form: '#ffffff',
   },
   text: {
     primary: grey[900],
@@ -133,6 +142,7 @@ export const dark: InternalTheme = {
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: 'transparent',
+    form: '#010101',
   },
   text: {
     primary: '#ffffff',
@@ -189,9 +199,10 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
   // Override built-in theme with whichever custom values we've been provided
   if (customTheme) {
     if (customTheme.background) {
-      theme.background = {
-        default: customTheme.background,
-      };
+      theme.background.default = customTheme.background;
+    }
+    if (customTheme.formBackground) {
+      theme.background.form = customTheme.formBackground;
     }
     if (customTheme.input) {
       theme.input = {

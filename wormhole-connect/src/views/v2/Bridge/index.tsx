@@ -9,7 +9,6 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
-import HistoryIcon from '@mui/icons-material/History';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 
@@ -25,6 +24,7 @@ import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
 import useConfirmTransaction from 'hooks/useConfirmTransaction';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import HistoryIcon from 'icons/History';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import { setRoute as setAppRoute } from 'store/router';
@@ -59,12 +59,18 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   bridgeContent: {
     margin: 'auto',
-    maxWidth: '420px',
+    maxWidth: '452px',
+  },
+  formContent: {
+    backgroundColor: theme.palette.background.form,
+    borderRadius: '8px',
+    padding: '20px 16px',
   },
   bridgeHeader: {
     width: '100%',
     display: 'flex',
     alignItems: 'center',
+    padding: '20px 0',
   },
   doneIcon: {
     fontSize: '14px',
@@ -82,13 +88,11 @@ const useStyles = makeStyles()((theme: any) => ({
     fontSize: '14px',
   },
   ctaContainer: {
-    marginTop: '8px',
     width: '100%',
   },
   spacer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -273,7 +277,10 @@ const Bridge = () => {
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
     return (
-      <div className={classes.assetPickerContainer}>
+      <div
+        className={classes.assetPickerContainer}
+        style={{ marginBottom: '4px' }}
+      >
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -361,11 +368,20 @@ const Bridge = () => {
         >
           <span>
             <IconButton
-              sx={{ padding: 0 }}
+              sx={{
+                padding: '8px',
+                width: '40px',
+                height: '40px',
+                borderRadius: '20px',
+                backgroundColor: (theme as any).palette.input.background,
+                ':disabled': {
+                  backgroundColor: (theme as any).palette.input.background,
+                },
+              }}
               disabled={isTxHistoryDisabled}
               onClick={() => dispatch(setAppRoute('history'))}
             >
-              <HistoryIcon />
+              <HistoryIcon sx={{ height: '16px', width: '16px' }} />
             </IconButton>
           </span>
         </Tooltip>
@@ -376,6 +392,7 @@ const Bridge = () => {
     dispatch,
     isTransactionInProgress,
     sendingWallet?.address,
+    theme,
   ]);
 
   const walletConnector = useMemo(() => {
@@ -550,37 +567,39 @@ const Bridge = () => {
         <TxHistoryWidget disabled={isTransactionInProgress} />
       )}
       {bridgeHeader}
-      {sourceAssetPicker}
-      {destAssetPicker}
-      <AmountInput
-        sourceChain={sourceChain}
-        supportedSourceTokens={sourceTokens}
-        tokenBalance={sourceToken ? balances[sourceToken.key]?.balance : null}
-        isFetchingTokenBalance={isFetchingBalances}
-        error={amountValidation.error}
-        warning={amountValidation.warning || walletWarning}
-      />
-      {hasEnteredAmount && (
-        <Routes
-          routes={sortedRoutes}
-          selectedRoute={route}
-          onRouteChange={(r) => {
-            dispatch(setTransferRoute(r));
-          }}
-          quotes={quotesMap}
-          isLoading={isFetchingQuotes || isFetchingBalances}
+      <Box className={joinClass([classes.formContent, classes.spacer])}>
+        {sourceAssetPicker}
+        {destAssetPicker}
+        <AmountInput
+          sourceChain={sourceChain}
+          supportedSourceTokens={sourceTokens}
+          tokenBalance={sourceToken ? balances[sourceToken.key]?.balance : null}
+          isFetchingTokenBalance={isFetchingBalances}
+          error={amountValidation.error}
+          warning={amountValidation.warning || walletWarning}
         />
-      )}
-      {transactionError}
-      <span className={classes.ctaContainer}>
-        {hasConnectedWallets ? (
-          <Tooltip title={confirmButtonTooltip}>
-            <span>{confirmTransactionButton}</span>
-          </Tooltip>
-        ) : (
-          walletConnector
+        {hasEnteredAmount && (
+          <Routes
+            routes={sortedRoutes}
+            selectedRoute={route}
+            onRouteChange={(r) => {
+              dispatch(setTransferRoute(r));
+            }}
+            quotes={quotesMap}
+            isLoading={isFetchingQuotes || isFetchingBalances}
+          />
         )}
-      </span>
+        {transactionError}
+        <span className={classes.ctaContainer}>
+          {hasConnectedWallets ? (
+            <Tooltip title={confirmButtonTooltip}>
+              <span>{confirmTransactionButton}</span>
+            </Tooltip>
+          ) : (
+            walletConnector
+          )}
+        </span>
+      </Box>
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />
     </div>
