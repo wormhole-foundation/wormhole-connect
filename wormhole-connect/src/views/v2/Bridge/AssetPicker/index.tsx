@@ -31,13 +31,9 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
-    borderRadius: '8px',
-    background: 'transparent',
-    border: `1px solid ${theme.palette.input.border}`,
-  },
-  inputAreaEmpty: {
-    borderColor: theme.palette.input.background,
     background: theme.palette.input.background,
+    border: `1px solid ${theme.palette.input.background}`,
+    borderRadius: '8px',
   },
   cardContent: {
     display: 'flex',
@@ -189,7 +185,6 @@ const AssetPicker = (props: Props) => {
       <Card
         className={joinClass([
           classes.inputArea,
-          !chainConfig && classes.inputAreaEmpty,
           props.isTransactionInProgress && classes.disabled,
         ])}
         data-testid={props.dataTestId}

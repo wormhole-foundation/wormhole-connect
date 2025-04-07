@@ -98,13 +98,9 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
   },
   amountInput: {
-    borderRadius: '8px',
-    background: 'transparent',
-    border: `1px solid ${theme.palette.input.border}`,
-  },
-  amountInputEmpty: {
     background: theme.palette.input.background,
-    borderColor: theme.palette.input.background,
+    border: `1px solid ${theme.palette.input.background}`,
+    borderRadius: '8px',
   },
   amountCardContent: {
     display: 'flex',
@@ -223,12 +219,9 @@ const AmountInput = (props: Props) => {
     props.tokenBalance,
   ]);
 
-  const handleChange = useCallback(
-    (newValue: string): void => {
-      setAmountInput(newValue);
-    },
-    [dispatch],
-  );
+  const handleChange = useCallback((newValue: string): void => {
+    setAmountInput(newValue);
+  }, []);
 
   const tokenPriceAdornment = useMemo(() => {
     const price = calculateUSDPrice(
@@ -309,11 +302,7 @@ const AmountInput = (props: Props) => {
       <div className={classes.amountTitle}>
         <Typography variant="body2">Amount</Typography>
       </div>
-      <Card
-        className={`${classes.amountInput} ${
-          amountInput === '' ? classes.amountInputEmpty : ''
-        }`}
-      >
+      <Card className={classes.amountInput}>
         <CardContent className={classes.amountCardContent}>
           <DebouncedTextField
             fullWidth
