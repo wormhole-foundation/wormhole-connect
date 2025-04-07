@@ -99,7 +99,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   amountInput: {
     borderRadius: '8px',
-    background: theme.palette.input.filled,
+    background: theme.palette.input.fill,
     border: `1px solid ${theme.palette.input.border}`,
   },
   amountInputEmpty: {
