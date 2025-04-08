@@ -32,8 +32,12 @@ const useStyles = makeStyles()((theme: any) => ({
     cursor: 'pointer',
     maxWidth: '420px',
     borderRadius: '8px',
-    background: theme.palette.input.fill,
-    border: `1px solid ${theme.palette.input.border}`,
+    background: theme.palette.input.fillTreatment
+      ? 'transparent'
+      : theme.palette.input.background,
+    border: theme.palette.input.fillTreatment
+      ? `1px solid ${theme.palette.input.border}`
+      : 'none',
   },
   inputAreaEmpty: {
     borderColor: theme.palette.input.background,

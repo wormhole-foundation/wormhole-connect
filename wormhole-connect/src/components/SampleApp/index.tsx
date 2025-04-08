@@ -370,8 +370,8 @@ function SampleApp() {
                       <i>string;</i>
                     </li>
                     <li>
-                      <pre>inputFill</pre>
-                      <i>string;</i>
+                      <pre>inputFillTreatment</pre>
+                      <i>boolean;</i>
                     </li>
                     <li>
                       <pre>primary</pre>

@@ -99,8 +99,12 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   amountInput: {
     borderRadius: '8px',
-    background: theme.palette.input.fill,
-    border: `1px solid ${theme.palette.input.border}`,
+    background: theme.palette.input.fillTreatment
+      ? 'transparent'
+      : theme.palette.input.background,
+    border: theme.palette.input.fillTreatment
+      ? `1px solid ${theme.palette.input.border}`
+      : 'none',
   },
   amountInputEmpty: {
     background: theme.palette.input.background,
