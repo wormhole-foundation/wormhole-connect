@@ -45,7 +45,6 @@ const coingeckoRequest = async (
   params?: CoingeckoParams,
 ): Promise<any> => {
   const headers = new Headers({
-    'Content-Type': 'application/json',
     ...(config.coingecko?.apiKey
       ? { 'x-cg-pro-api-key': config.coingecko.apiKey }
       : {}),
