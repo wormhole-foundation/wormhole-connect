@@ -26,6 +26,7 @@ import OSMO from './Chains/OSMO';
 import WORLD from './Chains/WORLD';
 import UNI from './Chains/UNI';
 import BERA from './Chains/BERA';
+import MEZO from './Chains/MEZO';
 
 const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
@@ -72,6 +73,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Worldchain: WORLD(),
   Unichain: UNI(),
   Berachain: BERA(),
+  Mezo: MEZO(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

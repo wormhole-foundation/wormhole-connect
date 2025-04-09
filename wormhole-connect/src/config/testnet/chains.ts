@@ -209,4 +209,14 @@ export const TESTNET_CHAINS: ChainsConfig = {
     sdkName: 'Unichain',
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
+  Mezo: {
+    ...chains.Mezo!,
+    displayName: 'Mezo',
+    explorerUrl: 'https://explorer.test.mezo.org/',
+    explorerName: 'Mezo Explorer',
+    chainId: 31611,
+    icon: 'Mezo',
+    sdkName: 'Mezo',
+    symbol: 'BTC',
+  },
 };

@@ -97,6 +97,11 @@ const TESTNET: { [chain in Chain]?: ChainConfig } = {
     id: 45,
     context: Context.ETH,
   },
+  Mezo: {
+    key: 'Mezo',
+    id: 50,
+    context: Context.ETH,
+  },
 } as const;
 
 /**
@@ -131,6 +136,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Mantle: 'https://rpc.sepolia.mantle.xyz',
     Worldchain: 'https://worldchain-sepolia.g.alchemy.com/public',
     Unichain: 'https://sepolia.unichain.org',
+    Mezo: 'https://rpc.test.mezo.org',
   },
   chains: TESTNET,
 };
