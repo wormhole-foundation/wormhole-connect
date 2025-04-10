@@ -335,12 +335,12 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDC,
   },
   {
-    symbol: 'MEZO',
+    symbol: 'BTC',
     tokenId: {
       chain: 'Mezo',
       address: 'native',
     },
     decimals: 18,
-    icon: TokenIcon.TBTC, // TODO: change this
+    icon: TokenIcon.BTC,
   },
 ];

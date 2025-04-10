@@ -39,6 +39,7 @@ import SCROLL from './Tokens/SCROLL';
 import BLAST from './Tokens/BLAST';
 import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
+import BTC from './Tokens/BTC';
 
 const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
@@ -110,6 +111,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   ),
   [TokenIcon.WORLDCHAIN]: WORLD(),
   [TokenIcon.BERA]: BERA(),
+  [TokenIcon.BTC]: BTC(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {

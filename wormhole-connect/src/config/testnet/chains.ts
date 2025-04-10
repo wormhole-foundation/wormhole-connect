@@ -217,6 +217,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     chainId: 31611,
     icon: 'Mezo',
     sdkName: 'Mezo',
-    symbol: 'BTC',
+    symbol: 'MEZO',
   },
 };
