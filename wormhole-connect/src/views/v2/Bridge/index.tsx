@@ -71,6 +71,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   bridgeHeader: {
     width: '100%',
+    minHeight: '28px',
     display: 'flex',
     alignItems: 'center',
   },
