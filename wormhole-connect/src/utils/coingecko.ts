@@ -71,6 +71,8 @@ export const fetchTokenMetadata = async (
   tokenId: TokenId,
   params?: CoingeckoParams,
 ): Promise<any> => {
+  if (config.network !== 'Mainnet') return null;
+
   return coingeckoRequest(
     `/api/v3/coins/${tokenId.chain.toLowerCase()}/contract/${tokenId.address.toString()}`,
     params,
@@ -81,6 +83,10 @@ export const fetchTokenPrices = async (
   tokens: TokenId[],
   params?: CoingeckoParams,
 ): Promise<TokenMapping<number>> => {
+  const tm: TokenMapping<number> = new TokenMapping();
+
+  if (config.network !== 'Mainnet') return tm;
+
   const chainsAndAddresses = {};
   // For native tokens like SOL, ETH, BNB, we use a different endpoint since these don't have a token address :)
   const nativeTokens: TokenId[] = [];
@@ -180,8 +186,6 @@ export const fetchTokenPrices = async (
       }),
     );
   }
-
-  const tm: TokenMapping<number> = new TokenMapping();
 
   const results = (await Promise.allSettled(promises))
     .map((r) => {
