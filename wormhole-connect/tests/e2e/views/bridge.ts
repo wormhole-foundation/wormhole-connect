@@ -91,9 +91,25 @@ export class BridgeView {
 
   async hasNonceError() {
     // Wait for the confirm button not to be in progress before checking the logs
-    await expect(this.confirmButton).not.toHaveText('Preparing transaction');
-    return this.logs.some(
-      (log) => log.type === 'error' && NONCE_ERROR.test(log.text),
-    );
+    try {
+      await expect(this.confirmButton).not.toHaveText('Preparing transaction');
+      return this.logs.some(
+        (log) => log.type === 'error' && NONCE_ERROR.test(log.text),
+      );
+    } catch (e) {
+      // If confirm button is still visible with preparing transaction text,
+      // it means the transaction is still in progress after a timeout.
+      // We can fail the test here.
+      if (
+        (await this.confirmButton.isVisible()) &&
+        (await this.confirmButton.textContent()) === 'Preparing transaction'
+      ) {
+        throw e;
+      }
+    }
+
+    // If the confirm button is not visible, it means the transaction is submitted
+    // and we can safely ignore the error.
+    return false;
   }
 }
