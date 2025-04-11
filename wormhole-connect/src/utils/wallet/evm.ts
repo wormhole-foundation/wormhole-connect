@@ -1,4 +1,4 @@
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { Wallet, NotSupported } from '@xlabs-libs/wallet-aggregator-core';
 import {
   BinanceWallet,
   EVMWallet,
@@ -107,7 +107,11 @@ export async function signAndSendTransaction(
     try {
       await (w as EVMWallet).switchChain(Number(expectedChainId));
     } catch (e) {
-      throw new Error(`Error switching to chain ${expectedChainId}: ${e}`);
+      if (e instanceof NotSupported) {
+        console.warn(`Selected EVM wallet cannot switch chains`);
+      } else {
+        throw new Error(`Error switching to chain ${expectedChainId}: ${e}`);
+      }
     }
   } else {
     console.warn(`EVM transaction has no chainId`, request.transaction);
