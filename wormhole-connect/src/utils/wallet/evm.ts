@@ -96,29 +96,39 @@ export async function signAndSendTransaction(
   const signer = await (w as any).getSigner();
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
-  // Ensure the signer is connected to the correct chain
   const expectedChainId = request.transaction.chainId
     ? ethers.getBigInt(request.transaction.chainId)
     : undefined;
 
-  if (expectedChainId) {
-    try {
-      await (w as EVMWallet).switchChain(Number(expectedChainId));
-    } catch (e) {
-      if (e instanceof NotSupported) {
-        console.warn(`Selected EVM wallet cannot switch chains`);
-      } else {
-        throw new Error(`Error switching to chain ${expectedChainId}: ${e}`);
+  if (expectedChainId === undefined) {
+    console.warn(`EVM transaction has no chainId`, request.transaction);
+  }
+
+  const signerChainId = (await (w as any).provider?.getNetwork())?.chainId;
+
+  if (signerChainId !== undefined) {
+    // Ensure the signer is connected to the correct chain
+    if (signerChainId !== expectedChainId) {
+      try {
+        await (w as EVMWallet).switchChain(Number(expectedChainId));
+      } catch (e) {
+        if (e instanceof NotSupported) {
+          throw new Error(
+            `Selected EVM wallet does not support switching chains but has the wrong chain selected`,
+          );
+        } else {
+          throw new Error(`Error switching to chain ${expectedChainId}: ${e}`);
+        }
       }
     }
   } else {
-    console.warn(`EVM transaction has no chainId`, request.transaction);
+    console.warn(
+      `EVM signer has no chainId; cannot verify that it matches transaction`,
+    );
   }
 
   const tx = await signer.sendTransaction(request.transaction);
   const result = await tx.wait();
 
-  // TODO move all this to ethers 6
-  /* @ts-ignore */
   return result.hash;
 }
