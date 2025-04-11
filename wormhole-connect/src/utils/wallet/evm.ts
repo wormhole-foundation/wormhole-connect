@@ -90,31 +90,21 @@ export interface AssetInfo {
   chainId?: number;
 }
 
-export async function switchChain(w: Wallet, chainId: number | string) {
-  await (w as EVMWallet).switchChain(chainId as number);
-}
-
 export async function signAndSendTransaction(
   request: EvmUnsignedTransaction<Network, EvmChains>,
   w: Wallet,
   chainName: string,
-  options: any, // TODO ?!?!!?!?
 ): Promise<string> {
-  // TODO remove reliance on SDkv1 here (multi-provider)
   const signer = (w as any).getSigner();
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
   // Ensure the signer is connected to the correct chain
-  const provider = await signer.provider?.getNetwork();
   const expectedChainId = request.transaction.chainId
     ? ethers.getBigInt(request.transaction.chainId)
     : undefined;
-  const actualChainId = provider?.chainId;
 
-  if (!actualChainId || !expectedChainId || actualChainId !== expectedChainId) {
-    throw new Error(
-      `Signer is not connected to the right chain. Expected ${expectedChainId}, got ${actualChainId}`,
-    );
+  if (expectedChainId) {
+    await (w as EVMWallet).switchChain(Number(expectedChainId));
   }
 
   const tx = await signer.sendTransaction(request.transaction);

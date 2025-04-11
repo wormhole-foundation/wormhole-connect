@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Context } from 'sdklegacy';
 
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
@@ -20,7 +19,6 @@ import { toDecimals } from 'utils/balance';
 import { interpretTransferError } from 'utils/errors';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
-import { switchChain, TransferWallet } from 'utils/wallet';
 
 import type { RootState } from 'store';
 import type { RelayerFee } from 'store/relay';
@@ -141,21 +139,6 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = config.chains[sourceChain];
-
-      if (
-        fromConfig?.context === Context.ETH &&
-        !config.ui.testOptions?.enableHeadlessSigner
-      ) {
-        const chainId = fromConfig.chainId;
-
-        if (typeof chainId !== 'number') {
-          throw new Error('Invalid EVM chain ID');
-        }
-
-        await switchChain(chainId, TransferWallet.SENDING);
-      }
-
       config.triggerEvent({
         type: 'transfer.initiate',
         details: transferDetails,
