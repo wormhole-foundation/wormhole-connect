@@ -94,7 +94,9 @@ export async function signAndSendTransaction(
   w: Wallet,
   chainName: string,
 ): Promise<string> {
-  const signer = await (w as any).getSigner();
+  const evmWallet = w as EVMWallet;
+
+  const signer = await evmWallet.getSigner();
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
   const expectedChainId = request.transaction.chainId
@@ -105,7 +107,7 @@ export async function signAndSendTransaction(
     throw new Error(`EVM transaction has no chainId`);
   }
 
-  const signerChainId = (await (w as any).provider?.getNetwork())?.chainId;
+  const signerChainId = (await signer.provider?.getNetwork())?.chainId;
 
   if (signerChainId === undefined) {
     throw new Error(`Signer has no chainId`);
@@ -114,13 +116,13 @@ export async function signAndSendTransaction(
   // Ensure the signer is connected to the correct chain
   if (signerChainId !== expectedChainId) {
     try {
-      await (w as EVMWallet).switchChain(Number(expectedChainId));
+      await evmWallet.switchChain(Number(expectedChainId));
 
       let signerChainIdAfterSwitch: bigint | undefined = undefined;
 
       // Wait up to five seconds until wallet's chainId matches the expected chainId
       for (let i = 0; i < 50; i++) {
-        signerChainIdAfterSwitch = (await (w as any).provider?.getNetwork())
+        signerChainIdAfterSwitch = (await signer.provider?.getNetwork())
           ?.chainId;
         if (signerChainIdAfterSwitch === expectedChainId) {
           break;
@@ -146,6 +148,8 @@ export async function signAndSendTransaction(
 
   const tx = await signer.sendTransaction(request.transaction);
   const result = await tx.wait();
+
+  if (result === null) throw new Error('Failed to wait for transaction');
 
   return result.hash;
 }
