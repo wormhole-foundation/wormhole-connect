@@ -20,11 +20,7 @@ import { toDecimals } from 'utils/balance';
 import { interpretTransferError } from 'utils/errors';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
-import {
-  registerWalletSigner,
-  switchChain,
-  TransferWallet,
-} from 'utils/wallet';
+import { switchChain, TransferWallet } from 'utils/wallet';
 
 import type { RootState } from 'store';
 import type { RelayerFee } from 'store/relay';
@@ -158,7 +154,6 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
         }
 
         await switchChain(chainId, TransferWallet.SENDING);
-        await registerWalletSigner(sourceChain, TransferWallet.SENDING);
       }
 
       config.triggerEvent({

@@ -101,7 +101,7 @@ export async function signAndSendTransaction(
   options: any, // TODO ?!?!!?!?
 ): Promise<string> {
   // TODO remove reliance on SDkv1 here (multi-provider)
-  const signer = evmSignerCache.getSigner(chainName);
+  const signer = (w as any).getSigner();
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
   // Ensure the signer is connected to the correct chain
@@ -124,66 +124,3 @@ export async function signAndSendTransaction(
   /* @ts-ignore */
   return result.hash;
 }
-
-export class EvmSignerCache {
-  protected signers: Map<string, ethers.Signer>;
-
-  constructor() {
-    this.signers = new Map();
-  }
-
-  registerSigner(name: string, signer: ethers.Signer): void {
-    if (!signer.provider) {
-      throw new Error('Signer does not permit reconnect and has no provider');
-    }
-    this.signers.set(name, signer);
-  }
-
-  unregisterSigner(name: string): void {
-    if (!this.signers.has(name)) {
-      return;
-    }
-    this.signers.delete(name);
-  }
-
-  clearSigners(): void {
-    this.signers.clear();
-  }
-
-  registerWalletSigner(name: string, privkey: string): void {
-    const wallet = new ethers.Wallet(privkey);
-    this.registerSigner(name, wallet);
-  }
-
-  getSigner(name: string): ethers.Signer | undefined {
-    return this.signers.get(name);
-  }
-
-  mustGetSigner(name: string): ethers.Signer {
-    const signer = this.getSigner(name);
-    if (!signer) {
-      throw new Error(`No signer registered for chain: ${name}`);
-    }
-    return signer;
-  }
-
-  getConnection(name: string): ethers.Signer | undefined {
-    return this.getSigner(name);
-  }
-
-  mustGetConnection(name: string): ethers.Signer {
-    const connection = this.getConnection(name);
-    if (!connection) {
-      throw new Error(`No signer registered for chain: ${name}`);
-    }
-    return connection;
-  }
-
-  async getAddress(name: string): Promise<string | undefined> {
-    const signer = this.getSigner(name);
-    return await signer?.getAddress();
-  }
-}
-
-// Singleton
-export const evmSignerCache = new EvmSignerCache();
