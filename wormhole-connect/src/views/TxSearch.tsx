@@ -1,7 +1,19 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
-import { Select, MenuItem, CircularProgress, useTheme } from '@mui/material';
+import {
+  Select,
+  MenuItem,
+  CircularProgress,
+  useTheme,
+  Box,
+} from '@mui/material';
 
 import config, { getWormholeContextV2 } from 'config';
 import { isValidTxId } from 'utils';
@@ -27,6 +39,7 @@ import {
   AttestedTransferReceipt,
   Chain,
 } from '@wormhole-foundation/sdk';
+import ChainIconComponent from 'icons/ChainIcons';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -166,6 +179,18 @@ function TxSearch() {
     }
   }, [doSearch, state, loading]);
 
+  const sortedChains = useMemo(() => {
+    return [...config.chainsArr].sort((a, b) => {
+      if (a.displayName < b.displayName) {
+        return -1;
+      }
+      if (a.displayName > b.displayName) {
+        return 1;
+      }
+      return 0;
+    });
+  }, [config.chainsArr]);
+
   return (
     <div className={classes.container}>
       <PageHeader
@@ -186,15 +211,18 @@ function TxSearch() {
             <MenuItem disabled value="" key={0}>
               Select network
             </MenuItem>
-            {config.chainsArr
-              .filter((chain) => chain.key !== 'Wormchain')
-              .map((chain, i) => {
-                return (
-                  <MenuItem value={chain.key} key={i + 1}>
+            {sortedChains.map((chain) => {
+              return (
+                <MenuItem value={chain.key} key={chain.key}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <ChainIconComponent icon={chain.key} height={24} />
                     {chain.displayName}
-                  </MenuItem>
-                );
-              })}
+                  </Box>
+                </MenuItem>
+              );
+            })}
           </Select>
         </div>
         <div className={classes.search}>
