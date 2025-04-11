@@ -48,10 +48,10 @@ function AppRouter(props: Props) {
   const dispatch = useDispatch();
   const routeContext = useContext(RouteContext);
   const route = useSelector((state: RootState) => state.router.route);
-  
+
   const hasSetSsgConfig = useRef(false);
   const isInitialLoad = useRef(true);
-  
+
   // We update the global config once when WormholeConnect is first mounted, if a custom
   // config was provided.
   //
@@ -72,7 +72,7 @@ function AppRouter(props: Props) {
   if (!hasSetSsgConfig.current) {
     // This runs once in SSG step (server-side pre-rendering)
     if (props.config) {
-        loadConfig(props.config);
+      loadConfig(props.config);
     }
     if (route !== 'bridge') {
       // The route may not be bridge on initial load if the component was re-rendered after client side navigation
