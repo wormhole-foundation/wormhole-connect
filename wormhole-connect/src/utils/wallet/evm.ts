@@ -95,7 +95,7 @@ export async function signAndSendTransaction(
   w: Wallet,
   chainName: string,
 ): Promise<string> {
-  const signer = (w as any).getSigner();
+  const signer = await (w as any).getSigner();
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
   // Ensure the signer is connected to the correct chain
