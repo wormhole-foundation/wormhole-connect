@@ -104,7 +104,13 @@ export async function signAndSendTransaction(
     : undefined;
 
   if (expectedChainId) {
-    await (w as EVMWallet).switchChain(Number(expectedChainId));
+    try {
+      await (w as EVMWallet).switchChain(Number(expectedChainId));
+    } catch (e) {
+      throw new Error(`Error switching to chain ${expectedChainId}: ${e}`);
+    }
+  } else {
+    console.warn(`EVM transaction has no chainId`, request.transaction);
   }
 
   const tx = await signer.sendTransaction(request.transaction);
