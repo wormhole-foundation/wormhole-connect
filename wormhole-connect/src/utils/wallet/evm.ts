@@ -17,6 +17,7 @@ import { Network } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import * as ethers from 'ethers';
+import { sleep } from 'utils';
 
 type ChainRpcUrls = (typeof DEFAULT_CHAINS)[0]['rpcUrls']['default'];
 
@@ -111,6 +112,24 @@ export async function signAndSendTransaction(
     if (signerChainId !== expectedChainId) {
       try {
         await (w as EVMWallet).switchChain(Number(expectedChainId));
+
+        let signerChainIdAfterSwitch: bigint | undefined = undefined;
+
+        // Wait up to five seconds until wallet's chainId matches the expected chainId
+        for (let i = 0; i < 50; i++) {
+          signerChainIdAfterSwitch = (await (w as any).provider?.getNetwork())
+            ?.chainId;
+          if (signerChainIdAfterSwitch === expectedChainId) {
+            break;
+          }
+          await sleep(100);
+        }
+
+        if (signerChainIdAfterSwitch !== expectedChainId) {
+          throw new Error(
+            `Failed to switch signer to the correct EVM chain - they still don't match`,
+          );
+        }
       } catch (e) {
         if (e instanceof NotSupported) {
           throw new Error(
