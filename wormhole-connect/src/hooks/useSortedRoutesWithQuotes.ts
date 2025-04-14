@@ -49,10 +49,8 @@ export const useSortedRoutesWithQuotes = (): HookReturn => {
     [amount, fromChain, sourceToken, destToken, toChain, toNativeToken],
   );
 
-  const { quotesMap, isFetching: isFetchingQuotes } = useRoutesQuotesBulk(
-    supportedRoutes,
-    useQuotesBulkParams,
-  );
+  const { quotesMap, isFetchingInitialQuotes: isFetchingQuotes } =
+    useRoutesQuotesBulk(supportedRoutes, useQuotesBulkParams);
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes

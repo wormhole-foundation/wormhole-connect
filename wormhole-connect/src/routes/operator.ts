@@ -69,7 +69,7 @@ export default class RouteOperator {
     }
     this.routes = routes;
     this.preference = preference;
-    this.quoteCache = new QuoteCache(15_000 /* 15 seconds */);
+    this.quoteCache = new QuoteCache();
   }
 
   get(name: string): SDKv2Route {
@@ -225,12 +225,10 @@ export default class RouteOperator {
 // quote request is resolved. This just prevents us from making redundant API calls when
 // multiple components or hooks are interested in a quote.
 class QuoteCache {
-  ttl: number;
   cache: Record<string, QuoteCacheEntry>;
   pending: Record<string, QuotePromiseHandlers[]>;
 
-  constructor(ttl: number) {
-    this.ttl = ttl;
+  constructor() {
     this.cache = {};
     this.pending = {};
   }
@@ -249,7 +247,7 @@ class QuoteCache {
     const key = this.quoteParamsKey(routeName, params);
     const cachedVal = this.cache[key];
     if (cachedVal) {
-      if (cachedVal.age() < this.ttl) {
+      if (cachedVal.ttl() > 5) {
         return cachedVal.result;
       } else {
         delete this.cache[key];
@@ -264,6 +262,7 @@ class QuoteCache {
     params: QuoteParams,
     route: SDKv2Route,
   ): Promise<QuoteResult> {
+    console.log('fetch quote', routeName, params);
     const key = this.quoteParamsKey(routeName, params);
     const pending = this.pending[key];
     if (pending) {
@@ -297,7 +296,11 @@ class QuoteCache {
           }
           delete this.pending[key];
 
-          // Cache result
+          if (result.success && result.expires === undefined) {
+            // Default to 60 seconds expiry
+            result.expires = new Date(Date.now() + 60_000);
+          }
+
           this.cache[key] = new QuoteCacheEntry(result);
         })
         .catch((err: any) => {
@@ -310,6 +313,24 @@ class QuoteCache {
 
       return returnPromise;
     }
+  }
+
+  nextExpiry(routes: string[], params: QuoteParams): Date | undefined {
+    const expirations: Date[] = routes
+      .map((r) => {
+        const key = this.quoteParamsKey(r, params);
+        if (this.cache[key]) {
+          return this.cache[key].expires();
+        }
+      })
+      .filter((e: Date | undefined) => e !== undefined)
+      .sort((a, b) => a.valueOf() - b.valueOf());
+
+    if (expirations.length > 0) {
+      return expirations[0];
+    }
+
+    return undefined;
   }
 }
 
@@ -329,8 +350,21 @@ class QuoteCacheEntry {
     this.timestamp = new Date();
   }
 
-  age(): number {
-    return new Date().valueOf() - this.timestamp.valueOf();
+  // Number of seconds this quote is still valid for before we should fetch a new one
+  expires(): Date {
+    if (this.result.success) {
+      // For a successful quote, if it specifies an expiry we return that
+      // otherwise we default to a TTL 1 minute
+      return this.result.expires ?? new Date(this.timestamp.valueOf() + 60_000);
+    } else {
+      // We cache errors for 10 seconds
+      return new Date(this.timestamp.valueOf() + 120_000);
+    }
+  }
+
+  // TTL in seconds before quote expires
+  ttl(): number {
+    return (this.expires().valueOf() - Date.now().valueOf()) / 1000;
   }
 }
 

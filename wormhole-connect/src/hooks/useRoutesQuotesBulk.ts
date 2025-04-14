@@ -26,12 +26,16 @@ type Params = {
   nativeGas: number;
 };
 
-type HookReturn = {
-  quotesMap: Record<string, QuoteResult | undefined>;
-  isFetching: boolean;
+export type QuoteAndStatus = {
+  quote: QuoteResult;
+  isRefreshing: boolean;
 };
 
-const QUOTE_REFRESH_INTERVAL = 20_000;
+type HookReturn = {
+  quotesMap: Record<string, QuoteResult | undefined>;
+  isFetchingInitialQuotes: boolean;
+};
+
 const MAYAN_BETA_PROTOCOL_LIMITS = {
   MCTP: 10_000,
   SHUTTLE: 5000,
@@ -43,7 +47,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     typeof setTimeout
   >>(null);
 
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
 
   // TODO temporary
@@ -57,6 +61,53 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     params.amount,
     params.sourceToken,
   );
+
+  useEffect(() => {
+    if (routes.length === 0) return;
+
+    // Determine when the next quote expires, and set a timer
+    // to refetch quotes at that point.
+    let timeTilNextFetch = 0;
+
+    if (quotes.length > 0) {
+      const rParams = params as Required<QuoteParams>;
+      const nextExpiry = config.routes.quoteCache.nextExpiry(routes, rParams);
+
+      if (!nextExpiry) {
+        return;
+      }
+      // Fetch again 5 seconds before the next expiry
+      timeTilNextFetch = nextExpiry.valueOf() - Date.now() - 5_000;
+    }
+
+    if (!timeTilNextFetch) {
+      return;
+    }
+
+    // Refresh quotes in 20 seconds
+    if (refreshTimeout) {
+      clearTimeout(refreshTimeout);
+    }
+
+    console.log(
+      'waiting until next quote fetch',
+      timeTilNextFetch / 1000,
+      routes,
+      params,
+    );
+
+    const _refreshTimeout = setTimeout(
+      () => setNonce(new Date().valueOf()),
+      timeTilNextFetch,
+    );
+    setRefreshTimeout(_refreshTimeout);
+
+    return () => {
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout);
+      }
+    };
+  }, [quotes]);
 
   useEffect(() => {
     let unmounted = false;
@@ -74,21 +125,9 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     // Forcing TS to infer that fields are non-optional
     const rParams = params as Required<QuoteParams>;
 
-    const onComplete = () => {
-      // Refresh quotes in 20 seconds
-      const refreshTimeout = setTimeout(
-        () => setNonce(new Date().valueOf()),
-        QUOTE_REFRESH_INTERVAL,
-      );
-      setRefreshTimeout(refreshTimeout);
-    };
-
     if (isTransactionInProgress) {
       // Don't fetch new quotes if the user has committed to one and has initiated a transaction
-      onComplete();
     } else {
-      setIsFetching(true);
-
       const quotesValues = quotes.filter((q) => q.success);
       // Immediately invalidate quotes if token inputs changed
       if (quotesValues.length > 0) {
@@ -97,6 +136,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
           !isSameToken(sourceToken.token, rParams.sourceToken) ||
           !isSameToken(destinationToken.token, rParams.destToken)
         ) {
+          setIsFetchingInitialQuotes(true);
           setQuotes([]);
         }
       }
@@ -104,17 +144,13 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       config.routes.getQuotes(routes, rParams).then((quoteResults) => {
         if (!unmounted) {
           setQuotes(quoteResults);
-          setIsFetching(false);
-          onComplete();
+          setIsFetchingInitialQuotes(false);
         }
       });
     }
 
     return () => {
       unmounted = true;
-      if (refreshTimeout) {
-        clearTimeout(refreshTimeout);
-      }
     };
     // Important: We should not include routes property in deps. See routes.join() below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,6 +166,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     nonce,
     isTransactionInProgress,
     params,
+    isFetchingInitialQuotes,
   ]);
 
   const quotesMap = useMemo(
@@ -235,7 +272,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
 
   return {
     quotesMap,
-    isFetching,
+    isFetchingInitialQuotes,
   };
 };
 
