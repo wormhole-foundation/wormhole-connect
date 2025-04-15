@@ -262,7 +262,8 @@ class QuoteCache {
     params: QuoteParams,
     route: SDKv2Route,
   ): Promise<QuoteResult> {
-    console.log('fetch quote', routeName, params);
+    console.debug('Fetching quote', routeName, params);
+
     const key = this.quoteParamsKey(routeName, params);
     const pending = this.pending[key];
     if (pending) {
@@ -309,6 +310,12 @@ class QuoteCache {
             reject(err);
           }
           delete this.pending[key];
+
+          // Cache uncaught error
+          this.cache[key] = new QuoteCacheEntry({
+            success: false,
+            error: err,
+          });
         });
 
       return returnPromise;

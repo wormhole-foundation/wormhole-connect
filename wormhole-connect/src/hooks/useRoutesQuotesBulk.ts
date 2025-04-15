@@ -49,6 +49,18 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
 
   const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    let visibilityHandler = () => {
+      setIsVisible(!document.hidden);
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+
+    return () => {
+      document.removeEventListener('visibilitychange', visibilityHandler);
+    };
+  }, []);
 
   // TODO temporary
   // Calculate USD amount for temporary $10,000 Mayan limit
@@ -84,14 +96,12 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       return;
     }
 
-    // Refresh quotes in 20 seconds
     if (refreshTimeout) {
       clearTimeout(refreshTimeout);
     }
 
-    console.log(
-      'waiting until next quote fetch',
-      timeTilNextFetch / 1000,
+    console.debug(
+      `Waiting ${timeTilNextFetch / 1000}s until next quote fetch`,
       routes,
       params,
     );
@@ -117,7 +127,8 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
       !params.destChain ||
       !params.destToken ||
       !params.amount ||
-      routes.length === 0
+      routes.length === 0 ||
+      !isVisible
     ) {
       return;
     }
@@ -167,6 +178,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     isTransactionInProgress,
     params,
     isFetchingInitialQuotes,
+    isVisible,
   ]);
 
   const quotesMap = useMemo(
