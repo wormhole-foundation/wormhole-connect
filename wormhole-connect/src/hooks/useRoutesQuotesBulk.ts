@@ -16,6 +16,7 @@ import { calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
+import { useDocumentVisibility } from './useDocumentVisibility';
 
 type Params = {
   sourceChain?: Chain;
@@ -46,6 +47,8 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [isFetching, setIsFetching] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
 
+  const isDocumentVisible = useDocumentVisibility();
+
   // TODO temporary
   // Calculate USD amount for temporary $10,000 Mayan limit
   const { getTokenPrice } = useTokens();
@@ -75,6 +78,11 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     const rParams = params as Required<QuoteParams>;
 
     const onComplete = () => {
+      if (!isDocumentVisible) {
+        // Don't refresh quotes when the tab is not active
+        return;
+      }
+
       // Refresh quotes in 20 seconds
       const refreshTimeout = setTimeout(
         () => setNonce(new Date().valueOf()),
@@ -128,6 +136,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     params.amount,
     params.nativeGas,
     nonce,
+    isDocumentVisible,
     isTransactionInProgress,
     params,
   ]);
