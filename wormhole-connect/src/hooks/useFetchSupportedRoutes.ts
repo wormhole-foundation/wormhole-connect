@@ -1,33 +1,38 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-
-import type { RootState } from 'store';
 import config from 'config';
 import { getTokenDetails } from 'telemetry';
-import { useGetTokens } from './useGetTokens';
 import { maybeLogSdkError } from 'utils/errors';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
+import type { Chain, amount } from '@wormhole-foundation/sdk';
+import type { Token } from 'config/tokens';
+import type { WalletData } from 'utils/wallet';
 
 type HookReturn = {
   supportedRoutes: string[];
   isFetching: boolean;
 };
 
-const useFetchSupportedRoutes = (): HookReturn => {
+interface UseFetchSupportedRoutesArgs {
+  fromChain: Chain | undefined;
+  toChain: Chain | undefined;
+  amount: amount.Amount | undefined;
+  sourceToken: Token | undefined;
+  destToken: Token | undefined;
+  toNativeToken: number;
+  receivingWallet: WalletData | undefined;
+}
+
+const useFetchSupportedRoutes = ({
+  fromChain,
+  toChain,
+  amount,
+  sourceToken,
+  destToken,
+  toNativeToken,
+  receivingWallet,
+}: UseFetchSupportedRoutesArgs): HookReturn => {
   const [routes, setRoutes] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-
-  const { fromChain, toChain, amount } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
-
-  const { sourceToken, destToken } = useGetTokens();
-
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
-
-  const receivingWallet = useSelector(
-    (state: RootState) => state.wallet.receiving,
-  );
 
   useEffect(() => {
     if (!fromChain || !toChain || !sourceToken || !destToken) {
@@ -46,7 +51,7 @@ const useFetchSupportedRoutes = (): HookReturn => {
         // because the receiving wallet can't sign/complete the transaction
         if (
           !route.AUTOMATIC_DEPOSIT &&
-          receivingWallet.name === ReadOnlyWallet.NAME
+          receivingWallet?.name === ReadOnlyWallet.NAME
         ) {
           return;
         }

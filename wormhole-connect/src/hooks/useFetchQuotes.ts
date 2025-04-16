@@ -112,6 +112,11 @@ export default (routes: string[], params: Params): HookReturn => {
   }, [quotes, routes, params]);
 
   useEffect(() => {
+    if (!routes.length) {
+      setQuotes([]);
+      setIsFetchingInitialQuotes(false);
+      return;
+    }
     let unmounted = false;
     if (
       !params.sourceChain ||
@@ -119,7 +124,6 @@ export default (routes: string[], params: Params): HookReturn => {
       !params.destChain ||
       !params.destToken ||
       !params.amount ||
-      routes.length === 0 ||
       !isVisible
     ) {
       return;
@@ -157,21 +161,7 @@ export default (routes: string[], params: Params): HookReturn => {
     };
     // Important: We should not include routes property in deps. See routes.join() below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    routes.join(), // .join() is necessary to prevent unnecessary updates when routes array's ref changed but its content did not
-    params.sourceChain,
-    params.sourceToken,
-    params.destChain,
-    params.destToken,
-    params.amount,
-    params.nativeGas,
-    nonce,
-    isTransactionInProgress,
-    params,
-    isFetchingInitialQuotes,
-    isVisible,
-  ]);
+  }, [routes, params, isVisible, isTransactionInProgress]);
 
   const quotesMap = useMemo(
     () =>

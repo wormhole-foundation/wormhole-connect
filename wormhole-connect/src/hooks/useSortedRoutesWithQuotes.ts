@@ -1,11 +1,8 @@
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from 'store';
 import { routes } from '@wormhole-foundation/sdk';
 import useFetchQuotes from 'hooks/useFetchQuotes';
 import config from 'config';
 import useFetchSupportedRoutes from './useFetchSupportedRoutes';
-import { useGetTokens } from './useGetTokens';
 
 type Quote = routes.Quote<
   routes.Options,
@@ -25,17 +22,37 @@ type HookReturn = {
   isFetching: boolean;
 };
 
-export const useSortedRoutesWithQuotes = (): HookReturn => {
-  const { amount, fromChain, toChain, preferredRouteName } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+interface UseSortedRoutesWithQuotesArgs {
+  amount: any;
+  fromChain: any;
+  toChain: any;
+  preferredRouteName: string | undefined;
+  toNativeToken: any;
+  sourceToken: any;
+  destToken: any;
+  receivingWallet: any;
+}
 
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
-
-  const { sourceToken, destToken } = useGetTokens();
-
+export const useSortedRoutesWithQuotes = ({
+  amount,
+  fromChain,
+  toChain,
+  preferredRouteName,
+  toNativeToken,
+  sourceToken,
+  destToken,
+  receivingWallet,
+}: UseSortedRoutesWithQuotesArgs): HookReturn => {
   const { supportedRoutes, isFetching: isFetchingSupportedRoutes } =
-    useFetchSupportedRoutes();
+    useFetchSupportedRoutes({
+      fromChain,
+      toChain,
+      amount,
+      sourceToken,
+      destToken,
+      toNativeToken,
+      receivingWallet,
+    });
 
   const quoteParams = useMemo(
     () => ({

@@ -19,7 +19,7 @@ import PageHeader from 'components/PageHeader';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
-import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
+//import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
@@ -118,6 +118,7 @@ const Bridge = () => {
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // --- pipeline state gathering ---
   // Connected wallets, if any
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -129,21 +130,34 @@ const Bridge = () => {
     route,
     preferredRouteName,
     amount,
-    validations,
+    toNativeToken,
     isTransactionInProgress,
-  } = useSelector((state: RootState) => state.transferInput);
+    validations,
+  } = useSelector((state: RootState) => ({
+    ...state.transferInput,
+    ...state.relay,
+  }));
 
   const { sourceToken, destToken } = useGetTokens();
 
+  // --- pipeline usage ---
   const {
     allSupportedRoutes,
     sortedRoutes,
     sortedRoutesWithQuotes,
     quotesMap,
     isFetching: isFetchingQuotes,
-  } = useSortedRoutesWithQuotes();
+  } = useSortedRoutesWithQuotes({
+    amount,
+    fromChain: sourceChain,
+    toChain: destChain,
+    preferredRouteName,
+    sourceToken,
+    destToken,
+    toNativeToken,
+    receivingWallet,
+  });
 
-  // Compute and set destination tokens
   const { isFetching: isFetchingSupportedDestTokens, supportedDestTokens } =
     useComputeDestinationTokens({
       sourceChain,
@@ -193,7 +207,7 @@ const Bridge = () => {
   }, [preferredRouteName, route, sortedRoutesWithQuotes]);
 
   // Pre-fetch available routes
-  useFetchSupportedRoutes();
+  //useFetchSupportedRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
