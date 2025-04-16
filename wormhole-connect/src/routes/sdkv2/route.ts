@@ -16,6 +16,7 @@ import { Token } from 'config/tokens';
 import { SDKv2Signer } from './signer';
 
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { AsyncCache } from 'utils/AsyncCache';
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 import { isFrankensteinToken } from 'utils';
@@ -35,6 +36,8 @@ export class SDKv2Route {
       'CosmosGateway',
     ].includes(rc.meta.name);
   }
+
+  private tokenCache = new AsyncCache<TokenId[]>(24 * 60 * 60 * 1000); // 24 hour TTL
 
   get AUTOMATIC_DEPOSIT() {
     return this.rc.IS_AUTOMATIC;
@@ -71,20 +74,28 @@ export class SDKv2Route {
     const fromChainSupported = supportedChains.includes(fromContext.chain);
     const toChainSupported = supportedChains.includes(toContext.chain);
 
-    const supportedDestinationTokens = await this.rc.supportedDestinationTokens(
-      sourceToken,
-      fromContext.context,
-      toContext.context,
-    );
+    if (!fromChainSupported || !toChainSupported) {
+      return false;
+    }
 
-    const toTokenSupported = !!supportedDestinationTokens.find((tokenId) => {
-      return isSameToken(tokenId, destToken);
-    });
+    try {
+      const cacheKey = `isRouteSupported-${sourceToken.address}-${fromChain}-${toChain}`;
+      const supportedDestinationTokens = await this.tokenCache.requestWithCache(
+        cacheKey,
+        () => this.rc.supportedDestinationTokens(
+          sourceToken,
+          fromContext.context,
+          toContext.context,
+        )
+      );
 
-    const isSupported =
-      fromChainSupported && toChainSupported && toTokenSupported;
-
-    return isSupported;
+      return !!supportedDestinationTokens.find((tokenId) => {
+        return isSameToken(tokenId, destToken);
+      });
+    } catch (e) {
+      console.error('Error checking route support:', e);
+      return false;
+    }
   }
 
   isSupportedChain(chain: Chain): boolean {
@@ -108,13 +119,15 @@ export class SDKv2Route {
     );
     if (isIlliquid) return [];
 
-    const destTokenIds = await this.rc.supportedDestinationTokens(
-      sourceToken.tokenId,
-      fromContext.context,
-      toContext.context,
+    const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
+    return await this.tokenCache.requestWithCache(
+      cacheKey,
+      () => this.rc.supportedDestinationTokens(
+        sourceToken.tokenId,
+        fromContext.context,
+        toContext.context,
+      )
     );
-
-    return destTokenIds;
   }
 
   async getQuote(
