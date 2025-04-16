@@ -32,8 +32,7 @@ type HookReturn = {
 };
 
 const MAYAN_BETA_PROTOCOL_LIMITS = {
-  MCTP: 10_000,
-  SHUTTLE: 5000,
+  SHUTTLE: 10_000,
 };
 
 export default (routes: string[], params: Params): HookReturn => {
