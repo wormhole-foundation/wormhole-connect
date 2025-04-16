@@ -49,7 +49,6 @@ export const useSortedRoutesWithQuotes = ({
     useFetchSupportedRoutes({
       fromChain,
       toChain,
-      amount,
       sourceToken,
       destToken,
       toNativeToken,

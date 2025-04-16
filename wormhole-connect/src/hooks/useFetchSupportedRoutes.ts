@@ -3,7 +3,7 @@ import config from 'config';
 import { getTokenDetails } from 'telemetry';
 import { maybeLogSdkError } from 'utils/errors';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
-import type { Chain, amount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 
@@ -15,7 +15,6 @@ type HookReturn = {
 interface UseFetchSupportedRoutesArgs {
   fromChain: Chain | undefined;
   toChain: Chain | undefined;
-  amount: amount.Amount | undefined;
   sourceToken: Token | undefined;
   destToken: Token | undefined;
   toNativeToken: number;
@@ -25,7 +24,6 @@ interface UseFetchSupportedRoutesArgs {
 const useFetchSupportedRoutes = ({
   fromChain,
   toChain,
-  amount,
   sourceToken,
   destToken,
   toNativeToken,
@@ -119,7 +117,6 @@ const useFetchSupportedRoutes = ({
   }, [
     sourceToken,
     destToken,
-    amount,
     fromChain,
     toChain,
     toNativeToken,
