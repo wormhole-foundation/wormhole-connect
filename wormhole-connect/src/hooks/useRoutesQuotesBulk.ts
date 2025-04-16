@@ -26,11 +26,6 @@ type Params = {
   nativeGas: number;
 };
 
-export type QuoteAndStatus = {
-  quote: QuoteResult;
-  isRefreshing: boolean;
-};
-
 type HookReturn = {
   quotesMap: Record<string, QuoteResult | undefined>;
   isFetchingInitialQuotes: boolean;
