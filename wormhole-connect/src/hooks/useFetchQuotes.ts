@@ -36,7 +36,7 @@ const MAYAN_BETA_PROTOCOL_LIMITS = {
   SHUTTLE: 5000,
 };
 
-const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
+export default (routes: string[], params: Params): HookReturn => {
   const [nonce, setNonce] = useState(new Date().valueOf());
   const [refreshTimeout, setRefreshTimeout] = useState<null | ReturnType<
     typeof setTimeout
@@ -102,7 +102,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     );
 
     const _refreshTimeout = setTimeout(
-      () => setNonce(new Date().valueOf()),
+      () => setNonce(Date.now()),
       timeTilNextFetch,
     );
     setRefreshTimeout(_refreshTimeout);
@@ -282,5 +282,3 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
     isFetchingInitialQuotes,
   };
 };
-
-export default useRoutesQuotesBulk;
