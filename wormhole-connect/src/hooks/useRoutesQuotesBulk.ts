@@ -52,7 +52,7 @@ const useRoutesQuotesBulk = (routes: string[], params: Params): HookReturn => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    let visibilityHandler = () => {
+    const visibilityHandler = () => {
       setIsVisible(!document.hidden);
     };
     document.addEventListener('visibilitychange', visibilityHandler);
