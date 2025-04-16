@@ -302,6 +302,8 @@ class QuoteCache {
             result.expires = new Date(Date.now() + 60_000);
           }
 
+          console.debug(`Fetched quote`, routeName, result);
+
           this.cache[key] = new QuoteCacheEntry(result);
         })
         .catch((err: any) => {
