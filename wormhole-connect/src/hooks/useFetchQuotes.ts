@@ -161,7 +161,7 @@ export default (routes: string[], params: Params): HookReturn => {
     };
     // Important: We should not include routes property in deps. See routes.join() below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routes, params, isVisible, isTransactionInProgress]);
+  }, [nonce, isVisible]);
 
   const quotesMap = useMemo(
     () =>

@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
-import { routes } from '@wormhole-foundation/sdk';
+import { amount, Chain, routes } from '@wormhole-foundation/sdk';
 import useFetchQuotes from 'hooks/useFetchQuotes';
 import config from 'config';
 import useFetchSupportedRoutes from './useFetchSupportedRoutes';
+import { Token } from 'config/tokens';
+import { WalletData } from 'store/wallet';
 
 type Quote = routes.Quote<
   routes.Options,
@@ -23,14 +25,14 @@ type HookReturn = {
 };
 
 interface UseSortedRoutesWithQuotesArgs {
-  amount: any;
-  fromChain: any;
-  toChain: any;
-  preferredRouteName: string | undefined;
-  toNativeToken: any;
-  sourceToken: any;
-  destToken: any;
-  receivingWallet: any;
+  amount?: amount.Amount;
+  fromChain?: Chain;
+  toChain?: Chain;
+  preferredRouteName?: string;
+  toNativeToken: number;
+  sourceToken?: Token;
+  destToken?: Token;
+  receivingWallet: WalletData;
 }
 
 export const useSortedRoutesWithQuotes = ({

@@ -5,7 +5,7 @@ import { maybeLogSdkError } from 'utils/errors';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
 import type { Chain, amount } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
-import type { WalletData } from 'utils/wallet';
+import type { WalletData } from 'store/wallet';
 
 type HookReturn = {
   supportedRoutes: string[];
