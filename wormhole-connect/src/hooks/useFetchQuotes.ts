@@ -1,5 +1,5 @@
 import { isSameToken, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
 import {
@@ -38,10 +38,9 @@ const MAYAN_BETA_PROTOCOL_LIMITS = {
 
 export default (routes: string[], params: Params): HookReturn => {
   const [nonce, setNonce] = useState(new Date().valueOf());
-  const [refreshTimeout, setRefreshTimeout] = useState<null | ReturnType<
-    typeof setTimeout
-  >>(null);
-
+  const refreshTimeout = useRef<undefined | ReturnType<typeof setTimeout>>(
+    undefined,
+  );
   const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
   const [quotes, setQuotes] = useState<QuoteResult[]>([]);
   const [isVisible, setIsVisible] = useState(true);
@@ -92,7 +91,7 @@ export default (routes: string[], params: Params): HookReturn => {
     }
 
     if (refreshTimeout) {
-      clearTimeout(refreshTimeout);
+      clearTimeout(refreshTimeout.current);
     }
 
     console.debug(
@@ -101,18 +100,17 @@ export default (routes: string[], params: Params): HookReturn => {
       params,
     );
 
-    const _refreshTimeout = setTimeout(
+    refreshTimeout.current = setTimeout(
       () => setNonce(Date.now()),
       timeTilNextFetch,
     );
-    setRefreshTimeout(_refreshTimeout);
 
     return () => {
       if (refreshTimeout) {
-        clearTimeout(refreshTimeout);
+        clearTimeout(refreshTimeout.current);
       }
     };
-  }, [quotes]);
+  }, [quotes, routes, params]);
 
   useEffect(() => {
     let unmounted = false;
