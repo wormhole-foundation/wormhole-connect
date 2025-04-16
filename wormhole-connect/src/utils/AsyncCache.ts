@@ -8,8 +8,9 @@ export class AsyncCache<T> {
   private cache = new Map<string, CacheEntry<T>>();
   private pendingRequests = new Map<string, Promise<T>>();
 
-  constructor(private ttl: number) {}
+  constructor(private TTLms: number) {}
 
+  // TODO: Make TTL configurable per request
   async requestWithCache(
     cacheKey: string,
     fetchFn: () => Promise<T>,
@@ -17,7 +18,7 @@ export class AsyncCache<T> {
     const now = Date.now();
     const cached = this.cache.get(cacheKey);
 
-    if (cached && now - cached.timestamp < this.ttl) {
+    if (cached && now - cached.timestamp < this.TTLms) {
       console.debug('[Cache Debug] Cache HIT - using cached value');
       if (cached.isError) {
         throw cached.value;
