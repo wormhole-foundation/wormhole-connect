@@ -111,6 +111,29 @@ export default (routes: string[], params: Params): HookReturn => {
     };
   }, [quotes, routes, params]);
 
+  // IMPORTANT
+  //
+  // This is the hook where the quotes are actually fetched. This should only be invoked by
+  // very specific events:
+  //
+  // 1. supported routes being recomputed (this is the "routes" dep)
+  // 2. the expiry watching hook above has fired because one of our quotes expired (this is the "nonce" dep)
+  // 3. the user changed the amount input (this is the "params.amount" dep)
+  // 3. the user changed the gas dropoff input (this is the "params.nativeGas" dep)
+  // 4. the tab became visible again after being not visible (this is the "isVisible" dep)
+  //
+  // Notably we are NOT putting all of "params" into the deps, or any of its other properties, which
+  // are the tokens or chains. We do not want to immediately fetch quotes when the user changes the
+  // chain or token because we don't have a new list of supported routes for those inputs yet.
+  // This is why "routes" is a dependency here. This input is recomputed by useFetchSupportedRoutes inside of
+  // useSortedRoutesWithQuotes, which is also the parent hook which invokes this fetchQuotes hook.
+  //
+  // In other words it is a pipeline; we need to first figure out which routes are supported before
+  // we fetch quotes.
+  //
+  // So please don't add deps to this hook just because the linter told you to, or if you don't understand
+  // how all of this is supposed to flow. React hooks are an inelegant tool for building pipelines and lead
+  // you to writing confusing spaghetti, but this is what we have to work with.
   useEffect(() => {
     let unmounted = false;
     const cleanup = () => {
@@ -140,7 +163,6 @@ export default (routes: string[], params: Params): HookReturn => {
     // Forcing TS to infer that fields are non-optional
     const rParams = params as Required<QuoteParams>;
 
-    // Don't fetch new quotes if the user has committed to one and has initiated a transaction
     const quotesValues = quotes.filter((q) => q.success);
     // Immediately invalidate quotes if token inputs changed
     if (quotesValues.length > 0) {
@@ -153,6 +175,12 @@ export default (routes: string[], params: Params): HookReturn => {
       }
     }
 
+    // Let the hook caller know when we are fetching for the first time
+    // so it can show an in-progress state.
+    //
+    // However, when fetching updates afterwards, we do not need to show
+    // this in-progress state because there are already existing quotes
+    // to show - this is less jarring.
     if (quotes.length === 0 && routes.length !== 0) {
       setIsFetchingInitialQuotes(true);
     }
@@ -168,7 +196,7 @@ export default (routes: string[], params: Params): HookReturn => {
     // Important: Do not the token or chain params to the dependency array. This causes the hook
     // to fire prematurely; we need to figure out supported routes before fetching quotes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routes, nonce, params.amount, isVisible]);
+  }, [routes, nonce, params.amount, params.nativeGas, isVisible]);
 
   const quotesMap = useMemo(
     () =>
