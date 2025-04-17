@@ -112,53 +112,59 @@ export default (routes: string[], params: Params): HookReturn => {
   }, [quotes, routes, params]);
 
   useEffect(() => {
-    if (!routes.length) {
-      setQuotes([]);
-      setIsFetchingInitialQuotes(false);
-      return;
-    }
     let unmounted = false;
+    const cleanup = () => {
+      unmounted = true;
+    };
+
     if (
+      routes.length === 0 ||
       !params.sourceChain ||
       !params.sourceToken ||
       !params.destChain ||
       !params.destToken ||
-      !params.amount ||
-      !isVisible
+      !params.amount
     ) {
-      return;
+      // Clear quotes if we are missing any inputs or if the inputs support 0 routes
+      setQuotes([]);
+      setIsFetchingInitialQuotes(false);
+      return cleanup;
+    }
+
+    if (isTransactionInProgress || !isVisible) {
+      // Leave quotes alone if the user initiated a transfer,
+      // or if the tab is not visible.
+      return cleanup;
     }
 
     // Forcing TS to infer that fields are non-optional
     const rParams = params as Required<QuoteParams>;
 
-    if (isTransactionInProgress) {
-      // Don't fetch new quotes if the user has committed to one and has initiated a transaction
-    } else {
-      const quotesValues = quotes.filter((q) => q.success);
-      // Immediately invalidate quotes if token inputs changed
-      if (quotesValues.length > 0) {
-        const { sourceToken, destinationToken } = quotesValues[0];
-        if (
-          !isSameToken(sourceToken.token, rParams.sourceToken) ||
-          !isSameToken(destinationToken.token, rParams.destToken)
-        ) {
-          setIsFetchingInitialQuotes(true);
-          setQuotes([]);
-        }
+    // Don't fetch new quotes if the user has committed to one and has initiated a transaction
+    const quotesValues = quotes.filter((q) => q.success);
+    // Immediately invalidate quotes if token inputs changed
+    if (quotesValues.length > 0) {
+      const { sourceToken, destinationToken } = quotesValues[0];
+      if (
+        !isSameToken(sourceToken.token, rParams.sourceToken) ||
+        !isSameToken(destinationToken.token, rParams.destToken)
+      ) {
+        setQuotes([]);
       }
-
-      config.routes.getQuotes(routes, rParams).then((quoteResults) => {
-        if (!unmounted) {
-          setQuotes(quoteResults);
-          setIsFetchingInitialQuotes(false);
-        }
-      });
     }
 
-    return () => {
-      unmounted = true;
-    };
+    if (quotes.length === 0 && routes.length !== 0) {
+      setIsFetchingInitialQuotes(true);
+    }
+
+    config.routes.getQuotes(routes, rParams).then((quoteResults) => {
+      if (!unmounted) {
+        setQuotes(quoteResults);
+        setIsFetchingInitialQuotes(false);
+      }
+    });
+
+    return cleanup;
     // Important: We should not include routes property in deps. See routes.join() below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routes, params, nonce, isVisible]);

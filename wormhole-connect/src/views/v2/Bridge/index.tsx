@@ -19,7 +19,6 @@ import PageHeader from 'components/PageHeader';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
-//import useFetchSupportedRoutes from 'hooks/useFetchSupportedRoutes';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
@@ -207,7 +206,6 @@ const Bridge = () => {
   }, [preferredRouteName, route, sortedRoutesWithQuotes]);
 
   // Pre-fetch available routes
-  //useFetchSupportedRoutes();
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
