@@ -165,9 +165,10 @@ export default (routes: string[], params: Params): HookReturn => {
     });
 
     return cleanup;
-    // Important: We should not include routes property in deps. See routes.join() below.
+    // Important: Do not the token or chain params to the dependency array. This causes the hook
+    // to fire prematurely; we need to figure out supported routes before fetching quotes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routes, params, nonce, isVisible]);
+  }, [routes, nonce, params.amount, isVisible]);
 
   const quotesMap = useMemo(
     () =>
