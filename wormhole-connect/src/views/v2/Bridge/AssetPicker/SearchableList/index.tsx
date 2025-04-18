@@ -49,6 +49,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
       {props.title}
       <SearchInput
         value={query}
+        dataTestId={props.dataTestId}
         onChange={(val: string) => {
           setQuery(val);
           if (props.onQueryChange) {

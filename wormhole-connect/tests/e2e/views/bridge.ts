@@ -69,14 +69,30 @@ export class BridgeView {
     );
   }
 
-  async selectSrcAsset(chainTestId: string, tokenTestId: string) {
+  async selectSrcAsset(
+    chainTestId: string,
+    tokenTestId: string,
+    tokenSymbol: string,
+  ) {
     await this.srcAssetPicker.click();
+    await this.page
+      .getByTestId('token-search-list-input')
+      .getByRole('textbox')
+      .fill(tokenSymbol);
     await this.page.getByTestId(chainTestId).click();
     await this.page.getByTestId(tokenTestId).click();
   }
 
-  async selectDestAsset(chainTestId: string, tokenTestId: string) {
+  async selectDestAsset(
+    chainTestId: string,
+    tokenTestId: string,
+    tokenSymbol: string,
+  ) {
     await this.destAssetPicker.click();
+    await this.page
+      .getByTestId('token-search-list-input')
+      .getByRole('textbox')
+      .fill(tokenSymbol);
     await this.page.getByTestId(chainTestId).click();
     await this.page.getByTestId(tokenTestId).click();
   }

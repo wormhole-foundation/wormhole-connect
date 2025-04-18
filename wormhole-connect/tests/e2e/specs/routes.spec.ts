@@ -46,6 +46,7 @@ testConfigs.forEach(
 
       // Navigate to brige view
       await page.goto('/');
+      await page.waitForLoadState('load');
 
       // Verify key elements are present in bridge view
       await bridgeView.verifyElements();
@@ -53,13 +54,15 @@ testConfigs.forEach(
       // Select source asset
       await bridgeView.selectSrcAsset(
         `chain-button-${sourceAsset.chain}`,
-        `token-button-${sourceAsset.chain}-${sourceAsset.contract}`,
+        `token-button-${sourceAsset.chain}-${sourceAsset.address}`,
+        sourceAsset.symbol,
       );
 
       // Select destination asset
       await bridgeView.selectDestAsset(
         `chain-button-${destinationAsset.chain}`,
-        `token-button-${destinationAsset.chain}-${destinationAsset.contract}`,
+        `token-button-${destinationAsset.chain}-${destinationAsset.address}`,
+        destinationAsset.symbol,
       );
 
       // Enter amount
@@ -76,6 +79,7 @@ testConfigs.forEach(
 
       // Navigate to brige view
       await page.goto(`/?config=${configQuery}`);
+      await page.waitForLoadState('load');
 
       // Verify key elements are present in bridge view
       await bridgeView.verifyElements();
@@ -86,7 +90,8 @@ testConfigs.forEach(
       // Select source asset
       await bridgeView.selectSrcAsset(
         `chain-button-${sourceAsset.chain}`,
-        `token-button-${sourceAsset.chain}-${sourceAsset.contract}`,
+        `token-button-${sourceAsset.chain}-${sourceAsset.address}`,
+        sourceAsset.symbol,
       );
 
       // Set destination wallet
@@ -95,7 +100,8 @@ testConfigs.forEach(
       // Select destination asset
       await bridgeView.selectDestAsset(
         `chain-button-${destinationAsset.chain}`,
-        `token-button-${destinationAsset.chain}-${destinationAsset.contract}`,
+        `token-button-${destinationAsset.chain}-${destinationAsset.address}`,
+        destinationAsset.symbol,
       );
 
       // Enter amount

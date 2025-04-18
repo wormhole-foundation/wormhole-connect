@@ -40,14 +40,16 @@ export const testConfigs = [
     },
     sourceAsset: {
       chain: 'arbitrum',
-      contract: CONTRACTS.Arbitrum.USDC,
+      symbol: 'USDC',
+      address: CONTRACTS.Arbitrum.USDC,
     },
     destinationWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
     },
     destinationAsset: {
       chain: 'base',
-      contract: CONTRACTS.Base.USDC,
+      symbol: 'USDC',
+      address: CONTRACTS.Base.USDC,
     },
     amount: '1',
     waitForCompletion: true,
@@ -61,14 +63,16 @@ export const testConfigs = [
     },
     sourceAsset: {
       chain: 'arbitrum',
-      contract: CONTRACTS.Arbitrum.USDC,
+      symbol: 'USDC',
+      address: CONTRACTS.Arbitrum.USDC,
     },
     destinationWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
     },
     destinationAsset: {
       chain: 'base',
-      contract: CONTRACTS.Base.USDC,
+      symbol: 'USDC',
+      address: CONTRACTS.Base.USDC,
     },
     amount: '0.1',
     waitForCompletion: false,
