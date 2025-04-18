@@ -15,15 +15,15 @@ dotenv.config({ path: path.resolve(__dirname, '../../..', '.env.local') });
 let page: Page;
 let bridgeView: BridgeView;
 let redeemView: RedeemView;
-
-// Annotate entire file as serial.
-test.describe.configure({ mode: 'serial' });
+let isExternalUrl = false;
 
 test.beforeAll(async ({ browser }) => {
   // Set up Bridge and Redeem views
   page = await browser.newPage();
   bridgeView = new BridgeView(page);
   redeemView = new RedeemView(page);
+  // Check if we are testing an external URL
+  isExternalUrl = !process.env.BASE_URL?.startsWith('http://localhost');
 });
 
 test.afterAll(async () => {
@@ -41,15 +41,41 @@ testConfigs.forEach(
     amount,
     waitForCompletion,
   }) => {
-    if (name !== 'AutomaticCCTP') {
-      return;
-    }
+    test(`Should configure transaction for an external Connect host - ${name}`, async () => {
+      test.skip(!isExternalUrl, 'Runs only for external URLs');
+
+      // Navigate to brige view
+      await page.goto('/');
+
+      // Verify key elements are present in bridge view
+      await bridgeView.verifyElements();
+
+      // Select source asset
+      await bridgeView.selectSrcAsset(
+        `chain-button-${sourceAsset.chain}`,
+        `token-button-${sourceAsset.chain}-${sourceAsset.contract}`,
+      );
+
+      // Select destination asset
+      await bridgeView.selectDestAsset(
+        `chain-button-${destinationAsset.chain}`,
+        `token-button-${destinationAsset.chain}-${destinationAsset.contract}`,
+      );
+
+      // Enter amount
+      await bridgeView.enterAmount(amount);
+
+      // Route should be visible and selected by default
+      await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
+    });
 
     test(`Should complete transaction - ${name}`, async () => {
+      test.skip(isExternalUrl, 'Runs only for localhost');
+
       const configQuery = compressToBase64(config);
 
       // Navigate to brige view
-      await page.goto(`http://localhost:5173/?config=${configQuery}`);
+      await page.goto(`/?config=${configQuery}`);
 
       // Verify key elements are present in bridge view
       await bridgeView.verifyElements();

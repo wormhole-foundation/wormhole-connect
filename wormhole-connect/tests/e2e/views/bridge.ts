@@ -6,19 +6,24 @@ export class BridgeView {
   private readonly srcAssetPicker: Locator;
   private readonly destAssetPicker: Locator;
   private readonly amountInput: Locator;
-  private readonly confirmButton: Locator;
+  private readonly _confirmButton: Locator;
   private readonly logs: Array<{ text: string; type: string }> = [];
 
   constructor(public readonly page: Page) {
     this.srcAssetPicker = page.getByTestId('source-asset-picker');
     this.destAssetPicker = page.getByTestId('dest-asset-picker');
     this.amountInput = page.getByTestId('amount-input');
-    this.confirmButton = page.getByTestId('confirm-transaction-button');
+    this._confirmButton = page.getByTestId('confirm-transaction-button');
 
     // Start listening for console logs
     page.on('console', (msg) => {
       this.logs.push({ text: msg.text(), type: msg.type() });
     });
+  }
+
+  // Getter for confirmButton
+  get confirmButton(): Locator {
+    return this._confirmButton;
   }
 
   // Verify key elements are present in Bridge view
@@ -30,7 +35,6 @@ export class BridgeView {
 
   async connectSrcWallet(address: string | undefined) {
     expect(address).not.toBeUndefined();
-    console.log(`Connecting to source wallet: ${address}`);
     await this.page.evaluate(
       (payload) => {
         globalThis.dispatchReduxAction({
@@ -49,7 +53,6 @@ export class BridgeView {
 
   async connectDestWallet(address: string | undefined) {
     expect(address).not.toBeUndefined();
-    console.log(`Connecting to destination wallet: ${address}`);
     await this.page.evaluate(
       (payload) => {
         globalThis.dispatchReduxAction({
