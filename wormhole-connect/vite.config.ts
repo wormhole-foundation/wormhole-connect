@@ -89,12 +89,13 @@ const plugins = [
       Buffer: true,
     },
   }),
-  process.env.ANALYZE === 'true' && visualizer({
-    open: true,
-    gzipSize: true,
-    brotliSize: true,
-    template: 'treemap' // or 'sunburst'
-  })
+  process.env.ANALYZE === 'true' &&
+    visualizer({
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap', // or 'sunburst'
+    }),
 ].filter(Boolean);
 
 const optimizeDeps = {
@@ -168,7 +169,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
     //   bundled with a copy of React. This is "legacy mode" and useful only on web apps that don't
     //   use React.
     //
-    
+
     if (isHosted) {
       return {
         define,
@@ -203,6 +204,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               path.resolve(__dirname, 'src/exports/mayan.ts'),
               path.resolve(__dirname, 'src/exports/ntt.ts'),
               path.resolve(__dirname, 'src/exports/hosted.ts'),
+              path.resolve(__dirname, 'src/exports/executor.ts'),
             ],
             formats: (isAnalyze ? ['es'] : ['es', 'cjs']) as LibraryFormats[],
             fileName: (format, entryname) => {
@@ -216,6 +218,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               mayan: 'src/exports/mayan.ts',
               ntt: 'src/exports/ntt.ts',
               hosted: 'src/exports/hosted.ts',
+              executor: 'src/exports/executor.ts',
             },
             output,
             external: [
