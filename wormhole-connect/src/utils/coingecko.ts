@@ -72,7 +72,9 @@ export const fetchTokenMetadata = async (
   tokenId: TokenId,
   params?: CoingeckoParams,
 ): Promise<any> => {
-  if (config.network !== 'Mainnet') return null;
+  // TODO: temporarily disabled for testing
+  // DON'T MERGE THIS!!!
+  // if (config.network !== 'Mainnet') return null;
 
   return coingeckoRequest(
     `/api/v3/coins/${tokenId.chain.toLowerCase()}/contract/${tokenId.address.toString()}`,

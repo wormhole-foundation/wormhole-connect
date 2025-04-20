@@ -41,6 +41,7 @@ import {
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES, nttRoutes } from 'routes/operator';
 import { WormholeConnectTheme } from 'theme';
+import { CCTPW7ExecutorRoute } from '@wormhole-labs/cctp-w7-executor-route';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
@@ -79,6 +80,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
       /* @ts-ignore */
       window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
+      /* @ts-ignore */
+      window.cctpW7ExecutorRoute = CCTPW7ExecutorRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -291,6 +294,10 @@ function SampleApp() {
                   <li>
                     <pre>testNttRoutesTestnet</pre>
                     <i>{'(NttRoute.Config) -> RouteConstructor[])'}</i>
+                  </li>
+                  <li>
+                    <pre>cctpW7ExecutorRoute</pre>
+                    <i>{'RouteConstructor'}</i>
                   </li>
                 </ul>
               </div>
