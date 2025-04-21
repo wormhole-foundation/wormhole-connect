@@ -1,4 +1,5 @@
 import { CONTRACTS } from './constants';
+import { TestConfig } from './types';
 
 const COINGECKO_API_KEY = process.env.REACT_APP_TEST_CG_AK || '';
 
@@ -30,7 +31,7 @@ const CCTPAutomatic = `{
   ],
 }`;
 
-export const testConfigs = [
+export const testConfigs: Array<TestConfig> = [
   {
     name: 'MayanSwapSWIFT',
     config: mayanSWIFT,
@@ -39,17 +40,17 @@ export const testConfigs = [
       privateKey: process.env.REACT_APP_TEST_EVM_PK || '',
     },
     sourceAsset: {
-      chain: 'arbitrum',
+      chain: 'Arbitrum',
       symbol: 'USDC',
-      address: CONTRACTS.Arbitrum.USDC,
+      address: CONTRACTS.Arbitrum?.USDC,
     },
     destinationWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
     },
     destinationAsset: {
-      chain: 'base',
+      chain: 'Base',
       symbol: 'USDC',
-      address: CONTRACTS.Base.USDC,
+      address: CONTRACTS.Base?.USDC,
     },
     amount: '1',
     waitForCompletion: true,
@@ -62,17 +63,17 @@ export const testConfigs = [
       privateKey: process.env.REACT_APP_TEST_EVM_PK || '',
     },
     sourceAsset: {
-      chain: 'arbitrum',
+      chain: 'Base',
       symbol: 'USDC',
-      address: CONTRACTS.Arbitrum.USDC,
+      address: CONTRACTS.Base?.USDC,
     },
     destinationWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
     },
     destinationAsset: {
-      chain: 'base',
+      chain: 'Arbitrum',
       symbol: 'USDC',
-      address: CONTRACTS.Base.USDC,
+      address: CONTRACTS.Arbitrum?.USDC,
     },
     amount: '0.1',
     waitForCompletion: false,

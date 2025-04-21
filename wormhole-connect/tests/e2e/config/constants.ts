@@ -1,6 +1,7 @@
 import { circle } from '@wormhole-foundation/sdk';
+import { Contracts } from './types';
 
-export const CONTRACTS = {
+export const CONTRACTS: Contracts = {
   Arbitrum: {
     USDC: circle.usdcContract.get('Mainnet', 'Arbitrum'),
   },

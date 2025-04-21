@@ -17,13 +17,13 @@ let bridgeView: BridgeView;
 let redeemView: RedeemView;
 let isExternalUrl = false;
 
-test.beforeAll(async ({ browser }) => {
+test.beforeAll(async ({ browser, baseURL }) => {
   // Set up Bridge and Redeem views
   page = await browser.newPage();
   bridgeView = new BridgeView(page);
   redeemView = new RedeemView(page);
   // Check if we are testing an external URL
-  isExternalUrl = !process.env.BASE_URL?.startsWith('http://localhost');
+  isExternalUrl = !baseURL?.startsWith('http://localhost');
 });
 
 test.afterAll(async () => {
