@@ -79,14 +79,10 @@ export class SDKv2Route {
     }
 
     try {
-      const cacheKey = `isRouteSupported-${sourceToken.address}-${fromChain}-${toChain}`;
-      const supportedDestinationTokens = await this.tokenCache.requestWithCache(
-        cacheKey,
-        () => this.rc.supportedDestinationTokens(
+      const supportedDestinationTokens = await this.supportedDestTokens(
           sourceToken,
-          fromContext.context,
-          toContext.context,
-        )
+          fromChain,
+          toChain,
       );
 
       return !!supportedDestinationTokens.find((tokenId) => {
