@@ -23,9 +23,3 @@ export type TestConfig = {
   amount: string;
   waitForCompletion: boolean;
 };
-
-export type Contracts = {
-  [chain in Chain]?: {
-    [symbol: string]: string | undefined;
-  };
-};

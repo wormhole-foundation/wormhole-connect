@@ -1,4 +1,4 @@
-import { CONTRACTS } from './constants';
+import { circle } from '@wormhole-foundation/sdk';
 import { TestConfig } from './types';
 
 const COINGECKO_API_KEY = process.env.REACT_APP_TEST_CG_AK || '';
@@ -42,7 +42,7 @@ export const testConfigs: Array<TestConfig> = [
     sourceAsset: {
       chain: 'Arbitrum',
       symbol: 'USDC',
-      address: CONTRACTS.Arbitrum?.USDC,
+      address: circle.usdcContract.get('Mainnet', 'Arbitrum'),
     },
     destinationWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
@@ -50,7 +50,7 @@ export const testConfigs: Array<TestConfig> = [
     destinationAsset: {
       chain: 'Base',
       symbol: 'USDC',
-      address: CONTRACTS.Base?.USDC,
+      address: circle.usdcContract.get('Mainnet', 'Base'),
     },
     amount: '1',
     waitForCompletion: true,
@@ -65,7 +65,7 @@ export const testConfigs: Array<TestConfig> = [
     sourceAsset: {
       chain: 'Base',
       symbol: 'USDC',
-      address: CONTRACTS.Base?.USDC,
+      address: circle.usdcContract.get('Mainnet', 'Base'),
     },
     destinationWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
@@ -73,7 +73,7 @@ export const testConfigs: Array<TestConfig> = [
     destinationAsset: {
       chain: 'Arbitrum',
       symbol: 'USDC',
-      address: CONTRACTS.Arbitrum?.USDC,
+      address: circle.usdcContract.get('Mainnet', 'Arbitrum'),
     },
     amount: '0.1',
     waitForCompletion: false,
