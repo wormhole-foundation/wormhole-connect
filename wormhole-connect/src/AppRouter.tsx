@@ -52,15 +52,9 @@ function AppRouter(props: Props) {
   const hasSetSsgConfig = useRef(false);
   const isInitialLoad = useRef(true);
 
-  // We update the global config once when WormholeConnect is first mounted, if a custom
-  // config was provided.
-  //
-  // We don't allow config changes afterwards because they could lead to lots of
-  // broken and undesired behavior.
   const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
     if (!isEmptyObject(customConfig)) {
       setConfig(customConfig);
-      dispatch(clearTransfer());
     }
 
     hasSetSsgConfig.current = true;
@@ -91,6 +85,7 @@ function AppRouter(props: Props) {
     } else {
       if (props.config) {
         loadConfig(props.config);
+        dispatch(clearTransfer());
       }
     }
   }, [props.config]);
