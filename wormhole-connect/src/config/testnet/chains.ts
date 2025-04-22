@@ -29,8 +29,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
   Fantom: {
     ...chains.Fantom!,
     displayName: 'Fantom',
-    explorerUrl: 'https://testnet.ftmscan.com/',
-    explorerName: 'FtmScan',
+    explorerUrl: 'https://explorer.testnet.fantom.network/',
+    explorerName: 'Fantom Explorer',
     chainId: 4002,
     icon: 'Fantom',
     symbol: 'FTM',
