@@ -60,6 +60,7 @@ function AppRouter(props: Props) {
   const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
     if (!isEmptyObject(customConfig)) {
       setConfig(customConfig);
+      dispatch(clearTransfer());
     }
 
     hasSetSsgConfig.current = true;
