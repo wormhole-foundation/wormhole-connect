@@ -83,14 +83,16 @@ const GasSlider = (props: {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const { toChain: destChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    fromChain: sourceChain,
+    toChain: destChain,
+    isExecutorRoute,
+  } = useSelector((state: RootState) => state.transferInput);
 
   const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
-  const destChainConfig = config.chains[destChain!];
-  const nativeGasToken = config.tokens.getGasToken(destChain!);
+  const destGasToken = config.tokens.getGasToken(destChain!);
+  const sourceGasToken = config.tokens.getGasToken(sourceChain!);
 
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
   const [percentage, setPercentage] = useState(0);
@@ -102,7 +104,7 @@ const GasSlider = (props: {
   }, [debouncedPercentage, dispatch]);
 
   const nativeGasPrice = useMemo(() => {
-    if (!destChain || !nativeGasToken) {
+    if (!destChain || !destGasToken) {
       return null;
     }
 
@@ -113,33 +115,54 @@ const GasSlider = (props: {
     const tokenPrice = calculateUSDPrice(
       getTokenPrice,
       props.destinationGasDrop,
-      nativeGasToken,
+      destGasToken,
     );
     const tokenPriceWithParanthesis = tokenPrice ? `(${tokenPrice})` : '';
 
-    return (
-      <Typography color={theme.palette.primary.main} fontSize={14}>
-        {`+${tokenAmount} ${nativeGasToken.symbol} ${tokenPriceWithParanthesis}`}
-      </Typography>
-    );
+    return `+${tokenAmount} ${destGasToken.symbol} ${tokenPriceWithParanthesis}`;
     // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    nativeGasToken,
-    lastTokenPriceUpdate,
-    props.destinationGasDrop,
-    destChain,
-  ]);
+  }, [destGasToken, lastTokenPriceUpdate, props.destinationGasDrop, destChain]);
+
+  const percentSelection = useMemo(
+    () => (
+      <ToggleButtonGroup
+        exclusive
+        fullWidth
+        value={percentage.toString()}
+        onChange={(e: any) => {
+          const newPercentValue = Number(e.currentTarget.value);
+          if (newPercentValue === percentage) {
+            // Unselect if user clicks on the same value
+            setPercentage(0);
+          } else {
+            setPercentage(newPercentValue);
+          }
+        }}
+      >
+        <ToggleButton className={classes.toggleButton} disableRipple value="5">
+          5%
+        </ToggleButton>
+        <ToggleButton className={classes.toggleButton} disableRipple value="10">
+          10%
+        </ToggleButton>
+        <ToggleButton className={classes.toggleButton} disableRipple value="15">
+          15%
+        </ToggleButton>
+      </ToggleButtonGroup>
+    ),
+    [classes.toggleButton, percentage],
+  );
 
   // Checking required values
-  if (!destChainConfig || !nativeGasToken) {
+  if (!sourceGasToken || !destGasToken) {
     return <></>;
   }
 
   return (
     <div className={classes.content}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography>{`Need extra ${nativeGasToken.symbol} on ${destChain}?`}</Typography>
+        <Typography>{`Need extra ${destGasToken.symbol} on ${destChain}?`}</Typography>
         <StyledSwitch
           checked={isGasSliderOpen}
           disabled={props.disabled}
@@ -150,7 +173,10 @@ const GasSlider = (props: {
 
             if (!checked) {
               setPercentage(0);
-              dispatch(setToNativeToken(0));
+            } else if (isExecutorRoute) {
+              // Gas slider becomes a binary switch for executor routes
+              // If turned on, gas top-up is set to 100%
+              setPercentage(100);
             }
           }}
         />
@@ -158,42 +184,7 @@ const GasSlider = (props: {
       <Collapse in={isGasSliderOpen} unmountOnExit>
         <div className={classes.container}>
           <Stack>
-            <ToggleButtonGroup
-              exclusive
-              fullWidth
-              value={percentage.toString()}
-              onChange={(e: any) => {
-                const newPercentValue = Number(e.currentTarget.value);
-                if (newPercentValue === percentage) {
-                  // Unselect if user clicks on the same value
-                  setPercentage(0);
-                } else {
-                  setPercentage(newPercentValue);
-                }
-              }}
-            >
-              <ToggleButton
-                className={classes.toggleButton}
-                disableRipple
-                value="5"
-              >
-                5%
-              </ToggleButton>
-              <ToggleButton
-                className={classes.toggleButton}
-                disableRipple
-                value="10"
-              >
-                10%
-              </ToggleButton>
-              <ToggleButton
-                className={classes.toggleButton}
-                disableRipple
-                value="15"
-              >
-                15%
-              </ToggleButton>
-            </ToggleButtonGroup>
+            {!isExecutorRoute && percentSelection}
             <div className={classes.amounts}>
               <Stack alignItems="center" flexDirection="row">
                 <Typography
@@ -203,7 +194,13 @@ const GasSlider = (props: {
                 >
                   Gas amount
                 </Typography>
-                <Tooltip title="This additional gas is swapped from a percentage of your transfer amount.">
+                <Tooltip
+                  title={
+                    isExecutorRoute
+                      ? `Add a small amount of ${sourceGasToken.symbol} to your transaction to receive ${nativeGasPrice} on ${destChain}.`
+                      : 'This additional gas is swapped from a percentage of your transfer amount.'
+                  }
+                >
                   <InfoOutlinedIcon
                     sx={{
                       color: theme.palette.text.secondary,
@@ -212,7 +209,7 @@ const GasSlider = (props: {
                   />
                 </Tooltip>
               </Stack>
-              <Typography color={theme.palette.text.secondary} fontSize={14}>
+              <Typography color={theme.palette.primary.main} fontSize={14}>
                 {nativeGasPrice}
               </Typography>
             </div>

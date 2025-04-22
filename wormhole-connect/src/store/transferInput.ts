@@ -71,6 +71,7 @@ export interface TransferInputState {
   amount?: amount.Amount;
   receiveAmount: DataWrapper<string>;
   route?: string;
+  isExecutorRoute?: boolean; // TODO Replace this when we have a similar prop in route object
   preferredRouteName?: string | undefined;
   balances: WalletBalances;
   foreignAsset: string;
@@ -117,6 +118,7 @@ function getInitialState(): TransferInputState {
     receiveAmount: getEmptyDataWrapper(),
     preferredRouteName: config.ui.defaultInputs?.preferredRouteName,
     route: undefined,
+    isExecutorRoute: false,
     balances: {},
     foreignAsset: '',
     associatedTokenAddress: '',
@@ -283,9 +285,11 @@ export const transferInputSlice = createSlice({
     ) => {
       if (!payload) {
         state.route = undefined;
+        state.isExecutorRoute = false;
         return;
       }
       state.route = payload;
+      state.isExecutorRoute = payload.toLowerCase().endsWith('w7executorroute');
     },
     // clear inputs
     clearTransfer: (state: TransferInputState) => {
