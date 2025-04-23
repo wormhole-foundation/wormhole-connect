@@ -311,6 +311,7 @@ export const getExplorerUrl = (
           return `${baseUrl}${
             isHexString(path) ? 'fungible_asset' : 'coin'
           }/${path}`;
+        case 'Fantom':
         case 'Solana':
           return `${baseUrl}address/${path}`;
         default:
