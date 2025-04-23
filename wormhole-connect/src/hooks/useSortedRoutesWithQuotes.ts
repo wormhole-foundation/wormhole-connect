@@ -63,8 +63,17 @@ export const useSortedRoutesWithQuotes = ({
       destChain: toChain,
       destToken,
       nativeGas: toNativeToken,
+      recipient: receivingWallet?.address,
     }),
-    [amount, fromChain, sourceToken, destToken, toChain, toNativeToken],
+    [
+      amount,
+      fromChain,
+      sourceToken,
+      destToken,
+      toChain,
+      toNativeToken,
+      receivingWallet?.address,
+    ],
   );
 
   const { quotesMap, isFetchingInitialQuotes: isFetchingQuotes } =

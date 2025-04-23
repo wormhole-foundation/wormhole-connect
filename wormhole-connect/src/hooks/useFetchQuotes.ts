@@ -24,6 +24,7 @@ type Params = {
   destToken: Token | undefined;
   amount?: sdkAmount.Amount;
   nativeGas: number;
+  recipient?: string;
 };
 
 type HookReturn = {
@@ -196,7 +197,14 @@ export default (routes: string[], params: Params): HookReturn => {
     // Important: Do not the token or chain params to the dependency array. This causes the hook
     // to fire prematurely; we need to figure out supported routes before fetching quotes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routes, nonce, params.amount, params.nativeGas, isVisible]);
+  }, [
+    routes,
+    nonce,
+    params.amount,
+    params.nativeGas,
+    params.recipient,
+    isVisible,
+  ]);
 
   const quotesMap = useMemo(
     () =>
