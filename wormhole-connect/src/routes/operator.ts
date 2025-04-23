@@ -47,6 +47,7 @@ export interface QuoteParams {
   destToken: Token;
   amount: sdkAmount.Amount;
   nativeGas: number;
+  recipient?: string; // wallet may be undefined when not connected
 }
 
 export default class RouteOperator {
@@ -240,7 +241,7 @@ class QuoteCache {
       params.destChain
     }:${params.destToken.address.toString()}:${sdkAmount.units(
       params.amount,
-    )}:${params.nativeGas}`;
+    )}:${params.nativeGas}:${params.recipient}`;
   }
 
   get(routeName: string, params: QuoteParams): QuoteResult | null {
@@ -289,6 +290,7 @@ class QuoteCache {
           params.sourceChain,
           params.destChain,
           { nativeGas: params.nativeGas },
+          params.recipient,
         )
         .then((result: QuoteResult) => {
           const pending = this.pending[key];

@@ -124,6 +124,7 @@ export class SDKv2Route {
     sourceChain: Chain,
     destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    recipient?: string,
   ): Promise<
     [
       routes.Route<Network>,
@@ -136,6 +137,7 @@ export class SDKv2Route {
       destToken,
       sourceChain,
       destChain,
+      recipient,
     );
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
@@ -158,6 +160,7 @@ export class SDKv2Route {
     destToken: Token,
     sourceChain: Chain,
     destChain: Chain,
+    recipient?: string,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
     const destContext = (await this.getV2ChainContext(destChain)).context;
@@ -169,38 +172,14 @@ export class SDKv2Route {
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
+        recipient: recipient
+          ? Wormhole.chainAddress(destChain, recipient)
+          : undefined,
       },
       sourceContext,
       destContext,
     );
     return req;
-  }
-
-  async computeReceiveAmount(
-    amountIn: Amount,
-    sourceToken: Token,
-    destToken: Token,
-    fromChain: Chain | undefined,
-    toChain: Chain | undefined,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-  ): Promise<Amount> {
-    if (!fromChain || !toChain)
-      throw new Error('Need both chains to get a quote from SDKv2');
-
-    const [, quote] = await this.getQuote(
-      amountIn,
-      sourceToken,
-      destToken,
-      fromChain,
-      toChain,
-      options,
-    );
-
-    if (quote.success) {
-      return quote.destinationToken.amount;
-    } else {
-      throw quote.error;
-    }
   }
 
   async computeQuote(
@@ -210,6 +189,7 @@ export class SDKv2Route {
     fromChain: Chain,
     toChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    recipient?: string,
   ): Promise<routes.QuoteResult<routes.Options>> {
     if (!fromChain || !toChain)
       throw new Error('Need both chains to get a quote from SDKv2');
@@ -221,6 +201,7 @@ export class SDKv2Route {
       fromChain,
       toChain,
       options,
+      recipient,
     );
 
     if (!quote.success) {
@@ -247,6 +228,7 @@ export class SDKv2Route {
       fromChain,
       toChain,
       options,
+      recipientAddress,
     );
 
     if (!quote.success) {
