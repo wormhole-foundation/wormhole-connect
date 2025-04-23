@@ -78,16 +78,15 @@ const StyledSwitch = styled(Switch)(({ theme }) => ({
 const GasSlider = (props: {
   destinationGasDrop: amount.Amount;
   disabled: boolean;
+  isExecutorRoute: boolean;
 }) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const {
-    fromChain: sourceChain,
-    toChain: destChain,
-    isExecutorRoute,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { fromChain: sourceChain, toChain: destChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
@@ -173,7 +172,7 @@ const GasSlider = (props: {
 
             if (!checked) {
               setPercentage(0);
-            } else if (isExecutorRoute) {
+            } else if (props.isExecutorRoute) {
               // Gas slider becomes a binary switch for executor routes
               // If turned on, gas top-up is set to 100%
               setPercentage(100);
@@ -184,7 +183,7 @@ const GasSlider = (props: {
       <Collapse in={isGasSliderOpen} unmountOnExit>
         <div className={classes.container}>
           <Stack>
-            {!isExecutorRoute && percentSelection}
+            {!props.isExecutorRoute && percentSelection}
             <div className={classes.amounts}>
               <Stack alignItems="center" flexDirection="row">
                 <Typography
@@ -196,7 +195,7 @@ const GasSlider = (props: {
                 </Typography>
                 <Tooltip
                   title={
-                    isExecutorRoute
+                    props.isExecutorRoute
                       ? `Add a small amount of ${sourceGasToken.symbol} to your transaction to receive ${nativeGasPrice} on ${destChain}.`
                       : 'This additional gas is swapped from a percentage of your transfer amount.'
                   }
