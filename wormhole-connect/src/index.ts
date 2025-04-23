@@ -22,6 +22,8 @@ import {
   nttManualRoute,
 } from '@wormhole-foundation/sdk-route-ntt';
 
+import { CircleV2ManualRoute } from '@xlabs/circle-v2-route';
+
 import type { Chain } from '@wormhole-foundation/sdk';
 
 import { wormholeConnectHosted } from './hosted';
@@ -65,6 +67,7 @@ export {
   MayanRouteMCTP,
   MayanRouteSWIFT,
   MayanRouteSHUTTLE,
+  CircleV2ManualRoute,
 
   // Utility function for CDN-hosted version of Connect
   wormholeConnectHosted,

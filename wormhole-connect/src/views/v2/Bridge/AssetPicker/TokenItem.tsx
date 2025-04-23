@@ -88,7 +88,12 @@ function TokenItem(props: TokenItemProps) {
           <TokenIcon icon={props.token.icon} />
         </ListItemIcon>
         <div>
-          <Typography>{token.display}</Typography>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Typography>{token.display} </Typography>
+            {token.tokenBridgeOriginalTokenId ? (
+              <Typography fontSize={14}>wrapped</Typography>
+            ) : null}
+          </Box>
 
           <Box display="flex">
             {token.tokenBridgeOriginalTokenId ? (
