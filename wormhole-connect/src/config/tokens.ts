@@ -15,6 +15,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
 import { getWormholeContextV2 } from './index';
+import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 
 import { fetchTokenMetadata } from 'utils/coingecko';
 import { getTokenMetadataFromRpc } from 'utils/tokens';
@@ -340,6 +341,12 @@ export class TokenCache extends TokenMapping<Token> {
   }
 
   async addFromTokenId(tokenId: TokenId): Promise<Token> {
+    if (!isValidSuiType(tokenId.address.toString())) {
+      throw new Error(
+        `Not a valid Sui token address: ${tokenId.address.toString()}`,
+      );
+    }
+
     const wh = await getWormholeContextV2();
     const chain = wh.getChain(tokenId.chain);
     const decimals = await chain.getDecimals(tokenId.address);
