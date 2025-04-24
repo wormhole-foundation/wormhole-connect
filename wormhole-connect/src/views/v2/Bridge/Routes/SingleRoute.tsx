@@ -171,7 +171,10 @@ const SingleRoute = (props: Props) => {
 
     // Wesley made me do it
     // Them PMs :-/
-    if (props.route.startsWith('MayanSwap')) {
+    if (
+      props.route.startsWith('MayanSwap') ||
+      props.route.endsWith('ExecutorRoute')
+    ) {
       feeValue = feePriceFormatted;
     }
 
