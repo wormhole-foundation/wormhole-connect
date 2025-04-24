@@ -14,6 +14,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { getWormholeContextV2 } from 'config';
 import { Contract } from 'ethers';
+import { SuiClient } from '@mysten/sui/client';
 
 interface TokenMetadataFromRpc {
   symbol: string;
@@ -32,6 +33,8 @@ export async function getTokenMetadataFromRpc(
       return getTokenMetadataSolana(wh, tokenId);
     case 'Evm':
       return getTokenMetadataEvm(wh, tokenId);
+    case 'Sui':
+      return getTokenMetadataSui(wh, tokenId);
   }
 }
 
@@ -89,6 +92,25 @@ export async function getTokenMetadataEvm(
     const namePromise = contract.name();
     const [symbol, name] = await Promise.all([symbolPromise, namePromise]);
     return { symbol, name };
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
+}
+
+export async function getTokenMetadataSui(
+  wh: Wormhole<Network>,
+  tokenId: TokenId,
+): Promise<TokenMetadataFromRpc | undefined> {
+  try {
+    const platform = wh.getPlatform('Sui');
+    const rpc: SuiClient = platform.getRpc(
+      tokenId.chain as PlatformToChains<'Sui'>,
+    );
+    const token = await rpc.getCoinMetadata({
+      coinType: tokenId.address.toString(),
+    });
+    return { symbol: token?.symbol ?? '', name: token?.name ?? '' };
   } catch (e) {
     console.error(e);
     return undefined;
