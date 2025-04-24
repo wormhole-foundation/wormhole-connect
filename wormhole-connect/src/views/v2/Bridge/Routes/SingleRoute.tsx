@@ -49,7 +49,9 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
   },
   cardSelected: {
-    backgroundColor: opacify(theme.palette.primary.main, 0.05),
+    backgroundColor:
+      theme.palette.input.fillTreatment ??
+      opacify(theme.palette.primary.main, 0.05),
     borderColor: theme.palette.primary.main,
   },
   cardHeader: {

@@ -375,6 +375,10 @@ function SampleApp() {
                       <i>boolean;</i>
                     </li>
                     <li>
+                      <pre>buttonText</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
                       <pre>primary</pre>
                       <i>string;</i>
                     </li>

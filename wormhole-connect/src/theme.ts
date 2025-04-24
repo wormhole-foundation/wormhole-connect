@@ -13,6 +13,8 @@ export type WormholeConnectTheme = {
   input?: string;
   // Whether input fields will be transparent
   inputFillTreatment?: boolean;
+  // Main CTA text color
+  buttonText?: string;
   // Primary brand color
   primary?: string;
   // Secondary brand color
@@ -132,7 +134,7 @@ export const light: InternalTheme = {
 // wormhole styled theme
 export const dark: InternalTheme = {
   mode: 'dark',
-  primary: { main: '#9E77ED' },
+  primary: { main: '#C1BBF6' },
   secondary: { main: '#667085' },
   divider: '#ffffff' + OPACITY[20],
   background: {
@@ -241,9 +243,9 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
 
     theme.button = {
       primary,
-      primaryText: buttonTextColor,
+      primaryText: customTheme.buttonText || buttonTextColor,
       disabled: hslToHex(h, s * 0.5, l),
-      disabledText: buttonTextColor,
+      disabledText: customTheme.buttonText || buttonTextColor,
       action: hslToHex(h, s, l > 0.75 ? l * 1.05 : l * 0.85),
       actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
       hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
