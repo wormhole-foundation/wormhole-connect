@@ -3,7 +3,7 @@ import config from 'config';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { clearExternalSearch, setExternalSearch } from 'store/search';
+import { clearSearch, setSearch } from 'store/search';
 
 type ExternalSearch = {
   hasExternalSearch?: boolean;
@@ -25,7 +25,7 @@ export function useExternalSearch(): ExternalSearch {
 
       if (cfg) {
         dispatch(
-          setExternalSearch({
+          setSearch({
             txHash: config.ui.searchTx.txHash,
             chain: cfg.sdkName,
           }),
@@ -39,7 +39,7 @@ export function useExternalSearch(): ExternalSearch {
     txHash,
     chain,
     clear: () => {
-      dispatch(clearExternalSearch());
+      dispatch(clearSearch());
       if (config.ui.searchTx) {
         config.ui.searchTx.chainName = undefined;
         config.ui.searchTx.txHash = undefined;

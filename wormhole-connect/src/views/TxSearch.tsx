@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Select,
   MenuItem,
@@ -30,7 +30,6 @@ import Spacer from 'components/Spacer';
 import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
-import { useExternalSearch } from 'hooks/useExternalSearch';
 import { RouteContext } from 'contexts/RouteContext';
 
 import { parseReceipt } from 'utils/sdkv2';
@@ -40,6 +39,8 @@ import {
   Chain,
 } from '@wormhole-foundation/sdk';
 import ChainIconComponent from 'icons/ChainIcons';
+import { RootState } from 'store';
+import { clearSearch } from 'store/search';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -84,6 +85,8 @@ function TxSearch() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const externalSearch = useSelector((state: RootState) => state.search);
 
   const theme = useTheme();
 
@@ -157,16 +160,16 @@ function TxSearch() {
     setLoading(false);
   }
 
-  const { hasExternalSearch, txHash, chain, clear } = useExternalSearch();
-
-  // set the txHash and chainName from configs and reset it to undefined
   useEffect(() => {
-    const autoSearch = !!(hasExternalSearch && txHash && chain);
-    if (autoSearch) {
-      setState({ chain, tx: txHash, autoSearch });
-      clear();
+    if (externalSearch.chain && externalSearch.txHash) {
+      setState({
+        chain: externalSearch.chain,
+        tx: externalSearch.txHash,
+        autoSearch: true,
+      });
+      dispatch(clearSearch());
     }
-  }, [hasExternalSearch, txHash, chain, clear]);
+  }, [externalSearch]);
 
   const doSearch = useCallback(() => search(), [state]);
 

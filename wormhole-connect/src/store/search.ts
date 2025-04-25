@@ -1,21 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Chain } from '@wormhole-foundation/sdk';
 
-type ExternalSearchState = {
+type SearchState = {
   txHash?: string;
   chain?: Chain;
 };
 
-const initialState: ExternalSearchState = {
+const initialState: SearchState = {
   txHash: undefined,
   chain: undefined,
 };
 
-const externalSearchSlice = createSlice({
-  name: 'externalSearch',
+const searchSlice = createSlice({
+  name: 'search',
   initialState,
   reducers: {
-    setExternalSearch(
+    setSearch(
       state,
       action: PayloadAction<{
         txHash: string;
@@ -25,13 +25,12 @@ const externalSearchSlice = createSlice({
       state.txHash = action.payload.txHash;
       state.chain = action.payload.chain;
     },
-    clearExternalSearch(state) {
+    clearSearch(state) {
       state.txHash = undefined;
       state.chain = undefined;
     },
   },
 });
 
-export const { setExternalSearch, clearExternalSearch } =
-  externalSearchSlice.actions;
-export default externalSearchSlice.reducer;
+export const { setSearch, clearSearch } = searchSlice.actions;
+export default searchSlice.reducer;

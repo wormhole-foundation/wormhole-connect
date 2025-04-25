@@ -63,7 +63,7 @@ import TxReadyForClaim from 'icons/TxReadyForClaim';
 import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
 import { clearRedeem } from 'store/redeem';
-import { setExternalSearch } from 'store/search';
+import { setSearch } from 'store/search';
 
 const useStyles = makeStyles()((theme: any) => ({
   spacer: {
@@ -854,7 +854,7 @@ const Redeem = () => {
             dispatch(clearRedeem());
             dispatch(setRoute('search'));
             dispatch(
-              setExternalSearch({
+              setSearch({
                 txHash: sendTx,
                 chain: fromChain,
               }),
