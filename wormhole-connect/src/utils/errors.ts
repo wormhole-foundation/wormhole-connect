@@ -11,9 +11,10 @@ import {
   ERR_USER_REJECTED,
   ERR_AMOUNT_TOO_LARGE,
   ERR_AMOUNT_TOO_SMALL,
+  ERR_RELAY_FAILED,
 } from 'telemetry/types';
 import { InsufficientFundsForGasError } from 'sdklegacy';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 // TODO SDKV2
 // attempt to capture errors using regex
@@ -33,7 +34,10 @@ export function interpretTransferError(
   let internalErrorCode: TransferErrorType = ERR_UNKNOWN;
 
   if (e.message) {
-    if (INSUFFICIENT_ALLOWANCE_REGEX.test(e?.message)) {
+    if (e instanceof routes.RelayFailedError) {
+      uiErrorMessage = e.message;
+      internalErrorCode = ERR_RELAY_FAILED;
+    } else if (INSUFFICIENT_ALLOWANCE_REGEX.test(e?.message)) {
       uiErrorMessage = 'Error with transfer, please try again';
       internalErrorCode = ERR_INSUFFICIENT_ALLOWANCE;
     } else if (

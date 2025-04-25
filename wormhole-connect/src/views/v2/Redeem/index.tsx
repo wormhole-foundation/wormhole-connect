@@ -62,6 +62,8 @@ import { PublicKey } from '@solana/web3.js';
 import TxReadyForClaim from 'icons/TxReadyForClaim';
 import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
+import { clearRedeem } from 'store/redeem';
+import { setExternalSearch } from 'store/search';
 
 const useStyles = makeStyles()((theme: any) => ({
   spacer: {
@@ -170,7 +172,13 @@ const Redeem = () => {
   const isTxRefunded = receipt && isRefunded(receipt);
   const isTxFailed =
     (receipt && isFailed(receipt)) || !!unhandledManualClaimError;
+  const isRelayFailed =
+    receipt &&
+    isFailed(receipt) &&
+    receipt.error instanceof routes.RelayFailedError;
   const isTxDestQueued = receipt && isDestinationQueued(receipt);
+
+  const isExecutorRoute = routeName?.endsWith('ExecutorRoute');
 
   const {
     recipient,
@@ -180,6 +188,7 @@ const Redeem = () => {
     receivedToken,
     amount,
     eta = 0,
+    sendTx,
   } = txData!;
 
   const getUSDAmount = useUSDamountGetter();
@@ -392,6 +401,8 @@ const Redeem = () => {
       statusText = 'Transaction completed';
     } else if (isTxRefunded) {
       statusText = 'Transaction was refunded';
+    } else if (isRelayFailed && isExecutorRoute) {
+      statusText = `Ready to claim on ${toChain}`;
     } else if (isTxFailed) {
       statusText = 'Transaction failed';
     } else if (isTxDestQueued) {
@@ -411,6 +422,7 @@ const Redeem = () => {
     isTxCompleted,
     isTxRefunded,
     isTxFailed,
+    isRelayFailed,
     isTxDestQueued,
     isTxAttested,
     isAutomaticRoute,
@@ -563,6 +575,13 @@ const Redeem = () => {
           sx={{ color: theme.palette.warning.main }}
         />
       );
+    } else if (isRelayFailed && isExecutorRoute) {
+      return (
+        <TxReadyForClaim
+          className={classes.txStatusIcon}
+          sx={{ color: theme.palette.warning.light }}
+        />
+      );
     } else if (isTxFailed) {
       return (
         <TxFailedIcon
@@ -590,6 +609,7 @@ const Redeem = () => {
     isTxRefunded,
     isTxDestQueued,
     isTxFailed,
+    isRelayFailed,
     isTxAttested,
     theme.palette.primary.light,
     theme.palette.warning.main,
@@ -821,6 +841,33 @@ const Redeem = () => {
       }
     }
 
+    // Checking if relay has failed
+    // TODO: The AutomaticRoute interface doesn't provide a way to manually claim failed relays.
+    // Until that is added, we will use the "resume transaction" flow to handle this case.
+    // This works as long as there is a manual route that can be used to claim the tokens.
+    if (isRelayFailed && isExecutorRoute && sendTx) {
+      return (
+        <Button
+          variant="primary"
+          className={classes.actionButton}
+          onClick={() => {
+            dispatch(clearRedeem());
+            dispatch(setRoute('search'));
+            dispatch(
+              setExternalSearch({
+                txHash: sendTx,
+                chain: fromChain,
+              }),
+            );
+          }}
+        >
+          <Typography textTransform="none">
+            Claim tokens to complete transfer
+          </Typography>
+        </Button>
+      );
+    }
+
     return (
       <>
         <Button
@@ -848,10 +895,12 @@ const Redeem = () => {
     isAutomaticRoute,
     isClaimInProgress,
     isConnectedToReceivingWallet,
+    isRelayFailed,
     isTxAttested,
     isTxCompleted,
     isTxDestQueued,
     theme.palette.primary.contrastText,
+    sendTx,
   ]);
 
   const txDelayedText = useMemo(() => {

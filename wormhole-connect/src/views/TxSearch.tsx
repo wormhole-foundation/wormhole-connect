@@ -157,16 +157,16 @@ function TxSearch() {
     setLoading(false);
   }
 
-  const { hasExternalSearch, txHash, chainName, clear } = useExternalSearch();
+  const { hasExternalSearch, txHash, chain, clear } = useExternalSearch();
 
   // set the txHash and chainName from configs and reset it to undefined
   useEffect(() => {
-    const autoSearch = !!(hasExternalSearch && txHash && chainName);
+    const autoSearch = !!(hasExternalSearch && txHash && chain);
     if (autoSearch) {
-      setState({ chain: chainName, tx: txHash, autoSearch });
+      setState({ chain, tx: txHash, autoSearch });
       clear();
     }
-  }, [hasExternalSearch, txHash, chainName, clear]);
+  }, [hasExternalSearch, txHash, chain, clear]);
 
   const doSearch = useCallback(() => search(), [state]);
 
