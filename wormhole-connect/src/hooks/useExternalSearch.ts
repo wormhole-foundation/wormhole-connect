@@ -18,16 +18,16 @@ export function useExternalSearch(): ExternalSearch {
 
   useEffect(() => {
     if (config.ui.searchTx?.chainName && config.ui.searchTx?.txHash) {
-      const chain = config.ui.searchTx.chainName.toLowerCase() as Chain;
-      const isConfigured = config.chainsArr.some(
-        (cfg) => cfg.sdkName === chain,
+      const chainName = config.ui.searchTx.chainName.toLowerCase();
+      const cfg = config.chainsArr.find(
+        (cfg) => cfg.sdkName.toLowerCase() === chainName,
       );
 
-      if (isConfigured) {
+      if (cfg) {
         dispatch(
           setExternalSearch({
             txHash: config.ui.searchTx.txHash,
-            chain,
+            chain: cfg.sdkName,
           }),
         );
       }
