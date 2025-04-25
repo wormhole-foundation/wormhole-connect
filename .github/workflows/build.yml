@@ -111,14 +111,20 @@ jobs:
             
             if (( $(echo "$size_kb > $SIZE_LIMIT_KB" | bc -l) )); then
               size_mb=$(echo "scale=2; $size_kb/1024" | bc)
-              echo "::warning::⚠️ Bundle $filename is too large (${size_mb}MB gzipped)"
+              echo "⚠️ Warning: $filename is ${size_mb}MB gzipped (exceeds 1MB limit)"
+              # Creates an annotation in the github actions UI
+              echo "::warning title=Large Bundle: ${filename}::Bundle size ${size_mb}MB gzipped (exceeds 1MB limit). This may impact load times and performance."
               FOUND_LARGE_BUNDLE=true
             fi
           done
           
           if [ "$FOUND_LARGE_BUNDLE" = true ]; then
-            echo "::notice::Large bundles detected. Consider optimizing the affected files."
+            echo "::notice title=Bundle Size Optimization Required::Some bundles exceed the 1MB size limit. Consider these optimizations:
+            • Use dynamic imports (React.lazy) for route-based code splitting
+            • Analyze your bundle with 'npm run analyze' to identify large dependencies
+            • Review and remove unused exports/imports
+            • Consider breaking up large components into smaller chunks
+            • Enable tree shaking in your bundler configuration"
             echo "LARGE_BUNDLE=true" >> $GITHUB_ENV
-            # We'll use warnings instead of exit codes to notify about large bundles
           fi
         working-directory: wormhole-connect

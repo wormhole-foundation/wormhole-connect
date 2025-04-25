@@ -6,5 +6,6 @@
 .yalc
 yalc.lock
 
-# vite bundle visualizer output
+# rollup plugin analyzer output
 stats.json
+stats.html
