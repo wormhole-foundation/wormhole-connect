@@ -94,5 +94,31 @@ jobs:
           cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: npm ci
         working-directory: wormhole-connect
-      - run: npm run build:lib
+      - name: Build Lib
+        run: npm run build:lib 2>&1 | tee build-output.txt
+        working-directory: wormhole-connect
+      - name: Check bundle sizes
+        run: |
+          echo "Checking JS bundle sizes..."
+          SIZE_LIMIT_KB=1024 # 1MB in KB
+          FOUND_LARGE_BUNDLE=false
+          
+          # Find all JS files and their gzip sizes
+          grep "\.js.*│.*gzip:" build-output.txt | while read -r line; do
+            # Extract filename and size
+            filename=$(echo "$line" | awk '{print $1}')
+            size_kb=$(echo "$line" | grep -o 'gzip:.*kB' | grep -o '[0-9,.]*' | tr -d ',' | bc)
+            
+            if (( $(echo "$size_kb > $SIZE_LIMIT_KB" | bc -l) )); then
+              size_mb=$(echo "scale=2; $size_kb/1024" | bc)
+              echo "::warning::⚠️ Bundle $filename is too large (${size_mb}MB gzipped)"
+              FOUND_LARGE_BUNDLE=true
+            fi
+          done
+          
+          if [ "$FOUND_LARGE_BUNDLE" = true ]; then
+            echo "::notice::Large bundles detected. Consider optimizing the affected files."
+            echo "LARGE_BUNDLE=true" >> $GITHUB_ENV
+            # We'll use warnings instead of exit codes to notify about large bundles
+          fi
         working-directory: wormhole-connect

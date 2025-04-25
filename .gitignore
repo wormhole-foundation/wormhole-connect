@@ -5,3 +5,6 @@
 .ignore
 .yalc
 yalc.lock
+
+# vite bundle visualizer output
+stats.json
