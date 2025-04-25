@@ -188,16 +188,14 @@ export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
     v2Config.chains![chain] = { rpc, tokenMap };
   }
 
-  const evm = await import('@wormhole-foundation/sdk/evm');
-  const solana = await import('@wormhole-foundation/sdk/solana');
-  const aptos = await import('@wormhole-foundation/sdk/aptos');
-  const sui = await import('@wormhole-foundation/sdk/sui');
-
-  console.log(evm, solana, aptos, sui);
+  const { default: evm } = await import('@wormhole-foundation/sdk/evm');
+  const { default: solana } = await import('@wormhole-foundation/sdk/solana');
+  const { default: aptos } = await import('@wormhole-foundation/sdk/aptos');
+  const { default: sui } = await import('@wormhole-foundation/sdk/sui');
 
   return await getWormholeV2(
     config.network,
-    [evm.default, solana.default, aptos.default, sui.default],
+    [evm, solana, aptos, sui],
     v2Config,
   );
 }
