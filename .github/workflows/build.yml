@@ -101,30 +101,35 @@ jobs:
         run: |
           echo "Checking JS bundle sizes..."
           SIZE_LIMIT_KB=1024 # 1MB in KB
-          FOUND_LARGE_BUNDLE=false
+          
+          # Create a temporary file to store the status
+          touch /tmp/large_bundle_found
           
           # Find all JS files and their gzip sizes
           grep "\.js.*│.*gzip:" build-output.txt | while read -r line; do
-            # Extract filename and size
-            filename=$(echo "$line" | awk '{print $1}')
+            # Extract filename and size, stripping ANSI color codes
+            filename=$(echo "$line" | awk '{print $1}' | sed 's/\x1b\[[0-9;]*m//g')
             size_kb=$(echo "$line" | grep -o 'gzip:.*kB' | grep -o '[0-9,.]*' | tr -d ',' | bc)
             
             if (( $(echo "$size_kb > $SIZE_LIMIT_KB" | bc -l) )); then
               size_mb=$(echo "scale=2; $size_kb/1024" | bc)
-              echo "⚠️ Warning: $filename is ${size_mb}MB gzipped (exceeds 1MB limit)"
-              # Creates an annotation in the github actions UI
-              echo "::warning title=Large Bundle: ${filename}::Bundle size ${size_mb}MB gzipped (exceeds 1MB limit). This may impact load times and performance."
-              FOUND_LARGE_BUNDLE=true
+              echo "❌ Error: $filename is ${size_mb}MB gzipped (exceeds 1MB limit)"
+              echo "::error title=Large Bundle: ${filename}::Bundle size ${size_mb}MB gzipped (exceeds 1MB limit). This may impact load times and performance."
+              echo "true" > /tmp/large_bundle_found
             fi
           done
           
-          if [ "$FOUND_LARGE_BUNDLE" = true ]; then
-            echo "::notice title=Bundle Size Optimization Required::Some bundles exceed the 1MB size limit. Consider these optimizations:
+          if [ "$(cat /tmp/large_bundle_found)" = "true" ]; then
+            echo "::error title=Bundle Size Optimization Required::Some bundles exceed the 1MB size limit. Consider these optimizations:
             • Use dynamic imports (React.lazy) for route-based code splitting
             • Analyze your bundle with 'npm run analyze' to identify large dependencies
             • Review and remove unused exports/imports
             • Consider breaking up large components into smaller chunks
             • Enable tree shaking in your bundler configuration"
             echo "LARGE_BUNDLE=true" >> $GITHUB_ENV
+            # Uncomment the next line to fail the build if a large bundle is found
+            # exit 1
           fi
+          
+          rm -f /tmp/large_bundle_found
         working-directory: wormhole-connect
