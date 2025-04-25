@@ -68,6 +68,7 @@
     "@xlabs-libs/wallet-aggregator-sui": "0.0.1-alpha.11",
     "axios": "1.4.0",
     "binary-parser": "^2.2.1",
+    "color": "^5.0.0",
     "ethers": "6.13.5",
     "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",

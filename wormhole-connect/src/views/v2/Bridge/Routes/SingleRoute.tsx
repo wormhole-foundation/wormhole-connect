@@ -32,8 +32,8 @@ import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import { Token } from 'config/tokens';
-import { opacify } from 'utils/theme';
 import GasSlider from 'views/v2/Bridge/GasSlider';
+import Color from 'color';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -51,7 +51,7 @@ const useStyles = makeStyles()((theme: any) => ({
   cardSelected: {
     backgroundColor:
       theme.palette.input.fillTreatment ??
-      opacify(theme.palette.primary.main, 0.05),
+      Color(theme.palette.primary.main).alpha(0.05).hexa(),
     borderColor: theme.palette.primary.main,
   },
   cardHeader: {

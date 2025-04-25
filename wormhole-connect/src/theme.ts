@@ -2,7 +2,7 @@ import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
 import { PaletteMode, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
-import { hexToHsl, hslToHex } from './utils/theme';
+import Color from 'color';
 
 export type WormholeConnectTheme = {
   // "dark" or "light"
@@ -13,8 +13,6 @@ export type WormholeConnectTheme = {
   input?: string;
   // Whether input fields will be transparent
   inputFillTreatment?: boolean;
-  // Main CTA text color
-  buttonText?: string;
   // Primary brand color
   primary?: string;
   // Secondary brand color
@@ -237,18 +235,35 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       };
     }
 
-    const primary = customTheme.primary || theme.primary.main;
-    const [h, s, l] = hexToHsl(primary);
-    const buttonTextColor = hslToHex(h, s, l > 0.75 ? 0.35 : 0.95);
+    const primary = Color(customTheme.primary || theme.primary.main);
+    let primaryText: string;
+    let disabledText: string;
+    let action: string;
+    let actionText: string;
+    let hover: string;
+
+    if (primary.isDark()) {
+      primaryText = primary.lightness(0.95).hex();
+      disabledText = primary.lightness(0.95).alpha(0.9).hexa();
+      action = primary.darken(0.15).hex();
+      actionText = primary.lightness(0.8).hex();
+      hover = primary.darken(0.1).hex();
+    } else {
+      primaryText = primary.lightness(0.35).hex();
+      disabledText = primary.lightness(0.35).alpha(0.9).hexa();
+      action = primary.lighten(0.05).hex();
+      actionText = primary.lightness(0).hex();
+      hover = primary.lighten(0.1).hex();
+    }
 
     theme.button = {
-      primary,
-      primaryText: customTheme.buttonText || buttonTextColor,
-      disabled: hslToHex(h, s * 0.5, l),
-      disabledText: customTheme.buttonText || buttonTextColor,
-      action: hslToHex(h, s, l > 0.75 ? l * 1.05 : l * 0.85),
-      actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
-      hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
+      primary: primary.hex(),
+      primaryText,
+      disabled: primary.desaturate(0.5).hex(),
+      disabledText,
+      action,
+      actionText,
+      hover,
     };
   }
 

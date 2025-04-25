@@ -20,7 +20,7 @@ import { calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 import { useTokens } from 'contexts/TokensContext';
-import { opacify } from 'utils/theme';
+import Color from 'color';
 
 const useStyles = makeStyles()((theme: any) => ({
   content: {
@@ -44,7 +44,7 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
   },
   toggleButton: {
-    backgroundColor: opacify(theme.palette.text.primary, 0.1),
+    backgroundColor: Color(theme.palette.text.primary).alpha(0.1).hexa(),
     border: '1px solid transparent',
     borderRadius: '8px',
     '&.Mui-selected': {

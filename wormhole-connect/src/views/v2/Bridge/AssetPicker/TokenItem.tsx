@@ -17,7 +17,7 @@ import { Token } from 'config/tokens';
 import type { Chain } from '@wormhole-foundation/sdk';
 import { chainDisplayName, getExplorerUrl } from 'utils';
 import ChainIcon from 'icons/ChainIcons';
-import { opacify } from 'utils/theme';
+import Color from 'color';
 
 const useStyles = makeStyles()((theme) => ({
   tokenListItem: {
@@ -26,11 +26,11 @@ const useStyles = makeStyles()((theme) => ({
     padding: '8px 16px',
     borderRadius: 0,
     ':hover': {
-      backgroundColor: opacify(theme.palette.primary.main, 0.07),
+      backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
     },
   },
   tokenListItemSelected: {
-    backgroundColor: opacify(theme.palette.primary.main, 0.07),
+    backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
   },
   tokenDetails: {
     display: 'flex',
