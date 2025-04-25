@@ -32,7 +32,7 @@ export function useExternalSearch(): ExternalSearch {
         );
       }
     }
-  }, []);
+  }, [dispatch]);
 
   return {
     hasExternalSearch: !!(txHash && chain),
