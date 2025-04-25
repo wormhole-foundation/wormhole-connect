@@ -18,7 +18,6 @@ import { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 
 import { fetchTokenMetadata } from 'utils/coingecko';
-import { getTokenMetadataFromRpc } from 'utils/tokens';
 
 const TOKEN_CACHE_VERSION = 1;
 
@@ -359,6 +358,7 @@ export class TokenCache extends TokenMapping<Token> {
 
     if (!symbol) {
       // Attempt to get the symbol from on-chain
+      const { getTokenMetadataFromRpc } = await import('utils/tokens');
       const metadataRpc = await getTokenMetadataFromRpc(tokenId);
       if (metadataRpc) {
         console.info('Got metadata from RPC', metadataRpc);
