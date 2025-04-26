@@ -121,7 +121,6 @@ jobs:
           
           if [ "$(cat /tmp/large_bundle_found)" = "true" ]; then
             echo "::error file=wormhole-connect/package.json,line=1,title=Bundle Size Optimization Required::Some bundles exceed the 1MB size limit. Consider these optimizations:%0A• Use dynamic imports (React.lazy) for route-based code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports%0A• Consider breaking up large components into smaller chunks"
-            echo "LARGE_BUNDLE=true" >> $GITHUB_ENV
             # Uncomment the next line to fail the build if a large bundle is found
             # exit 1
           fi
