@@ -156,6 +156,18 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
       optimizeDeps,
     };
   } else if (command === 'build') {
+    //
+    // Building for production
+    // There are two possible configs here: invoked by "npm run build" and "npm run build:hosted"
+    //
+    // - by default, we build a component library that can be imported and used in React apps
+    //
+    // - alternatively, VITE_BUILD_HOSTED=1 causes Vite to build a bundle that is used
+    //   via unpkg.com hosting. This build looks for a DOM element #wormhole-connect and comes
+    //   bundled with a copy of React. This is "legacy mode" and useful only on web apps that don't
+    //   use React.
+    //
+    
     if (isHosted) {
       return {
         define,
