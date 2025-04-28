@@ -8,6 +8,8 @@ import { mergeCustomWrappedTokens, validateDefaults } from './utils';
 import { wrapEventHandler } from './events';
 import { capitalize } from './utils';
 
+export * from './types';
+
 import {
   wormhole as getWormholeV2,
   Wormhole as WormholeV2,

@@ -5,7 +5,7 @@ import type { WormholeConnectTheme } from 'theme';
 import MAINNET from 'config/mainnet';
 import TESTNET from 'config/testnet';
 import { buildConfig } from 'config';
-import type { WormholeConnectConfig } from 'config/types';
+export * as config from 'config/types';
 
 // Routes
 import { DEFAULT_ROUTES } from 'routes/operator';
@@ -32,7 +32,6 @@ export {
   buildConfig,
 
   // Types
-  WormholeConnectConfig,
   Chain,
   WormholeConnectTheme,
   Token,

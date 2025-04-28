@@ -27,6 +27,8 @@ import { UiConfig } from './ui';
 import { TransferInfo } from 'utils/sdkv2';
 import { Token, TokenCache, TokenTuple } from './tokens';
 
+export * from './ui';
+
 export enum TokenIcon {
   'AVAX' = 1,
   'BNB',
