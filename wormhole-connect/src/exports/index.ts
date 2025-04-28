@@ -13,8 +13,6 @@ import { routes } from '@wormhole-foundation/sdk';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 
-import { wormholeConnectHosted } from '../hosted';
-import type { HostedParameters } from '../hosted';
 import { Token } from 'config/tokens';
 
 const {
@@ -46,10 +44,6 @@ export {
   AutomaticCCTPRoute,
   CCTPRoute,
   AutomaticPorticoRoute,
-
-  // Utility function for CDN-hosted version of Connect
-  wormholeConnectHosted,
-  HostedParameters,
 };
 
 export * from 'telemetry';

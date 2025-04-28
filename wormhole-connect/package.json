@@ -20,6 +20,11 @@
       "require": "./lib/ntt.js",
       "import": "./lib/ntt.mjs",
       "types": "./lib/ntt.d.ts"
+    },
+    "./hosted": {
+      "require": "./lib/hosted.js",
+      "import": "./lib/hosted.mjs",
+      "types": "./lib/hosted.d.ts"
     }
   },
   "files": [

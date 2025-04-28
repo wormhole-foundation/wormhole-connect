@@ -201,6 +201,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               path.resolve(__dirname, 'src/exports/index.ts'),
               path.resolve(__dirname, 'src/exports/mayan.ts'),
               path.resolve(__dirname, 'src/exports/ntt.ts'),
+              path.resolve(__dirname, 'src/exports/hosted.ts'),
             ],
             formats: (isAnalyze ? ['es'] : ['es', 'cjs']) as LibraryFormats[],
             fileName: (format, entryname) => {
@@ -213,6 +214,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               index: 'src/exports/index.ts',
               mayan: 'src/exports/mayan.ts',
               ntt: 'src/exports/ntt.ts',
+              hosted: 'src/exports/hosted.ts',
             },
             output,
             external: [
