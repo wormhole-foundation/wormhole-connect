@@ -341,7 +341,10 @@ export class TokenCache extends TokenMapping<Token> {
   }
 
   async addFromTokenId(tokenId: TokenId): Promise<Token> {
-    if (!isValidSuiType(tokenId.address.toString())) {
+    if (
+      tokenId.chain === 'Sui' &&
+      !isValidSuiType(tokenId.address.toString())
+    ) {
       throw new Error(
         `Not a valid Sui token address: ${tokenId.address.toString()}`,
       );
