@@ -102,8 +102,8 @@ jobs:
           echo "Checking JS bundle sizes..."
           SIZE_LIMIT_KB=1024 # 1MB in KB
           
-          # Create a temporary file to store the status
-          touch /tmp/large_bundle_found
+          # Create a temporary file to store large bundles
+          touch /tmp/large_bundles
           
           # Find all JS files and their gzip sizes
           grep "\.js.*│.*gzip:" build-output.txt | while read -r line; do
@@ -113,17 +113,22 @@ jobs:
             
             if (( $(echo "$size_kb > $SIZE_LIMIT_KB" | bc -l) )); then
               size_mb=$(echo "scale=2; $size_kb/1024" | bc)
-              echo "❌ Error: $filename is ${size_mb}MB gzipped (exceeds 1MB limit)"
-              echo "::error file=wormhole-connect/package.json,line=1,title=Large Bundle: ${filename}::Bundle size ${size_mb}MB gzipped (exceeds 1MB limit). This may impact load times and performance."
-              echo "true" > /tmp/large_bundle_found
+              echo "${filename}|${size_mb}" >> /tmp/large_bundles
             fi
           done
           
-          if [ "$(cat /tmp/large_bundle_found)" = "true" ]; then
-            echo "::error file=wormhole-connect/package.json,line=1,title=Bundle Size Optimization Required::Some bundles exceed the 1MB size limit. Consider these optimizations:%0A• Use dynamic imports (React.lazy) for route-based code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports%0A• Consider breaking up large components into smaller chunks"
+          if [ -s /tmp/large_bundles ]; then
+            # Construct the bundle list message
+            bundle_list=""
+            while IFS='|' read -r filename size; do
+              bundle_list="${bundle_list}• ${filename}: ${size}MB gzipped%0A"
+            done < /tmp/large_bundles
+            
+            # Output the consolidated error message
+            echo "::error file=wormhole-connect/package.json,line=1,title=Large Bundles Detected::The following bundles exceed the 1MB size limit:%0A${bundle_list}%0AOptimization suggestions:%0A• Use dynamic imports (React.lazy) for route-based code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports%0A• Consider breaking up large components into smaller chunks%0A• Enable tree shaking in your bundler configuration"
             # Uncomment the next line to fail the build if a large bundle is found
             # exit 1
           fi
           
-          rm -f /tmp/large_bundle_found
+          rm -f /tmp/large_bundles
         working-directory: wormhole-connect
