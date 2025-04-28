@@ -12,16 +12,6 @@ import {
 
 import SDKv2Route from './sdkv2';
 
-import {
-  nttAutomaticRoute,
-  nttManualRoute,
-  NttRoute,
-} from '@wormhole-foundation/sdk-route-ntt';
-
-import '@wormhole-foundation/sdk-definitions-ntt';
-import '@wormhole-foundation/sdk-evm-ntt';
-import '@wormhole-foundation/sdk-solana-ntt';
-
 export interface TxInfo {
   route: string;
   receipt: routes.Receipt;
@@ -378,18 +368,3 @@ class QuoteCacheEntry {
     return (this.expires().valueOf() - Date.now().valueOf()) / 1000;
   }
 }
-
-// Convenience function for integrators when adding NTT routes to their config
-//
-// Example:
-//
-// routes: [
-//   ...DEFAULT_ROUTES,
-//   ...nttRoutes({ ... }),
-// ]
-export const nttRoutes = (nc: NttRoute.Config): routes.RouteConstructor[] => {
-  return [
-    nttManualRoute(nc) as routes.RouteConstructor,
-    nttAutomaticRoute(nc) as routes.RouteConstructor,
-  ];
-};

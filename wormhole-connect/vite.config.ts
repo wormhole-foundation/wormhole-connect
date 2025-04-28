@@ -197,14 +197,24 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
         build: {
           outDir: './lib',
           lib: {
-            entry: path.resolve(__dirname, 'src/index.tsx'),
+            entry: [
+              path.resolve(__dirname, 'src/exports/index.ts'),
+              path.resolve(__dirname, 'src/exports/mayan.ts'),
+              path.resolve(__dirname, 'src/exports/ntt.ts'),
+            ],
             formats: (isAnalyze ? ['es'] : ['es', 'cjs']) as LibraryFormats[],
-            fileName: 'index',
+            fileName: (format, entryname) => {
+              console.log('HERE', format, entryname);
+              const n = entryname.split('/').pop()!;
+              return `${n.split('.')[0]}.${format === 'es' ? 'mjs' : 'js'}`;
+            },
           },
           rollupOptions: {
             input: {
-              index: 'src/index.ts',
-            } as Record<string, string>,
+              index: 'src/exports/index.ts',
+              mayan: 'src/exports/mayan.ts',
+              ntt: 'src/exports/ntt.ts',
+            },
             output,
             external: [
               'react',

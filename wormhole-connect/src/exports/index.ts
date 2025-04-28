@@ -1,0 +1,55 @@
+import WormholeConnect from '../WormholeConnect';
+
+import type { WormholeConnectTheme } from 'theme';
+
+import MAINNET from 'config/mainnet';
+import TESTNET from 'config/testnet';
+import { buildConfig } from 'config';
+import type { WormholeConnectConfig } from 'config/types';
+
+// Routes
+import { DEFAULT_ROUTES } from 'routes/operator';
+import { routes } from '@wormhole-foundation/sdk';
+
+import type { Chain } from '@wormhole-foundation/sdk';
+
+import { wormholeConnectHosted } from '../hosted';
+import type { HostedParameters } from '../hosted';
+import { Token } from 'config/tokens';
+
+const {
+  AutomaticTokenBridgeRoute,
+  TokenBridgeRoute,
+  AutomaticCCTPRoute,
+  CCTPRoute,
+  AutomaticPorticoRoute,
+} = routes;
+
+export default WormholeConnect;
+
+export {
+  // Config related exports
+  MAINNET,
+  TESTNET,
+  buildConfig,
+
+  // Types
+  WormholeConnectConfig,
+  Chain,
+  WormholeConnectTheme,
+  Token,
+
+  // Routes
+  DEFAULT_ROUTES,
+  AutomaticTokenBridgeRoute,
+  TokenBridgeRoute,
+  AutomaticCCTPRoute,
+  CCTPRoute,
+  AutomaticPorticoRoute,
+
+  // Utility function for CDN-hosted version of Connect
+  wormholeConnectHosted,
+  HostedParameters,
+};
+
+export * from 'telemetry';

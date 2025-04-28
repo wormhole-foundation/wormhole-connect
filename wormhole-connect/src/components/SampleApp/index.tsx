@@ -39,7 +39,8 @@ import {
   MayanRouteSHUTTLE,
 } from '@mayanfinance/wormhole-sdk-route';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
-import { DEFAULT_ROUTES, nttRoutes } from 'routes/operator';
+import { DEFAULT_ROUTES } from 'routes/operator';
+import { nttRoutes } from 'exports/ntt';
 import { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
