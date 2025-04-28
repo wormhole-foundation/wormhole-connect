@@ -204,7 +204,6 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
             ],
             formats: (isAnalyze ? ['es'] : ['es', 'cjs']) as LibraryFormats[],
             fileName: (format, entryname) => {
-              console.log('HERE', format, entryname);
               const n = entryname.split('/').pop()!;
               return `${n.split('.')[0]}.${format === 'es' ? 'mjs' : 'js'}`;
             },
