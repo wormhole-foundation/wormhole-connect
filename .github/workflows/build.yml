@@ -125,7 +125,7 @@ jobs:
             done < /tmp/large_bundles
             
             # Output the consolidated error message
-            echo "::error file=wormhole-connect/package.json,line=1,title=Large Bundles Detected::The following bundles exceed the 1MB size limit:%0A${bundle_list}%0AOptimization suggestions:%0A• Use dynamic imports (React.lazy) for route-based code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports%0A• Consider breaking up large components into smaller chunks%0A• Enable tree shaking in your bundler configuration"
+            echo "::error file=wormhole-connect/package.json,line=1,title=Large Bundles Detected::The following bundles exceed the 1MB size limit:%0A${bundle_list}%0AOptimization suggestions:%0A• Use dynamic imports and/or React.lazy for better code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports"
             # Uncomment the next line to fail the build if a large bundle is found
             # exit 1
           fi
