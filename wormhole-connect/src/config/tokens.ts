@@ -231,7 +231,7 @@ export class TokenMapping<T> {
     if (isTokenTuple(firstArg)) {
       return this._mapping.get(firstArg[0])?.get(firstArg[1]);
     } else if (isTokenId(firstArg)) {
-      return this._mapping.get(firstArg.chain)?.get(canonicalAddress(firstArg));
+      return this._mapping.get(firstArg.chain)?.get(firstArg.address.toString());
     } else if (isChain(firstArg) && address !== undefined) {
       return this._mapping.get(firstArg)?.get(address);
     } else {
@@ -309,7 +309,7 @@ export class TokenMapping<T> {
   forEach(callback: (tokenId: TokenId, val: T) => void) {
     this._mapping.forEach((nextLevel, chain) => {
       nextLevel.forEach((val, addr) => {
-        const tokenId = Wormhole.tokenId(chain, addr);
+        const tokenId = { chain, address: addr } as TokenId;
         callback(tokenId, val);
       });
     });
@@ -523,34 +523,32 @@ export function buildTokenCache(
   // Temporary hack... use wrappedTokens to populate the cache with all of the known
   // token bridge foreign assets. When we are able to fetch full token balances for every chain
   // this will become unnecessary.
-  for (const chain in wrappedTokens) {
-    for (const addr in wrappedTokens[chain]) {
-      const wts = wrappedTokens[chain][addr];
-      for (const otherChain in wts) {
-        const originalToken = cache.get(chain as Chain, addr);
-        if (originalToken) {
-          const wrappedAddr = wts[otherChain];
+  Object.entries(wrappedTokens).forEach(([chain, addrMap]) => {
+    Object.entries(addrMap).forEach(([addr, wrappedAddrs]) => {
+      const originalToken = cache.get(chain as Chain, addr);
+      if (!originalToken) return;
 
-          let decimals =
-            chainToPlatform(otherChain as Chain) === 'Evm' ? 18 : 8;
+      Object.entries(wrappedAddrs).forEach(([otherChain, wrappedAddr]) => {
+        const platform = chainToPlatform(otherChain as Chain);
+        const decimals = Math.min(
+          platform === 'Evm' ? 18 : 8,
+          originalToken.decimals
+        );
 
-          decimals = Math.min(decimals, originalToken.decimals);
+        const wrappedToken = new Token(
+          otherChain as Chain,
+          wrappedAddr,
+          decimals,
+          originalToken.symbol,
+          originalToken.name,
+          originalToken.icon,
+          originalToken,
+        );
 
-          const wrappedToken = new Token(
-            otherChain as Chain,
-            wrappedAddr,
-            decimals,
-            originalToken.symbol,
-            originalToken.name,
-            originalToken.icon,
-            originalToken,
-          );
-
-          cache.add(wrappedToken);
-        }
-      }
-    }
-  }
+        cache.add(wrappedToken);
+      });
+    });
+  });
 
   cache.persist();
   return cache;
@@ -570,9 +568,7 @@ export function tokenIdToTuple(tokenId: TokenId): TokenTuple {
 
 export function tokenIdFromTuple(tokenTuple: TokenTuple): TokenId {
   const chain = tokenTuple[0] as Chain;
-  const address = isNative(tokenTuple[1])
-    ? tokenTuple[1]
-    : toNative(chain, tokenTuple[1]);
+  const address = new TokenAddressCache(chain, tokenTuple[1]).getProxy();
   return {
     chain,
     address,
