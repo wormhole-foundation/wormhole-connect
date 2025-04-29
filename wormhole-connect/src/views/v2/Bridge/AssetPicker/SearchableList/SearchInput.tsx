@@ -41,7 +41,13 @@ export default function SearchInput(props: SearchInputProps) {
     <Box sx={{ padding: '0 16px' }}>
       <TextField
         className={classes.input}
-        autoFocus={!mobile}
+        ref={(input) => {
+          if (!mobile && input) {
+            setTimeout(() => {
+              input.querySelector('input')?.focus();
+            }, 10);
+          }
+        }}
         fullWidth
         inputProps={{
           style: {
