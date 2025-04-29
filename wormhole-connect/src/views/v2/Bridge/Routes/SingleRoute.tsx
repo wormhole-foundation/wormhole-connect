@@ -49,9 +49,9 @@ const useStyles = makeStyles()((theme: any) => ({
     maxWidth: '420px',
   },
   cardSelected: {
-    backgroundColor:
-      theme.palette.input.fillTreatment ??
-      Color(theme.palette.primary.main).alpha(0.05).hexa(),
+    backgroundColor: theme.palette.input.fillTreatment
+      ? Color(theme.palette.primary.main).alpha(0.05).hexa()
+      : theme.palette.card.background,
     borderColor: theme.palette.primary.main,
   },
   cardHeader: {
