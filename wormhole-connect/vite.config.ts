@@ -59,6 +59,7 @@ const resolve = {
     sdklegacy: path.resolve(__dirname, './src/sdklegacy'),
     public: path.resolve(__dirname, './public'),
     views: path.resolve(__dirname, './src/views'),
+    exports: path.resolve(__dirname, './src/exports'),
     'process/': 'process',
     'buffer/': 'buffer',
   },
