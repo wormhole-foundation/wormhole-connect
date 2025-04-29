@@ -23,9 +23,48 @@ const TOKEN_CACHE_VERSION = 1;
 
 const HAS_LOCALSTORAGE = typeof localStorage !== 'undefined';
 
+class TokenAddressCache<C extends Chain> {
+  private _nativeAddress: TokenAddress<C> | undefined;
+  private readonly _originalAddress: string;
+  private readonly _chain: C;
+  private readonly _address: TokenAddress<C>;
+
+  constructor(chain: C, address: string) {
+    this._originalAddress = address;
+    this._chain = chain;
+
+    // Create a proxy that handles all property access
+    this._address = isNative(address)? address : new Proxy(
+      {
+        toString: () => {
+          return this._originalAddress},
+      },
+      {
+        get: (target, prop) => {
+          if (prop === 'toString' || prop === Symbol.toPrimitive || prop === 'valueOf') {
+            return target[prop];
+          }
+
+          // Lazily load the native address for all other property access
+          if (!this._nativeAddress) {
+            this._nativeAddress = toNative(this._chain, this._originalAddress);
+          }
+
+          const value = this._nativeAddress[prop as keyof TokenAddress<C>];
+          return typeof value === 'function' ? value.bind(this._nativeAddress) : value;
+        }
+      }
+    ) as TokenAddress<C>;
+  }
+
+  getProxy(): TokenAddress<C> {
+    return this._address;
+  }
+}
+
 export class Token {
   chain: Chain;
-  address: TokenAddress<Chain>;
+  private _addressCache: TokenAddressCache<Chain>;
   decimals: number;
   symbol: string;
   name?: string;
@@ -47,12 +86,16 @@ export class Token {
     tokenBridgeOriginalTokenId?: TokenId,
   ) {
     this.chain = chain;
-    this.address = isNative(address) ? address : toNative(chain, address);
+    this._addressCache = new TokenAddressCache(chain, address);
     this.decimals = decimals;
     this.symbol = symbol;
     this.name = name;
     this.icon = icon;
     this.tokenBridgeOriginalTokenId = tokenBridgeOriginalTokenId;
+  }
+
+  get address(): TokenAddress<Chain> {
+    return this._addressCache.getProxy();
   }
 
   get display(): string {
