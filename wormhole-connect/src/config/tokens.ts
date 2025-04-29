@@ -42,12 +42,10 @@ class TokenAddressCache<C extends Chain> {
       {
         get: (target, prop) => {
           if (prop === 'toString' || prop === Symbol.toPrimitive || prop === 'valueOf') {
-            console.log("Saved some ms")
             return target[prop];
           }
 
           // Lazily load the native address for all other property access
-          console.log("Heavy work")
           if (!this._nativeAddress) {
             this._nativeAddress = toNative(this._chain, this._originalAddress);
           }
