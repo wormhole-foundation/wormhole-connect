@@ -21,7 +21,6 @@ import {
   isRefunded,
   isFailed,
   routes,
-  isNative,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
@@ -57,8 +56,6 @@ import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
 import TxWarningIcon from 'icons/TxWarning';
 import TxFailedIcon from 'icons/TxFailed';
-import { getAssociatedTokenAddressSync, NATIVE_MINT } from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
 import TxReadyForClaim from 'icons/TxReadyForClaim';
 import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
@@ -138,6 +135,8 @@ const Redeem = () => {
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
+  const [isConnectedToReceivingWallet, setIsConnectedToReceivingWallet] =
+    useState(false);
   const [transferSuccessEventFired, setTransferSuccessEventFired] =
     useState(false);
   const [etaExpired, setEtaExpired] = useState(false);
@@ -639,53 +638,62 @@ const Redeem = () => {
   }, [routeContext.receipt]);
 
   // Checks whether the receiving wallet is currently connected
-  const isConnectedToReceivingWallet = useMemo(() => {
+  useEffect(() => {
+    let canceled = false;
+    const rv = () => {
+      canceled = true;
+    };
+
     if (!recipient) {
-      return false;
+      return rv;
     }
 
-    // For Solana transfers, the associated token account (ATA) might not exist,
-    // preventing us from retrieving the recipient wallet address.
-    // In such cases, when resuming transfers, we allow the user to connect a wallet
-    // to claim the transfer, which will create the ATA.
-    if (
-      isResumeTx &&
-      toChain === 'Solana' &&
-      receivingWallet.address &&
-      receivingWallet.type === Context.SOLANA &&
-      receivingWallet.address !== recipient &&
-      routeName &&
-      // These routes set the recipient address to the associated token address
-      ['ManualTokenBridge', 'ManualCCTP'].includes(routeName)
-    ) {
-      const { address: receiveTokenAddress } = tokenIdFromTuple(receivedToken);
+    const check = async () => {
+      if (
+        isResumeTx &&
+        toChain === 'Solana' &&
+        receivingWallet.address &&
+        receivingWallet.type === Context.SOLANA &&
+        receivingWallet.address !== recipient &&
+        routeName &&
+        ['ManualTokenBridge', 'ManualCCTP'].includes(routeName)
+      ) {
+        const { address: receiveTokenAddress } =
+          tokenIdFromTuple(receivedToken);
 
-      const ata = getAssociatedTokenAddressSync(
-        new PublicKey(
-          isNative(receiveTokenAddress)
-            ? NATIVE_MINT
-            : receiveTokenAddress.toString(),
-        ),
-        new PublicKey(receivingWallet.address),
-      );
-      if (!ata.equals(new PublicKey(recipient))) {
-        setClaimError('Not connected to the receiving wallet');
-        return false;
+        const { getAtaAddress } = await import('utils/solana');
+        const ata = getAtaAddress(
+          receivingWallet.address,
+          receiveTokenAddress.toString(),
+        );
+        if (ata != recipient) {
+          if (!canceled) {
+            setClaimError('Not connected to the receiving wallet');
+            setIsConnectedToReceivingWallet(false);
+          }
+        }
+
+        if (!canceled) {
+          setClaimError('');
+          setIsConnectedToReceivingWallet(true);
+        }
       }
 
-      setClaimError('');
-      return true;
-    }
+      const walletAddress = receivingWallet.address.toLowerCase();
+      const walletCurrentAddress = receivingWallet.currentAddress.toLowerCase();
+      const recipientAddress = recipient.toLowerCase();
 
-    const walletAddress = receivingWallet.address.toLowerCase();
-    const walletCurrentAddress = receivingWallet.currentAddress.toLowerCase();
-    const recipientAddress = recipient.toLowerCase();
+      if (!canceled) {
+        setIsConnectedToReceivingWallet(
+          walletAddress === walletCurrentAddress &&
+            walletAddress === recipientAddress,
+        );
+      }
+    };
 
-    // Connected wallet should be the current recipient wallet
-    return (
-      walletAddress === walletCurrentAddress &&
-      walletAddress === recipientAddress
-    );
+    check();
+
+    return rv;
   }, [
     receivingWallet,
     recipient,

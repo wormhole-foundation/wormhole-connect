@@ -21,10 +21,6 @@ import {
 } from '@wormhole-foundation/sdk';
 
 import '@wormhole-foundation/sdk/addresses';
-import evm from '@wormhole-foundation/sdk/evm';
-import solana from '@wormhole-foundation/sdk/solana';
-import aptos from '@wormhole-foundation/sdk/aptos';
-import sui from '@wormhole-foundation/sdk/sui';
 import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
 import { createUiConfig } from './ui';
@@ -191,6 +187,11 @@ export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
 
     v2Config.chains![chain] = { rpc, tokenMap };
   }
+
+  const { default: evm } = await import('@wormhole-foundation/sdk/evm');
+  const { default: solana } = await import('@wormhole-foundation/sdk/solana');
+  const { default: aptos } = await import('@wormhole-foundation/sdk/aptos');
+  const { default: sui } = await import('@wormhole-foundation/sdk/sui');
 
   return await getWormholeV2(
     config.network,
