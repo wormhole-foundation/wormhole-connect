@@ -78,7 +78,13 @@ export default (routes: string[], params: Params): HookReturn => {
     if (quotes.length > 0) {
       const rParams = params as Required<QuoteParams>;
 
-      if (!rParams.amount) {
+      if (
+        !rParams.amount ||
+        !rParams.sourceToken ||
+        !rParams.destToken ||
+        !rParams.sourceChain ||
+        !rParams.destChain
+      ) {
         // Stop fetching if no amount entered
         return;
       }
