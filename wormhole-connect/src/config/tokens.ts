@@ -51,7 +51,7 @@ class TokenAddressCache<C extends Chain> {
           }
 
           if(prop === 'toNative')
-            return this._nativeAddress;
+            return () => this._nativeAddress;
 
           const value = this._nativeAddress[prop as keyof TokenAddress<C>];
           return typeof value === 'function' ? value.bind(this._nativeAddress) : value;
