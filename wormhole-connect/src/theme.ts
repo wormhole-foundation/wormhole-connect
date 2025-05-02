@@ -2,7 +2,7 @@ import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
 import { PaletteMode, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
-import { hexToHsl, hslToHex } from './utils/theme';
+import Color from 'color';
 
 export type WormholeConnectTheme = {
   // "dark" or "light"
@@ -132,7 +132,7 @@ export const light: InternalTheme = {
 // wormhole styled theme
 export const dark: InternalTheme = {
   mode: 'dark',
-  primary: { main: '#9E77ED' },
+  primary: { main: '#C1BBF6' },
   secondary: { main: '#667085' },
   divider: '#ffffff' + OPACITY[20],
   background: {
@@ -235,18 +235,38 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       };
     }
 
-    const primary = customTheme.primary || theme.primary.main;
-    const [h, s, l] = hexToHsl(primary);
-    const buttonTextColor = hslToHex(h, s, l > 0.75 ? 0.35 : 0.95);
+    const primary = Color(customTheme.primary || theme.primary.main);
+    let primaryText: string;
+    let disabled: string;
+    let disabledText: string;
+    let action: string;
+    let actionText: string;
+    let hover: string;
+
+    if (primary.isDark()) {
+      primaryText = primary.lightness(95).hex();
+      disabled = primary.alpha(0.4).hexa();
+      disabledText = primary.lightness(95).alpha(0.9).hexa();
+      action = primary.darken(0.15).hex();
+      actionText = primary.lightness(80).hex();
+      hover = primary.darken(0.05).hex();
+    } else {
+      primaryText = primary.lightness(5).hex();
+      disabled = primary.alpha(0.4).hexa();
+      disabledText = primary.lightness(5).alpha(0.9).hexa();
+      action = primary.lighten(0.05).hex();
+      actionText = primary.lightness(0).hex();
+      hover = primary.lighten(0.05).hex();
+    }
 
     theme.button = {
-      primary,
-      primaryText: buttonTextColor,
-      disabled: hslToHex(h, s * 0.5, l),
-      disabledText: buttonTextColor,
-      action: hslToHex(h, s, l > 0.75 ? l * 1.05 : l * 0.85),
-      actionText: hslToHex(h, s, l > 0.75 ? 0 : 0.8),
-      hover: hslToHex(h, s, l > 0.75 ? l * 1.1 : l * 0.9),
+      primary: primary.hex(),
+      primaryText,
+      disabled,
+      disabledText,
+      action,
+      actionText,
+      hover,
     };
   }
 

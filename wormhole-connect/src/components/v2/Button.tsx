@@ -13,15 +13,19 @@ const PrimaryButton = styled(MUIButton)<ButtonProps>(
     boxShadow: 'none',
     backgroundColor: theme.palette.button.primary,
     color: theme.palette.button.primaryText,
-    '&:disabled': {
+    '&.Mui-disabled': {
       backgroundColor: theme.palette.button.disabled,
       color: theme.palette.button.disabledText,
     },
-    '&:hover': {
+    '&.MuiButton-root:hover': {
       boxShadow: 'none',
       backgroundColor: theme.palette.button.hover,
+      '&:disabled': {
+        backgroundColor: theme.palette.button.disabled,
+        color: theme.palette.button.disabledText,
+      },
     },
-    '&:active': {
+    '&.MuiButton-root:active': {
       boxShadow: 'none',
       backgroundColor: theme.palette.button.action,
       color: theme.palette.button.actionText,

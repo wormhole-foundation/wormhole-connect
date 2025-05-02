@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -13,47 +12,6 @@ import { TransferWallet } from 'utils/wallet';
 
 import { TransferSide } from 'config/types';
 import WalletSidebar from './Sidebar';
-
-const useStyles = makeStyles()((theme: any) => ({
-  connectWallet: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    height: '48px',
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-    boxShadow: 'none',
-    backgroundColor: theme.palette.button.primary,
-    color: theme.palette.button.primaryText,
-    '&:disabled': {
-      backgroundColor: theme.palette.button.disabled,
-      color: theme.palette.button.disabledText,
-    },
-    '&:hover': {
-      boxShadow: 'none',
-      backgroundColor: theme.palette.button.hover,
-    },
-    '&:active': {
-      boxShadow: 'none',
-      backgroundColor: theme.palette.button.action,
-      color: theme.palette.button.actionText,
-    },
-  },
-  connected: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    backgroundColor: theme.palette.button.primary,
-    cursor: 'not-allowed',
-    opacity: 0.7,
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-  },
-}));
 
 type Props = {
   side: TransferSide;
@@ -68,7 +26,6 @@ const WalletConnector = (props: Props) => {
 
   const theme = useTheme();
 
-  const { classes } = useStyles();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
@@ -92,12 +49,12 @@ const WalletConnector = (props: Props) => {
     }
 
     return (
-      <div className={classes.connected}>{`Connected to ${displayWalletAddress(
+      <div>{`Connected to ${displayWalletAddress(
         wallet.type,
         wallet.address,
       )}`}</div>
     );
-  }, [classes.connected, wallet.address, wallet.type]);
+  }, [wallet.address, wallet.type]);
 
   const disconnected = useMemo(() => {
     const button = (
@@ -105,7 +62,6 @@ const WalletConnector = (props: Props) => {
         <Button
           disableRipple
           variant="primary"
-          className={classes.connectWallet}
           data-testid={`${props.side}-section-connect-wallet-button`}
           disabled={disabled}
           sx={{
@@ -150,15 +106,7 @@ const WalletConnector = (props: Props) => {
         </>
       );
     }
-  }, [
-    disabled,
-    isOpen,
-    mobile,
-    props.side,
-    props.type,
-    classes.connectWallet,
-    connectWallet,
-  ]);
+  }, [disabled, isOpen, mobile, props.side, props.type, connectWallet]);
 
   if (wallet && wallet.address) {
     return connected;
