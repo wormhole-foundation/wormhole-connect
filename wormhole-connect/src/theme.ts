@@ -251,9 +251,9 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       actionText = primary.lightness(80).hex();
       hover = primary.darken(0.1).hex();
     } else {
-      primaryText = primary.lightness(35).hex();
+      primaryText = primary.lightness(5).hex();
       disabled = primary.desaturate(0.5).hex();
-      disabledText = primary.lightness(35).alpha(0.6).hexa();
+      disabledText = primary.lightness(5).alpha(0.6).hexa();
       action = primary.lighten(0.05).hex();
       actionText = primary.lightness(0).hex();
       hover = primary.lighten(0.1).hex();
