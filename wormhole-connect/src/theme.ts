@@ -245,18 +245,18 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
 
     if (primary.isDark()) {
       primaryText = primary.lightness(95).hex();
-      disabled = primary.saturate(0.5).hex();
+      disabled = primary.alpha(0.4).hexa();
       disabledText = primary.lightness(95).alpha(0.9).hexa();
       action = primary.darken(0.15).hex();
       actionText = primary.lightness(80).hex();
-      hover = primary.darken(0.1).hex();
+      hover = primary.darken(0.05).hex();
     } else {
       primaryText = primary.lightness(5).hex();
-      disabled = primary.desaturate(0.5).hex();
-      disabledText = primary.lightness(5).alpha(0.6).hexa();
+      disabled = primary.alpha(0.4).hexa();
+      disabledText = primary.lightness(5).alpha(0.9).hexa();
       action = primary.lighten(0.05).hex();
       actionText = primary.lightness(0).hex();
-      hover = primary.lighten(0.1).hex();
+      hover = primary.lighten(0.05).hex();
     }
 
     theme.button = {
