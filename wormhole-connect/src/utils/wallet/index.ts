@@ -254,11 +254,11 @@ export const signAndSendTransaction = async (
     return tx.id;
   } else if (chainConfig.context === Context.APTOS) {
     const aptos = await import('utils/wallet/aptos');
-    const tx = await aptos.signAndSendTransaction(
+    const hash = await aptos.signAndSendTransaction(
       request as AptosUnsignedTransaction<Network, AptosChains>,
       wallet,
     );
-    return tx.id;
+    return hash;
   } else {
     throw new Error('unimplemented');
   }

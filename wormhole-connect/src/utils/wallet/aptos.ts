@@ -29,6 +29,8 @@ export async function signAndSendTransaction(
   request: AptosUnsignedTransaction<Network, AptosChains>,
   wallet: Wallet | undefined,
 ) {
+  if (!wallet) throw new Error('No Aptos wallet provided');
+
   const payload = request.transaction;
   // The wallets do not handle Uint8Array serialization
   payload.functionArguments = payload.functionArguments.map((a: any) => {
@@ -45,7 +47,8 @@ export async function signAndSendTransaction(
   const aptos = context.getPlatform('Aptos');
   const rpc = (await aptos.getRpc('Aptos')) as Aptos;
 
-  const tx = await (wallet as AptosWallet).signAndSendTransaction({
+  const transaction = await rpc.transaction.build.simple({
+    sender: wallet.getAddress()!,
     data: payload,
     options: {
       // this is set to 5 minutes in case the user takes a while to sign the transaction
@@ -53,7 +56,15 @@ export async function signAndSendTransaction(
     },
   });
 
-  await rpc.waitForTransaction({ transactionHash: tx.id });
+  const authenticator = await (wallet as AptosWallet).signTransaction(
+    transaction,
+  );
+  const submitted = await rpc.transaction.submit.simple({
+    transaction,
+    senderAuthenticator: authenticator,
+  });
 
-  return tx;
+  await rpc.waitForTransaction({ transactionHash: submitted.hash });
+
+  return submitted.hash;
 }
