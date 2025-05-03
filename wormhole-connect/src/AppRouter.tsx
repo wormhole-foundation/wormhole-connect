@@ -10,6 +10,7 @@ import { isEmptyObject, usePrevious } from './utils';
 import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
+import SvgDefs from 'icons/SvgDefs';
 
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
@@ -118,6 +119,7 @@ function AppRouter(props: Props) {
 
   return (
     <div className={classes.appContent}>
+      <SvgDefs />
       {route === 'bridge' && <BridgeV2 />}
       {route === 'redeem' && <RedeemV2 />}
       {route === 'search' && <TxSearch />}

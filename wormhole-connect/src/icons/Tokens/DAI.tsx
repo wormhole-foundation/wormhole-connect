@@ -10,7 +10,7 @@ function DAI() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clipPath="url(#clip0_313_9788)">
+      <g clipPath="url(#icons_tokens_dai_clipPath_0)">
         <path
           d="M100 0C155.234 0 200 44.7754 200 100C200 155.234 155.234 200 100 200C44.7754 200 0 155.229 0 100C0 44.7754 44.7754 0 100 0Z"
           fill="#F5AC37"
@@ -20,11 +20,6 @@ function DAI() {
           fill="#FEFEFD"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_313_9788">
-          <rect width="200" height="200" fill="white" />
-        </clipPath>
-      </defs>
     </svg>
   );
 }

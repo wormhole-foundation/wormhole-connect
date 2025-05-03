@@ -10,7 +10,7 @@ function WBTC() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clipPath="url(#clip0_314_9802)">
+      <g clipPath="url(#icons_tokens_wbtc_clipPath_0)">
         <path
           d="M197.008 124.204C183.651 177.782 129.385 210.389 75.8004 197.028C22.2386 183.671 -10.3679 129.402 2.99519 75.8283C16.3465 22.2444 70.6123 -10.3645 124.18 2.99268C177.76 16.3499 210.365 70.625 197.006 124.205L197.007 124.204H197.008Z"
           fill="#F7931A"
@@ -20,11 +20,6 @@ function WBTC() {
           fill="white"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_314_9802">
-          <rect width="200" height="200.022" fill="white" />
-        </clipPath>
-      </defs>
     </svg>
   );
 }
