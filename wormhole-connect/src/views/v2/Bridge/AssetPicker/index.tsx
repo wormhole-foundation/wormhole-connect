@@ -206,6 +206,8 @@ const AssetPicker = (props: Props) => {
           }
         }}
         onTouchEnd={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
           if (mobile) {
             setIsDrawerOpen(true);
           } else {
