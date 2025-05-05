@@ -10,7 +10,7 @@ function SUI() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect width="36" height="36" rx="6" fill="#4DA2FF" />
-      <g clipPath="url(#clip0_287_480)">
+      <g clipPath="url(#icons_chains_sui_clipPath_0)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -18,16 +18,6 @@ function SUI() {
           fill="white"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_287_480">
-          <rect
-            width="18"
-            height="24"
-            fill="white"
-            transform="translate(9 6)"
-          />
-        </clipPath>
-      </defs>
     </svg>
   );
 }

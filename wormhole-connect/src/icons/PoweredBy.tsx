@@ -70,7 +70,7 @@ function WormholeLogo(props: { color: string }) {
           viewBox="0 0 78 8"
           fill="none"
         >
-          <g clipPath="url(#clip0_2_9880)">
+          <g clipPath="url(#icons_poweredBy_clipPath_0)">
             <path
               d="M58.9654 0.5H55.3552C53.9676 0.5 52.8438 1.59108 52.8438 2.93817V5.06183C52.8438 6.40892 53.9676 7.5 55.3552 7.5H59.0508V7.49634C60.3982 7.45246 61.4769 6.38088 61.4769 5.06183V2.93817C61.4769 1.59108 60.353 0.5 58.9654 0.5ZM58.5762 6.33699H55.7445V1.66301H58.5762V6.33699Z"
               fill={props.color}
@@ -101,7 +101,7 @@ function WormholeLogo(props: { color: string }) {
             />
           </g>
           <defs>
-            <clipPath id="clip0_2_9880">
+            <clipPath id="icons_poweredBy_clipPath_0">
               <rect
                 width="77"
                 height="7"

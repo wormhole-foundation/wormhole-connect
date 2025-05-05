@@ -10,7 +10,7 @@ function USDT() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clipPath="url(#clip0_313_9792)">
+      <g clipPath="url(#icons_tokens_usdt_clipPath_0)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -24,11 +24,6 @@ function USDT() {
           fill="white"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_313_9792">
-          <rect width="229.912" height="200" fill="white" />
-        </clipPath>
-      </defs>
     </svg>
   );
 }
