@@ -72,6 +72,14 @@ export const connectWallet = async (
   const { chainId, context } = chainConfig;
 
   try {
+    window.__aptos = wallet;
+    if (chain === 'Aptos') {
+      wallet.walletCore!.setNetwork({
+        name: 'mainnet',
+        fullnode: config.rpcs.Aptos,
+      });
+      debugger;
+    }
     await wallet.connect({ chainId });
   } catch (e: any) {
     if (e.message && e.message.toLowerCase().includes('rejected')) {

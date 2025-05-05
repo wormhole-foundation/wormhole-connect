@@ -20,7 +20,13 @@ export function fetchOptions() {
   const aptosWallets: Record<string, AptosWallet> = {};
   const walletCore = AptosWallet.walletCoreFactory(aptosWalletConfig, true, []);
   walletCore.wallets.forEach((wallet) => {
-    aptosWallets[wallet.name] = new AptosWallet(wallet, walletCore);
+    const aw = new AptosWallet(wallet, walletCore);
+    /* @ts-expect-error stfu i dont care that it's private */
+    aw.network = {
+      name: 'mainnet',
+      url: config.rpcs['Aptos'],
+    };
+    aptosWallets[wallet.name] = aw;
   });
   return aptosWallets;
 }
@@ -47,14 +53,18 @@ export async function signAndSendTransaction(
   const aptos = context.getPlatform('Aptos');
   const rpc = (await aptos.getRpc('Aptos')) as Aptos;
 
+  console.log(payload);
+  console.log((wallet as any).selectedAptosWallet!.provider.address);
   const transaction = await rpc.transaction.build.simple({
-    sender: wallet.getAddress()!,
+    sender: (wallet as any).selectedAptosWallet!.provider.address,
     data: payload,
     options: {
       // this is set to 5 minutes in case the user takes a while to sign the transaction
       expireTimestamp: Math.floor(Date.now() / 1000) + 60 * 5,
     },
   });
+
+  console.log(transaction);
 
   const authenticator = await (wallet as AptosWallet).signTransaction(
     transaction,
