@@ -23,51 +23,9 @@ const TOKEN_CACHE_VERSION = 1;
 
 const HAS_LOCALSTORAGE = typeof localStorage !== 'undefined';
 
-class TokenAddressCache<C extends Chain> {
-  private _nativeAddress: TokenAddress<C> | undefined;
-  private readonly _originalAddress: string;
-  private readonly _chain: C;
-  private readonly _address: TokenAddress<C>;
-
-  constructor(chain: C, address: string) {
-    this._originalAddress = address;
-    this._chain = chain;
-
-    // Create a proxy that handles all property access
-    this._address = isNative(address)? address : new Proxy(
-      {
-        toString: () => {
-          return this._originalAddress},
-      },
-      {
-        get: (target, prop) => {
-          if (prop === 'toString' || prop === Symbol.toPrimitive || prop === 'valueOf') {
-            return target[prop];
-          }
-
-          // Lazily load the native address for all other property access
-          if (!this._nativeAddress) {
-            this._nativeAddress = toNative(this._chain, this._originalAddress);
-          }
-
-          if(prop === 'toNative')
-            return this._nativeAddress;
-
-          const value = this._nativeAddress[prop as keyof TokenAddress<C>];
-          return typeof value === 'function' ? value.bind(this._nativeAddress) : value;
-        }
-      }
-    ) as TokenAddress<C>;
-  }
-
-  getProxy(): TokenAddress<C> {
-    return this._address;
-  }
-}
-
 export class Token {
   chain: Chain;
-  private _addressCache: TokenAddressCache<Chain>;
+  address: TokenAddress<Chain>;
   decimals: number;
   symbol: string;
   name?: string;
@@ -89,16 +47,12 @@ export class Token {
     tokenBridgeOriginalTokenId?: TokenId,
   ) {
     this.chain = chain;
-    this._addressCache = new TokenAddressCache(chain, address);
+    this.address = isNative(address) ? address : toNative(chain, address);
     this.decimals = decimals;
     this.symbol = symbol;
     this.name = name;
     this.icon = icon;
     this.tokenBridgeOriginalTokenId = tokenBridgeOriginalTokenId;
-  }
-
-  get address(): TokenAddress<Chain> {
-    return this._addressCache.getProxy();
   }
 
   get display(): string {
@@ -234,7 +188,7 @@ export class TokenMapping<T> {
     if (isTokenTuple(firstArg)) {
       return this._mapping.get(firstArg[0])?.get(firstArg[1]);
     } else if (isTokenId(firstArg)) {
-      return this._mapping.get(firstArg.chain)?.get(firstArg.address.toString());
+      return this._mapping.get(firstArg.chain)?.get(canonicalAddress(firstArg));
     } else if (isChain(firstArg) && address !== undefined) {
       return this._mapping.get(firstArg)?.get(address);
     } else {
@@ -312,7 +266,7 @@ export class TokenMapping<T> {
   forEach(callback: (tokenId: TokenId, val: T) => void) {
     this._mapping.forEach((nextLevel, chain) => {
       nextLevel.forEach((val, addr) => {
-        const tokenId = { chain, address: addr } as TokenId;
+        const tokenId = Wormhole.tokenId(chain, addr);
         callback(tokenId, val);
       });
     });
@@ -526,32 +480,34 @@ export function buildTokenCache(
   // Temporary hack... use wrappedTokens to populate the cache with all of the known
   // token bridge foreign assets. When we are able to fetch full token balances for every chain
   // this will become unnecessary.
-  Object.entries(wrappedTokens).forEach(([chain, addrMap]) => {
-    Object.entries(addrMap).forEach(([addr, wrappedAddrs]) => {
-      const originalToken = cache.get(chain as Chain, addr);
-      if (!originalToken) return;
+  for (const chain in wrappedTokens) {
+    for (const addr in wrappedTokens[chain]) {
+      const wts = wrappedTokens[chain][addr];
+      for (const otherChain in wts) {
+        const originalToken = cache.get(chain as Chain, addr);
+        if (originalToken) {
+          const wrappedAddr = wts[otherChain];
 
-      Object.entries(wrappedAddrs).forEach(([otherChain, wrappedAddr]) => {
-        const platform = chainToPlatform(otherChain as Chain);
-        const decimals = Math.min(
-          platform === 'Evm' ? 18 : 8,
-          originalToken.decimals
-        );
+          let decimals =
+            chainToPlatform(otherChain as Chain) === 'Evm' ? 18 : 8;
 
-        const wrappedToken = new Token(
-          otherChain as Chain,
-          wrappedAddr,
-          decimals,
-          originalToken.symbol,
-          originalToken.name,
-          originalToken.icon,
-          originalToken,
-        );
+          decimals = Math.min(decimals, originalToken.decimals);
 
-        cache.add(wrappedToken);
-      });
-    });
-  });
+          const wrappedToken = new Token(
+            otherChain as Chain,
+            wrappedAddr,
+            decimals,
+            originalToken.symbol,
+            originalToken.name,
+            originalToken.icon,
+            originalToken,
+          );
+
+          cache.add(wrappedToken);
+        }
+      }
+    }
+  }
 
   cache.persist();
   return cache;
@@ -571,7 +527,9 @@ export function tokenIdToTuple(tokenId: TokenId): TokenTuple {
 
 export function tokenIdFromTuple(tokenTuple: TokenTuple): TokenId {
   const chain = tokenTuple[0] as Chain;
-  const address = new TokenAddressCache(chain, tokenTuple[1]).getProxy();
+  const address = isNative(tokenTuple[1])
+    ? tokenTuple[1]
+    : toNative(chain, tokenTuple[1]);
   return {
     chain,
     address,
