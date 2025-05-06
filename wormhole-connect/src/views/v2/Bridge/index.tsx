@@ -22,7 +22,9 @@ import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
 import useConfirmTransaction from 'hooks/useConfirmTransaction';
-import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import useGetTokenBalancesByChain, {
+  ChainBalanceRequest,
+} from 'hooks/useGetTokenBalances';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import { setRoute as setAppRoute } from 'store/router';
@@ -203,30 +205,13 @@ const Bridge = () => {
   // Pre-fetch available routes
 
   // Connect to any previously used wallets for the selected networks
-  useConnectToLastUsedWallet();
+  const { isConnecting: isConnectingWallet } = useConnectToLastUsedWallet(
+    sourceChain,
+    destChain,
+  );
 
   // Call to initiate transfer inputs validations
   useValidate();
-
-  const sourceTokenArray = useMemo(() => {
-    return sourceToken ? [sourceToken] : [];
-  }, [sourceToken]);
-
-  const { balances, isFetching: isFetchingBalances } = useGetTokenBalances(
-    sendingWallet,
-    sourceChain,
-    sourceTokenArray,
-  );
-
-  // Validate amount
-  const amountValidation = useAmountValidation({
-    balance: sourceToken ? balances[sourceToken.key]?.balance : null,
-    routes: allSupportedRoutes,
-    quotes,
-    tokenSymbol: sourceToken?.symbol ?? '',
-    isLoading: isFetchingBalances || isFetchingQuotes,
-    disabled: !sourceChain || !sourceToken,
-  });
 
   //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
 
@@ -268,6 +253,66 @@ const Bridge = () => {
         supportedChains.includes(chain.sdkName),
     );
   }, [sourceChain, supportedChains]);
+
+  // Build balance requests for chains that have both chain and wallet
+  const balanceRequests = useMemo(() => {
+    const requests: ChainBalanceRequest[] = [];
+    if (sourceChain && sendingWallet?.address) {
+      requests.push({
+        chain: sourceChain,
+        wallet: sendingWallet,
+        tokens: sourceTokens,
+      });
+    }
+    if (destChain && receivingWallet?.address) {
+      requests.push({
+        chain: destChain,
+        wallet: receivingWallet,
+        tokens: supportedDestTokens,
+      });
+    }
+    return requests;
+  }, [
+    sourceChain,
+    destChain,
+    sendingWallet,
+    receivingWallet,
+    sourceTokens,
+    supportedDestTokens,
+  ]);
+
+  const {
+    balances: balancesByChain,
+    isFetching: isFetchingBalances,
+    fetchTokensProgress,
+  } = useGetTokenBalancesByChain(balanceRequests);
+
+  // Extract balances for source and destination
+  const sourceBalances = useMemo(() => {
+    if (sourceChain && sendingWallet?.address) {
+      const key = `${sourceChain}-${sendingWallet.address}`;
+      return balancesByChain[key] || {};
+    }
+    return {};
+  }, [sourceChain, sendingWallet, balancesByChain]);
+
+  const destBalances = useMemo(() => {
+    if (destChain && receivingWallet?.address) {
+      const key = `${destChain}-${receivingWallet.address}`;
+      return balancesByChain[key] || {};
+    }
+    return {};
+  }, [destChain, receivingWallet, balancesByChain]);
+
+  // Validate amount
+  const amountValidation = useAmountValidation({
+    balance: sourceToken ? sourceBalances[sourceToken.key]?.balance : null,
+    routes: allSupportedRoutes,
+    quotes,
+    tokenSymbol: sourceToken?.symbol ?? '',
+    isLoading: isFetchingBalances || isFetchingQuotes,
+    disabled: !sourceChain || !sourceToken,
+  });
 
   // Connect bridge header, which renders any custom overrides for the header
   const header = useMemo(() => {
@@ -311,6 +356,14 @@ const Bridge = () => {
           isSource={true}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="source-asset-picker"
+          balances={sourceBalances}
+          isFetchingBalances={isFetchingBalances}
+          isConnectingWallet={isConnectingWallet}
+          fetchTokensProgress={
+            sourceChain && sendingWallet
+              ? fetchTokensProgress[`${sourceChain}-${sendingWallet.address}`]
+              : null
+          }
         />
         <SwapInputs />
       </Box>
@@ -323,8 +376,12 @@ const Bridge = () => {
     sourceToken,
     sourceTokens,
     isTransactionInProgress,
+    isConnectingWallet,
     sendingWallet,
     dispatch,
+    sourceBalances,
+    fetchTokensProgress,
+    isFetchingBalances,
   ]);
 
   // Asset picker for the destination network and token
@@ -355,6 +412,14 @@ const Bridge = () => {
           isSource={false}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="dest-asset-picker"
+          balances={destBalances}
+          isFetchingBalances={isFetchingBalances}
+          isConnectingWallet={isConnectingWallet}
+          fetchTokensProgress={
+            destChain && receivingWallet
+              ? fetchTokensProgress[`${destChain}-${receivingWallet.address}`]
+              : null
+          }
         />
       </Box>
     );
@@ -366,10 +431,14 @@ const Bridge = () => {
     destToken,
     sourceToken,
     supportedDestTokens,
+    isConnectingWallet,
     isFetchingSupportedDestTokens,
     isTransactionInProgress,
     receivingWallet,
     dispatch,
+    destBalances,
+    fetchTokensProgress,
+    isFetchingBalances,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -588,7 +657,9 @@ const Bridge = () => {
       <AmountInput
         sourceChain={sourceChain}
         supportedSourceTokens={sourceTokens}
-        tokenBalance={sourceToken ? balances[sourceToken.key]?.balance : null}
+        tokenBalance={
+          sourceToken ? sourceBalances[sourceToken.key]?.balance : null
+        }
         isFetchingTokenBalance={isFetchingBalances}
         error={amountValidation.error}
         warning={amountValidation.warning || walletWarning}

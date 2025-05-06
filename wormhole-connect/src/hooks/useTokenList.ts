@@ -3,13 +3,14 @@ import type { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
-import type { Balances } from 'store/transferInput';
+import type { Balances } from 'utils/wallet/types';
 import {
   applyTokenSearch,
   sortTokensByPreference,
   applyTokenWhitelist,
   applyCustomTokenSupport,
   filterTokensByBalance,
+  applyShittokenFilter,
 } from 'utils/tokenListUtils';
 
 interface UseTokenListParams {
@@ -20,7 +21,7 @@ interface UseTokenListParams {
   sourceToken?: Token;
   wallet: WalletData;
   balances: Balances;
-  filterByBalance?: boolean; // true for source tokens, false for destination tokens
+  isSourceList?: boolean; // true for source tokens, false for destination tokens
 }
 
 export const useTokenList = ({
@@ -31,9 +32,9 @@ export const useTokenList = ({
   sourceToken,
   wallet,
   balances,
-  filterByBalance = false,
+  isSourceList = false,
 }: UseTokenListParams): Token[] => {
-  const { getTokenPrice } = useTokens();
+  const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   return useMemo(() => {
     if (!tokenList) return [];
@@ -41,7 +42,6 @@ export const useTokenList = ({
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     let tokens = applyTokenSearch(tokenList, searchQuery, selectedChainConfig);
 
-    // Sort tokens by preference and balance
     tokens = sortTokensByPreference(
       tokens,
       selectedToken,
@@ -55,12 +55,16 @@ export const useTokenList = ({
     // Apply custom token support handler if configured
     tokens = applyCustomTokenSupport(tokens, sourceToken);
 
-    // Conditionally filter by balance (for source tokens only)
-    if (filterByBalance) {
+    // For source list, we filter further because we're loading arbitrary tokens in their wallet
+    if (isSourceList) {
+      // Filter out possible scamcoins
+      tokens = applyShittokenFilter(tokens);
+      // Conditionally filter by balance (for source tokens only)
       tokens = filterTokensByBalance(tokens, balances, wallet.address);
     }
 
     return tokens;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tokenList,
     searchQuery,
@@ -69,7 +73,8 @@ export const useTokenList = ({
     wallet.address,
     balances,
     getTokenPrice,
-    filterByBalance,
+    lastTokenPriceUpdate,
+    isSourceList,
     sourceToken,
   ]);
 };

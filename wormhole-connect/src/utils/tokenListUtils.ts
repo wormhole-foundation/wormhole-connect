@@ -13,6 +13,7 @@ import {
 } from 'config/tokens';
 import { calculateUSDPriceRaw, isFrankensteinToken } from 'utils';
 import config from 'config';
+import { isNttToken } from './ntt';
 
 export const getTokenPreferenceScore = (
   token: Token,
@@ -97,6 +98,7 @@ export const sortTokensByPreference = (
 
     const balanceA = calculateTokenUSDBalance(a, balances, getTokenPrice);
     const balanceB = calculateTokenUSDBalance(b, balances, getTokenPrice);
+
     if (balanceA !== balanceB) {
       return balanceB - balanceA;
     } else {
@@ -171,12 +173,27 @@ export const applyCustomTokenSupport = (
   return tokens.filter((t) => filter(t, sourceToken));
 };
 
+export const applyShittokenFilter = (tokens: Token[]): Token[] => {
+  return tokens.filter((token) => {
+    const isOk =
+      token.isNativeGasToken ||
+      token.isBuiltin ||
+      token.coingeckoWebId ||
+      token.isTokenBridgeWrappedToken ||
+      isNttToken(token);
+    if (!isOk)
+      console.debug(`Filtering out token for likely being spam`, token);
+    return isOk;
+  });
+};
+
 export const filterTokensByBalance = (
   tokens: Token[],
   balances: Record<string, { balance: any }>,
   walletAddress?: string,
 ): Token[] => {
   if (!walletAddress) return tokens;
+  if (Object.keys(balances).length === 0) return tokens;
 
   return tokens.filter((t) => {
     const bal = balances[tokenKey(t)]?.balance;

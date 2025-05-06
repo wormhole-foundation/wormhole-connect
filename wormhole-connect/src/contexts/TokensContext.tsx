@@ -13,6 +13,7 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useRef,
 } from 'react';
 import { fetchTokenPrices } from 'utils/coingecko';
 import { useDebouncedCallback } from 'use-debounce';
@@ -24,6 +25,7 @@ interface TokensContextType {
   lastTokenCacheUpdate: Date;
 
   getTokenPrice: (token: Token) => number | undefined;
+  getTokenPrices: (tokens: Token[]) => Map<string, number | undefined>;
   isFetchingTokenPrices: boolean;
   lastTokenPriceUpdate: Date;
 }
@@ -57,13 +59,16 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     config.tokens.lastUpdate,
   );
 
-  const [tokenPrices, _setTokenPrices] = useState<TokenMapping<TokenPrice>>(
-    new TokenMapping(),
-  );
-  const tokenPricesToFetch = React.useRef<Set<string>>(new Set());
+  // Combine price-related state into a single state object to avoid race conditions
+  const [priceState, setPriceState] = useState({
+    prices: new TokenMapping<TokenPrice>(),
+    isFetching: false,
+    lastUpdate: new Date(),
+  });
 
-  const [isFetchingTokenPrices, setIsFetchingPrices] = useState(false);
-  const [lastTokenPriceUpdate, setLastPriceUpdate] = useState(new Date());
+  // Keep refs for tracking pending fetches
+  const tokensToFetch = useRef<Set<string>>(new Set());
+  const tokensFetching = useRef<Set<string>>(new Set());
 
   const getOrFetchToken = useCallback(
     async (tokenId: TokenId): Promise<Token | undefined> => {
@@ -105,75 +110,152 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
         setIsFetchingToken(false);
       }
     },
-    [],
+    [lastTokenCacheUpdate],
   );
 
-  const updateTokenPrices = useDebouncedCallback(async () => {
-    if (tokenPricesToFetch.current.size === 0) return;
-
-    const tokens = config.tokens.getList(
-      Array.from(tokenPricesToFetch.current.values()),
-    );
-    console.info('Fetching token prices', tokens);
-
-    try {
-      setIsFetchingPrices(true);
-      const timestamp = new Date();
-
-      // Flag that this price is being fetched, so that we don't start another concurrent request for it in getTokenPrice
-      for (const token of tokens) {
-        tokenPrices.add(token, {
-          timestamp,
-          price: undefined,
-          isFetching: true,
-        });
+  const getCachedPrice = useCallback(
+    (token: Token): { price: number | undefined; needsFetch: boolean } => {
+      const usdc = circle.usdcContract.get(config.network, token.chain);
+      if (usdc && token.addressString === usdc) {
+        // USDC is a special case since it's a stablecoin and its price is always 1 USD.
+        return { price: 1, needsFetch: false };
       }
 
-      // Clear list for future invocations of getTokenPrice
-      tokenPricesToFetch.current.clear();
+      // For wrapped tokens, use the original token's price
+      const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+      const cachedPrice = priceState.prices.get(tokenId);
+
+      // If we have a cached entry (even if price is undefined), don't fetch again
+      if (cachedPrice) {
+        return { price: cachedPrice.price, needsFetch: false };
+      }
+
+      return { price: undefined, needsFetch: true };
+    },
+    [priceState.prices],
+  );
+
+  // Debounced function to batch fetch token prices
+  const debouncedFetchPrices = useDebouncedCallback(async () => {
+    if (tokensToFetch.current.size === 0) return;
+
+    const tokens: Token[] = [];
+    for (const tokenKeyStr of tokensToFetch.current) {
+      const token = config.tokens.get(tokenKeyStr);
+      if (token) {
+        tokens.push(token);
+        tokensFetching.current.add(tokenKeyStr);
+      }
+    }
+    tokensToFetch.current.clear();
+
+    if (tokens.length === 0) return;
+
+    try {
+      console.info('Fetching prices for', tokens.length, 'tokens');
+      const timestamp = new Date();
+
+      setPriceState((prev) => ({ ...prev, isFetching: true }));
 
       const prices = await fetchTokenPrices(tokens);
 
-      for (const token of tokens) {
-        const price = prices.get(token);
-        if (price) {
-          tokenPrices.add(token, {
+      // Use functional update to avoid stale closure
+      setPriceState((prev) => {
+        const updatedPrices = prev.prices.clone();
+
+        // Process all tokens, even if they don't have prices
+        for (const token of tokens) {
+          const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+          const price = prices.get(tokenId);
+
+          // Update cache - store undefined if price fetch failed
+          updatedPrices.add(tokenId, {
             timestamp,
-            price,
+            price: price ?? undefined,
           });
-        } else {
-          tokenPrices.add(token, {
+
+          // Remove from fetching set
+          tokensFetching.current.delete(tokenKey(tokenId));
+        }
+
+        return {
+          prices: updatedPrices,
+          isFetching: false,
+          lastUpdate: new Date(),
+        };
+      });
+    } catch (e) {
+      console.error('Error fetching token prices:', e);
+      // On error, still cache the failed attempts to prevent infinite retries
+      const timestamp = new Date();
+
+      // Use functional update to avoid stale closure
+      setPriceState((prev) => {
+        const updatedPrices = prev.prices.clone();
+
+        for (const token of tokens) {
+          const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+
+          // Cache as undefined to prevent re-fetching
+          updatedPrices.add(tokenId, {
             timestamp,
             price: undefined,
           });
+
+          tokensFetching.current.delete(tokenKey(tokenId));
         }
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsFetchingPrices(false);
-      setLastPriceUpdate(new Date());
+
+        return {
+          prices: updatedPrices,
+          isFetching: false,
+          lastUpdate: new Date(),
+        };
+      });
     }
   }, 250);
 
-  const getTokenPrice = (token: Token): number | undefined => {
-    const usdc = circle.usdcContract.get(config.network, token.chain);
-    if (usdc && token.addressString === usdc) {
-      // USDC is a special case since it's a stablecoin and its price is always 1 USD.
-      return 1;
-    }
-    // For wrapped tokens, we use the original token's price since they are equivalent.
-    const tokenId = token.tokenBridgeOriginalTokenId ?? token;
-    const cachedPrice = tokenPrices.get(tokenId);
+  const getTokenPrices = useCallback(
+    (tokens: Token[]): Map<string, number | undefined> => {
+      const priceMap = new Map<string, number | undefined>();
 
-    if (cachedPrice) {
-      return cachedPrice.price;
-    } else {
-      tokenPricesToFetch.current.add(tokenKey(tokenId));
-      updateTokenPrices();
-      return undefined;
-    }
-  };
+      // Collect current prices and identify tokens needing fetch
+      for (const token of tokens) {
+        const { price, needsFetch } = getCachedPrice(token);
+
+        priceMap.set(token.key, price);
+
+        if (needsFetch) {
+          const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+          const tokenKeyStr = tokenKey(tokenId);
+
+          // Only add to fetch list if not already being fetched
+          if (
+            !tokensFetching.current.has(tokenKeyStr) &&
+            !tokensToFetch.current.has(tokenKeyStr)
+          ) {
+            tokensToFetch.current.add(tokenKeyStr);
+          }
+        }
+      }
+
+      // Trigger debounced fetch if we have tokens to fetch
+      if (tokensToFetch.current.size > 0) {
+        debouncedFetchPrices();
+      }
+
+      return priceMap;
+    },
+    [getCachedPrice, debouncedFetchPrices],
+  );
+
+  const getTokenPrice = useCallback(
+    (token: Token): number | undefined => {
+      // Delegate to getTokenPrices for consistency
+      const prices = getTokenPrices([token]);
+      return prices.get(token.key);
+    },
+    [getTokenPrices],
+  );
 
   return (
     <TokensContext.Provider
@@ -183,8 +265,9 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
         isFetchingToken,
 
         getTokenPrice,
-        isFetchingTokenPrices,
-        lastTokenPriceUpdate,
+        getTokenPrices,
+        isFetchingTokenPrices: priceState.isFetching,
+        lastTokenPriceUpdate: priceState.lastUpdate,
       }}
     >
       {children}

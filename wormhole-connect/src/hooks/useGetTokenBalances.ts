@@ -1,150 +1,391 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from 'store';
-import { useEffect, useState } from 'react';
-import { accessBalance, Balances, updateBalances } from 'store/transferInput';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { Balances } from 'utils/wallet/types';
 import config, { getWormholeContextV2 } from 'config';
-import { Token } from 'config/tokens';
+import { Token, tokenKey } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
-import { Chain, TokenAddress, amount } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  Wormhole,
+  amount,
+  supportsIndexerUtils,
+} from '@wormhole-foundation/sdk';
 import { WalletData } from 'store/wallet';
+import { useTokens } from 'contexts/TokensContext';
+import { sleep } from 'utils';
+
+export interface ChainBalanceRequest {
+  chain: Chain;
+  wallet: WalletData;
+  tokens: Token[];
+}
+
+// Map of chain+wallet -> balances
+type BalanceMap = Record<string, Balances>;
+
+interface BalanceCache {
+  balance: amount.Amount;
+  lastUpdated: number;
+}
+
+// Constants
+const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 250;
+const MAX_TOKENS_TO_PROCESS = 50;
+
+// Helper to create request key
+const getRequestKey = (chain: Chain, wallet: WalletData) =>
+  `${chain}-${wallet.address}`;
+
+// Custom hook for balance cache
+const useBalanceCache = () => {
+  const cacheRef = useRef<Record<string, BalanceCache>>({});
+  const failedTokensRef = useRef<Set<string>>(new Set());
+
+  const getCached = useCallback(
+    (chain: Chain, wallet: WalletData, token: Token) => {
+      const key = `${chain}-${wallet.address}-${token.key}`;
+      const cached = cacheRef.current[key];
+      const now = Date.now();
+
+      if (cached && cached.lastUpdated > now - CACHE_DURATION_MS) {
+        return cached;
+      }
+      return null;
+    },
+    [],
+  );
+
+  const setCached = useCallback(
+    (
+      chain: Chain,
+      wallet: WalletData,
+      token: Token,
+      balance: amount.Amount,
+    ) => {
+      const key = `${chain}-${wallet.address}-${token.key}`;
+      cacheRef.current[key] = {
+        balance,
+        lastUpdated: Date.now(),
+      };
+    },
+    [],
+  );
+
+  const markFailed = useCallback((chain: Chain, address: string) => {
+    failedTokensRef.current.add(tokenKey(chain, address));
+  }, []);
+
+  const isFailed = useCallback((chain: Chain, address: string) => {
+    return failedTokensRef.current.has(tokenKey(chain, address));
+  }, []);
+
+  // Cleanup old cache entries periodically
+  useEffect(() => {
+    const cleanup = () => {
+      const now = Date.now();
+      const cache = cacheRef.current;
+      for (const key in cache) {
+        if (cache[key].lastUpdated < now - CACHE_DURATION_MS * 2) {
+          delete cache[key];
+        }
+      }
+    };
+
+    const interval = setInterval(cleanup, CACHE_DURATION_MS);
+    return () => clearInterval(interval);
+  }, []);
+
+  return { getCached, setCached, markFailed, isFailed };
+};
 
 const useGetTokenBalances = (
-  wallet: WalletData | undefined,
-  chain: Chain | undefined,
-  tokens: Token[],
-): { isFetching: boolean; balances: Balances } => {
+  requests: ChainBalanceRequest[],
+): {
+  isFetching: boolean;
+  balances: BalanceMap;
+  fetchTokensProgress: Record<string, number | null>;
+} => {
   const [isFetching, setIsFetching] = useState(false);
-  const [balances, setBalances] = useState<Balances>({});
-  const cachedBalances = useSelector(
-    (state: RootState) => state.transferInput.balances,
-  );
-  const dispatch = useDispatch();
+  const [balances, setBalances] = useState<BalanceMap>({});
+  const [fetchTokensProgress, setFetchTokensProgress] = useState<
+    Record<string, number | null>
+  >({});
 
-  useEffect(() => {
-    setIsFetching(true);
-    setBalances({});
-    if (
-      !wallet ||
-      !wallet.address ||
-      !chain ||
-      !config.chains[chain] ||
-      tokens.length === 0
-    ) {
-      setIsFetching(false);
-      return;
-    }
-    const chainConfig = config.chains[chain];
-    if (!chainConfig) {
-      setIsFetching(false);
-      return;
-    }
-    if (chainToPlatform(chainConfig.sdkName) !== wallet.type) {
-      // Invalid wallet
-      setIsFetching(false);
-      return;
-    }
+  const { getOrFetchToken } = useTokens();
+  const { getCached, setCached, markFailed, isFailed } = useBalanceCache();
 
-    let isActive = true;
+  // Track active fetches per chain
+  const activeFetchesRef = useRef<Map<Chain, boolean>>(new Map());
 
-    const getBalances = async () => {
-      const updatedBalances: Balances = {};
-      const needsUpdate: Token[] = [];
-      const now = Date.now();
-      const fiveMinutesAgo = now - 5 * 60 * 1000;
-      let updateCache = false;
+  // Create stable request signature
+  const requestSignature = useMemo(() => {
+    return requests
+      .map((r) => {
+        const tokenKeys = r.tokens
+          .map((t) => t.key)
+          .sort()
+          .join(',');
+        return `${getRequestKey(r.chain, r.wallet)}:${tokenKeys}`;
+      })
+      .sort()
+      .join('|');
+  }, [requests]);
 
-      for (const token of tokens) {
-        const cachedBalance = accessBalance(
-          cachedBalances,
-          wallet.address,
-          chain,
-          token,
-        );
+  // Process results from indexer
+  const processIndexerResults = useCallback(
+    async (
+      result: Record<string, bigint | null>,
+      chain: Chain,
+      wallet: WalletData,
+      updatedBalances: Balances,
+    ) => {
+      const requestKey = getRequestKey(chain, wallet);
+      const sortedTokens = Object.entries(result)
+        .filter(([_, bus]) => bus !== null && bus > 1n)
+        .sort(([, a], [, b]) => {
+          const balanceA = a ?? 0n;
+          const balanceB = b ?? 0n;
+          return balanceA > balanceB ? -1 : balanceA < balanceB ? 1 : 0;
+        });
 
-        if (cachedBalance && cachedBalance.lastUpdated > fiveMinutesAgo) {
-          updatedBalances[token.key] = cachedBalance;
-        } else {
-          needsUpdate.push(token);
+      const unknownTokens: Array<[string, bigint]> = [];
+
+      // Process known tokens
+      for (const [address, bus] of sortedTokens) {
+        if (bus === null) continue;
+
+        const token = config.tokens.get(chain, address);
+        if (token) {
+          const balance = amount.fromBaseUnits(bus, token.decimals);
+          const balanceData = {
+            balance,
+            lastUpdated: Date.now(),
+          };
+          updatedBalances[token.key] = balanceData;
+          setCached(chain, wallet, token, balance);
+        } else if (!isFailed(chain, address)) {
+          unknownTokens.push([address, bus]);
         }
       }
 
-      if (needsUpdate.length > 0) {
-        try {
-          const wh = await getWormholeContextV2();
-          const platform = wh.getPlatform(chainToPlatform(chain));
-          const rpc = platform.getRpc(chain);
-          const tokenAddresses: TokenAddress<Chain>[] = [];
+      // Process unknown tokens in batches
+      if (unknownTokens.length > 0) {
+        setFetchTokensProgress((prev) => ({ ...prev, [requestKey]: 0 }));
 
-          // Default it to 0 in case the RPC call fails
-          for (const token of needsUpdate) {
-            updatedBalances[token.key] = {
-              balance: amount.fromBaseUnits(0n, token.decimals),
-              lastUpdated: now,
-            };
+        for (
+          let i = 0;
+          i < Math.min(unknownTokens.length, MAX_TOKENS_TO_PROCESS);
+          i += BATCH_SIZE
+        ) {
+          const batch = unknownTokens.slice(i, i + BATCH_SIZE);
 
-            tokenAddresses.push(token.address);
-          }
-
-          if (tokenAddresses.length === 0) {
-            return;
-          }
-
-          const result = await platform
-            .utils()
-            .getBalances(
-              chain,
-              rpc,
-              wallet.address,
-              tokenAddresses.map((addr) => addr.toString()) as TokenAddress<
-                typeof chain
-              >[],
-            );
-
-          for (const tokenAddress in result) {
-            const token = config.tokens.get(chain, tokenAddress);
-
-            if (token) {
-              const bus = result[tokenAddress];
-              const balance = amount.fromBaseUnits(bus ?? 0n, token.decimals);
-
-              updatedBalances[token.key] = {
-                balance,
-                lastUpdated: now,
-              };
-            }
-          }
-        } catch (e) {
-          console.error('Failed to get token balances', e);
-        } finally {
-          // There can be failures for some tokens,
-          // but we'll still update the cache with latest balances
-          updateCache = true;
-        }
-      }
-      if (isActive) {
-        setIsFetching(false);
-
-        setBalances(updatedBalances);
-        if (updateCache) {
-          dispatch(
-            updateBalances({
-              address: wallet.address,
-              chain,
-              balances: updatedBalances,
+          await Promise.all(
+            batch.map(async ([tokenAddress, bus]) => {
+              try {
+                const token = await getOrFetchToken(
+                  Wormhole.tokenId(chain, tokenAddress),
+                );
+                if (token) {
+                  const balance = amount.fromBaseUnits(bus, token.decimals);
+                  const balanceData = {
+                    balance,
+                    lastUpdated: Date.now(),
+                  };
+                  updatedBalances[token.key] = balanceData;
+                  setCached(chain, wallet, token, balance);
+                } else {
+                  markFailed(chain, tokenAddress);
+                }
+              } catch (e) {
+                console.error(
+                  `Failed to fetch token metadata for ${tokenAddress}:`,
+                  e,
+                );
+                markFailed(chain, tokenAddress);
+              }
             }),
           );
+
+          setFetchTokensProgress((prev) => ({
+            ...prev,
+            [requestKey]: Math.min(i / unknownTokens.length, 0.99),
+          }));
+
+          if (
+            i + BATCH_SIZE <
+            Math.min(unknownTokens.length, MAX_TOKENS_TO_PROCESS)
+          ) {
+            await sleep(BATCH_DELAY_MS);
+          }
+        }
+
+        setFetchTokensProgress((prev) => ({ ...prev, [requestKey]: null }));
+      }
+    },
+    [getOrFetchToken, setCached, isFailed, markFailed],
+  );
+
+  // Fetch balances for a single chain
+  const fetchBalancesForChain = useCallback(
+    async (
+      chain: Chain,
+      wallet: WalletData,
+      tokens: Token[],
+    ): Promise<Balances> => {
+      // Check if already fetching
+      if (activeFetchesRef.current.get(chain)) {
+        return {};
+      }
+      activeFetchesRef.current.set(chain, true);
+
+      try {
+        const chainConfig = config.chains[chain];
+        if (
+          !chainConfig ||
+          chainToPlatform(chainConfig.sdkName) !== wallet.type
+        ) {
+          return {};
+        }
+
+        const updatedBalances: Balances = {};
+
+        // Check cache first
+        const tokensToFetch: Token[] = [];
+        for (const token of tokens) {
+          const cached = getCached(chain, wallet, token);
+          if (cached) {
+            updatedBalances[token.key] = cached;
+          } else {
+            tokensToFetch.push(token);
+          }
+        }
+
+        if (tokensToFetch.length === 0) {
+          return updatedBalances;
+        }
+
+        // Fetch balances
+        const wh = await getWormholeContextV2();
+        const platformName = chainToPlatform(chain);
+        const platform = wh.getPlatform(platformName);
+        const rpc = platform.getRpc(chain);
+        const platformUtils = platform.utils();
+
+        // Try indexed balance fetching first
+        if (supportsIndexerUtils(platformUtils)) {
+          const canUseIndexer =
+            platformName !== 'Evm' ||
+            (config.evmIndexers &&
+              (config.evmIndexers.alchemy || config.evmIndexers.goldRush));
+
+          if (canUseIndexer) {
+            try {
+              const result = await platformUtils.getBalances(
+                config.network,
+                chain,
+                rpc,
+                wallet.address,
+                platformName === 'Evm' ? config.evmIndexers : undefined,
+              );
+
+              await processIndexerResults(
+                result,
+                chain,
+                wallet,
+                updatedBalances,
+              );
+              return updatedBalances;
+            } catch (e) {
+              console.error(`Error calling getBalances on ${chain}:`, e);
+              // Fall through to individual fetching
+            }
+          }
+        }
+
+        // Fallback to individual token fetching
+        await Promise.all(
+          tokensToFetch.map(async (token) => {
+            try {
+              const balanceValue = await platformUtils.getBalance(
+                config.network,
+                chain,
+                rpc,
+                wallet.address,
+                token.address,
+              );
+              const balance = amount.fromBaseUnits(
+                balanceValue ?? 0n,
+                token.decimals,
+              );
+              updatedBalances[token.key] = {
+                balance,
+                lastUpdated: Date.now(),
+              };
+              setCached(chain, wallet, token, balance);
+            } catch (e) {
+              console.error(
+                `Failed to fetch balance for token ${token.key}`,
+                e,
+              );
+            }
+          }),
+        );
+
+        return updatedBalances;
+      } finally {
+        activeFetchesRef.current.set(chain, false);
+      }
+    },
+    [getCached, setCached, processIndexerResults],
+  );
+
+  // Main effect
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchAll = async () => {
+      setIsFetching(true);
+
+      try {
+        const results = await Promise.all(
+          requests.map(async (request) => {
+            const key = getRequestKey(request.chain, request.wallet);
+            const balances = await fetchBalancesForChain(
+              request.chain,
+              request.wallet,
+              request.tokens,
+            );
+            return { key, balances };
+          }),
+        );
+
+        if (!cancelled) {
+          const newBalances: BalanceMap = {};
+          for (const { key, balances } of results) {
+            if (Object.keys(balances).length > 0) {
+              newBalances[key] = balances;
+            }
+          }
+          setBalances(newBalances);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsFetching(false);
         }
       }
     };
 
-    getBalances();
+    if (requests.length > 0) {
+      fetchAll();
+    }
 
     return () => {
-      isActive = false;
+      cancelled = true;
     };
-  }, [cachedBalances, chain, dispatch, tokens, wallet]);
+  }, [requests, requestSignature, fetchBalancesForChain]);
 
-  return { isFetching, balances };
+  return { isFetching, balances, fetchTokensProgress };
 };
 
 export default useGetTokenBalances;

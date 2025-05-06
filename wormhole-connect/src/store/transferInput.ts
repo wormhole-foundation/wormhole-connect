@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import config from 'config';
-import { Token, TokenTuple } from 'config/tokens';
+import { TokenTuple } from 'config/tokens';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
 import {
@@ -11,42 +11,6 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { Chain, amount } from '@wormhole-foundation/sdk';
-
-export type Balance = {
-  lastUpdated: number;
-  balance: amount.Amount | null;
-};
-export type Balances = { [key: string]: Balance };
-export type ChainBalances = {
-  balances: Balances;
-};
-export type BalancesCache = { [key in Chain]?: ChainBalances };
-type WalletAddress = string;
-export type WalletBalances = { [key: WalletAddress]: BalancesCache };
-
-export const accessChainBalances = (
-  balances: WalletBalances | undefined,
-  walletAddress: WalletAddress | undefined,
-  chain: Chain | undefined,
-): ChainBalances | undefined => {
-  if (!chain || !balances || !walletAddress) return undefined;
-  const walletBalances = balances[walletAddress];
-  if (!walletBalances) return undefined;
-  const chainBalances = walletBalances[chain];
-  if (!chainBalances) return undefined;
-  return chainBalances;
-};
-
-export const accessBalance = (
-  balances: WalletBalances | undefined,
-  walletAddress: WalletAddress | undefined,
-  chain: Chain | undefined,
-  token: Token,
-): Balance | undefined => {
-  const chainBalances = accessChainBalances(balances, walletAddress, chain);
-  if (!chainBalances) return undefined;
-  return chainBalances.balances[token.key];
-};
 
 export type ValidationErr = string;
 
@@ -72,7 +36,6 @@ export interface TransferInputState {
   receiveAmount: DataWrapper<string>;
   route?: string;
   preferredRouteName?: string | undefined;
-  balances: WalletBalances;
   foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
@@ -117,7 +80,6 @@ function getInitialState(): TransferInputState {
     receiveAmount: getEmptyDataWrapper(),
     preferredRouteName: config.ui.defaultInputs?.preferredRouteName,
     route: undefined,
-    balances: {},
     foreignAsset: '',
     associatedTokenAddress: '',
     gasEst: {
@@ -256,27 +218,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiveAmount = errorDataWrapper(payload);
     },
-    updateBalances: (
-      state: TransferInputState,
-      {
-        payload,
-      }: PayloadAction<{
-        address: WalletAddress;
-        chain: Chain;
-        balances: Balances;
-      }>,
-    ) => {
-      const { chain, balances, address } = payload;
-      if (!address) return;
-      state.balances[address] ??= {};
-      state.balances[address][chain] ??= {
-        balances: {},
-      };
-      state.balances[address][chain]!.balances = {
-        ...state.balances[address][chain]!.balances,
-        ...balances,
-      };
-    },
     setTransferRoute: (
       state: TransferInputState,
       { payload }: PayloadAction<string | undefined>,
@@ -375,7 +316,6 @@ export const {
   setToChain,
   setAmount,
   setTransferRoute,
-  updateBalances,
   clearTransfer,
   setIsTransactionInProgress,
   swapInputs,

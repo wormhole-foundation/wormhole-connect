@@ -61,6 +61,14 @@ export class Token extends TokenIdLazy {
   // is the original token's TokenId. Otherwise, it's just undefined.
   tokenBridgeOriginalTokenId?: TokenId;
 
+  // web_slug in Coingecko API response
+  // Corresponds to URLs like https://www.coingecko.com/en/coins/:id
+  coingeckoWebId?: string;
+
+  // Flag that's set to true if the token was built in to Connect via config
+  // Used when filtering out unknown/unverified tokens
+  isBuiltin?: boolean;
+
   constructor(
     chain: Chain,
     address: string,
@@ -69,6 +77,7 @@ export class Token extends TokenIdLazy {
     name?: string,
     icon?: TokenIcon | string,
     tokenBridgeOriginalTokenId?: TokenId,
+    coingeckoId?: string,
   ) {
     super(chain, address);
     this.decimals = decimals;
@@ -76,6 +85,7 @@ export class Token extends TokenIdLazy {
     this.name = name;
     this.icon = icon;
     this.tokenBridgeOriginalTokenId = tokenBridgeOriginalTokenId;
+    this.coingeckoWebId = coingeckoId;
   }
 
   get display(): string {
@@ -136,6 +146,7 @@ export class Token extends TokenIdLazy {
       tokenBridgeOriginalTokenId: this.tokenBridgeOriginalTokenId
         ? tokenIdToTuple(this.tokenBridgeOriginalTokenId)
         : undefined,
+      coingeckoWebId: this.coingeckoWebId,
     };
   }
 
@@ -147,6 +158,7 @@ export class Token extends TokenIdLazy {
     name,
     icon,
     tokenBridgeOriginalTokenId,
+    coingeckoWebId,
   }: TokenJson) {
     return new Token(
       chain as Chain,
@@ -158,6 +170,7 @@ export class Token extends TokenIdLazy {
       tokenBridgeOriginalTokenId
         ? tokenIdFromTuple(tokenBridgeOriginalTokenId)
         : undefined,
+      coingeckoWebId,
     );
   }
 }
@@ -170,6 +183,7 @@ interface TokenJson {
   name: string;
   icon: string;
   tokenBridgeOriginalTokenId: TokenTuple | undefined;
+  coingeckoWebId: string | undefined;
 }
 
 // Mapping of tokens to some value
@@ -313,6 +327,15 @@ export class TokenMapping<T> {
   get empty(): boolean {
     return this.size === 0;
   }
+
+  // Create a deep copy of this TokenMapping
+  clone(): TokenMapping<T> {
+    const cloned = new TokenMapping<T>();
+    this.forEach((tokenId, value) => {
+      cloned.add(tokenId, value);
+    });
+    return cloned;
+  }
 }
 
 export class TokenCache extends TokenMapping<Token> {
@@ -406,6 +429,7 @@ export class TokenCache extends TokenMapping<Token> {
     let symbol = metadata?.symbol?.toUpperCase() || '';
     let name = metadata?.name || '';
     let image = metadata?.image?.large || null;
+    const coingeckoId = metadata?.web_slug;
 
     if (!symbol) {
       // Attempt to get the symbol from on-chain
@@ -453,6 +477,7 @@ export class TokenCache extends TokenMapping<Token> {
       name,
       image,
       tokenBridgeOriginalTokenId,
+      coingeckoId,
     );
 
     this.add(t);
@@ -509,7 +534,6 @@ export function buildTokenCache(
   tokens: TokenConfig[],
   wrappedTokens: WrappedTokenAddresses,
   cacheKey: string,
-  tokenFilter?: string[],
 ): TokenCache {
   const cache = TokenCache.load(cacheKey);
 
@@ -522,6 +546,7 @@ export function buildTokenCache(
       name,
       icon,
     );
+    token.isBuiltin = true;
     cache.add(token);
   }
 
@@ -550,6 +575,7 @@ export function buildTokenCache(
             originalToken.icon,
             originalToken,
           );
+          wrappedToken.isBuiltin = true;
 
           cache.add(wrappedToken);
         }
@@ -577,8 +603,17 @@ export function tokenIdFromTuple(tokenTuple: TokenTuple): TokenId {
   return TokenIdLazy.fromTokenTuple(tokenTuple);
 }
 
-export function tokenKey(tokenId: TokenId): string {
-  return JSON.stringify(tokenIdToTuple(tokenId));
+export function tokenKey(chain: Chain, address: string): string;
+export function tokenKey(tokenId: TokenId): string;
+export function tokenKey(
+  tokenIdOrChain: TokenId | Chain,
+  address?: string,
+): string {
+  if (typeof tokenIdOrChain === 'string') {
+    return JSON.stringify([tokenIdOrChain, address]);
+  } else {
+    return JSON.stringify(tokenIdToTuple(tokenIdOrChain));
+  }
 }
 
 export function parseTokenKey(key: string): TokenId {
@@ -590,7 +625,7 @@ export function parseTokenKey(key: string): TokenId {
   }
 }
 
-function addressString(tokenId: TokenId): string {
+export function addressString(tokenId: TokenId): string {
   if (tokenId instanceof TokenIdLazy) {
     return tokenId.addressString;
   } else {
