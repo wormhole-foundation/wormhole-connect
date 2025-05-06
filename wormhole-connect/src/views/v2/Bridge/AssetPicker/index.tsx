@@ -205,7 +205,9 @@ const AssetPicker = (props: Props) => {
             popupState.open(e);
           }
         }}
-        onTouchStart={(e) => {
+        onTouchEnd={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
           if (mobile) {
             setIsDrawerOpen(true);
           } else {
@@ -233,11 +235,7 @@ const AssetPicker = (props: Props) => {
           PaperProps={{
             className: classes.drawer,
           }}
-          transitionDuration={{
-            enter: 200,
-            exit: 200,
-            appear: 200,
-          }}
+          transitionDuration={200}
           onOpen={() => setIsDrawerOpen(true)}
           onClose={() => setIsDrawerOpen(false)}
         >

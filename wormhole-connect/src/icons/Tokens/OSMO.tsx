@@ -10,17 +10,17 @@ function OSMO() {
       fill="none"
       viewBox="0 0 800 800"
     >
-      <g clipPath="url(#clip0)">
+      <g clipPath="url(#icons_chains_osmo_clipPath_0)">
         <path
           fill="#5E12A0"
           d="M673.964 193.237C667.62 168.805 647.227 144.373 610.519 117.174C581.062 95.5081 549.792 83.0615 524.867 83.0615C519.882 83.0615 515.35 83.5225 510.819 84.4445C499.489 86.7494 489.519 95.0471 483.174 107.494C475.47 122.245 473.658 142.068 478.643 154.053C480.455 157.741 482.721 162.351 485.44 166.5C461.422 181.251 447.826 185.4 446.013 185.861C508.553 207.067 560.669 251.321 593.298 308.944L593.751 303.413C595.111 288.2 599.642 270.683 605.987 252.704C612.332 254.548 618.676 255.47 625.021 255.47C641.788 255.47 656.29 248.555 665.354 236.109C674.418 223.662 678.043 207.067 673.964 193.237Z"
         />
         <path
-          fill="url(#paint0_radial)"
+          fill="url(#icons_chains_osmo_radialGradient_0)"
           d="M608.706 239.342C649.945 250.867 666.713 218.598 661.275 196.932C655.383 175.265 636.35 153.138 602.814 128.245C569.279 103.352 535.29 93.2098 513.537 97.8197C491.784 102.43 485.44 136.081 490.878 148.989C493.144 154.06 498.129 161.436 504.927 169.733C496.316 175.726 488.159 180.336 481.361 184.485C523.054 203.385 559.309 232.888 586.5 269.767C589.672 257.321 594.204 246.257 598.282 236.576C601.455 237.037 605.08 237.959 608.706 239.342Z"
         />
         <path
-          fill="url(#paint1_radial)"
+          fill="url(#icons_chains_osmo_radialGradient_1)"
           d="M372.594 691.101C512.504 691.101 625.924 575.729 625.924 433.41C625.924 291.091 512.504 175.719 372.594 175.719C232.685 175.719 119.265 291.091 119.265 433.41C119.265 575.729 232.685 691.101 372.594 691.101Z"
         />
         <path
@@ -37,7 +37,7 @@ function OSMO() {
           d="M372.596 160.503C224.405 160.503 104.311 282.664 104.311 433.406C104.311 584.149 224.405 706.31 372.596 706.31C520.786 706.31 640.88 584.149 640.88 433.406C640.88 282.664 520.333 160.503 372.596 160.503ZM372.596 691.098C232.562 691.098 119.266 575.851 119.266 433.406C119.266 290.962 232.562 175.715 372.596 175.715C512.629 175.715 625.925 290.962 625.925 433.406C625.925 575.851 512.176 691.098 372.596 691.098Z"
         />
         <path
-          fill="url(#paint2_linear)"
+          fill="url(#icons_chains_osmo_linearGradient_0)"
           d="M372.594 691.101C512.504 691.101 625.924 575.729 625.924 433.41C625.924 291.091 512.504 175.719 372.594 175.719C232.685 175.719 119.265 291.091 119.265 433.41C119.265 575.729 232.685 691.101 372.594 691.101Z"
           opacity=".6"
         />
@@ -47,30 +47,30 @@ function OSMO() {
           opacity=".6"
         />
         <path
-          fill="url(#paint3_linear)"
+          fill="url(#icons_chains_osmo_linearGradient_1)"
           d="M412.93 179.411C349.031 168.808 286.945 183.56 236.189 216.29C235.282 217.212 234.376 218.133 234.376 218.133C253.863 206.148 282.413 195.545 282.413 195.545C208.998 238.878 186.339 288.203 186.339 288.203C214.889 231.963 298.728 192.318 364.439 189.552C430.151 186.786 473.203 206.609 525.772 249.481C578.342 292.813 610.064 381.322 606.892 451.392C604.173 521.462 567.918 578.163 567.918 578.163C592.844 545.433 607.799 521.462 617.315 497.03C619.128 489.654 620.941 482.278 621.847 474.441C644.506 334.302 551.151 201.999 412.93 179.411Z"
           opacity=".6"
         />
         <path
-          fill="url(#paint4_linear)"
+          fill="url(#icons_chains_osmo_linearGradient_2)"
           d="M613.235 431.104C613.235 566.173 505.377 675.887 372.595 675.887C239.812 675.887 131.501 566.173 131.501 431.104H613.235Z"
         />
         <g opacity=".6">
           <path
-            fill="url(#paint5_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_3)"
             d="M594.201 431.104C594.201 562.946 491.781 670.817 363.077 675.887C366.25 675.887 369.422 675.887 372.594 675.887C505.377 675.887 613.234 566.173 613.234 431.104H594.201Z"
             opacity=".6"
           />
         </g>
         <g opacity=".7">
           <path
-            fill="url(#paint6_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_4)"
             d="M165.49 431.104H131.501C131.501 566.173 239.359 675.887 372.142 675.887C378.033 675.887 383.471 675.887 388.909 675.426C264.284 666.207 165.49 560.18 165.49 431.104Z"
             opacity=".7"
           />
         </g>
         <path
-          fill="url(#paint7_linear)"
+          fill="url(#icons_chains_osmo_linearGradient_5)"
           d="M612.781 433.407C612.781 405.287 564.744 389.153 500.845 383.621C454.621 379.933 407.943 384.543 354.467 401.138C308.243 414.968 266.55 412.663 236.187 408.975C168.662 401.138 131.501 400.216 131.501 433.407C131.501 481.35 227.576 541.278 371.688 520.533C444.651 509.931 482.265 488.264 525.317 473.513C571.995 457.839 612.781 458.3 612.781 433.407Z"
         />
         <path
@@ -83,7 +83,7 @@ function OSMO() {
         />
         <g opacity=".6">
           <path
-            fill="url(#paint8_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_6)"
             d="M579.703 242.563C579.25 242.563 578.796 242.563 578.796 242.563C576.077 242.102 574.265 239.336 574.718 236.109C578.796 214.904 596.017 194.62 596.924 193.698C598.736 191.393 602.362 191.393 604.175 193.237C606.441 195.081 606.44 198.769 604.628 200.613C604.175 201.074 588.313 219.975 584.688 238.414C584.235 241.18 581.969 242.563 579.703 242.563Z"
             opacity=".6"
           />
@@ -95,7 +95,7 @@ function OSMO() {
         />
         <g opacity=".4">
           <path
-            fill="url(#paint9_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_7)"
             d="M348.577 621.135C343.592 616.065 343.592 607.767 348.577 602.696C349.484 601.774 350.39 601.313 351.296 600.391C349.484 600.852 348.124 601.774 346.765 603.157C341.78 608.228 341.78 616.526 346.765 621.596C350.843 625.745 357.188 626.667 362.173 623.901C357.641 625.745 352.203 624.823 348.577 621.135Z"
             opacity=".6"
           />
@@ -112,7 +112,7 @@ function OSMO() {
         />
         <g opacity=".4">
           <path
-            fill="url(#paint10_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_8)"
             d="M414.742 614.685C409.757 609.614 409.757 601.317 414.742 596.246C415.648 595.324 416.555 594.863 417.461 593.941C415.648 594.402 414.289 595.324 412.929 596.707C407.944 601.778 407.944 610.075 412.929 615.146C417.008 619.295 423.352 620.217 428.337 617.451C423.806 619.295 418.367 618.373 414.742 614.685Z"
             opacity=".6"
           />
@@ -129,7 +129,7 @@ function OSMO() {
         />
         <g opacity=".4">
           <path
-            fill="url(#paint11_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_9)"
             d="M383.923 645.57C380.298 641.882 380.298 635.429 383.923 631.741C384.376 631.28 385.283 630.819 385.736 630.358C384.376 630.819 383.47 631.741 382.564 632.663C378.938 636.351 378.938 642.805 382.564 646.492C385.736 649.719 390.268 650.18 394.346 647.875C390.721 649.258 386.642 648.336 383.923 645.57Z"
             opacity=".6"
           />
@@ -146,7 +146,7 @@ function OSMO() {
         />
         <g opacity=".4">
           <path
-            fill="url(#paint12_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_10)"
             d="M442.387 638.656C438.761 634.968 438.761 628.514 442.387 624.826C442.84 624.365 443.746 623.904 444.199 623.443C442.84 623.904 441.934 624.826 441.027 625.748C437.402 629.436 437.402 635.89 441.027 639.578C444.199 642.805 448.731 643.266 452.81 640.961C449.184 642.344 445.106 641.422 442.387 638.656Z"
             opacity=".6"
           />
@@ -163,7 +163,7 @@ function OSMO() {
         />
         <g opacity=".4">
           <path
-            fill="url(#paint13_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_11)"
             d="M290.128 613.192C281.971 604.895 281.971 591.526 290.128 583.228C291.488 581.845 292.847 580.923 294.66 580.001C291.941 580.923 289.675 582.767 287.409 584.611C279.252 592.909 279.252 606.278 287.409 614.575C294.207 621.49 304.63 622.873 312.787 617.802C305.083 621.029 296.019 619.646 290.128 613.192Z"
             opacity=".6"
           />
@@ -180,7 +180,7 @@ function OSMO() {
         />
         <g opacity=".4">
           <path
-            fill="url(#paint14_linear)"
+            fill="url(#icons_chains_osmo_linearGradient_12)"
             d="M475.92 561.103C467.763 552.805 467.763 539.436 475.92 531.139C477.28 529.756 478.639 528.834 480.452 527.912C477.733 528.834 475.467 530.678 473.201 532.521C465.044 540.819 465.044 554.188 473.201 562.486C479.999 569.4 490.422 570.783 498.579 565.713C490.875 568.939 482.265 567.556 475.92 561.103Z"
             opacity=".6"
           />
@@ -191,178 +191,6 @@ function OSMO() {
           opacity=".3"
         />
       </g>
-      <defs>
-        <radialGradient
-          id="paint0_radial"
-          cx="0"
-          cy="0"
-          r="1"
-          gradientTransform="translate(653.009 167.889) scale(202.547 206.035)"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#FFEAFF" stopOpacity=".6" />
-          <stop offset=".681" stopColor="#A087C9" />
-          <stop offset="1" stopColor="#10002F" />
-        </radialGradient>
-        <radialGradient
-          id="paint1_radial"
-          cx="0"
-          cy="0"
-          r="1"
-          gradientTransform="translate(540.32 255.753) scale(495.56 504.093)"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#FFEAFF" stopOpacity=".6" />
-          <stop offset=".681" stopColor="#A087C9" />
-          <stop offset="1" stopColor="#10002F" />
-        </radialGradient>
-        <linearGradient
-          id="paint2_linear"
-          x1="331.959"
-          x2="415.726"
-          y1="687.445"
-          y2="179.399"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#81FFFF" />
-          <stop offset=".62" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint3_linear"
-          x1="551.129"
-          x2="338.385"
-          y1="258.408"
-          y2="450.302"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint4_linear"
-          x1="131.705"
-          x2="613.118"
-          y1="553.353"
-          y2="553.353"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#0002E9" />
-          <stop offset=".995" stopColor="#FF00C7" />
-        </linearGradient>
-        <linearGradient
-          id="paint5_linear"
-          x1="635.906"
-          x2="369.659"
-          y1="452.584"
-          y2="699.942"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint6_linear"
-          x1="131.705"
-          x2="389.259"
-          y1="553.352"
-          y2="553.352"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#000292" />
-          <stop offset=".995" stopColor="#7D00C7" />
-        </linearGradient>
-        <linearGradient
-          id="paint7_linear"
-          x1="132.029"
-          x2="612.795"
-          y1="453.743"
-          y2="453.743"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#000292" />
-          <stop offset=".995" stopColor="#BE00C7" />
-        </linearGradient>
-        <linearGradient
-          id="paint8_linear"
-          x1="604.91"
-          x2="569.494"
-          y1="191.453"
-          y2="248.03"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint9_linear"
-          x1="343.013"
-          x2="362.187"
-          y1="613.233"
-          y2="613.233"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint10_linear"
-          x1="409.132"
-          x2="428.305"
-          y1="606.695"
-          y2="606.695"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint11_linear"
-          x1="379.785"
-          x2="394.18"
-          y1="639.688"
-          y2="639.688"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint12_linear"
-          x1="438.053"
-          x2="452.447"
-          y1="632.755"
-          y2="632.755"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint13_linear"
-          x1="281.083"
-          x2="312.395"
-          y1="600.365"
-          y2="600.365"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint14_linear"
-          x1="467.049"
-          x2="498.361"
-          y1="548.259"
-          y2="548.259"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset=".289" stopColor="#fff" />
-          <stop offset=".78" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <clipPath id="clip0">
-          <rect width="800" height="800" fill="#fff" />
-        </clipPath>
-      </defs>
     </svg>
   );
 }

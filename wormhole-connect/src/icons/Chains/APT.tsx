@@ -10,7 +10,7 @@ function APT() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect width="36" height="36" rx="6" fill="white" />
-      <g clipPath="url(#clip0_84_8298)">
+      <g clipPath="url(#icons_chains_apt_clipPath_0)">
         <path
           d="M36 18C36 8.05887 27.9411 0 18 0C8.05887 0 0 8.05887 0 18C0 27.9411 8.05887 36 18 36C27.9411 36 36 27.9411 36 18Z"
           fill="white"
@@ -20,11 +20,6 @@ function APT() {
           fill="black"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_84_8298">
-          <rect width="36" height="36" fill="white" />
-        </clipPath>
-      </defs>
     </svg>
   );
 }

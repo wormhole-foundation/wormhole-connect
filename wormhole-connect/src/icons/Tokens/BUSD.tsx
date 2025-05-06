@@ -10,7 +10,7 @@ function BUSD() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clipPath="url(#clip0_313_9795)">
+      <g clipPath="url(#icons_tokens_busd_clipPath_0)">
         <path
           d="M99.6979 0.420898L124.296 25.6121L62.3557 87.5527L37.7573 62.9542L99.6979 0.420898Z"
           fill="#F0B90B"
@@ -32,11 +32,6 @@ function BUSD() {
           stroke="#F0B90B"
         />
       </g>
-      <defs>
-        <clipPath id="clip0_313_9795">
-          <rect width="199.401" height="200" fill="white" />
-        </clipPath>
-      </defs>
     </svg>
   );
 }
