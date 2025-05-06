@@ -19,7 +19,10 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getAddress } from 'ethers';
 
 interface TokensContextType {
-  getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>;
+  getOrFetchToken: (
+    tokenId: TokenId,
+    options?: { requireCoingeckoListing: boolean },
+  ) => Promise<Token | undefined>;
   isFetchingToken: boolean;
   lastTokenCacheUpdate: Date;
 
@@ -66,7 +69,10 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   const [lastTokenPriceUpdate, setLastPriceUpdate] = useState(new Date());
 
   const getOrFetchToken = useCallback(
-    async (tokenId: TokenId): Promise<Token | undefined> => {
+    async (
+      tokenId: TokenId,
+      options?: { requireCoingeckoListing: boolean },
+    ): Promise<Token | undefined> => {
       if (
         !isNative(tokenId.address) &&
         chainToPlatform(tokenId.chain) === 'Evm'
@@ -87,7 +93,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
 
       try {
         setIsFetchingToken(true);
-        const t = await config.tokens.addFromTokenId(tokenId);
+        const t = await config.tokens.addFromTokenId(tokenId, options);
         setLastUpdate(config.tokens.lastUpdate);
         console.info(
           `Added new token to cache`,

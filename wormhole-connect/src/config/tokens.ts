@@ -387,7 +387,10 @@ export class TokenCache extends TokenMapping<Token> {
     this._localStorageKey = key;
   }
 
-  async addFromTokenId(tokenId: TokenId): Promise<Token> {
+  async addFromTokenId(
+    tokenId: TokenId,
+    options?: { requireCoingeckoListing: boolean },
+  ): Promise<Token> {
     if (
       tokenId.chain === 'Sui' &&
       !isValidSuiType(tokenId.address.toString())
@@ -402,6 +405,9 @@ export class TokenCache extends TokenMapping<Token> {
     const decimals = await chain.getDecimals(tokenId.address);
 
     const metadata = await fetchTokenMetadata(tokenId);
+    if (metadata.error && options?.requireCoingeckoListing) {
+      throw new Error('Token not found on Coingecko');
+    }
 
     let symbol = metadata?.symbol?.toUpperCase() || '';
     let name = metadata?.name || '';

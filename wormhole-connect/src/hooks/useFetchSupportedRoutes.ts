@@ -56,38 +56,41 @@ const useFetchSupportedRoutes = ({
 
         let supported = false;
 
-        try {
-          supported = await route.isRouteSupported(
-            sourceToken,
-            destToken,
-            fromChain,
-            toChain,
-          );
-
-          if (supported && config.isRouteSupportedHandler) {
-            supported = await config.isRouteSupportedHandler({
-              route: name,
+        if (
+          // HAX - Enable Mayan routes (except SHUTTLE) for all assets
+          !(
+            route.rc.name.includes('Mayan') &&
+            route.rc.name !== 'MayanRouteSHUTTLE'
+          )
+        ) {
+          try {
+            supported = await route.isRouteSupported(
+              sourceToken,
+              destToken,
               fromChain,
               toChain,
-              fromToken: getTokenDetails(sourceToken),
-              toToken: getTokenDetails(destToken),
-            });
-          }
-        } catch (e) {
-          maybeLogSdkError(
-            e,
-            `Error when checking route (${name}) is supported`,
-          );
-        }
+            );
 
-        // HAX - Enable Mayan routes (except SHUTTLE) for all assets
-        // TODO token refactor
-        if (
-          route.rc.name.includes('Mayan') &&
-          route.rc.name !== 'MayanRouteSHUTTLE'
-        ) {
+            if (supported && config.isRouteSupportedHandler) {
+              supported = await config.isRouteSupportedHandler({
+                route: name,
+                fromChain,
+                toChain,
+                fromToken: getTokenDetails(sourceToken),
+                toToken: getTokenDetails(destToken),
+              });
+            }
+          } catch (e) {
+            maybeLogSdkError(
+              e,
+              `Error when checking route (${name}) is supported`,
+            );
+          }
+        } else {
           supported = true;
         }
+
+        console.log(name, supported);
 
         if (supported) {
           _routes.push(name);

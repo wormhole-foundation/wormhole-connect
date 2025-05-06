@@ -5,8 +5,15 @@ import { accessBalance, Balances, updateBalances } from 'store/transferInput';
 import config, { getWormholeContextV2 } from 'config';
 import { Token } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
-import { Chain, TokenAddress, amount } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  TokenAddress,
+  Wormhole,
+  amount,
+  supportsIndexerUtils,
+} from '@wormhole-foundation/sdk';
 import { WalletData } from 'store/wallet';
+import { useTokens } from 'contexts/TokensContext';
 
 const useGetTokenBalances = (
   wallet: WalletData | undefined,
@@ -18,6 +25,7 @@ const useGetTokenBalances = (
   const cachedBalances = useSelector(
     (state: RootState) => state.transferInput.balances,
   );
+  const { getOrFetchToken } = useTokens();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -71,7 +79,8 @@ const useGetTokenBalances = (
       if (needsUpdate.length > 0) {
         try {
           const wh = await getWormholeContextV2();
-          const platform = wh.getPlatform(chainToPlatform(chain));
+          const platformName = chainToPlatform(chain);
+          const platform = wh.getPlatform(platformName);
           const rpc = platform.getRpc(chain);
           const tokenAddresses: TokenAddress<Chain>[] = [];
 
@@ -89,29 +98,97 @@ const useGetTokenBalances = (
             return;
           }
 
-          const result = await platform
-            .utils()
-            .getBalances(
-              chain,
-              rpc,
-              wallet.address,
-              tokenAddresses.map((addr) => addr.toString()) as TokenAddress<
-                typeof chain
-              >[],
-            );
+          const platformUtils = platform.utils();
 
-          for (const tokenAddress in result) {
-            const token = config.tokens.get(chain, tokenAddress);
+          // There are two methods for fetching all token balances: a preferred method and a fallback.
+          // The preferred method calls getBalances (if available) which fetches all token balances held
+          // by that address. This might include tokens Connect is not aware of yet, hence the call to
+          // getOrFetchToken.
+          //
+          // If getBalances is not available, we call getBalance for each token Connect is already aware of.
+          // This is just the fallback method, because it's way less efficient (makes one network call per token)
+          // and misses tokens we don't already know about. It's objectively worse.
+          let usedGetBalances = false;
+          if (supportsIndexerUtils(platformUtils)) {
+            let optionalValue: any = undefined;
+            let canUseGetBalances = false;
 
-            if (token) {
-              const bus = result[tokenAddress];
-              const balance = amount.fromBaseUnits(bus ?? 0n, token.decimals);
-
-              updatedBalances[token.key] = {
-                balance,
-                lastUpdated: now,
-              };
+            if (platformName === 'Evm') {
+              if (
+                config.evmIndexers &&
+                (config.evmIndexers.alchemy || config.evmIndexers.goldRush)
+              ) {
+                optionalValue = config.evmIndexers;
+                canUseGetBalances = true;
+              }
+            } else {
+              canUseGetBalances = true;
             }
+
+            // If canUseGetBalances is true that means we have what we need to call getBalances
+            // (for EVM, if the integrator didn't provide an Alchemy or GoldRush key, we can't use getBalances)
+
+            if (canUseGetBalances) {
+              let result = await platformUtils.getBalances(
+                config.network,
+                chain,
+                rpc,
+                wallet.address,
+                optionalValue,
+              );
+
+              await Promise.all(
+                Object.entries(result).map(async ([tokenAddress, bus]) => {
+                  const token = await getOrFetchToken(
+                    Wormhole.tokenId(chain, tokenAddress),
+                    { requireCoingeckoListing: true },
+                  );
+                  if (!token) return;
+
+                  const balance = amount.fromBaseUnits(
+                    bus ?? 0n,
+                    token.decimals,
+                  );
+                  updatedBalances[token.key] = {
+                    balance,
+                    lastUpdated: now,
+                  };
+                }),
+              );
+
+              usedGetBalances = true;
+            }
+          }
+
+          // Use fallback method if we couldn't use getBalances
+          if (!usedGetBalances) {
+            await Promise.all(
+              needsUpdate.map(async (token) => {
+                try {
+                  const balanceValue = await platformUtils.getBalance(
+                    config.network,
+                    chain,
+                    rpc,
+                    wallet.address,
+                    token.address,
+                  );
+                  const balance = amount.fromBaseUnits(
+                    balanceValue ?? 0n,
+                    token.decimals,
+                  );
+                  updatedBalances[token.key] = {
+                    balance,
+                    lastUpdated: now,
+                  };
+                } catch (e) {
+                  // If fetching balance fails, keep the default 0 balance
+                  console.error(
+                    `Failed to fetch balance for token ${token.key}`,
+                    e,
+                  );
+                }
+              }),
+            );
           }
         } catch (e) {
           console.error('Failed to get token balances', e);
