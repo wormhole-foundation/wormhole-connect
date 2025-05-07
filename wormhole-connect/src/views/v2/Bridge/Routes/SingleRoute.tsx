@@ -620,6 +620,7 @@ const SingleRoute = (props: Props) => {
         }}
       >
         <CardActionArea
+          component="div"
           disabled={
             isTransactionInProgress ||
             typeof props.onSelect !== 'function' ||
