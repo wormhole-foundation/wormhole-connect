@@ -193,28 +193,35 @@ export default class RouteOperator {
   async getQuotes(
     routes: string[],
     params: QuoteParams,
-  ): Promise<routes.QuoteResult<routes.Options>[]> {
-    return (
-      await Promise.allSettled(
-        routes.map((route) => {
-          const cachedResult = this.quoteCache.get(route, params);
-          if (cachedResult) {
-            return cachedResult;
-          } else {
-            return this.quoteCache.fetch(route, params, this.get(route));
-          }
-        }),
-      )
-    ).map((quoteResult) => {
-      if (quoteResult.status === 'rejected') {
-        return {
+  ): Promise<Record<string, routes.QuoteResult<routes.Options>>> {
+    const results = await Promise.allSettled(
+      routes.map((route) => {
+        const cachedResult = this.quoteCache.get(route, params);
+        if (cachedResult) {
+          return cachedResult;
+        } else {
+          return this.quoteCache.fetch(route, params, this.get(route));
+        }
+      }),
+    );
+
+    // Convert the array of promise results to a quoteName=>quoteResult map
+    const quotes = {};
+
+    for (let i = 0; i < routes.length; i++) {
+      const route = routes[i];
+      const result = results[i];
+      if (result.status === 'rejected') {
+        quotes[route] = {
           success: false,
-          error: quoteResult.reason,
+          error: result.reason,
         };
       } else {
-        return quoteResult.value;
+        quotes[route] = result.value;
       }
-    });
+    }
+
+    return quotes;
   }
 }
 

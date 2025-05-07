@@ -1,5 +1,5 @@
 import { isSameToken, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
 import {
@@ -28,7 +28,7 @@ type Params = {
 };
 
 type HookReturn = {
-  quotesMap: Record<string, QuoteResult | undefined>;
+  quotes: Record<string, QuoteResult | undefined>;
   isFetchingInitialQuotes: boolean;
 };
 
@@ -42,7 +42,7 @@ export default (routes: string[], params: Params): HookReturn => {
     undefined,
   );
   const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
-  const [quotes, setQuotes] = useState<QuoteResult[]>([]);
+  const [quotes, setQuotes] = useState<Record<string, QuoteResult>>({});
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default (routes: string[], params: Params): HookReturn => {
     // to refetch quotes at that point.
     let timeTilNextFetch = 0;
 
-    if (quotes.length > 0) {
+    if (Object.keys(quotes).length > 0) {
       const rParams = params as Required<QuoteParams>;
 
       if (
@@ -162,7 +162,7 @@ export default (routes: string[], params: Params): HookReturn => {
       !params.amount
     ) {
       // Clear quotes if we are missing any inputs or if the inputs support 0 routes
-      setQuotes([]);
+      setQuotes({});
       setIsFetchingInitialQuotes(false);
       return cleanup;
     }
@@ -176,7 +176,7 @@ export default (routes: string[], params: Params): HookReturn => {
     // Forcing TS to infer that fields are non-optional
     const rParams = params as Required<QuoteParams>;
 
-    const quotesValues = quotes.filter((q) => q.success);
+    const quotesValues = Object.values(quotes).filter((q) => q.success);
     // Immediately invalidate quotes if token inputs changed
     if (quotesValues.length > 0) {
       const { sourceToken, destinationToken } = quotesValues[0];
@@ -184,7 +184,7 @@ export default (routes: string[], params: Params): HookReturn => {
         !isSameToken(sourceToken.token, rParams.sourceToken) ||
         !isSameToken(destinationToken.token, rParams.destToken)
       ) {
-        setQuotes([]);
+        setQuotes({});
       }
     }
 
@@ -194,7 +194,7 @@ export default (routes: string[], params: Params): HookReturn => {
     // However, when fetching updates afterwards, we do not need to show
     // this in-progress state because there are already existing quotes
     // to show - this is less jarring.
-    if (quotes.length === 0 && routes.length !== 0) {
+    if (Object.keys(quotes).length === 0 && routes.length !== 0) {
       setIsFetchingInitialQuotes(true);
     }
 
@@ -218,25 +218,10 @@ export default (routes: string[], params: Params): HookReturn => {
     isVisible,
   ]);
 
-  const quotesMap = useMemo(
-    () =>
-      routes.reduce((acc, route, index) => {
-        acc[route] = quotes[index];
-        return acc;
-      }, {} as Record<string, QuoteResult | undefined>),
-    // Important: We should not include routes property in deps. See routes.join() below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      routes.join(), // .join() is necessary to prevent unnecessary updates when routes array's ref changed but its content did not
-      quotes,
-    ],
-  );
-
   // Filter out quotes that would result in a large instant loss
   // (Transfers >=$1000 with >=10% value loss)
-  for (const name in quotesMap) {
-    const quote = quotesMap[name];
+  for (const name in quotes) {
+    const quote = quotes[name];
     if (quote !== undefined && quote.success) {
       const usdValueOut = calculateUSDPriceRaw(
         getTokenPrice,
@@ -247,16 +232,16 @@ export default (routes: string[], params: Params): HookReturn => {
       if (usdValue && usdValueOut) {
         const valueRatio = usdValueOut / usdValue;
         if (usdValue >= 1000 && valueRatio <= 0.9) {
-          delete quotesMap[name];
+          delete quotes[name];
         }
       }
     }
   }
 
   // TODO temporary logic for beta Mayan support
-  for (const name in quotesMap) {
+  for (const name in quotes) {
     if (name.startsWith('MayanSwap')) {
-      const mayanQuote = quotesMap[name];
+      const mayanQuote = quotes[name];
 
       if (mayanQuote !== undefined && mayanQuote.success) {
         // There are two special cases here for Mayan Swift transfers
@@ -277,7 +262,7 @@ export default (routes: string[], params: Params): HookReturn => {
         ) {
           // Temporarily disallow quotes above the limit
           // TODO revisit this
-          quotesMap[name] = {
+          quotes[name] = {
             success: false,
             error: new Error(`Amount exceeds limit of $${protocolLimit} USD`),
           };
@@ -298,7 +283,7 @@ export default (routes: string[], params: Params): HookReturn => {
               approxInputUsdValue - approxOutputUsdValue;
 
             if (!isNaN(approxUsdNetworkCost) && approxUsdNetworkCost > 0) {
-              (quotesMap[name] as routes.Quote<Network>).relayFee = {
+              (quotes[name] as routes.Quote<Network>).relayFee = {
                 token: {
                   chain: 'Solana' as Chain,
                   address: Wormhole.parseAddress(
@@ -320,7 +305,7 @@ export default (routes: string[], params: Params): HookReturn => {
   // TODO end Mayan beta support special logic
 
   return {
-    quotesMap,
+    quotes,
     isFetchingInitialQuotes,
   };
 };
