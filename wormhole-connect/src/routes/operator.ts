@@ -196,11 +196,11 @@ export default class RouteOperator {
     );
 
     // Convert the array of promise results to a quoteName=>quoteResult map
-    let quotes = {};
+    const quotes = {};
 
     for (let i = 0; i < routes.length; i++) {
-      let route = routes[i];
-      let result = results[i];
+      const route = routes[i];
+      const result = results[i];
       if (result.status === 'rejected') {
         quotes[route] = {
           success: false,
