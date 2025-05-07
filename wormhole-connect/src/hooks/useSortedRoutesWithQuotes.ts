@@ -20,7 +20,7 @@ type HookReturn = {
   allSupportedRoutes: string[];
   sortedRoutes: string[];
   sortedRoutesWithQuotes: RouteWithQuote[];
-  quotesMap: ReturnType<typeof useFetchQuotes>['quotesMap'];
+  quotes: ReturnType<typeof useFetchQuotes>['quotes'];
   isFetching: boolean;
 };
 
@@ -76,13 +76,15 @@ export const useSortedRoutesWithQuotes = ({
     ],
   );
 
-  const { quotesMap, isFetchingInitialQuotes: isFetchingQuotes } =
-    useFetchQuotes(supportedRoutes, quoteParams);
+  const { quotes, isFetchingInitialQuotes: isFetchingQuotes } = useFetchQuotes(
+    supportedRoutes,
+    quoteParams,
+  );
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
       .map((route) => {
-        const quote = quotesMap[route];
+        const quote = quotes[route];
         if (quote?.success) {
           return {
             route,
@@ -94,7 +96,7 @@ export const useSortedRoutesWithQuotes = ({
       })
       .filter(Boolean) as RouteWithQuote[];
     // Safe to cast, as falsy values are filtered
-  }, [supportedRoutes, quotesMap]);
+  }, [supportedRoutes, quotes]);
 
   // Only routes with quotes are sorted.
   const sortedRoutesWithQuotes = useMemo(() => {
@@ -152,14 +154,14 @@ export const useSortedRoutesWithQuotes = ({
       allSupportedRoutes: supportedRoutes,
       sortedRoutes,
       sortedRoutesWithQuotes,
-      quotesMap,
+      quotes,
       isFetching: isFetchingSupportedRoutes || isFetchingQuotes,
     }),
     [
       supportedRoutes,
       sortedRoutes,
       sortedRoutesWithQuotes,
-      quotesMap,
+      quotes,
       isFetchingSupportedRoutes,
       isFetchingQuotes,
     ],

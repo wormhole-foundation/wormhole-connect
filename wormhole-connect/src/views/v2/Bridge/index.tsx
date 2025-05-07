@@ -146,7 +146,7 @@ const Bridge = () => {
     allSupportedRoutes,
     sortedRoutes,
     sortedRoutesWithQuotes,
-    quotesMap,
+    quotes,
     isFetching: isFetchingQuotes,
   } = useSortedRoutesWithQuotes({
     amount,
@@ -171,7 +171,7 @@ const Bridge = () => {
     error: txError,
     errorInternal: txErrorInternal,
     onConfirm,
-  } = useConfirmTransaction({ quotes: quotesMap });
+  } = useConfirmTransaction({ quotes });
 
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
@@ -229,7 +229,7 @@ const Bridge = () => {
   const amountValidation = useAmountValidation({
     balance: sourceToken ? balances[sourceToken.key]?.balance : null,
     routes: allSupportedRoutes,
-    quotesMap,
+    quotes,
     tokenSymbol: sourceToken?.symbol ?? '',
     isLoading: isFetchingBalances || isFetchingQuotes,
     disabled: !sendingWallet.address || !sourceChain || !sourceToken,
@@ -627,7 +627,7 @@ const Bridge = () => {
           onRouteChange={(r) => {
             dispatch(setTransferRoute(r));
           }}
-          quotes={quotesMap}
+          quotes={quotes}
           isLoading={isFetchingQuotes || isFetchingBalances}
         />
       )}

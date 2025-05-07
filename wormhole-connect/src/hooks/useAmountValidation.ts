@@ -13,7 +13,7 @@ type HookReturn = {
 type Props = {
   balance?: sdkAmount.Amount | null;
   routes: string[];
-  quotesMap: Record<string, QuoteResult | undefined>;
+  quotes: Record<string, QuoteResult | undefined>;
   tokenSymbol: string;
   isLoading: boolean;
   disabled?: boolean;
@@ -25,7 +25,7 @@ export const useAmountValidation = (props: Props): HookReturn => {
   // Min amount available
   const minAmount = useMemo(
     () =>
-      Object.values(props.quotesMap).reduce((minAmount, quoteResult) => {
+      Object.values(props.quotes).reduce((minAmount, quoteResult) => {
         if (quoteResult?.success) {
           return minAmount;
         }
@@ -46,18 +46,18 @@ export const useAmountValidation = (props: Props): HookReturn => {
           return minAmount;
         }
       }, undefined as sdkAmount.Amount | undefined),
-    [props.quotesMap],
+    [props.quotes],
   );
 
   const allRoutesFailed = useMemo(() => {
-    if (Object.keys(props.quotesMap).length === 0) {
+    if (Object.keys(props.quotes).length === 0) {
       return false;
     }
 
     return props.routes.every((route) => {
-      return props.quotesMap[route]?.success === false;
+      return props.quotes[route]?.success === false;
     });
-  }, [props.routes, props.quotesMap]);
+  }, [props.routes, props.quotes]);
 
   // Don't show errors when no amount is set or it's loading
   if (!amount || props.disabled) {
