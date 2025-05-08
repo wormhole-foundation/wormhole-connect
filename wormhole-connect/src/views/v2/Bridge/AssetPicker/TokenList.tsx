@@ -136,6 +136,7 @@ const TokenList = (props: Props) => {
       tokens.push(nativeToken);
     }
 
+    // Third, USDC
     const usdcAddr = circle.usdcContract.get(
       config.network,
       props.selectedChainConfig.sdkName,
@@ -151,7 +152,7 @@ const TokenList = (props: Props) => {
       }
     }
 
-    // Third: Add tokens with a balances in the connected wallet
+    // Finally: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
       if (val?.balance && sdkAmount.units(val.balance) > 0n) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);
