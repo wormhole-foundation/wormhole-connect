@@ -76,13 +76,14 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
         return;
       }
 
+      if (!active) {
+        return;
+      }
       setSupportedDestTokens(supported);
 
       // Auto-select if there's only one option
       if (destChain && supported.length === 1) {
-        if (active) {
-          dispatch(setDestToken(supported[0].tuple));
-        }
+        dispatch(setDestToken(supported[0].tuple));
       }
     };
 
