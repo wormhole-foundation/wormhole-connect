@@ -4,7 +4,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
-import { amount as sdkAmount, toNative } from '@wormhole-foundation/sdk';
+import {
+  circle,
+  amount as sdkAmount,
+  toNative,
+} from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig } from 'config/types';
@@ -12,7 +16,7 @@ import { isTokenTuple, Token, tokenIdFromTuple } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { calculateUSDPrice, isFrankensteinToken } from 'utils';
+import { calculateUSDPrice } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 
@@ -132,6 +136,21 @@ const TokenList = (props: Props) => {
       tokens.push(nativeToken);
     }
 
+    const usdcAddr = circle.usdcContract.get(
+      config.network,
+      props.selectedChainConfig.sdkName,
+    );
+    if (usdcAddr) {
+      const usdc = config.tokens.get(
+        props.selectedChainConfig.sdkName,
+        usdcAddr,
+      );
+      if (usdc) {
+        tokenSet.add(usdc.address.toString());
+        tokens.push(usdc);
+      }
+    }
+
     // Third: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
       if (val?.balance && sdkAmount.units(val.balance) > 0n) {
@@ -143,25 +162,6 @@ const TokenList = (props: Props) => {
         }
       }
     });
-
-    // Finally: If this is destination token or no wallet is connected,
-    // fill up any remaining space from supported and non-Frankenstein tokens
-    if (!props.isSource || !props.wallet?.address) {
-      props.tokenList?.forEach((t) => {
-        // Check if previously added
-        if (tokenSet.has(t.address.toString())) {
-          return;
-        }
-
-        // Exclude frankenstein tokens
-        if (isFrankensteinToken(t, props.selectedChainConfig.key)) {
-          return;
-        }
-
-        tokenSet.add(t.address.toString());
-        tokens.push(t);
-      });
-    }
 
     if (config.tokenWhitelist && config.tokenWhitelist.length > 0) {
       // If integrator has specified a token whitelist, filter the token list by this whitelist.
