@@ -112,42 +112,16 @@ const TokenList = (props: Props) => {
 
     // Check if any token's address is an exact match on the search query
     // If so, add that one next
-    const searchResult = props.tokenList?.find(
-      (t) => t.address.toString().toLowerCase() === searchQuery.toLowerCase(),
+    const searchResult = config.tokens.findByAddressOrSymbol(
+      props.selectedChainConfig.sdkName,
+      searchQuery,
     );
     if (searchResult && !tokenSet.has(searchResult.address.toString())) {
       tokenSet.add(searchResult.address.toString());
       tokens.push(searchResult);
     }
 
-    // Second: add any tokens with a matching symbol to the source token, ignoring leading Ws (for wrapped),
-    // but NOT if they are wrapped and there's a non-wrapped (native) token with the same symbol also in the list
-    //
-    // This basically prioritizes token bridge outputs in a somewhat hacky way.
-    if (props.sourceToken) {
-      props.tokenList?.forEach((t) => {
-        const symbolMatch =
-          t.symbol.replace(/^W?/, '') ===
-          props.sourceToken!.symbol.replace(/^W?/, '');
-        const originatesFromSourceChain =
-          t.isTokenBridgeWrappedToken &&
-          t.tokenBridgeOriginalTokenId!.chain === props.sourceToken!.chain;
-
-        if (
-          symbolMatch &&
-          originatesFromSourceChain &&
-          !props.tokenList!.find(
-            (ot) => !ot.isTokenBridgeWrappedToken && ot.symbol === t.symbol,
-          ) &&
-          !tokenSet.has(t.address.toString())
-        ) {
-          tokenSet.add(t.address.toString());
-          tokens.push(t);
-        }
-      });
-    }
-
-    // Third: Add the native gas token
+    // Second: Add the native gas token
     if (
       nativeToken &&
       nativeToken.address.toString() !==
@@ -158,7 +132,7 @@ const TokenList = (props: Props) => {
       tokens.push(nativeToken);
     }
 
-    // Fourth: Add tokens with a balances in the connected wallet
+    // Third: Add tokens with a balances in the connected wallet
     Object.entries(balances).forEach(([key, val]) => {
       if (val?.balance && sdkAmount.units(val.balance) > 0n) {
         const tokenConfig = props.tokenList?.find((t) => t.key === key);

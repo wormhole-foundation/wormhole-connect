@@ -317,7 +317,7 @@ export class TokenCache extends TokenMapping<Token> {
   // Excludes wrapped tokens
   findBySymbol(chain: Chain, symbol: string): Token | undefined {
     let matching = this.getAllForChain(chain).filter(
-      (t) => t.symbol === symbol,
+      (t) => t.symbol.toLowerCase() === symbol.toLowerCase(),
     );
 
     if (matching.length > 1) {
