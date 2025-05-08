@@ -80,9 +80,9 @@ export class SDKv2Route {
 
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
-          sourceToken,
-          fromChain,
-          toChain,
+        sourceToken,
+        fromChain,
+        toChain,
       );
 
       return !!supportedDestinationTokens.find((tokenId) => {
@@ -116,13 +116,12 @@ export class SDKv2Route {
     if (isIlliquid) return [];
 
     const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
-    return await this.tokenCache.requestWithCache(
-      cacheKey,
-      () => this.rc.supportedDestinationTokens(
+    return await this.tokenCache.requestWithCache(cacheKey, () =>
+      this.rc.supportedDestinationTokens(
         sourceToken.tokenId,
         fromContext.context,
         toContext.context,
-      )
+      ),
     );
   }
 

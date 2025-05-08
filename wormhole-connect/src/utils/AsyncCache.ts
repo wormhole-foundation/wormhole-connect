@@ -29,27 +29,39 @@ export class AsyncCache<T> {
     let pendingRequest = this.pendingRequests.get(cacheKey);
     if (!pendingRequest) {
       console.debug('[Cache Debug] Cache MISS - initiating new request');
-      pendingRequest = fetchFn()
-        .then((result) => {
-          this.cache.set(cacheKey, { 
-            value: result, 
-            timestamp: Date.now(),
-            isError: false
+      try {
+        pendingRequest = fetchFn()
+          .then((result) => {
+            this.cache.set(cacheKey, {
+              value: result,
+              timestamp: Date.now(),
+              isError: false,
+            });
+            this.pendingRequests.delete(cacheKey);
+            return result;
+          })
+          .catch((error) => {
+            console.debug('[Cache Debug] Cache ERROR - storing error');
+            this.cache.set(cacheKey, {
+              value: error,
+              timestamp: Date.now(),
+              isError: true,
+            });
+            this.pendingRequests.delete(cacheKey);
+            throw error;
           });
-          this.pendingRequests.delete(cacheKey);
-          return result;
-        })
-        .catch((error) => {
-          console.debug('[Cache Debug] Cache ERROR - storing error');
-          this.cache.set(cacheKey, { 
-            value: error, 
-            timestamp: Date.now(),
-            isError: true
-          });
-          this.pendingRequests.delete(cacheKey);
-          throw error;
+
+        this.pendingRequests.set(cacheKey, pendingRequest);
+      } catch (error: any) {
+        console.debug('[Cache Debug] Cache UNCAUGHT ERROR - storing error');
+        this.cache.set(cacheKey, {
+          value: error,
+          timestamp: Date.now(),
+          isError: true,
         });
-      this.pendingRequests.set(cacheKey, pendingRequest);
+        this.pendingRequests.delete(cacheKey);
+        throw error;
+      }
     } else {
       console.debug('[Cache Debug] Cache MISS - using pending request');
     }

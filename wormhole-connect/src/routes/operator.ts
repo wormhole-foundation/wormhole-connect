@@ -299,6 +299,7 @@ class QuoteCache {
           this.cache[key] = new QuoteCacheEntry(result);
         })
         .catch((err: any) => {
+          console.debug(`Error fetching quote`, routeName, err);
           const pending = this.pending[key];
           for (const { reject } of pending) {
             reject(err);
