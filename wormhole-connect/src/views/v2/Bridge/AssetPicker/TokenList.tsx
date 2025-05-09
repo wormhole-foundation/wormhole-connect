@@ -263,7 +263,7 @@ const TokenList = (props: Props) => {
 
     if (props.isSource) {
       sorted = sorted.filter((t) => {
-        const bal = balances[tokenKey(t)].balance;
+        const bal = balances[tokenKey(t)]?.balance;
         return bal && sdkAmount.units(bal) > 0;
       });
     }
