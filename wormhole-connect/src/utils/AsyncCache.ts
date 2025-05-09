@@ -31,20 +31,20 @@ export class AsyncCache<T> {
       console.debug('[Cache Debug] Cache MISS - initiating new request');
       pendingRequest = fetchFn()
         .then((result) => {
-          this.cache.set(cacheKey, { 
-            value: result, 
+          this.cache.set(cacheKey, {
+            value: result,
             timestamp: Date.now(),
-            isError: false
+            isError: false,
           });
           this.pendingRequests.delete(cacheKey);
           return result;
         })
         .catch((error) => {
           console.debug('[Cache Debug] Cache ERROR - storing error');
-          this.cache.set(cacheKey, { 
-            value: error, 
+          this.cache.set(cacheKey, {
+            value: error,
             timestamp: Date.now(),
-            isError: true
+            isError: true,
           });
           this.pendingRequests.delete(cacheKey);
           throw error;

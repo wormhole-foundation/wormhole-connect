@@ -128,23 +128,31 @@ const TokenList = (props: Props) => {
     if (!props.tokenList) return [];
 
     // Apply search input - find tokens with exact match of address, or partial match of symbol
-    let tokenListWithSearchResult = props.tokenList.slice(0);
+    const tokenListWithSearchResult = props.tokenList.slice(0);
     if (searchQuery) {
+      let searchResults: Token[] = [];
       const byAddress = config.tokens.get(
         props.selectedChainConfig.sdkName,
         searchQuery,
       );
       if (byAddress) {
-        tokenListWithSearchResult.push(byAddress);
+        searchResults.push(byAddress);
       }
 
-      const searchResults = config.tokens.queryBySymbol(
+      const queryResults = config.tokens.queryBySymbol(
         props.selectedChainConfig.sdkName,
         searchQuery,
       );
-      if (searchResults.length > 0) {
-        tokenListWithSearchResult =
-          tokenListWithSearchResult.concat(searchResults);
+      if (queryResults.length > 0) {
+        searchResults = searchResults.concat(queryResults);
+      }
+
+      for (const result of searchResults) {
+        if (
+          !props.tokenList.find((existing) => isSameToken(result, existing))
+        ) {
+          tokenListWithSearchResult.push(result);
+        }
       }
     }
 
