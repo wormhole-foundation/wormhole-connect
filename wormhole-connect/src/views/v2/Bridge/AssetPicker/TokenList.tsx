@@ -261,7 +261,7 @@ const TokenList = (props: Props) => {
       sorted = sorted.filter(config.isTokenSupportedHandler);
     }
 
-    if (props.isSource) {
+    if (props.isSource && props.wallet.address) {
       sorted = sorted.filter((t) => {
         const bal = balances[tokenKey(t)]?.balance;
         return bal && sdkAmount.units(bal) > 0;
