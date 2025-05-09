@@ -317,9 +317,15 @@ export class TokenCache extends TokenMapping<Token> {
   queryBySymbol(chain: Chain, query: string): Token[] {
     return this.getAllForChain(chain).filter((t) => {
       if (query.length < 3) {
-        return t.symbol.toLowerCase().startsWith(query.toLowerCase());
+        return (
+          t.symbol.toLowerCase().startsWith(query.toLowerCase()) ||
+          t.name?.toLowerCase().startsWith(query.toLowerCase())
+        );
       } else {
-        return t.symbol.toLowerCase().includes(query.toLowerCase());
+        return (
+          t.symbol.toLowerCase().includes(query.toLowerCase()) ||
+          t.name?.toLowerCase().includes(query.toLowerCase())
+        );
       }
     });
   }
