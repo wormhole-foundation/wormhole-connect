@@ -139,13 +139,6 @@ const TokenList = (props: Props) => {
 
     let unsortedTokens = props.tokenList;
 
-    // Filter out frankenstein tokens if this is the destination token list
-    if (!props.isSource) {
-      unsortedTokens = unsortedTokens.filter(
-        (t) => !isFrankensteinToken(t, props.selectedChainConfig.sdkName),
-      );
-    }
-
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     if (searchQuery) {
       let searchResults: Token[] = [];
