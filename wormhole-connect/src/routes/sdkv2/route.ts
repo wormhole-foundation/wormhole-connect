@@ -114,16 +114,25 @@ export class SDKv2Route {
       fromContext.context,
       toContext.context,
     );
+
     if (isIlliquid) return [];
 
     const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
-    return await this.tokenCache.requestWithCache(cacheKey, () =>
+    const destTokens = await this.tokenCache.requestWithCache(cacheKey, () =>
       this.rc.supportedDestinationTokens(
         sourceToken.tokenId,
         fromContext.context,
         toContext.context,
       ),
     );
+
+    return destTokens.filter((t) => {
+      const token = config.tokens.get(t);
+      if (token && isFrankensteinToken(token, toContext.chain)) {
+        return false;
+      }
+      return true;
+    });
   }
 
   async getQuote(
@@ -321,10 +330,6 @@ export class SDKv2Route {
     if (!this.IS_TOKEN_BRIDGE_ROUTE) return false;
 
     const { symbol, nativeChain } = token;
-
-    if (isFrankensteinToken(token, toContext.chain)) {
-      return true;
-    }
 
     // Exclude wormhole-wrapped tokens on the destination chain
     // if the NTT route is supported
