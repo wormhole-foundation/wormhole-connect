@@ -261,6 +261,13 @@ const TokenList = (props: Props) => {
       sorted = sorted.filter(config.isTokenSupportedHandler);
     }
 
+    if (props.isSource) {
+      sorted = sorted.filter((t) => {
+        const bal = balances[tokenKey(t)]?.balance;
+        return bal && sdkAmount.units(bal) > 0;
+      });
+    }
+
     return sorted;
   }, [
     props.selectedChainConfig.sdkName,
