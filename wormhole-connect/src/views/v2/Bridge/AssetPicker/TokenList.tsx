@@ -128,7 +128,7 @@ const TokenList = (props: Props) => {
     if (!props.tokenList) return [];
 
     // Apply search input - find tokens with exact match of address, or partial match of symbol
-    let tokenListWithSearchResult = props.tokenList.slice(0);
+    const tokenListWithSearchResult = props.tokenList.slice(0);
     if (searchQuery) {
       let searchResults: Token[] = [];
       const byAddress = config.tokens.get(
