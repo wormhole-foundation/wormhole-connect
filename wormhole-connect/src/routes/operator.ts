@@ -8,6 +8,8 @@ import {
   TransactionId,
   amount as sdkAmount,
   TokenId,
+  Wormhole,
+  circle,
 } from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';
@@ -158,7 +160,13 @@ export default class RouteOperator {
       try {
         // TODO remove once the SDK has a special return value that represents infinite supported tokens
         if (name.includes('Mayan')) {
-          // Ignore for now
+          // If we have Mayan available, which is a swap route, by default we show the gas token and USDC.
+          supported.add(tokenKey(Wormhole.tokenId(destChain, 'native')));
+
+          const usdcAddr = circle.usdcContract.get(config.network, destChain);
+          if (usdcAddr) {
+            supported.add(tokenKey(Wormhole.tokenId(destChain, usdcAddr)));
+          }
         } else {
           const destTokenIds = await route.supportedDestTokens(
             sourceToken,
