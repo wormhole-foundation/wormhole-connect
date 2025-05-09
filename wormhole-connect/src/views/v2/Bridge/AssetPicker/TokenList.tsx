@@ -5,10 +5,14 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 import {
+  Chain,
+  circle,
   isNative,
   isSameToken,
   amount as sdkAmount,
   toNative,
+  Wormhole,
+  TokenId,
 } from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
@@ -24,7 +28,12 @@ import {
 } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-import { getUsdc } from 'utils/sdkv2';
+
+export function getUsdc(chain: Chain): TokenId | undefined {
+  const addr = circle.usdcContract.get(config.network, chain);
+  if (addr) return Wormhole.tokenId(chain, addr);
+  return undefined;
+}
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {
