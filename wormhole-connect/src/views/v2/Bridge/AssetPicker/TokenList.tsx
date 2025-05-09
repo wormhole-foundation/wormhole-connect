@@ -133,13 +133,20 @@ const TokenList = (props: Props) => {
     return 0;
   };
 
+  // TODO this entire thing should be moved outside of this TokenList component. The component is doing way too much.
   const sortedTokens = useMemo(() => {
     if (!props.tokenList) return [];
 
+    let unsortedTokens = props.tokenList;
+
+    // Filter out frankenstein tokens if this is the destination token list
+    if (!props.isSource) {
+      unsortedTokens = unsortedTokens.filter(
+        (t) => !isFrankensteinToken(t, props.selectedChainConfig.sdkName),
+      );
+    }
+
     // Apply search input - find tokens with exact match of address, or partial match of symbol
-    const tokenListWithSearchResult = props.tokenList.filter(
-      (t) => !isFrankensteinToken(t, props.selectedChainConfig.sdkName),
-    );
     if (searchQuery) {
       let searchResults: Token[] = [];
       const byAddress = config.tokens.get(
@@ -165,7 +172,7 @@ const TokenList = (props: Props) => {
         if (
           !props.tokenList.find((existing) => isSameToken(result, existing))
         ) {
-          tokenListWithSearchResult.push(result);
+          unsortedTokens.push(result);
         }
       }
     }
@@ -178,7 +185,7 @@ const TokenList = (props: Props) => {
       return calculateUSDPriceRaw(getTokenPrice, balance.balance, token) ?? 0;
     };
 
-    let sorted = tokenListWithSearchResult.sort((a, b) => {
+    let sorted = unsortedTokens.sort((a, b) => {
       const scoreA = tokenPreferenceScore(a);
       const scoreB = tokenPreferenceScore(b);
       if (scoreA > scoreB) return -1;
