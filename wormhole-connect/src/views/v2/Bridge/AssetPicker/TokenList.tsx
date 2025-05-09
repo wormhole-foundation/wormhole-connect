@@ -125,6 +125,7 @@ const TokenList = (props: Props) => {
       tokens.push(searchResult);
     }
 
+    // Add tokens that routes explicitly support, like token bridge, NTT
     if (props.tokenList) {
       for (const token of props.tokenList) {
         if (
