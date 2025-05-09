@@ -335,11 +335,11 @@ const TokenList = (props: Props) => {
         const queryLC = query.toLowerCase();
 
         const symbolMatch = [token.symbol, token.name].some((criteria) =>
-          criteria?.toLowerCase()?.includes?.(queryLC),
+          criteria?.toLowerCase()?.startsWith?.(queryLC),
         );
         if (symbolMatch) return true;
 
-        if (token.address.toString().toLowerCase().includes(queryLC)) {
+        if (token.address.toString().toLowerCase() === queryLC) {
           return true;
         }
 
