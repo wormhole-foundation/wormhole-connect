@@ -16,7 +16,7 @@ import { isTokenTuple, Token, tokenIdFromTuple } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { calculateUSDPrice } from 'utils';
+import { calculateUSDPrice, isFrankensteinToken } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 
@@ -125,6 +125,18 @@ const TokenList = (props: Props) => {
       tokens.push(searchResult);
     }
 
+    if (props.tokenList) {
+      for (const token of props.tokenList) {
+        if (
+          !isFrankensteinToken(token, props.selectedChainConfig.sdkName) &&
+          !tokenSet.has(token.address.toString())
+        ) {
+          tokenSet.add(token.address.toString());
+          tokens.push(token);
+        }
+      }
+    }
+
     // Second: Add the native gas token
     if (
       nativeToken &&
@@ -141,7 +153,7 @@ const TokenList = (props: Props) => {
       config.network,
       props.selectedChainConfig.sdkName,
     );
-    if (usdcAddr) {
+    if (usdcAddr && !tokenSet.has(usdcAddr.toString())) {
       const usdc = config.tokens.get(
         props.selectedChainConfig.sdkName,
         usdcAddr,
