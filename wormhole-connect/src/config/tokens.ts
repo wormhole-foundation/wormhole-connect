@@ -313,6 +313,16 @@ export class TokenCache extends TokenMapping<Token> {
     return undefined;
   }
 
+  // Queries tokens by symbol. If query is 1 or 2 characters, we look only for prefix matches
+  queryBySymbol(chain: Chain, query: string): Token[] {
+    return this.getAllForChain(chain).filter((t) => {
+      return (
+        t.symbol.toLowerCase().startsWith(query.toLowerCase()) ||
+        t.name?.toLowerCase().startsWith(query.toLowerCase())
+      );
+    });
+  }
+
   // This should be used sparingly/never... use addresses instead.
   // Excludes wrapped tokens
   findBySymbol(chain: Chain, symbol: string): Token | undefined {

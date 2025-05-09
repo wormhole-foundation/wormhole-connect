@@ -308,19 +308,7 @@ const Bridge = () => {
           tokenList={sourceTokens}
           setChain={(value: Chain) => {
             selectFromChain(dispatch, value, sendingWallet);
-            // If there's a token on the new chain with the same symbol, select that
-            // Otherwise, clear the selected token
-            if (sourceToken) {
-              const equivalentToken = config.tokens.findBySymbol(
-                value,
-                sourceToken.symbol,
-              );
-              if (equivalentToken) {
-                dispatch(setToken(equivalentToken.tuple));
-              } else {
-                dispatch(clearToken());
-              }
-            }
+            dispatch(clearToken());
           }}
           setToken={(value: Token) => {
             dispatch(setToken(value.tuple));
@@ -365,19 +353,7 @@ const Bridge = () => {
           }
           setChain={(value: Chain) => {
             selectToChain(dispatch, value, receivingWallet);
-            // If there's a token on the new chain with the same symbol, select that
-            // Otherwise, clear the selected token
-            if (destToken) {
-              const equivalentToken = config.tokens.findBySymbol(
-                value,
-                destToken.symbol,
-              );
-              if (equivalentToken) {
-                dispatch(setDestToken(equivalentToken.tuple));
-              } else {
-                dispatch(clearDestToken());
-              }
-            }
+            dispatch(clearDestToken());
           }}
           setToken={(value: Token) => {
             dispatch(setDestToken(value.tuple));

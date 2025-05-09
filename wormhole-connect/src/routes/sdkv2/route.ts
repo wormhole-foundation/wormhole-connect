@@ -80,9 +80,9 @@ export class SDKv2Route {
 
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
-          sourceToken,
-          fromChain,
-          toChain,
+        sourceToken,
+        fromChain,
+        toChain,
       );
 
       return !!supportedDestinationTokens.find((tokenId) => {
@@ -108,6 +108,7 @@ export class SDKv2Route {
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
 
+    // TODO this is wrong... it should be filtering the output tokens...
     const isIlliquid = await this.isIlliquidDestToken(
       sourceToken,
       fromContext.context,
@@ -116,13 +117,12 @@ export class SDKv2Route {
     if (isIlliquid) return [];
 
     const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
-    return await this.tokenCache.requestWithCache(
-      cacheKey,
-      () => this.rc.supportedDestinationTokens(
+    return await this.tokenCache.requestWithCache(cacheKey, () =>
+      this.rc.supportedDestinationTokens(
         sourceToken.tokenId,
         fromContext.context,
         toContext.context,
-      )
+      ),
     );
   }
 

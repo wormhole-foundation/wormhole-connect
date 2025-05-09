@@ -5,20 +5,35 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 import {
+  Chain,
   circle,
+  isNative,
+  isSameToken,
   amount as sdkAmount,
   toNative,
+  Wormhole,
+  TokenId,
 } from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig } from 'config/types';
-import { isTokenTuple, Token, tokenIdFromTuple } from 'config/tokens';
+import { isTokenTuple, Token, tokenIdFromTuple, tokenKey } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { calculateUSDPrice } from 'utils';
+import {
+  calculateUSDPrice,
+  calculateUSDPriceRaw,
+  isFrankensteinToken,
+} from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
+
+export function getUsdc(chain: Chain): TokenId | undefined {
+  const addr = circle.usdcContract.get(config.network, chain);
+  if (addr) return Wormhole.tokenId(chain, addr);
+  return undefined;
+}
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {
@@ -95,72 +110,87 @@ const TokenList = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, props.selectedChainConfig.sdkName]);
 
+  // Returns a score for a given token used when sorting destination tokens
+  const tokenPreferenceScore = (token: Token) => {
+    // Currently selected token should be shown first
+    if (props.selectedToken && isSameToken(props.selectedToken, token)) {
+      return 4;
+    }
+    // Native gas tokens are next
+    if (isNative(token.address)) {
+      return 3;
+    }
+    // USDC preferred next
+    const usdc = getUsdc(props.selectedChainConfig.sdkName);
+    if (usdc && isSameToken(usdc, token)) {
+      return 2;
+    }
+    // Finally, prefer native non-wrapped tokens over wrapped ones
+    if (!token.isTokenBridgeWrappedToken) {
+      return 1;
+    }
+    // The rest is all the same as far as preference
+    return 0;
+  };
+
   const sortedTokens = useMemo(() => {
-    const nativeToken = config.tokens.getGasToken(
-      props.selectedChainConfig.sdkName,
+    if (!props.tokenList) return [];
+
+    // Apply search input - find tokens with exact match of address, or partial match of symbol
+    const tokenListWithSearchResult = props.tokenList.filter(
+      (t) => !isFrankensteinToken(t, props.selectedChainConfig.sdkName),
     );
-
-    const tokenSet: Set<string> = new Set();
-    let tokens: Array<Token> = [];
-
-    // First: Add previously selected token at the top of the list,
-    // only if it's the selected token's chain
-    if (
-      props.selectedToken &&
-      props.selectedToken!.chain === props.selectedChainConfig.key &&
-      !tokenSet.has(props.selectedToken.address.toString())
-    ) {
-      tokenSet.add(props.selectedToken.address.toString());
-      tokens.push(props.selectedToken);
-    }
-
-    // Check if any token's address is an exact match on the search query
-    // If so, add that one next
-    const searchResult = config.tokens.findByAddressOrSymbol(
-      props.selectedChainConfig.sdkName,
-      searchQuery,
-    );
-    if (searchResult && !tokenSet.has(searchResult.address.toString())) {
-      tokenSet.add(searchResult.address.toString());
-      tokens.push(searchResult);
-    }
-
-    // Second: Add the native gas token
-    if (
-      nativeToken &&
-      nativeToken.address.toString() !==
-        props.selectedToken?.address.toString() &&
-      !tokenSet.has(nativeToken.address.toString())
-    ) {
-      tokenSet.add(nativeToken.address.toString());
-      tokens.push(nativeToken);
-    }
-
-    // Third, USDC
-    const usdcAddr = circle.usdcContract.get(
-      config.network,
-      props.selectedChainConfig.sdkName,
-    );
-    if (usdcAddr) {
-      const usdc = config.tokens.get(
+    if (searchQuery) {
+      let searchResults: Token[] = [];
+      const byAddress = config.tokens.get(
         props.selectedChainConfig.sdkName,
-        usdcAddr,
+        searchQuery,
       );
-      if (usdc) {
-        tokenSet.add(usdc.address.toString());
-        tokens.push(usdc);
+      if (byAddress) {
+        searchResults.push(byAddress);
+      }
+
+      const queryResults = config.tokens
+        .queryBySymbol(props.selectedChainConfig.sdkName, searchQuery)
+        .filter(
+          (t: Token) =>
+            !isFrankensteinToken(t, props.selectedChainConfig.sdkName),
+        );
+
+      if (queryResults.length > 0) {
+        searchResults = searchResults.concat(queryResults);
+      }
+
+      for (const result of searchResults) {
+        if (
+          !props.tokenList.find((existing) => isSameToken(result, existing))
+        ) {
+          tokenListWithSearchResult.push(result);
+        }
       }
     }
 
-    // Finally: Add tokens with a balances in the connected wallet
-    Object.entries(balances).forEach(([key, val]) => {
-      if (val?.balance && sdkAmount.units(val.balance) > 0n) {
-        const tokenConfig = props.tokenList?.find((t) => t.key === key);
+    const usdBalance = (token: Token): number => {
+      const balance = balances[tokenKey(token)];
+      if (!balance || !balance.balance) {
+        return 0;
+      }
+      return calculateUSDPriceRaw(getTokenPrice, balance.balance, token) ?? 0;
+    };
 
-        if (tokenConfig && !tokenSet.has(tokenConfig.address.toString())) {
-          tokenSet.add(tokenConfig.address.toString());
-          tokens.push(tokenConfig);
-        }
+    let sorted = tokenListWithSearchResult.sort((a, b) => {
+      const scoreA = tokenPreferenceScore(a);
+      const scoreB = tokenPreferenceScore(b);
+      if (scoreA > scoreB) return -1;
+      if (scoreB > scoreA) return 1;
+
+      const balanceA = usdBalance(a);
+      const balanceB = usdBalance(b);
+      if (balanceA !== balanceB) {
+        return balanceB - balanceA;
+      } else {
+        // If equal scores and USD balance, compare by symbol
+        return a.symbol.localeCompare(b.symbol);
       }
     });
 
@@ -197,7 +227,7 @@ const TokenList = (props: Props) => {
         let foundNative = false;
         const wrapped: Token[] = [];
 
-        for (const token of tokens) {
+        for (const token of sorted) {
           if (token.symbol === symbol) {
             if (!token.isTokenBridgeWrappedToken) {
               filteredTokens.add(token.address.toString());
@@ -221,17 +251,17 @@ const TokenList = (props: Props) => {
         }
       }
 
-      tokens = tokens.filter(({ address }) =>
-        filteredTokens.has(address.toString()),
+      sorted = sorted.filter((token) =>
+        filteredTokens.has(token.address.toString()),
       );
     }
 
     if (config.isTokenSupportedHandler) {
       // The last step is to filter the tokens by the integrator's token support handler
-      tokens = tokens.filter(config.isTokenSupportedHandler);
+      sorted = sorted.filter(config.isTokenSupportedHandler);
     }
 
-    return tokens;
+    return sorted;
   }, [
     props.selectedChainConfig.sdkName,
     props.selectedChainConfig.key,
