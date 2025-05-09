@@ -16,7 +16,6 @@ import {
   ChainContext,
   nativeTokenId,
   TBTCBridge,
-  TokenId,
 } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
@@ -455,9 +454,3 @@ const getTokenBridgeToken = async (
 
   return config.tokens.get(tokenId);
 };
-
-export function getUsdc(chain: Chain): TokenId | undefined {
-  const addr = circle.usdcContract.get(config.network, chain);
-  if (addr) return Wormhole.tokenId(chain, addr);
-  return undefined;
-}
