@@ -46,7 +46,7 @@
     "@wormhole-foundation/sdk-icons": "^1.0.0",
     "@wormhole-foundation/sdk-route-ntt": "^0.7.1",
     "@wormhole-foundation/sdk-solana-ntt": "^0.7.1",
-    "@wormhole-labs/cctp-w7-executor-route": "file:wormhole-labs-cctp-w7-executor-route-0.0.1-beta.6.tgz",
+    "@wormhole-labs/cctp-w7-executor-route": "file:wormhole-labs-cctp-w7-executor-route-0.0.1-beta.9.tgz",
     "@xlabs-libs/wallet-aggregator-aptos": "1.0.0-alpha.2",
     "@xlabs-libs/wallet-aggregator-core": "0.0.1-alpha.23",
     "@xlabs-libs/wallet-aggregator-evm": "0.0.2-alpha.6",
@@ -194,13 +194,13 @@
       "@wormhole-foundation/sdk-solana-core": "1.17.0"
     },
     "@wormhole-labs/cctp-w7-executor-route": {
-      "@wormhole-foundation/sdk-aptos": "^1.16.1",
-      "@wormhole-foundation/sdk-connect": "^1.16.1",
-      "@wormhole-foundation/sdk-evm": "^1.16.1",
-      "@wormhole-foundation/sdk-solana": "^1.16.1",
-      "@wormhole-foundation/sdk-solana-cctp": "^1.16.1",
-      "@wormhole-foundation/sdk-sui": "^1.16.1",
-      "@wormhole-foundation/sdk-sui-cctp": "^1.16.1"
+      "@wormhole-foundation/sdk-aptos": "^1.17.0",
+      "@wormhole-foundation/sdk-connect": "^1.17.0",
+      "@wormhole-foundation/sdk-evm": "^1.17.0",
+      "@wormhole-foundation/sdk-solana": "^1.17.0",
+      "@wormhole-foundation/sdk-solana-cctp": "^1.17.0",
+      "@wormhole-foundation/sdk-sui": "^1.17.0",
+      "@wormhole-foundation/sdk-sui-cctp": "^1.17.0"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"
