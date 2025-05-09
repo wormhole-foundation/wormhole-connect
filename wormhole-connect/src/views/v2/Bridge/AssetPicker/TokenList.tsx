@@ -128,7 +128,7 @@ const TokenList = (props: Props) => {
     if (!props.tokenList) return [];
 
     // Apply search input - find tokens with exact match of address, or partial match of symbol
-    const tokenListWithSearchResult = props.tokenList.slice(0);
+    let tokenListWithSearchResult = props.tokenList.slice(0);
     if (searchQuery) {
       let searchResults: Token[] = [];
       const byAddress = config.tokens.get(
@@ -172,7 +172,6 @@ const TokenList = (props: Props) => {
 
       const balanceA = usdBalance(a);
       const balanceB = usdBalance(b);
-      console.log(a, b, balanceA, balanceB);
       if (balanceA !== balanceB) {
         return balanceB - balanceA;
       } else {
@@ -249,6 +248,10 @@ const TokenList = (props: Props) => {
       // The last step is to filter the tokens by the integrator's token support handler
       sorted = sorted.filter(config.isTokenSupportedHandler);
     }
+
+    sorted = sorted.filter(
+      (t) => !isFrankensteinToken(t, props.selectedChainConfig.sdkName),
+    );
 
     return sorted;
   }, [
