@@ -428,6 +428,9 @@ const Bridge = () => {
                 dispatch(setAppRoute('history'));
                 config.triggerEvent({
                   type: 'history.load',
+                  details: {
+                    wallet: sendingWallet?.address,
+                  },
                 });
               }}
             >

@@ -98,6 +98,9 @@ export interface ConnectWalletEvent {
 
 export interface HistoryLoadEvent {
   type: 'history.load';
+  details: {
+    wallet: string;
+  };
 }
 
 export type WormholeConnectEventCore =
