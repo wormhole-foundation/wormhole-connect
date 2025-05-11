@@ -103,6 +103,14 @@ const useFetchSupportedRoutes = ({
         );
       }
 
+      // Experimental - Hide CCTP Manual route when CCTP automatic is present
+      if (
+        config.ui.experimental?.hideCCTPManWhenAutoPresent &&
+        _routes.includes('AutomaticCCTP')
+      ) {
+        _routes = _routes.filter((route) => route !== 'ManualCCTP');
+      }
+
       if (isActive) {
         setIsFetching(false);
         setRoutes(_routes);

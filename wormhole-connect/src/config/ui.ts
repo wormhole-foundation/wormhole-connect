@@ -35,7 +35,7 @@ export type TestOptions = {
   enableHeadlessSigner?: boolean;
 };
 
-export type Experiments = '';
+export type Experiments = '' | 'hideCCTPManWhenAutoPresent';
 export type Experimental = {
   [Experiment in Experiments]?: boolean;
 };
