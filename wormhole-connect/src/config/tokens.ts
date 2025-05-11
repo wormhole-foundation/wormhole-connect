@@ -1,7 +1,6 @@
 import {
   Chain,
   TokenId,
-  Wormhole,
   canonicalAddress,
   isTokenId,
   isChain,
@@ -23,9 +22,36 @@ const TOKEN_CACHE_VERSION = 1;
 
 const HAS_LOCALSTORAGE = typeof localStorage !== 'undefined';
 
-export class Token {
-  chain: Chain;
-  address: TokenAddress<Chain>;
+// A TokenId initialized from a string address, which only parses the address to a NativeAddress when it's needed
+// This is just a speed optimization
+class TokenIdLazy<C extends Chain = Chain> implements TokenId<C> {
+  chain: C;
+  addressString: string;
+  _address?: TokenAddress<Chain>;
+
+  constructor(chain: C, addr: string) {
+    this.chain = chain;
+    this.addressString = addr;
+  }
+
+  get address(): TokenAddress<C> {
+    if (isNative(this.addressString)) return this.addressString;
+
+    if (!this._address) {
+      this._address = toNative(
+        this.chain,
+        this.addressString,
+      ) as TokenAddress<C>;
+    }
+    return this._address as TokenAddress<C>;
+  }
+
+  static fromTokenTuple(tuple: TokenTuple): TokenIdLazy {
+    return new TokenIdLazy(tuple[0], tuple[1]);
+  }
+}
+
+export class Token extends TokenIdLazy {
   decimals: number;
   symbol: string;
   name?: string;
@@ -46,8 +72,7 @@ export class Token {
     icon?: TokenIcon | string,
     tokenBridgeOriginalTokenId?: TokenId,
   ) {
-    this.chain = chain;
-    this.address = isNative(address) ? address : toNative(chain, address);
+    super(chain, address);
     this.decimals = decimals;
     this.symbol = symbol;
     this.name = name;
@@ -66,12 +91,12 @@ export class Token {
   }
 
   get shortAddress(): string {
-    const addr = this.address.toString();
+    const addr = this.addressString;
     return `${addr.substring(0, 5)}...${addr.substring(addr.length - 6)}`;
   }
 
   get tuple(): TokenTuple {
-    return [this.chain, this.address.toString()];
+    return [this.chain, this.addressString];
   }
 
   get key(): string {
@@ -105,7 +130,7 @@ export class Token {
   toJson(): TokenJson {
     return {
       chain: this.chain,
-      address: this.address.toString(),
+      address: this.addressString,
       decimals: this.decimals,
       symbol: this.symbol,
       name: this.name ?? '',
@@ -171,7 +196,7 @@ export class TokenMapping<T> {
       this._mapping.set(token.chain, new Map());
     }
 
-    this._mapping.get(token.chain)!.set(token.address.toString(), value);
+    this._mapping.get(token.chain)!.set(addressString(token), value);
     this.lastUpdate = new Date();
     this.size += 1;
   }
@@ -185,15 +210,32 @@ export class TokenMapping<T> {
     firstArg: Chain | string | TokenId | TokenTuple,
     address?: string,
   ): T | undefined {
-    if (isTokenTuple(firstArg)) {
-      return this._mapping.get(firstArg[0])?.get(firstArg[1]);
-    } else if (isTokenId(firstArg)) {
-      return this._mapping.get(firstArg.chain)?.get(canonicalAddress(firstArg));
-    } else if (isChain(firstArg) && address !== undefined) {
+    if (
+      typeof firstArg === 'string' &&
+      typeof address === 'string' &&
+      isChain(firstArg)
+    ) {
       return this._mapping.get(firstArg)?.get(address);
+    } else if (firstArg instanceof TokenIdLazy) {
+      // Doing the instanceof TokenIdLazy check before isTokenId() is important here for perf reasons.
+      // All we need is the stringified address. TokenIdLazy is optimized for that.
+      // The Wormhole SDK's TokenId is not.
+      //
+      // Both a TokenIdLazy and vanilla TokenId will pass the isTokenId check. So we catch the lazy version
+      // first, otherwise we will isTokenId will parse the TokenIdLazy's addressString and then we will
+      // immediately re-stringifiy it.
+      //
+      // It's weird but it speeds up token cache operations a lot.
+      return this._mapping.get(firstArg.chain)?.get(firstArg.addressString);
+    } else if (isTokenId(firstArg)) {
+      return this._mapping
+        .get(firstArg.chain)
+        ?.get(firstArg.address.toString());
+    } else if (isTokenTuple(firstArg)) {
+      return this._mapping.get(firstArg[0])?.get(firstArg[1]);
     } else {
-      const { chain, address } = parseTokenKey(firstArg);
-      return this._mapping.get(chain)?.get(address.toString());
+      const tokenId = parseTokenKey(firstArg);
+      return this._mapping.get(tokenId.chain)?.get(addressString(tokenId));
     }
   }
 
@@ -241,8 +283,8 @@ export class TokenMapping<T> {
 
   getAllTokenIds(): TokenId[] {
     return Array.from(this._mapping.keys()).flatMap((chain) =>
-      Array.from(this._mapping.get(chain)!.keys()).map((address) =>
-        Wormhole.tokenId(chain, address),
+      Array.from(this._mapping.get(chain)!.keys()).map(
+        (address) => new TokenIdLazy(chain, address),
       ),
     );
   }
@@ -266,7 +308,7 @@ export class TokenMapping<T> {
   forEach(callback: (tokenId: TokenId, val: T) => void) {
     this._mapping.forEach((nextLevel, chain) => {
       nextLevel.forEach((val, addr) => {
-        const tokenId = Wormhole.tokenId(chain, addr);
+        const tokenId = new TokenIdLazy(chain, addr);
         callback(tokenId, val);
       });
     });
@@ -532,18 +574,11 @@ export function isTokenTuple(thing: any): thing is TokenTuple {
 }
 
 export function tokenIdToTuple(tokenId: TokenId): TokenTuple {
-  return [tokenId.chain, tokenId.address.toString()];
+  return [tokenId.chain, addressString(tokenId)];
 }
 
 export function tokenIdFromTuple(tokenTuple: TokenTuple): TokenId {
-  const chain = tokenTuple[0] as Chain;
-  const address = isNative(tokenTuple[1])
-    ? tokenTuple[1]
-    : toNative(chain, tokenTuple[1]);
-  return {
-    chain,
-    address,
-  };
+  return TokenIdLazy.fromTokenTuple(tokenTuple);
 }
 
 export function tokenKey(tokenId: TokenId): string {
@@ -556,5 +591,13 @@ export function parseTokenKey(key: string): TokenId {
     return tokenIdFromTuple(tuple);
   } else {
     throw new Error(`Invalid token key "${key}"; couldn't parse`);
+  }
+}
+
+function addressString(tokenId: TokenId): string {
+  if (tokenId instanceof TokenIdLazy) {
+    return tokenId.addressString;
+  } else {
+    return tokenId.address.toString();
   }
 }
