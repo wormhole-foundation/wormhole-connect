@@ -7,7 +7,6 @@ import {
   TokenAddress,
   toNative,
   isNative,
-  isSameToken,
   Network,
   chainToPlatform,
   UniversalAddress,
@@ -124,7 +123,7 @@ export class Token extends TokenIdLazy {
   }
 
   equals(other: Token): boolean {
-    return isSameToken(this.tokenId, other.tokenId);
+    return isSameToken(this, other);
   }
 
   toJson(): TokenJson {
@@ -600,4 +599,8 @@ function addressString(tokenId: TokenId): string {
   } else {
     return tokenId.address.toString();
   }
+}
+
+export function isSameToken(a: Token, b: Token): boolean {
+  return a.chain === b.chain && a.addressString === b.addressString;
 }

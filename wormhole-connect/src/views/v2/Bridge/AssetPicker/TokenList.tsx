@@ -5,19 +5,21 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 import {
-  Chain,
   circle,
   isNative,
-  isSameToken,
   amount as sdkAmount,
   toNative,
-  Wormhole,
-  TokenId,
 } from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig } from 'config/types';
-import { isTokenTuple, Token, tokenIdFromTuple, tokenKey } from 'config/tokens';
+import {
+  isTokenTuple,
+  isSameToken,
+  Token,
+  tokenIdFromTuple,
+  tokenKey,
+} from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
@@ -28,12 +30,6 @@ import {
 } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-
-export function getUsdc(chain: Chain): TokenId | undefined {
-  const addr = circle.usdcContract.get(config.network, chain);
-  if (addr) return Wormhole.tokenId(chain, addr);
-  return undefined;
-}
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {
@@ -121,8 +117,8 @@ const TokenList = (props: Props) => {
       return 3;
     }
     // USDC preferred next
-    const usdc = getUsdc(props.selectedChainConfig.sdkName);
-    if (usdc && isSameToken(usdc, token)) {
+    const usdc = circle.usdcContract.get(config.network, token.chain);
+    if (usdc && token.addressString === usdc) {
       return 2;
     }
     // Finally, prefer native non-wrapped tokens over wrapped ones
