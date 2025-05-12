@@ -59,7 +59,6 @@ export interface TransferInfo {
 export type ExplorerInfo = {
   url: string;
   name: string;
-  apiUrl: string;
 };
 
 // TODO SDKV2 add a way for the Route interface to offer this
@@ -76,7 +75,11 @@ export function getExplorerInfo(
     return {
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',
-      apiUrl: `${config.mayanApi}/v3/swap/trx/${txHash}`,
+    };
+  } else if (routeName.endsWith('ExecutorRoute')) {
+    return {
+      url: `https://usdc.range.org/usdc/status/${txHash}`,
+      name: 'USDC.range Explorer',
     };
   } else {
     return {
@@ -84,7 +87,6 @@ export function getExplorerInfo(
         config.isMainnet ? '' : '?network=TESTNET'
       }`,
       name: 'Wormholescan',
-      apiUrl: `${config.wormholeApi}api/v1/operations?txHash=${txHash}`,
     };
   }
 }

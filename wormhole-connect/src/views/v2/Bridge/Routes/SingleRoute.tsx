@@ -657,9 +657,7 @@ const SingleRoute = (props: Props) => {
                     receiveNativeAmount || amount.fromBaseUnits(0n, 8)
                   }
                   disabled={isGasSliderDisabled}
-                  isExecutorRoute={props.route
-                    .toLowerCase()
-                    .endsWith('executorroute')}
+                  isExecutorRoute={props.route.endsWith('ExecutorRoute')}
                 />
               </Collapse>
             </>
