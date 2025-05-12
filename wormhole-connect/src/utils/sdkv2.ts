@@ -79,8 +79,11 @@ export function getExplorerInfo(
     };
   } else if (isExecutorRoute(routeName)) {
     // TODO Remove once Wormholescan explorer supports Executor routes
+    // USDC.range supports Mainnet only
     return {
-      url: `https://usdc.range.org/usdc/status/${txHash}`,
+      url: config.isMainnet
+        ? `https://usdc.range.org/usdc/status/${txHash}`
+        : '',
       name: 'USDC.range Explorer',
     };
   } else {

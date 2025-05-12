@@ -308,6 +308,11 @@ const TransactionDetails = () => {
     // Get explorer name and url for the route
     const { name, url } = getExplorerInfo(route, sendTx);
 
+    // Don't show the explorer link if we don't have a valid explorer URL
+    if (!URL.canParse(url)) {
+      return null;
+    }
+
     return (
       <Stack alignItems="center" padding="24px 12px">
         <Link
