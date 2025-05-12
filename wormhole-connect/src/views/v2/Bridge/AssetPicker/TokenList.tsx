@@ -137,7 +137,7 @@ const TokenList = (props: Props) => {
   const sortedTokens = useMemo(() => {
     if (!props.tokenList) return [];
 
-    let unsortedTokens = props.tokenList;
+    const unsortedTokens = props.tokenList;
 
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     if (searchQuery) {

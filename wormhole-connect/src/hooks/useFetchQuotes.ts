@@ -345,7 +345,7 @@ export default (routes: string[], params: Params): HookReturn => {
           )
         ) {
           // Delete quotes not in the list of route names returned by config.filterRoutes
-          for (let key in filtered) {
+          for (const key in filtered) {
             if (!filteredRoutes.includes(key)) {
               delete filtered[key];
             }
