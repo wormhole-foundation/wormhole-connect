@@ -166,6 +166,7 @@ export interface InternalConfig<N extends Network> {
   validateTransfer?: ValidateTransferHandler;
   isRouteSupportedHandler?: IsRouteSupportedHandler;
   isTokenSupportedHandler?: IsTokenSupportedHandler;
+  filterRoutes?: (routes: string[]) => string[];
 
   // UI configuration
   ui: UiConfig;
