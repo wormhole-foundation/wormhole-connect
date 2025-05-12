@@ -369,6 +369,7 @@ export default (routes: string[], params: Params): HookReturn => {
     }
 
     return filtered;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unfilteredQuotes]);
 
   return {
