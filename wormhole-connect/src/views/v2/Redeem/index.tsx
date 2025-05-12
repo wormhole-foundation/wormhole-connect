@@ -64,6 +64,7 @@ import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
 import { clearRedeem } from 'store/redeem';
 import { setSearch } from 'store/search';
+import { isExecutorRoute } from 'utils';
 
 const useStyles = makeStyles()((theme: any) => ({
   spacer: {
@@ -177,8 +178,6 @@ const Redeem = () => {
     isFailed(receipt) &&
     receipt.error instanceof routes.RelayFailedError;
   const isTxDestQueued = receipt && isDestinationQueued(receipt);
-
-  const isExecutorRoute = routeName?.endsWith('ExecutorRoute');
 
   const {
     recipient,
@@ -401,7 +400,7 @@ const Redeem = () => {
       statusText = 'Transaction completed';
     } else if (isTxRefunded) {
       statusText = 'Transaction was refunded';
-    } else if (isRelayFailed && isExecutorRoute) {
+    } else if (isRelayFailed && isExecutorRoute(routeName)) {
       statusText = `Ready to claim on ${toChain}`;
     } else if (isTxFailed) {
       statusText = 'Transaction failed';
@@ -421,8 +420,9 @@ const Redeem = () => {
   }, [
     isTxCompleted,
     isTxRefunded,
-    isTxFailed,
     isRelayFailed,
+    routeName,
+    isTxFailed,
     isTxDestQueued,
     isTxAttested,
     isAutomaticRoute,
@@ -575,7 +575,7 @@ const Redeem = () => {
           sx={{ color: theme.palette.warning.main }}
         />
       );
-    } else if (isRelayFailed && isExecutorRoute) {
+    } else if (isRelayFailed && isExecutorRoute(routeName)) {
       return (
         <TxReadyForClaim
           className={classes.txStatusIcon}
@@ -602,19 +602,20 @@ const Redeem = () => {
       return etaCircularProgress;
     }
   }, [
-    classes.txStatusIcon,
-    etaCircularProgress,
-    isAutomaticRoute,
     isTxCompleted,
     isTxRefunded,
     isTxDestQueued,
-    isTxFailed,
     isRelayFailed,
+    routeName,
+    isTxFailed,
+    isAutomaticRoute,
     isTxAttested,
+    classes.txStatusIcon,
     theme.palette.primary.light,
     theme.palette.warning.main,
     theme.palette.warning.light,
     theme.palette.error.light,
+    etaCircularProgress,
   ]);
 
   useEffect(() => {
@@ -845,7 +846,7 @@ const Redeem = () => {
     // TODO: The AutomaticRoute interface doesn't provide a way to manually claim failed relays.
     // Until that is added, we will use the "resume transaction" flow to handle this case.
     // This works as long as there is a manual route that can be used to claim the tokens.
-    if (isRelayFailed && isExecutorRoute && sendTx) {
+    if (isRelayFailed && isExecutorRoute(routeName) && sendTx) {
       return (
         <Button
           variant="primary"
@@ -887,20 +888,22 @@ const Redeem = () => {
       </>
     );
   }, [
-    claimError,
+    isClaimInProgress,
+    isTxDestQueued,
+    isAutomaticRoute,
+    isTxAttested,
+    isRelayFailed,
+    routeName,
+    sendTx,
     classes.actionButton,
     classes.claimButton,
-    dispatch,
-    handleManualClaim,
-    isAutomaticRoute,
-    isClaimInProgress,
-    isConnectedToReceivingWallet,
-    isRelayFailed,
-    isTxAttested,
     isTxCompleted,
-    isTxDestQueued,
     theme.palette.primary.contrastText,
-    sendTx,
+    isConnectedToReceivingWallet,
+    claimError,
+    handleManualClaim,
+    dispatch,
+    fromChain,
   ]);
 
   const txDelayedText = useMemo(() => {

@@ -393,3 +393,10 @@ export const formatDuration = (seconds: number) => {
     return hours === 1 ? `${hours} hour` : `${hours} hours`;
   }
 };
+
+export const isExecutorRoute = (route: string | undefined) => {
+  if (!route) {
+    return false;
+  }
+  return route.endsWith('ExecutorRoute');
+};

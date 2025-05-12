@@ -23,6 +23,7 @@ import {
   getUSDFormat,
   millisToHumanString,
   formatDuration,
+  isExecutorRoute,
 } from 'utils';
 import { joinClass } from 'utils/style';
 
@@ -173,10 +174,7 @@ const SingleRoute = (props: Props) => {
 
     // Wesley made me do it
     // Them PMs :-/
-    if (
-      props.route.startsWith('MayanSwap') ||
-      props.route.endsWith('ExecutorRoute')
-    ) {
+    if (props.route.startsWith('MayanSwap') || isExecutorRoute(props.route)) {
       feeValue = feePriceFormatted;
     }
 
@@ -657,7 +655,7 @@ const SingleRoute = (props: Props) => {
                     receiveNativeAmount || amount.fromBaseUnits(0n, 8)
                   }
                   disabled={isGasSliderDisabled}
-                  isExecutorRoute={props.route.endsWith('ExecutorRoute')}
+                  isExecutorRoute={isExecutorRoute(props.route)}
                 />
               </Collapse>
             </>

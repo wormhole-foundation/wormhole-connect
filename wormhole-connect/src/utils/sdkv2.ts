@@ -24,6 +24,7 @@ import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
 import { WORMSCAN } from 'config/constants';
 import { TokenTuple } from 'config/tokens';
+import { isExecutorRoute } from 'utils';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -76,7 +77,8 @@ export function getExplorerInfo(
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',
     };
-  } else if (routeName.endsWith('ExecutorRoute')) {
+  } else if (isExecutorRoute(routeName)) {
+    // TODO Remove once Wormholescan explorer supports Executor routes
     return {
       url: `https://usdc.range.org/usdc/status/${txHash}`,
       name: 'USDC.range Explorer',
