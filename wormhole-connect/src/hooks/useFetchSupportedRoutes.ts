@@ -103,37 +103,6 @@ const useFetchSupportedRoutes = ({
         );
       }
 
-      // Apply routes filter if provided in the config
-      if (typeof config.filterRoutes === 'function') {
-        try {
-          const filteredRoutes = config.filterRoutes(_routes);
-          // Ensure the filtered routes are valid route names
-          // and included in the original supported routes.
-          if (
-            Array.isArray(filteredRoutes) &&
-            filteredRoutes.every(
-              (r) => typeof r === 'string' && _routes.includes(r),
-            )
-          ) {
-            _routes = filteredRoutes;
-          } else {
-            console.warn(
-              'config.filterRoutes returned one or more invalid route names',
-              filteredRoutes,
-              'Falling back to all supported routes',
-              _routes,
-            );
-          }
-        } catch (e) {
-          console.warn(
-            'Error when filtering routes',
-            e,
-            'Falling back to all supported routes',
-            _routes,
-          );
-        }
-      }
-
       if (isActive) {
         setIsFetching(false);
         setRoutes(_routes);

@@ -331,6 +331,43 @@ export default (routes: string[], params: Params): HookReturn => {
       }
     }
 
+    // Apply arbitrary routes filter if provided in the config
+    if (typeof config.filterRoutes === 'function') {
+      const routeNames = Object.keys(filtered);
+      try {
+        const filteredRoutes = config.filterRoutes([...routeNames]);
+        // Ensure the filtered routes are valid route names
+        // and included in the original supported routes.
+        if (
+          Array.isArray(filteredRoutes) &&
+          filteredRoutes.every(
+            (r) => typeof r === 'string' && routeNames.includes(r),
+          )
+        ) {
+          // Delete quotes not in the list of route names returned by config.filterRoutes
+          for (let key in filtered) {
+            if (!filteredRoutes.includes(key)) {
+              delete filtered[key];
+            }
+          }
+        } else {
+          console.warn(
+            'config.filterRoutes returned one or more invalid route names',
+            filteredRoutes,
+            'Falling back to all supported routes',
+            routeNames,
+          );
+        }
+      } catch (e) {
+        console.warn(
+          'Error when filtering routes',
+          e,
+          'Falling back to all supported routes',
+          routeNames,
+        );
+      }
+    }
+
     return filtered;
   }, [unfilteredQuotes]);
 
