@@ -24,6 +24,10 @@ export type UiConfig = {
   // Set to true to disable the ability to paste in a token address
   disableUserInputtedTokens?: boolean;
 
+  // Set to true to make Connect hide manual route quotes if there are
+  // successful automatic quotes
+  onlyOfferManualRoutesAsFallback?: boolean;
+
   // UI test options
   testOptions?: TestOptions;
 

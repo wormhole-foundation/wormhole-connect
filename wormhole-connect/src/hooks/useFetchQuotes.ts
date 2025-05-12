@@ -1,5 +1,5 @@
 import { isSameToken, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
 import {
@@ -42,7 +42,9 @@ export default (routes: string[], params: Params): HookReturn => {
     undefined,
   );
   const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
-  const [quotes, setQuotes] = useState<Record<string, QuoteResult>>({});
+  const [unfilteredQuotes, setQuotes] = useState<Record<string, QuoteResult>>(
+    {},
+  );
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export default (routes: string[], params: Params): HookReturn => {
     // to refetch quotes at that point.
     let timeTilNextFetch = 0;
 
-    if (Object.keys(quotes).length > 0) {
+    if (Object.keys(unfilteredQuotes).length > 0) {
       const rParams = params as Required<QuoteParams>;
 
       if (
@@ -122,7 +124,7 @@ export default (routes: string[], params: Params): HookReturn => {
         clearTimeout(refreshTimeout.current);
       }
     };
-  }, [quotes, routes, params]);
+  }, [unfilteredQuotes, routes, params]);
 
   // IMPORTANT
   //
@@ -176,7 +178,9 @@ export default (routes: string[], params: Params): HookReturn => {
     // Forcing TS to infer that fields are non-optional
     const rParams = params as Required<QuoteParams>;
 
-    const quotesValues = Object.values(quotes).filter((q) => q.success);
+    const quotesValues = Object.values(unfilteredQuotes).filter(
+      (q) => q.success,
+    );
     // Immediately invalidate quotes if token inputs changed
     if (quotesValues.length > 0) {
       const { sourceToken, destinationToken } = quotesValues[0];
@@ -194,7 +198,7 @@ export default (routes: string[], params: Params): HookReturn => {
     // However, when fetching updates afterwards, we do not need to show
     // this in-progress state because there are already existing quotes
     // to show - this is less jarring.
-    if (Object.keys(quotes).length === 0 && routes.length !== 0) {
+    if (Object.keys(unfilteredQuotes).length === 0 && routes.length !== 0) {
       setIsFetchingInitialQuotes(true);
     }
 
@@ -218,91 +222,117 @@ export default (routes: string[], params: Params): HookReturn => {
     isVisible,
   ]);
 
-  // Filter out quotes that would result in a large instant loss
-  // (Transfers >=$1000 with >=10% value loss)
-  for (const name in quotes) {
-    const quote = quotes[name];
-    if (quote !== undefined && quote.success) {
-      const usdValueOut = calculateUSDPriceRaw(
-        getTokenPrice,
-        quote.destinationToken.amount,
-        params.destToken,
-      );
+  const quotes = useMemo(() => {
+    let filtered = Object.assign({}, unfilteredQuotes);
 
-      if (usdValue && usdValueOut) {
-        const valueRatio = usdValueOut / usdValue;
-        if (usdValue >= 1000 && valueRatio <= 0.9) {
-          delete quotes[name];
+    // Filter out quotes that would result in a large instant loss
+    // (Transfers >=$1000 with >=10% value loss)
+    for (const name in filtered) {
+      const quote = filtered[name];
+
+      if (quote !== undefined && quote.success) {
+        const usdValueOut = calculateUSDPriceRaw(
+          getTokenPrice,
+          quote.destinationToken.amount,
+          params.destToken,
+        );
+
+        if (usdValue && usdValueOut) {
+          const valueRatio = usdValueOut / usdValue;
+          if (usdValue >= 1000 && valueRatio <= 0.9) {
+            // Don't offer quotes where the USD value out delta exceeds a $1,000 or 10% loss
+            delete filtered[name];
+          }
         }
       }
     }
-  }
 
-  // TODO temporary logic for beta Mayan support
-  for (const name in quotes) {
-    if (name.startsWith('MayanSwap')) {
-      const mayanQuote = quotes[name];
+    // TODO temporary logic for beta Mayan support
+    for (const name in filtered) {
+      if (name.startsWith('MayanSwap')) {
+        const mayanQuote = filtered[name];
 
-      if (mayanQuote !== undefined && mayanQuote.success) {
-        // There are two special cases here for Mayan Swift transfers
-        //
-        // 1) Apply limits for the specified protocols, see MAYAN_BETA_PROTOCOL_LIMITS (temporary, while in beta).
-        // 2) For transfers <=$10,000, calculate network costs manually, because Mayan API doesn't
-        //    expose relayer fee info for Swift quotes.
-        //
-        // TODO all of the code here is horrible and would ideally not exist
+        if (mayanQuote !== undefined && mayanQuote.success) {
+          // There are two special cases here for Mayan Swift transfers
+          //
+          // 1) Apply limits for the specified protocols, see MAYAN_BETA_PROTOCOL_LIMITS (temporary, while in beta).
+          // 2) For transfers <=$10,000, calculate network costs manually, because Mayan API doesn't
+          //    expose relayer fee info for Swift quotes.
+          //
+          // TODO all of the code here is horrible and would ideally not exist
 
-        const protocolLimit =
-          MAYAN_BETA_PROTOCOL_LIMITS[mayanQuote.details?.type.toUpperCase()];
+          const protocolLimit =
+            MAYAN_BETA_PROTOCOL_LIMITS[mayanQuote.details?.type.toUpperCase()];
 
-        if (
-          protocolLimit &&
-          usdValue !== undefined &&
-          usdValue > protocolLimit
-        ) {
-          // Temporarily disallow quotes above the limit
-          // TODO revisit this
-          quotes[name] = {
-            success: false,
-            error: new Error(`Amount exceeds limit of $${protocolLimit} USD`),
-          };
-        } else {
-          const approxInputUsdValue = calculateUSDPriceRaw(
-            getTokenPrice,
-            params.amount,
-            params.sourceToken,
-          );
-          const approxOutputUsdValue = calculateUSDPriceRaw(
-            getTokenPrice,
-            mayanQuote.destinationToken.amount,
-            params.destToken,
-          );
+          if (
+            protocolLimit &&
+            usdValue !== undefined &&
+            usdValue > protocolLimit
+          ) {
+            // Temporarily disallow quotes above the limit
+            // TODO revisit this
+            delete filtered[name];
+            console.warn(
+              `Filtering out ${name} quote which exceeds $${protocolLimit} USD`,
+            );
+          } else {
+            const approxInputUsdValue = calculateUSDPriceRaw(
+              getTokenPrice,
+              params.amount,
+              params.sourceToken,
+            );
+            const approxOutputUsdValue = calculateUSDPriceRaw(
+              getTokenPrice,
+              mayanQuote.destinationToken.amount,
+              params.destToken,
+            );
 
-          if (approxInputUsdValue && approxOutputUsdValue) {
-            const approxUsdNetworkCost =
-              approxInputUsdValue - approxOutputUsdValue;
+            if (approxInputUsdValue && approxOutputUsdValue) {
+              const approxUsdNetworkCost =
+                approxInputUsdValue - approxOutputUsdValue;
 
-            if (!isNaN(approxUsdNetworkCost) && approxUsdNetworkCost > 0) {
-              (quotes[name] as routes.Quote<Network>).relayFee = {
-                token: {
-                  chain: 'Solana' as Chain,
-                  address: Wormhole.parseAddress(
-                    'Solana',
-                    circle.usdcContract.get('Mainnet', 'Solana') as string,
+              if (!isNaN(approxUsdNetworkCost) && approxUsdNetworkCost > 0) {
+                (filtered[name] as routes.Quote<Network>).relayFee = {
+                  token: {
+                    chain: 'Solana' as Chain,
+                    address: Wormhole.parseAddress(
+                      'Solana',
+                      circle.usdcContract.get('Mainnet', 'Solana') as string,
+                    ),
+                  },
+                  amount: amount.parse(
+                    amount.denoise(approxUsdNetworkCost, 6),
+                    6,
                   ),
-                },
-                amount: amount.parse(
-                  amount.denoise(approxUsdNetworkCost, 6),
-                  6,
-                ),
-              };
+                };
+              }
             }
           }
         }
       }
     }
-  }
-  // TODO end Mayan beta support special logic
+    // TODO end Mayan beta support special logic
+
+    // Hide manual quotes if the integrator has set config.ui.onlyOfferManualRoutesAsFallback to true
+    if (config.ui.onlyOfferManualRoutesAsFallback) {
+      let hasAutomaticQuote = false;
+      const onlyAutomaticQuotes = {};
+      for (const name in filtered) {
+        const quote = filtered[name];
+        const route = config.routes.get(name);
+        if (route.AUTOMATIC_DEPOSIT) {
+          hasAutomaticQuote = true;
+          onlyAutomaticQuotes[name] = quote;
+        }
+      }
+
+      if (hasAutomaticQuote) {
+        filtered = onlyAutomaticQuotes;
+      }
+    }
+
+    return filtered;
+  }, [unfilteredQuotes]);
 
   return {
     quotes,
