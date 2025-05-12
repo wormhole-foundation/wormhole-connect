@@ -121,6 +121,7 @@ export function buildConfig(
     validateTransfer: customConfig.validateTransferHandler,
     isRouteSupportedHandler: customConfig.isRouteSupportedHandler,
     isTokenSupportedHandler: customConfig.isTokenSupportedHandler,
+    filterRoutes: customConfig.filterRoutes,
 
     // White lists
     chains: networkData.chains,
