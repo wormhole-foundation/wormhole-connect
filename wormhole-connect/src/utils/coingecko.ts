@@ -31,7 +31,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
 const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Bsc: 'binance-smart-chain',
   Arbitrum: 'arbitrum-one',
-  Optimism: 'optimism-ethereum',
+  Optimism: 'optimistic-ethereum',
   Polygon: 'polygon-pos',
   Klaytn: 'kaia-token',
   Xlayer: 'x-layer',
