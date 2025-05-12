@@ -42,9 +42,9 @@ export default (routes: string[], params: Params): HookReturn => {
     undefined,
   );
   const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
-  const [unfilteredQuotes, setQuotes] = useState<Record<string, QuoteResult>>(
-    {},
-  );
+  const [unfilteredQuotes, setUnfilteredQuotes] = useState<
+    Record<string, QuoteResult>
+  >({});
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -164,7 +164,7 @@ export default (routes: string[], params: Params): HookReturn => {
       !params.amount
     ) {
       // Clear quotes if we are missing any inputs or if the inputs support 0 routes
-      setQuotes({});
+      setUnfilteredQuotes({});
       setIsFetchingInitialQuotes(false);
       return cleanup;
     }
@@ -188,7 +188,7 @@ export default (routes: string[], params: Params): HookReturn => {
         !isSameToken(sourceToken.token, rParams.sourceToken) ||
         !isSameToken(destinationToken.token, rParams.destToken)
       ) {
-        setQuotes({});
+        setUnfilteredQuotes({});
       }
     }
 
@@ -204,7 +204,7 @@ export default (routes: string[], params: Params): HookReturn => {
 
     config.routes.getQuotes(routes, rParams).then((quoteResults) => {
       if (!unmounted) {
-        setQuotes(quoteResults);
+        setUnfilteredQuotes(quoteResults);
         setIsFetchingInitialQuotes(false);
       }
     });
