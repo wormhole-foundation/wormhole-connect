@@ -23,6 +23,7 @@ const {
   REACT_APP_BERACHAIN_RPC,
   REACT_APP_LINEA_RPC,
   REACT_APP_SONIC_RPC,
+  REACT_APP_SEIEVM_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -49,4 +50,5 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('Berachain', REACT_APP_BERACHAIN_RPC),
   ...populateRpcField('Linea', REACT_APP_LINEA_RPC),
   ...populateRpcField('Sonic', REACT_APP_SONIC_RPC),
+  ...populateRpcField('Seievm', REACT_APP_SEIEVM_RPC),
 };

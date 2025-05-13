@@ -177,4 +177,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Sonic',
     symbol: 'S',
   },
+  Seievm: {
+    displayName: "SeiEVM",
+    explorerUrl: "https://seitrace.com/?chain=atlantic-2",
+    explorerName: "Seitrace",
+    icon: "Seievm",
+    sdkName: "Seievm",
+    symbol: "SEI",
+  },
 };

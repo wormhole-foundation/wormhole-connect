@@ -185,4 +185,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Sonic',
     symbol: 'S',
   },
+  Seievm: {
+    displayName: "SeiEVM",
+    sdkName: 'Seievm',
+    explorerUrl: 'https://seitrace.com/?chain=pacific-1',
+    explorerName: 'Seitrace',
+    icon: 'Seievm',
+    symbol: 'SEI',
+  },
 };

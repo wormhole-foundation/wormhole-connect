@@ -387,5 +387,13 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
     decimals: 6,
     icon: TokenIcon.USDC,
+  }, {
+    symbol: "SEI",
+    tokenId: {
+      chain: 'Seievm',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.SEI,
   },
 ];
