@@ -306,7 +306,7 @@ const TransactionDetails = () => {
     }
 
     // Get explorer name and url for the route
-    const { name, url } = getExplorerInfo(route, sendTx);
+    const { name, url } = getExplorerInfo(route, sendTx, fromChain);
 
     // Don't show the explorer link if we don't have a valid explorer URL
     if (!URL.canParse(url)) {
