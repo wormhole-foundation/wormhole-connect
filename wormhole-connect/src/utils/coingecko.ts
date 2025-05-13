@@ -24,6 +24,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Aptos: 'aptos',
   Sui: 'sui',
   Berachain: 'berachain-bera',
+  Unichain: 'ethereum',
   // TODO: add Mezo when available
 };
 
