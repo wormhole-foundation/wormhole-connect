@@ -1,1 +1,1 @@
-export { cctpW7ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
+export { cctpExecutorRoute } from '@wormhole-labs/cctp-executor-route';
