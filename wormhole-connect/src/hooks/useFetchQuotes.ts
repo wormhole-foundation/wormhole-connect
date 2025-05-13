@@ -252,10 +252,15 @@ export default (routes: string[], params: Params): HookReturn => {
             );
             delete filtered[name];
           }
-        } else if (params.sourceToken!.symbol === params.destToken!.symbol) {
+        } else if (
+          params.amount &&
+          params.sourceToken &&
+          params.destToken &&
+          params.sourceToken.symbol === params.destToken.symbol
+        ) {
           const valueRatio =
             parseFloat(amount.display(quote.destinationToken.amount)) /
-            parseFloat(amount.display(params.amount!));
+            parseFloat(amount.display(params.amount));
 
           if (valueRatio <= 0.9) {
             console.debug(
