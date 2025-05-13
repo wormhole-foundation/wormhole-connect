@@ -27,6 +27,7 @@ import WalletIcon from 'icons/WalletIcons';
 import { validateWalletAddress } from 'utils/address';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
+import { clearWallet } from 'store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   listButton: {
@@ -125,12 +126,14 @@ const WalletSidebar = (props: Props) => {
     const nativeAddress = await validateWalletAddress(selectedChain, address);
     if (!nativeAddress) {
       setAddressError('Invalid Address');
+      dispatch(clearWallet(TransferWallet.RECEIVING));
       return;
     }
 
     for (const sanctioned of SANCTIONED_WALLETS) {
       if (nativeAddress.toString().toLowerCase() === sanctioned.toLowerCase()) {
         setAddressError('Sanctioned Address');
+        dispatch(clearWallet(TransferWallet.RECEIVING));
         return;
       }
     }
