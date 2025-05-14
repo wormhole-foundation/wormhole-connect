@@ -113,61 +113,61 @@ const ConnectedWallet = (props: Props) => {
 
   const popupTrigger = isTransactionInProgress ? {} : bindTrigger(popupState);
 
-  if (!wallet?.address) {
-    return <></>;
-  }
-
   return (
     <>
-      <div
-        className={joinClass([
-          classes.connectWallet,
-          isTransactionInProgress && classes.disabled,
-        ])}
-        {...popupTrigger}
-      >
-        <WalletIcons name={wallet.name} icon={wallet.icon} size={20} />
-        <Tooltip title="Copied" open={isCopied} placement="top" arrow>
-          <Typography
-            className={classes.walletAddress}
-            fontSize={14}
-            fontWeight={700}
+      {!wallet?.address ? null : (
+        <>
+          <div
+            className={joinClass([
+              classes.connectWallet,
+              isTransactionInProgress && classes.disabled,
+            ])}
+            {...popupTrigger}
           >
-            {displayWalletAddress(wallet.type, wallet.address)}
-          </Typography>
-        </Tooltip>
-      </div>
-      <Popover
-        {...bindPopover(popupState)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <List>
-          <ListItemButton onClick={copyAddress}>
-            <Typography fontSize={14}>Copy address</Typography>
-          </ListItemButton>
-          {config.ui.explorer ? (
-            <ExplorerLink
-              address={wallet.address}
-              href={config.ui.explorer.href}
-              target={config.ui.explorer.target}
-              label={config.ui.explorer.label}
-            />
-          ) : null}
-          <ListItemButton onClick={connectWallet}>
-            <Typography fontSize={14}>Change wallet</Typography>
-          </ListItemButton>
-          <ListItemButton onClick={disconnectWallet}>
-            <Typography fontSize={14}>Disconnect</Typography>
-          </ListItemButton>
-        </List>
-      </Popover>
+            <WalletIcons name={wallet.name} icon={wallet.icon} size={20} />
+            <Tooltip title="Copied" open={isCopied} placement="top" arrow>
+              <Typography
+                className={classes.walletAddress}
+                fontSize={14}
+                fontWeight={700}
+              >
+                {displayWalletAddress(wallet.type, wallet.address)}
+              </Typography>
+            </Tooltip>
+          </div>
+          <Popover
+            {...bindPopover(popupState)}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <List>
+              <ListItemButton onClick={copyAddress}>
+                <Typography fontSize={14}>Copy address</Typography>
+              </ListItemButton>
+              {config.ui.explorer ? (
+                <ExplorerLink
+                  address={wallet.address}
+                  href={config.ui.explorer.href}
+                  target={config.ui.explorer.target}
+                  label={config.ui.explorer.label}
+                />
+              ) : null}
+              <ListItemButton onClick={connectWallet}>
+                <Typography fontSize={14}>Change wallet</Typography>
+              </ListItemButton>
+              <ListItemButton onClick={disconnectWallet}>
+                <Typography fontSize={14}>Disconnect</Typography>
+              </ListItemButton>
+            </List>
+          </Popover>
+        </>
+      )}
       <WalletSidebar
         open={isOpen}
         type={props.type}
