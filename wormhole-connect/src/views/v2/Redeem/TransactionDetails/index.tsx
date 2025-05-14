@@ -24,7 +24,6 @@ import { getExplorerInfo } from 'utils/sdkv2';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import type { RootState } from 'store';
-import { toFixedDecimals } from 'utils/balance';
 import { useTokens } from 'contexts/TokensContext';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -55,7 +54,6 @@ const TransactionDetails = () => {
     receivedToken,
     receiveAmount,
     receiveNativeAmount,
-    relayerFee,
     eta,
   } = useSelector((state: RootState) => state.redeem.txData)!;
 
@@ -205,54 +203,6 @@ const TransactionDetails = () => {
     [],
   );
 
-  const bridgeFee = useMemo(() => {
-    if (!relayerFee || !relayerFee.token) {
-      return <></>;
-    }
-
-    const feeTokenConfig = config.tokens.get(relayerFee.token);
-    if (!feeTokenConfig) {
-      return <></>;
-    }
-
-    const feePrice = calculateUSDPrice(
-      getTokenPrice,
-      relayerFee.fee,
-      feeTokenConfig,
-    );
-
-    if (!feePrice) {
-      return <></>;
-    }
-
-    let feeValue = (
-      <Typography fontSize={14}>{`${toFixedDecimals(
-        relayerFee.fee.toString(),
-        4,
-      )} ${feeTokenConfig.symbol} (${feePrice})`}</Typography>
-    );
-
-    // Special request: For Mayan we show the USD amount only
-    if (routeName?.startsWith('MayanSwap')) {
-      feeValue = <Typography fontSize={14}>{feePrice}</Typography>;
-    }
-
-    return (
-      <Stack direction="row" justifyContent="space-between">
-        <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Network cost
-        </Typography>
-        {isFetchingTokenPrices ? <CircularProgress size={14} /> : feeValue}
-      </Stack>
-    );
-  }, [
-    relayerFee,
-    getTokenPrice,
-    routeName,
-    theme.palette.text.secondary,
-    isFetchingTokenPrices,
-  ]);
-
   const destinationGas = useMemo(() => {
     if (
       !receivedToken ||
@@ -369,7 +319,6 @@ const TransactionDetails = () => {
             justifyContent="space-between"
             marginTop="16px"
           >
-            {bridgeFee}
             {destinationGas}
             {timeToDestination}
           </Stack>
