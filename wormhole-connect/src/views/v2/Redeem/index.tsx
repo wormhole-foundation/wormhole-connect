@@ -648,7 +648,8 @@ const Redeem = () => {
         new PublicKey(receivingWallet.address),
       );
       if (!ata.equals(new PublicKey(recipient))) {
-        setClaimError('Not connected to the receiving wallet');
+        // setClaimError('Not connected to the receiving wallet');
+        console.warn(`Not connected to the receiving wallet`);
         return false;
       }
 
