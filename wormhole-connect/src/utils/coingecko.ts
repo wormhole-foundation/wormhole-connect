@@ -116,7 +116,6 @@ export const fetchTokenPrices = async (
         params,
       )
         .then((data) => {
-          console.log(data);
           if (data['error'] !== undefined || data['error_code'] !== undefined) {
             reject(data['error']);
           } else {
