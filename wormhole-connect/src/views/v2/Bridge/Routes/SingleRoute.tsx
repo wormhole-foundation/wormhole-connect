@@ -20,7 +20,6 @@ import TokenIcon from 'icons/TokenIcons';
 import {
   calculateUSDPrice,
   calculateUSDPriceRaw,
-  getUSDFormat,
   millisToHumanString,
   formatDuration,
   isExecutorRoute,
@@ -32,7 +31,6 @@ import FastestRoute from 'icons/FastestRoute';
 import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
-import { Token } from 'config/tokens';
 import GasSlider from 'views/v2/Bridge/GasSlider';
 import Color from 'color';
 
@@ -137,13 +135,9 @@ const SingleRoute = (props: Props) => {
     isTransactionInProgress,
   });
 
-  const [feePrice, isHighFee, feeTokenConfig]: [
-    number | undefined,
-    boolean,
-    Token | undefined,
-  ] = useMemo(() => {
+  const isHighFee = useMemo(() => {
     if (!quote?.relayFee) {
-      return [undefined, false, undefined];
+      return false;
     }
 
     const relayFee = amount.whole(quote.relayFee.amount);
@@ -151,63 +145,11 @@ const SingleRoute = (props: Props) => {
     const feePrice = calculateUSDPriceRaw(getTokenPrice, relayFee, feeToken);
 
     if (feePrice === undefined) {
-      return [undefined, false, undefined];
+      return false;
     }
 
-    return [feePrice, feePrice > HIGH_FEE_THRESHOLD, feeToken];
+    return feePrice > HIGH_FEE_THRESHOLD;
   }, [getTokenPrice, quote?.relayFee]);
-
-  const relayerFee = useMemo(() => {
-    if (!routeConfig.AUTOMATIC_DEPOSIT) {
-      return <>You pay gas on {destChain}</>;
-    }
-
-    if (!quote || !feePrice || !feeTokenConfig) {
-      return <></>;
-    }
-
-    const feePriceFormatted = getUSDFormat(feePrice);
-
-    let feeValue = `${amount.display(
-      amount.truncate(quote!.relayFee!.amount, 6),
-    )} ${feeTokenConfig.display} (${feePriceFormatted})`;
-
-    // Wesley made me do it
-    // Them PMs :-/
-    if (props.route.startsWith('MayanSwap') || isExecutorRoute(props.route)) {
-      feeValue = feePriceFormatted;
-    }
-
-    return (
-      <Stack direction="row" justifyContent="space-between">
-        <Typography
-          color={theme.palette.text.secondary}
-          component="div"
-          fontSize="14px"
-          lineHeight="14px"
-        >
-          Network cost
-        </Typography>
-        <Typography
-          color={theme.palette.text.primary}
-          component="div"
-          fontSize="14px"
-          lineHeight="14px"
-        >
-          {feeValue}
-        </Typography>
-      </Stack>
-    );
-  }, [
-    destChain,
-    feePrice,
-    feeTokenConfig,
-    props.route,
-    quote,
-    routeConfig.AUTOMATIC_DEPOSIT,
-    theme.palette.text.primary,
-    theme.palette.text.secondary,
-  ]);
 
   const destinationGas = useMemo(() => {
     if (
@@ -639,7 +581,9 @@ const SingleRoute = (props: Props) => {
           />
           <CardContent className={classes.cardContent}>
             <Stack gap="14px">
-              {relayerFee}
+              {!routeConfig.AUTOMATIC_DEPOSIT
+                ? `You pay gas on ${destChain}`
+                : null}
               {destinationGas}
               {timeToDestination}
             </Stack>
