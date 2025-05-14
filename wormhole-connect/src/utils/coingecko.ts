@@ -116,7 +116,8 @@ export const fetchTokenPrices = async (
         params,
       )
         .then((data) => {
-          if (data['error'] !== undefined) {
+          console.log(data);
+          if (data['error'] !== undefined || data['error_code'] !== undefined) {
             reject(data['error']);
           } else {
             resolve(
@@ -135,7 +136,7 @@ export const fetchTokenPrices = async (
                     }
                   } catch (e) {
                     // Error parsing address
-                    console.error(e);
+                    console.error('Coingecko error', e);
                     return null;
                   }
                 })

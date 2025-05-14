@@ -114,7 +114,7 @@ const TokenList = (props: Props) => {
       return 4;
     }
     // Native gas tokens are next
-    if (isNative(token.address)) {
+    if (isNative(token.addressString)) {
       return 3;
     }
     // USDC preferred next

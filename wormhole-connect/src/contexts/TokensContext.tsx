@@ -59,9 +59,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   const [tokenPrices, _setTokenPrices] = useState<TokenMapping<TokenPrice>>(
     new TokenMapping(),
   );
-  const [tokenPricesToFetch, _setTokenPricesToFetch] = useState<
-    TokenMapping<boolean>
-  >(new TokenMapping());
+  const tokenPricesToFetch = React.useRef<Set<string>>(new Set());
 
   const [isFetchingTokenPrices, setIsFetchingPrices] = useState(false);
   const [lastTokenPriceUpdate, setLastPriceUpdate] = useState(new Date());
@@ -110,9 +108,11 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   );
 
   const updateTokenPrices = useDebouncedCallback(async () => {
-    if (tokenPricesToFetch.empty) return;
+    if (tokenPricesToFetch.current.size === 0) return;
 
-    const tokens = tokenPricesToFetch.getAllTokenIds();
+    const tokens = config.tokens.getList(
+      Array.from(tokenPricesToFetch.current.values()),
+    );
     console.info('Fetching token prices', tokens);
 
     try {
@@ -126,10 +126,17 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
           price: undefined,
           isFetching: true,
         });
+        if (token.tokenBridgeOriginalTokenId !== undefined) {
+          tokenPrices.add(token.tokenBridgeOriginalTokenId, {
+            timestamp,
+            price: undefined,
+            isFetching: true,
+          });
+        }
       }
 
       // Clear list for future invocations of getTokenPrice
-      tokenPricesToFetch.clear();
+      tokenPricesToFetch.current.clear();
 
       const prices = await fetchTokenPrices(tokens);
 
@@ -140,11 +147,12 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
             timestamp,
             price,
           });
-        } else {
-          tokenPrices.add(token, {
-            timestamp,
-            price: undefined,
-          });
+          if (token.tokenBridgeOriginalTokenId !== undefined) {
+            tokenPrices.add(token.tokenBridgeOriginalTokenId, {
+              timestamp,
+              price,
+            });
+          }
         }
       }
     } catch (e) {
@@ -163,7 +171,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     if (cachedPrice) {
       return cachedPrice.price;
     } else {
-      tokenPricesToFetch.add(tokenId, true);
+      tokenPricesToFetch.current.add(token.key);
       updateTokenPrices();
       return undefined;
     }

@@ -195,7 +195,9 @@ export class TokenMapping<T> {
       this._mapping.set(token.chain, new Map());
     }
 
-    this._mapping.get(token.chain)!.set(addressString(token), value);
+    this._mapping
+      .get(token.chain)!
+      .set(addressString(token).toLowerCase(), value);
     this.lastUpdate = new Date();
     this.size += 1;
   }
@@ -214,7 +216,7 @@ export class TokenMapping<T> {
       typeof address === 'string' &&
       isChain(firstArg)
     ) {
-      return this._mapping.get(firstArg)?.get(address);
+      return this._mapping.get(firstArg)?.get(address.toLowerCase());
     } else if (firstArg instanceof TokenIdLazy) {
       // Doing the instanceof TokenIdLazy check before isTokenId() is important here for perf reasons.
       // All we need is the stringified address. TokenIdLazy is optimized for that.
@@ -225,16 +227,20 @@ export class TokenMapping<T> {
       // immediately re-stringifiy it.
       //
       // It's weird but it speeds up token cache operations a lot.
-      return this._mapping.get(firstArg.chain)?.get(firstArg.addressString);
+      return this._mapping
+        .get(firstArg.chain)
+        ?.get(firstArg.addressString.toLowerCase());
     } else if (isTokenId(firstArg)) {
       return this._mapping
         .get(firstArg.chain)
-        ?.get(firstArg.address.toString());
+        ?.get(firstArg.address.toString().toLowerCase());
     } else if (isTokenTuple(firstArg)) {
-      return this._mapping.get(firstArg[0])?.get(firstArg[1]);
+      return this._mapping.get(firstArg[0])?.get(firstArg[1].toLowerCase());
     } else {
       const tokenId = parseTokenKey(firstArg);
-      return this._mapping.get(tokenId.chain)?.get(addressString(tokenId));
+      return this._mapping
+        .get(tokenId.chain)
+        ?.get(addressString(tokenId).toLowerCase());
     }
   }
 
@@ -277,14 +283,6 @@ export class TokenMapping<T> {
   getAll(): T[] {
     return Array.from(this._mapping.values()).flatMap((chainMap) =>
       Array.from(chainMap.values()),
-    );
-  }
-
-  getAllTokenIds(): TokenId[] {
-    return Array.from(this._mapping.keys()).flatMap((chain) =>
-      Array.from(this._mapping.get(chain)!.keys()).map(
-        (address) => new TokenIdLazy(chain, address),
-      ),
     );
   }
 
