@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Card, CardContent, useTheme } from '@mui/material';
+import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
@@ -44,6 +44,7 @@ const useStyles = makeStyles()((theme: any) => ({
     marginBottom: '8px',
   },
   tokenLoader: {
+    padding: 0,
     display: 'flex',
     justifyContent: 'space-between',
   },
@@ -308,11 +309,14 @@ const TokenList = (props: Props) => {
         )
       }
       loading={
-        props.isFetching && (
+        props.isFetching &&
+        [1, 2, 3].map((_) => (
           <ListItemButton className={classes.tokenLoader} dense>
-            <CircularProgress />
+            <Box height="39px" padding="8px 16px">
+              <Skeleton variant="circular" width="36px" height="36px" />
+            </Box>
           </ListItemButton>
-        )
+        ))
       }
       items={sortedTokens}
       onQueryChange={(query) => {

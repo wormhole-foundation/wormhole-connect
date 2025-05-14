@@ -41,6 +41,8 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
     const computeDestTokens = async () => {
       let supported: Token[] = [];
 
+      setSupportedDestTokens([]);
+
       // Start fetching and setting all supported tokens
 
       if (!sourceChain && destChain) {
