@@ -21,7 +21,7 @@ export interface TransferDetails {
   txId?: string;
   USDAmount?: number;
   amount?: sdkAmount.Amount;
-  metadata?: any; // Optional object for arbitrary transfer-related information
+  misc?: any;
 }
 
 export type TransferEventType =
