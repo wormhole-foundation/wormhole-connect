@@ -162,9 +162,21 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
           ? receipt.originTxs[receipt.originTxs.length - 1].txid
           : undefined;
 
+      // HACK: the SDK Quote type should have an optional referrerFee property
+      // with the token and amount
+      let referrerFeeUSD: number | undefined = undefined;
+      if (
+        route === 'CCTPExecutorRoute' &&
+        quote.details?.referrerFee !== undefined
+      ) {
+        referrerFeeUSD = Number.parseFloat(
+          toDecimals(quote.details.referrerFee, 6),
+        );
+      }
+
       config.triggerEvent({
         type: 'transfer.start',
-        details: { ...transferDetails, txId },
+        details: { ...transferDetails, txId, referrerFeeUSD },
       });
 
       if (!txId) throw new Error("Can't find txid in receipt");
