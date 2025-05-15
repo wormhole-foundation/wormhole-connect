@@ -19,6 +19,8 @@ import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 // TODO SDKV2
 // attempt to capture errors using regex
 export const INSUFFICIENT_ALLOWANCE_REGEX = /insufficient token allowance/im;
+export const INSUFFICIENT_LAMPORTS_REGEX =
+  /insufficient lamports.*?(\d+).*?(\d+)/im;
 export const USER_REJECTED_REGEX = new RegExp(
   'user rejected|rejected the request|rejected from user|user cancel|aborted by user|plugin closed|denied request signature',
   'mi',
@@ -72,6 +74,19 @@ export function interpretTransferError(
           : '';
       uiErrorMessage = `Amount exceeds Circle limit${limitString}. Please reduce transfer amount.`;
       internalErrorCode = ERR_AMOUNT_TOO_LARGE;
+    } else if (INSUFFICIENT_LAMPORTS_REGEX.test(e?.message)) {
+      const lamportMatches = e?.message.match(INSUFFICIENT_LAMPORTS_REGEX);
+      const currentLamports = lamportMatches?.[1];
+      const requiredLamports = lamportMatches?.[2];
+      uiErrorMessage = `Insufficient funds for gas.`;
+      if (currentLamports && requiredLamports) {
+        const currentAmount = sdkAmount.fromBaseUnits(currentLamports, 9);
+        const requiredAmount = sdkAmount.fromBaseUnits(requiredLamports, 9);
+        uiErrorMessage += ` Current balance is ${sdkAmount.display(
+          currentAmount,
+        )} SOL, but required ${sdkAmount.display(requiredAmount)} SOL`;
+      }
+      internalErrorCode = ERR_INSUFFICIENT_GAS;
     }
   }
 
