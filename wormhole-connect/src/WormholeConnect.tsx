@@ -17,9 +17,6 @@ import { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 import { TokensProvider } from './contexts/TokensContext';
 
-// Create a singleton cache instance that can be reused
-const clientSideEmotionCache = createEmotionCache();
-
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
   theme?: WormholeConnectTheme;
@@ -31,9 +28,12 @@ export default function WormholeConnect({
   config,
   theme,
 }: WormholeConnectProps) {
+  // Create cache lazily in component to avoid SSR issues
+  const [emotionCache] = React.useState(() => createEmotionCache());
+
   React.useEffect(() => {
     // IMPORTANT: This is a workaround to expose the Redux store to the window object so it can be used in automated tests.
-    if (!globalThis.dispatchReduxAction) {
+    if (typeof window !== 'undefined' && !globalThis.dispatchReduxAction) {
       (window as any).dispatchReduxAction = (action: any) => {
         store.dispatch(action);
       };
@@ -47,7 +47,7 @@ export default function WormholeConnect({
   );
 
   return (
-    <CacheProvider value={clientSideEmotionCache}>
+    <CacheProvider value={emotionCache}>
       <Provider store={store}>
         <ThemeProvider theme={muiTheme}>
           <ScopedCssBaseline enableColorScheme>
