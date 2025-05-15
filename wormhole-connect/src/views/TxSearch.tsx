@@ -208,7 +208,6 @@ function TxSearch() {
             sx={{ width: '100%', height: '100%', minHeight: '64.5px' }}
             value={state.chain}
             displayEmpty
-            placeholder="Select network"
             onChange={(e) => setChain(e)}
           >
             <MenuItem disabled value="" key={0}>

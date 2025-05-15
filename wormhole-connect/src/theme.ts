@@ -29,12 +29,12 @@ export type WormholeConnectTheme = {
   font?: string;
 };
 
-type Color = { main: string };
+type ColorType = { main: string };
 
 export type InternalTheme = {
   mode: PaletteMode;
-  primary: Color;
-  secondary: Color;
+  primary: ColorType;
+  secondary: ColorType;
   divider: string;
   background: {
     default: string;
@@ -43,10 +43,10 @@ export type InternalTheme = {
     primary: string;
     secondary: string;
   };
-  error: Color;
-  info: Color;
-  success: Color;
-  warning: Color;
+  error: ColorType;
+  info: ColorType;
+  success: ColorType;
+  warning: ColorType;
   button: {
     primary: string;
     primaryText: string;
@@ -191,7 +191,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
   const baseTheme = isLightMode ? light : dark;
   const theme = Object.assign({}, baseTheme) as InternalTheme;
 
-  // Override built-in theme with whichever custom values we've been provided
   if (customTheme) {
     if (customTheme.background) {
       theme.background = {
@@ -234,41 +233,41 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         main: customTheme.success,
       };
     }
-
-    const primary = Color(customTheme.primary || theme.primary.main);
-    let primaryText: string;
-    let disabled: string;
-    let disabledText: string;
-    let action: string;
-    let actionText: string;
-    let hover: string;
-
-    if (primary.isDark()) {
-      primaryText = primary.lightness(95).hex();
-      disabled = primary.alpha(0.4).hexa();
-      disabledText = primary.lightness(95).alpha(0.9).hexa();
-      action = primary.darken(0.15).hex();
-      actionText = primary.lightness(80).hex();
-      hover = primary.darken(0.05).hex();
-    } else {
-      primaryText = primary.lightness(5).hex();
-      disabled = primary.alpha(0.4).hexa();
-      disabledText = primary.lightness(5).alpha(0.9).hexa();
-      action = primary.lighten(0.05).hex();
-      actionText = primary.lightness(0).hex();
-      hover = primary.lighten(0.05).hex();
-    }
-
-    theme.button = {
-      primary: primary.hex(),
-      primaryText,
-      disabled,
-      disabledText,
-      action,
-      actionText,
-      hover,
-    };
   }
+
+  const primary = Color(customTheme.primary || theme.primary.main);
+  let primaryText: string;
+  let disabled: string;
+  let disabledText: string;
+  let action: string;
+  let actionText: string;
+  let hover: string;
+
+  if (primary.isDark()) {
+    primaryText = primary.lightness(95).hex();
+    disabled = primary.alpha(0.4).hexa();
+    disabledText = primary.lightness(95).alpha(0.9).hexa();
+    action = primary.darken(0.15).hex();
+    actionText = primary.lightness(80).hex();
+    hover = primary.darken(0.05).hex();
+  } else {
+    primaryText = primary.lightness(5).hex();
+    disabled = primary.alpha(0.4).hexa();
+    disabledText = primary.lightness(5).alpha(0.9).hexa();
+    action = primary.lighten(0.05).hex();
+    actionText = primary.lightness(0).hex();
+    hover = primary.lighten(0.05).hex();
+  }
+
+  theme.button = {
+    primary: primary.hex(),
+    primaryText,
+    disabled,
+    disabledText,
+    action,
+    actionText,
+    hover,
+  };
 
   return createTheme({
     components: {
@@ -286,6 +285,24 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
           },
         },
       },
+      MuiButton: {
+        defaultProps: {
+          disableElevation: true,
+        },
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            borderRadius: '12px',
+          },
+        },
+      },
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            borderRadius: '12px',
+          },
+        },
+      },
     },
     breakpoints: {
       values: {
@@ -300,7 +317,15 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       fontFamily: customTheme.font ?? '"Inter", sans-serif',
     },
     palette: {
-      ...theme,
+      mode: theme.mode,
+      primary: theme.primary,
+      secondary: theme.secondary,
+      error: theme.error,
+      info: theme.info,
+      success: theme.success,
+      warning: theme.warning,
+      background: theme.background,
+      text: theme.text,
     },
   });
 };

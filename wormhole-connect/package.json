@@ -40,8 +40,6 @@
     "@aptos-labs/ts-sdk": "1.35.0",
     "@aptos-labs/wallet-adapter-core": "4.24.0",
     "@coral-xyz/anchor": "0.29.0",
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
     "@ledgerhq/devices": "6.27.1",
     "@ledgerhq/errors": "6.10.2",
     "@ledgerhq/hw-transport": "6.27.1",
@@ -150,13 +148,12 @@
     "vite-plugin-dts": "^4.0.3"
   },
   "peerDependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^6.0.0",
+    "@mui/icons-material": "^6.0.0",
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
-    "@emotion/react": "^11.0.0",
-    "@emotion/cache": "^11.0.0",
-    "@emotion/styled": "^11.0.0",
-    "@mui/material": "^5.0.0 || ^6.0.0",
-    "@mui/icons-material": "^5.0.0 || ^6.0.0"
+    "react-dom": ">=18.0.0"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
