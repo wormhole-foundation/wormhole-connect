@@ -113,6 +113,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     const tokens = config.tokens.getList(
       Array.from(tokenPricesToFetch.current.values()),
     );
+    console.info('Fetching token prices', tokens);
 
     try {
       setIsFetchingPrices(true);
