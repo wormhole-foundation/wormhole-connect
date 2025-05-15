@@ -162,6 +162,7 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
           ? receipt.originTxs[receipt.originTxs.length - 1].txid
           : undefined;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let misc: any;
 
       // HACK: the SDK Quote type should have an optional referrerFee property
