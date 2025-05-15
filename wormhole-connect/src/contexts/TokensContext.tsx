@@ -5,7 +5,7 @@ import {
   toNative,
 } from '@wormhole-foundation/sdk';
 import config, { clearWormholeContextV2 } from 'config';
-import { Token, TokenMapping } from 'config/tokens';
+import { Token, tokenKey, TokenMapping } from 'config/tokens';
 import React, {
   createContext,
   useContext,
@@ -113,7 +113,6 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     const tokens = config.tokens.getList(
       Array.from(tokenPricesToFetch.current.values()),
     );
-    console.info('Fetching token prices', tokens);
 
     try {
       setIsFetchingPrices(true);
@@ -126,13 +125,6 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
           price: undefined,
           isFetching: true,
         });
-        if (token.tokenBridgeOriginalTokenId !== undefined) {
-          tokenPrices.add(token.tokenBridgeOriginalTokenId, {
-            timestamp,
-            price: undefined,
-            isFetching: true,
-          });
-        }
       }
 
       // Clear list for future invocations of getTokenPrice
@@ -147,12 +139,11 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
             timestamp,
             price,
           });
-          if (token.tokenBridgeOriginalTokenId !== undefined) {
-            tokenPrices.add(token.tokenBridgeOriginalTokenId, {
-              timestamp,
-              price,
-            });
-          }
+        } else {
+          tokenPrices.add(token, {
+            timestamp,
+            price: undefined,
+          });
         }
       }
     } catch (e) {
@@ -171,7 +162,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     if (cachedPrice) {
       return cachedPrice.price;
     } else {
-      tokenPricesToFetch.current.add(token.key);
+      tokenPricesToFetch.current.add(tokenKey(tokenId));
       updateTokenPrices();
       return undefined;
     }

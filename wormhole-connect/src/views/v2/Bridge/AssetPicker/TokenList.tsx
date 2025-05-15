@@ -242,7 +242,7 @@ const TokenList = (props: Props) => {
 
           if (wrapped.length > 1) {
             console.warn(
-              `Ambigous token whitelist item "${symbol}"; found ${wrapped.length} matching wrapped tokens.`,
+              `Ambiguous token whitelist item "${symbol}"; found ${wrapped.length} matching wrapped tokens.`,
             );
           }
         }
