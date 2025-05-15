@@ -1,3 +1,5 @@
+[build.environment]
+NPM_VERSION = "11"
 [context.mainnet]
   command = "npm run build:netlify"
 [context.production]
