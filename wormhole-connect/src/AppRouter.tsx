@@ -10,7 +10,6 @@ import { isEmptyObject, usePrevious } from './utils';
 import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
-import SvgDefs from 'icons/SvgDefs';
 
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
@@ -23,7 +22,7 @@ import RedeemV2 from 'views/v2/Redeem';
 import TxHistory from 'views/v2/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 
-const useStyles = makeStyles()((theme: any) => ({
+const useStyles = makeStyles()((theme) => ({
   appContent: {
     textAlign: 'left',
     margin: '40px auto',
@@ -32,7 +31,7 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'flex',
     justifyContent: 'center',
     padding: '4px',
-    fontFamily: theme.palette.font.primary,
+    fontFamily: theme.typography.fontFamily,
     [theme.breakpoints.down('sm')]: {
       margin: '0 auto',
     },
@@ -119,7 +118,6 @@ function AppRouter(props: Props) {
 
   return (
     <div className={classes.appContent}>
-      <SvgDefs />
       {route === 'bridge' && <BridgeV2 />}
       {route === 'redeem' && <RedeemV2 />}
       {route === 'search' && <TxSearch />}
