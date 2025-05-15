@@ -5,8 +5,6 @@ import '@mui/material/styles/styled';
 import { Provider } from 'react-redux';
 import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { CacheProvider } from '@emotion/react';
-import createEmotionCache from './createEmotionCache';
 import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
@@ -29,11 +27,10 @@ export default function WormholeConnect({
   theme,
 }: WormholeConnectProps) {
   // Create cache lazily in component to avoid SSR issues
-  const [emotionCache] = React.useState(() => createEmotionCache());
 
   React.useEffect(() => {
     // IMPORTANT: This is a workaround to expose the Redux store to the window object so it can be used in automated tests.
-    if (typeof window !== 'undefined' && !globalThis.dispatchReduxAction) {
+    if (!globalThis.dispatchReduxAction) {
       (window as any).dispatchReduxAction = (action: any) => {
         store.dispatch(action);
       };
@@ -46,21 +43,25 @@ export default function WormholeConnect({
     [theme],
   );
 
+  const content = React.useMemo(() =>(
+    <ScopedCssBaseline enableColorScheme>
+      <ErrorBoundary>
+        <TokensProvider>
+          <RouteProvider>
+            <AppRouter config={config} />
+          </RouteProvider>
+        </TokensProvider>
+      </ErrorBoundary>
+    </ScopedCssBaseline>)
+  ,[config]);
+
   return (
-    <CacheProvider value={emotionCache}>
       <Provider store={store}>
-        <ThemeProvider theme={muiTheme}>
-          <ScopedCssBaseline enableColorScheme>
-            <ErrorBoundary>
-              <TokensProvider>
-                <RouteProvider>
-                  <AppRouter config={config} />
-                </RouteProvider>
-              </TokensProvider>
-            </ErrorBoundary>
-          </ScopedCssBaseline>
-        </ThemeProvider>
+        {config?.ui?.disableMUIThemeProvider ? (
+          content
+        ) : (
+          <ThemeProvider theme={muiTheme}>{content}</ThemeProvider>
+        )}
       </Provider>
-    </CacheProvider>
   );
 }
