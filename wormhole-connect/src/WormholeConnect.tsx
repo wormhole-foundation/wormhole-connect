@@ -5,6 +5,8 @@ import '@mui/material/styles/styled';
 import { Provider } from 'react-redux';
 import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
+import { CacheProvider } from '@emotion/react';
+import createEmotionCache from './createEmotionCache';
 import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
@@ -14,6 +16,9 @@ import { WormholeConnectConfig } from './config/types';
 import { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 import { TokensProvider } from './contexts/TokensContext';
+
+// Create a singleton cache instance that can be reused
+const clientSideEmotionCache = createEmotionCache();
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
@@ -42,18 +47,20 @@ export default function WormholeConnect({
   );
 
   return (
-    <Provider store={store}>
-      <ThemeProvider theme={muiTheme}>
-        <ScopedCssBaseline enableColorScheme>
-          <ErrorBoundary>
-            <TokensProvider>
-              <RouteProvider>
-                <AppRouter config={config} />
-              </RouteProvider>
-            </TokensProvider>
-          </ErrorBoundary>
-        </ScopedCssBaseline>
-      </ThemeProvider>
-    </Provider>
+    <CacheProvider value={clientSideEmotionCache}>
+      <Provider store={store}>
+        <ThemeProvider theme={muiTheme}>
+          <ScopedCssBaseline enableColorScheme>
+            <ErrorBoundary>
+              <TokensProvider>
+                <RouteProvider>
+                  <AppRouter config={config} />
+                </RouteProvider>
+              </TokensProvider>
+            </ErrorBoundary>
+          </ScopedCssBaseline>
+        </ThemeProvider>
+      </Provider>
+    </CacheProvider>
   );
 }
