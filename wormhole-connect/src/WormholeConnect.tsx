@@ -43,25 +43,19 @@ export default function WormholeConnect({
     [theme],
   );
 
-  const content = React.useMemo(() =>(
-    <ScopedCssBaseline enableColorScheme>
-      <ErrorBoundary>
-        <TokensProvider>
-          <RouteProvider>
-            <AppRouter config={config} />
-          </RouteProvider>
-        </TokensProvider>
-      </ErrorBoundary>
-    </ScopedCssBaseline>)
-  ,[config]);
-
   return (
-      <Provider store={store}>
-        {config?.ui?.disableMUIThemeProvider ? (
-          content
-        ) : (
-          <ThemeProvider theme={muiTheme}>{content}</ThemeProvider>
-        )}
-      </Provider>
+    <Provider store={store}>
+      <ThemeProvider theme={muiTheme}>
+        <ScopedCssBaseline enableColorScheme>
+          <ErrorBoundary>
+            <TokensProvider>
+              <RouteProvider>
+                <AppRouter config={config} />
+              </RouteProvider>
+            </TokensProvider>
+          </ErrorBoundary>
+        </ScopedCssBaseline>
+      </ThemeProvider>
+    </Provider>
   );
 }

@@ -28,9 +28,6 @@ export type UiConfig = {
   // successful automatic quotes
   onlyOfferManualRoutesAsFallback?: boolean;
 
-  // Set to true to disable MUI theme provider and use your own
-  disableMUIThemeProvider?: boolean;
-
   // UI test options
   testOptions?: TestOptions;
 
