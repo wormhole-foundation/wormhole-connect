@@ -1,6 +1,6 @@
 import WormholeConnect from '../WormholeConnect';
 
-import type { WormholeConnectTheme } from 'theme';
+import { type WormholeConnectTheme, generateTheme } from '../theme';
 
 import MAINNET from 'config/mainnet';
 import TESTNET from 'config/testnet';
@@ -30,6 +30,7 @@ export {
   MAINNET,
   TESTNET,
   buildConfig,
+  generateTheme,
 
   // Types
   Chain,
