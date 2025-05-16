@@ -226,6 +226,8 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               'react/jsx-runtime',
               '@emotion/react',
               '@emotion/styled',
+              '@mui/material',
+              '@mui/styled-engine',
               ...external,
             ],
           },
