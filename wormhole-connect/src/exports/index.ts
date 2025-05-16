@@ -30,7 +30,6 @@ export {
   MAINNET,
   TESTNET,
   buildConfig,
-  generateTheme,
 
   // Types
   Chain,
