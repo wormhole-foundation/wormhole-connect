@@ -26,7 +26,6 @@ export default function WormholeConnect({
   config,
   theme,
 }: WormholeConnectProps) {
-  // Create cache lazily in component to avoid SSR issues
 
   React.useEffect(() => {
     // IMPORTANT: This is a workaround to expose the Redux store to the window object so it can be used in automated tests.

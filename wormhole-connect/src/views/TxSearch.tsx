@@ -210,8 +210,8 @@ function TxSearch() {
             displayEmpty
             onChange={(e) => setChain(e)}
           >
-          <MenuItem disabled value="">
-            <em>Placeholder</em>
+          <MenuItem disabled value="" key={0}>
+            <em>Select Network</em>
           </MenuItem>
             {sortedChains.map((chain) => {
               return (
