@@ -31,36 +31,36 @@ import MEZO from './Chains/MEZO';
 import LINEA from './Chains/LINEA';
 import SONIC from './Chains/SONIC';
 
-const iconMap: { [key in Chain]?: React.JSX.Element } = {
-  Moonbeam: GLMR(),
-  Avalanche: AVAX(),
-  Bsc: BSC(),
-  Celo: CELO(),
-  Ethereum: ETH(),
-  Fantom: FTM(),
-  Polygon: POLY(),
-  Solana: SOL(),
-  Sui: SUI(),
-  Aptos: APT(),
-  Arbitrum: ARBITRUM(),
-  Optimism: OPTIMISM(),
-  Base: BASE(),
-  Klaytn: KAIA(),
-  Scroll: SCROLL(),
-  Blast: BLAST(),
-  Xlayer: XLAYER(),
-  Mantle: MANTLE(),
-  Osmosis: OSMO(),
-  Worldchain: WORLD(),
-  Unichain: UNI(),
-  Berachain: BERA(),
-  Mezo: MEZO(),
-  Linea: LINEA(),
-  Sonic: SONIC(),
+const iconGetterMap: { [key in Chain]?: () => React.JSX.Element } = {
+  Moonbeam: () => GLMR(),
+  Avalanche: () => AVAX(),
+  Bsc: () => BSC(),
+  Celo: () => CELO(),
+  Ethereum: () => ETH(),
+  Fantom: () => FTM(),
+  Polygon: () => POLY(),
+  Solana: () => SOL(),
+  Sui: () => SUI(),
+  Aptos: () => APT(),
+  Arbitrum: () => ARBITRUM(),
+  Optimism: () => OPTIMISM(),
+  Base: () => BASE(),
+  Klaytn: () => KAIA(),
+  Scroll: () => SCROLL(),
+  Blast: () => BLAST(),
+  Xlayer: () => XLAYER(),
+  Mantle: () => MANTLE(),
+  Osmosis: () => OSMO(),
+  Worldchain: () => WORLD(),
+  Unichain: () => UNI(),
+  Berachain: () => BERA(),
+  Mezo: () => MEZO(),
+  Linea: () => LINEA(),
+  Sonic: () => SONIC(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {
-  return Object.keys(iconMap).includes(icon as Chain);
+  return Object.keys(iconGetterMap).includes(icon as Chain);
 }
 
 type Props = {
@@ -100,8 +100,8 @@ function ChainIconComponent(props: Props) {
   // Default, if icon is undefined
   let icon = <EmptyIcon size={size} />;
 
-  if (isBuiltinChainIcon(props.icon) && iconMap[props.icon]) {
-    icon = iconMap[props.icon]!;
+  if (isBuiltinChainIcon(props.icon) && iconGetterMap[props.icon]) {
+    icon = iconGetterMap[props.icon]!();
   } else if (typeof props.icon === 'string') {
     icon = <img style={styles.iconImage} src={props.icon} alt="chain icon" />;
   }

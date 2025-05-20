@@ -43,55 +43,55 @@ import BERA from './Tokens/BERA';
 import BTC from './Tokens/BTC';
 import SONIC from './Chains/SONIC'; // TODO: Create a token icon for S
 
-const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
-  [TokenIcon.WBTC]: WBTC(),
-  [TokenIcon.BUSD]: BUSD(),
-  [TokenIcon.USDT]: USDT(),
-  [TokenIcon.DAI]: DAI(),
-  [TokenIcon.GLMR]: GLMR(),
-  [TokenIcon.AVAX]: AVAX(),
-  [TokenIcon.BNB]: BNB(),
-  [TokenIcon.BSC]: BSC(),
-  [TokenIcon.CELO]: CELO(),
-  [TokenIcon.ETH]: ETH(),
-  [TokenIcon.FANTOM]: FTM(),
-  [TokenIcon.POLYGON]: POLY(),
-  [TokenIcon.SOLANA]: SOL(),
-  [TokenIcon.USDC]: USDC(),
-  [TokenIcon.SUI]: SUI(),
-  [TokenIcon.APT]: APT(),
-  [TokenIcon.ARBITRUM]: ARBITRUM(),
-  [TokenIcon.OPTIMISM]: OPTIMISM(),
-  [TokenIcon.SEI]: SEI(),
-  [TokenIcon.BASE]: BASE(),
-  [TokenIcon.OSMO]: OSMO(),
-  [TokenIcon.TBTC]: TBTC(),
-  [TokenIcon.WSTETH]: WSTETH(),
-  [TokenIcon.ATOM]: ATOM(),
-  [TokenIcon.EVMOS]: EVMOS(),
-  [TokenIcon.KUJI]: KUJI(),
-  [TokenIcon.PYTH]: PYTH(),
-  [TokenIcon.KLAY]: KLAY(),
-  [TokenIcon.INJ]: INJ(),
-  [TokenIcon.NTT]: NTT(),
-  [TokenIcon.SCROLL]: SCROLL(),
-  [TokenIcon.BLAST]: BLAST(),
-  [TokenIcon.XLAYER]: (
+const iconGetterMap: { [key in TokenIcon]: () => React.JSX.Element } = {
+  [TokenIcon.WBTC]: () => WBTC(),
+  [TokenIcon.BUSD]: () => BUSD(),
+  [TokenIcon.USDT]: () => USDT(),
+  [TokenIcon.DAI]: () => DAI(),
+  [TokenIcon.GLMR]: () => GLMR(),
+  [TokenIcon.AVAX]: () => AVAX(),
+  [TokenIcon.BNB]: () => BNB(),
+  [TokenIcon.BSC]: () => BSC(),
+  [TokenIcon.CELO]: () => CELO(),
+  [TokenIcon.ETH]: () => ETH(),
+  [TokenIcon.FANTOM]: () => FTM(),
+  [TokenIcon.POLYGON]: () => POLY(),
+  [TokenIcon.SOLANA]: () => SOL(),
+  [TokenIcon.USDC]: () => USDC(),
+  [TokenIcon.SUI]: () => SUI(),
+  [TokenIcon.APT]: () => APT(),
+  [TokenIcon.ARBITRUM]: () => ARBITRUM(),
+  [TokenIcon.OPTIMISM]: () => OPTIMISM(),
+  [TokenIcon.SEI]: () => SEI(),
+  [TokenIcon.BASE]: () => BASE(),
+  [TokenIcon.OSMO]: () => OSMO(),
+  [TokenIcon.TBTC]: () => TBTC(),
+  [TokenIcon.WSTETH]: () => WSTETH(),
+  [TokenIcon.ATOM]: () => ATOM(),
+  [TokenIcon.EVMOS]: () => EVMOS(),
+  [TokenIcon.KUJI]: () => KUJI(),
+  [TokenIcon.PYTH]: () => PYTH(),
+  [TokenIcon.KLAY]: () => KLAY(),
+  [TokenIcon.INJ]: () => INJ(),
+  [TokenIcon.NTT]: () => NTT(),
+  [TokenIcon.SCROLL]: () => SCROLL(),
+  [TokenIcon.BLAST]: () => BLAST(),
+  [TokenIcon.XLAYER]: () => (
     <img
       style={{ maxHeight: '100%', maxWidth: '100%' }}
       src={chainToIcon('Xlayer')}
     />
   ),
-  [TokenIcon.MANTLE]: (
+  [TokenIcon.MANTLE]: () => (
     <img
       style={{ maxHeight: '100%', maxWidth: '100%' }}
       src={chainToIcon('Mantle')}
     />
   ),
-  [TokenIcon.WORLDCHAIN]: WORLD(),
-  [TokenIcon.BERA]: BERA(),
-  [TokenIcon.BTC]: BTC(),
-  [TokenIcon.SONIC]: SONIC(),
+  [TokenIcon.WORLDCHAIN]: () => WORLD(),
+  [TokenIcon.BERA]: () => BERA(),
+  [TokenIcon.BTC]: () => BTC(),
+  [TokenIcon.SONIC]: () => SONIC(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {
@@ -136,8 +136,8 @@ function TokenIconComponent(props: Props) {
   // Default, if icon is undefined
   let icon = <EmptyIcon size={size} />;
 
-  if (isBuiltinTokenIcon(props.icon) && iconMap[props.icon]) {
-    icon = iconMap[props.icon];
+  if (isBuiltinTokenIcon(props.icon) && iconGetterMap[props.icon]) {
+    icon = iconGetterMap[props.icon]();
   } else if (typeof props.icon === 'string') {
     icon = <img style={styles.iconImage} src={props.icon} alt="token icon" />;
   }
