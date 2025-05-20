@@ -3,83 +3,63 @@ import { WormholeConfig, Context, ChainConfig } from '../types';
 
 const TESTNET: { [chain in Chain]?: ChainConfig } = {
   Solana: {
-    key: 'Solana',
     context: Context.SOLANA,
   },
   Bsc: {
-    key: 'Bsc',
     context: Context.ETH,
   },
   Avalanche: {
-    key: 'Avalanche',
     context: Context.ETH,
   },
   Fantom: {
-    key: 'Fantom',
     context: Context.ETH,
   },
   Celo: {
-    key: 'Celo',
     context: Context.ETH,
   },
   Moonbeam: {
-    key: 'Moonbeam',
     context: Context.ETH,
   },
   Sui: {
-    key: 'Sui',
     context: Context.SUI,
   },
   Aptos: {
-    key: 'Aptos',
     context: Context.APTOS,
   },
   Klaytn: {
-    key: 'Klaytn',
     context: Context.ETH,
   },
   Scroll: {
-    key: 'Scroll',
     context: Context.ETH,
   },
   Blast: {
-    key: 'Blast',
     context: Context.ETH,
   },
   Xlayer: {
-    key: 'Xlayer',
     context: Context.ETH,
   },
   Sepolia: {
-    key: 'Sepolia',
     context: Context.ETH,
   },
   ArbitrumSepolia: {
-    key: 'ArbitrumSepolia',
     context: Context.ETH,
   },
   BaseSepolia: {
-    key: 'BaseSepolia',
     context: Context.ETH,
   },
   OptimismSepolia: {
-    key: 'OptimismSepolia',
     context: Context.ETH,
   },
   Mantle: {
-    key: 'Mantle',
     context: Context.ETH,
   },
   Unichain: {
-    key: 'Unichain',
     context: Context.ETH,
   },
   Worldchain: {
-    key: 'Worldchain',
     context: Context.ETH,
   },
   Mezo: {
-    key: 'Mezo',
     context: Context.ETH,
   },
 } as const;

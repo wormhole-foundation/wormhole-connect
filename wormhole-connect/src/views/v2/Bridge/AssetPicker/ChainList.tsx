@@ -91,7 +91,7 @@ const ChainList = (props: Props) => {
 
     // Find the selected chain in supported chains
     const selectedChainIndex = allChains.findIndex((chain) => {
-      return chain.key === selectedChain?.key;
+      return chain.sdkName === selectedChain?.sdkName;
     });
     // If the selected chain is outside the top list, we add it to the top;
     // otherwise we do not change its index in the top list
@@ -116,12 +116,12 @@ const ChainList = (props: Props) => {
     return (
       <List component={Stack} direction="row" data-testid="chain-short-list">
         {topChains.map((chain: ChainConfig) => (
-          <Tooltip key={chain.key} title={chain.displayName}>
+          <Tooltip key={chain.sdkName} title={chain.displayName}>
             <ListItemButton
-              selected={selectedChainConfig?.key === chain.key}
+              selected={selectedChainConfig?.sdkName === chain.sdkName}
               className={classes.chainButton}
-              data-testid={`chain-button-${chain.key}`}
-              onClick={() => onChainSelect(chain.key)}
+              data-testid={`chain-button-${chain.sdkName}`}
+              onClick={() => onChainSelect(chain.sdkName)}
             >
               <ChainIcon icon={chain.icon} />
               <Typography
@@ -159,7 +159,7 @@ const ChainList = (props: Props) => {
   }, [
     classes.chainButton,
     onChainSelect,
-    selectedChainConfig?.key,
+    selectedChainConfig?.sdkName,
     setShowSearch,
     showMoreButton,
     topChains,
@@ -177,11 +177,11 @@ const ChainList = (props: Props) => {
         }
         renderFn={(chain) => (
           <ListItemButton
-            key={chain.key}
+            key={chain.sdkName}
             dense
             className={classes.chainItem}
             onClick={() => {
-              onChainSelect(chain.key);
+              onChainSelect(chain.sdkName);
               setShowSearch(false);
             }}
           >

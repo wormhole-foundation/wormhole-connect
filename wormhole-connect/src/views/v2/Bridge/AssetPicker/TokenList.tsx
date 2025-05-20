@@ -78,7 +78,7 @@ const TokenList = (props: Props) => {
 
   const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
     props.wallet,
-    props.selectedChainConfig.key,
+    props.selectedChainConfig.sdkName,
     props.tokenList || [],
   );
 
@@ -268,7 +268,6 @@ const TokenList = (props: Props) => {
     return sorted;
   }, [
     props.selectedChainConfig.sdkName,
-    props.selectedChainConfig.key,
     props.selectedToken,
     props.tokenList,
     props.sourceToken,
@@ -363,7 +362,7 @@ const TokenList = (props: Props) => {
           <TokenItem
             key={token.key}
             token={token}
-            chain={props.selectedChainConfig.key}
+            chain={props.selectedChainConfig.sdkName}
             disabled={disabled}
             onClick={() => {
               props.onSelectToken(token);

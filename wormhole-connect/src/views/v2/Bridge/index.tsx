@@ -258,9 +258,7 @@ const Bridge = () => {
   const supportedSourceChains = useMemo(() => {
     return config.chainsArr.filter((chain) => {
       return (
-        chain.key !== destChain &&
-        !chain.disabledAsSource &&
-        supportedChains.includes(chain.key)
+        chain.sdkName !== destChain && supportedChains.includes(chain.sdkName)
       );
     });
   }, [destChain, supportedChains]);
@@ -269,9 +267,8 @@ const Bridge = () => {
   const supportedDestChains = useMemo(() => {
     return config.chainsArr.filter(
       (chain) =>
-        chain.key !== sourceChain &&
-        !chain.disabledAsDestination &&
-        supportedChains.includes(chain.key),
+        chain.sdkName !== sourceChain &&
+        supportedChains.includes(chain.sdkName),
     );
   }, [sourceChain, supportedChains]);
 

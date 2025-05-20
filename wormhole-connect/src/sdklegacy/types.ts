@@ -19,10 +19,7 @@ export type ChainResourceMap = {
 };
 
 export type ChainConfig = {
-  key: Chain;
   context: Context;
-  disabledAsSource?: boolean;
-  disabledAsDestination?: boolean;
 };
 
 export type WormholeConfig = {

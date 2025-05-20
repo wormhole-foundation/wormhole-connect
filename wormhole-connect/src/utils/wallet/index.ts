@@ -47,11 +47,11 @@ const walletConnection = {
 
 export const walletAcceptedChains = (context: Context | undefined): Chain[] => {
   if (!context) {
-    return config.chainsArr.map((c) => c.key);
+    return config.chainsArr.map((c) => c.sdkName);
   }
   return config.chainsArr
     .filter((c) => c.context === context)
-    .map((c) => c.key);
+    .map((c) => c.sdkName);
 };
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {

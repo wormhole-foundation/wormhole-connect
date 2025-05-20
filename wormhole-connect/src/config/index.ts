@@ -128,12 +128,12 @@ export function buildConfig(
     chainsArr: Object.values(networkData.chains)
       .filter((chain) => {
         return customConfig.chains
-          ? customConfig.chains.includes(chain.key)
+          ? customConfig.chains.includes(chain.sdkName)
           : true;
       })
       .sort((a, b) => {
-        const ai = CHAIN_ORDER.indexOf(a.key);
-        const bi = CHAIN_ORDER.indexOf(b.key);
+        const ai = CHAIN_ORDER.indexOf(a.sdkName);
+        const bi = CHAIN_ORDER.indexOf(b.sdkName);
         if (ai >= 0 && bi >= 0) return ai - bi;
         if (ai === -1) return 1;
         if (bi === -1) return -1;

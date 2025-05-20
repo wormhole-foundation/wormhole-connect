@@ -3,7 +3,6 @@ import { ChainConfig, Context, WormholeConfig } from '../types';
 
 const DEVNET: { [chain in Chain]?: ChainConfig } = {
   Ethereum: {
-    key: 'Ethereum',
     context: Context.ETH,
   },
 } as const;
