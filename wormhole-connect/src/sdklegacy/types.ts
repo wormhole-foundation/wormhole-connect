@@ -1,4 +1,4 @@
-import { Network, Chain, ChainId } from '@wormhole-foundation/sdk';
+import { Network, Chain } from '@wormhole-foundation/sdk';
 
 export const NATIVE = 'native';
 
@@ -20,7 +20,6 @@ export type ChainResourceMap = {
 
 export type ChainConfig = {
   key: Chain;
-  id: ChainId;
   context: Context;
   disabledAsSource?: boolean;
   disabledAsDestination?: boolean;
