@@ -1,5 +1,6 @@
-import React from 'react';
-import { makeStyles } from 'tss-react/mui';
+import React, { useMemo } from 'react';
+import { Box, Theme, useTheme } from '@mui/material';
+import { InternalTheme } from 'theme';
 
 import { chainToIcon } from '@wormhole-foundation/sdk-icons';
 
@@ -41,29 +42,6 @@ import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
 import BTC from './Tokens/BTC';
 import SONIC from './Chains/SONIC'; // TODO: Create a token icon for S
-
-const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
-  container: {
-    height: size,
-    width: size,
-    ...CENTER,
-  },
-  iconImage: {
-    width: size,
-    height: size,
-    borderRadius: '50px',
-  },
-  icon: {
-    maxHeight: '100%',
-    maxWidth: '100%',
-  },
-  emptyIcon: {
-    width: size,
-    height: size,
-    borderRadius: '50px',
-    background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
-  },
-}));
 
 const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.WBTC]: WBTC(),
@@ -126,13 +104,34 @@ type Props = {
 };
 
 function EmptyIcon(props: { size: number }) {
-  const { classes } = useStyles(props);
-  return <div className={classes.emptyIcon} />;
+  const theme = useTheme() as Theme & InternalTheme;
+  const { size } = props;
+  const styles = useMemo(() => ({
+    emptyIcon: {
+      width: size,
+      height: size,
+      borderRadius: '50px',
+      background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
+    },
+  }), [theme, size]);
+  return <Box sx={styles.emptyIcon} />;
 }
 
 function TokenIconComponent(props: Props) {
   const size = props.height || 36;
-  const { classes } = useStyles({ size });
+
+  const styles = useMemo(() => ({
+    container: {
+      height: size,
+      width: size,
+      ...CENTER,
+    },
+    iconImage: {
+      width: size,
+      height: size,
+      borderRadius: '50px',
+    },
+  }), [size]);
 
   // Default, if icon is undefined
   let icon = <EmptyIcon size={size} />;
@@ -140,10 +139,10 @@ function TokenIconComponent(props: Props) {
   if (isBuiltinTokenIcon(props.icon) && iconMap[props.icon]) {
     icon = iconMap[props.icon];
   } else if (typeof props.icon === 'string') {
-    icon = <img className={classes.iconImage} src={props.icon} />;
+    icon = <img style={styles.iconImage} src={props.icon} alt="token icon" />;
   }
 
-  return <div className={classes.container}>{icon}</div>;
+  return <Box sx={styles.container}>{icon}</Box>;
 }
 
 export default TokenIconComponent;

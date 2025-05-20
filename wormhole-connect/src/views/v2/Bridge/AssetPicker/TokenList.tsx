@@ -3,7 +3,6 @@ import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
-import { makeStyles } from 'tss-react/mui';
 import { toNative } from '@wormhole-foundation/sdk';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
@@ -15,31 +14,6 @@ import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { calculateUSDPrice } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-
-const useStyles = makeStyles()((theme: any) => ({
-  card: {
-    background: theme.palette.input.background,
-    maxWidth: '420px',
-  },
-  tokenListContainer: {
-    padding: '16px 0 0 0 !important',
-  },
-  title: {
-    fontSize: 14,
-    marginBottom: '8px',
-  },
-  tokenLoader: {
-    padding: 0,
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  tokenList: {
-    maxHeight: '360px',
-    [theme.breakpoints.down('sm')]: {
-      maxHeight: '480px',
-    },
-  },
-}));
 
 type Props = {
   tokenList: Array<Token>;
@@ -54,7 +28,6 @@ type Props = {
 };
 
 const TokenList = (props: Props) => {
-  const { classes } = useStyles();
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
 
@@ -109,10 +82,38 @@ const TokenList = (props: Props) => {
     tokenPastingIsEnabled ? ' or paste an address' : ''
   }`;
 
+  const styles = useMemo(
+    () => ({
+      card: {
+        background: theme.palette.input.background,
+        maxWidth: '420px',
+      },
+      tokenListContainer: {
+        padding: '16px 0 0 0 !important',
+      },
+      title: {
+        fontSize: 14,
+        marginBottom: '8px',
+      },
+      tokenLoader: {
+        padding: 0,
+        display: 'flex',
+        justifyContent: 'space-between',
+      },
+      tokenList: {
+        maxHeight: '360px',
+        [theme.breakpoints.down('sm')]: {
+          maxHeight: '480px',
+        },
+      },
+    }),
+    [theme],
+  );
+
   const searchList = (
     <SearchableList<Token>
       searchPlaceholder={placeholder}
-      className={classes.tokenList}
+      sx={styles.tokenList}
       dataTestId="token-search-list"
       listTitle={
         shouldShowEmptyMessage ? (
@@ -126,7 +127,7 @@ const TokenList = (props: Props) => {
       loading={
         props.isFetching &&
         [1, 2, 3].map((x) => (
-          <ListItemButton className={classes.tokenLoader} dense>
+          <ListItemButton sx={styles.tokenLoader} dense>
             <Box padding="8px 16px">
               <Skeleton key={x} variant="circular" width="36px" height="36px" />
             </Box>
@@ -188,10 +189,10 @@ const TokenList = (props: Props) => {
   );
 
   return (
-    <Card className={classes.card} variant="elevation">
-      <CardContent className={classes.tokenListContainer}>
+    <Card sx={styles.card} variant="elevation">
+      <CardContent sx={styles.tokenListContainer}>
         <Box sx={{ display: 'flex', width: '100%', padding: '0 16px' }}>
-          <Typography width="100%" className={classes.title}>
+          <Typography width="100%" sx={styles.title}>
             Select a token
           </Typography>
           {isFetchingToken ? (

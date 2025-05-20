@@ -1,28 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material';
 
 import config from 'config';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import { routes } from '@wormhole-foundation/sdk';
 import { Box, CircularProgress, Skeleton } from '@mui/material';
-
-const useStyles = makeStyles()((theme: any) => ({
-  otherRoutesToggle: {
-    display: 'block',
-    width: '100%',
-    textAlign: 'center',
-    fontSize: 14,
-    color: theme.palette.text.secondary,
-    textDecoration: 'none',
-    cursor: 'pointer',
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  },
-}));
 
 type Props = {
   routes: string[];
@@ -33,8 +18,23 @@ type Props = {
 };
 
 const Routes = ({ ...props }: Props) => {
-  const { classes } = useStyles();
+  const theme = useTheme();
   const [showAll, setShowAll] = useState(false);
+
+  const styles = useMemo(() => ({
+    otherRoutesToggle: {
+      display: 'block',
+      width: '100%',
+      textAlign: 'center',
+      fontSize: 14,
+      color: theme.palette.text.secondary,
+      textDecoration: 'none',
+      cursor: 'pointer',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+  }), [theme]);
 
   const routes = useMemo(() => {
     return props.routes.filter((rs) => props.quotes[rs] !== undefined);
@@ -140,7 +140,7 @@ const Routes = ({ ...props }: Props) => {
 
     return (
       <Link
-        className={classes.otherRoutesToggle}
+        sx={styles.otherRoutesToggle}
         data-testid="other-routes-toggle"
         onClick={() => setShowAll((prev) => !prev)}
       >
@@ -149,11 +149,12 @@ const Routes = ({ ...props }: Props) => {
     );
   }, [
     cheapestRoute.name,
-    classes.otherRoutesToggle,
+    styles.otherRoutesToggle,
     fastestRoute.name,
     routes.length,
     showAll,
   ]);
+
 
   return (
     <>

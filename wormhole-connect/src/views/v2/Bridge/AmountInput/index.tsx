@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -20,6 +19,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import Box from '@mui/material/Box';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import { setAmount } from 'store/transferInput';
@@ -92,51 +92,6 @@ const DebouncedTextField = memo(
   },
 );
 
-const useStyles = makeStyles()((theme: any) => ({
-  amountContainer: {
-    width: '100%',
-    maxWidth: '420px',
-  },
-  amountInput: {
-    borderRadius: '8px',
-    background: theme.palette.input.fillTreatment
-      ? 'transparent'
-      : theme.palette.input.background,
-    border: theme.palette.input.fillTreatment
-      ? `1px solid ${theme.palette.input.border}`
-      : 'none',
-  },
-  amountInputEmpty: {
-    background: theme.palette.input.background,
-    borderColor: theme.palette.input.background,
-  },
-  amountCardContent: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '72px',
-    padding: '12px 20px',
-    ':last-child': {
-      padding: '12px 20px',
-    },
-  },
-  amountTitle: {
-    color: theme.palette.text.secondary,
-    display: 'flex',
-    minHeight: '40px',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  inputError: {
-    marginTop: '12px',
-  },
-  balance: {
-    color: theme.palette.text.secondary,
-    fontSize: '14px',
-    lineHeight: '14px',
-    textAlign: 'right',
-  },
-}));
-
 type Props = {
   sourceChain?: Chain;
   supportedSourceTokens: Array<Token>;
@@ -150,9 +105,53 @@ type Props = {
  * Renders the input control to set the transaction amount
  */
 const AmountInput = (props: Props) => {
-  const { classes } = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
+
+  const styles = useMemo(() => ({
+    amountContainer: {
+      width: '100%',
+      maxWidth: '420px',
+    },
+    amountInput: {
+      borderRadius: '8px',
+      background: theme.palette.input.fillTreatment
+        ? 'transparent'
+        : theme.palette.input.background,
+      border: theme.palette.input.fillTreatment
+        ? `1px solid ${theme.palette.input.border}`
+        : 'none',
+    },
+    amountInputEmpty: {
+      background: theme.palette.input.background,
+      borderColor: theme.palette.input.background,
+    },
+    amountCardContent: {
+      display: 'flex',
+      alignItems: 'center',
+      height: '72px',
+      padding: '12px 20px',
+      ':last-child': {
+        padding: '12px 20px',
+      },
+    },
+    amountTitle: {
+      color: theme.palette.text.secondary,
+      display: 'flex',
+      minHeight: '40px',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    inputError: {
+      marginTop: '12px',
+    },
+    balance: {
+      color: theme.palette.text.secondary,
+      fontSize: '14px',
+      lineHeight: '14px',
+      textAlign: 'right',
+    },
+  }), [theme]);
 
   const { sending: sendingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -198,9 +197,8 @@ const AmountInput = (props: Props) => {
     return (
       <Stack direction="row" alignItems="center">
         <Typography
-          className={classes.balance}
           component="span"
-          sx={{ marginRight: '4px' }}
+          sx={{ ...styles.balance, marginRight: '4px' }}
         >
           Balance:
         </Typography>
@@ -210,7 +208,7 @@ const AmountInput = (props: Props) => {
           <Typography
             fontSize={14}
             textAlign="right"
-            className={classes.balance}
+            sx={styles.balance}
           >
             {props.tokenBalance
               ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
@@ -222,7 +220,7 @@ const AmountInput = (props: Props) => {
   }, [
     isInputDisabled,
     sendingWallet.address,
-    classes.balance,
+    styles.balance,
     props.isFetchingTokenBalance,
     props.tokenBalance,
   ]);
@@ -306,16 +304,14 @@ const AmountInput = (props: Props) => {
   ]);
 
   return (
-    <div className={classes.amountContainer}>
-      <div className={classes.amountTitle}>
+    <Box sx={styles.amountContainer}>
+      <Box sx={styles.amountTitle}>
         <Typography variant="body2">Amount</Typography>
-      </div>
+      </Box>
       <Card
-        className={`${classes.amountInput} ${
-          amountInput === '' ? classes.amountInputEmpty : ''
-        }`}
+        sx={[styles.amountInput, amountInput === '' && styles.amountInputEmpty]}
       >
-        <CardContent className={classes.amountCardContent}>
+        <CardContent sx={styles.amountCardContent}>
           <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}
@@ -361,9 +357,9 @@ const AmountInput = (props: Props) => {
         content={props.error || props.warning}
         show={!!props.error || !!props.warning}
         color={props.error ? theme.palette.error.main : theme.palette.grey.A400}
-        className={classes.inputError}
+        sx={styles.inputError}
       />
-    </div>
+    </Box>
   );
 };
 

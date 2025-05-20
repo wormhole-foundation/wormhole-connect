@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTimer } from 'react-timer-hook';
-import { useTheme } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -24,7 +24,7 @@ import {
   isNative,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
-import { makeStyles } from 'tss-react/mui';
+import { Context } from 'sdklegacy';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import PageHeader from 'components/PageHeader';
@@ -42,7 +42,6 @@ import {
   removeTxFromLocalStorage,
   updateTxInLocalStorage,
 } from 'utils/inProgressTxCache';
-import { joinClass } from 'utils/style';
 import {
   millisToMinutesAndSeconds,
   minutesAndSecondsWithPadding,
@@ -65,76 +64,9 @@ import { clearRedeem } from 'store/redeem';
 import { setSearch } from 'store/search';
 import { isExecutorRoute } from 'utils';
 
-const useStyles = makeStyles()((theme: any) => ({
-  spacer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  container: {
-    margin: 'auto',
-    maxWidth: '650px',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  actionButton: {
-    padding: '12px 16px',
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: '8px',
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-  },
-  backButton: {
-    alignItems: 'start',
-    maxWidth: '420px',
-    width: '100%',
-  },
-  claimButton: {
-    backgroundColor: theme.palette.warning.light,
-    color:
-      theme.palette.warning.contrastText ?? theme.palette.background.default,
-    '&:hover': {
-      backgroundColor: theme.palette.warning.main,
-    },
-  },
-  circularProgressCircleIndeterminite: {
-    stroke: 'url(#circularGradient)',
-    strokeDasharray: '100px, 200px',
-    strokeLinecap: 'round',
-  },
-  circularProgressCircleDeterminite: {
-    strokeLinecap: 'round',
-    transitionDuration: '1s',
-    transitionProperty: 'all',
-    transitionTimingFunction: 'linear',
-  },
-  circularProgressRoot: {
-    animationDuration: '1s',
-  },
-  errorBox: {
-    maxWidth: '420px',
-  },
-  txStatusIcon: {
-    width: '105px',
-    height: '105px',
-  },
-  delayText: {
-    maxWidth: '420px',
-  },
-}));
-
 const Redeem = () => {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { classes } = useStyles();
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
@@ -147,6 +79,72 @@ const Redeem = () => {
   const routeContext = React.useContext(RouteContext);
 
   const { sourceToken, destToken } = useGetRedeemTokens();
+
+  const styles = useMemo(() => ({
+    spacer: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    container: {
+      margin: 'auto',
+      maxWidth: '650px',
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+    },
+    actionButton: {
+      padding: '12px 16px',
+      backgroundColor: theme.palette.primary.main,
+      borderRadius: '8px',
+      margin: 'auto',
+      maxWidth: '420px',
+      width: '100%',
+    },
+    backButton: {
+      alignItems: 'start',
+      maxWidth: '420px',
+      width: '100%',
+    },
+    claimButton: {
+      backgroundColor: theme.palette.warning.light,
+      color:
+        theme.palette.warning.contrastText ?? theme.palette.background.default,
+      '&:hover': {
+        backgroundColor: theme.palette.warning.main,
+      },
+    },
+    circularProgressCircleIndeterminite: {
+      stroke: 'url(#circularGradient)',
+      strokeDasharray: '100px, 200px',
+      strokeLinecap: 'round',
+    },
+    circularProgressCircleDeterminite: {
+      strokeLinecap: 'round',
+      transitionDuration: '1s',
+      transitionProperty: 'all',
+      transitionTimingFunction: 'linear',
+    },
+    circularProgressRoot: {
+      animationDuration: '1s',
+    },
+    errorBox: {
+      maxWidth: '420px',
+    },
+    txStatusIcon: {
+      width: '105px',
+      height: '105px',
+    },
+    delayText: {
+      maxWidth: '420px',
+    },
+  }), [theme]);
 
   if (!sourceToken) {
     // TODO
@@ -519,11 +517,11 @@ const Redeem = () => {
           />
           <CircularProgress
             variant={etaExpired ? 'indeterminate' : 'determinate'}
-            classes={{
-              root: classes.circularProgressRoot,
-              circle: etaExpired
-                ? classes.circularProgressCircleIndeterminite
-                : classes.circularProgressCircleDeterminite,
+            sx={{
+              '&.MuiCircularProgress-root': styles.circularProgressRoot,
+              '& .MuiCircularProgress-circle': etaExpired
+                ? styles.circularProgressCircleIndeterminite
+                : styles.circularProgressCircleDeterminite,
             }}
             disableShrink={etaExpired} // Disable shrinking for indeterminate progress, which is when eta expires
             size={140}
@@ -548,9 +546,9 @@ const Redeem = () => {
       </>
     );
   }, [
-    classes.circularProgressCircleDeterminite,
-    classes.circularProgressCircleIndeterminite,
-    classes.circularProgressRoot,
+    styles.circularProgressCircleDeterminite,
+    styles.circularProgressCircleIndeterminite,
+    styles.circularProgressRoot,
     etaDisplay,
     etaExpired,
     etaProgressValue,
@@ -563,37 +561,32 @@ const Redeem = () => {
     if (isTxCompleted) {
       return (
         <TxCompleteIcon
-          className={classes.txStatusIcon}
-          sx={{ color: theme.palette.primary.light }}
+          sx={{ ...styles.txStatusIcon, color: theme.palette.primary.light }}
         />
       );
     } else if (isTxRefunded || isTxDestQueued) {
       return (
         <TxWarningIcon
-          className={classes.txStatusIcon}
-          sx={{ color: theme.palette.warning.main }}
+          sx={{ ...styles.txStatusIcon, color: theme.palette.warning.main }}
         />
       );
     } else if (isRelayFailed && isExecutorRoute(routeName)) {
       return (
         <TxReadyForClaim
-          className={classes.txStatusIcon}
-          sx={{ color: theme.palette.warning.light }}
+          sx={{ ...styles.txStatusIcon, color: theme.palette.warning.light }}
         />
       );
     } else if (isTxFailed) {
       return (
         <TxFailedIcon
-          className={classes.txStatusIcon}
-          sx={{ color: theme.palette.error.light }}
+          sx={{ ...styles.txStatusIcon, color: theme.palette.error.light }}
         />
       );
     } else if (!isAutomaticRoute && isTxAttested) {
       // Waiting for manual redeem
       return (
         <TxReadyForClaim
-          className={classes.txStatusIcon}
-          sx={{ color: theme.palette.warning.light }}
+          sx={{ ...styles.txStatusIcon, color: theme.palette.warning.light }}
         />
       );
     } else {
@@ -609,7 +602,7 @@ const Redeem = () => {
     isTxFailed,
     isAutomaticRoute,
     isTxAttested,
-    classes.txStatusIcon,
+    styles.txStatusIcon,
     theme.palette.primary.light,
     theme.palette.warning.main,
     theme.palette.warning.light,
@@ -793,7 +786,7 @@ const Redeem = () => {
   const actionButton = useMemo(() => {
     if (isClaimInProgress) {
       return (
-        <Button disabled variant="primary" className={classes.actionButton}>
+        <Button disabled variant="primary" sx={styles.actionButton}>
           <Typography
             display="flex"
             alignItems="center"
@@ -820,7 +813,7 @@ const Redeem = () => {
       return (
         <Button
           variant="primary"
-          className={classes.actionButton}
+          sx={styles.actionButton}
           onClick={() => {
             dispatch(clearRedeem());
             dispatch(setRoute('search'));
@@ -849,7 +842,7 @@ const Redeem = () => {
         return (
           <Button
             variant="primary"
-            className={classes.actionButton}
+            sx={styles.actionButton}
             onClick={() => setIsWalletSidebarOpen(true)}
           >
             <Typography textTransform="none">
@@ -860,7 +853,7 @@ const Redeem = () => {
       } else {
         return (
           <Button
-            className={joinClass([classes.actionButton, classes.claimButton])}
+            sx={[styles.actionButton, styles.claimButton]}
             variant={claimError ? 'error' : 'primary'}
             onClick={handleManualClaim}
           >
@@ -876,7 +869,7 @@ const Redeem = () => {
       <>
         <Button
           variant="primary"
-          className={classes.actionButton}
+          sx={styles.actionButton}
           onClick={() => {
             dispatch(setRoute('bridge'));
           }}
@@ -898,8 +891,8 @@ const Redeem = () => {
     isRelayFailed,
     routeName,
     sendTx,
-    classes.actionButton,
-    classes.claimButton,
+    styles.actionButton,
+    styles.claimButton,
     isTxCompleted,
     theme.palette.primary.contrastText,
     isConnectedToReceivingWallet,
@@ -922,7 +915,7 @@ const Redeem = () => {
       <Typography
         color={theme.palette.text.secondary}
         fontSize={14}
-        className={classes.delayText}
+        sx={styles.delayText}
       >
         {`Your transfer to ${to} is delayed due to rate limits configured by ${symbol}. After
         the delay ends on ${releaseTime}, you will need to tap "Claim" to
@@ -930,19 +923,19 @@ const Redeem = () => {
       </Typography>
     );
   }, [
-    classes.delayText,
+    styles.delayText,
     receivedToken,
     routeContext.receipt,
     theme.palette.text.secondary,
   ]);
 
   return (
-    <div
-      className={joinClass([classes.container, classes.spacer])}
+    <Box
+      sx={{ ...styles.container, ...styles.spacer }}
       data-testid="redeem-view"
     >
       {header}
-      <Stack className={classes.backButton}>
+      <Stack sx={styles.backButton}>
         <IconButton
           sx={{ padding: 0 }}
           onClick={() => dispatch(setRoute('bridge'))}
@@ -969,7 +962,7 @@ const Redeem = () => {
         error
         content={claimError}
         show={!!claimError}
-        className={classes.errorBox}
+        sx={styles.errorBox}
       />
       <PoweredByIcon color={theme.palette.text.primary} />
       <WalletSidebar
@@ -979,7 +972,7 @@ const Redeem = () => {
           setIsWalletSidebarOpen(false);
         }}
       />
-    </div>
+    </Box>
   );
 };
 

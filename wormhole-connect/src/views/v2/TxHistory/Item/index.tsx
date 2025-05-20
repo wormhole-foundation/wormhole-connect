@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { useTheme } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { makeStyles } from 'tss-react/mui';
+import Box from '@mui/material/Box';
 
 import config from 'config';
 import AssetBadge from 'components/AssetBadge';
@@ -22,28 +22,26 @@ import type { Transaction } from 'config/types';
 import { useTokens } from 'contexts/TokensContext';
 import ExplorerLink from 'components/ExplorerLink';
 
-const useStyles = makeStyles()((theme: any) => ({
-  container: {
-    width: '100%',
-    maxWidth: '420px',
-  },
-  card: {
-    width: '100%',
-    borderRadius: '8px',
-    border: `1px solid ${theme.palette.input.border}`,
-  },
-  cardHeader: {
-    paddingBottom: 0,
-  },
-}));
-
 type Props = {
   data: Transaction;
 };
 
 const TxHistoryItem = (props: Props) => {
-  const { classes } = useStyles();
   const theme = useTheme();
+  const styles = useMemo(() => ({
+    container: {
+      width: '100%',
+      maxWidth: '420px',
+    },
+    card: {
+      width: '100%',
+      borderRadius: '8px',
+      border: `1px solid ${theme.palette.input.border}`,
+    },
+    cardHeader: {
+      paddingBottom: 0,
+    },
+  }), [theme]);
 
   const {
     txHash,
@@ -190,8 +188,8 @@ const TxHistoryItem = (props: Props) => {
   }, [fromChain, txHash]);
 
   return (
-    <div className={classes.container}>
-      <Card className={classes.card}>
+    <Box sx={styles.container}>
+      <Card sx={styles.card}>
         <CardActionArea
           disableTouchRipple
           onClick={() => {
@@ -199,7 +197,7 @@ const TxHistoryItem = (props: Props) => {
           }}
         >
           <CardHeader
-            className={classes.cardHeader}
+            sx={styles.cardHeader}
             title={
               <Typography
                 justifyContent="space-between"
@@ -218,7 +216,7 @@ const TxHistoryItem = (props: Props) => {
           </CardContent>
         </CardActionArea>
       </Card>
-    </div>
+    </Box>
   );
 };
 

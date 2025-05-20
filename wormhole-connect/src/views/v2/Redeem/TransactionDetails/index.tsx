@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { useTheme } from '@mui/material';
+import { useTheme, Box } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -8,7 +8,6 @@ import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
@@ -26,22 +25,21 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { RootState } from 'store';
 import { useTokens } from 'contexts/TokensContext';
 
-const useStyles = makeStyles()((theme: any) => ({
-  container: {
-    width: '100%',
-    maxWidth: '420px',
-    backgroundColor: theme.palette.input.background,
-  },
-  card: {
-    width: '100%',
-    backgroundColor: theme.palette.input.background,
-  },
-}));
-
 const TransactionDetails = () => {
-  const { classes } = useStyles();
   const theme = useTheme();
   const routeContext = React.useContext(RouteContext);
+
+  const styles = useMemo(() => ({
+    container: {
+      width: '100%',
+      maxWidth: '420px',
+      backgroundColor: theme.palette.input.background,
+    },
+    card: {
+      width: '100%',
+      backgroundColor: theme.palette.input.background,
+    },
+  }), [theme]);
 
   const {
     sendTx,
@@ -311,8 +309,8 @@ const TransactionDetails = () => {
   const explorerUrl = sendTx ? getExplorerUrl(fromChain, sendTx, 'tx') : '';
 
   return (
-    <div className={classes.container}>
-      <Card className={classes.card}>
+    <Box sx={styles.container}>
+      <Card sx={styles.card}>
         <CardContent>
           <Typography color={theme.palette.text.secondary} marginBottom="12px">
             {`Transaction #`}
@@ -338,7 +336,7 @@ const TransactionDetails = () => {
         <Divider flexItem sx={{ margin: '0 16px', opacity: '50%' }} />
         {explorerLink}
       </Card>
-    </div>
+    </Box>
   );
 };
 

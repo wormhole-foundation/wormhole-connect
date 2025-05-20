@@ -1,17 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from '@mui/material/Link';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { makeStyles } from 'tss-react/mui';
-
-const useStyles = makeStyles()((theme) => ({
-  addressLink: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    overflow: 'hidden',
-    color: theme.palette.text.primary,
-    opacity: 0.6,
-  },
-}));
+import { useTheme } from '@mui/material/styles';
 
 interface ExplorerLinkProps {
   url: string;
@@ -19,14 +9,23 @@ interface ExplorerLinkProps {
 }
 
 const ExplorerLink: React.FC<ExplorerLinkProps> = ({ url, text }) => {
-  const { classes } = useStyles();
+  const theme = useTheme();
+  const styles = useMemo(() => ({
+    addressLink: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      overflow: 'hidden',
+      color: theme.palette.text.primary,
+      opacity: 0.6,
+    },
+  }), [theme]);
 
   if (!(url && text)) return null;
 
   return (
     <Link
       onClick={(e) => e.stopPropagation()}
-      className={classes.addressLink}
+      sx={styles.addressLink}
       href={url}
       rel="noreferrer noopener"
       target="_blank"

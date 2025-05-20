@@ -1,36 +1,22 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import config from 'config';
 import Box from '@mui/material/Box';
-import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material/styles';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    maxWidth: '100%',
-    flexWrap: 'wrap',
-    gap: '20px 4px',
-  },
-  partnerLogo: {
-    maxHeight: theme.spacing(3),
-  },
-  separator: {
-    display: 'flex',
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-  },
-}));
-
 function SeparatorSymbol(props: { color: string }) {
-  const { classes } = useStyles();
+  const theme = useTheme();
+  const styles = useMemo(() => ({
+    separator: {
+      display: 'flex',
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  }), [theme]);
   return (
-    <Box className={classes.separator}>
+    <Box sx={styles.separator}>
       <svg
         width="16"
         height="16"
@@ -117,14 +103,30 @@ function WormholeLogo(props: { color: string }) {
 }
 
 function PartnerLogo(props: { src: string }) {
-  const { classes } = useStyles();
-  return <img src={props.src} alt="partner" className={classes.partnerLogo} />;
+  const theme = useTheme();
+  const styles = useMemo(() => ({
+    partnerLogo: {
+      maxHeight: theme.spacing(3),
+    },
+  }), [theme]);
+  return <img src={props.src} alt="partner" style={styles.partnerLogo} />;
 }
 
 function PoweredByIcon(props: { color: string }) {
-  const { classes } = useStyles();
+  const styles = {
+    container: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row' as const,
+      maxWidth: '100%',
+      flexWrap: 'wrap' as const,
+      gap: '20px 4px',
+    },
+  };
   return config.ui.partnerLogo ? (
-    <Box className={classes.container}>
+    <Box sx={styles.container}>
       <WormholeLogo color={props.color} />
       <SeparatorSymbol color={props.color} />
       <PartnerLogo src={config.ui.partnerLogo} />

@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Select,
@@ -42,41 +41,9 @@ import ChainIconComponent from 'icons/ChainIcons';
 import { RootState } from 'store';
 import { clearSearch } from 'store/search';
 
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    maxWidth: '650px',
-  },
-  chain: {
-    width: '175px',
-    [theme.breakpoints.down('sm')]: {
-      width: '100%',
-    },
-  },
-  inputs: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '16px',
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-    },
-  },
-  search: {
-    flexGrow: 1,
-  },
-  footerNavBar: {
-    width: '100%',
-    maxWidth: '700px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: '20px',
-  },
-}));
-
 const EMPTY = '';
 
 function TxSearch() {
-  const { classes } = useStyles();
   const dispatch = useDispatch();
   const [state, setState] = useState({
     chain: EMPTY,
@@ -195,15 +162,35 @@ function TxSearch() {
   }, [config.chainsArr]);
 
   return (
-    <div className={classes.container}>
+    <Box
+      sx={(theme) => ({
+        maxWidth: '650px',
+      })}
+    >
       <PageHeader
         title="Resume transaction"
         description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
         back
       />
 
-      <div className={classes.inputs}>
-        <div className={classes.chain}>
+      <Box
+        sx={(theme) => ({
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '16px',
+          [theme.breakpoints.down('sm')]: {
+            flexDirection: 'column',
+          },
+        })}
+      >
+        <Box
+          sx={(theme) => ({
+            width: '175px',
+            [theme.breakpoints.down('sm')]: {
+              width: '100%',
+            },
+          })}
+        >
           <Select
             sx={{ width: '100%', height: '100%', minHeight: '64.5px' }}
             value={state.chain}
@@ -226,16 +213,20 @@ function TxSearch() {
               );
             })}
           </Select>
-        </div>
-        <div className={classes.search}>
+        </Box>
+        <Box
+          sx={{
+            flexGrow: 1,
+          }}
+        >
           <Search
             placeholder="Source chain transaction hash"
             onChange={setTx}
             onSearch={search}
             value={state.tx}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       <Spacer />
 
@@ -253,10 +244,19 @@ function TxSearch() {
           'Search'
         )}
       </Button>
-      <div className={classes.footerNavBar}>
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: '700px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginTop: '20px',
+        }}
+      >
         <FooterNavBar />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 

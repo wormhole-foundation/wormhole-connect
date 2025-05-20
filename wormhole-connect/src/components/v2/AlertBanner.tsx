@@ -1,18 +1,6 @@
-import React, { CSSProperties } from 'react';
-import { Collapse, Typography, useTheme } from '@mui/material';
+import React, { CSSProperties, useMemo } from 'react';
+import { Collapse, Typography, useTheme, SxProps, Box } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/ErrorOutline';
-import { makeStyles } from 'tss-react/mui';
-
-const useStyles = makeStyles()((theme: any) => ({
-  container: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    gap: '8px',
-  },
-}));
 
 type Props = {
   show: boolean;
@@ -22,12 +10,22 @@ type Props = {
   style?: CSSProperties;
   testId?: string;
   color?: string;
+  sx?: SxProps;
   className?: string;
 };
 
 function AlertBanner(props: Props) {
-  const { classes } = useStyles();
   const theme = useTheme();
+  const styles = useMemo(() => ({
+    container: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'flex-start',
+      gap: '8px',
+    },
+  }), []);
 
   let themeColor;
 
@@ -42,11 +40,12 @@ function AlertBanner(props: Props) {
   return (
     <Collapse
       className={props.className}
+      sx={props.sx}
       in={props.show && !!props.content}
       unmountOnExit
     >
-      <div
-        className={classes.container}
+      <Box
+        sx={styles.container}
         style={props.style || {}}
         data-testid={props.testId}
       >
@@ -60,7 +59,7 @@ function AlertBanner(props: Props) {
         <Typography color={themeColor} fontSize={14}>
           {props.content}
         </Typography>
-      </div>
+      </Box>
     </Collapse>
   );
 }

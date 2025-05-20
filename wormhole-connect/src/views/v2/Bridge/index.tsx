@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -37,7 +36,6 @@ import {
   clearDestToken,
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
-import { joinClass } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
@@ -54,63 +52,7 @@ import { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
 
-const useStyles = makeStyles()((theme: any) => ({
-  assetPickerContainer: {
-    width: '100%',
-    position: 'relative',
-  },
-  assetPickerTitle: {
-    color: theme.palette.text.secondary,
-    display: 'flex',
-    minHeight: '40px',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  bridgeContent: {
-    margin: 'auto',
-    maxWidth: '420px',
-  },
-  bridgeHeader: {
-    width: '100%',
-    minHeight: '28px',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  doneIcon: {
-    fontSize: '14px',
-    color: theme.palette.success.main,
-  },
-  confirmTransaction: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    height: '48px',
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-  },
-  copyIcon: {
-    fontSize: '14px',
-  },
-  ctaContainer: {
-    marginTop: '8px',
-    width: '100%',
-  },
-  spacer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-}));
-
-/**
- * Bridge is the main component for Bridge view
- *
- */
 const Bridge = () => {
-  const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -118,6 +60,57 @@ const Bridge = () => {
   const [errorCopied, setErrorCopied] = useState(false);
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const styles = useMemo(() => ({
+    assetPickerContainer: {
+      width: '100%',
+      position: 'relative',
+    },
+    assetPickerTitle: {
+      color: theme.palette.text.secondary,
+      display: 'flex',
+      minHeight: '40px',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    bridgeContent: {
+      margin: 'auto',
+      maxWidth: '420px',
+    },
+    bridgeHeader: {
+      width: '100%',
+      minHeight: '28px',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    doneIcon: {
+      fontSize: '14px',
+      color: theme.palette.success.main,
+    },
+    confirmTransaction: {
+      padding: '8px 16px',
+      borderRadius: '8px',
+      height: '48px',
+      margin: 'auto',
+      maxWidth: '420px',
+      width: '100%',
+    },
+    copyIcon: {
+      fontSize: '14px',
+    },
+    ctaContainer: {
+      marginTop: '8px',
+      width: '100%',
+    },
+    spacer: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+  }), [theme]);
 
   // --- pipeline state gathering ---
   // Connected wallets, if any
@@ -205,7 +198,7 @@ const Bridge = () => {
 
       if (routeData) dispatch(setTransferRoute(routeData.route));
     }
-  }, [preferredRouteName, route, sortedRoutesWithQuotes]);
+  }, [preferredRouteName, route, sortedRoutesWithQuotes, dispatch]);
 
   // Pre-fetch available routes
 
@@ -243,6 +236,7 @@ const Bridge = () => {
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
     () => config.routes.allSupportedChains(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [config.chains],
   );
 
@@ -252,6 +246,7 @@ const Bridge = () => {
     } else {
       return [];
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceChain, lastTokenCacheUpdate]);
 
   // Supported chains for the source network
@@ -293,11 +288,11 @@ const Bridge = () => {
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
     return (
-      <div className={classes.assetPickerContainer}>
-        <div className={classes.assetPickerTitle}>
+      <Box sx={styles.assetPickerContainer}>
+        <Box sx={styles.assetPickerTitle}>
           <Typography variant="body2">From</Typography>
           <WalletController type={TransferWallet.SENDING} />
-        </div>
+        </Box>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -316,16 +311,15 @@ const Bridge = () => {
           dataTestId="source-asset-picker"
         />
         <SwapInputs />
-      </div>
+      </Box>
     );
   }, [
-    classes.assetPickerContainer,
-    classes.assetPickerTitle,
+    styles.assetPickerContainer,
+    styles.assetPickerTitle,
     sourceChain,
     supportedSourceChains,
     sourceToken,
     sourceTokens,
-    lastTokenCacheUpdate,
     isTransactionInProgress,
     sendingWallet,
     dispatch,
@@ -334,11 +328,11 @@ const Bridge = () => {
   // Asset picker for the destination network and token
   const destAssetPicker = useMemo(() => {
     return (
-      <div className={classes.assetPickerContainer}>
-        <div className={classes.assetPickerTitle}>
+      <Box sx={styles.assetPickerContainer}>
+        <Box sx={styles.assetPickerTitle}>
           <Typography variant="body2">To</Typography>
           <WalletController type={TransferWallet.RECEIVING} />
-        </div>
+        </Box>
         <AssetPicker
           chain={destChain}
           chainList={supportedDestChains}
@@ -360,11 +354,11 @@ const Bridge = () => {
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="dest-asset-picker"
         />
-      </div>
+      </Box>
     );
   }, [
-    classes.assetPickerContainer,
-    classes.assetPickerTitle,
+    styles.assetPickerContainer,
+    styles.assetPickerTitle,
     destChain,
     supportedDestChains,
     destToken,
@@ -382,7 +376,7 @@ const Bridge = () => {
       !sendingWallet?.address || isTransactionInProgress;
 
     return (
-      <div className={classes.bridgeHeader}>
+      <Box sx={styles.bridgeHeader}>
         <Header
           align="left"
           text={config.ui.title ?? 'Wormhole Connect'}
@@ -411,13 +405,14 @@ const Bridge = () => {
             </IconButton>
           </span>
         </Tooltip>
-      </div>
+      </Box>
     );
   }, [
-    classes.bridgeHeader,
+    styles.bridgeHeader,
     dispatch,
     isTransactionInProgress,
     sendingWallet?.address,
+    mobile,
   ]);
 
   const walletConnector = useMemo(() => {
@@ -477,9 +472,9 @@ const Bridge = () => {
             >
               Copy the error logs{' '}
               {errorCopied ? (
-                <DoneIcon className={classes.doneIcon} />
+                <DoneIcon sx={styles.doneIcon} />
               ) : (
-                <CopyIcon className={classes.copyIcon} />
+                <CopyIcon sx={styles.copyIcon} />
               )}
             </a>
             {' and '}
@@ -491,13 +486,7 @@ const Bridge = () => {
         ) : null}
       </Box>
     );
-  }, [
-    classes.copyIcon,
-    classes.doneIcon,
-    errorCopied,
-    txError,
-    txErrorInternal,
-  ]);
+  }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
   const hasError = !!amountValidation.error;
 
@@ -526,7 +515,7 @@ const Bridge = () => {
         disabled={confirmTransactionDisabled}
         data-testid="confirm-transaction-button"
         variant="primary"
-        className={classes.confirmTransaction}
+        sx={styles.confirmTransaction}
         onClick={() => onConfirm()}
       >
         {isTransactionInProgress ? (
@@ -561,7 +550,7 @@ const Bridge = () => {
     );
   }, [
     confirmTransactionDisabled,
-    classes.confirmTransaction,
+    styles.confirmTransaction,
     isTransactionInProgress,
     theme.palette.primary.contrastText,
     mobile,
@@ -583,8 +572,8 @@ const Bridge = () => {
       : '';
 
   return (
-    <div
-      className={joinClass([classes.bridgeContent, classes.spacer])}
+    <Box
+      sx={{ ...styles.bridgeContent, ...styles.spacer }}
       data-testid="bridge-view"
     >
       {header}
@@ -614,7 +603,7 @@ const Bridge = () => {
         />
       )}
       {transactionError}
-      <span className={classes.ctaContainer}>
+      <Box component="span" sx={styles.ctaContainer}>
         {hasConnectedWallets ? (
           <Tooltip title={confirmButtonTooltip}>
             <span>{confirmTransactionButton}</span>
@@ -622,10 +611,10 @@ const Bridge = () => {
         ) : (
           walletConnector
         )}
-      </span>
+      </Box>
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />
-    </div>
+    </Box>
   );
 };
 

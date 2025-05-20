@@ -1,8 +1,7 @@
 import React, { forwardRef } from 'react';
-import { styled } from '@mui/material';
 import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
-const StyledPrimaryButton = styled(MUIButton)<ButtonProps>({
+const baseButtonStyles = {
   padding: '8px 16px',
   borderRadius: '8px',
   height: '48px',
@@ -10,17 +9,7 @@ const StyledPrimaryButton = styled(MUIButton)<ButtonProps>({
   maxWidth: '420px',
   width: '100%',
   boxShadow: 'none',
-});
-
-const StyledErrorButton = styled(MUIButton)<ButtonProps>({
-  padding: '8px 16px',
-  borderRadius: '8px',
-  height: '48px',
-  margin: 'auto',
-  maxWidth: '420px',
-  width: '100%',
-  boxShadow: 'none',
-});
+};
 
 type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
 
@@ -31,15 +20,16 @@ type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
  *
  */
 const Button = forwardRef<HTMLButtonElement, Props>((props: Props, ref) => {
-  const { variant, ...rest } = props;
+  const { variant, sx, ...rest } = props;
 
   if (variant === 'primary') {
     return (
-      <StyledPrimaryButton
+      <MUIButton
         ref={ref}
         variant="contained"
         {...rest}
         sx={{
+          ...baseButtonStyles,
           backgroundColor: 'button.primary',
           color: 'button.primaryText',
           '&.Mui-disabled': {
@@ -59,16 +49,18 @@ const Button = forwardRef<HTMLButtonElement, Props>((props: Props, ref) => {
             backgroundColor: 'button.action',
             color: 'button.actionText',
           },
+          ...sx,
         }}
       />
     );
   } else if (variant === 'error') {
     return (
-      <StyledErrorButton
+      <MUIButton
         ref={ref}
         variant="contained"
         {...rest}
         sx={{
+          ...baseButtonStyles,
           backgroundColor: 'error.main',
           color: 'error.contrastText',
           '&:disabled': {
@@ -76,12 +68,13 @@ const Button = forwardRef<HTMLButtonElement, Props>((props: Props, ref) => {
             color: 'error.contrastText',
             opacity: 0.4,
           },
+          ...sx,
         }}
       />
     );
   }
 
-  return <MUIButton ref={ref} {...rest} />;
+  return <MUIButton ref={ref} sx={sx} {...rest} />;
 });
 
 export default Button;

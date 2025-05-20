@@ -1,5 +1,6 @@
-import React from 'react';
-import { makeStyles } from 'tss-react/mui';
+import React, { useMemo } from 'react';
+import { Box } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 
@@ -29,28 +30,6 @@ import BERA from './Chains/BERA';
 import MEZO from './Chains/MEZO';
 import LINEA from './Chains/LINEA';
 import SONIC from './Chains/SONIC';
-
-const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
-  container: {
-    height: size,
-    width: size,
-    ...CENTER,
-  },
-  iconImage: {
-    width: size,
-    height: size,
-  },
-  icon: {
-    maxHeight: '100%',
-    maxWidth: '100%',
-  },
-  emptyIcon: {
-    width: size,
-    height: size,
-    background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
-    borderRadius: '3px',
-  },
-}));
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
@@ -90,13 +69,33 @@ type Props = {
 };
 
 function EmptyIcon(props: { size: number }) {
-  const { classes } = useStyles(props);
-  return <div className={classes.emptyIcon} />;
+  const theme = useTheme();
+  const { size } = props;
+  const styles = useMemo(() => ({
+    emptyIcon: {
+      width: size,
+      height: size,
+      background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
+      borderRadius: '3px',
+    },
+  }), [theme, size]);
+  return <Box sx={styles.emptyIcon} />;
 }
 
 function ChainIconComponent(props: Props) {
   const size = props.height || 36;
-  const { classes } = useStyles({ size });
+
+  const styles = useMemo(() => ({
+    container: {
+      height: size,
+      width: size,
+      ...CENTER,
+    },
+    iconImage: {
+      width: size,
+      height: size,
+    },
+  }), [size]);
 
   // Default, if icon is undefined
   let icon = <EmptyIcon size={size} />;
@@ -104,10 +103,10 @@ function ChainIconComponent(props: Props) {
   if (isBuiltinChainIcon(props.icon) && iconMap[props.icon]) {
     icon = iconMap[props.icon]!;
   } else if (typeof props.icon === 'string') {
-    icon = <img className={classes.iconImage} src={props.icon} />;
+    icon = <img style={styles.iconImage} src={props.icon} alt="chain icon" />;
   }
 
-  return <div className={classes.container}>{icon}</div>;
+  return <Box sx={styles.container}>{icon}</Box>;
 }
 
 export default ChainIconComponent;

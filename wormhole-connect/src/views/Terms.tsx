@@ -1,42 +1,40 @@
 import React from 'react';
-import { makeStyles } from 'tss-react/mui';
+import Box from '@mui/material/Box';
 import PageHeader from 'components/PageHeader';
 import FooterNavBar from 'components/FooterNavBar';
 
-const useStyles = makeStyles()(() => ({
-  terms: {
-    width: '100%',
-    maxWidth: '700px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  body: {
-    textAlign: 'left',
-    display: 'flex',
-    flexDirection: 'column',
-    fontWeight: '300',
-    ol: {
-      marginBottom: '8px',
-    },
-    li: {
-      marginBottom: '8px',
-    },
-  },
-}));
-
 function Terms() {
-  const { classes } = useStyles();
+  const styles = {
+    terms: {
+      width: '100%',
+      maxWidth: '700px',
+      display: 'flex',
+      flexDirection: 'column' as const,
+      alignItems: 'center',
+    },
+    body: {
+      textAlign: 'left' as const,
+      display: 'flex',
+      flexDirection: 'column' as const,
+      fontWeight: '300',
+      ol: {
+        marginBottom: '8px',
+      },
+      li: {
+        marginBottom: '8px',
+      },
+    },
+  };
   return (
-    <div className={classes.terms}>
+    <Box sx={styles.terms}>
       <PageHeader title="Terms of Service" back />
-      <div className={classes.body}>
+      <Box sx={styles.body}>
         <p>Last Updated: April 18, 2025</p>
         <p>
-          These Terms of Service (the “Agreement”) explain the terms and
+          These Terms of Service (the "Agreement") explain the terms and
           conditions by which you may access and use the Services provided by
-          W7, LLC (d.b.a. Wormhole Labs) (the “Company,” “we,” “us,” or “our”).
-          The “Services” shall include, but not limited to, the website located
+          W7, LLC (d.b.a. Wormhole Labs) (the "Company," "we," "us," or "our").
+          The "Services" shall include, but not limited to, the website located
           at{' '}
           <a
             href="https://portalbridge.com"
@@ -45,7 +43,7 @@ function Terms() {
           >
             https://portalbridge.com
           </a>{' '}
-          (the “Interface”), and any app, content, functionality, and services
+          (the "Interface"), and any app, content, functionality, and services
           offered on or through the Interface, and all technologies made
           available from the Interface, together with all of the existing and
           any updated or new features, functionalities and technologies.
@@ -170,7 +168,7 @@ function Terms() {
               </li>
               <li>
                 Feedback. If you provide us with any feedback or suggestions
-                regarding the Services (“Feedback”), you hereby assign to us all
+                regarding the Services (“Feedback"), you hereby assign to us all
                 rights in such Feedback and agree that we have the right to use
                 and fully exploit such Feedback and related information in any
                 manner we deem appropriate. Any Feedback you provide will be
@@ -270,7 +268,7 @@ function Terms() {
                   <li>
                     Transactions that take place on a blockchain network require
                     the payment of transaction fees to the validators or node
-                    operators of the relevant network (“Gas Fees”); you will be
+                    operators of the relevant network ("Gas Fees"); you will be
                     solely responsible to pay the Gas Fees for any transaction
                     that you initiate via any of our Services.
                   </li>
@@ -293,8 +291,8 @@ function Terms() {
             Disclaimers
             <ol type="a">
               <li>
-                EACH OF OUR SERVICES IS PROVIDED ON AN “AS IS” AND “AS
-                AVAILABLE” BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, WE
+                EACH OF OUR SERVICES IS PROVIDED ON AN "AS IS" AND "AS
+                AVAILABLE" BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, WE
                 DISCLAIM ANY REPRESENTATIONS AND WARRANTIES OF ANY KIND, WHETHER
                 EXPRESS, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO,
                 THE WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -309,7 +307,7 @@ function Terms() {
                 CREATING ANY WARRANTY CONCERNING ANY OF OUR SERVICES.
               </li>
               <li>
-                SIMILARLY, THE PROTOCOL IS PROVIDED “AS IS”, AT YOUR OWN RISK,
+                SIMILARLY, THE PROTOCOL IS PROVIDED "AS IS", AT YOUR OWN RISK,
                 AND WITHOUT WARRANTIES OF ANY KIND. WE DO NOT PROVIDE, OWN OR
                 CONTROL THE PROTOCOL, WHICH OPERATES AUTONOMOUSLY ON BLOCKCHAINS
                 SUBJECT TO GOVERNANCE BY A DECENTRALIZED SET OF VALIDATORS. NO
@@ -357,22 +355,21 @@ function Terms() {
                 affiliates and service providers, and each of their respective
                 past, present and future officers, directors, members,
                 employees, consultants, representatives and agents, and each of
-                their respective successors and assigns (the “Indemnified
-                Parties”) from and against all actual or alleged third party
+                their respective successors and assigns ("Indemnified
+                Parties") from and against all actual or alleged third party
                 claims, damages, awards, judgments, losses, liabilities,
                 obligations, taxes, penalties, interest, fees, expenses
-                (including, without limitation, attorneys’ fees and expenses)
+                (including, without limitation, attorneys' fees and expenses)
                 and costs (including, without limitation, court costs, costs of
                 settlement and costs of pursuing indemnification and insurance),
                 of every kind and nature whatsoever, whether known or unknown,
                 foreseen or unforeseen, matured or unmatured, or suspected or
                 unsuspected, in law or equity, whether in tort, contract or
-                otherwise (collectively, “Claims”), including, but not limited
-                to, damages to property or personal injury, that are caused by,
+                otherwise ("Claims"), including, but not limited to, damages to property or personal injury, that are caused by,
                 arise out of or are related to: (a) your access and use of any
                 of our Services; (b) your violation of any term or condition of
                 this Agreement, the right of any third party, or any other
-                applicable law, rule, or regulation; (c) any other party’s
+                applicable law, rule, or regulation; (c) any other party's
                 access and use of any of our Services with your assistance or
                 using any device or account that you own or control; (d) any
                 dispute between you and (i) any other user of any of the
@@ -425,7 +422,7 @@ function Terms() {
                 Federal Arbitration Act. You agree that the federal and state
                 courts of New York County, New York are the proper forum for any
                 appeals of an arbitration award or for court proceedings in the
-                event that this Agreement’s binding arbitration clause is found
+                event that this Agreement's binding arbitration clause is found
                 to be unenforceable.
               </li>
               <li>
@@ -433,13 +430,13 @@ function Terms() {
                 relating to any of our Services, this Agreement, or any other
                 acts or omissions for which you may contend that we are liable,
                 including, but not limited to, any claim or controversy as to
-                arbitrability (“**Dispute**”), shall be finally and exclusively
+                arbitrability ("**Dispute**"), shall be finally and exclusively
                 settled by arbitration under the JAMS Optional Expedited
                 Arbitration Procedures. You understand that you are required to
                 resolve all Disputes by binding arbitration. The arbitration
                 shall be held on a confidential basis before a single
                 arbitrator, who shall be selected pursuant to JAMS rules,
-                including where applicable the JAMS’ Mass Arbitration Procedures
+                including where applicable the JAMS' Mass Arbitration Procedures
                 and Guidelines. The arbitration will be held in New York, New
                 York, unless you and we both agree to hold it elsewhere. Unless
                 we agree otherwise, the arbitrator may not consolidate your
@@ -510,9 +507,9 @@ function Terms() {
             </ol>
           </li>
         </ol>
-      </div>
+      </Box>
       <FooterNavBar />
-    </div>
+    </Box>
   );
 }
 

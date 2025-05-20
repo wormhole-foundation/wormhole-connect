@@ -2,13 +2,12 @@ import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import { makeStyles } from 'tss-react/mui';
 
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
 
-const useStyles = makeStyles()(() => ({
+const styles = {
   swapButton: {
     display: 'block',
     position: 'absolute',
@@ -18,7 +17,7 @@ const useStyles = makeStyles()(() => ({
     height: 40,
     zIndex: 1,
   },
-}));
+} as const;
 
 function SwapInputs() {
   const dispatch = useDispatch();
@@ -42,12 +41,10 @@ function SwapInputs() {
     dispatch(setAmount(''));
   }, [canSwap, isTransactionInProgress, dispatch]);
 
-  const { classes } = useStyles();
-
   return (
     <IconButton
-      className={classes.swapButton}
       sx={{
+        ...styles.swapButton,
         animation: `${rotateAnimation} 0.3s linear 1`,
         '@keyframes spinRight': {
           '0%': {

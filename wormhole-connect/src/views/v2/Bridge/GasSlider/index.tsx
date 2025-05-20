@@ -1,17 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
 
-import { useTheme } from '@mui/material';
+import { Stack, Typography, Box } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Collapse from '@mui/material/Collapse';
-import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
-import { styled } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Typography from '@mui/material/Typography';
 import { amount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
@@ -21,68 +18,51 @@ import { setToNativeToken } from 'store/relay';
 import { useTokens } from 'contexts/TokensContext';
 import Color from 'color';
 
-const useStyles = makeStyles()((theme: any) => ({
-  content: {
-    width: '100%',
-    cursor: 'pointer',
-    maxWidth: '420px',
-    overflow: 'visible',
-    padding: '16px 20px',
-  },
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    width: '100%',
-  },
-  amounts: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '8px',
-    width: '100%',
-  },
-  toggleButton: {
-    backgroundColor: Color(theme.palette.text.primary).alpha(0.1).hexa(),
-    border: '1px solid transparent',
-    borderRadius: '8px',
-    '&.Mui-selected': {
-      border: `1px solid ${theme.palette.primary.main}`,
-      borderRadius: '8px',
-    },
-    '&.MuiToggleButtonGroup-middleButton': {
-      margin: '0 2px',
-    },
-    '&.MuiToggleButtonGroup-lastButton': {
-      margin: '0',
-    },
-  },
-}));
-
-const StyledSwitch = styled(Switch)(({ theme }) => ({
-  padding: '9px 12px',
-  right: `-9px`, // reposition towards right to negate switch padding
-  '& .MuiSwitch-switchBase.Mui-checked': {
-    color: theme.palette.primary.main,
-  },
-  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-    backgroundColor: theme.palette.primary.main,
-  },
-  '& .MuiSwitch-track': {
-    height: '20px',
-    borderRadius: '9px',
-  },
-}));
-
 const GasSlider = (props: {
   destinationGasDrop: amount.Amount;
   disabled: boolean;
   isExecutorRoute: boolean;
   isSelected: boolean;
 }) => {
-  const { classes } = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
+  const styles = useMemo(() => ({
+    content: {
+      width: '100%',
+      cursor: 'pointer',
+      maxWidth: '420px',
+      overflow: 'visible',
+      padding: '16px 20px',
+    },
+    container: {
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '8px',
+      width: '100%',
+    },
+    amounts: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: '8px',
+      width: '100%',
+    },
+    toggleButton: {
+      backgroundColor: Color(theme.palette.text.primary).alpha(0.1).hexa(),
+      border: '1px solid transparent',
+      borderRadius: '8px',
+      '&.Mui-selected': {
+        border: `1px solid ${theme.palette.primary.main}`,
+        borderRadius: '8px',
+      },
+      '&.MuiToggleButtonGroup-middleButton': {
+        margin: '0 2px',
+      },
+      '&.MuiToggleButtonGroup-lastButton': {
+        margin: '0',
+      },
+    },
+  }), [theme]);
 
   const { fromChain: sourceChain, toChain: destChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -146,18 +126,18 @@ const GasSlider = (props: {
           }
         }}
       >
-        <ToggleButton className={classes.toggleButton} disableRipple value="5">
+        <ToggleButton sx={styles.toggleButton} disableRipple value="5">
           5%
         </ToggleButton>
-        <ToggleButton className={classes.toggleButton} disableRipple value="10">
+        <ToggleButton sx={styles.toggleButton} disableRipple value="10">
           10%
         </ToggleButton>
-        <ToggleButton className={classes.toggleButton} disableRipple value="15">
+        <ToggleButton sx={styles.toggleButton} disableRipple value="15">
           15%
         </ToggleButton>
       </ToggleButtonGroup>
     ),
-    [classes.toggleButton, percentage],
+    [styles.toggleButton, percentage],
   );
 
   // Checking required values
@@ -166,10 +146,24 @@ const GasSlider = (props: {
   }
 
   return (
-    <div className={classes.content}>
+    <Box sx={styles.content}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Typography>{`Need extra ${destGasToken.symbol} on ${destChain}?`}</Typography>
-        <StyledSwitch
+        <Switch
+          sx={{
+            padding: '9px 12px',
+            right: '-9px',
+            '& .MuiSwitch-switchBase.Mui-checked': {
+              color: theme.palette.primary.main,
+            },
+            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+              backgroundColor: theme.palette.primary.main,
+            },
+            '& .MuiSwitch-track': {
+              height: '20px',
+              borderRadius: '9px',
+            },
+          }}
           checked={isGasSliderOpen}
           disabled={props.disabled}
           onClick={(e: any) => {
@@ -188,10 +182,10 @@ const GasSlider = (props: {
         />
       </Stack>
       <Collapse in={isGasSliderOpen} unmountOnExit>
-        <div className={classes.container}>
+        <Box sx={styles.container}>
           <Stack>
             {!props.isExecutorRoute && percentSelection}
-            <div className={classes.amounts}>
+            <Box sx={styles.amounts}>
               <Stack alignItems="center" flexDirection="row">
                 <Typography
                   color={theme.palette.text.secondary}
@@ -218,11 +212,11 @@ const GasSlider = (props: {
               <Typography color={theme.palette.primary.main} fontSize={14}>
                 {nativeGasPrice}
               </Typography>
-            </div>
+            </Box>
           </Stack>
-        </div>
+        </Box>
       </Collapse>
-    </div>
+    </Box>
   );
 };
 

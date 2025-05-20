@@ -1,34 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
+import { Box, useTheme } from '@mui/material';
 import { ICON } from 'utils/style';
 import { Route, setRoute } from 'store/router';
 import config from 'config';
 import { MenuEntry } from 'config/ui';
-
-const useStyles = makeStyles()((theme) => ({
-  menuIcon: ICON,
-  menu: {
-    display: 'flex',
-    [theme.breakpoints.down('md')]: {
-      flexDirection: 'column',
-    },
-    flexDirection: 'row',
-    gap: '8px',
-    padding: '8px',
-    width: '100%',
-  },
-  menuItem: {
-    padding: '16px 0',
-    textAlign: 'center',
-    fontSize: '14px',
-    margin: 'auto',
-    cursor: 'pointer',
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-  },
-}));
 
 type MenuItem = {
   label: string;
@@ -49,7 +25,30 @@ function defaultMenuItems(navigate: (name: Route) => void): MenuItem[] {
 }
 
 export default function FooterNavBar() {
-  const { classes } = useStyles();
+  const theme = useTheme();
+  const styles = useMemo(() => ({
+    menuIcon: ICON,
+    menu: {
+      display: 'flex',
+      [theme.breakpoints.down('md')]: {
+        flexDirection: 'column',
+      },
+      flexDirection: 'row',
+      gap: '8px',
+      padding: '8px',
+      width: '100%',
+    },
+    menuItem: {
+      padding: '16px 0',
+      textAlign: 'center',
+      fontSize: '14px',
+      margin: 'auto',
+      cursor: 'pointer',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+  }), [theme]);
   const dispatch = useDispatch();
 
   const navigate = useCallback(
@@ -65,16 +64,16 @@ export default function FooterNavBar() {
   );
 
   return (
-    <div className={classes.menu}>
+    <Box sx={styles.menu}>
       {entries.map(({ label, handleClick }: MenuItem, idx) => (
-        <div
-          className={classes.menuItem}
+        <Box
+          sx={styles.menuItem}
           onClick={handleClick}
           key={`${label.toLowerCase()}_${idx}`}
         >
           {label}
-        </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 }

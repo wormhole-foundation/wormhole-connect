@@ -1,26 +1,4 @@
-import { makeStyles } from 'tss-react/mui';
-import React from 'react';
-
-type StyleProps = {
-  align?: 'center' | 'right';
-};
-
-const useStyles = makeStyles<StyleProps>()((_, { align }) => ({
-  input: {
-    width: '100%',
-    border: 'none',
-    backgroundImage: 'none',
-    backgroundColor: 'transparent',
-    background: 'transparent',
-    fontSize: 'inherit',
-    boxShadow: 'none',
-    webkitBoxShadow: 'none',
-    moxBoxShadow: 'none',
-    outline: 'none',
-    flexGrow: '1',
-    textAlign: align || 'left',
-  },
-}));
+import React, { useMemo } from 'react';
 
 type Props = {
   placeholder?: string;
@@ -46,7 +24,19 @@ const NUMBER_FORMAT_REGEX = /^\d*\.?\d*$/;
 const NUMBER_REPLACE_REGEX = /[^0-9.]/g;
 
 function InputTransparent(props: Props) {
-  const { classes } = useStyles({ align: props.align });
+  const styles = useMemo(() => ({
+    input: {
+      width: '100%',
+      border: 'none',
+      backgroundImage: 'none',
+      backgroundColor: 'transparent',
+      fontSize: 'inherit',
+      boxShadow: 'none',
+      outline: 'none',
+      flexGrow: 1,
+      textAlign: props.align || 'left',
+    } as React.CSSProperties,
+  }), [props.align]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (props.type === 'number' && !NUMBER_FORMAT_REGEX.test(e.target.value)) {
@@ -68,7 +58,7 @@ function InputTransparent(props: Props) {
     <input
       ref={props.inputRef}
       id={props.id}
-      className={classes.input}
+      style={styles.input}
       placeholder={props.placeholder}
       min={props.min}
       max={props.max}

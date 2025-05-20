@@ -2,23 +2,10 @@ import React, { memo, useState, ReactNode, useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
-import { makeStyles } from 'tss-react/mui';
-import { joinClass, useCustomScrollbar } from 'utils/style';
+import { useCustomScrollbar } from 'utils/style';
+import { SxProps, Theme } from '@mui/material';
 
 import SearchInput from './SearchInput';
-
-const useStyles = makeStyles()(() => ({
-  wrapper: {
-    maxHeight: 240,
-    display: 'flex',
-    flexDirection: 'column',
-    padding: 0,
-  },
-  searchList: {
-    marginTop: 12,
-    overflow: 'auto',
-  },
-}));
 
 type SearchableListProps<T> = {
   title?: ReactNode;
@@ -28,15 +15,28 @@ type SearchableListProps<T> = {
   items: T[];
   loading?: ReactNode;
   dataTestId?: string;
+  sx?: SxProps<Theme>;
   renderFn: (item: T, index: number) => ReactNode;
   filterFn: (item: T, query: string) => boolean;
   onQueryChange?: (query: string) => void;
 };
 
 function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
-  const { classes } = useStyles();
-  const scrollbarClass = useCustomScrollbar();
+  const scrollbarStyles = useCustomScrollbar();
   const [query, setQuery] = useState('');
+
+  const styles = useMemo(() => ({
+    wrapper: {
+      maxHeight: 240,
+      display: 'flex',
+      flexDirection: 'column' as const,
+      padding: 0,
+    },
+    searchList: {
+      marginTop: 12,
+      overflow: 'auto',
+    },
+  }), []);
 
   const { items, filterFn } = props;
 
@@ -45,7 +45,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   }, [items, filterFn, query]);
 
   return (
-    <Box className={`${classes.wrapper} ${props?.className ?? ''}`}>
+    <Box sx={{...styles.wrapper, ...props.sx}} className={props?.className || ''}>
       {props.title}
       <SearchInput
         value={query}
@@ -59,7 +59,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         placeholder={props.searchPlaceholder}
       />
       <List
-        className={joinClass([classes.searchList, scrollbarClass])}
+        sx={{...styles.searchList, ...scrollbarStyles}}
         data-testid={props.dataTestId}
       >
         <Box sx={{ padding: '0 16px' }}>{props.listTitle}</Box>

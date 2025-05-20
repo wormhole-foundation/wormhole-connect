@@ -79,7 +79,6 @@
     "react-timer-hook": "^3.0.7",
     "rpc-websockets": "^7.11.0",
     "sha3": "^2.1.4",
-    "tss-react": "^4.7.7",
     "use-debounce": "^9.0.4",
     "web-vitals": "^2.1.4"
   },

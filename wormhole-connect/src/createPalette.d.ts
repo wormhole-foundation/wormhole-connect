@@ -25,6 +25,12 @@ declare module '@mui/material/styles' {
       secondary: string;
       elevation: string;
     };
+    input: {
+      background: string;
+      border: string;
+      fillTreatment: boolean;
+    };
+    logo: string;
   }
 
   interface PaletteOptions {
@@ -51,5 +57,11 @@ declare module '@mui/material/styles' {
       secondary: string;
       elevation: string;
     };
+    input?: {
+      background: string;
+      border: string;
+      fillTreatment: boolean;
+    };
+    logo?: string;
   }
 }

@@ -1,7 +1,7 @@
 import React, { JSX, useCallback, useMemo, useState } from 'react';
-import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
+import { useTheme } from '@mui/material';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
@@ -14,6 +14,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -30,46 +31,6 @@ import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { clearWallet } from 'store/wallet';
 
-const useStyles = makeStyles()((theme) => ({
-  listButton: {
-    display: 'flex',
-    flexDirection: 'row',
-    padding: '12px 16px',
-  },
-  drawer: {
-    width: '360px',
-  },
-  notInstalled: {
-    opacity: 0.6,
-  },
-  title: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  smOnly: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block',
-    },
-  },
-  addressInputContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '8px',
-    width: '100%',
-    padding: '16px',
-  },
-  addressField: {
-    flex: 1,
-  },
-  submitButton: {
-    width: '100%',
-  },
-}));
-
 type Props = {
   type: TransferWallet;
   open: boolean;
@@ -81,11 +42,59 @@ type Props = {
 // for the selected source or destination chain.
 const WalletSidebar = (props: Props) => {
   const dispatch = useDispatch();
-  const { classes } = useStyles();
+  const theme = useTheme();
+
+  const styles = useMemo(
+    () => ({
+      listButton: {
+        display: 'flex',
+        flexDirection: 'row' as const,
+        padding: '12px 16px',
+      },
+      drawerPaper: {
+        width: '360px',
+      },
+      notInstalled: {
+        opacity: 0.6,
+      },
+      title: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
+      smOnly: {
+        display: 'none',
+        [theme.breakpoints.down('sm')]: {
+          display: 'block',
+        },
+      },
+      addressInputContainer: {
+        display: 'flex',
+        flexDirection: 'row' as const,
+        gap: '8px',
+        width: '100%',
+        padding: '16px',
+      },
+      addressField: {
+        flex: 1,
+      },
+      submitButton: {
+        width: '100%',
+      },
+      sidebarContainer: {
+        width: '360px',
+      },
+    }),
+    [theme],
+  );
 
   const { fromChain: sourceChain, toChain: destChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
+
+  const { onClose, type: propsType } = props;
 
   const [search, setSearch] = useState('');
   const [address, setAddress] = useState('');
@@ -99,8 +108,8 @@ const WalletSidebar = (props: Props) => {
   }, []);
 
   const selectedChain = useMemo(
-    () => (props.type === TransferWallet.SENDING ? sourceChain : destChain),
-    [props.type, sourceChain, destChain],
+    () => (propsType === TransferWallet.SENDING ? sourceChain : destChain),
+    [propsType, sourceChain, destChain],
   );
 
   const { walletOptionsResult } = useAvailableWallets({
@@ -114,10 +123,10 @@ const WalletSidebar = (props: Props) => {
         return;
       }
 
-      props.onClose?.();
-      await connectWallet(props.type, selectedChain, walletInfo, dispatch);
+      onClose?.();
+      await connectWallet(propsType, selectedChain, walletInfo, dispatch);
     },
-    [selectedChain, props, dispatch],
+    [selectedChain, propsType, onClose, dispatch],
   );
 
   const submitAddress = useCallback(async () => {
@@ -158,8 +167,8 @@ const WalletSidebar = (props: Props) => {
       dispatch,
     );
 
-    props.onClose?.();
-  }, [address, selectedChain, props.onClose]);
+    onClose?.();
+  }, [address, selectedChain, onClose, dispatch]);
 
   const renderWalletOptions = useCallback(
     (wallets: WalletData[]): JSX.Element => {
@@ -183,7 +192,7 @@ const WalletSidebar = (props: Props) => {
             walletsFiltered.map((wallet) => (
               <ListItemButton
                 key={wallet.name}
-                className={classes.listButton}
+                sx={styles.listButton}
                 dense
                 onClick={() =>
                   wallet.isReady
@@ -195,9 +204,9 @@ const WalletSidebar = (props: Props) => {
                   <WalletIcon name={wallet.name} icon={wallet.icon} />
                 </ListItemIcon>
                 <Typography component="div" fontSize={14}>
-                  <div className={`${!wallet.isReady && classes.notInstalled}`}>
+                  <Box sx={!wallet.isReady ? styles.notInstalled : {}}>
                     {!wallet.isReady && 'Install'} {wallet.name}
-                  </div>
+                  </Box>
                 </Typography>
               </ListItemButton>
             ))
@@ -205,7 +214,7 @@ const WalletSidebar = (props: Props) => {
         </>
       );
     },
-    [classes.listButton, classes.notInstalled, connect, search],
+    [styles.listButton, styles.notInstalled, connect, search],
   );
 
   const sidebarContent = useMemo(() => {
@@ -219,18 +228,18 @@ const WalletSidebar = (props: Props) => {
           !!walletOptionsResult.options?.length && (
             <List>
               <ListItem>
-                <div className={classes.title}>
+                <Box sx={styles.title}>
                   <Typography component={'div'} fontSize={16}>
                     {props.type === TransferWallet.RECEIVING
                       ? 'Select destination wallet'
                       : 'Connect a wallet'}
                   </Typography>
-                  <div className={classes.smOnly}>
+                  <Box sx={styles.smOnly}>
                     <IconButton onClick={props.onClose} sx={{ padding: 0 }}>
                       <CloseIcon sx={{ height: '18px', width: '18px' }} />
                     </IconButton>
-                  </div>
-                </div>
+                  </Box>
+                </Box>
               </ListItem>
               <ListItem>
                 <TextField
@@ -251,9 +260,9 @@ const WalletSidebar = (props: Props) => {
               </ListItem>
               {renderWalletOptions(walletOptionsResult.options)}
               {props.showAddressInput && !search && (
-                <ListItem className={classes.addressInputContainer}>
+                <ListItem sx={styles.addressInputContainer}>
                   <TextField
-                    className={classes.addressField}
+                    sx={styles.addressField}
                     fullWidth
                     placeholder="Send to a wallet address"
                     size="small"
@@ -267,6 +276,7 @@ const WalletSidebar = (props: Props) => {
                     helperText={addressError}
                   />
                   <Button
+                    sx={styles.submitButton}
                     variant="contained"
                     color="primary"
                     onClick={submitAddress}
@@ -284,15 +294,16 @@ const WalletSidebar = (props: Props) => {
         return <></>;
     }
   }, [
-    walletOptionsResult.state,
-    walletOptionsResult.error,
-    walletOptionsResult.options,
-    classes.title,
-    classes.smOnly,
-    search,
-    props.onClose,
+    walletOptionsResult,
+    styles.title,
+    styles.smOnly,
+    styles.addressInputContainer,
+    styles.addressField,
+    styles.submitButton,
     props.type,
+    props.onClose,
     props.showAddressInput,
+    search,
     renderWalletOptions,
     address,
     addressError,
@@ -302,10 +313,15 @@ const WalletSidebar = (props: Props) => {
   return (
     <Drawer
       anchor="right"
-      open={props.type && props.open}
+      open={propsType && props.open}
       onClose={() => props.onClose?.()}
+      slotProps={{
+        paper: {
+          sx: styles.drawerPaper,
+        },
+      }}
     >
-      <div className={classes.drawer}>{sidebarContent}</div>
+      <Box sx={styles.sidebarContainer}>{sidebarContent}</Box>
     </Drawer>
   );
 };

@@ -1,11 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroller';
-import { useTheme } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import { makeStyles } from 'tss-react/mui';
+import { Box, CircularProgress, IconButton, Typography, useTheme } from '@mui/material';
 
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
@@ -16,12 +12,11 @@ import PoweredByIcon from 'icons/PoweredBy';
 import useTransactionHistory from 'hooks/useTransactionHistory';
 import { setRoute as setAppRoute } from 'store/router';
 import { trimAddress } from 'utils';
-import { joinClass } from 'utils/style';
 import TxHistoryItem from 'views/v2/TxHistory/Item';
 
 import type { RootState } from 'store';
 
-const useStyles = makeStyles()((_theme) => ({
+const styles = {
   container: {
     margin: 'auto',
     maxWidth: '420px',
@@ -50,11 +45,10 @@ const useStyles = makeStyles()((_theme) => ({
     justifyContent: 'center',
     width: '100%',
   },
-}));
+} as const;
 
 const TxHistory = () => {
   const dispatch = useDispatch();
-  const { classes } = useStyles();
   const theme = useTheme();
 
   const [page, setPage] = useState(0);
@@ -85,14 +79,14 @@ const TxHistory = () => {
   // Header for Transaction History, which includes the title and settings icon
   const txHistoryHeader = useMemo(() => {
     return (
-      <div className={classes.txHistoryHeader}>
+      <Box sx={styles.txHistoryHeader}>
         <Header align="left" size={18} text="Transaction history" />
         <IconButton onClick={() => dispatch(setAppRoute('bridge'))}>
           <SwapHorizIcon />
         </IconButton>
-      </div>
+      </Box>
     );
-  }, [classes.txHistoryHeader, dispatch]);
+  }, [styles.txHistoryHeader, dispatch]);
 
   const transactionList = useMemo(() => {
     if (!transactions) {
@@ -108,24 +102,24 @@ const TxHistory = () => {
     }
 
     return (
-      <div className={joinClass([classes.infiniteScroller])}>
+      <Box sx={styles.infiniteScroller}>
         <InfiniteScroll
           hasMore={hasMore}
           loadMore={(p) => setPage(p)}
           useWindow={false}
           style={{ scrollbarWidth: 'thin' }}
         >
-          <div className={joinClass([classes.spacer])}>
+          <Box sx={styles.spacer}>
             {transactions.map((tx, idx) => {
               return <TxHistoryItem key={idx} data={tx} />;
             })}
-          </div>
+          </Box>
         </InfiniteScroll>
-      </div>
+      </Box>
     );
   }, [
-    classes.infiniteScroller,
-    classes.spacer,
+    styles.infiniteScroller,
+    styles.spacer,
     hasMore,
     sendingWallet.address,
     theme.palette.text.secondary,
@@ -133,13 +127,13 @@ const TxHistory = () => {
   ]);
 
   return (
-    <div className={joinClass([classes.container, classes.spacer])}>
+    <Box sx={{...styles.container, ...styles.spacer}}>
       {header}
       {txHistoryHeader}
       {transactionList}
       {(!transactions || isFetching) && <CircularProgress />}
       <PoweredByIcon color={theme.palette.text.primary} />
-    </div>
+    </Box>
   );
 };
 

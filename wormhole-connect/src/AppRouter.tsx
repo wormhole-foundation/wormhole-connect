@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material/styles';
 
 import './App.css';
 import { RootState } from './store';
@@ -23,21 +23,62 @@ import TxHistory from 'views/v2/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 import SvgDefs from 'icons/SvgDefs';
 
-const useStyles = makeStyles()((theme) => ({
-  appContent: {
-    textAlign: 'left',
-    margin: '40px auto',
-    maxWidth: '900px',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '4px',
-    fontFamily: theme.typography.fontFamily,
-    [theme.breakpoints.down('sm')]: {
-      margin: '0 auto',
-    },
-  },
-}));
+const AppRouterContent: React.FC = () => {
+  const theme = useTheme();
+  const routeContext = useContext(RouteContext);
+  const route = useSelector((state: RootState) => state.router.route);
+  const dispatch = useDispatch();
+
+  const prevRoute = usePrevious(route);
+  const { hasExternalSearch } = useExternalSearch();
+  useEffect(() => {
+    const redeemRoute = 'redeem';
+    const bridgeRoute = 'bridge';
+    // reset redeem state on leave
+    if (prevRoute === redeemRoute && route !== redeemRoute) {
+      dispatch(clearRedeem());
+      dispatch(clearWallets());
+      routeContext.clear();
+    }
+    // reset transfer state on leave
+    const isEnteringBridge = route === bridgeRoute && prevRoute !== bridgeRoute;
+    if (isEnteringBridge && prevRoute !== 'history') {
+      dispatch(clearTransfer());
+    }
+  }, [route, prevRoute, dispatch, routeContext]);
+
+  useEffect(() => {
+    if (hasExternalSearch) {
+      dispatch(clearRedeem());
+      dispatch(setRoute('search'));
+    }
+  }, [hasExternalSearch, dispatch]);
+
+  return (
+    <div
+      style={{
+        textAlign: 'left',
+        margin: '40px auto',
+        maxWidth: '900px',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '4px',
+        fontFamily: theme.typography.fontFamily,
+        [theme.breakpoints.down('sm')]: {
+          margin: '0 auto',
+        },
+      }}
+    >
+      <SvgDefs />
+      {route === 'bridge' && <BridgeV2 />}
+      {route === 'redeem' && <RedeemV2 />}
+      {route === 'search' && <TxSearch />}
+      {route === 'history' && <TxHistory />}
+      {route === 'terms' && <Terms />}
+    </div>
+  );
+};
 
 interface Props {
   config?: WormholeConnectConfig;
@@ -45,25 +86,26 @@ interface Props {
 
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
 function AppRouter(props: Props) {
-  const { classes } = useStyles();
   const dispatch = useDispatch();
-  const routeContext = useContext(RouteContext);
-  const route = useSelector((state: RootState) => state.router.route);
 
   const hasSetSsgConfig = useRef(false);
   const isInitialLoad = useRef(true);
+  const route = useSelector((state: RootState) => state.router.route);
 
-  const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
-    if (!isEmptyObject(customConfig)) {
-      setConfig(customConfig);
-    }
+  const loadConfig = useCallback(
+    (customConfig: WormholeConnectConfig) => {
+      if (!isEmptyObject(customConfig)) {
+        setConfig(customConfig);
+      }
 
-    hasSetSsgConfig.current = true;
-    config.triggerEvent({
-      type: 'config',
-      config: customConfig,
-    });
-  }, []);
+      hasSetSsgConfig.current = true;
+      config.triggerEvent({
+        type: 'config',
+        config: customConfig,
+      });
+    },
+    [],
+  );
 
   if (!hasSetSsgConfig.current) {
     // This runs once in SSG step (server-side pre-rendering)
@@ -89,44 +131,10 @@ function AppRouter(props: Props) {
         dispatch(clearTransfer());
       }
     }
-  }, [props.config]);
+  }, [props.config, loadConfig, dispatch]);
   // END config loading code
 
-  const prevRoute = usePrevious(route);
-  const { hasExternalSearch } = useExternalSearch();
-  useEffect(() => {
-    const redeemRoute = 'redeem';
-    const bridgeRoute = 'bridge';
-    // reset redeem state on leave
-    if (prevRoute === redeemRoute && route !== redeemRoute) {
-      dispatch(clearRedeem());
-      dispatch(clearWallets());
-      routeContext.clear();
-    }
-    // reset transfer state on leave
-    const isEnteringBridge = route === bridgeRoute && prevRoute !== bridgeRoute;
-    if (isEnteringBridge && prevRoute !== 'history') {
-      dispatch(clearTransfer());
-    }
-  }, [route, prevRoute, dispatch]);
-
-  useEffect(() => {
-    if (hasExternalSearch) {
-      dispatch(clearRedeem());
-      dispatch(setRoute('search'));
-    }
-  }, [hasExternalSearch, dispatch]);
-
-  return (
-    <div className={classes.appContent}>
-      <SvgDefs />
-      {route === 'bridge' && <BridgeV2 />}
-      {route === 'redeem' && <RedeemV2 />}
-      {route === 'search' && <TxSearch />}
-      {route === 'history' && <TxHistory />}
-      {route === 'terms' && <Terms />}
-    </div>
-  );
+  return <AppRouterContent />;
 }
 
 export default AppRouter;

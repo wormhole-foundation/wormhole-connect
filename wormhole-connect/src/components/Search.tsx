@@ -1,34 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { makeStyles } from 'tss-react/mui';
+import React, { useEffect, useRef, useMemo } from 'react';
+import { Box, useTheme } from '@mui/material';
 import InputTransparent from './InputTransparent';
 import SearchIcon from 'icons/Search';
 import { changeOpacity } from 'utils/style';
-
-const useStyles = makeStyles()((theme: any) => ({
-  searchContent: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  container: {
-    width: '100%',
-    padding: '16px',
-    borderRadius: '8px',
-    backgroundColor: theme.palette.card.secondary,
-  },
-  input: {
-    flexGrow: 1,
-  },
-  // TODO: make border into prop on InputContainer
-  searchBorder: {
-    border: `1px solid ${changeOpacity(theme.palette.divider, 50)}`,
-    borderRadius: '8px',
-  },
-  clickable: {
-    cursor: 'pointer',
-  },
-}));
 
 type Props = {
   placeholder?: string;
@@ -42,7 +16,31 @@ type Props = {
 };
 
 function Search(props: Props) {
-  const { classes } = useStyles();
+  const theme = useTheme();
+  const styles = useMemo(() => ({
+    searchContent: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    container: {
+      width: '100%',
+      padding: '16px',
+      borderRadius: '8px',
+      backgroundColor: theme.palette.card.secondary,
+    },
+    input: {
+      flexGrow: 1,
+    },
+    searchBorder: {
+      border: `1px solid ${changeOpacity(theme.palette.divider, 50)}`,
+      borderRadius: '8px',
+    },
+    clickable: {
+      cursor: 'pointer',
+    },
+  }), [theme]);
   const searchEl = useRef(null);
 
   const focus = () => {
@@ -56,10 +54,10 @@ function Search(props: Props) {
   }, []);
 
   return (
-    <div className={classes.searchBorder}>
-      <div className={classes.container} onClick={focus}>
-        <div className={classes.searchContent}>
-          <div className={classes.input}>
+    <Box sx={styles.searchBorder}>
+      <Box sx={styles.container} onClick={focus}>
+        <Box sx={styles.searchContent}>
+          <Box sx={styles.input}>
             <InputTransparent
               value={props.value}
               inputRef={searchEl}
@@ -67,16 +65,16 @@ function Search(props: Props) {
               onChange={props.onChange}
               onEnter={props.onSearch}
             />
-          </div>
-          <div
+          </Box>
+          <Box
             onClick={props.onSearch}
-            className={props.onSearch && classes.clickable}
+            sx={props.onSearch && styles.clickable}
           >
             <SearchIcon />
-          </div>
-        </div>
-      </div>
-    </div>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

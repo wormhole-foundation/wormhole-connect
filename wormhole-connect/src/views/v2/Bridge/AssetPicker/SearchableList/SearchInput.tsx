@@ -1,29 +1,11 @@
-import React from 'react';
-import { useMediaQuery, useTheme } from '@mui/material';
+import React, { useMemo } from 'react';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import { makeStyles } from 'tss-react/mui';
 
 import SearchIcon from 'icons/Search';
 import { Box } from '@mui/material';
-
-const useStyles = makeStyles()((theme) => ({
-  input: {
-    '& fieldset': {
-      borderRadius: '100vh',
-    },
-    '& input::placeholder': {
-      color: theme.palette.text.primary,
-      opacity: 0.2,
-    },
-  },
-  icon: {
-    height: 20,
-    width: 20,
-    color: theme.palette.text.primary,
-    opacity: 0.2,
-  },
-}));
 
 type SearchInputProps = {
   value: string;
@@ -34,14 +16,39 @@ type SearchInputProps = {
 };
 
 export default function SearchInput(props: SearchInputProps) {
-  const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const styles = useMemo(() => ({
+    input: {
+      '& fieldset': {
+        borderRadius: '100vh',
+      },
+      '& input::placeholder': {
+        color: theme.palette.text.primary,
+        opacity: 0.2,
+      },
+      '& .MuiOutlinedInput-root': {
+        '& .MuiOutlinedInput-input::placeholder': {
+          fontWeight: 300,
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          borderWidth: '1px',
+        },
+      },
+    },
+    icon: {
+      height: 20,
+      width: 20,
+      color: theme.palette.text.primary,
+      opacity: 0.2,
+    },
+  }), [theme]);
 
   return (
     <Box sx={{ padding: '0 16px' }}>
       <TextField
-        className={classes.input}
+        sx={styles.input}
         ref={(input) => {
           if (!mobile && input) {
             setTimeout(() => {
@@ -51,37 +58,26 @@ export default function SearchInput(props: SearchInputProps) {
         }}
         data-testid={`${props.dataTestId}-input`}
         fullWidth
-        inputProps={{
-          style: {
-            fontSize: 16,
-            height: 22,
-            lineHeight: 22,
-          },
-        }}
         placeholder={props.placeholder}
         size="small"
-        sx={{
-          // Root class for the input field
-          '& .MuiOutlinedInput-root': {
-            // Class for the input placeholder text
-            '& .MuiOutlinedInput-input::placeholder': {
-              fontWeight: 300,
-            },
-            // Class for the border around the input field
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderWidth: '1px',
-            },
-          },
-        }}
         variant="outlined"
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon className={classes.icon} />
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={styles.icon} />
+              </InputAdornment>
+            ),
+          },
+          htmlInput: {
+            style: {
+              fontSize: 16,
+              height: 22,
+              lineHeight: 22,
+            },
+          },
         }}
       />
     </Box>

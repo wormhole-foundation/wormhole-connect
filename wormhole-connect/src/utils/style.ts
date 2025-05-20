@@ -1,5 +1,5 @@
-import { Theme } from '@mui/material';
-import { makeStyles } from 'tss-react/mui';
+import { Theme, useTheme } from '@mui/material';
+import { useMemo } from 'react';
 
 type Class = string | false;
 
@@ -89,9 +89,9 @@ export const changeOpacity = (
   return color;
 };
 
-// Use this hook to use similar scrollbar across platforms
-const useScrollbarClassName = makeStyles()((theme) => ({
-  scrollbar: {
+export const useCustomScrollbar = (): object => {
+  const theme = useTheme();
+  const scrollbarStyles = useMemo(() => ({
     '&::-webkit-scrollbar': {
       display: 'none',
     },
@@ -110,9 +110,6 @@ const useScrollbarClassName = makeStyles()((theme) => ({
     '&::-webkit-scrollbar-button': {
       display: 'none',
     },
-  },
-}));
-
-export const useCustomScrollbar = (): string => {
-  return useScrollbarClassName().classes.scrollbar;
+  }), [theme]);
+  return scrollbarStyles;
 };

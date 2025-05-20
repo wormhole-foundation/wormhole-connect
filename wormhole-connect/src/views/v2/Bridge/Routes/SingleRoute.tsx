@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { useTheme } from '@mui/material';
+import { useTheme, Box } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
@@ -9,7 +9,6 @@ import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { makeStyles } from 'tss-react/mui';
 import { amount, routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
@@ -24,7 +23,6 @@ import {
   formatDuration,
   isExecutorRoute,
 } from 'utils';
-import { joinClass } from 'utils/style';
 
 import type { RootState } from 'store';
 import FastestRoute from 'icons/FastestRoute';
@@ -36,67 +34,7 @@ import Color from 'color';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
-const useStyles = makeStyles()((theme: any) => ({
-  container: {
-    width: '100%',
-    maxWidth: '420px',
-    marginBottom: '8px',
-  },
-  card: {
-    borderRadius: '8px',
-    width: '100%',
-    maxWidth: '420px',
-  },
-  cardSelected: {
-    backgroundColor: theme.palette.input.fillTreatment
-      ? Color(theme.palette.primary.main).alpha(0.05).hexa()
-      : theme.palette.card.background,
-    borderColor: theme.palette.primary.main,
-  },
-  cardHeader: {
-    padding: '20px 20px 0px',
-  },
-  cardContent: {
-    marginTop: '18px',
-    padding: '0px 20px 20px',
-  },
-  errorIcon: {
-    color: theme.palette.error.main,
-    height: '34px',
-    width: '34px',
-    marginRight: '24px',
-  },
-  fastestBadge: {
-    width: '14px',
-    height: '14px',
-    position: 'relative',
-    top: '2px',
-    marginRight: '4px',
-    fill: theme.palette.primary.main,
-  },
-  cheapestBadge: {
-    width: '12px',
-    height: '12px',
-    position: 'relative',
-    top: '1px',
-    marginRight: '3px',
-    fill: theme.palette.primary.main,
-  },
-  messageContainer: {
-    padding: '12px 0px 0px',
-  },
-  warningIcon: {
-    color: theme.palette.warning.main,
-    height: '34px',
-    width: '34px',
-    marginRight: '12px',
-  },
-  disabled: {
-    opacity: '0.6',
-    cursor: 'default',
-    pointerEvents: 'none',
-  },
-}));
+
 
 type Props = {
   route: string;
@@ -111,8 +49,68 @@ type Props = {
 };
 
 const SingleRoute = (props: Props) => {
-  const { classes } = useStyles();
   const theme = useTheme();
+  const styles = useMemo(() => ({
+    container: {
+      width: '100%',
+      maxWidth: '420px',
+      marginBottom: '8px',
+    },
+    card: {
+      borderRadius: '8px',
+      width: '100%',
+      maxWidth: '420px',
+    },
+    cardSelected: {
+      backgroundColor: theme.palette.input.fillTreatment
+        ? Color(theme.palette.primary.main).alpha(0.05).hexa()
+        : theme.palette.card.background,
+      borderColor: theme.palette.primary.main,
+    },
+    cardHeader: {
+      padding: '20px 20px 0px',
+    },
+    cardContent: {
+      marginTop: '18px',
+      padding: '0px 20px 20px',
+    },
+    errorIcon: {
+      color: theme.palette.error.main,
+      height: '34px',
+      width: '34px',
+      marginRight: '24px',
+    },
+    fastestBadge: {
+      width: '14px',
+      height: '14px',
+      position: 'relative' as const,
+      top: '2px',
+      marginRight: '4px',
+      fill: theme.palette.primary.main,
+    },
+    cheapestBadge: {
+      width: '12px',
+      height: '12px',
+      position: 'relative' as const,
+      top: '1px',
+      marginRight: '3px',
+      fill: theme.palette.primary.main,
+    },
+    messageContainer: {
+      padding: '12px 0px 0px',
+    },
+    warningIcon: {
+      color: theme.palette.warning.main,
+      height: '34px',
+      width: '34px',
+      marginRight: '12px',
+    },
+    disabled: {
+      opacity: '0.6',
+      cursor: 'default',
+      pointerEvents: 'none' as const,
+    },
+  }), [theme]);
   const routeConfig = config.routes.get(props.route);
 
   const {
@@ -265,11 +263,11 @@ const SingleRoute = (props: Props) => {
       <>
         {messageDivider}
         <Stack
-          className={classes.messageContainer}
+          sx={styles.messageContainer}
           direction="row"
           alignItems="center"
         >
-          <ErrorIcon className={classes.errorIcon} />
+          <ErrorIcon sx={styles.errorIcon} />
           <Typography
             color={theme.palette.error.main}
             fontSize="14px"
@@ -281,8 +279,8 @@ const SingleRoute = (props: Props) => {
       </>
     );
   }, [
-    classes.errorIcon,
-    classes.messageContainer,
+    styles.errorIcon,
+    styles.messageContainer,
     messageDivider,
     props.error,
     theme.palette.error.main,
@@ -296,11 +294,11 @@ const SingleRoute = (props: Props) => {
         <div key="ManualTransactionWarning">
           {messageDivider}
           <Stack
-            className={classes.messageContainer}
+            sx={styles.messageContainer}
             direction="row"
             alignItems="center"
           >
-            <WarningIcon className={classes.warningIcon} />
+            <WarningIcon sx={styles.warningIcon} />
             <Stack>
               <Typography
                 color={theme.palette.warning.main}
@@ -333,11 +331,11 @@ const SingleRoute = (props: Props) => {
           <div key={`${warning.type}-${warning.delayDurationSec}`}>
             {messageDivider}
             <Stack
-              className={classes.messageContainer}
+              sx={styles.messageContainer}
               direction="row"
               alignItems="center"
             >
-              <WarningIcon className={classes.warningIcon} />
+              <WarningIcon sx={styles.warningIcon} />
               <Typography
                 color={theme.palette.warning.main}
                 fontSize={14}
@@ -358,11 +356,11 @@ const SingleRoute = (props: Props) => {
         <div key="HighFee">
           {messageDivider}
           <Stack
-            className={classes.messageContainer}
+            sx={styles.messageContainer}
             direction="row"
             alignItems="center"
           >
-            <WarningIcon className={classes.warningIcon} />
+            <WarningIcon sx={styles.warningIcon} />
             <Stack>
               <Typography
                 color={theme.palette.warning.main}
@@ -389,8 +387,8 @@ const SingleRoute = (props: Props) => {
     isManual,
     isHighFee,
     messageDivider,
-    classes.warningIcon,
-    classes.messageContainer,
+    styles.warningIcon,
+    styles.messageContainer,
     theme.palette.warning.main,
     theme.palette.text.secondary,
     quote?.warnings,
@@ -515,14 +513,14 @@ const SingleRoute = (props: Props) => {
     if (props.isFastest) {
       return (
         <>
-          <FastestRoute className={classes.fastestBadge} />
+          <FastestRoute sx={styles.fastestBadge} />
           {props.isOnlyChoice ? 'Fast' : 'Fastest'}
         </>
       );
     } else if (props.isCheapest && !props.isOnlyChoice) {
       return (
         <>
-          <CheapestRoute className={classes.cheapestBadge} /> Cheapest
+          <CheapestRoute sx={styles.cheapestBadge} /> Cheapest
         </>
       );
     } else {
@@ -532,8 +530,8 @@ const SingleRoute = (props: Props) => {
     props.isFastest,
     props.isCheapest,
     props.isOnlyChoice,
-    classes.fastestBadge,
-    classes.cheapestBadge,
+    styles.fastestBadge,
+    styles.cheapestBadge,
   ]);
 
   if (!props.route) {
@@ -541,44 +539,34 @@ const SingleRoute = (props: Props) => {
   }
 
   return (
-    <div
-      key={props.route}
-      className={classes.container}
-      data-testid={`route-${props.route}${isSelected ? '-selected' : ''}`}
+    <Box
+      sx={{
+        ...styles.container,
+        ...(props.error && styles.disabled),
+      }}
     >
       <Card
-        className={joinClass([
-          classes.card,
-          isSelected && classes.cardSelected,
-          isTransactionInProgress && classes.disabled,
-        ])}
         sx={{
-          border: '1px solid',
-          borderColor: isSelected ? theme.palette.primary.main : 'transparent',
-          opacity: 1,
+          ...styles.card,
+          ...(isSelected && styles.cardSelected),
         }}
+        variant="outlined"
       >
         <CardActionArea
-          component="div"
-          disabled={
-            isTransactionInProgress ||
-            typeof props.onSelect !== 'function' ||
-            props.error !== undefined
-          }
-          disableTouchRipple
-          sx={{ cursor }}
-          onClick={() => {
-            props.onSelect?.(props.route);
-          }}
+          disableRipple
+          onClick={() => props.onSelect && props.onSelect(props.route)}
+          disabled={!!props.error}
+          sx={{ cursor: cursor }}
         >
           <CardHeader
+            sx={styles.cardHeader}
+            disableTypography
             avatar={<TokenIcon icon={destToken?.icon} />}
-            className={classes.cardHeader}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
             action={routeCardBadge}
           />
-          <CardContent className={classes.cardContent}>
+          <CardContent sx={styles.cardContent}>
             <Stack gap="14px">
               {!routeConfig.AUTOMATIC_DEPOSIT
                 ? `You pay gas on ${destChain}`
@@ -606,7 +594,7 @@ const SingleRoute = (props: Props) => {
           )}
         </CardActionArea>
       </Card>
-    </div>
+    </Box>
   );
 };
 

@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
-import { makeStyles } from 'tss-react/mui';
-import { Box, Tooltip, useTheme } from '@mui/material';
+import React, { memo, useMemo } from 'react';
+import { Box, Tooltip } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -19,38 +19,6 @@ import { chainDisplayName, getExplorerUrl } from 'utils';
 import ChainIcon from 'icons/ChainIcons';
 import Color from 'color';
 
-const useStyles = makeStyles()((theme) => ({
-  tokenListItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '8px 16px',
-    borderRadius: 0,
-    ':hover': {
-      backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
-    },
-  },
-  tokenListItemSelected: {
-    backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
-  },
-  tokenDetails: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  addressLink: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    height: '10px',
-    overflow: 'hidden',
-    color: theme.palette.text.primary,
-    opacity: 0.6,
-  },
-  wormholeWrappedDisclaimer: {
-    display: 'inline',
-    marginRight: 4,
-  },
-}));
-
 type TokenItemProps = {
   token: Token;
   chain: Chain;
@@ -62,8 +30,39 @@ type TokenItemProps = {
 };
 
 function TokenItem(props: TokenItemProps) {
-  const { classes } = useStyles();
   const theme = useTheme();
+
+  const styles = useMemo(() => ({
+    tokenListItem: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      padding: '8px 16px',
+      borderRadius: 0,
+      ':hover': {
+        backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
+      },
+    },
+    tokenListItemSelected: {
+      backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
+    },
+    tokenDetails: {
+      display: 'flex',
+      flexDirection: 'row' as const,
+      alignItems: 'center',
+    },
+    addressLink: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      height: '10px',
+      overflow: 'hidden',
+      color: theme.palette.text.primary,
+      opacity: 0.6,
+    },
+    wormholeWrappedDisclaimer: {
+      display: 'inline',
+      marginRight: 4,
+    },
+  }), [theme]);
 
   const { chain, token } = props;
   const address = token.tokenId?.address.toString();
@@ -74,14 +73,15 @@ function TokenItem(props: TokenItemProps) {
 
   return (
     <ListItemButton
-      className={`${classes.tokenListItem} ${
-        props.isSelected ? classes.tokenListItemSelected : ''
-      }`}
+      sx={{
+        ...styles.tokenListItem,
+        ...(props.isSelected && styles.tokenListItemSelected),
+      }}
       dense
       data-testid={`token-button-${chain.toLowerCase()}-${token.address.toString()}`}
       onMouseDown={props.onClick}
     >
-      <div className={classes.tokenDetails}>
+      <Box sx={styles.tokenDetails}>
         <ListItemIcon>
           <TokenIcon icon={props.token.icon} />
         </ListItemIcon>
@@ -127,7 +127,7 @@ function TokenItem(props: TokenItemProps) {
                   <Link
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
-                    className={classes.addressLink}
+                    sx={styles.addressLink}
                     href={explorerURL}
                     rel="noreferrer noopener"
                     target="_blank"
@@ -146,7 +146,7 @@ function TokenItem(props: TokenItemProps) {
             ) : null}
           </Box>
         </div>
-      </div>
+      </Box>
       <Stack alignItems="flex-end">
         <Typography fontSize={14}>
           {props.isFetchingBalance ? (

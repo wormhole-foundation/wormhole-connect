@@ -1,20 +1,7 @@
-import React from 'react';
-import { makeStyles } from 'tss-react/mui';
+import React, { useMemo } from 'react';
+import { useTheme, Box } from '@mui/material';
 
 export type Alignment = 'center' | 'left' | 'right';
-
-type StyleProps = { align: Alignment; fontSize: number };
-const useStyles = makeStyles<StyleProps>()((theme, { align, fontSize }) => ({
-  title: {
-    fontSize: `${fontSize}px`,
-    width: '100%',
-    textAlign: align,
-    fontFamily: theme.typography.fontFamily,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '24px',
-    },
-  },
-}));
 
 type Props = {
   text: string;
@@ -24,15 +11,22 @@ type Props = {
 };
 
 function Header(props: Props) {
-  const styleProps = {
-    align: props.align || 'center',
-    fontSize: props.size || 42,
-  };
-  const { classes } = useStyles(styleProps);
+  const theme = useTheme();
+
+  const titleStyle = useMemo(() => ({
+    fontSize: `${props.size || 42}px`,
+    width: '100%',
+    textAlign: props.align || 'center',
+    fontFamily: theme.typography.fontFamily,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '24px',
+    },
+  }), [theme, props.align, props.size]);
+
   return (
-    <div className={classes.title} data-testid={props.testId}>
+    <Box sx={titleStyle} data-testid={props.testId}>
       {props.text}
-    </div>
+    </Box>
   );
 }
 

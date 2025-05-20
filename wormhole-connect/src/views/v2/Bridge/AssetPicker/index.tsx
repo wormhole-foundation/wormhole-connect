@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { makeStyles } from 'tss-react/mui';
-import { Box, Stack, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Stack, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Backdrop from '@mui/material/Backdrop';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -24,68 +24,8 @@ import ChainList from './ChainList';
 import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
-import { joinClass } from 'utils/style';
 import { useTokenList } from 'hooks/useTokenList';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
-
-const useStyles = makeStyles()((theme: any) => ({
-  inputArea: {
-    width: '100%',
-    cursor: 'pointer',
-    maxWidth: '420px',
-    borderRadius: '8px',
-    background: theme.palette.input.fillTreatment
-      ? 'transparent'
-      : theme.palette.input.background,
-    border: theme.palette.input.fillTreatment
-      ? `1px solid ${theme.palette.input.border}`
-      : 'none',
-  },
-  inputAreaEmpty: {
-    borderColor: theme.palette.input.background,
-    background: theme.palette.input.background,
-  },
-  cardContent: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: '72px',
-    padding: '16px 20px',
-    ':last-child': {
-      padding: '16px 20px',
-    },
-  },
-  chainSelector: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  disabled: {
-    opacity: '0.6',
-    cursor: 'default',
-    pointerEvents: 'none',
-  },
-  popover: {
-    marginLeft: '-1px',
-    marginTop: '-1px',
-    width: '422px',
-  },
-  popoverSlot: {
-    width: '100%',
-    maxWidth: '422px',
-    borderRadius: '8px',
-    background: theme.palette.input.background,
-  },
-  backdrop: {
-    backgroundColor: `rgba(0,0,0,0.2)`,
-  },
-  drawer: {
-    background: theme.palette.input.background,
-    borderRadius: '8px',
-    height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
-    maxWidth: '100vw', // Force full-width on small mobile devices
-  },
-}));
 
 type Props = {
   chain?: Chain | undefined;
@@ -108,7 +48,6 @@ const AssetPicker = (props: Props) => {
   const [showChainSearch, setShowChainSearch] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { classes } = useStyles();
 
   // Get token balances for filtering
   const { balances } = useGetTokenBalances(
@@ -209,15 +148,74 @@ const AssetPicker = (props: Props) => {
   const triggerProps =
     props.isTransactionInProgress || mobile ? {} : bindTrigger(popupState);
 
+  const styles = useMemo(() => ({
+    inputArea: {
+      width: '100%',
+      cursor: 'pointer',
+      maxWidth: '420px',
+      borderRadius: '8px',
+      background: theme.palette.input.fillTreatment
+        ? 'transparent'
+        : theme.palette.input.background,
+      border: theme.palette.input.fillTreatment
+        ? `1px solid ${theme.palette.input.border}`
+        : 'none',
+    },
+    inputAreaEmpty: {
+      borderColor: theme.palette.input.background,
+      background: theme.palette.input.background,
+    },
+    cardContent: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      height: '72px',
+      padding: '16px 20px',
+      ':last-child': {
+        padding: '16px 20px',
+      },
+    },
+    chainSelector: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    disabled: {
+      opacity: '0.6',
+      cursor: 'default',
+      pointerEvents: 'none',
+    },
+    popover: {
+      marginLeft: '-1px',
+      marginTop: '-1px',
+      width: '422px',
+    },
+    popoverSlot: {
+      width: '100%',
+      maxWidth: '422px',
+      borderRadius: '8px',
+      background: theme.palette.input.background,
+    },
+    backdrop: {
+      backgroundColor: `rgba(0,0,0,0.2)`,
+    },
+    drawer: {
+      background: theme.palette.input.background,
+      borderRadius: '8px',
+      height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
+      maxWidth: '100vw', // Force full-width on small mobile devices
+    },
+  }), [theme]);
+
   return (
     <>
-      <Backdrop open={popupState.isOpen} className={classes.backdrop} />
+      <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
       <Card
-        className={joinClass([
-          classes.inputArea,
-          !chainConfig && classes.inputAreaEmpty,
-          props.isTransactionInProgress && classes.disabled,
-        ])}
+        sx={[
+          styles.inputArea,
+          !chainConfig && styles.inputAreaEmpty,
+          props.isTransactionInProgress && styles.disabled,
+        ]}
         data-testid={props.dataTestId}
         variant="elevation"
         onMouseDown={(e) => {
@@ -238,9 +236,9 @@ const AssetPicker = (props: Props) => {
         }}
         {...triggerProps}
       >
-        <CardContent className={classes.cardContent}>
+        <CardContent sx={styles.cardContent}>
           <Typography
-            className={classes.chainSelector}
+            sx={styles.chainSelector}
             component={'div'}
             gap={1}
           >
@@ -255,7 +253,7 @@ const AssetPicker = (props: Props) => {
           anchor="bottom"
           open={isDrawerOpen}
           PaperProps={{
-            className: classes.drawer,
+            sx: styles.drawer,
           }}
           transitionDuration={200}
           onOpen={() => setIsDrawerOpen(true)}
@@ -306,7 +304,7 @@ const AssetPicker = (props: Props) => {
             vertical: 'top',
             horizontal: 'center',
           }}
-          className={classes.popover}
+          sx={styles.popover}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'center',
@@ -314,10 +312,7 @@ const AssetPicker = (props: Props) => {
           marginThreshold={4}
           slotProps={{
             paper: {
-              className: classes.popoverSlot,
-              sx: {
-                borderRadius: '8px',
-              },
+              sx: [styles.popoverSlot, { borderRadius: '8px' }],
             },
           }}
         >

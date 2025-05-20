@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
 
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 
 import {
   usePopupState,
@@ -17,49 +18,12 @@ import { RootState } from 'store';
 import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from 'utils';
-import { joinClass } from 'utils/style';
 
 import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
 import { Tooltip } from '@mui/material';
-
-const useStyles = makeStyles()((theme: any) => ({
-  connectWallet: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    paddingTop: '2px',
-    opacity: 1.0,
-  },
-  walletAddress: {
-    color: theme.palette.textSecondary,
-    marginLeft: '8px',
-  },
-  disabled: {
-    opacity: '0.6',
-    cursor: 'default',
-    pointerEvents: 'none',
-  },
-  dropdown: {
-    backgroundColor: theme.palette.popover.background,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    padding: '8px',
-  },
-  dropdownItem: {
-    borderRadius: '8px',
-    padding: '16px',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.palette.popover.secondary,
-    },
-  },
-}));
 
 type Props = {
   type: TransferWallet;
@@ -70,8 +34,43 @@ const COPY_MESSAGE_TIMOUT = 1000;
 // Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
   const dispatch = useDispatch();
+  const theme = useTheme();
 
-  const { classes } = useStyles();
+  const styles = useMemo(() => ({
+    connectWallet: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      paddingTop: '2px',
+      opacity: 1.0,
+    },
+    walletAddress: {
+      color: theme.palette.text.secondary,
+      marginLeft: '8px',
+    },
+    disabled: {
+      opacity: '0.6',
+      cursor: 'default',
+      pointerEvents: 'none' as const,
+    },
+    dropdown: {
+      backgroundColor: theme.palette.popover.background,
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '8px',
+      padding: '8px',
+    },
+    dropdownItem: {
+      borderRadius: '8px',
+      padding: '16px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: theme.palette.popover.secondary,
+      },
+    },
+  }), [theme]);
 
   const { isTransactionInProgress } = useSelector(
     (state: RootState) => state.transferInput,
@@ -117,24 +116,24 @@ const ConnectedWallet = (props: Props) => {
     <>
       {!wallet?.address ? null : (
         <>
-          <div
-            className={joinClass([
-              classes.connectWallet,
-              isTransactionInProgress && classes.disabled,
-            ])}
+          <Box
+            sx={[
+              styles.connectWallet,
+              isTransactionInProgress && styles.disabled,
+            ]}
             {...popupTrigger}
           >
             <WalletIcons name={wallet.name} icon={wallet.icon} size={20} />
             <Tooltip title="Copied" open={isCopied} placement="top" arrow>
               <Typography
-                className={classes.walletAddress}
+                sx={styles.walletAddress}
                 fontSize={14}
                 fontWeight={700}
               >
                 {displayWalletAddress(wallet.type, wallet.address)}
               </Typography>
             </Tooltip>
-          </div>
+          </Box>
           <Popover
             {...bindPopover(popupState)}
             anchorOrigin={{
@@ -145,9 +144,10 @@ const ConnectedWallet = (props: Props) => {
               vertical: 'top',
               horizontal: 'right',
             }}
+            PaperProps={{ sx: styles.dropdown }}
           >
             <List>
-              <ListItemButton onClick={copyAddress}>
+              <ListItemButton sx={styles.dropdownItem} onClick={copyAddress}>
                 <Typography fontSize={14}>Copy address</Typography>
               </ListItemButton>
               {config.ui.explorer ? (
@@ -156,12 +156,13 @@ const ConnectedWallet = (props: Props) => {
                   href={config.ui.explorer.href}
                   target={config.ui.explorer.target}
                   label={config.ui.explorer.label}
+                  sx={styles.dropdownItem}
                 />
               ) : null}
-              <ListItemButton onClick={connectWallet}>
+              <ListItemButton sx={styles.dropdownItem} onClick={connectWallet}>
                 <Typography fontSize={14}>Change wallet</Typography>
               </ListItemButton>
-              <ListItemButton onClick={disconnectWallet}>
+              <ListItemButton sx={styles.dropdownItem} onClick={disconnectWallet}>
                 <Typography fontSize={14}>Disconnect</Typography>
               </ListItemButton>
             </List>

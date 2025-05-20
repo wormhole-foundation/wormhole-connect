@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTimer } from 'react-timer-hook';
-import { useTheme } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -16,7 +16,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { makeStyles } from 'tss-react/mui';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import config, { getWormholeContextV2 } from 'config';
@@ -39,46 +38,6 @@ import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 
 import type { TransactionLocal } from 'config/types';
 
-const useStyles = makeStyles()((theme: any) => ({
-  alertBanner: {
-    marginTop: '12px',
-  },
-  arrowIcon: {
-    fontSize: '16px',
-    margin: '0 4px',
-  },
-  card: {
-    width: '100%',
-    boxShadow: `0px 0px 3.5px 0px ${theme.palette.primary.main}`,
-  },
-  cardContent: {
-    padding: '16px 20px',
-    ':last-child': {
-      padding: '16px 20px',
-    },
-  },
-  cardActionArea: {
-    height: '72px',
-  },
-  chainIcon: {
-    border: `2px solid ${theme.palette.input.background}`,
-    borderRadius: '6px',
-  },
-  completedIcon: {
-    color: theme.palette.success.main,
-    height: '24px',
-    width: '24px',
-  },
-  container: {
-    width: '100%',
-    maxWidth: '420px',
-  },
-  progressBar: {
-    borderRadius: '4px',
-    marginTop: '8px',
-  },
-}));
-
 type Props = {
   data: TransactionLocal;
   disabled: boolean;
@@ -88,10 +47,52 @@ const WidgetItem = (props: Props) => {
   const [error, setError] = useState('');
   const [etaExpired, setEtaExpired] = useState(false);
 
-  const { classes } = useStyles();
   const dispatch = useDispatch();
   const routeContext = useContext(RouteContext);
   const theme = useTheme();
+  const styles = useMemo(() => ({
+    alertBanner: {
+      marginTop: '12px',
+    },
+    arrowIcon: {
+      fontSize: '16px',
+      margin: '0 4px',
+    },
+    card: {
+      width: '100%',
+      boxShadow: `0px 0px 3.5px 0px ${theme.palette.primary.main}`,
+    },
+    cardContent: {
+      padding: '16px 20px',
+      ':last-child': {
+        padding: '16px 20px',
+      },
+    },
+    cardActionArea: {
+      height: '72px',
+    },
+    chainIconContainer: {
+      border: `2px solid ${theme.palette.input.background}`,
+      borderRadius: '6px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2px',
+    },
+    completedIcon: {
+      color: theme.palette.success.main,
+      height: '24px',
+      width: '24px',
+    },
+    container: {
+      width: '100%',
+      maxWidth: '420px',
+    },
+    progressBar: {
+      borderRadius: '4px',
+      marginTop: '8px',
+    },
+  }), [theme]);
 
   const { data: transaction } = props;
   const {
@@ -267,15 +268,15 @@ const WidgetItem = (props: Props) => {
   }
 
   return (
-    <div className={classes.container}>
-      <Card className={classes.card}>
+    <Box sx={styles.container}>
+      <Card sx={styles.card}>
         <CardActionArea
           disableTouchRipple
+          sx={styles.cardActionArea}
           disabled={props.disabled || !txDetails}
-          className={classes.cardActionArea}
           onClick={resumeTransaction}
         >
-          <CardContent className={classes.cardContent}>
+          <CardContent sx={styles.cardContent}>
             <Stack
               direction="row"
               alignItems="center"
@@ -283,7 +284,7 @@ const WidgetItem = (props: Props) => {
             >
               <Typography display="flex" justifyContent="space-between">
                 {isCompleted ? (
-                  <TxCompleteIcon className={classes.completedIcon} />
+                  <TxCompleteIcon sx={styles.completedIcon} />
                 ) : (
                   etaCountdown
                 )}
@@ -294,36 +295,36 @@ const WidgetItem = (props: Props) => {
                     token.symbol
                   }`}
                 </Typography>
-                <Box className={classes.chainIcon}>
+                <Box sx={styles.chainIconContainer}>
                   <ChainIcon
                     icon={config.chains[fromChain]?.icon}
                     height={24}
                   />
                 </Box>
-                <ArrowRight className={classes.arrowIcon} />
-                <Box className={classes.chainIcon}>
+                <ArrowRight sx={styles.arrowIcon} />
+                <Box sx={styles.chainIconContainer}>
                   <ChainIcon icon={config.chains[toChain]?.icon} height={24} />
                 </Box>
               </Stack>
             </Stack>
             {!isCompleted && (
               <LinearProgress
-                className={classes.progressBar}
                 variant="determinate"
                 value={progressBarValue}
+                sx={styles.progressBar}
               />
             )}
           </CardContent>
         </CardActionArea>
       </Card>
-      <AlertBannerV2
-        className={classes.alertBanner}
-        color={error ? theme.palette.error.light : theme.palette.grey.A400}
-        content={error}
+      <AlertBannerV2 
+        sx={styles.alertBanner} 
+        color={error ? theme.palette.error.light : theme.palette.grey.A400} 
+        content={error} 
         error={!!error}
-        show={!!error}
+        show={!!error} 
       />
-    </div>
+    </Box>
   );
 };
 
