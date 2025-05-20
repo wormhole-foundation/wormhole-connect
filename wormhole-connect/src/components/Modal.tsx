@@ -1,9 +1,8 @@
 import React, { JSX, useCallback, useEffect, useMemo } from 'react';
 import { Dialog, ScopedCssBaseline, Box } from '@mui/material';
-import { useTheme, Theme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';
 import CloseIcon from 'icons/Close';
-import { InternalTheme } from 'theme';
 
 type Props = {
   open: boolean;
@@ -14,7 +13,7 @@ type Props = {
 };
 
 function Modal({ open, width, closable, children, onClose }: Props) {
-  const theme = useTheme() as Theme & InternalTheme;
+  const theme = useTheme();
   
   const styles = useMemo(() => ({
     dialog: {

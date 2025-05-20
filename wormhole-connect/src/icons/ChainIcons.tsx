@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Box, useTheme } from '@mui/material';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 
@@ -31,36 +30,37 @@ import MEZO from './Chains/MEZO';
 import LINEA from './Chains/LINEA';
 import SONIC from './Chains/SONIC';
 
-const iconGetterMap: { [key in Chain]?: () => React.JSX.Element } = {
-  Moonbeam: () => GLMR(),
-  Avalanche: () => AVAX(),
-  Bsc: () => BSC(),
-  Celo: () => CELO(),
-  Ethereum: () => ETH(),
-  Fantom: () => FTM(),
-  Polygon: () => POLY(),
-  Solana: () => SOL(),
-  Sui: () => SUI(),
-  Aptos: () => APT(),
-  Arbitrum: () => ARBITRUM(),
-  Optimism: () => OPTIMISM(),
-  Base: () => BASE(),
-  Klaytn: () => KAIA(),
-  Scroll: () => SCROLL(),
-  Blast: () => BLAST(),
-  Xlayer: () => XLAYER(),
-  Mantle: () => MANTLE(),
-  Osmosis: () => OSMO(),
-  Worldchain: () => WORLD(),
-  Unichain: () => UNI(),
-  Berachain: () => BERA(),
-  Mezo: () => MEZO(),
-  Linea: () => LINEA(),
-  Sonic: () => SONIC(),
+const iconMap: { [key in Chain]?: React.JSX.Element } = {
+  Moonbeam: GLMR(),
+  Avalanche: AVAX(),
+  Bsc: BSC(),
+  Celo: CELO(),
+  Ethereum: ETH(),
+  Fantom: FTM(),
+  Polygon: POLY(),
+  Solana: SOL(),
+  Sui: SUI(),
+  Aptos: APT(),
+  Arbitrum: ARBITRUM(),
+  Optimism: OPTIMISM(),
+  Base: BASE(),
+  Klaytn: KAIA(),
+  Scroll: SCROLL(),
+  Blast: BLAST(),
+  Xlayer: XLAYER(),
+  Mantle: MANTLE(),
+  Osmosis: OSMO(),
+  Worldchain: WORLD(),
+  Unichain: UNI(),
+  Berachain: BERA(),
+  Mezo: MEZO(),
+  Linea: LINEA(),
+  Sonic: SONIC(),
+
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {
-  return Object.keys(iconGetterMap).includes(icon as Chain);
+  return Object.keys(iconMap).includes(icon as Chain);
 }
 
 type Props = {
@@ -71,14 +71,26 @@ type Props = {
 function EmptyIcon(props: { size: number }) {
   const theme = useTheme();
   const { size } = props;
-  const styles = useMemo(() => ({
-    emptyIcon: {
+
+  const styles = useMemo(() => {
+    const baseStyle = {
       width: size,
       height: size,
-      background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
       borderRadius: '3px',
-    },
-  }), [theme, size]);
+    };
+    if (theme.palette.text && theme.palette.input) {
+      return {
+        emptyIcon: {
+          ...baseStyle,
+          background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
+        },
+      };
+    }
+    return {
+      emptyIcon: baseStyle,
+    };
+  }, [size, theme]);
+
   return <Box sx={styles.emptyIcon} />;
 }
 
@@ -97,16 +109,23 @@ function ChainIconComponent(props: Props) {
     },
   }), [size]);
 
-  // Default, if icon is undefined
-  let icon = <EmptyIcon size={size} />;
-
-  if (isBuiltinChainIcon(props.icon) && iconGetterMap[props.icon]) {
-    icon = iconGetterMap[props.icon]!();
+  if (isBuiltinChainIcon(props.icon) && iconMap[props.icon]) {
+    // Assuming iconMap stores direct JSX elements based on recent reversions by user
+    return <Box sx={styles.container}>{iconMap[props.icon]!}</Box>;
   } else if (typeof props.icon === 'string') {
-    icon = <img style={styles.iconImage} src={props.icon} alt="chain icon" />;
+    return (
+      <Box sx={styles.container}>
+        <img style={styles.iconImage} src={props.icon} alt="chain icon" />
+      </Box>
+    );
+  } else {
+    // Default to EmptyIcon if props.icon is undefined or doesn't match other conditions
+    return (
+      <Box sx={styles.container}>
+        <EmptyIcon size={size} />
+      </Box>
+    );
   }
-
-  return <Box sx={styles.container}>{icon}</Box>;
 }
 
 export default ChainIconComponent;

@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { Theme, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { setRoute } from 'store/router';
-import { InternalTheme } from 'theme';
 
 import Header, { Alignment } from './Header';
 import DownIcon from 'icons/Down';
@@ -23,7 +22,7 @@ function PageHeader({
   description,
   testId,
 }: PageHeaderProps) {
-  const theme = useTheme() as Theme & InternalTheme;
+  const theme = useTheme();
   const dispatch = useDispatch();
 
   const styles = useMemo(() => ({

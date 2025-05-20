@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
-import { Theme, useTheme } from '@mui/material/styles';
-import { InternalTheme } from 'theme';
+import { useTheme } from '@mui/material/styles';
 
 import ChainIcon from 'icons/ChainIcons';
 import TokenIcon from 'icons/TokenIcons';
@@ -17,7 +16,7 @@ type Props = {
 };
 
 function AssetBadge(props: Props) {
-  const theme = useTheme() as Theme & InternalTheme;
+  const theme = useTheme();
   const { chainConfig, token } = props;
 
   const styles = useMemo(() => ({
