@@ -17,7 +17,7 @@ const mayanSWIFT = `{
   ],
 }`;
 
-const CCTPAutomatic = `{
+const CCTPExecutor = `{
   network: 'mainnet',
   coinGeckoApiKey: '${COINGECKO_API_KEY}',
   ui: {
@@ -27,7 +27,7 @@ const CCTPAutomatic = `{
     },
   },
   routes: [
-    AutomaticCCTPRoute,
+    cctpExecutorRoute({ referrerFeeDbps: 0n, }),
   ],
 }`;
 
@@ -56,8 +56,8 @@ export const testConfigs: Array<TestConfig> = [
     waitForCompletion: true,
   },
   {
-    name: 'AutomaticCCTP',
-    config: CCTPAutomatic,
+    name: 'CCTPExecutorRoute',
+    config: CCTPExecutor,
     sourceWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
       privateKey: process.env.REACT_APP_TEST_EVM_PK || '',
@@ -75,7 +75,7 @@ export const testConfigs: Array<TestConfig> = [
       symbol: 'USDC',
       address: circle.usdcContract.get('Mainnet', 'Arbitrum'),
     },
-    amount: '0.1',
+    amount: '1',
     waitForCompletion: false,
   },
 ];
