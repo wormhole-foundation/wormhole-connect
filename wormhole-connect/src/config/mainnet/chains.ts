@@ -182,7 +182,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     sdkName: 'Sonic',
     explorerUrl: 'https://sonicscan.org/',
     explorerName: 'Sonicscan',
-    icon: 'Linea',
+    icon: 'Sonic',
     symbol: 'S',
   },
 };

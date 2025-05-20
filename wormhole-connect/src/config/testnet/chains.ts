@@ -172,9 +172,9 @@ export const TESTNET_CHAINS: ChainsConfig = {
   Sonic: {
     displayName: 'Sonic',
     sdkName: 'Sonic',
-    explorerUrl: 'https://sonicscan.org/',
+    explorerUrl: 'https://testnet.sonicscan.org/',
     explorerName: 'Sonicscan',
-    icon: 'Linea',
+    icon: 'Sonic',
     symbol: 'S',
   },
 };
