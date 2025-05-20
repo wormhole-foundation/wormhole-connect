@@ -1,9 +1,5 @@
 // Legacy SDK
-import {
-  ChainConfig as BaseChainConfig,
-  ChainResourceMap,
-  WormholeConfig,
-} from 'sdklegacy';
+import { ChainResourceMap, WormholeConfig } from 'sdklegacy';
 
 // SDKv2
 import {
@@ -192,7 +188,7 @@ export type TokenConfig = {
 
 export type TokensConfig = { [key: string]: TokenConfig };
 
-export interface ChainConfig extends BaseChainConfig {
+export interface ChainConfig {
   sdkName: Chain;
   displayName: string;
   explorerUrl: string;

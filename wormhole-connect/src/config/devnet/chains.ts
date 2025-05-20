@@ -1,11 +1,7 @@
-import { CONFIG } from 'sdklegacy';
 import { ChainsConfig } from '../types';
-
-const { chains } = CONFIG.DEVNET;
 
 export const DEVNET_CHAINS: ChainsConfig = {
   Ethereum: {
-    ...chains.Ethereum!,
     sdkName: 'Ethereum',
     displayName: 'EVM',
     explorerUrl: '',
@@ -15,7 +11,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     symbol: 'ETH',
   },
   Osmosis: {
-    ...chains.Osmosis!,
     displayName: 'Osmosis',
     sdkName: 'Osmosis',
     explorerUrl: '',
@@ -25,7 +20,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     symbol: 'OSMO',
   },
   Wormchain: {
-    ...chains.Wormchain!,
     sdkName: 'Wormchain',
     displayName: 'Wormchain',
     explorerUrl: '',
@@ -35,7 +29,6 @@ export const DEVNET_CHAINS: ChainsConfig = {
     symbol: 'OSMO',
   },
   Terra2: {
-    ...chains.Terra2!,
     sdkName: 'Terra2',
     displayName: 'Terra',
     explorerUrl: '',

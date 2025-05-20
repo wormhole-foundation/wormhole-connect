@@ -1,71 +1,4 @@
-import { Chain } from '@wormhole-foundation/sdk';
-import { WormholeConfig, Context, ChainConfig } from '../types';
-
-const MAINNET: { [chain in Chain]?: ChainConfig } = {
-  Ethereum: {
-    context: Context.ETH,
-  },
-  Solana: {
-    context: Context.SOLANA,
-  },
-  Polygon: {
-    context: Context.ETH,
-  },
-  Bsc: {
-    context: Context.ETH,
-  },
-  Avalanche: {
-    context: Context.ETH,
-  },
-  Fantom: {
-    context: Context.ETH,
-  },
-  Celo: {
-    context: Context.ETH,
-  },
-  Moonbeam: {
-    context: Context.ETH,
-  },
-  Sui: {
-    context: Context.SUI,
-  },
-  Aptos: {
-    context: Context.APTOS,
-  },
-  Arbitrum: {
-    context: Context.ETH,
-  },
-  Optimism: {
-    context: Context.ETH,
-  },
-  Base: {
-    context: Context.ETH,
-  },
-  Klaytn: {
-    context: Context.ETH,
-  },
-  Scroll: {
-    context: Context.ETH,
-  },
-  Blast: {
-    context: Context.ETH,
-  },
-  Mantle: {
-    context: Context.ETH,
-  },
-  Xlayer: {
-    context: Context.ETH,
-  },
-  Berachain: {
-    context: Context.ETH,
-  },
-  Unichain: {
-    context: Context.ETH,
-  },
-  Worldchain: {
-    context: Context.ETH,
-  },
-} as const;
+import { WormholeConfig } from '../types';
 
 /**
  * default mainnet chain config
@@ -102,7 +35,6 @@ const MAINNET_CONFIG: WormholeConfig = {
     Unichain: 'https://mainnet.unichain.org',
     Berachain: 'https://rpc.berachain.com',
   },
-  chains: MAINNET,
 };
 
 export default MAINNET_CONFIG;

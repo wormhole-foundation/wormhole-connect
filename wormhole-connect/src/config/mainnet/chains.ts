@@ -1,11 +1,7 @@
-import { CONFIG } from 'sdklegacy';
 import { ChainsConfig } from '../types';
-
-const { chains } = CONFIG.MAINNET;
 
 export const MAINNET_CHAINS: ChainsConfig = {
   Ethereum: {
-    ...chains.Ethereum!,
     displayName: 'Ethereum',
     sdkName: 'Ethereum',
     explorerUrl: 'https://etherscan.io/',
@@ -15,7 +11,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   },
   Bsc: {
-    ...chains.Bsc!,
     displayName: 'BSC',
     sdkName: 'Bsc',
     explorerUrl: 'https://bscscan.com/',
@@ -25,7 +20,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
   },
   Polygon: {
-    ...chains.Polygon!,
     displayName: 'Polygon',
     sdkName: 'Polygon',
     explorerUrl: 'https://polygonscan.com/',
@@ -35,7 +29,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
   },
   Avalanche: {
-    ...chains.Avalanche!,
     displayName: 'Avalanche',
     sdkName: 'Avalanche',
     explorerUrl: 'https://avascan.info/blockchain/c/',
@@ -45,7 +38,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
   },
   Fantom: {
-    ...chains.Fantom!,
     displayName: 'Fantom',
     sdkName: 'Fantom',
     explorerUrl: 'https://explorer.fantom.network/',
@@ -55,7 +47,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
   },
   Celo: {
-    ...chains.Celo!,
     displayName: 'Celo',
     sdkName: 'Celo',
     explorerUrl: 'https://explorer.celo.org/mainnet/',
@@ -64,7 +55,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'CELO',
   },
   Moonbeam: {
-    ...chains.Moonbeam!,
     displayName: 'Moonbeam',
     sdkName: 'Moonbeam',
     explorerUrl: 'https://moonscan.io/',
@@ -74,7 +64,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xAcc15dC74880C9944775448304B263D191c6077F',
   },
   Solana: {
-    ...chains.Solana!,
     displayName: 'Solana',
     sdkName: 'Solana',
     explorerUrl: 'https://explorer.solana.com/',
@@ -84,7 +73,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: 'So11111111111111111111111111111111111111112',
   },
   Sui: {
-    ...chains.Sui!,
     displayName: 'Sui',
     sdkName: 'Sui',
     explorerUrl: 'https://suiscan.xyz/',
@@ -93,7 +81,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'SUI',
   },
   Aptos: {
-    ...chains.Aptos!,
     displayName: 'Aptos',
     sdkName: 'Aptos',
     explorerUrl: 'https://explorer.aptoslabs.com/',
@@ -102,7 +89,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'APT',
   },
   Base: {
-    ...chains.Base!,
     displayName: 'Base',
     sdkName: 'Base',
     explorerUrl: 'https://basescan.org/',
@@ -112,7 +98,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Arbitrum: {
-    ...chains.Arbitrum!,
     displayName: 'Arbitrum',
     sdkName: 'Arbitrum',
     explorerUrl: 'https://arbiscan.io/',
@@ -122,7 +107,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   },
   Optimism: {
-    ...chains.Optimism!,
     displayName: 'Optimism',
     sdkName: 'Optimism',
     explorerUrl: 'https://optimistic.etherscan.io/',
@@ -132,7 +116,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Klaytn: {
-    ...chains.Klaytn!,
     displayName: 'Kaia',
     sdkName: 'Klaytn',
     explorerUrl: 'https://kaiascope.com/',
@@ -142,7 +125,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xe4f05A66Ec68B54A58B17c22107b02e0232cC817',
   },
   Scroll: {
-    ...chains.Scroll!,
     displayName: 'Scroll',
     sdkName: 'Scroll',
     explorerUrl: 'https://scrollscan.com/',
@@ -152,7 +134,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x5300000000000000000000000000000000000004',
   },
   Blast: {
-    ...chains.Blast!,
     displayName: 'Blast',
     sdkName: 'Blast',
     explorerUrl: 'https://blastscan.io/',
@@ -162,7 +143,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
   },
   Xlayer: {
-    ...chains.Xlayer!,
     displayName: 'X Layer',
     sdkName: 'Xlayer',
     explorerUrl: 'https://www.okx.com/web3/explorer/xlayer/',
@@ -172,7 +152,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xe538905cf8410324e03A5A23C1c177a474D59b2b',
   },
   Mantle: {
-    ...chains.Mantle!,
     displayName: 'Mantle',
     sdkName: 'Mantle',
     explorerUrl: 'https://explorer.mantle.xyz/',
@@ -182,7 +161,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
   },
   Worldchain: {
-    ...chains.Worldchain!,
     displayName: 'World Chain',
     sdkName: 'Worldchain',
     explorerUrl: 'https://worldscan.org/',
@@ -191,7 +169,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'WORLD',
   },
   Unichain: {
-    ...chains.Unichain!,
     displayName: 'Unichain',
     sdkName: 'Unichain',
     explorerUrl: 'https://uniscan.xyz/',
@@ -201,7 +178,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Berachain: {
-    ...chains.Berachain!,
     displayName: 'Berachain',
     sdkName: 'Berachain',
     explorerUrl: 'https://berascan.com/',
@@ -211,7 +187,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x6969696969696969696969696969696969696969',
   },
   Linea: {
-    ...chains.Linea!,
     displayName: 'Linea',
     sdkName: 'Linea',
     explorerUrl: 'https://lineascan.build/',
@@ -221,7 +196,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x0000000000000000000000000000000000000000',
   },
   Sonic: {
-    ...chains.Sonic!,
     displayName: 'Sonic',
     sdkName: 'Sonic',
     explorerUrl: 'https://sonicscan.org/',

@@ -1,11 +1,7 @@
-import { CONFIG } from 'sdklegacy';
 import { ChainsConfig } from '../types';
-
-const { chains } = CONFIG.TESTNET;
 
 export const TESTNET_CHAINS: ChainsConfig = {
   Bsc: {
-    ...chains.Bsc!,
     displayName: 'BSC',
     explorerUrl: 'https://testnet.bscscan.com/',
     explorerName: 'BscScan',
@@ -15,7 +11,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
   },
   Avalanche: {
-    ...chains.Avalanche!,
     displayName: 'Fuji',
     explorerUrl: 'https://testnet.avascan.info/blockchain/c/',
     explorerName: 'Avascan',
@@ -25,7 +20,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
   },
   Fantom: {
-    ...chains.Fantom!,
     displayName: 'Fantom',
     explorerUrl: 'https://testnet.ftmscan.com/',
     explorerName: 'FtmScan',
@@ -35,7 +29,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xf1277d1Ed8AD466beddF92ef448A132661956621',
   },
   Celo: {
-    ...chains.Celo!,
     displayName: 'Alfajores',
     explorerUrl: 'https://explorer.celo.org/alfajores/',
     explorerName: 'Celo Explorer',
@@ -44,7 +37,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     sdkName: 'Celo',
   },
   Moonbeam: {
-    ...chains.Moonbeam!,
     displayName: 'Moonbase',
     explorerUrl: 'https://moonbase.moonscan.io/',
     explorerName: 'Moonscan',
@@ -54,7 +46,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xD909178CC99d318e4D46e7E66a972955859670E1',
   },
   Solana: {
-    ...chains.Solana!,
     displayName: 'Solana',
     explorerUrl: 'https://explorer.solana.com/',
     explorerName: 'Solana Explorer',
@@ -64,7 +55,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: 'So11111111111111111111111111111111111111112',
   },
   Sui: {
-    ...chains.Sui!,
     displayName: 'Sui',
     explorerUrl: 'https://suiscan.xyz/testnet/',
     explorerName: 'Suiscan',
@@ -73,7 +63,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     sdkName: 'Sui',
   },
   Aptos: {
-    ...chains.Aptos!,
     displayName: 'Aptos',
     explorerUrl: 'https://explorer.aptoslabs.com/',
     explorerName: 'Aptos Explorer',
@@ -82,7 +71,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     sdkName: 'Aptos',
   },
   Klaytn: {
-    ...chains.Klaytn!,
     displayName: 'Kaia',
     explorerUrl: 'https://kairos.kaiascope.com/',
     explorerName: 'Kaia Scope',
@@ -92,7 +80,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x0339d5Eb6D195Ba90B13ed1BCeAa97EbD198b106',
   },
   Sepolia: {
-    ...chains.Sepolia!,
     displayName: 'Sepolia',
     explorerUrl: 'https://sepolia.etherscan.io/',
     explorerName: 'Etherscan',
@@ -102,7 +89,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xeef12A83EE5b7161D3873317c8E0E7B76e0B5D9c',
   },
   ArbitrumSepolia: {
-    ...chains.ArbitrumSepolia!,
     displayName: 'Arbitrum Sepolia',
     explorerUrl: 'https://sepolia.arbiscan.io/',
     explorerName: 'Etherscan',
@@ -112,7 +98,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73',
   },
   BaseSepolia: {
-    ...chains.BaseSepolia!,
     displayName: 'Base Sepolia',
     explorerUrl: 'https://base-sepolia.blockscout.com/',
     explorerName: 'Etherscan',
@@ -122,7 +107,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   OptimismSepolia: {
-    ...chains.OptimismSepolia!,
     displayName: 'Optimism Sepolia',
     explorerUrl: 'https://sepolia-optimistic.etherscan.io/',
     explorerName: 'Etherscan',
@@ -132,7 +116,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Scroll: {
-    ...chains.Scroll!,
     displayName: 'Scroll',
     explorerUrl: 'https://sepolia.scrollscan.dev/',
     explorerName: 'Scrollscan',
@@ -142,7 +125,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x5300000000000000000000000000000000000004',
   },
   Blast: {
-    ...chains.Blast!,
     displayName: 'Blast',
     explorerUrl: 'https://testnet.blastscan.io/',
     explorerName: 'Blastscan',
@@ -152,7 +134,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
   },
   Xlayer: {
-    ...chains.Xlayer!,
     displayName: 'X Layer',
     explorerUrl: 'https://www.okx.com/web3/explorer/xlayer-test/',
     explorerName: 'OKX Explorer',
@@ -162,7 +143,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xa2aFfd8301BfB3c5b815829f2F509f053556D21B',
   },
   Mantle: {
-    ...chains.Mantle!,
     displayName: 'Mantle',
     explorerUrl: 'https://explorer.testnet.mantle.xyz/',
     explorerName: 'Mantle Explorer',
@@ -172,7 +152,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0xa4c4cb2A072eE99f77212Fa18c2B7Ca26DA23905',
   },
   Worldchain: {
-    ...chains.Worldchain!,
     displayName: 'World Chain',
     explorerUrl: 'https://worldchain-sepolia.explorer.alchemy.com/',
     explorerName: 'World Scan',
@@ -181,7 +160,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'WORLD',
   },
   Unichain: {
-    ...chains.Unichain!,
     displayName: 'Unichain',
     explorerUrl: 'https://unichain-sepolia.blockscout.com/',
     explorerName: 'Unichain Explorer',
@@ -191,7 +169,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Mezo: {
-    ...chains.Mezo!,
     displayName: 'Mezo',
     explorerUrl: 'https://explorer.test.mezo.org/',
     explorerName: 'Mezo Explorer',

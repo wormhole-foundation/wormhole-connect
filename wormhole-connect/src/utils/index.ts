@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { isHexString } from 'ethers';
 import { isValidTransactionDigest } from '@mysten/sui/utils';
-import { Context } from 'sdklegacy';
 
 import config from 'config';
 import { ChainConfig } from 'config/types';
@@ -9,6 +8,7 @@ import { Token } from 'config/tokens';
 import { isGatewayChain } from './cosmos';
 import {
   Chain,
+  Platform,
   TokenId,
   chainToPlatform,
   isNative,
@@ -52,13 +52,13 @@ export function displayAddress(chain: Chain, address: string): string {
 }
 
 export function displayWalletAddress(
-  walletType: Context | undefined,
+  walletType: Platform | undefined,
   address: string,
 ): string {
   if (!walletType) return '';
-  if (walletType === Context.ETH) {
+  if (walletType === 'Evm') {
     return trimAddress(convertAddress(address));
-  } else if (walletType === Context.SOLANA) {
+  } else if (walletType === 'Solana') {
     return trimAddress(address, 4);
   }
   return trimAddress(address);

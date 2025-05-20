@@ -25,7 +25,6 @@ import {
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 import { makeStyles } from 'tss-react/mui';
-import { Context } from 'sdklegacy';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import PageHeader from 'components/PageHeader';
@@ -653,7 +652,7 @@ const Redeem = () => {
       isResumeTx &&
       toChain === 'Solana' &&
       receivingWallet.address &&
-      receivingWallet.type === Context.SOLANA &&
+      receivingWallet.type === 'Solana' &&
       receivingWallet.address !== recipient &&
       routeName &&
       // These routes set the recipient address to the associated token address

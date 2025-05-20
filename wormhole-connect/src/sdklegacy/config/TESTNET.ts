@@ -1,68 +1,4 @@
-import { Chain } from '@wormhole-foundation/sdk';
-import { WormholeConfig, Context, ChainConfig } from '../types';
-
-const TESTNET: { [chain in Chain]?: ChainConfig } = {
-  Solana: {
-    context: Context.SOLANA,
-  },
-  Bsc: {
-    context: Context.ETH,
-  },
-  Avalanche: {
-    context: Context.ETH,
-  },
-  Fantom: {
-    context: Context.ETH,
-  },
-  Celo: {
-    context: Context.ETH,
-  },
-  Moonbeam: {
-    context: Context.ETH,
-  },
-  Sui: {
-    context: Context.SUI,
-  },
-  Aptos: {
-    context: Context.APTOS,
-  },
-  Klaytn: {
-    context: Context.ETH,
-  },
-  Scroll: {
-    context: Context.ETH,
-  },
-  Blast: {
-    context: Context.ETH,
-  },
-  Xlayer: {
-    context: Context.ETH,
-  },
-  Sepolia: {
-    context: Context.ETH,
-  },
-  ArbitrumSepolia: {
-    context: Context.ETH,
-  },
-  BaseSepolia: {
-    context: Context.ETH,
-  },
-  OptimismSepolia: {
-    context: Context.ETH,
-  },
-  Mantle: {
-    context: Context.ETH,
-  },
-  Unichain: {
-    context: Context.ETH,
-  },
-  Worldchain: {
-    context: Context.ETH,
-  },
-  Mezo: {
-    context: Context.ETH,
-  },
-} as const;
+import { WormholeConfig } from '../types';
 
 /**
  * default testnet chain config
@@ -98,7 +34,6 @@ const TESTNET_CONFIG: WormholeConfig = {
     Unichain: 'https://sepolia.unichain.org',
     Mezo: 'https://rpc.test.mezo.org',
   },
-  chains: TESTNET,
 };
 
 export default TESTNET_CONFIG;

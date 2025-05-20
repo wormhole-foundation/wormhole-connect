@@ -1,11 +1,4 @@
-import { Chain } from '@wormhole-foundation/sdk';
-import { ChainConfig, Context, WormholeConfig } from '../types';
-
-const DEVNET: { [chain in Chain]?: ChainConfig } = {
-  Ethereum: {
-    context: Context.ETH,
-  },
-} as const;
+import { WormholeConfig } from '../types';
 
 /**
  * default devnet chain config
@@ -18,7 +11,6 @@ const DEVNET_CONFIG: WormholeConfig = {
     Osmosis: 'http://localhost:33043',
     Terra2: 'http://localhost:26658',
   },
-  chains: DEVNET,
 };
 
 export default DEVNET_CONFIG;
