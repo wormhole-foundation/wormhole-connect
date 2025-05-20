@@ -8,7 +8,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Bsc',
     symbol: 'BSC',
     sdkName: 'Bsc',
-    wrappedGasToken: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
   },
   Avalanche: {
     displayName: 'Fuji',
@@ -17,7 +16,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Avalanche',
     symbol: 'AVAX',
     sdkName: 'Avalanche',
-    wrappedGasToken: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
   },
   Fantom: {
     displayName: 'Fantom',
@@ -26,7 +24,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Fantom',
     symbol: 'FTM',
     sdkName: 'Fantom',
-    wrappedGasToken: '0xf1277d1Ed8AD466beddF92ef448A132661956621',
   },
   Celo: {
     displayName: 'Alfajores',
@@ -43,7 +40,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Moonbeam',
     symbol: 'GLMR',
     sdkName: 'Moonbeam',
-    wrappedGasToken: '0xD909178CC99d318e4D46e7E66a972955859670E1',
   },
   Solana: {
     displayName: 'Solana',
@@ -52,7 +48,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Solana',
     symbol: 'SOL',
     sdkName: 'Solana',
-    wrappedGasToken: 'So11111111111111111111111111111111111111112',
   },
   Sui: {
     displayName: 'Sui',
@@ -77,7 +72,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Klaytn',
     symbol: 'KLAY',
     sdkName: 'Klaytn',
-    wrappedGasToken: '0x0339d5Eb6D195Ba90B13ed1BCeAa97EbD198b106',
   },
   Sepolia: {
     displayName: 'Sepolia',
@@ -86,7 +80,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Ethereum',
     symbol: 'ETH',
     sdkName: 'Sepolia',
-    wrappedGasToken: '0xeef12A83EE5b7161D3873317c8E0E7B76e0B5D9c',
   },
   ArbitrumSepolia: {
     displayName: 'Arbitrum Sepolia',
@@ -95,7 +88,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Arbitrum',
     symbol: 'ARB',
     sdkName: 'ArbitrumSepolia',
-    wrappedGasToken: '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73',
   },
   BaseSepolia: {
     displayName: 'Base Sepolia',
@@ -104,7 +96,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Base',
     symbol: 'BASE',
     sdkName: 'BaseSepolia',
-    wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   OptimismSepolia: {
     displayName: 'Optimism Sepolia',
@@ -113,7 +104,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Optimism',
     symbol: 'OP',
     sdkName: 'OptimismSepolia',
-    wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Scroll: {
     displayName: 'Scroll',
@@ -122,7 +112,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Scroll',
     symbol: 'SCR',
     sdkName: 'Scroll',
-    wrappedGasToken: '0x5300000000000000000000000000000000000004',
   },
   Blast: {
     displayName: 'Blast',
@@ -131,7 +120,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Blast',
     symbol: 'BLAST',
     sdkName: 'Blast',
-    wrappedGasToken: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
   },
   Xlayer: {
     displayName: 'X Layer',
@@ -140,7 +128,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Xlayer',
     symbol: 'OKX',
     sdkName: 'Xlayer',
-    wrappedGasToken: '0xa2aFfd8301BfB3c5b815829f2F509f053556D21B',
   },
   Mantle: {
     displayName: 'Mantle',
@@ -149,7 +136,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Mantle',
     symbol: 'MNT',
     sdkName: 'Mantle',
-    wrappedGasToken: '0xa4c4cb2A072eE99f77212Fa18c2B7Ca26DA23905',
   },
   Worldchain: {
     displayName: 'World Chain',
@@ -166,7 +152,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Unichain',
     symbol: 'UNI',
     sdkName: 'Unichain',
-    wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Mezo: {
     displayName: 'Mezo',
@@ -175,5 +160,21 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Mezo',
     sdkName: 'Mezo',
     symbol: 'MEZO',
+  },
+  Linea: {
+    displayName: 'Linea',
+    sdkName: 'Linea',
+    explorerUrl: 'https://sepolia.lineascan.build/',
+    explorerName: 'Lineascan',
+    icon: 'Linea',
+    symbol: 'LINEA',
+  },
+  Sonic: {
+    displayName: 'Sonic',
+    sdkName: 'Sonic',
+    explorerUrl: 'https://sonicscan.org/',
+    explorerName: 'Sonicscan',
+    icon: 'Linea',
+    symbol: 'S',
   },
 };

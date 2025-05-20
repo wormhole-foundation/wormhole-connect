@@ -193,7 +193,6 @@ export interface ChainConfig {
   displayName: string;
   explorerUrl: string;
   explorerName: string;
-  wrappedGasToken?: string;
   icon: Chain;
   symbol?: string;
 }

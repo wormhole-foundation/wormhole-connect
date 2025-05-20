@@ -8,7 +8,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Etherscan',
     icon: 'Ethereum',
     symbol: 'ETH',
-    wrappedGasToken: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   },
   Bsc: {
     displayName: 'BSC',
@@ -17,7 +16,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'BscScan',
     icon: 'Bsc',
     symbol: 'BSC',
-    wrappedGasToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
   },
   Polygon: {
     displayName: 'Polygon',
@@ -26,7 +24,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'PolygonScan',
     icon: 'Polygon',
     symbol: 'POL',
-    wrappedGasToken: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
   },
   Avalanche: {
     displayName: 'Avalanche',
@@ -35,7 +32,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Avascan',
     icon: 'Avalanche',
     symbol: 'AVAX',
-    wrappedGasToken: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
   },
   Fantom: {
     displayName: 'Fantom',
@@ -44,7 +40,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Fantom Explorer',
     icon: 'Fantom',
     symbol: 'FTM',
-    wrappedGasToken: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
   },
   Celo: {
     displayName: 'Celo',
@@ -61,7 +56,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Moonscan',
     icon: 'Moonbeam',
     symbol: 'GLMR',
-    wrappedGasToken: '0xAcc15dC74880C9944775448304B263D191c6077F',
   },
   Solana: {
     displayName: 'Solana',
@@ -70,7 +64,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Solana Explorer',
     icon: 'Solana',
     symbol: 'SOL',
-    wrappedGasToken: 'So11111111111111111111111111111111111111112',
   },
   Sui: {
     displayName: 'Sui',
@@ -95,7 +88,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'BaseScan',
     icon: 'Base',
     symbol: 'BASE',
-    wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Arbitrum: {
     displayName: 'Arbitrum',
@@ -104,7 +96,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Arbitrum Explorer',
     icon: 'Arbitrum',
     symbol: 'ARB',
-    wrappedGasToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   },
   Optimism: {
     displayName: 'Optimism',
@@ -113,7 +104,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Optimistic Etherscan',
     icon: 'Optimism',
     symbol: 'OP',
-    wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Klaytn: {
     displayName: 'Kaia',
@@ -122,7 +112,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Kaia Scope',
     icon: 'Klaytn',
     symbol: 'KLAY',
-    wrappedGasToken: '0xe4f05A66Ec68B54A58B17c22107b02e0232cC817',
   },
   Scroll: {
     displayName: 'Scroll',
@@ -131,7 +120,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Scrollscan',
     icon: 'Scroll',
     symbol: 'SCR',
-    wrappedGasToken: '0x5300000000000000000000000000000000000004',
   },
   Blast: {
     displayName: 'Blast',
@@ -140,7 +128,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Blastscan',
     icon: 'Blast',
     symbol: 'BLAST',
-    wrappedGasToken: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
   },
   Xlayer: {
     displayName: 'X Layer',
@@ -149,7 +136,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'OKX Explorer',
     icon: 'Xlayer',
     symbol: 'OKX',
-    wrappedGasToken: '0xe538905cf8410324e03A5A23C1c177a474D59b2b',
   },
   Mantle: {
     displayName: 'Mantle',
@@ -158,7 +144,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Mantle Explorer',
     icon: 'Mantle',
     symbol: 'MNT',
-    wrappedGasToken: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
   },
   Worldchain: {
     displayName: 'World Chain',
@@ -175,7 +160,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Uniscan',
     icon: 'Unichain',
     symbol: 'UNI',
-    wrappedGasToken: '0x4200000000000000000000000000000000000006',
   },
   Berachain: {
     displayName: 'Berachain',
@@ -184,7 +168,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Berascan',
     icon: 'Berachain',
     symbol: 'BERA',
-    wrappedGasToken: '0x6969696969696969696969696969696969696969',
   },
   Linea: {
     displayName: 'Linea',
@@ -193,7 +176,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Lineascan',
     icon: 'Linea',
     symbol: 'LINEA',
-    wrappedGasToken: '0x0000000000000000000000000000000000000000',
   },
   Sonic: {
     displayName: 'Sonic',
@@ -202,6 +184,5 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Sonicscan',
     icon: 'Linea',
     symbol: 'S',
-    wrappedGasToken: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',
   },
 };

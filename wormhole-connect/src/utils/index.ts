@@ -9,9 +9,7 @@ import { isGatewayChain } from './cosmos';
 import {
   Chain,
   Platform,
-  TokenId,
   chainToPlatform,
-  isNative,
   amount as sdkAmount,
 } from '@wormhole-foundation/sdk';
 
@@ -68,31 +66,6 @@ export function getChainConfig(chain: Chain): ChainConfig {
   const chainConfig = config.chains[chain];
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
   return chainConfig;
-}
-
-export function getWrappedToken(token: Token): Token {
-  // if token is not native, return token
-  if (isNative(token.tokenId.address)) {
-    const chainConfig = config.chains[token.chain];
-    const wrappedNativeTokenAddr = chainConfig!.wrappedGasToken;
-    if (wrappedNativeTokenAddr) {
-      const wrappedNativeToken = config.tokens.get(
-        token.chain,
-        wrappedNativeTokenAddr,
-      );
-      if (wrappedNativeToken) {
-        return wrappedNativeToken;
-      }
-    }
-  }
-
-  // Otherwise we just return the token :>
-  return token;
-}
-
-export function getWrappedTokenId(token: Token): TokenId {
-  const wrapped = getWrappedToken(token);
-  return wrapped.tokenId!;
 }
 
 export function getGasToken(chain: Chain): Token {
