@@ -64,12 +64,6 @@ export function displayWalletAddress(
   return trimAddress(address);
 }
 
-export function getChainByChainId(
-  chainId: number | string,
-): ChainConfig | undefined {
-  return config.chainsArr.filter((c) => chainId === c.chainId)[0];
-}
-
 export function getChainConfig(chain: Chain): ChainConfig {
   const chainConfig = config.chains[chain];
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);

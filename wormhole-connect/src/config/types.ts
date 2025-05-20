@@ -198,7 +198,6 @@ export interface ChainConfig extends BaseChainConfig {
   explorerUrl: string;
   explorerName: string;
   wrappedGasToken?: string;
-  chainId: number | string;
   icon: Chain;
   symbol?: string;
 }

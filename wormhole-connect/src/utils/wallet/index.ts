@@ -13,7 +13,12 @@ import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Network, Chain, UnsignedTransaction } from '@wormhole-foundation/sdk';
+import {
+  Network,
+  Chain,
+  UnsignedTransaction,
+  nativeChainIds,
+} from '@wormhole-foundation/sdk';
 
 import {
   EvmUnsignedTransaction,
@@ -69,7 +74,11 @@ export const connectWallet = async (
     throw new Error(`Unable to find wallets for chain ${chain}`);
   }
 
-  const { chainId, context } = chainConfig;
+  const { context } = chainConfig;
+  const chainId = nativeChainIds.networkChainToNativeChainId.get(
+    config.network,
+    chain,
+  );
 
   try {
     await wallet.connect({ chainId });
