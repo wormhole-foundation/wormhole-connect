@@ -310,10 +310,10 @@ const TokenList = (props: Props) => {
       }
       loading={
         props.isFetching &&
-        [1, 2, 3].map((_) => (
+        [1, 2, 3].map((x) => (
           <ListItemButton className={classes.tokenLoader} dense>
-            <Box height="39px" padding="8px 16px">
-              <Skeleton variant="circular" width="36px" height="36px" />
+            <Box padding="8px 16px">
+              <Skeleton key={x} variant="circular" width="36px" height="36px" />
             </Box>
           </ListItemButton>
         ))

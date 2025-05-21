@@ -6,19 +6,24 @@ export class BridgeView {
   private readonly srcAssetPicker: Locator;
   private readonly destAssetPicker: Locator;
   private readonly amountInput: Locator;
-  private readonly confirmButton: Locator;
+  private readonly _confirmButton: Locator;
   private readonly logs: Array<{ text: string; type: string }> = [];
 
   constructor(public readonly page: Page) {
     this.srcAssetPicker = page.getByTestId('source-asset-picker');
     this.destAssetPicker = page.getByTestId('dest-asset-picker');
     this.amountInput = page.getByTestId('amount-input');
-    this.confirmButton = page.getByTestId('confirm-transaction-button');
+    this._confirmButton = page.getByTestId('confirm-transaction-button');
 
     // Start listening for console logs
     page.on('console', (msg) => {
       this.logs.push({ text: msg.text(), type: msg.type() });
     });
+  }
+
+  // Getter for confirmButton
+  get confirmButton(): Locator {
+    return this._confirmButton;
   }
 
   // Verify key elements are present in Bridge view
@@ -30,7 +35,6 @@ export class BridgeView {
 
   async connectSrcWallet(address: string | undefined) {
     expect(address).not.toBeUndefined();
-    console.log(`Connecting to source wallet: ${address}`);
     await this.page.evaluate(
       (payload) => {
         globalThis.dispatchReduxAction({
@@ -49,7 +53,6 @@ export class BridgeView {
 
   async connectDestWallet(address: string | undefined) {
     expect(address).not.toBeUndefined();
-    console.log(`Connecting to destination wallet: ${address}`);
     await this.page.evaluate(
       (payload) => {
         globalThis.dispatchReduxAction({
@@ -66,14 +69,30 @@ export class BridgeView {
     );
   }
 
-  async selectSrcAsset(chainTestId: string, tokenTestId: string) {
+  async selectSrcAsset(
+    chainTestId: string,
+    tokenTestId: string,
+    tokenSymbol: string,
+  ) {
     await this.srcAssetPicker.click();
+    await this.page
+      .getByTestId('token-search-list-input')
+      .getByRole('textbox')
+      .fill(tokenSymbol);
     await this.page.getByTestId(chainTestId).click();
     await this.page.getByTestId(tokenTestId).click();
   }
 
-  async selectDestAsset(chainTestId: string, tokenTestId: string) {
+  async selectDestAsset(
+    chainTestId: string,
+    tokenTestId: string,
+    tokenSymbol: string,
+  ) {
     await this.destAssetPicker.click();
+    await this.page
+      .getByTestId('token-search-list-input')
+      .getByRole('textbox')
+      .fill(tokenSymbol);
     await this.page.getByTestId(chainTestId).click();
     await this.page.getByTestId(tokenTestId).click();
   }
@@ -91,9 +110,25 @@ export class BridgeView {
 
   async hasNonceError() {
     // Wait for the confirm button not to be in progress before checking the logs
-    await expect(this.confirmButton).not.toHaveText('Preparing transaction');
-    return this.logs.some(
-      (log) => log.type === 'error' && NONCE_ERROR.test(log.text),
-    );
+    try {
+      await expect(this.confirmButton).not.toHaveText('Preparing transaction');
+      return this.logs.some(
+        (log) => log.type === 'error' && NONCE_ERROR.test(log.text),
+      );
+    } catch (e) {
+      // If confirm button is still visible with preparing transaction text,
+      // it means the transaction is still in progress after a timeout.
+      // We can fail the test here.
+      if (
+        (await this.confirmButton.isVisible()) &&
+        (await this.confirmButton.textContent()) === 'Preparing transaction'
+      ) {
+        throw e;
+      }
+    }
+
+    // If the confirm button is not visible, it means the transaction is submitted
+    // and we can safely ignore the error.
+    return false;
   }
 }

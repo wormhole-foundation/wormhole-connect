@@ -27,6 +27,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type SearchInputProps = {
   value: string;
+  dataTestId?: string;
   onChange: (newValue: string) => void;
   onPaste?: (newValue: string) => void;
   placeholder?: string;
@@ -48,6 +49,7 @@ export default function SearchInput(props: SearchInputProps) {
             }, 10);
           }
         }}
+        data-testid={`${props.dataTestId}-input`}
         fullWidth
         inputProps={{
           style: {

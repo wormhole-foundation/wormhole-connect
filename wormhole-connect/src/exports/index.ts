@@ -1,6 +1,6 @@
 import WormholeConnect from '../WormholeConnect';
 
-import type { WormholeConnectTheme } from 'theme';
+import { type WormholeConnectTheme } from '../theme';
 
 import MAINNET from 'config/mainnet';
 import TESTNET from 'config/testnet';

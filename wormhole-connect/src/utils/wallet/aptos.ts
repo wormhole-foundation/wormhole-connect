@@ -1,6 +1,6 @@
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import type { Network as AptosNetwork } from '@aptos-labs/wallet-adapter-core';
-import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
+import { AptosWallet } from '@wormhole-labs/wallet-aggregator-aptos';
 import { Aptos } from '@aptos-labs/ts-sdk';
 
 import { Network } from '@wormhole-foundation/sdk';
@@ -11,14 +11,15 @@ import {
 
 import config, { getWormholeContextV2 } from 'config';
 
-export function fetchOptions() {
+export function fetchOptions(): Record<string, Wallet> {
   const aptosWalletConfig = {
     network: config.isMainnet
       ? ('mainnet' as AptosNetwork)
       : ('testnet' as AptosNetwork),
   };
   const aptosWallets: Record<string, AptosWallet> = {};
-  const walletCore = AptosWallet.walletCoreFactory(aptosWalletConfig, true, []);
+  const walletCore = AptosWallet.walletCoreFactory(aptosWalletConfig);
+
   walletCore.wallets.forEach((wallet) => {
     aptosWallets[wallet.name] = new AptosWallet(wallet, walletCore);
   });
@@ -27,7 +28,7 @@ export function fetchOptions() {
 
 export async function signAndSendTransaction(
   request: AptosUnsignedTransaction<Network, AptosChains>,
-  wallet: Wallet | undefined,
+  wallet: Wallet,
 ) {
   const payload = request.transaction;
   // The wallets do not handle Uint8Array serialization
@@ -45,7 +46,7 @@ export async function signAndSendTransaction(
   const aptos = context.getPlatform('Aptos');
   const rpc = (await aptos.getRpc('Aptos')) as Aptos;
 
-  const tx = await (wallet as AptosWallet).signAndSendTransaction({
+  const tx = await wallet.signAndSendTransaction({
     data: payload,
     options: {
       // this is set to 5 minutes in case the user takes a while to sign the transaction

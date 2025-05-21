@@ -1,4 +1,4 @@
-import { Wallet, NotSupported } from '@xlabs-libs/wallet-aggregator-core';
+import { Wallet, NotSupported } from '@wormhole-labs/wallet-aggregator-core';
 import {
   EVMWallet,
   Eip6963Wallet,
@@ -7,7 +7,7 @@ import {
   InjectedWallets,
   WalletConnectWallet,
   DEFAULT_CHAINS,
-} from '@xlabs-libs/wallet-aggregator-evm';
+} from '@wormhole-labs/wallet-aggregator-evm';
 
 import {
   EvmUnsignedTransaction,
@@ -40,11 +40,6 @@ const coalesceWormholeChainName = (name: string) =>
     'BNB Smart Chain': 'Bsc',
   }[name] || name);
 
-const eip6963Wallets = Object.entries(Eip6963Wallets).reduce(
-  (acc, [key, name]) => ({ [key]: new Eip6963Wallet(name), ...acc }),
-  {},
-);
-
 export const getWallets = () => {
   const CHAINS_CONFIG = DEFAULT_CHAINS.map((wagmiConfig) => ({
     ...wagmiConfig,
@@ -60,6 +55,11 @@ export const getWallets = () => {
       ),
     },
   }));
+
+  const eip6963Wallets = Object.entries(Eip6963Wallets).reduce(
+    (acc, [key, name]) => ({ [key]: new Eip6963Wallet(name), ...acc }),
+    {},
+  );
 
   return {
     ...eip6963Wallets,

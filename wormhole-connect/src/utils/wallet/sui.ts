@@ -1,6 +1,6 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { SuiWallet, getWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { SuiWallet, getWallets } from '@wormhole-labs/wallet-aggregator-sui';
+import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 
 import { Network } from '@wormhole-foundation/sdk';
 import {

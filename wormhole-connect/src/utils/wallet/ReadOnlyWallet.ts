@@ -4,7 +4,7 @@ import {
   IconSource,
   SendTransactionResult,
   Wallet,
-} from '@xlabs-libs/wallet-aggregator-core';
+} from '@wormhole-labs/wallet-aggregator-core';
 import { Chain, chainToChainId, NativeAddress } from '@wormhole-foundation/sdk';
 
 export class ReadOnlyWallet extends Wallet {

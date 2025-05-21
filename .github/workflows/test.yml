@@ -1,5 +1,11 @@
 name: Test
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to run the tests against"
+        required: false
+        default: "http://localhost:5173"
 
 jobs:
   e2e:
@@ -24,6 +30,7 @@ jobs:
       - name: Run Playwright tests
         run: npm run test:e2e
         env:
+          BASE_URL: ${{ github.event.inputs.base_url }}
           REACT_APP_TEST_EVM_ADDR: ${{ secrets.REACT_APP_TEST_EVM_ADDR }}
           REACT_APP_TEST_EVM_PK: ${{ secrets.REACT_APP_TEST_EVM_PK }}
           REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}

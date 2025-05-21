@@ -1,6 +1,6 @@
 import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import {
   BitgetWalletAdapter,
   CloverWalletAdapter,
@@ -23,7 +23,7 @@ import {
 import {
   SolanaWallet,
   getSolanaStandardWallets,
-} from '@xlabs-libs/wallet-aggregator-solana';
+} from '@wormhole-labs/wallet-aggregator-solana';
 
 import config from 'config';
 

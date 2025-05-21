@@ -1,5 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
-import React, { useCallback, useEffect } from 'react';
+import React, { JSX, useCallback, useEffect } from 'react';
 import { Dialog, ScopedCssBaseline } from '@mui/material';
 // import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';

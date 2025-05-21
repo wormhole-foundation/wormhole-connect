@@ -120,7 +120,7 @@ const ChainList = (props: Props) => {
             <ListItemButton
               selected={selectedChainConfig?.key === chain.key}
               className={classes.chainButton}
-              data-testid={`chain-button-${chain.key.toLocaleLowerCase()}`}
+              data-testid={`chain-button-${chain.key}`}
               onClick={() => onChainSelect(chain.key)}
             >
               <ChainIcon icon={chain.icon} />

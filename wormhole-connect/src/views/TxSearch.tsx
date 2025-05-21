@@ -208,12 +208,11 @@ function TxSearch() {
             sx={{ width: '100%', height: '100%', minHeight: '64.5px' }}
             value={state.chain}
             displayEmpty
-            placeholder="Select network"
             onChange={(e) => setChain(e)}
           >
-            <MenuItem disabled value="" key={0}>
-              Select network
-            </MenuItem>
+          <MenuItem disabled value="" key={0}>
+            <em>Select Network</em>
+          </MenuItem>
             {sortedChains.map((chain) => {
               return (
                 <MenuItem value={chain.key} key={chain.key}>

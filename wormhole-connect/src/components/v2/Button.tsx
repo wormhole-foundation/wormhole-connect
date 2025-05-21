@@ -2,47 +2,25 @@ import React, { forwardRef } from 'react';
 import { styled } from '@mui/material';
 import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
-const PrimaryButton = styled(MUIButton)<ButtonProps>(
-  ({ theme }: { theme: any }) => ({
-    padding: '8px 16px',
-    borderRadius: '8px',
-    height: '48px',
-    margin: 'auto',
-    maxWidth: '420px',
-    width: '100%',
-    boxShadow: 'none',
-    backgroundColor: theme.palette.button.primary,
-    color: theme.palette.button.primaryText,
-    '&.Mui-disabled': {
-      backgroundColor: theme.palette.button.disabled,
-      color: theme.palette.button.disabledText,
-    },
-    '&.MuiButton-root:hover': {
-      boxShadow: 'none',
-      backgroundColor: theme.palette.button.hover,
-      '&:disabled': {
-        backgroundColor: theme.palette.button.disabled,
-        color: theme.palette.button.disabledText,
-      },
-    },
-    '&.MuiButton-root:active': {
-      boxShadow: 'none',
-      backgroundColor: theme.palette.button.action,
-      color: theme.palette.button.actionText,
-    },
-  }),
-);
+const StyledPrimaryButton = styled(MUIButton)<ButtonProps>({
+  padding: '8px 16px',
+  borderRadius: '8px',
+  height: '48px',
+  margin: 'auto',
+  maxWidth: '420px',
+  width: '100%',
+  boxShadow: 'none',
+});
 
-const ErrorButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
-  backgroundColor: theme.palette.error.main,
-  color: theme.palette.error.contrastText,
-
-  '&:disabled': {
-    backgroundColor: theme.palette.error.main,
-    color: theme.palette.error.contrastText,
-    opacity: 0.4,
-  },
-}));
+const StyledErrorButton = styled(MUIButton)<ButtonProps>({
+  padding: '8px 16px',
+  borderRadius: '8px',
+  height: '48px',
+  margin: 'auto',
+  maxWidth: '420px',
+  width: '100%',
+  boxShadow: 'none',
+});
 
 type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
 
@@ -56,12 +34,54 @@ const Button = forwardRef<HTMLButtonElement, Props>((props: Props, ref) => {
   const { variant, ...rest } = props;
 
   if (variant === 'primary') {
-    return <PrimaryButton ref={ref} variant="contained" {...rest} />;
+    return (
+      <StyledPrimaryButton
+        ref={ref}
+        variant="contained"
+        {...rest}
+        sx={{
+          backgroundColor: 'button.primary',
+          color: 'button.primaryText',
+          '&.Mui-disabled': {
+            backgroundColor: 'button.disabled',
+            color: 'button.disabledText',
+          },
+          '&:hover': {
+            boxShadow: 'none',
+            backgroundColor: 'button.hover',
+            '&:disabled': {
+              backgroundColor: 'button.disabled',
+              color: 'button.disabledText',
+            },
+          },
+          '&:active': {
+            boxShadow: 'none',
+            backgroundColor: 'button.action',
+            color: 'button.actionText',
+          },
+        }}
+      />
+    );
   } else if (variant === 'error') {
-    return <ErrorButton ref={ref} variant="contained" {...rest} />;
+    return (
+      <StyledErrorButton
+        ref={ref}
+        variant="contained"
+        {...rest}
+        sx={{
+          backgroundColor: 'error.main',
+          color: 'error.contrastText',
+          '&:disabled': {
+            backgroundColor: 'error.main',
+            color: 'error.contrastText',
+            opacity: 0.4,
+          },
+        }}
+      />
+    );
   }
 
-  return <MUIButton {...rest} />;
+  return <MUIButton ref={ref} {...rest} />;
 });
 
 export default Button;
