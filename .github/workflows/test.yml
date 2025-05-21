@@ -1,5 +1,7 @@
 name: Test
 on:
+  schedule:
+    - cron: "0 0 * * 1-5" # Every weekday at midnight UTC
   workflow_dispatch:
     inputs:
       base_url:
