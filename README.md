@@ -160,7 +160,7 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Worldchain | Worldchain |
 | Unichain | Unichain |
 | Berachain | |
-| | Mezo |
+| Mezo | Mezo |
 
 ### RPC Endpoints (`rpcs`):
 
