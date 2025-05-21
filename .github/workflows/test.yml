@@ -16,7 +16,7 @@ jobs:
       run:
         working-directory: "./wormhole-connect"
     container:
-      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
       options: --user 1001 # Default user ID in Ubuntu
     steps:
       - uses: actions/checkout@v4

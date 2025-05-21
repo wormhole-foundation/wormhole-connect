@@ -121,7 +121,7 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.24.4",
     "@kev1n-peters/vite-plugin-node-polyfills": "^0.17.4",
-    "@playwright/test": "^1.50.1",
+    "@playwright/test": "^1.52.0",
     "@types/node": "^20",
     "@types/node-fetch": "^2.6.3",
     "@types/react": "^19.1.4",
