@@ -79,12 +79,13 @@ export const connectWallet = async (
   }
 
   const platform = chainToPlatform(chain);
-  const chainId = nativeChainIds.networkChainToNativeChainId.get(
+  const _chainId = nativeChainIds.networkChainToNativeChainId.get(
     config.network,
     chain,
   );
 
   try {
+    let chainId = typeof _chainId === 'bigint' ? Number(_chainId) : _chainId;
     await wallet.connect({ chainId });
   } catch (e: any) {
     if (e.message && e.message.toLowerCase().includes('rejected')) {
