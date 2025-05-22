@@ -333,7 +333,12 @@ export default (routes: string[], params: Params): HookReturn => {
 
     // Apply arbitrary routes filter if provided in the config
     if (typeof config.filterRoutes === 'function') {
-      const routeNames = Object.keys(filtered);
+      // Only include routes with a successful quote when passing route names into filterRoutes
+      // (We keep unsuccessful quotes around for other purposes)
+      const routeNames = Object.entries(filtered)
+        .filter(([_, quote]) => quote.success)
+        .map(([routeName, _]) => routeName);
+
       try {
         const filteredRoutes = config.filterRoutes([...routeNames]);
         // Ensure the filtered routes are valid route names
