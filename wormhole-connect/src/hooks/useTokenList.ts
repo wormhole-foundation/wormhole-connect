@@ -3,6 +3,7 @@ import type { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
+import type { Balances } from 'store/transferInput';
 import {
   applyTokenSearch,
   sortTokensByPreference,
@@ -18,7 +19,7 @@ interface UseTokenListParams {
   selectedToken?: Token;
   sourceToken?: Token;
   wallet: WalletData;
-  balances: Record<string, { balance: any }>;
+  balances: Balances;
   filterByBalance?: boolean; // true for source tokens, false for destination tokens
 }
 
@@ -31,7 +32,7 @@ export const useTokenList = ({
   wallet,
   balances,
   filterByBalance = false,
-}: UseTokenListParams) => {
+}: UseTokenListParams): Token[] => {
   const { getTokenPrice } = useTokens();
 
   return useMemo(() => {
@@ -63,9 +64,8 @@ export const useTokenList = ({
   }, [
     tokenList,
     searchQuery,
-    selectedChainConfig.sdkName,
+    selectedChainConfig,
     selectedToken,
-    sourceToken,
     wallet.address,
     balances,
     getTokenPrice,
