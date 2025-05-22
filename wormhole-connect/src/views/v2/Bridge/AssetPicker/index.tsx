@@ -25,8 +25,7 @@ import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { joinClass } from 'utils/style';
-import { useSourceTokenList } from 'hooks/useSourceTokenList';
-import { useDestTokenList } from 'hooks/useDestTokenList';
+import { useTokenList } from 'hooks/useTokenList';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -118,17 +117,8 @@ const AssetPicker = (props: Props) => {
     props.tokenList || [],
   );
 
-  // Use the appropriate hook based on isSource
-  const sourceTokens = useSourceTokenList({
-    tokenList: props.tokenList || [],
-    searchQuery,
-    selectedChainConfig: props.chain ? config.chains[props.chain] : ({} as any),
-    selectedToken: props.token,
-    wallet: props.wallet,
-    balances,
-  });
-
-  const destTokens = useDestTokenList({
+  // Use the unified hook with filterByBalance based on isSource
+  const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
     searchQuery,
     selectedChainConfig: props.chain ? config.chains[props.chain] : ({} as any),
@@ -136,9 +126,8 @@ const AssetPicker = (props: Props) => {
     sourceToken: props.sourceToken,
     wallet: props.wallet,
     balances,
+    filterByBalance: props.isSource, // true for source, false for destination
   });
-
-  const sortedTokens = props.isSource ? sourceTokens : destTokens;
 
   const popupState = usePopupState({
     variant: 'popover',
