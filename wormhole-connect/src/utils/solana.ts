@@ -9,7 +9,13 @@ import {
   Commitment,
   SimulatedTransactionResponse,
   LAMPORTS_PER_SOL,
+  PublicKey,
 } from '@solana/web3.js';
+import {
+  getAccount as getSplAccount,
+  getAssociatedTokenAddressSync,
+  NATIVE_MINT,
+} from '@solana/spl-token';
 
 import {
   determinePriorityFee,
@@ -18,7 +24,7 @@ import {
   SolanaUnsignedTransaction,
 } from '@wormhole-foundation/sdk-solana';
 
-import { Network } from '@wormhole-foundation/sdk';
+import { isNative, Network } from '@wormhole-foundation/sdk';
 import { isEmptyObject, sleep } from 'utils';
 import config from 'config';
 
@@ -288,4 +294,25 @@ function checkKnownSimulationError(
 
   console.table(errors);
   return true;
+}
+
+export function getAtaAddress(
+  walletAddress: string,
+  tokenAddress: string,
+): string {
+  return getAssociatedTokenAddressSync(
+    new PublicKey(
+      isNative(tokenAddress) ? NATIVE_MINT : tokenAddress.toString(),
+    ),
+    new PublicKey(walletAddress),
+  ).toString();
+}
+
+export async function getAtaOwnerAddress(ataAddress: string): Promise<string> {
+  if (!config.rpcs.Solana) {
+    throw new Error('Missing Solana RPC');
+  }
+  const connection = new Connection(config.rpcs.Solana);
+  const account = await getSplAccount(connection, new PublicKey(ataAddress));
+  return account.owner.toBase58();
 }

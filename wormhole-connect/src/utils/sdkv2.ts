@@ -19,9 +19,6 @@ import {
 } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
-import { Connection } from '@solana/web3.js';
-import { PublicKey } from '@solana/web3.js';
-import * as splToken from '@solana/spl-token';
 import { WORMSCAN } from 'config/constants';
 import { TokenTuple } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
@@ -196,18 +193,12 @@ const parseTokenBridgeReceipt = async (
 
   if (payload.to) {
     if (receipt.to === 'Solana') {
-      if (!config.rpcs.Solana) {
-        throw new Error('Missing Solana RPC');
-      }
       // the recipient on the VAA is the ATA
       const ata = payload.to.address.toNative(receipt.to).toString();
-      const connection = new Connection(config.rpcs.Solana);
       try {
-        const account = await splToken.getAccount(
-          connection,
-          new PublicKey(ata),
-        );
-        txData.recipient = account.owner.toBase58();
+        const { getAtaOwnerAddress } = await import('utils/solana');
+        const owner = await getAtaOwnerAddress(ata);
+        txData.recipient = owner;
       } catch (e) {
         console.error(e);
         txData.recipient = ata;
@@ -267,10 +258,10 @@ const parseCCTPReceipt = async (
     }
     // the recipient on the VAA is the ATA
     const ata = payload.mintRecipient.toNative(receipt.to).toString();
-    const connection = new Connection(config.rpcs.Solana);
     try {
-      const account = await splToken.getAccount(connection, new PublicKey(ata));
-      txData.recipient = account.owner.toBase58();
+      const { getAtaOwnerAddress } = await import('utils/solana');
+      const owner = await getAtaOwnerAddress(ata);
+      txData.recipient = owner;
     } catch (e) {
       console.error(e);
       txData.recipient = ata;

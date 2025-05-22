@@ -23,10 +23,6 @@ import {
   SuiUnsignedTransaction,
   SuiChains,
 } from '@wormhole-foundation/sdk-sui';
-import {
-  AptosUnsignedTransaction,
-  AptosChains,
-} from '@wormhole-foundation/sdk-aptos';
 import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import { ReadOnlyWallet } from './ReadOnlyWallet';
 
@@ -254,10 +250,7 @@ export const signAndSendTransaction = async (
     return tx.id;
   } else if (chainConfig.context === Context.APTOS) {
     const aptos = await import('utils/wallet/aptos');
-    const tx = await aptos.signAndSendTransaction(
-      request as AptosUnsignedTransaction<Network, AptosChains>,
-      wallet,
-    );
+    const tx = await aptos.signAndSendTransaction(request as any, wallet);
     return tx.id;
   } else {
     throw new Error('unimplemented');
