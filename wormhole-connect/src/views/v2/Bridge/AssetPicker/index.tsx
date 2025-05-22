@@ -25,6 +25,8 @@ import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { joinClass } from 'utils/style';
+import { useTokenList } from 'hooks/useTokenList';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
@@ -105,7 +107,27 @@ const AssetPicker = (props: Props) => {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [showChainSearch, setShowChainSearch] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { classes } = useStyles();
+
+  // Get token balances for filtering
+  const { balances } = useGetTokenBalances(
+    props.wallet,
+    props.chain,
+    props.tokenList || [],
+  );
+
+  // Use the unified hook with filterByBalance based on isSource
+  const sortedTokens = useTokenList({
+    tokenList: props.tokenList || [],
+    searchQuery,
+    selectedChainConfig: props.chain ? config.chains[props.chain] : ({} as any),
+    selectedToken: props.token,
+    sourceToken: props.sourceToken,
+    wallet: props.wallet,
+    balances,
+    filterByBalance: props.isSource, // true for source, false for destination
+  });
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -261,17 +283,18 @@ const AssetPicker = (props: Props) => {
           />
           {!showChainSearch && chainConfig && (
             <TokenList
-              tokenList={props.tokenList}
+              tokenList={sortedTokens}
               isFetching={props.isFetching}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
               wallet={props.wallet}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
                 props.setToken(key);
                 setIsDrawerOpen(false);
               }}
-              isSource={props.isSource}
             />
           )}
         </SwipeableDrawer>
@@ -310,17 +333,18 @@ const AssetPicker = (props: Props) => {
           />
           {!showChainSearch && chainConfig && (
             <TokenList
-              tokenList={props.tokenList}
+              tokenList={sortedTokens}
               isFetching={props.isFetching}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
               wallet={props.wallet}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
                 props.setToken(key);
                 popupState.close();
               }}
-              isSource={props.isSource}
             />
           )}
         </Popover>
