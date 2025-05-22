@@ -85,7 +85,7 @@ export const connectWallet = async (
   );
 
   try {
-    let chainId = typeof _chainId === 'bigint' ? Number(_chainId) : _chainId;
+    const chainId = typeof _chainId === 'bigint' ? Number(_chainId) : _chainId;
     await wallet.connect({ chainId });
   } catch (e: any) {
     if (e.message && e.message.toLowerCase().includes('rejected')) {

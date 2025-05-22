@@ -21,6 +21,8 @@ const {
   REACT_APP_WORLDCHAIN_RPC,
   REACT_APP_UNICHAIN_RPC,
   REACT_APP_BERACHAIN_RPC,
+  REACT_APP_LINEA_RPC,
+  REACT_APP_SONIC_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -45,4 +47,6 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('Worldchain', REACT_APP_WORLDCHAIN_RPC),
   ...populateRpcField('Unichain', REACT_APP_UNICHAIN_RPC),
   ...populateRpcField('Berachain', REACT_APP_BERACHAIN_RPC),
+  ...populateRpcField('Linea', REACT_APP_LINEA_RPC),
+  ...populateRpcField('Sonic', REACT_APP_SONIC_RPC),
 };

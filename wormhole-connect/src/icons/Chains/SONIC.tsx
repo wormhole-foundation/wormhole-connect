@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Linea() {
+function SONIC() {
   return (
     <svg
       width="36"
@@ -39,4 +39,4 @@ function Linea() {
   );
 }
 
-export default Linea;
+export default SONIC;
