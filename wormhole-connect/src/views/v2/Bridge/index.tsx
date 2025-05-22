@@ -242,7 +242,7 @@ const Bridge = () => {
 
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
-    () => config.chainsArr.map((c) => c.sdkName),
+    () => config.routes.allSupportedChains(),
     [config.chains],
   );
 
