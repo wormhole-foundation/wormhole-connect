@@ -6,7 +6,7 @@ import {
   toNative,
 } from '@wormhole-foundation/sdk';
 import config, { clearWormholeContextV2 } from 'config';
-import { Token, tokenKey, TokenMapping } from 'config/tokens';
+import { parseTokenKey, Token, tokenKey, TokenMapping } from 'config/tokens';
 import React, {
   createContext,
   useContext,
@@ -117,9 +117,12 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   const updateTokenPrices = useDebouncedCallback(async () => {
     if (tokenPricesToFetch.current.size === 0) return;
 
-    const tokens = config.tokens.getList(
-      Array.from(tokenPricesToFetch.current.values()),
-    );
+    const tokenIds = Array.from(tokenPricesToFetch.current.values());
+
+    const tokens = (
+      await Promise.all(tokenIds.map((t) => getOrFetchToken(parseTokenKey(t))))
+    ).filter((t) => t !== undefined);
+
     console.info('Fetching token prices', tokens);
 
     try {
