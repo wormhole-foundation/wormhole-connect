@@ -41,9 +41,9 @@ export class BridgeView {
           type: 'wallet/connectWallet',
           payload: {
             address: payload.address,
-            type: 'Ethereum',
+            type: 'Evm',
             icon: '',
-            name: 'Rabby Wallet',
+            name: 'Test Wallet',
           },
         });
       },
@@ -59,9 +59,9 @@ export class BridgeView {
           type: 'wallet/connectReceivingWallet',
           payload: {
             address: payload.address,
-            type: 'Ethereum',
+            type: 'Evm',
             icon: '',
-            name: 'Rabby Wallet',
+            name: 'Test Wallet',
           },
         });
       },
@@ -75,11 +75,11 @@ export class BridgeView {
     tokenSymbol: string,
   ) {
     await this.srcAssetPicker.click();
+    await this.page.getByTestId(chainTestId).click();
     await this.page
       .getByTestId('token-search-list-input')
       .getByRole('textbox')
       .fill(tokenSymbol);
-    await this.page.getByTestId(chainTestId).click();
     await this.page.getByTestId(tokenTestId).click();
   }
 
@@ -89,11 +89,11 @@ export class BridgeView {
     tokenSymbol: string,
   ) {
     await this.destAssetPicker.click();
+    await this.page.getByTestId(chainTestId).click();
     await this.page
       .getByTestId('token-search-list-input')
       .getByRole('textbox')
       .fill(tokenSymbol);
-    await this.page.getByTestId(chainTestId).click();
     await this.page.getByTestId(tokenTestId).click();
   }
 
