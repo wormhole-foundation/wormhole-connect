@@ -4,19 +4,17 @@ import { makeStyles } from 'tss-react/mui';
 export type Alignment = 'center' | 'left' | 'right';
 
 type StyleProps = { align: Alignment; fontSize: number };
-const useStyles = makeStyles<StyleProps>()(
-  (theme, { align, fontSize }) => ({
-    title: {
-      fontSize: `${fontSize}px`,
-      width: '100%',
-      textAlign: align,
-      fontFamily: theme.typography.fontFamily,
-      [theme.breakpoints.down('sm')]: {
-        fontSize: '24px',
-      },
+const useStyles = makeStyles<StyleProps>()((theme, { align, fontSize }) => ({
+  title: {
+    fontSize: `${fontSize}px`,
+    width: '100%',
+    textAlign: align,
+    fontFamily: theme.typography.fontFamily,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '24px',
     },
-  }),
-);
+  },
+}));
 
 type Props = {
   text: string;

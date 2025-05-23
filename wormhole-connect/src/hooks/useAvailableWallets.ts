@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { Context } from 'sdklegacy';
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, chainToPlatform, Platform } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { WalletData, getWalletOptions } from 'utils/wallet';
@@ -14,7 +13,7 @@ type WalletOptions = {
 
 type Props = {
   chain: Chain | undefined;
-  supportedChains: Set<Context>;
+  supportedChains: Set<Platform>;
 };
 
 type ReturnProps = {
@@ -42,7 +41,10 @@ export const useAvailableWallets = (props: Props): ReturnProps => {
 
       const chainConfig = config.chains[chain];
 
-      if (chainConfig && supportedChains.has(chainConfig.context)) {
+      if (
+        chainConfig &&
+        supportedChains.has(chainToPlatform(chainConfig.sdkName))
+      ) {
         return await getWalletOptions(chainConfig);
       } else {
         return [];

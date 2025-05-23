@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { isHexString } from 'ethers';
 import { isValidTransactionDigest } from '@mysten/sui/utils';
-import { Context } from 'sdklegacy';
 
 import config from 'config';
 import { ChainConfig } from 'config/types';
@@ -9,9 +8,8 @@ import { Token } from 'config/tokens';
 import { isGatewayChain } from './cosmos';
 import {
   Chain,
-  TokenId,
+  Platform,
   chainToPlatform,
-  isNative,
   amount as sdkAmount,
 } from '@wormhole-foundation/sdk';
 
@@ -52,53 +50,22 @@ export function displayAddress(chain: Chain, address: string): string {
 }
 
 export function displayWalletAddress(
-  walletType: Context | undefined,
+  walletType: Platform | undefined,
   address: string,
 ): string {
   if (!walletType) return '';
-  if (walletType === Context.ETH) {
+  if (walletType === 'Evm') {
     return trimAddress(convertAddress(address));
-  } else if (walletType === Context.SOLANA) {
+  } else if (walletType === 'Solana') {
     return trimAddress(address, 4);
   }
   return trimAddress(address);
-}
-
-export function getChainByChainId(
-  chainId: number | string,
-): ChainConfig | undefined {
-  return config.chainsArr.filter((c) => chainId === c.chainId)[0];
 }
 
 export function getChainConfig(chain: Chain): ChainConfig {
   const chainConfig = config.chains[chain];
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
   return chainConfig;
-}
-
-export function getWrappedToken(token: Token): Token {
-  // if token is not native, return token
-  if (isNative(token.tokenId.address)) {
-    const chainConfig = config.chains[token.chain];
-    const wrappedNativeTokenAddr = chainConfig!.wrappedGasToken;
-    if (wrappedNativeTokenAddr) {
-      const wrappedNativeToken = config.tokens.get(
-        token.chain,
-        wrappedNativeTokenAddr,
-      );
-      if (wrappedNativeToken) {
-        return wrappedNativeToken;
-      }
-    }
-  }
-
-  // Otherwise we just return the token :>
-  return token;
-}
-
-export function getWrappedTokenId(token: Token): TokenId {
-  const wrapped = getWrappedToken(token);
-  return wrapped.tokenId!;
 }
 
 export function getGasToken(chain: Chain): Token {

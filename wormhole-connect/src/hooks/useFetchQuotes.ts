@@ -64,11 +64,6 @@ export default (routes: string[], params: Params): HookReturn => {
   const { isTransactionInProgress } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const usdValue = calculateUSDPriceRaw(
-    getTokenPrice,
-    params.amount,
-    params.sourceToken,
-  );
 
   useEffect(() => {
     if (routes.length === 0) return;
@@ -223,10 +218,19 @@ export default (routes: string[], params: Params): HookReturn => {
   ]);
 
   const quotes = useMemo(() => {
+    const usdValue = calculateUSDPriceRaw(
+      getTokenPrice,
+      params.amount,
+      params.sourceToken,
+    );
+
     let filtered = Object.assign({}, unfilteredQuotes);
 
     // Filter out quotes that would result in a large instant loss
     // (Transfers >=$1000 with >=10% value loss)
+    //
+    // OR if both tokens have the same symbol and we fail to fetch a USD for either of them
+    // we assume they are the same token and just compare the token amounts.
     for (const name in filtered) {
       const quote = filtered[name];
 
@@ -237,10 +241,31 @@ export default (routes: string[], params: Params): HookReturn => {
           params.destToken,
         );
 
-        if (usdValue && usdValueOut) {
+        if (usdValue !== undefined && usdValueOut !== undefined) {
           const valueRatio = usdValueOut / usdValue;
           if (usdValue >= 1000 && valueRatio <= 0.9) {
             // Don't offer quotes where the USD value out delta exceeds a $1,000 or 10% loss
+            console.debug(
+              `Filtering out ${name} quote with valueRatio=${valueRatio} USD delta=${
+                usdValue - usdValueOut
+              }`,
+            );
+            delete filtered[name];
+          }
+        } else if (
+          params.amount &&
+          params.sourceToken &&
+          params.destToken &&
+          params.sourceToken.symbol === params.destToken.symbol
+        ) {
+          const valueRatio =
+            parseFloat(amount.display(quote.destinationToken.amount)) /
+            parseFloat(amount.display(params.amount));
+
+          if (valueRatio <= 0.9) {
+            console.debug(
+              `Filtering out ${name} quote with valueRatio=${valueRatio} (for same-symbol tokens)`,
+            );
             delete filtered[name];
           }
         }
@@ -333,7 +358,12 @@ export default (routes: string[], params: Params): HookReturn => {
 
     // Apply arbitrary routes filter if provided in the config
     if (typeof config.filterRoutes === 'function') {
-      const routeNames = Object.keys(filtered);
+      // Only include routes with a successful quote when passing route names into filterRoutes
+      // (We keep unsuccessful quotes around for other purposes)
+      const routeNames = Object.entries(filtered)
+        .filter(([_, quote]) => quote.success)
+        .map(([routeName, _]) => routeName);
+
       try {
         const filteredRoutes = config.filterRoutes([...routeNames]);
         // Ensure the filtered routes are valid route names

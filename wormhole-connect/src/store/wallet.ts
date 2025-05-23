@@ -1,5 +1,5 @@
-import { Context } from 'sdklegacy';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Platform } from '@wormhole-foundation/sdk';
 import {
   disconnect,
   swapWalletConnections,
@@ -8,7 +8,7 @@ import {
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
 
 export type WalletData = {
-  type: Context | undefined;
+  type: Platform | undefined;
   address: string;
   currentAddress: string;
   error: string;
@@ -37,7 +37,7 @@ const initialState: WalletState = {
 
 export type ConnectPayload = {
   address: string;
-  type: Context;
+  type: Platform;
   icon?: string;
   name: string;
 };

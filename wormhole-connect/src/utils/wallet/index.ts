@@ -1,4 +1,4 @@
-import { Context, ChainConfig } from 'sdklegacy';
+import { ChainConfig } from 'config/types';
 import { Wallet, WalletState } from '@wormhole-labs/wallet-aggregator-core';
 import {
   connectWallet as connectSourceWallet,
@@ -13,7 +13,14 @@ import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Network, Chain, UnsignedTransaction } from '@wormhole-foundation/sdk';
+import {
+  Network,
+  Chain,
+  UnsignedTransaction,
+  nativeChainIds,
+  Platform,
+  chainToPlatform,
+} from '@wormhole-foundation/sdk';
 
 import {
   EvmUnsignedTransaction,
@@ -40,13 +47,15 @@ const walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
-export const walletAcceptedChains = (context: Context | undefined): Chain[] => {
-  if (!context) {
-    return config.chainsArr.map((c) => c.key);
+export const walletAcceptedChains = (
+  platform: Platform | undefined,
+): Chain[] => {
+  if (!platform) {
+    return config.chainsArr.map((c) => c.sdkName);
   }
   return config.chainsArr
-    .filter((c) => c.context === context)
-    .map((c) => c.key);
+    .filter((c) => chainToPlatform(c.sdkName) === platform)
+    .map((c) => c.sdkName);
 };
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
@@ -69,9 +78,14 @@ export const connectWallet = async (
     throw new Error(`Unable to find wallets for chain ${chain}`);
   }
 
-  const { chainId, context } = chainConfig;
+  const platform = chainToPlatform(chain);
+  const _chainId = nativeChainIds.networkChainToNativeChainId.get(
+    config.network,
+    chain,
+  );
 
   try {
+    let chainId = typeof _chainId === 'bigint' ? Number(_chainId) : _chainId;
     await wallet.connect({ chainId });
   } catch (e: any) {
     if (e.message && e.message.toLowerCase().includes('rejected')) {
@@ -115,7 +129,7 @@ export const connectWallet = async (
     setTimeout(() => {
       dispatch(clearWallet(type));
     }, 0);
-    localStorage.removeItem(`wormhole-connect:wallet:${context}`);
+    localStorage.removeItem(`wormhole-connect:wallet:${platform}`);
   });
 
   // when the user has multiple wallets connected and either changes
@@ -131,7 +145,7 @@ export const connectWallet = async (
   });
 
   if (name !== ReadOnlyWallet.NAME) {
-    localStorage.setItem(`wormhole-connect:wallet:${context}`, name);
+    localStorage.setItem(`wormhole-connect:wallet:${platform}`, name);
   }
 
   return true;
@@ -145,7 +159,9 @@ export const connectLastUsedWallet = async (
   dispatch: Dispatch<any>,
 ) => {
   const chainConfig = config.chains[chain!]!;
-  const localStorageKey = `wormhole-connect:wallet:${chainConfig.context}`;
+  const localStorageKey = `wormhole-connect:wallet:${chainToPlatform(
+    chainConfig.sdkName,
+  )}`;
   const lastUsedWallet = localStorage.getItem(localStorageKey);
 
   // if the last used wallet is not WalletConnect, try to connect to it
@@ -161,7 +177,7 @@ export const connectLastUsedWallet = async (
       } catch (e: any) {
         localStorage.removeItem(localStorageKey);
         throw new Error(
-          `Failed to autoconnect to wallet ${lastUsedWallet} for ${chain} (${chainConfig.context}): ${e.message}`,
+          `Failed to autoconnect to wallet ${lastUsedWallet} for ${chain}: ${e.message}`,
         );
       }
     }
@@ -229,7 +245,9 @@ export const signAndSendTransaction = async (
     throw new Error('wallet is undefined');
   }
 
-  if (chainConfig.context === Context.ETH) {
+  const platform = chainToPlatform(chainConfig.sdkName);
+
+  if (platform === 'Evm') {
     const evm = await import('utils/wallet/evm');
     const tx = await evm.signAndSendTransaction(
       request as EvmUnsignedTransaction<Network, EvmChains>,
@@ -237,7 +255,7 @@ export const signAndSendTransaction = async (
       chain,
     );
     return tx;
-  } else if (chainConfig.context === Context.SOLANA) {
+  } else if (platform === 'Solana') {
     const solana = await import('utils/wallet/solana');
     const signature = await solana.signAndSendTransaction(
       request as SolanaUnsignedTransaction<Network>,
@@ -245,14 +263,14 @@ export const signAndSendTransaction = async (
       options,
     );
     return signature;
-  } else if (chainConfig.context === Context.SUI) {
+  } else if (platform === 'Sui') {
     const sui = await import('utils/wallet/sui');
     const tx = await sui.signAndSendTransaction(
       request as SuiUnsignedTransaction<Network, SuiChains>,
       wallet,
     );
     return tx.id;
-  } else if (chainConfig.context === Context.APTOS) {
+  } else if (platform === 'Aptos') {
     const aptos = await import('utils/wallet/aptos');
     const tx = await aptos.signAndSendTransaction(
       request as AptosUnsignedTransaction<Network, AptosChains>,
@@ -271,7 +289,7 @@ const getReady = (wallet: Wallet) => {
 
 export type WalletData = {
   name: string;
-  type: Context;
+  type: Platform;
   icon: string;
   isReady: boolean;
   wallet: Wallet;
@@ -279,7 +297,7 @@ export type WalletData = {
 
 const mapWallets = (
   wallets: Record<string, Wallet>,
-  type: Context,
+  type: Platform,
   skip: string[] = [],
 ): WalletData[] => {
   return Object.values(wallets)
@@ -298,25 +316,27 @@ const mapWallets = (
 };
 
 export const getWalletOptions = async (
-  config: ChainConfig | undefined,
+  chain: ChainConfig | undefined,
 ): Promise<WalletData[]> => {
-  if (config === undefined) {
+  if (chain === undefined) {
     return [];
-  } else if (config.context === Context.ETH) {
+  }
+  const platform = chainToPlatform(chain.sdkName);
+  if (platform === 'Evm') {
     const evm = await import('utils/wallet/evm');
-    return Object.values(mapWallets(evm.getWallets(), Context.ETH));
-  } else if (config.context === Context.SOLANA) {
+    return Object.values(mapWallets(evm.getWallets(), platform));
+  } else if (platform === 'Solana') {
     const solana = await import('utils/wallet/solana');
     const solanaWallets = solana.fetchOptions();
-    return Object.values(mapWallets(solanaWallets, Context.SOLANA));
-  } else if (config.context === Context.SUI) {
+    return Object.values(mapWallets(solanaWallets, platform));
+  } else if (platform === 'Sui') {
     const suiWallet = await import('utils/wallet/sui');
     const suiOptions = await suiWallet.fetchOptions();
-    return Object.values(mapWallets(suiOptions, Context.SUI));
-  } else if (config.context === Context.APTOS) {
+    return Object.values(mapWallets(suiOptions, platform));
+  } else if (platform === 'Aptos') {
     const aptosWallet = await import('utils/wallet/aptos');
     const aptosOptions = aptosWallet.fetchOptions();
-    return Object.values(mapWallets(aptosOptions, Context.APTOS));
+    return Object.values(mapWallets(aptosOptions, platform));
   }
   return [];
 };

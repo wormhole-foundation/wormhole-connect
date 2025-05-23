@@ -129,8 +129,7 @@ const SingleRoute = (props: Props) => {
   const { sourceToken, destToken } = useGetTokens();
 
   const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
-    destChain,
-    destToken: destToken?.key,
+    destToken,
     route: props.route,
     isTransactionInProgress,
   });

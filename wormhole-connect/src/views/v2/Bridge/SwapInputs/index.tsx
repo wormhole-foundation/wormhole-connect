@@ -4,7 +4,6 @@ import IconButton from '@mui/material/IconButton';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { makeStyles } from 'tss-react/mui';
 
-import config from 'config';
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
@@ -29,12 +28,7 @@ function SwapInputs() {
     (state: RootState) => state.transferInput,
   );
 
-  const canSwap =
-    !isTransactionInProgress &&
-    fromChain &&
-    !config.chains[fromChain]?.disabledAsDestination &&
-    toChain &&
-    !config.chains[toChain]?.disabledAsSource;
+  const canSwap = !isTransactionInProgress && fromChain && toChain;
 
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;

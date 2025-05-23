@@ -38,7 +38,7 @@ const useGetTokenBalances = (
       setIsFetching(false);
       return;
     }
-    if (chainConfig.context !== wallet.type) {
+    if (chainToPlatform(chainConfig.sdkName) !== wallet.type) {
       // Invalid wallet
       setIsFetching(false);
       return;

@@ -132,10 +132,10 @@ const AssetPicker = (props: Props) => {
       (!mobile && popupState.isOpen && !props.chain)
     ) {
       const firstAllowedChain = props.chainList.find(
-        (chain) => !isDisabledChain(chain.key, props.wallet),
+        (chain) => !isDisabledChain(chain.sdkName, props.wallet),
       );
       if (firstAllowedChain) {
-        props.setChain(firstAllowedChain.key);
+        props.setChain(firstAllowedChain.sdkName);
       }
     }
     // Re-run only when popup/drawer state changes

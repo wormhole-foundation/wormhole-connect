@@ -210,16 +210,16 @@ function TxSearch() {
             displayEmpty
             onChange={(e) => setChain(e)}
           >
-          <MenuItem disabled value="" key={0}>
-            <em>Select Network</em>
-          </MenuItem>
+            <MenuItem disabled value="" key={0}>
+              <em>Select Network</em>
+            </MenuItem>
             {sortedChains.map((chain) => {
               return (
-                <MenuItem value={chain.key} key={chain.key}>
+                <MenuItem value={chain.sdkName} key={chain.sdkName}>
                   <Box
                     sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
-                    <ChainIconComponent icon={chain.key} height={24} />
+                    <ChainIconComponent icon={chain.sdkName} height={24} />
                     {chain.displayName}
                   </Box>
                 </MenuItem>

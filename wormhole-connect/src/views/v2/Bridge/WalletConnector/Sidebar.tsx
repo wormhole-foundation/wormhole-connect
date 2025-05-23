@@ -1,6 +1,7 @@
 import React, { JSX, useCallback, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
+import { chainToPlatform } from '@wormhole-foundation/sdk';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
@@ -91,7 +92,9 @@ const WalletSidebar = (props: Props) => {
   const [addressError, setAddressError] = useState('');
 
   const supportedChains = useMemo(() => {
-    const networkContext = config.chainsArr.map((chain) => chain.context);
+    const networkContext = config.chainsArr.map((chain) =>
+      chainToPlatform(chain.sdkName),
+    );
     return new Set(networkContext);
   }, []);
 
@@ -142,7 +145,7 @@ const WalletSidebar = (props: Props) => {
 
     const walletInfo: WalletData = {
       name: wallet.getName(),
-      type: chainConfig.context,
+      type: chainToPlatform(chainConfig.sdkName),
       icon: wallet.getIcon(),
       isReady: true,
       wallet,

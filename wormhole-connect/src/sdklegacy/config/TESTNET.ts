@@ -1,108 +1,4 @@
-import { Chain } from '@wormhole-foundation/sdk';
-import { WormholeConfig, Context, ChainConfig } from '../types';
-
-const TESTNET: { [chain in Chain]?: ChainConfig } = {
-  Solana: {
-    key: 'Solana',
-    id: 1,
-    context: Context.SOLANA,
-  },
-  Bsc: {
-    key: 'Bsc',
-    id: 4,
-    context: Context.ETH,
-  },
-  Avalanche: {
-    key: 'Avalanche',
-    id: 6,
-    context: Context.ETH,
-  },
-  Fantom: {
-    key: 'Fantom',
-    id: 10,
-    context: Context.ETH,
-  },
-  Celo: {
-    key: 'Celo',
-    id: 14,
-    context: Context.ETH,
-  },
-  Moonbeam: {
-    key: 'Moonbeam',
-    id: 16,
-    context: Context.ETH,
-  },
-  Sui: {
-    key: 'Sui',
-    id: 21,
-    context: Context.SUI,
-  },
-  Aptos: {
-    key: 'Aptos',
-    id: 22,
-    context: Context.APTOS,
-  },
-  Klaytn: {
-    key: 'Klaytn',
-    id: 13,
-    context: Context.ETH,
-  },
-  Scroll: {
-    key: 'Scroll',
-    id: 34,
-    context: Context.ETH,
-  },
-  Blast: {
-    key: 'Blast',
-    id: 36,
-    context: Context.ETH,
-  },
-  Xlayer: {
-    key: 'Xlayer',
-    id: 37,
-    context: Context.ETH,
-  },
-  Sepolia: {
-    key: 'Sepolia',
-    id: 10002,
-    context: Context.ETH,
-  },
-  ArbitrumSepolia: {
-    key: 'ArbitrumSepolia',
-    id: 10003,
-    context: Context.ETH,
-  },
-  BaseSepolia: {
-    key: 'BaseSepolia',
-    id: 10004,
-    context: Context.ETH,
-  },
-  OptimismSepolia: {
-    key: 'OptimismSepolia',
-    id: 10005,
-    context: Context.ETH,
-  },
-  Mantle: {
-    key: 'Mantle',
-    id: 35,
-    context: Context.ETH,
-  },
-  Unichain: {
-    key: 'Unichain',
-    id: 44,
-    context: Context.ETH,
-  },
-  Worldchain: {
-    key: 'Worldchain',
-    id: 45,
-    context: Context.ETH,
-  },
-  Mezo: {
-    key: 'Mezo',
-    id: 50,
-    context: Context.ETH,
-  },
-} as const;
+import { WormholeConfig } from '../types';
 
 /**
  * default testnet chain config
@@ -138,7 +34,6 @@ const TESTNET_CONFIG: WormholeConfig = {
     Unichain: 'https://sepolia.unichain.org',
     Mezo: 'https://rpc.test.mezo.org',
   },
-  chains: TESTNET,
 };
 
 export default TESTNET_CONFIG;
