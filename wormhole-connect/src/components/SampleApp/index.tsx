@@ -22,6 +22,7 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
  * - TokenBridgeRoute
  * - AutomaticCCTPRoute
  * - ManualCCTPRoute
+ * - AutomaticTokenBridgeRouteV3
  *
  * We also make the following test utilities available:
  * - nttTestRoutesMainnet
@@ -42,6 +43,7 @@ import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { nttRoutes } from 'exports/ntt';
 import { cctpExecutorRoute } from 'exports/executor';
+import { AutomaticTokenBridgeRouteV3 } from '@xlabs-xyz/arbitrary-token-transfer-route';
 import { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -83,6 +85,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
       /* @ts-ignore */
       window.cctpExecutorRoute = cctpExecutorRoute;
+      /* @ts-ignore */
+      window.AutomaticTokenBridgeRouteV3 = AutomaticTokenBridgeRouteV3;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -299,6 +303,10 @@ function SampleApp() {
                   <li>
                     <pre>cctpExecutorRoute</pre>
                     <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>AutomaticTokenBridgeRouteV3</pre>
+                    <i>{'RouteConstructor'}</i>
                   </li>
                 </ul>
               </div>

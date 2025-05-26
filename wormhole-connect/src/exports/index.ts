@@ -11,6 +11,7 @@ export * as config from 'config/types';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { routes } from '@wormhole-foundation/sdk';
 
+import { AutomaticTokenBridgeRouteV3 } from '@xlabs-xyz/arbitrary-token-transfer-route';
 import type { Chain } from '@wormhole-foundation/sdk';
 
 import { Token } from 'config/tokens';
@@ -43,6 +44,7 @@ export {
   AutomaticCCTPRoute,
   CCTPRoute,
   AutomaticPorticoRoute,
+  AutomaticTokenBridgeRouteV3,
 };
 
 export * from 'telemetry';
