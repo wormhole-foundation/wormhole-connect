@@ -1,5 +1,6 @@
 import {
   chainToPlatform,
+  circle,
   isNative,
   TokenId,
   toNative,
@@ -156,6 +157,11 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   }, 250);
 
   const getTokenPrice = (token: Token): number | undefined => {
+    const usdc = circle.usdcContract.get(config.network, token.chain);
+    if (usdc && token.addressString === usdc) {
+      // USDC is a special case since it's a stablecoin and its price is always 1 USD.
+      return 1;
+    }
     // For wrapped tokens, we use the original token's price since they are equivalent.
     const tokenId = token.tokenBridgeOriginalTokenId ?? token;
     const cachedPrice = tokenPrices.get(tokenId);
