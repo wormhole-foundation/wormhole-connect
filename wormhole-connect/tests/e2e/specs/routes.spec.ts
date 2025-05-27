@@ -30,6 +30,7 @@ test.afterAll(async () => {
 testConfigs.forEach(
   ({
     config,
+    enabled,
     destinationAsset,
     destinationWallet,
     name,
@@ -42,6 +43,8 @@ testConfigs.forEach(
       `Should configure transaction - ${name}`,
       { tag: '@noWallet' },
       async () => {
+        test.skip(!enabled, `Test ${name} is disabled`);
+
         const configQuery = compressToBase64(config);
 
         // Navigate to brige view
@@ -78,6 +81,8 @@ testConfigs.forEach(
     );
 
     test(`Should complete transaction - ${name}`, async () => {
+      test.skip(!enabled, `Test ${name} is disabled`);
+
       const configQuery = compressToBase64(config);
 
       // Navigate to brige view
