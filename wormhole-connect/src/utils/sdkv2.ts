@@ -24,7 +24,6 @@ import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
 import { WORMSCAN } from 'config/constants';
 import { TokenTuple } from 'config/tokens';
-import { isExecutorRoute } from 'utils';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -66,7 +65,6 @@ export type ExplorerInfo = {
 export function getExplorerInfo(
   route: string | routes.Route<Network>,
   txHash: string,
-  chain?: Chain,
 ): ExplorerInfo {
   const routeName =
     typeof route === 'string'
@@ -77,18 +75,6 @@ export function getExplorerInfo(
     return {
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',
-    };
-  } else if (isExecutorRoute(routeName)) {
-    // TODO Remove once Wormholescan explorer supports Executor routes
-    // USDC.range supports Mainnet only
-    // Hack: USDC.range expects Sui txHash to be lower case (I know, ridicilous)
-    return {
-      url: config.isMainnet
-        ? `https://usdc.range.org/usdc/status/${
-            chain === 'Sui' ? txHash?.toLowerCase() : txHash
-          }`
-        : '',
-      name: 'USDC.range Explorer',
     };
   } else {
     return {
