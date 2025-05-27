@@ -35,15 +35,15 @@ jobs:
         run: npm ci
       - name: Run Playwright tests with wallet
         if: ${{ startsWith(github.event.inputs.base_url, 'http://localhost') || github.event_name == 'schedule' }}
-        run: npm run test:e2e -- --grep-invert @noWallet
+        run: npm run test:e2e:with-wallet
         env:
           BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:5173' }}
           REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
           REACT_APP_TEST_EVM_ADDR: ${{ secrets.REACT_APP_TEST_EVM_ADDR }}
           REACT_APP_TEST_EVM_PK: ${{ secrets.REACT_APP_TEST_EVM_PK }}
-      - name: Run Playwright tests with no wallet
+      - name: Run Playwright tests without wallet
         if: ${{ !startsWith(github.event.inputs.base_url, 'http://localhost') ||  github.event_name == 'pull_request' }}
-        run: npm run test:e2e -- --grep @noWallet
+        run: npm run test:e2e:without-wallet
         env:
           BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:5173' }}
           REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
