@@ -79,6 +79,7 @@ const GasSlider = (props: {
   destinationGasDrop: amount.Amount;
   disabled: boolean;
   isExecutorRoute: boolean;
+  isSelected: boolean;
 }) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
@@ -96,7 +97,16 @@ const GasSlider = (props: {
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
   const [percentage, setPercentage] = useState(0);
 
-  const [debouncedPercentage] = useDebounce(percentage, 500);
+  const [debouncedPercentage] = useDebounce(percentage, 300);
+
+  useEffect(() => {
+    if (!props.isSelected) {
+      // When Route is not selected ensure that the gas slider is closed
+      // and the percentage is set to 0.
+      setIsGasSliderOpen(false);
+      setPercentage(0);
+    }
+  }, [dispatch, props.isSelected]);
 
   useEffect(() => {
     dispatch(setToNativeToken(debouncedPercentage / 100));
