@@ -599,6 +599,7 @@ const SingleRoute = (props: Props) => {
                   }
                   disabled={isGasSliderDisabled}
                   isExecutorRoute={isExecutorRoute(props.route)}
+                  isSelected={isSelected}
                 />
               </Collapse>
             </>

@@ -3,6 +3,7 @@ import { type Chain } from '@wormhole-foundation/sdk';
 export type TestConfig = {
   name: string;
   config: string;
+  enabled: boolean;
   sourceWallet: {
     address: string;
     privateKey: string;

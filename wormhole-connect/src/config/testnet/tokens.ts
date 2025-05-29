@@ -215,6 +215,15 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
+    symbol: 'USDC',
+    icon: TokenIcon.USDC,
+    decimals: 6,
+    tokenId: {
+      chain: 'BaseSepolia',
+      address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    },
+  },
+  {
     symbol: 'ETH',
     icon: TokenIcon.ETH,
     decimals: 18,
@@ -342,5 +351,41 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
     decimals: 18,
     icon: TokenIcon.BTC,
+  },
+  {
+    symbol: 'ETH',
+    tokenId: {
+      chain: 'Linea',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Linea',
+      address: '0xFEce4462D57bD51A6A552365A011b95f0E16d9B7',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
+    symbol: 'S',
+    tokenId: {
+      chain: 'Sonic',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.SONIC,
+  },
+  {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Sonic',
+      address: '0xA4879Fed32Ecbef99399e5cbC247E533421C4eC6',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
   },
 ];

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useDebounce } from 'use-debounce';
 
 import { useTheme } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -79,6 +78,7 @@ const GasSlider = (props: {
   destinationGasDrop: amount.Amount;
   disabled: boolean;
   isExecutorRoute: boolean;
+  isSelected: boolean;
 }) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
@@ -96,11 +96,18 @@ const GasSlider = (props: {
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
   const [percentage, setPercentage] = useState(0);
 
-  const [debouncedPercentage] = useDebounce(percentage, 500);
+  useEffect(() => {
+    if (!props.isSelected) {
+      // When Route is not selected ensure that the gas slider is closed
+      // and the percentage is set to 0.
+      setIsGasSliderOpen(false);
+      setPercentage(0);
+    }
+  }, [dispatch, props.isSelected]);
 
   useEffect(() => {
-    dispatch(setToNativeToken(debouncedPercentage / 100));
-  }, [debouncedPercentage, dispatch]);
+    dispatch(setToNativeToken(percentage / 100));
+  }, [percentage, dispatch]);
 
   const nativeGasPrice = useMemo(() => {
     if (!destChain || !destGasToken) {

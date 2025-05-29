@@ -656,4 +656,40 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.BERA,
   },
+  {
+    symbol: 'ETH',
+    tokenId: {
+      chain: 'Linea',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Linea',
+      address: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
+    symbol: 'S',
+    tokenId: {
+      chain: 'Sonic',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.SONIC,
+  },
+  {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Sonic',
+      address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
 ];

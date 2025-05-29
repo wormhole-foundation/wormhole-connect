@@ -40,6 +40,7 @@ import BLAST from './Tokens/BLAST';
 import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
 import BTC from './Tokens/BTC';
+import SONIC from './Chains/SONIC'; // TODO: Create a token icon for S
 
 const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
@@ -112,6 +113,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.WORLDCHAIN]: WORLD(),
   [TokenIcon.BERA]: BERA(),
   [TokenIcon.BTC]: BTC(),
+  [TokenIcon.SONIC]: SONIC(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {
