@@ -232,7 +232,7 @@ const Bridge = () => {
     quotes,
     tokenSymbol: sourceToken?.symbol ?? '',
     isLoading: isFetchingBalances || isFetchingQuotes,
-    disabled: !sendingWallet.address || !sourceChain || !sourceToken,
+    disabled: !sourceChain || !sourceToken,
   });
 
   //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
