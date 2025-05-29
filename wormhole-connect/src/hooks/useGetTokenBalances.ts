@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { accessBalance, Balances, updateBalances } from 'store/transferInput';
 import config, { getWormholeContextV2 } from 'config';
 import { Token } from 'config/tokens';
@@ -27,10 +27,18 @@ const useGetTokenBalances = (
   );
   const { getOrFetchToken } = useTokens();
   const dispatch = useDispatch();
+  const isFetchingRef = useRef<boolean>(false);
 
   useEffect(() => {
     setIsFetching(true);
     setBalances({});
+
+    // Don't run this more than once concurrently
+    if (isFetchingRef.current) {
+      setIsFetching(false);
+      return;
+    }
+
     if (
       !wallet ||
       !wallet.address ||
@@ -53,6 +61,7 @@ const useGetTokenBalances = (
     }
 
     let isActive = true;
+    isFetchingRef.current = true;
 
     const getBalances = async () => {
       const updatedBalances: Balances = {};
@@ -212,12 +221,15 @@ const useGetTokenBalances = (
           );
         }
       }
+      // Reset the fetching lock
+      isFetchingRef.current = false;
     };
 
     getBalances();
 
     return () => {
       isActive = false;
+      isFetchingRef.current = false;
     };
   }, [cachedBalances, chain, dispatch, tokens, wallet]);
 
