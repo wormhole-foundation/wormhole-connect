@@ -56,41 +56,38 @@ const useFetchSupportedRoutes = ({
 
         let supported = false;
 
-        if (
-          // HAX - Enable Mayan routes (except SHUTTLE) for all assets
-          !(
-            route.rc.name.includes('Mayan') &&
-            route.rc.name !== 'MayanRouteSHUTTLE'
-          )
-        ) {
-          try {
-            supported = await route.isRouteSupported(
-              sourceToken,
-              destToken,
+        try {
+          supported = await route.isRouteSupported(
+            sourceToken,
+            destToken,
+            fromChain,
+            toChain,
+          );
+
+          if (supported && config.isRouteSupportedHandler) {
+            supported = await config.isRouteSupportedHandler({
+              route: name,
               fromChain,
               toChain,
-            );
-
-            if (supported && config.isRouteSupportedHandler) {
-              supported = await config.isRouteSupportedHandler({
-                route: name,
-                fromChain,
-                toChain,
-                fromToken: getTokenDetails(sourceToken),
-                toToken: getTokenDetails(destToken),
-              });
-            }
-          } catch (e) {
-            maybeLogSdkError(
-              e,
-              `Error when checking route (${name}) is supported`,
-            );
+              fromToken: getTokenDetails(sourceToken),
+              toToken: getTokenDetails(destToken),
+            });
           }
-        } else {
-          supported = true;
+        } catch (e) {
+          maybeLogSdkError(
+            e,
+            `Error when checking route (${name}) is supported`,
+          );
         }
 
-        console.log(name, supported);
+        // HAX - Enable Mayan routes (except SHUTTLE) for all assets
+        // TODO token refactor
+        if (
+          route.rc.name.includes('Mayan') &&
+          route.rc.name !== 'MayanRouteSHUTTLE'
+        ) {
+          supported = true;
+        }
 
         if (supported) {
           _routes.push(name);
