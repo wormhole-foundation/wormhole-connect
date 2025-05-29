@@ -18,13 +18,15 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Avalanche: 'avalanche-2',
   Fantom: 'fantom',
   Moonbeam: 'moonbeam',
-  Klaytn: 'klay-token',
+  Klaytn: 'kaia',
   Xlayer: 'okb',
   Mantle: 'mantle',
   Aptos: 'aptos',
   Sui: 'sui',
   Berachain: 'berachain-bera',
   Unichain: 'ethereum',
+  Sonic: 'sonic-3',
+  Linea: 'ethereum',
   // TODO: add Mezo when available
 };
 
@@ -34,7 +36,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Arbitrum: 'arbitrum-one',
   Optimism: 'optimistic-ethereum',
   Polygon: 'polygon-pos',
-  Klaytn: 'kaia-token',
+  Klaytn: 'klay-token',
   Xlayer: 'x-layer',
 };
 

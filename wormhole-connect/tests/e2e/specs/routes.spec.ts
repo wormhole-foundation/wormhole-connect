@@ -15,15 +15,12 @@ dotenv.config({ path: path.resolve(__dirname, '../../..', '.env.local') });
 let page: Page;
 let bridgeView: BridgeView;
 let redeemView: RedeemView;
-let isExternalUrl = false;
 
 test.beforeAll(async ({ browser, baseURL }) => {
   // Set up Bridge and Redeem views
   page = await browser.newPage();
   bridgeView = new BridgeView(page);
   redeemView = new RedeemView(page);
-  // Check if we are testing an external URL
-  isExternalUrl = !baseURL?.startsWith('http://localhost');
 });
 
 test.afterAll(async () => {
@@ -33,6 +30,7 @@ test.afterAll(async () => {
 testConfigs.forEach(
   ({
     config,
+    enabled,
     destinationAsset,
     destinationWallet,
     name,
@@ -41,39 +39,49 @@ testConfigs.forEach(
     amount,
     waitForCompletion,
   }) => {
-    test(`Should configure transaction for an external Connect host - ${name}`, async () => {
-      test.skip(!isExternalUrl, 'Runs only for external URLs');
+    test(
+      `Should configure transaction - ${name}`,
+      { tag: '@noWallet' },
+      async () => {
+        test.skip(!enabled, `Test ${name} is disabled`);
 
-      // Navigate to brige view
-      await page.goto('/');
-      await page.waitForLoadState('load');
+        const configQuery = compressToBase64(config);
 
-      // Verify key elements are present in bridge view
-      await bridgeView.verifyElements();
+        // Navigate to brige view
+        await page.goto(`/?config=${configQuery}`);
+        await page.waitForLoadState('load');
 
-      // Select source asset
-      await bridgeView.selectSrcAsset(
-        `chain-button-${sourceAsset.chain}`,
-        `token-button-${sourceAsset.chain}-${sourceAsset.address}`,
-        sourceAsset.symbol,
-      );
+        // Verify key elements are present in bridge view
+        await bridgeView.verifyElements();
 
-      // Select destination asset
-      await bridgeView.selectDestAsset(
-        `chain-button-${destinationAsset.chain}`,
-        `token-button-${destinationAsset.chain}-${destinationAsset.address}`,
-        destinationAsset.symbol,
-      );
+        const sourceChain = sourceAsset.chain.toLowerCase();
 
-      // Enter amount
-      await bridgeView.enterAmount(amount);
+        // Select source asset
+        await bridgeView.selectSrcAsset(
+          `chain-button-${sourceChain}`,
+          `token-button-${sourceChain}-${sourceAsset.address}`,
+          sourceAsset.symbol,
+        );
 
-      // Route should be visible and selected by default
-      await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
-    });
+        const destinationChain = destinationAsset.chain.toLowerCase();
+
+        // Select destination asset
+        await bridgeView.selectDestAsset(
+          `chain-button-${destinationChain}`,
+          `token-button-${destinationChain}-${destinationAsset.address}`,
+          destinationAsset.symbol,
+        );
+
+        // Enter amount
+        await bridgeView.enterAmount(amount);
+
+        // Route should be visible and selected by default
+        await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
+      },
+    );
 
     test(`Should complete transaction - ${name}`, async () => {
-      test.skip(isExternalUrl, 'Runs only for localhost');
+      test.skip(!enabled, `Test ${name} is disabled`);
 
       const configQuery = compressToBase64(config);
 
@@ -87,20 +95,24 @@ testConfigs.forEach(
       // Set source wallet
       await bridgeView.connectSrcWallet(sourceWallet.address);
 
+      const sourceChain = sourceAsset.chain.toLowerCase();
+
       // Select source asset
       await bridgeView.selectSrcAsset(
-        `chain-button-${sourceAsset.chain}`,
-        `token-button-${sourceAsset.chain}-${sourceAsset.address}`,
+        `chain-button-${sourceChain}`,
+        `token-button-${sourceChain}-${sourceAsset.address}`,
         sourceAsset.symbol,
       );
 
       // Set destination wallet
       await bridgeView.connectDestWallet(destinationWallet.address);
 
+      const destinationChain = destinationAsset.chain.toLowerCase();
+
       // Select destination asset
       await bridgeView.selectDestAsset(
-        `chain-button-${destinationAsset.chain}`,
-        `token-button-${destinationAsset.chain}-${destinationAsset.address}`,
+        `chain-button-${destinationChain}`,
+        `token-button-${destinationChain}-${destinationAsset.address}`,
         destinationAsset.symbol,
       );
 

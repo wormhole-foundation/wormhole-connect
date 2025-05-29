@@ -80,7 +80,7 @@ function TokenItem(props: TokenItemProps) {
       }`}
       dense
       disabled={props.disabled}
-      data-testid={`token-button-${chain}-${token.address.toString()}`}
+      data-testid={`token-button-${chain.toLowerCase()}-${token.address.toString()}`}
       onMouseDown={props.onClick}
     >
       <div className={classes.tokenDetails}>

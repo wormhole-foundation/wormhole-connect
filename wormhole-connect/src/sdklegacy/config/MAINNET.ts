@@ -34,6 +34,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     Worldchain: 'https://worldchain-mainnet.g.alchemy.com/public',
     Unichain: 'https://mainnet.unichain.org',
     Berachain: 'https://rpc.berachain.com',
+    Linea: 'https://linea-rpc.publicnode.com',
+    Sonic: 'https://sonic-rpc.publicnode.com',
   },
 };
 

@@ -812,8 +812,39 @@ const Redeem = () => {
       );
     }
 
+    // Checking if relay has failed
+    // TODO: The CCTPExecutorRoute doesn't provide a way to manually claim failed relays.
+    // Until that is added, we will use the "resume transaction" flow to handle this case.
+    // This works as long as the ManualCCTP route is configured to manually claim.
+    if (isRelayFailed && routeName === 'CCTPExecutorRoute' && sendTx) {
+      return (
+        <Button
+          variant="primary"
+          className={classes.actionButton}
+          onClick={() => {
+            dispatch(clearRedeem());
+            dispatch(setRoute('search'));
+            dispatch(
+              setSearch({
+                txHash: sendTx,
+                chain: fromChain,
+              }),
+            );
+          }}
+        >
+          <Typography textTransform="none">
+            Claim tokens to complete transfer
+          </Typography>
+        </Button>
+      );
+    }
+
     // Checking if transaction can be manually claimed
-    if (isTxDestQueued || (!isAutomaticRoute && isTxAttested)) {
+    if (
+      isTxDestQueued ||
+      (!isAutomaticRoute && isTxAttested) ||
+      (isExecutorRoute(routeName) && isRelayFailed)
+    ) {
       if (!isConnectedToReceivingWallet) {
         return (
           <Button
@@ -839,33 +870,6 @@ const Redeem = () => {
           </Button>
         );
       }
-    }
-
-    // Checking if relay has failed
-    // TODO: The AutomaticRoute interface doesn't provide a way to manually claim failed relays.
-    // Until that is added, we will use the "resume transaction" flow to handle this case.
-    // This works as long as there is a manual route that can be used to claim the tokens.
-    if (isRelayFailed && isExecutorRoute(routeName) && sendTx) {
-      return (
-        <Button
-          variant="primary"
-          className={classes.actionButton}
-          onClick={() => {
-            dispatch(clearRedeem());
-            dispatch(setRoute('search'));
-            dispatch(
-              setSearch({
-                txHash: sendTx,
-                chain: fromChain,
-              }),
-            );
-          }}
-        >
-          <Typography textTransform="none">
-            Claim tokens to complete transfer
-          </Typography>
-        </Button>
-      );
     }
 
     return (

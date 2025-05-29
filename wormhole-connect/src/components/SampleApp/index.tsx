@@ -41,7 +41,11 @@ import {
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { nttRoutes } from 'exports/ntt';
-import { cctpExecutorRoute } from 'exports/executor';
+import {
+  cctpExecutorRoute,
+  cctpV2StandardExecutorRoute,
+  cctpV2FastExecutorRoute,
+} from 'exports/executor';
 import { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -83,6 +87,10 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
       /* @ts-ignore */
       window.cctpExecutorRoute = cctpExecutorRoute;
+      /* @ts-ignore */
+      window.cctpV2StandardExecutorRoute = cctpV2StandardExecutorRoute;
+      /* @ts-ignore */
+      window.cctpV2FastExecutorRoute = cctpV2FastExecutorRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -298,6 +306,14 @@ function SampleApp() {
                   </li>
                   <li>
                     <pre>cctpExecutorRoute</pre>
+                    <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>cctpV2StandardExecutorRoute</pre>
+                    <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>cctpV2FastExecutorRoute</pre>
                     <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
                   </li>
                 </ul>

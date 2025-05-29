@@ -538,12 +538,6 @@ const SvgDefs = () => (
         <rect width="800" height="800" fill="#fff" />
       </clipPath>
     </defs>
-    {/* icons/tokens/POLY */}
-    <defs>
-      <clipPath id="icons_tokens_poly_clipPath_0">
-        <rect width="100" height="87.2396" fill="white" />
-      </clipPath>
-    </defs>
     {/* icons/tokens/USDT */}
     <defs>
       <clipPath id="icons_tokens_usdt_clipPath_0">

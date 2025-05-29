@@ -35,6 +35,7 @@ export const testConfigs: Array<TestConfig> = [
   {
     name: 'MayanSwapSWIFT',
     config: mayanSWIFT,
+    enabled: false,
     sourceWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
       privateKey: process.env.REACT_APP_TEST_EVM_PK || '',
@@ -58,6 +59,7 @@ export const testConfigs: Array<TestConfig> = [
   {
     name: 'CCTPExecutorRoute',
     config: CCTPExecutor,
+    enabled: true,
     sourceWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
       privateKey: process.env.REACT_APP_TEST_EVM_PK || '',

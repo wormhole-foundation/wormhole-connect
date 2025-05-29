@@ -63,6 +63,7 @@ export enum TokenIcon {
   'WORLDCHAIN',
   'BERA',
   'BTC',
+  'SONIC',
 }
 
 // Used in bridging components

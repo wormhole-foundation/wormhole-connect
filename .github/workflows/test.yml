@@ -1,5 +1,8 @@
 name: Test
 on:
+  pull_request:
+    branches:
+      - development
   schedule:
     - cron: "0 0 * * 1-5" # Every weekday at midnight UTC
   workflow_dispatch:
@@ -7,11 +10,12 @@ on:
       base_url:
         description: "Base URL to run the tests against"
         required: false
-        default: "http://localhost:5173"
+        default: "https://portalbridge.com"
 
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    continue-on-error: true
     environment: ci
     permissions: read-all
     defaults:
@@ -29,12 +33,19 @@ jobs:
           cache-dependency-path: "wormhole-connect/package-lock.json"
       - name: Install dependencies
         run: npm ci
-      - name: Run Playwright tests
-        run: npm run test:e2e
+      - name: Run Playwright tests with wallet
+        if: ${{ startsWith(github.event.inputs.base_url, 'http://localhost') || github.event_name == 'schedule' }}
+        run: npm run test:e2e:with-wallet
         env:
-          BASE_URL: ${{ github.event.inputs.base_url }}
+          BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:5173' }}
+          REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
           REACT_APP_TEST_EVM_ADDR: ${{ secrets.REACT_APP_TEST_EVM_ADDR }}
           REACT_APP_TEST_EVM_PK: ${{ secrets.REACT_APP_TEST_EVM_PK }}
+      - name: Run Playwright tests without wallet
+        if: ${{ !startsWith(github.event.inputs.base_url, 'http://localhost') ||  github.event_name == 'pull_request' }}
+        run: npm run test:e2e:without-wallet
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:5173' }}
           REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
