@@ -17,14 +17,15 @@ import {
   nativeTokenId,
   TBTCBridge,
 } from '@wormhole-foundation/sdk';
-import config from 'config';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
+import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import { TokenTuple } from 'config/tokens';
-import { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
+import { isExecutorRoute } from 'utils';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -62,10 +63,16 @@ export type ExplorerInfo = {
   name: string;
 };
 
+// List of chains that we use the USDC.range explorer for
+// TODO Remove once Wormholescan explorer supports these chains
+const rangeExplorerChains: Array<Chain> = ['Linea', 'Sonic'];
+
 // TODO SDKV2 add a way for the Route interface to offer this
 export function getExplorerInfo(
   route: string | routes.Route<Network>,
   txHash: string,
+  fromChain: Chain,
+  toChain: Chain,
 ): ExplorerInfo {
   const routeName =
     typeof route === 'string'
@@ -76,6 +83,19 @@ export function getExplorerInfo(
     return {
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',
+    };
+  } else if (
+    isExecutorRoute(routeName) &&
+    (rangeExplorerChains.includes(fromChain) ||
+      rangeExplorerChains.includes(toChain))
+  ) {
+    // TODO Remove once Wormholescan explorer supports chains in rangeExplorerChains
+    // USDC.range supports Mainnet only
+    return {
+      url: config.isMainnet
+        ? `https://usdc.range.org/usdc/status/${txHash}`
+        : '',
+      name: 'USDC.range Explorer',
     };
   } else {
     return {
