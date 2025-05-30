@@ -87,7 +87,10 @@ export type IsRouteSupportedHandler = (
   transferDetails: TransferDetails,
 ) => Promise<boolean>;
 
-export type IsTokenSupportedHandler = (token: Token) => boolean;
+export type IsTokenSupportedHandler = (
+  token: Token,
+  sourceToken?: Token, // The selected source token, if applicable
+) => boolean;
 
 // This is the integrator-provided config
 export interface WormholeConnectConfig {

@@ -253,9 +253,12 @@ const TokenList = (props: Props) => {
       );
     }
 
-    if (config.isTokenSupportedHandler) {
+    const isTokenSupportedHandler = config.isTokenSupportedHandler;
+    if (isTokenSupportedHandler) {
       // The last step is to filter the tokens by the integrator's token support handler
-      sorted = sorted.filter(config.isTokenSupportedHandler);
+      sorted = sorted.filter((token) =>
+        isTokenSupportedHandler(token, props.sourceToken),
+      );
     }
 
     if (props.isSource && props.wallet.address) {
