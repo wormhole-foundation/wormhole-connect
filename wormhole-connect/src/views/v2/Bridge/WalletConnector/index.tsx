@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useTheme } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -24,9 +22,6 @@ type Props = {
 const WalletConnector = (props: Props) => {
   const { disabled = false, type } = props;
 
-  const theme = useTheme();
-
-  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -73,13 +68,7 @@ const WalletConnector = (props: Props) => {
           onClick={() => connectWallet()}
         >
           <Typography textTransform="none">
-            {mobile
-              ? props.side === 'source'
-                ? 'Connect'
-                : 'Select wallet'
-              : `${props.side === 'source' ? 'Connect' : 'Select'} ${
-                  props.side
-                } wallet`}
+            {`Connect ${props.side} wallet`}
           </Typography>
         </Button>
       </span>
@@ -106,7 +95,7 @@ const WalletConnector = (props: Props) => {
         </>
       );
     }
-  }, [disabled, isOpen, mobile, props.side, props.type, connectWallet]);
+  }, [disabled, isOpen, props.side, props.type, connectWallet]);
 
   if (wallet && wallet.address) {
     return connected;
