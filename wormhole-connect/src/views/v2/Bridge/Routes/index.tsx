@@ -40,16 +40,6 @@ const Routes = ({ ...props }: Props) => {
     return props.routes.filter((rs) => props.quotes[rs] !== undefined);
   }, [props.routes, props.quotes]);
 
-  const renderRoutes = useMemo(() => {
-    if (showAll) {
-      return routes;
-    }
-
-    const selectedRoute = routes.find((route) => route === props.selectedRoute);
-
-    return selectedRoute ? [selectedRoute] : routes.slice(0, 1);
-  }, [showAll, routes, props.selectedRoute]);
-
   const fastestRoute = useMemo(() => {
     return routes.reduce(
       (fastest, route) => {
@@ -87,6 +77,79 @@ const Routes = ({ ...props }: Props) => {
       { name: '', amountOut: 0n },
     );
   }, [routes, props.quotes]);
+
+  const renderRoutes = useMemo(() => {
+    if (showAll) {
+      return routes;
+    }
+
+    const selectedRoute = routes.find((route) => route === props.selectedRoute);
+
+    // Special case when we have a selected route
+    if (selectedRoute) {
+      const topRoutes: Array<string> = [];
+      // if the selected route is the fastest, add it first and the cheapest route below
+      if (selectedRoute === fastestRoute.name) {
+        topRoutes.push(selectedRoute);
+        if (cheapestRoute.name && cheapestRoute.name !== selectedRoute) {
+          topRoutes.push(cheapestRoute.name);
+        }
+      } else if (selectedRoute === cheapestRoute.name) {
+        // if the selected route is the cheapest add the fastest route first and selected below
+        if (fastestRoute.name && fastestRoute.name !== selectedRoute) {
+          topRoutes.push(fastestRoute.name);
+        }
+        topRoutes.push(selectedRoute);
+      } else {
+        // if the selected route is neither fastest nor cheapest, we add it at the top
+        topRoutes.push(selectedRoute);
+        if (fastestRoute.name) {
+          // then we add the fastest route if it we have one
+          topRoutes.push(fastestRoute.name);
+        } else if (cheapestRoute.name) {
+          // otherwise we add the cheapest route
+          topRoutes.push(cheapestRoute.name);
+        }
+      }
+      return topRoutes;
+    }
+
+    // If we have fastest and cheapest routes, we show them both at the top
+    if (!!fastestRoute.name && !!cheapestRoute.name) {
+      return routes.slice(0, 2);
+    }
+
+    // Otherwise we might have a cheapest route but none qualifying as fastest,
+    // so we show the first route at the top
+    return routes.slice(0, 1);
+  }, [showAll, routes, fastestRoute, cheapestRoute, props.selectedRoute]);
+
+  const hideShowToggle = useMemo(() => {
+    // If we have less than 2 routes; or there are 2 but those are the fastest and cheapest routes,
+    // we do not show the toggle to view other routes
+    if (
+      routes.length < 2 ||
+      (routes.length === 2 && !!fastestRoute.name && !!cheapestRoute.name)
+    ) {
+      return null;
+    }
+
+    return (
+      <Link
+        className={classes.otherRoutesToggle}
+        data-testid="other-routes-toggle"
+        onClick={() => setShowAll((prev) => !prev)}
+      >
+        {showAll ? 'Hide other routes' : 'View other routes'}
+      </Link>
+    );
+  }, [
+    cheapestRoute.name,
+    classes.otherRoutesToggle,
+    fastestRoute.name,
+    routes.length,
+    showAll,
+  ]);
 
   return (
     <>
@@ -137,16 +200,7 @@ const Routes = ({ ...props }: Props) => {
           );
         })
       )}
-
-      {routes.length > 1 && (
-        <Link
-          className={classes.otherRoutesToggle}
-          data-testid="other-routes-toggle"
-          onClick={() => setShowAll((prev) => !prev)}
-        >
-          {showAll ? 'Hide other routes' : 'View other routes'}
-        </Link>
-      )}
+      {hideShowToggle}
     </>
   );
 };
