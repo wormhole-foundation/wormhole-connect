@@ -24,7 +24,6 @@ import {
   isNative,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
-import { Context } from 'sdklegacy';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import PageHeader from 'components/PageHeader';
