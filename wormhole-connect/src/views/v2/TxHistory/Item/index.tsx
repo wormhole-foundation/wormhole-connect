@@ -180,11 +180,12 @@ const TxHistoryItem = (props: Props) => {
   }, [senderTimestamp]);
 
   const chainExplorerLink = useMemo(() => {
-    return (
-      <ExplorerLink
-        url={getExplorerUrl(fromChain, txHash, 'tx')}
-        text={trimTxHash(txHash, 4, 4)}
-      />
+    const explorerUrl = getExplorerUrl(fromChain, txHash, 'tx');
+    const txHashTrimmed = trimTxHash(txHash, 4, 4);
+    return explorerUrl ? (
+      <ExplorerLink url={explorerUrl} text={txHashTrimmed} />
+    ) : (
+      txHashTrimmed
     );
   }, [fromChain, txHash]);
 

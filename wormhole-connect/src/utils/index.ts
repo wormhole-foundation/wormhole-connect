@@ -257,8 +257,13 @@ export const getExplorerUrl = (
   chain: Chain,
   path: string,
   pathType: ExplorerPathType,
-) => {
-  const chainConfig = config.chains[chain]!;
+): string | undefined => {
+  const chainConfig = config.chains[chain];
+
+  if (!chainConfig?.explorerUrl) {
+    return undefined;
+  }
+
   const baseUrl = chainConfig.explorerUrl;
 
   switch (pathType) {
