@@ -139,7 +139,7 @@ const useGetTokenBalances = (
 
             if (canUseGetBalances) {
               try {
-                let result = await platformUtils.getBalances(
+                const result = await platformUtils.getBalances(
                   config.network,
                   chain,
                   rpc,

@@ -412,7 +412,7 @@ export class TokenCache extends TokenMapping<Token> {
     let symbol = metadata?.symbol?.toUpperCase() || '';
     let name = metadata?.name || '';
     let image = metadata?.image?.large || null;
-    let coingeckoId = metadata?.web_slug;
+    const coingeckoId = metadata?.web_slug;
 
     if (!symbol) {
       // Attempt to get the symbol from on-chain
