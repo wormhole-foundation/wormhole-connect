@@ -327,7 +327,6 @@ const AmountInput = (props: Props) => {
                 fontSize: 24,
                 height: '28px',
                 marginBottom: tokenPriceAdornment ? '16px' : 0, // make sure there is enough space for token price
-                padding: 0,
               },
               onWheel: (e) => {
                 // IMPORTANT: We need to prevent the scroll behavior on number inputs.
