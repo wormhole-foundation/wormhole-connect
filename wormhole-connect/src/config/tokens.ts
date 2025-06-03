@@ -61,6 +61,10 @@ export class Token extends TokenIdLazy {
   // is the original token's TokenId. Otherwise, it's just undefined.
   tokenBridgeOriginalTokenId?: TokenId;
 
+  // web_slug in Coingecko API response
+  // Corresponds to URLs like https://www.coingecko.com/en/coins/:id
+  coingeckoWebId?: string;
+
   constructor(
     chain: Chain,
     address: string,
@@ -69,6 +73,7 @@ export class Token extends TokenIdLazy {
     name?: string,
     icon?: TokenIcon | string,
     tokenBridgeOriginalTokenId?: TokenId,
+    coingeckoId?: string,
   ) {
     super(chain, address);
     this.decimals = decimals;
@@ -76,6 +81,7 @@ export class Token extends TokenIdLazy {
     this.name = name;
     this.icon = icon;
     this.tokenBridgeOriginalTokenId = tokenBridgeOriginalTokenId;
+    this.coingeckoWebId = coingeckoId;
   }
 
   get display(): string {
@@ -387,10 +393,7 @@ export class TokenCache extends TokenMapping<Token> {
     this._localStorageKey = key;
   }
 
-  async addFromTokenId(
-    tokenId: TokenId,
-    options?: { requireCoingeckoListing: boolean },
-  ): Promise<Token> {
+  async addFromTokenId(tokenId: TokenId): Promise<Token> {
     if (
       tokenId.chain === 'Sui' &&
       !isValidSuiType(tokenId.address.toString())
@@ -405,13 +408,11 @@ export class TokenCache extends TokenMapping<Token> {
     const decimals = await chain.getDecimals(tokenId.address);
 
     const metadata = await fetchTokenMetadata(tokenId);
-    if (metadata.error && options?.requireCoingeckoListing) {
-      throw new Error('Token not found on Coingecko');
-    }
 
     let symbol = metadata?.symbol?.toUpperCase() || '';
     let name = metadata?.name || '';
     let image = metadata?.image?.large || null;
+    let coingeckoId = metadata?.web_slug;
 
     if (!symbol) {
       // Attempt to get the symbol from on-chain
@@ -459,6 +460,7 @@ export class TokenCache extends TokenMapping<Token> {
       name,
       image,
       tokenBridgeOriginalTokenId,
+      coingeckoId,
     );
 
     this.add(t);
@@ -596,7 +598,7 @@ export function parseTokenKey(key: string): TokenId {
   }
 }
 
-function addressString(tokenId: TokenId): string {
+export function addressString(tokenId: TokenId): string {
   if (tokenId instanceof TokenIdLazy) {
     return tokenId.addressString;
   } else {

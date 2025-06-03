@@ -138,34 +138,53 @@ const useGetTokenBalances = (
             // (for EVM, if the integrator didn't provide an Alchemy or GoldRush key, we can't use getBalances)
 
             if (canUseGetBalances) {
-              let result = await platformUtils.getBalances(
-                config.network,
-                chain,
-                rpc,
-                wallet.address,
-                optionalValue,
-              );
+              try {
+                let result = await platformUtils.getBalances(
+                  config.network,
+                  chain,
+                  rpc,
+                  wallet.address,
+                  optionalValue,
+                );
 
-              await Promise.all(
-                Object.entries(result).map(async ([tokenAddress, bus]) => {
-                  const token = await getOrFetchToken(
-                    Wormhole.tokenId(chain, tokenAddress),
-                    { requireCoingeckoListing: true },
-                  );
-                  if (!token) return;
+                const { isNttToken } = await import('utils/tokens');
 
-                  const balance = amount.fromBaseUnits(
-                    bus ?? 0n,
-                    token.decimals,
-                  );
-                  updatedBalances[token.key] = {
-                    balance,
-                    lastUpdated: now,
-                  };
-                }),
-              );
+                await Promise.all(
+                  Object.entries(result).map(async ([tokenAddress, bus]) => {
+                    const token = await getOrFetchToken(
+                      Wormhole.tokenId(chain, tokenAddress),
+                    );
+                    if (!token) return;
 
-              usedGetBalances = true;
+                    // We show source tokens if they meet at least one of 3 criteria:
+                    // 1. Coingecko recognizes them
+                    // 2. We have an NTT config for them
+                    // 3. They are a token bridge wrapped token
+                    const tokenQualifiesToBeShown =
+                      token.coingeckoWebId ||
+                      token.isTokenBridgeWrappedToken ||
+                      isNttToken(token);
+
+                    if (!tokenQualifiesToBeShown) {
+                      console.warn(`Filtering out possible scamtoken`, token);
+                      return false;
+                    }
+
+                    const balance = amount.fromBaseUnits(
+                      bus ?? 0n,
+                      token.decimals,
+                    );
+                    updatedBalances[token.key] = {
+                      balance,
+                      lastUpdated: now,
+                    };
+                  }),
+                );
+
+                usedGetBalances = true;
+              } catch (e) {
+                console.error(`Error calling getBalances on ${chain}: ${e}`);
+              }
             }
           }
 
