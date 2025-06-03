@@ -115,32 +115,57 @@ export async function signAndSendTransaction(
     commitment,
   );
 
-  // This loop will break once the transaction has been confirmed or the block height is exceeded.
-  // An exception will be thrown if the block height is exceeded by the confirmTransactionPromise.
-  // The transaction will be resent if it hasn't been confirmed after the interval.
-  const txRetryInterval = 5000;
-  while (!confirmedTx) {
-    confirmedTx = await Promise.race([
-      confirmTransactionPromise,
-      new Promise<null>((resolve) =>
-        setTimeout(() => {
-          resolve(null);
-        }, txRetryInterval),
-      ),
-    ]);
-    if (confirmedTx) {
-      break;
+  try {
+    // This loop will break once the transaction has been confirmed or the block height is exceeded.
+    // An exception will be thrown if the block height is exceeded by the confirmTransactionPromise.
+    // The transaction will be resent if it hasn't been confirmed after the interval.
+    const txRetryInterval = 5000;
+    while (!confirmedTx) {
+      confirmedTx = await Promise.race([
+        confirmTransactionPromise,
+        new Promise<null>((resolve) =>
+          setTimeout(() => {
+            resolve(null);
+          }, txRetryInterval),
+        ),
+      ]);
+      if (confirmedTx) {
+        break;
+      }
+      console.log(
+        `Tx not confirmed after ${
+          txRetryInterval * txSendAttempts++
+        }ms, resending`,
+      );
+      try {
+        await connection.sendRawTransaction(serializedTx, sendOptions);
+      } catch (e) {
+        console.error('Failed to resend transaction:', e);
+      }
     }
-    console.log(
-      `Tx not confirmed after ${
-        txRetryInterval * txSendAttempts++
-      }ms, resending`,
-    );
-    try {
-      await connection.sendRawTransaction(serializedTx, sendOptions);
-    } catch (e) {
-      console.error('Failed to resend transaction:', e);
+  } catch (e: unknown) {
+    if (
+      e instanceof Error &&
+      e.name === 'TransactionExpiredBlockheightExceededError'
+    ) {
+      // Sometimes the transaction actually landed,
+      // so spend some additional time to check for it
+      const maxRetries = 5;
+      const retryDelay = 2000;
+      for (let i = 0; i < maxRetries; ++i) {
+        try {
+          const tx = await connection.getTransaction(signature, {
+            commitment: 'confirmed',
+            maxSupportedTransactionVersion: 0,
+          });
+          if (tx) return signature; // Transaction actually landed
+        } catch {
+          // Ignore errors, we will retry
+        }
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      }
     }
+    throw e;
   }
 
   if (confirmedTx.value.err) {
