@@ -103,12 +103,16 @@ const Routes = ({ ...props }: Props) => {
       } else {
         // if the selected route is neither fastest nor cheapest, we add it at the top
         topRoutes.push(selectedRoute);
-        if (fastestRoute.name) {
-          // then we add the fastest route if it we have one
-          topRoutes.push(fastestRoute.name);
-        } else if (cheapestRoute.name) {
-          // otherwise we add the cheapest route
-          topRoutes.push(cheapestRoute.name);
+        if (routes.length > 2) {
+          // if we have more than 2 routes in total, meaning there are at least two more routes to show,
+          // then we add one of the fastest or cheapest routes below the selected route
+          if (fastestRoute.name) {
+            // Add the fastest route if it we have one
+            topRoutes.push(fastestRoute.name);
+          } else if (cheapestRoute.name) {
+            // otherwise add the cheapest route
+            topRoutes.push(cheapestRoute.name);
+          }
         }
       }
       return topRoutes;
