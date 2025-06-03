@@ -236,6 +236,7 @@ const Bridge = () => {
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
     () => config.routes.allSupportedChains(),
+    // Disabled because we're using the global cache and we have to monitor values that aren't directly used in this hook
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [config.chains],
   );
@@ -246,6 +247,7 @@ const Bridge = () => {
     } else {
       return [];
     }
+  // Disabled because we're using the global cache and we have to monitor values that aren't directly used in this hook
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceChain, lastTokenCacheUpdate]);
 

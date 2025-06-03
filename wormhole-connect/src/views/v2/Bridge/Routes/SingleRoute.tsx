@@ -549,18 +549,29 @@ const SingleRoute = (props: Props) => {
         sx={{
           ...styles.card,
           ...(isSelected && styles.cardSelected),
+          ...(isTransactionInProgress && styles.disabled),
+          ...{
+            border: '1px solid',
+            borderColor: isSelected ? theme.palette.primary.main : 'transparent',
+            opacity: 1,
+          },
         }}
-        variant="outlined"
       >
         <CardActionArea
-          disableRipple
-          onClick={() => props.onSelect && props.onSelect(props.route)}
-          disabled={!!props.error}
+          component="div"
+          disabled={            
+            isTransactionInProgress ||
+            typeof props.onSelect !== 'function' ||
+            props.error !== undefined
+          }
+          disableTouchRipple
           sx={{ cursor: cursor }}
+          onClick={() => {
+            props.onSelect?.(props.route);
+          }}
         >
           <CardHeader
             sx={styles.cardHeader}
-            disableTypography
             avatar={<TokenIcon icon={destToken?.icon} />}
             title={routeCardHeader}
             subheader={routeCardSubHeader}

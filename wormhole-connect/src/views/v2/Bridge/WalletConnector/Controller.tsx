@@ -55,21 +55,6 @@ const ConnectedWallet = (props: Props) => {
       cursor: 'default',
       pointerEvents: 'none' as const,
     },
-    dropdown: {
-      backgroundColor: theme.palette.popover.background,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '8px',
-      padding: '8px',
-    },
-    dropdownItem: {
-      borderRadius: '8px',
-      padding: '16px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: theme.palette.popover.secondary,
-      },
-    },
   }), [theme]);
 
   const { isTransactionInProgress } = useSelector(
@@ -144,10 +129,9 @@ const ConnectedWallet = (props: Props) => {
               vertical: 'top',
               horizontal: 'right',
             }}
-            PaperProps={{ sx: styles.dropdown }}
           >
             <List>
-              <ListItemButton sx={styles.dropdownItem} onClick={copyAddress}>
+              <ListItemButton onClick={copyAddress}>
                 <Typography fontSize={14}>Copy address</Typography>
               </ListItemButton>
               {config.ui.explorer ? (
@@ -156,13 +140,12 @@ const ConnectedWallet = (props: Props) => {
                   href={config.ui.explorer.href}
                   target={config.ui.explorer.target}
                   label={config.ui.explorer.label}
-                  sx={styles.dropdownItem}
                 />
               ) : null}
-              <ListItemButton sx={styles.dropdownItem} onClick={connectWallet}>
+              <ListItemButton onClick={connectWallet}>
                 <Typography fontSize={14}>Change wallet</Typography>
               </ListItemButton>
-              <ListItemButton sx={styles.dropdownItem} onClick={disconnectWallet}>
+              <ListItemButton onClick={disconnectWallet}>
                 <Typography fontSize={14}>Disconnect</Typography>
               </ListItemButton>
             </List>
