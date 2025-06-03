@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { useEffect, useState, useRef } from 'react';
 import { accessBalance, Balances, updateBalances } from 'store/transferInput';
-import config, { getWormholeContextV2 } from 'config';
+import config, { getWormholeContextV2, WormholeConnectConfig } from 'config';
 import { Token } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import {
@@ -119,7 +119,9 @@ const useGetTokenBalances = (
           // and misses tokens we don't already know about. It's objectively worse.
           let usedGetBalances = false;
           if (supportsIndexerUtils(platformUtils)) {
-            let optionalValue: any = undefined;
+            let optionalValue:
+              | undefined
+              | WormholeConnectConfig['evmIndexers'] = undefined;
             let canUseGetBalances = false;
 
             if (platformName === 'Evm') {
@@ -250,7 +252,7 @@ const useGetTokenBalances = (
       isActive = false;
       isFetchingRef.current = false;
     };
-  }, [cachedBalances, chain, dispatch, tokens, wallet]);
+  }, [cachedBalances, chain, dispatch, tokens, wallet, getOrFetchToken]);
 
   return { isFetching, balances };
 };
