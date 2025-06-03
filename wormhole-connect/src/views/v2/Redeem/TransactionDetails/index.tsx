@@ -110,8 +110,12 @@ const TransactionDetails = () => {
                 {usdAmount}
                 {usdAmount ? separator : null}
                 {sourceChainConfig.displayName}
-                {separator}
-                <ExplorerLink url={explorerUrl} text={senderAddress} />
+                {explorerUrl ? (
+                  <>
+                    {separator}
+                    <ExplorerLink url={explorerUrl} text={senderAddress} />
+                  </>
+                ) : null}
               </>
             )}
           </Typography>
@@ -168,8 +172,12 @@ const TransactionDetails = () => {
                 {usdAmount}
                 {usdAmount ? separator : null}
                 {destChainConfig.displayName}
-                {separator}
-                <ExplorerLink url={explorerUrl} text={recipientAddress} />
+                {explorerUrl ? (
+                  <>
+                    {separator}
+                    <ExplorerLink url={explorerUrl} text={recipientAddress} />
+                  </>
+                ) : null}
               </>
             )}
           </Typography>
@@ -308,7 +316,11 @@ const TransactionDetails = () => {
         <CardContent>
           <Typography color={theme.palette.text.secondary} marginBottom="12px">
             {`Transaction #`}
-            <ExplorerLink url={explorerUrl} text={trimmedTx} />
+            {explorerUrl ? (
+              <ExplorerLink url={explorerUrl} text={trimmedTx} />
+            ) : (
+              trimmedTx
+            )}
           </Typography>
           {sentAmount}
           {verticalConnector}
