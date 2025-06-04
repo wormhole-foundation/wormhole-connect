@@ -540,10 +540,12 @@ const SingleRoute = (props: Props) => {
 
   return (
     <Box
+      key={props.route}
       sx={{
         ...styles.container,
         ...(props.error && styles.disabled),
       }}
+      data-testid={`route-${props.route}${isSelected ? '-selected' : ''}`}
     >
       <Card
         sx={{
