@@ -27,6 +27,7 @@ import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
 import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
+import { sortChainsByUsage } from 'utils/chainUsage';
 import { createUiConfig } from './ui';
 import { buildTokenCache } from './tokens';
 
@@ -125,20 +126,13 @@ export function buildConfig(
 
     // White lists
     chains: networkData.chains,
-    chainsArr: Object.values(networkData.chains)
-      .filter((chain) => {
+    chainsArr: sortChainsByUsage(
+      Object.values(networkData.chains).filter((chain) => {
         return customConfig.chains
           ? customConfig.chains.includes(chain.sdkName)
           : true;
-      })
-      .sort((a, b) => {
-        const ai = CHAIN_ORDER.indexOf(a.sdkName);
-        const bi = CHAIN_ORDER.indexOf(b.sdkName);
-        if (ai >= 0 && bi >= 0) return ai - bi;
-        if (ai === -1) return 1;
-        if (bi === -1) return -1;
-        return 0;
       }),
+    ),
     tokens,
     tokenWhitelist: customConfig.tokens,
 
