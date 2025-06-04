@@ -18,7 +18,7 @@ import Button from '@mui/material/Button';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 
-import config from 'config';
+import config, { getSortedChains } from 'config';
 import { RootState } from 'store';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 
@@ -92,7 +92,7 @@ const WalletSidebar = (props: Props) => {
   const [addressError, setAddressError] = useState('');
 
   const supportedChains = useMemo(() => {
-    const networkContext = config.chainsArr.map((chain) =>
+    const networkContext = getSortedChains().map((chain) =>
       chainToPlatform(chain.sdkName),
     );
     return new Set(networkContext);

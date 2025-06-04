@@ -1,5 +1,5 @@
 import { Chain } from '@wormhole-foundation/sdk';
-import config from 'config';
+import config, { getSortedChains } from 'config';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
@@ -19,7 +19,7 @@ export function useExternalSearch(): ExternalSearch {
   useEffect(() => {
     if (config.ui.searchTx?.chainName && config.ui.searchTx?.txHash) {
       const chainName = config.ui.searchTx.chainName.toLowerCase();
-      const cfg = config.chainsArr.find(
+      const cfg = getSortedChains().find(
         (cfg) => cfg.sdkName.toLowerCase() === chainName,
       );
 

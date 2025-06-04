@@ -157,7 +157,7 @@ export interface InternalConfig<N extends Network> {
   tokenWhitelist?: (string | TokenTuple)[];
 
   chains: ChainsConfig;
-  chainsArr: ChainConfig[];
+  chainWhitelist?: Chain[];
 
   routes: RouteOperator;
 

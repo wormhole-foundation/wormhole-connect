@@ -18,7 +18,7 @@ import Header, { Alignment } from 'components/Header';
 import PageHeader from 'components/PageHeader';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
-import config from 'config';
+import config, { getSortedChains } from 'config';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
@@ -256,7 +256,7 @@ const Bridge = () => {
 
   // Supported chains for the source network
   const supportedSourceChains = useMemo(() => {
-    return config.chainsArr.filter((chain) => {
+    return getSortedChains().filter((chain) => {
       return (
         chain.sdkName !== destChain && supportedChains.includes(chain.sdkName)
       );
@@ -265,7 +265,7 @@ const Bridge = () => {
 
   // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
-    return config.chainsArr.filter(
+    return getSortedChains().filter(
       (chain) =>
         chain.sdkName !== sourceChain &&
         supportedChains.includes(chain.sdkName),

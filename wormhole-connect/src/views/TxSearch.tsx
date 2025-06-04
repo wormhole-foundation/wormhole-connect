@@ -15,7 +15,7 @@ import {
   Box,
 } from '@mui/material';
 
-import config, { getWormholeContextV2 } from 'config';
+import config, { getWormholeContextV2, getSortedChains } from 'config';
 import { isValidTxId } from 'utils';
 import {
   setRoute as setRedeemRoute,
@@ -183,7 +183,7 @@ function TxSearch() {
   }, [doSearch, state, loading]);
 
   const sortedChains = useMemo(() => {
-    return [...config.chainsArr].sort((a, b) => {
+    return getSortedChains().sort((a, b) => {
       if (a.displayName < b.displayName) {
         return -1;
       }
@@ -192,7 +192,7 @@ function TxSearch() {
       }
       return 0;
     });
-  }, [config.chainsArr]);
+  }, [config.chains, config.chainWhitelist]);
 
   return (
     <div className={classes.container}>

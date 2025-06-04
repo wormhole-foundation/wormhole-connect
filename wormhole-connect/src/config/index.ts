@@ -3,7 +3,7 @@ import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import { InternalConfig } from './types';
+import { InternalConfig, ChainConfig } from './types';
 import { mergeCustomWrappedTokens, validateDefaults } from './utils';
 import { wrapEventHandler } from './events';
 import { capitalize } from './utils';
@@ -26,7 +26,6 @@ import solana from '@wormhole-foundation/sdk/solana';
 import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
 import RouteOperator from 'routes/operator';
-import { CHAIN_ORDER } from './constants';
 import { sortChainsByUsage } from 'utils/chainUsage';
 import { createUiConfig } from './ui';
 import { buildTokenCache } from './tokens';
@@ -126,13 +125,7 @@ export function buildConfig(
 
     // White lists
     chains: networkData.chains,
-    chainsArr: sortChainsByUsage(
-      Object.values(networkData.chains).filter((chain) => {
-        return customConfig.chains
-          ? customConfig.chains.includes(chain.sdkName)
-          : true;
-      }),
-    ),
+    chainWhitelist: customConfig.chains,
     tokens,
     tokenWhitelist: customConfig.tokens,
 
@@ -152,6 +145,15 @@ export function buildConfig(
 // Running buildConfig with no argument generates the default configuration
 const config = buildConfig();
 export default config;
+
+export function getSortedChains(): ChainConfig[] {
+  const chains = Object.values(config.chains).filter((chain) => {
+    return config.chainWhitelist
+      ? config.chainWhitelist.includes(chain.sdkName)
+      : true;
+  });
+  return sortChainsByUsage(chains);
+}
 
 export async function getWormholeContextV2(): Promise<WormholeV2<Network>> {
   if (config._v2Wormhole) return config._v2Wormhole;

@@ -6,7 +6,7 @@ import {
   connectReceivingWallet,
 } from 'store/wallet';
 
-import config from 'config';
+import config, { getSortedChains } from 'config';
 
 import { RootState } from 'store';
 import { Dispatch } from 'redux';
@@ -51,9 +51,9 @@ export const walletAcceptedChains = (
   platform: Platform | undefined,
 ): Chain[] => {
   if (!platform) {
-    return config.chainsArr.map((c) => c.sdkName);
+    return getSortedChains().map((c) => c.sdkName);
   }
-  return config.chainsArr
+  return getSortedChains()
     .filter((c) => chainToPlatform(c.sdkName) === platform)
     .map((c) => c.sdkName);
 };
