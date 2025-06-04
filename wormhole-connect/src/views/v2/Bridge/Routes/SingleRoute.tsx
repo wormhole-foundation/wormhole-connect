@@ -543,7 +543,6 @@ const SingleRoute = (props: Props) => {
       key={props.route}
       sx={{
         ...styles.container,
-        ...(props.error && styles.disabled),
       }}
       data-testid={`route-${props.route}${isSelected ? '-selected' : ''}`}
     >
