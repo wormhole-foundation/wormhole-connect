@@ -2,7 +2,7 @@ import { TransactionLocal } from 'config/types';
 import { isEmptyObject } from 'utils';
 import { buildLocalStorageKey } from 'utils/localStorage';
 
-const LOCAL_STORAGE_KEY = 'wormhole-connect:transactions:inprogress';
+const LOCAL_STORAGE_KEY = 'transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
 
 // Bigint types cannot be serialized to a string

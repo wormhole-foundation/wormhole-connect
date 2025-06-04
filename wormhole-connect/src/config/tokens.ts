@@ -513,9 +513,7 @@ export function buildTokenCache(
   wrappedTokens: WrappedTokenAddresses,
   tokenFilter?: string[],
 ): TokenCache {
-  const cache = TokenCache.load(
-    buildLocalStorageKey(`wormhole-connect:token-cache:${network}`),
-  );
+  const cache = TokenCache.load(buildLocalStorageKey(`token-cache:${network}`));
 
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
     const token = new Token(
