@@ -10,9 +10,12 @@ import { Chain, chainToChainId, NativeAddress } from '@wormhole-foundation/sdk';
 export class ReadOnlyWallet extends Wallet {
   private _isConnected = true;
 
-  static readonly NAME = 'ReadyOnlyWallet';
+  static readonly NAME = 'ReadOnlyWallet';
 
-  constructor(readonly _address: NativeAddress<Chain>, readonly _chain: Chain) {
+  constructor(
+    readonly _address: NativeAddress<Chain>,
+    readonly _chain: Chain,
+  ) {
     super();
   }
 
