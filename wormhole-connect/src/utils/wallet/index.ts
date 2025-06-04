@@ -7,7 +7,6 @@ import {
 } from 'store/wallet';
 
 import config from 'config';
-import { buildLocalStorageKey } from 'utils/caching';
 
 import { RootState } from 'store';
 import { Dispatch } from 'redux';
@@ -130,9 +129,7 @@ export const connectWallet = async (
     setTimeout(() => {
       dispatch(clearWallet(type));
     }, 0);
-    localStorage.removeItem(
-      buildLocalStorageKey(`wallet:${platform}`, config.cacheNamespace),
-    );
+    localStorage.removeItem(config.cacheKey(`wallet:${platform}`));
   });
 
   // when the user has multiple wallets connected and either changes
@@ -148,7 +145,7 @@ export const connectWallet = async (
   });
 
   if (name !== ReadOnlyWallet.NAME) {
-    localStorage.setItem(buildLocalStorageKey(`wallet:${platform}`), name);
+    localStorage.setItem(config.cacheKey(`wallet:${platform}`), name);
   }
 
   return true;
@@ -162,7 +159,7 @@ export const connectLastUsedWallet = async (
   dispatch: Dispatch<any>,
 ) => {
   const chainConfig = config.chains[chain!]!;
-  const localStorageKey = buildLocalStorageKey(
+  const localStorageKey = config.cacheKey(
     `wallet:${chainToPlatform(chainConfig.sdkName)}`,
   );
   const lastUsedWallet = localStorage.getItem(localStorageKey);

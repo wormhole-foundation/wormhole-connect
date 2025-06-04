@@ -178,7 +178,7 @@ export interface InternalConfig<N extends Network> {
   ui: UiConfig;
 
   // Used to namespace localStorage caches
-  cacheNamespace?: string;
+  cacheKey: (name: string) => string;
 
   guardianSet: GuardianSetData;
 

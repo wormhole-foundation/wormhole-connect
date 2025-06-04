@@ -29,7 +29,6 @@ import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
 import { createUiConfig } from './ui';
 import { buildTokenCache } from './tokens';
-import { buildLocalStorageKey } from 'utils/caching';
 
 export function buildConfig(
   customConfig: WormholeConnectConfig = {},
@@ -52,6 +51,14 @@ export function buildConfig(
     customConfig.wrappedTokens,
   );
 
+  const cacheKey = (name: string) => {
+    if (customConfig.cacheNamespace) {
+      return `wormhole-connect:${customConfig.cacheNamespace}:${name}`;
+    } else {
+      return `wormhole-connect:${name}`;
+    }
+  };
+
   const tokens = buildTokenCache(
     [
       ...networkData.tokens,
@@ -60,7 +67,7 @@ export function buildConfig(
         : []),
     ],
     wrappedTokens,
-    buildLocalStorageKey(`token-cache:${network}`, customConfig.cacheNamespace),
+    cacheKey(`token-cache:${network}`),
   );
 
   const sdkConfig = LEGACY_CONFIG[network.toUpperCase()];
@@ -149,7 +156,7 @@ export function buildConfig(
     ui: createUiConfig({ ...customConfig.ui }),
 
     // Used to namespace localStorage caches
-    cacheNamespace: customConfig.cacheNamespace,
+    cacheKey,
 
     // Guardian Set
     guardianSet: networkData.guardianSet,

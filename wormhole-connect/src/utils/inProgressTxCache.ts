@@ -1,7 +1,6 @@
 import config from 'config';
 import { TransactionLocal } from 'config/types';
 import { isEmptyObject } from 'utils';
-import { buildLocalStorageKey } from 'utils/caching';
 
 const LOCAL_STORAGE_KEY = 'transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
@@ -116,10 +115,7 @@ export const getTxsFromLocalStorage = ():
     const itemKey = ls.key(i);
     if (
       itemKey?.toLowerCase() ===
-      buildLocalStorageKey(
-        LOCAL_STORAGE_KEY,
-        config.cacheNamespace,
-      ).toLowerCase()
+      config.cacheKey(LOCAL_STORAGE_KEY).toLowerCase()
     ) {
       const item = ls.getItem(itemKey);
       if (item) {
@@ -132,7 +128,7 @@ export const getTxsFromLocalStorage = ():
               `Error while parsing localStorage item ${LOCAL_STORAGE_KEY}: Not an array of valid transactions`,
             );
             // Remove invalid transactions entry
-            ls.removeItem(buildLocalStorageKey(LOCAL_STORAGE_KEY));
+            ls.removeItem(config.cacheKey(LOCAL_STORAGE_KEY));
             return;
           }
         } catch (e: any) {
@@ -143,7 +139,7 @@ export const getTxsFromLocalStorage = ():
             `Error while parsing localStorage item ${LOCAL_STORAGE_KEY}: ${e}`,
           );
           // Remove item
-          ls.removeItem(buildLocalStorageKey(LOCAL_STORAGE_KEY));
+          ls.removeItem(config.cacheKey(LOCAL_STORAGE_KEY));
           return;
         }
       }
@@ -176,7 +172,7 @@ export const addTxToLocalStorage = (
   // Update the list
   try {
     ls.setItem(
-      buildLocalStorageKey(LOCAL_STORAGE_KEY),
+      config.cacheKey(LOCAL_STORAGE_KEY),
       JSON.stringify(newList, JSONReplacer),
     );
   } catch (e: any) {
@@ -203,7 +199,7 @@ export const removeTxFromLocalStorage = (txHash: string) => {
       items.splice(removeIndex, 1);
       try {
         ls.setItem(
-          buildLocalStorageKey(LOCAL_STORAGE_KEY),
+          config.cacheKey(LOCAL_STORAGE_KEY),
           JSON.stringify(items, JSONReplacer),
         );
       } catch (e: any) {
@@ -236,7 +232,7 @@ export const updateTxInLocalStorage = (
       items[idx][key] = value;
       try {
         ls.setItem(
-          buildLocalStorageKey(LOCAL_STORAGE_KEY),
+          config.cacheKey(LOCAL_STORAGE_KEY),
           JSON.stringify(items, JSONReplacer),
         );
       } catch (e: any) {
