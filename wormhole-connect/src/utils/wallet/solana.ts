@@ -30,6 +30,7 @@ import config from 'config';
 import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import { Network } from '@wormhole-foundation/sdk';
 import { setPriorityFeeInstructions } from 'utils/solana';
+import { sleep } from 'utils';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -162,7 +163,7 @@ export async function signAndSendTransaction(
         } catch {
           // Ignore errors, we will retry
         }
-        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        await sleep(retryDelay);
       }
     }
     throw e;
