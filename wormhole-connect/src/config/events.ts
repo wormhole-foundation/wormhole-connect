@@ -5,7 +5,6 @@ import {
   WormholeConnectEvent,
   TriggerEventHandler,
 } from 'telemetry/types';
-import { recordChainUsage } from 'utils/chainUsage';
 
 export function wrapEventHandler(
   integrationHandler?: WormholeConnectEventHandler,
@@ -14,14 +13,6 @@ export function wrapEventHandler(
     typeof window === 'undefined' ? undefined : window.location?.host;
 
   return function (event: WormholeConnectEventCore) {
-    if (event.type === 'transfer.initiate') {
-      try {
-        recordChainUsage(event.details.fromChain);
-      } catch (e) {
-        console.debug('Failed to record chain usage', e);
-      }
-    }
-
     const eventWithMeta: WormholeConnectEvent = {
       meta: {
         version: CONNECT_VERSION,

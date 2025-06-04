@@ -19,6 +19,7 @@ import { toDecimals } from 'utils/balance';
 import { interpretTransferError } from 'utils/errors';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
+import { recordChainUsage } from 'utils/chainUsage';
 
 import type { RootState } from 'store';
 import type { RelayerFee } from 'store/relay';
@@ -143,6 +144,9 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
         type: 'transfer.initiate',
         details: transferDetails,
       });
+
+      // Record chain usage to store user pref
+      recordChainUsage(sourceChain);
 
       const [sdkRoute, receipt] = await config.routes
         .get(route)
