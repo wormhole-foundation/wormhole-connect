@@ -168,7 +168,7 @@ export const dark: InternalTheme = {
     select: '#ffffff' + OPACITY[10],
   },
   card: {
-    background: '#ffffff' + OPACITY[5],
+    background: '#1b2033',
     secondary: '#ffffff' + OPACITY[5],
     elevation: 'none',
   },
