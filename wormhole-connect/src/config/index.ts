@@ -29,6 +29,7 @@ import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
 import { createUiConfig } from './ui';
 import { buildTokenCache } from './tokens';
+import { buildLocalStorageKey } from 'utils/caching';
 
 export function buildConfig(
   customConfig: WormholeConnectConfig = {},
@@ -52,7 +53,6 @@ export function buildConfig(
   );
 
   const tokens = buildTokenCache(
-    network,
     [
       ...networkData.tokens,
       ...(customConfig.tokensConfig
@@ -60,6 +60,7 @@ export function buildConfig(
         : []),
     ],
     wrappedTokens,
+    buildLocalStorageKey(`token-cache:${network}`, customConfig.cacheNamespace),
   );
 
   const sdkConfig = LEGACY_CONFIG[network.toUpperCase()];

@@ -7,7 +7,7 @@ import {
 } from 'store/wallet';
 
 import config from 'config';
-import { buildLocalStorageKey } from 'utils/localStorage';
+import { buildLocalStorageKey } from 'utils/caching';
 
 import { RootState } from 'store';
 import { Dispatch } from 'redux';
@@ -130,7 +130,9 @@ export const connectWallet = async (
     setTimeout(() => {
       dispatch(clearWallet(type));
     }, 0);
-    localStorage.removeItem(buildLocalStorageKey(`wallet:${platform}`));
+    localStorage.removeItem(
+      buildLocalStorageKey(`wallet:${platform}`, config.cacheNamespace),
+    );
   });
 
   // when the user has multiple wallets connected and either changes

@@ -7,7 +7,6 @@ import {
   TokenAddress,
   toNative,
   isNative,
-  Network,
   chainToPlatform,
   UniversalAddress,
 } from '@wormhole-foundation/sdk';
@@ -16,7 +15,6 @@ import { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 
 import { fetchTokenMetadata } from 'utils/coingecko';
-import { buildLocalStorageKey } from 'utils/localStorage';
 
 const TOKEN_CACHE_VERSION = 1;
 
@@ -508,12 +506,12 @@ export class TokenCache extends TokenMapping<Token> {
 
 // Seed a new TokenCache using hard-coded tokens
 export function buildTokenCache(
-  network: Network,
   tokens: TokenConfig[],
   wrappedTokens: WrappedTokenAddresses,
+  cacheKey: string,
   tokenFilter?: string[],
 ): TokenCache {
-  const cache = TokenCache.load(buildLocalStorageKey(`token-cache:${network}`));
+  const cache = TokenCache.load(cacheKey);
 
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
     const token = new Token(

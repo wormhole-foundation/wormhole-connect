@@ -1,6 +1,7 @@
+import config from 'config';
 import { TransactionLocal } from 'config/types';
 import { isEmptyObject } from 'utils';
-import { buildLocalStorageKey } from 'utils/localStorage';
+import { buildLocalStorageKey } from 'utils/caching';
 
 const LOCAL_STORAGE_KEY = 'transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
@@ -115,7 +116,10 @@ export const getTxsFromLocalStorage = ():
     const itemKey = ls.key(i);
     if (
       itemKey?.toLowerCase() ===
-      buildLocalStorageKey(LOCAL_STORAGE_KEY).toLowerCase()
+      buildLocalStorageKey(
+        LOCAL_STORAGE_KEY,
+        config.cacheNamespace,
+      ).toLowerCase()
     ) {
       const item = ls.getItem(itemKey);
       if (item) {
