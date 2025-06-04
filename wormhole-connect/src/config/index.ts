@@ -147,6 +147,9 @@ export function buildConfig(
     // UI details
     ui: createUiConfig({ ...customConfig.ui }),
 
+    // Used to namespace localStorage caches
+    cacheNamespace: customConfig.cacheNamespace,
+
     // Guardian Set
     guardianSet: networkData.guardianSet,
 

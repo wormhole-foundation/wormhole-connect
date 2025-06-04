@@ -1,5 +1,6 @@
 import { TransactionLocal } from 'config/types';
 import { isEmptyObject } from 'utils';
+import { buildLocalStorageKey } from 'utils/localStorage';
 
 const LOCAL_STORAGE_KEY = 'wormhole-connect:transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
@@ -112,7 +113,10 @@ export const getTxsFromLocalStorage = ():
   // Find the in-progress transactions list in localStorage
   for (let i = 0; i < ls.length; i++) {
     const itemKey = ls.key(i);
-    if (itemKey?.toLowerCase() === LOCAL_STORAGE_KEY) {
+    if (
+      itemKey?.toLowerCase() ===
+      buildLocalStorageKey(LOCAL_STORAGE_KEY).toLowerCase()
+    ) {
       const item = ls.getItem(itemKey);
       if (item) {
         try {
@@ -124,7 +128,7 @@ export const getTxsFromLocalStorage = ():
               `Error while parsing localStorage item ${LOCAL_STORAGE_KEY}: Not an array of valid transactions`,
             );
             // Remove invalid transactions entry
-            ls.removeItem(LOCAL_STORAGE_KEY);
+            ls.removeItem(buildLocalStorageKey(LOCAL_STORAGE_KEY));
             return;
           }
         } catch (e: any) {
@@ -135,7 +139,7 @@ export const getTxsFromLocalStorage = ():
             `Error while parsing localStorage item ${LOCAL_STORAGE_KEY}: ${e}`,
           );
           // Remove item
-          ls.removeItem(LOCAL_STORAGE_KEY);
+          ls.removeItem(buildLocalStorageKey(LOCAL_STORAGE_KEY));
           return;
         }
       }
@@ -167,7 +171,10 @@ export const addTxToLocalStorage = (
 
   // Update the list
   try {
-    ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList, JSONReplacer));
+    ls.setItem(
+      buildLocalStorageKey(LOCAL_STORAGE_KEY),
+      JSON.stringify(newList, JSONReplacer),
+    );
   } catch (e: any) {
     // We can get two different errors:
     // 1- TypeError from JSON.stringify
@@ -191,7 +198,10 @@ export const removeTxFromLocalStorage = (txHash: string) => {
       // remove the item and update localStorage
       items.splice(removeIndex, 1);
       try {
-        ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items, JSONReplacer));
+        ls.setItem(
+          buildLocalStorageKey(LOCAL_STORAGE_KEY),
+          JSON.stringify(items, JSONReplacer),
+        );
       } catch (e: any) {
         // We can get two different errors:
         // 1- TypeError from JSON.stringify
@@ -221,7 +231,10 @@ export const updateTxInLocalStorage = (
       // Update item property and put back in local storage
       items[idx][key] = value;
       try {
-        ls.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items, JSONReplacer));
+        ls.setItem(
+          buildLocalStorageKey(LOCAL_STORAGE_KEY),
+          JSON.stringify(items, JSONReplacer),
+        );
       } catch (e: any) {
         // We can get two different errors:
         // 1- TypeError from JSON.stringify

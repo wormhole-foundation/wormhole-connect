@@ -111,6 +111,9 @@ export interface WormholeConnectConfig {
   // Custom tokens
   tokensConfig?: TokensConfig;
 
+  // Used to namespace localStorage caches
+  cacheNamespace?: string;
+
   // Wormhole-wrapped token addresses
   wrappedTokens?: WrappedTokenAddresses;
 
@@ -173,6 +176,9 @@ export interface InternalConfig<N extends Network> {
 
   // UI configuration
   ui: UiConfig;
+
+  // Used to namespace localStorage caches
+  cacheNamespace?: string;
 
   guardianSet: GuardianSetData;
 

@@ -7,6 +7,7 @@ import {
 } from 'store/wallet';
 
 import config from 'config';
+import { buildLocalStorageKey } from 'utils/localStorage';
 
 import { RootState } from 'store';
 import { Dispatch } from 'redux';
@@ -129,7 +130,9 @@ export const connectWallet = async (
     setTimeout(() => {
       dispatch(clearWallet(type));
     }, 0);
-    localStorage.removeItem(`wormhole-connect:wallet:${platform}`);
+    localStorage.removeItem(
+      buildLocalStorageKey(`wormhole-connect:wallet:${platform}`),
+    );
   });
 
   // when the user has multiple wallets connected and either changes
@@ -145,7 +148,10 @@ export const connectWallet = async (
   });
 
   if (name !== ReadOnlyWallet.NAME) {
-    localStorage.setItem(`wormhole-connect:wallet:${platform}`, name);
+    localStorage.setItem(
+      buildLocalStorageKey(`wormhole-connect:wallet:${platform}`),
+      name,
+    );
   }
 
   return true;
@@ -159,9 +165,9 @@ export const connectLastUsedWallet = async (
   dispatch: Dispatch<any>,
 ) => {
   const chainConfig = config.chains[chain!]!;
-  const localStorageKey = `wormhole-connect:wallet:${chainToPlatform(
-    chainConfig.sdkName,
-  )}`;
+  const localStorageKey = buildLocalStorageKey(
+    `wormhole-connect:wallet:${chainToPlatform(chainConfig.sdkName)}`,
+  );
   const lastUsedWallet = localStorage.getItem(localStorageKey);
 
   // if the last used wallet is not WalletConnect, try to connect to it

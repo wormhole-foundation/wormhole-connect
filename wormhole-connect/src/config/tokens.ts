@@ -16,6 +16,7 @@ import { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 
 import { fetchTokenMetadata } from 'utils/coingecko';
+import { buildLocalStorageKey } from 'utils/localStorage';
 
 const TOKEN_CACHE_VERSION = 1;
 
@@ -512,7 +513,9 @@ export function buildTokenCache(
   wrappedTokens: WrappedTokenAddresses,
   tokenFilter?: string[],
 ): TokenCache {
-  const cache = TokenCache.load(`wormhole-connect:token-cache:${network}`);
+  const cache = TokenCache.load(
+    buildLocalStorageKey(`wormhole-connect:token-cache:${network}`),
+  );
 
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
     const token = new Token(
