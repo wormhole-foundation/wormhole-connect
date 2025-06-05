@@ -117,7 +117,6 @@ const AssetPicker = (props: Props) => {
     props.tokenList || [],
   );
 
-  // Use the unified hook with filterByBalance based on isSource
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
     searchQuery,
@@ -126,7 +125,7 @@ const AssetPicker = (props: Props) => {
     sourceToken: props.sourceToken,
     wallet: props.wallet,
     balances,
-    filterByBalance: props.isSource, // true for source, false for destination
+    isSourceList: props.isSource, // true for source, false for destination
   });
 
   const popupState = usePopupState({

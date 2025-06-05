@@ -1,7 +1,9 @@
 import {
+  Chain,
   circle,
   isNative,
   amount as sdkAmount,
+  TokenId,
 } from '@wormhole-foundation/sdk';
 import type { ChainConfig } from 'config/types';
 import {
@@ -10,6 +12,7 @@ import {
   tokenKey,
   isTokenTuple,
   tokenIdFromTuple,
+  addressString,
 } from 'config/tokens';
 import { calculateUSDPriceRaw, isFrankensteinToken } from 'utils';
 import config from 'config';
@@ -97,6 +100,33 @@ export const sortTokensByPreference = (
 
     const balanceA = calculateTokenUSDBalance(a, balances, getTokenPrice);
     const balanceB = calculateTokenUSDBalance(b, balances, getTokenPrice);
+
+    if (balanceA !== balanceB) {
+      return balanceB - balanceA;
+    } else {
+      // If equal scores and USD balance, compare by symbol
+      return a.symbol.localeCompare(b.symbol);
+    }
+  });
+};
+
+export const sortTokensByUsdBalance = (
+  tokens: Token[],
+  selectedToken: Token | undefined,
+  balances: Record<string, { balance: any }>,
+  getTokenPrice: (token: Token) => number | undefined,
+): Token[] => {
+  return tokens.sort((a, b) => {
+    if (selectedToken && isSameToken(selectedToken, a)) {
+      return -1;
+    }
+    if (selectedToken && isSameToken(selectedToken, b)) {
+      return 1;
+    }
+
+    const balanceA = calculateTokenUSDBalance(a, balances, getTokenPrice);
+    const balanceB = calculateTokenUSDBalance(b, balances, getTokenPrice);
+
     if (balanceA !== balanceB) {
       return balanceB - balanceA;
     } else {
@@ -169,6 +199,43 @@ export const applyCustomTokenSupport = (
     return tokens;
   }
   return tokens.filter((t) => filter(t, sourceToken));
+};
+
+export const isNttToken = (tokenId: TokenId): boolean => {
+  return (
+    ['ManualNtt', 'AutomaticNtt', 'M0AutomaticRoute']
+      .map((rn) => {
+        const route = config.routes.get(rn);
+        if (route) {
+          const nttConfig = (route.rc as any).config;
+          for (const key in nttConfig) {
+            const options: { chain: Chain; token: string }[] = nttConfig[key];
+
+            for (const opt of options) {
+              if (
+                opt.chain === tokenId.chain &&
+                opt.token === addressString(tokenId)
+              ) {
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      })
+      .find((r) => r) !== undefined
+  );
+};
+
+export const applyShittokenFilter = (tokens: Token[]): Token[] => {
+  return tokens.filter((token) => {
+    return (
+      token.isNativeGasToken ||
+      token.coingeckoWebId ||
+      token.isTokenBridgeWrappedToken ||
+      isNttToken(token)
+    );
+  });
 };
 
 export const filterTokensByBalance = (

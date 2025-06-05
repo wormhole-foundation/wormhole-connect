@@ -18,8 +18,6 @@ import config, { getWormholeContextV2 } from 'config';
 import { Contract } from 'ethers';
 import { SuiClient } from '@mysten/sui/client';
 import { SDKv2Route } from 'routes/sdkv2/route';
-import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
-import { addressString } from 'config/tokens';
 
 interface TokenMetadataFromRpc {
   symbol: string;
@@ -121,32 +119,6 @@ export async function getTokenMetadataSui(
     return undefined;
   }
 }
-
-export const isNttToken = (tokenId: TokenId): boolean => {
-  return (
-    ['ManualNtt', 'AutomaticNtt', 'M0AutomaticRoute']
-      .map((rn) => {
-        const route = config.routes.get(rn);
-        if (route) {
-          const nttConfig: NttRoute.Config = (route.rc as any).config;
-          for (const key in nttConfig) {
-            const options: { chain: Chain; token: string }[] = nttConfig[key];
-
-            for (const opt of options) {
-              if (
-                opt.chain === tokenId.chain &&
-                opt.token === addressString(tokenId)
-              ) {
-                return true;
-              }
-            }
-          }
-        }
-        return false;
-      })
-      .find((r) => r) !== undefined
-  );
-};
 
 // returns true if the token is supported by a NTT route, false otherwise
 export const hasNttRoute = async (

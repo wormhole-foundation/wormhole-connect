@@ -10,6 +10,8 @@ import {
   applyTokenWhitelist,
   applyCustomTokenSupport,
   filterTokensByBalance,
+  applyShittokenFilter,
+  sortTokensByUsdBalance,
 } from 'utils/tokenListUtils';
 
 interface UseTokenListParams {
@@ -20,7 +22,7 @@ interface UseTokenListParams {
   sourceToken?: Token;
   wallet: WalletData;
   balances: Balances;
-  filterByBalance?: boolean; // true for source tokens, false for destination tokens
+  isSourceList?: boolean; // true for source tokens, false for destination tokens
 }
 
 export const useTokenList = ({
@@ -31,7 +33,7 @@ export const useTokenList = ({
   sourceToken,
   wallet,
   balances,
-  filterByBalance = false,
+  isSourceList = false,
 }: UseTokenListParams): Token[] => {
   const { getTokenPrice } = useTokens();
 
@@ -41,13 +43,23 @@ export const useTokenList = ({
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     let tokens = applyTokenSearch(tokenList, searchQuery, selectedChainConfig);
 
-    // Sort tokens by preference and balance
-    tokens = sortTokensByPreference(
-      tokens,
-      selectedToken,
-      balances,
-      getTokenPrice,
-    );
+    if (isSourceList) {
+      // For source list, we simply sort by USD balance
+      tokens = sortTokensByUsdBalance(
+        tokens,
+        selectedToken,
+        balances,
+        getTokenPrice,
+      );
+    } else {
+      // For dest list, we sort by a few heuristics
+      tokens = sortTokensByPreference(
+        tokens,
+        selectedToken,
+        balances,
+        getTokenPrice,
+      );
+    }
 
     // Apply token whitelist filtering if configured
     tokens = applyTokenWhitelist(tokens, selectedChainConfig);
@@ -55,8 +67,11 @@ export const useTokenList = ({
     // Apply custom token support handler if configured
     tokens = applyCustomTokenSupport(tokens, sourceToken);
 
-    // Conditionally filter by balance (for source tokens only)
-    if (filterByBalance) {
+    // For source list, we filter further because we're loading arbitrary tokens in their wallet
+    if (isSourceList) {
+      // Filter out possible scamcoins
+      tokens = applyShittokenFilter(tokens);
+      // Conditionally filter by balance (for source tokens only)
       tokens = filterTokensByBalance(tokens, balances, wallet.address);
     }
 
@@ -69,7 +84,7 @@ export const useTokenList = ({
     wallet.address,
     balances,
     getTokenPrice,
-    filterByBalance,
+    isSourceList,
     sourceToken,
   ]);
 };
