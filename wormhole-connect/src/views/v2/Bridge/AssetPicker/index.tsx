@@ -111,7 +111,7 @@ const AssetPicker = (props: Props) => {
   const { classes } = useStyles();
 
   // Get token balances for filtering
-  const { balances } = useGetTokenBalances(
+  const { balances, fetchTokensProgress } = useGetTokenBalances(
     props.wallet,
     props.chain,
     props.tokenList || [],
@@ -344,6 +344,7 @@ const AssetPicker = (props: Props) => {
                 props.setToken(key);
                 popupState.close();
               }}
+              fetchTokensProgress={fetchTokensProgress}
             />
           )}
         </Popover>

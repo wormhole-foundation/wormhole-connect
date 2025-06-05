@@ -150,7 +150,6 @@ export class SDKv2Route {
       routes.RouteTransferRequest<Network>,
     ]
   > {
-    console.log('piss1.5', this.rc.name);
     const req = await this.createRequest(
       sourceToken,
       destToken,
@@ -159,7 +158,6 @@ export class SDKv2Route {
       recipient,
     );
 
-    console.log('piss2', req, this.rc.name);
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
     const validationResult = await route.validate(req, {
@@ -167,7 +165,6 @@ export class SDKv2Route {
       options,
     });
 
-    console.log(validationResult);
     if (!validationResult.valid) {
       throw validationResult.error;
     }
@@ -188,7 +185,6 @@ export class SDKv2Route {
     const destContext = (await this.getV2ChainContext(destChain)).context;
 
     const wh = await getWormholeContextV2();
-    console.log('sdfsd');
     const req = await routes.RouteTransferRequest.create(
       wh,
       /* @ts-ignore */
@@ -202,7 +198,6 @@ export class SDKv2Route {
       sourceContext,
       destContext,
     );
-    console.log('sdfsd', req);
     return req;
   }
 
@@ -215,10 +210,7 @@ export class SDKv2Route {
     options?: routes.AutomaticTokenBridgeRoute.Options,
     recipient?: string,
   ): Promise<routes.QuoteResult<routes.Options>> {
-    console.log('piss', sourceToken, this.rc.name);
-
     if (!fromChain || !toChain) {
-      console.log('nooo', sourceToken, this.rc.name);
       throw new Error('Need both chains to get a quote from SDKv2');
     }
 

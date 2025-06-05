@@ -35,7 +35,7 @@ export const useTokenList = ({
   balances,
   isSourceList = false,
 }: UseTokenListParams): Token[] => {
-  const { getTokenPrice } = useTokens();
+  const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   return useMemo(() => {
     if (!tokenList) return [];
@@ -43,7 +43,7 @@ export const useTokenList = ({
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     let tokens = applyTokenSearch(tokenList, searchQuery, selectedChainConfig);
 
-    if (isSourceList) {
+    if (isSourceList && wallet.address) {
       // For source list, we simply sort by USD balance
       tokens = sortTokensByUsdBalance(
         tokens,
@@ -84,6 +84,7 @@ export const useTokenList = ({
     wallet.address,
     balances,
     getTokenPrice,
+    lastTokenPriceUpdate,
     isSourceList,
     sourceToken,
   ]);

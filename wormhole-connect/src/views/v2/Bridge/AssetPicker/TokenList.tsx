@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
-import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  LinearProgress,
+  Skeleton,
+  useTheme,
+} from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
@@ -51,6 +58,7 @@ type Props = {
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
   onSelectToken: (key: Token) => void;
+  fetchTokensProgress?: null | number;
 };
 
 const TokenList = (props: Props) => {
@@ -118,9 +126,24 @@ const TokenList = (props: Props) => {
         shouldShowEmptyMessage ? (
           noTokensMessage
         ) : (
-          <Typography fontSize={14} color={theme.palette.text.secondary}>
-            Tokens on {props.selectedChainConfig.displayName}
-          </Typography>
+          <Box display="flex" width="100%">
+            <Typography
+              style={{ flexGrow: '2' }}
+              fontSize={14}
+              color={theme.palette.text.secondary}
+            >
+              Tokens on {props.selectedChainConfig.displayName}
+            </Typography>
+
+            <Box style={{ flexGrow: '1', padding: '6px 0' }}>
+              {props.fetchTokensProgress ? (
+                <LinearProgress
+                  variant="determinate"
+                  value={props.fetchTokensProgress * 100}
+                />
+              ) : null}
+            </Box>
+          </Box>
         )
       }
       loading={

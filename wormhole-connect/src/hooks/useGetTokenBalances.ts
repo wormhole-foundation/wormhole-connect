@@ -20,7 +20,11 @@ const useGetTokenBalances = (
   wallet: WalletData | undefined,
   chain: Chain | undefined,
   tokens: Token[],
-): { isFetching: boolean; balances: Balances } => {
+): {
+  isFetching: boolean;
+  balances: Balances;
+  fetchTokensProgress: number | null;
+} => {
   const [isFetching, setIsFetching] = useState(false);
   const [balances, setBalances] = useState<Balances>({});
   const cachedBalances = useSelector(
@@ -29,6 +33,10 @@ const useGetTokenBalances = (
   const { getOrFetchToken } = useTokens();
   const dispatch = useDispatch();
   const isFetchingRef = useRef<boolean>(false);
+
+  const [fetchTokensProgress, setFetchTokensProgress] = useState<null | number>(
+    null,
+  );
 
   useEffect(() => {
     // Don't run this more than once concurrently
@@ -60,7 +68,6 @@ const useGetTokenBalances = (
 
     isFetchingRef.current = true;
     setIsFetching(true);
-
     const isActive = true;
 
     const getBalances = async () => {
@@ -198,9 +205,11 @@ const useGetTokenBalances = (
               console.debug('processing unknownTokens', unknownTokens);
 
               if (unknownTokens.length > 0) {
+                setFetchTokensProgress(0.0);
+
                 // Process tokens in batches with rate limiting
                 const BATCH_SIZE = 5;
-                const BATCH_DELAY_MS = 1000;
+                const BATCH_DELAY_MS = 250;
                 const MAX_TOKENS_TO_PROCESS = 50; // Limit total tokens processed
                 let processedCount = 0;
 
@@ -224,6 +233,7 @@ const useGetTokenBalances = (
                     batch.map(async ([tokenAddress, bus]) => {
                       try {
                         // Token unrecognized; kick off a fetch request
+                        console.log('calling getorfetch', chain, tokenAddress);
                         const token = await getOrFetchToken(
                           Wormhole.tokenId(chain, tokenAddress),
                         );
@@ -247,6 +257,8 @@ const useGetTokenBalances = (
                       }
                     }),
                   );
+
+                  setFetchTokensProgress(i / unknownTokens.length);
 
                   setBalances(updatedBalances);
                   if (updateCache) {
@@ -272,6 +284,8 @@ const useGetTokenBalances = (
             } catch (e) {
               debugger;
               console.error(e);
+            } finally {
+              setFetchTokensProgress(null);
             }
 
             // Use fallback method if we couldn't use getBalances
@@ -334,7 +348,7 @@ const useGetTokenBalances = (
     };
   }, [chain, tokens, wallet]);
 
-  return { isFetching, balances };
+  return { isFetching, balances, fetchTokensProgress };
 };
 
 export default useGetTokenBalances;

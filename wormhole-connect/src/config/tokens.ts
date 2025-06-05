@@ -456,8 +456,6 @@ export class TokenCache extends TokenMapping<Token> {
       }
     }
 
-    console.log(coingeckoId, metadata);
-
     const t = new Token(
       tokenId.chain,
       canonicalAddress(tokenId),
