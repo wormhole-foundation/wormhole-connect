@@ -160,7 +160,10 @@ export const applyTokenWhitelist = (
   return tokens.filter((token) => filteredTokens.has(token.address.toString()));
 };
 
-export const applyCustomTokenSupport = (tokens: Token[], sourceToken?: Token): Token[] => {
+export const applyCustomTokenSupport = (
+  tokens: Token[],
+  sourceToken?: Token,
+): Token[] => {
   const filter = config.isTokenSupportedHandler;
   if (!filter) {
     return tokens;

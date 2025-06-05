@@ -70,5 +70,6 @@ export const useTokenList = ({
     balances,
     getTokenPrice,
     filterByBalance,
+    sourceToken,
   ]);
 };
