@@ -60,8 +60,6 @@ const TokenList = (props: Props) => {
 
   const { getOrFetchToken, isFetchingToken, getTokenPrice } = useTokens();
 
-  // Search query is now managed by parent component
-
   const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
     props.wallet,
     props.selectedChainConfig.sdkName,
@@ -170,15 +168,12 @@ const TokenList = (props: Props) => {
         const price = balance
           ? calculateUSDPrice(getTokenPrice, balance, token)
           : null;
-        // Disabled logic is now handled by the filtering hooks
-        const disabled = false;
 
         return (
           <TokenItem
             key={token.key}
             token={token}
             chain={props.selectedChainConfig.sdkName}
-            disabled={disabled}
             onClick={() => {
               props.onSelectToken(token);
             }}

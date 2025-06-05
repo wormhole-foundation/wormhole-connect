@@ -57,7 +57,6 @@ type TokenItemProps = {
   balance: sdkAmount.Amount | null;
   price: string | null;
   onClick: () => void;
-  disabled?: boolean;
   isSelected?: boolean;
   isFetchingBalance?: boolean;
 };
@@ -79,7 +78,6 @@ function TokenItem(props: TokenItemProps) {
         props.isSelected ? classes.tokenListItemSelected : ''
       }`}
       dense
-      disabled={props.disabled}
       data-testid={`token-button-${chain.toLowerCase()}-${token.address.toString()}`}
       onMouseDown={props.onClick}
     >
