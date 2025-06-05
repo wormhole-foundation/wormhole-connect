@@ -14,6 +14,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
+import { sleep } from 'utils';
 
 const useGetTokenBalances = (
   wallet: WalletData | undefined,
@@ -60,7 +61,7 @@ const useGetTokenBalances = (
       return;
     }
 
-    let isActive = true;
+    const isActive = true;
     isFetchingRef.current = true;
 
     const getBalances = async () => {
@@ -151,37 +152,115 @@ const useGetTokenBalances = (
 
                 const { isNttToken } = await import('utils/tokens');
 
-                await Promise.all(
-                  Object.entries(result).map(async ([tokenAddress, bus]) => {
-                    const token = await getOrFetchToken(
-                      Wormhole.tokenId(chain, tokenAddress),
+                // Sort tokens by balance (highest first)
+                const sortedTokens = Object.entries(result)
+                  .sort(([, a], [, b]) => {
+                    const balanceA = a ?? 0n;
+                    const balanceB = b ?? 0n;
+                    return balanceA > balanceB
+                      ? -1
+                      : balanceA < balanceB
+                      ? 1
+                      : 0;
+                  })
+                  .filter(([_tokenAddress, bus]) => {
+                    // Filter out dust
+                    return bus !== null && bus > 1n;
+                  });
+
+                // Process tokens in batches with rate limiting
+                const BATCH_SIZE = 10;
+                const BATCH_DELAY_MS = 500;
+                const MAX_TOKENS_TO_PROCESS = 20; // Limit total tokens processed
+                let processedCount = 0;
+
+                for (let i = 0; i < sortedTokens.length; i += BATCH_SIZE) {
+                  if (!isActive) {
+                    console.log('fuck!');
+                    return;
+                  }
+
+                  if (processedCount >= MAX_TOKENS_TO_PROCESS) {
+                    console.log(
+                      `Reached max token limit (${MAX_TOKENS_TO_PROCESS}), skipping remaining ${
+                        sortedTokens.length - i
+                      } tokens`,
                     );
-                    if (!token) return;
+                    break;
+                  }
 
-                    // We show source tokens if they meet at least one of 3 criteria:
-                    // 1. Coingecko recognizes them
-                    // 2. We have an NTT config for them
-                    // 3. They are a token bridge wrapped token
-                    const tokenQualifiesToBeShown =
-                      token.coingeckoWebId ||
-                      token.isTokenBridgeWrappedToken ||
-                      isNttToken(token);
+                  const batch = sortedTokens.slice(i, i + BATCH_SIZE);
 
-                    if (!tokenQualifiesToBeShown) {
-                      console.warn(`Filtering out possible scamtoken`, token);
-                      return false;
-                    }
+                  await Promise.all(
+                    batch.map(async ([tokenAddress, bus]) => {
+                      if (!isActive) return;
 
-                    const balance = amount.fromBaseUnits(
-                      bus ?? 0n,
-                      token.decimals,
-                    );
-                    updatedBalances[token.key] = {
-                      balance,
-                      lastUpdated: now,
-                    };
-                  }),
-                );
+                      try {
+                        console.log('Fetching', i, chain, tokenAddress);
+
+                        const token = await getOrFetchToken(
+                          Wormhole.tokenId(chain, tokenAddress),
+                        );
+                        if (!token) return;
+
+                        // We show source tokens if they meet at least one of 3 criteria:
+                        // 1. Coingecko recognizes them
+                        // 2. We have an NTT config for them
+                        // 3. They are a token bridge wrapped token
+                        const tokenQualifiesToBeShown =
+                          token.coingeckoWebId ||
+                          token.isTokenBridgeWrappedToken ||
+                          isNttToken(token);
+
+                        console.log(token, tokenQualifiesToBeShown);
+
+                        if (!tokenQualifiesToBeShown) {
+                          console.warn(
+                            `Filtering out possible scamtoken`,
+                            token,
+                          );
+                          return false;
+                        }
+
+                        const balance = amount.fromBaseUnits(
+                          bus ?? 0n,
+                          token.decimals,
+                        );
+
+                        // Skip dust tokens (less than $0.01 worth)
+                        const balanceNum = parseFloat(balance.toString());
+                        if (balanceNum < 0.01 && processedCount > 10) {
+                          console.log(
+                            `Skipping dust token ${token.symbol} with balance ${balanceNum}`,
+                          );
+                          return;
+                        }
+
+                        updatedBalances[token.key] = {
+                          balance,
+                          lastUpdated: now,
+                        };
+                        processedCount++;
+                      } catch (e) {
+                        console.error(
+                          `Failed to fetch token metadata for ${tokenAddress}:`,
+                          e,
+                        );
+                      }
+                    }),
+                  );
+
+                  if (!isActive) return;
+
+                  // Add delay between batches to avoid rate limiting
+                  if (
+                    i + BATCH_SIZE < sortedTokens.length &&
+                    processedCount < MAX_TOKENS_TO_PROCESS
+                  ) {
+                    console.log('Sleeping', BATCH_DELAY_MS);
+                    await sleep(BATCH_DELAY_MS);
+                  }
+                }
 
                 usedGetBalances = true;
               } catch (e) {
@@ -249,10 +328,10 @@ const useGetTokenBalances = (
     getBalances();
 
     return () => {
-      isActive = false;
-      isFetchingRef.current = false;
+      //isActive = false;
+      //isFetchingRef.current = false;
     };
-  }, [cachedBalances, chain, dispatch, tokens, wallet, getOrFetchToken]);
+  }, [chain, tokens, wallet]);
 
   return { isFetching, balances };
 };

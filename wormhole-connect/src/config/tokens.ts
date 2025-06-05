@@ -142,6 +142,7 @@ export class Token extends TokenIdLazy {
       tokenBridgeOriginalTokenId: this.tokenBridgeOriginalTokenId
         ? tokenIdToTuple(this.tokenBridgeOriginalTokenId)
         : undefined,
+      coingeckoWebId: this.coingeckoWebId,
     };
   }
 
@@ -153,6 +154,7 @@ export class Token extends TokenIdLazy {
     name,
     icon,
     tokenBridgeOriginalTokenId,
+    coingeckoWebId,
   }: TokenJson) {
     return new Token(
       chain as Chain,
@@ -164,6 +166,7 @@ export class Token extends TokenIdLazy {
       tokenBridgeOriginalTokenId
         ? tokenIdFromTuple(tokenBridgeOriginalTokenId)
         : undefined,
+      coingeckoWebId,
     );
   }
 }
@@ -176,6 +179,7 @@ interface TokenJson {
   name: string;
   icon: string;
   tokenBridgeOriginalTokenId: TokenTuple | undefined;
+  coingeckoWebId: string | undefined;
 }
 
 // Mapping of tokens to some value
@@ -451,6 +455,8 @@ export class TokenCache extends TokenMapping<Token> {
         }
       }
     }
+
+    console.log(coingeckoId, metadata);
 
     const t = new Token(
       tokenId.chain,
