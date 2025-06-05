@@ -42,7 +42,7 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 type Props = {
-  tokenList: Array<Token>; // Remove optional since we'll pass sorted tokens
+  tokenList: Array<Token>;
   isFetching?: boolean;
   selectedChainConfig: ChainConfig;
   selectedToken?: Token;
