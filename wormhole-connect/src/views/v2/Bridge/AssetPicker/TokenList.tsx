@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Card,
@@ -18,7 +18,7 @@ import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { calculateUSDPrice } from 'utils';
+import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 import { Balances } from 'store/transferInput';
@@ -53,9 +53,11 @@ type Props = {
   balances: Balances;
   isFetchingBalances: boolean;
   isFetching?: boolean;
+  isConnectingWallet?: boolean;
   selectedChainConfig: ChainConfig;
   selectedToken?: Token;
   sourceToken?: Token;
+  isSource: boolean;
   wallet: WalletData;
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
@@ -67,13 +69,23 @@ const TokenList = (props: Props) => {
   const { classes } = useStyles();
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
+  const [tokenPrices, setTokenPrices] = useState<
+    Map<string, number | undefined>
+  >(new Map());
 
   const {
     getOrFetchToken,
     isFetchingToken,
-    getTokenPrice,
-    isFetchingTokenPrices,
+    getTokenPrices,
+    lastTokenPriceUpdate,
   } = useTokens();
+
+  // Get token prices using the synchronous hook pattern
+  // Re-calculate when token list or price updates occur
+  useEffect(() => {
+    const prices = getTokenPrices(props.tokenList);
+    setTokenPrices(prices);
+  }, [props.tokenList, getTokenPrices, lastTokenPriceUpdate]);
 
   useEffect(() => {
     // When the search query or chain changes, see if the search query is a valid address on the selected chain.
@@ -105,33 +117,56 @@ const TokenList = (props: Props) => {
   const noTokensMessage = useMemo(
     () => (
       <Typography variant="body2" color={theme.palette.grey.A400}>
-        No supported tokens found in wallet
+        {props.isSource
+          ? 'No supported tokens found in wallet'
+          : props.sourceToken
+          ? 'No output tokens supported'
+          : 'Please select a source token'}
       </Typography>
     ),
     [theme.palette.grey.A400],
   );
 
-  const shouldShowEmptyMessage =
-    sortedTokens.length === 0 &&
-    !props.isFetchingBalances &&
-    !props.isFetching &&
-    !isFetchingTokenPrices;
+  // Calculate the price coverage percentage
+  const priceCoverage = useMemo(() => {
+    if (sortedTokens.length === 0) return 0;
 
-  if (shouldShowEmptyMessage) {
-    console.log(
-      sortedTokens,
-      props.balances,
-      props.isFetchingBalances,
-      props.isFetching,
-      isFetchingTokenPrices,
-    );
-  }
+    let tokensWithPrices = 0;
+    sortedTokens.forEach((token) => {
+      if (
+        tokenPrices.has(token.key) &&
+        tokenPrices.get(token.key) !== undefined
+      ) {
+        tokensWithPrices++;
+      }
+    });
 
-  console.log(shouldShowEmptyMessage, props.balances);
+    return tokensWithPrices / sortedTokens.length;
+  }, [sortedTokens, tokenPrices]);
+
+  // Show loading state only if we have less than 50% price coverage AND we're actively loading
+  const haveSomePrices = priceCoverage > 0;
 
   const placeholder = `Search for a token${
     tokenPastingIsEnabled ? ' or paste an address' : ''
   }`;
+
+  const shouldShowLoadingState = props.isSource
+    ? (props.wallet?.address || props.isConnectingWallet) &&
+      (props.isFetching ||
+        props.isFetchingBalances ||
+        Object.keys(props.balances).length === 0 ||
+        !haveSomePrices)
+    : (props.wallet?.address || props.isConnectingWallet) &&
+      props.sourceToken &&
+      props.isFetching;
+
+  const shouldShowEmptyMessage =
+    sortedTokens.length === 0 &&
+    !props.isFetchingBalances &&
+    !props.isFetching &&
+    !props.isConnectingWallet &&
+    !shouldShowLoadingState;
 
   const searchList = (
     <SearchableList<Token>
@@ -163,12 +198,11 @@ const TokenList = (props: Props) => {
         )
       }
       loading={
-        props.wallet?.address &&
-        (props.isFetching || Object.keys(props.balances).length === 0) &&
+        shouldShowLoadingState &&
         [1, 2, 3].map((x) => (
-          <ListItemButton className={classes.tokenLoader} dense>
+          <ListItemButton className={classes.tokenLoader} dense key={x}>
             <Box padding="8px 16px">
-              <Skeleton key={x} variant="circular" width="36px" height="36px" />
+              <Skeleton variant="circular" width="36px" height="36px" />
             </Box>
           </ListItemButton>
         ))
@@ -205,9 +239,11 @@ const TokenList = (props: Props) => {
       }}
       renderFn={(token: Token) => {
         const balance = props.balances?.[token.key]?.balance;
-        const price = balance
-          ? calculateUSDPrice(getTokenPrice, balance, token)
-          : null;
+        const tokenPrice = tokenPrices.get(token.key);
+        const price =
+          balance && tokenPrice !== undefined
+            ? getUSDFormat(calculateUSDPriceRaw(tokenPrice, balance, token))
+            : null;
 
         return (
           <TokenItem

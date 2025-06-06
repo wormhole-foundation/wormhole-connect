@@ -25,6 +25,7 @@ interface TokensContextType {
   lastTokenCacheUpdate: Date;
 
   getTokenPrice: (token: Token) => number | undefined;
+  getTokenPrices: (tokens: Token[]) => Map<string, number | undefined>;
   isFetchingTokenPrices: boolean;
   lastTokenPriceUpdate: Date;
 }
@@ -162,24 +163,134 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     }
   }, 250);
 
-  const getTokenPrice = (token: Token): number | undefined => {
+  // Helper function to get cached price or determine if token is USDC
+  const getCachedPriceOrUSDC = (
+    token: Token,
+  ): { price: number | undefined; needsFetch: boolean } => {
     const usdc = circle.usdcContract.get(config.network, token.chain);
     if (usdc && token.addressString === usdc) {
       // USDC is a special case since it's a stablecoin and its price is always 1 USD.
-      return 1;
+      return { price: 1, needsFetch: false };
     }
-    // For wrapped tokens, we use the original token's price since they are equivalent.
+
+    // For wrapped tokens, use the original token's price
     const tokenId = token.tokenBridgeOriginalTokenId ?? token;
     const cachedPrice = tokenPrices.current.get(tokenId);
 
+    // If we have a cached entry (even if price is undefined), don't fetch again
     if (cachedPrice) {
-      return cachedPrice.price;
-    } else if (!tokenPricesFetching.current.has(tokenKey(tokenId))) {
-      tokenPricesToFetch.current.add(tokenKey(tokenId));
-      updateTokenPrices();
-      return undefined;
+      return { price: cachedPrice.price, needsFetch: false };
     }
+
+    return { price: undefined, needsFetch: true };
   };
+
+  const getTokenPrice = useCallback(
+    (token: Token): number | undefined => {
+      const { price, needsFetch } = getCachedPriceOrUSDC(token);
+
+      if (!needsFetch) {
+        return price;
+      }
+
+      // Trigger fetch if not already being fetched
+      const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+      if (!tokenPricesFetching.current.has(tokenKey(tokenId))) {
+        tokenPricesToFetch.current.add(tokenKey(tokenId));
+        updateTokenPrices();
+      }
+
+      return undefined;
+    },
+    [updateTokenPrices],
+  );
+
+  const batchFetchingTokens = useRef<Set<string>>(new Set());
+
+  const getTokenPrices = useCallback(
+    (tokens: Token[]): Map<string, number | undefined> => {
+      const priceMap = new Map<string, number | undefined>();
+      const tokensNeedingFetch: Token[] = [];
+
+      // Collect current prices and identify tokens needing fetch
+      for (const token of tokens) {
+        const { price, needsFetch } = getCachedPriceOrUSDC(token);
+
+        priceMap.set(token.key, price);
+
+        if (needsFetch) {
+          const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+          const tokenKeyStr = tokenKey(tokenId);
+
+          // Only add to fetch list if not already being fetched
+          if (
+            !batchFetchingTokens.current.has(tokenKeyStr) &&
+            !tokenPricesFetching.current.has(tokenKeyStr)
+          ) {
+            tokensNeedingFetch.push(token);
+            batchFetchingTokens.current.add(tokenKeyStr);
+          }
+        }
+      }
+
+      // Trigger fetch for missing prices
+      if (tokensNeedingFetch.length > 0) {
+        // Immediately trigger fetch for all tokens that need prices
+        const fetchPrices = async () => {
+          try {
+            console.info(
+              'Fetching prices for',
+              tokensNeedingFetch.length,
+              'tokens',
+            );
+            const timestamp = new Date();
+            const prices = await fetchTokenPrices(tokensNeedingFetch);
+
+            // Process all tokens, even if they don't have prices
+            for (const token of tokensNeedingFetch) {
+              const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+              const price = prices.get(tokenId);
+
+              // Update cache - store undefined if price fetch failed
+              tokenPrices.current.add(tokenId, {
+                timestamp,
+                price: price ?? undefined,
+              });
+
+              // Remove from fetching set
+              batchFetchingTokens.current.delete(tokenKey(tokenId));
+            }
+
+            // Trigger re-render by updating the last update time
+            setLastPriceUpdate(new Date());
+          } catch (e) {
+            console.error('Error fetching token prices:', e);
+            // On error, still cache the failed attempts to prevent infinite retries
+            const timestamp = new Date();
+            for (const token of tokensNeedingFetch) {
+              const tokenId = token.tokenBridgeOriginalTokenId ?? token;
+
+              // Cache as undefined to prevent re-fetching
+              tokenPrices.current.add(tokenId, {
+                timestamp,
+                price: undefined,
+              });
+
+              batchFetchingTokens.current.delete(tokenKey(tokenId));
+            }
+            // Still trigger re-render
+            setLastPriceUpdate(new Date());
+          }
+        };
+
+        // Execute fetch without awaiting
+        fetchPrices();
+      }
+
+      return priceMap;
+    },
+    [],
+  );
 
   return (
     <TokensContext.Provider
@@ -189,6 +300,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
         isFetchingToken,
 
         getTokenPrice,
+        getTokenPrices,
         isFetchingTokenPrices,
         lastTokenPriceUpdate,
       }}

@@ -102,6 +102,7 @@ type Props = {
   dataTestId?: string;
   balances: Balances;
   isFetchingBalances: boolean;
+  isConnectingWallet?: boolean;
   fetchTokensProgress: number | null;
 };
 
@@ -282,9 +283,11 @@ const AssetPicker = (props: Props) => {
               balances={props.balances}
               isFetchingBalances={props.isFetchingBalances}
               isFetching={props.isFetching}
+              isConnectingWallet={props.isConnectingWallet}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
+              isSource={props.isSource}
               wallet={props.wallet}
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
@@ -334,9 +337,11 @@ const AssetPicker = (props: Props) => {
               isFetching={props.isFetching}
               balances={props.balances}
               isFetchingBalances={props.isFetchingBalances}
+              isConnectingWallet={props.isConnectingWallet}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
+              isSource={props.isSource}
               wallet={props.wallet}
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}

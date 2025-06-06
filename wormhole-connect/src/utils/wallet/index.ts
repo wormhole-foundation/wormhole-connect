@@ -8,10 +8,9 @@ import {
 
 import config from 'config';
 
-import { RootState } from 'store';
 import { Dispatch } from 'redux';
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   Network,
@@ -184,36 +183,56 @@ export const connectLastUsedWallet = async (
   }
 };
 
-export const useConnectToLastUsedWallet = (): void => {
+export const useConnectToLastUsedWallet = (
+  sourceChain?: Chain,
+  destChain?: Chain,
+): { isConnecting: boolean } => {
   const dispatch = useDispatch();
-  const { toChain, fromChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const [isConnecting, setIsConnecting] = React.useState(false);
 
   useEffect(() => {
+    // Early return if we don't have chains yet
+    if (!sourceChain && !destChain) {
+      return;
+    }
+
     let canceled = false;
 
+    console.log('calling connect last used wallet', sourceChain, destChain);
+
     const connect = async () => {
-      if (fromChain && !canceled)
-        await connectLastUsedWallet(
-          TransferWallet.SENDING,
-          fromChain,
-          dispatch,
-        );
-      if (toChain && !canceled)
-        await connectLastUsedWallet(
-          TransferWallet.RECEIVING,
-          toChain,
-          dispatch,
-        );
+      console.log(
+        'async func in connect last used wallet',
+        sourceChain,
+        destChain,
+      );
+      try {
+        if (sourceChain && !canceled)
+          await connectLastUsedWallet(
+            TransferWallet.SENDING,
+            sourceChain,
+            dispatch,
+          );
+        if (destChain && !canceled)
+          await connectLastUsedWallet(
+            TransferWallet.RECEIVING,
+            destChain,
+            dispatch,
+          );
+      } finally {
+        setIsConnecting(false);
+      }
     };
 
+    setIsConnecting(true);
     connect();
 
     return () => {
       canceled = true;
     };
-  }, [fromChain, toChain]);
+  }, [sourceChain, destChain, dispatch]);
+
+  return { isConnecting };
 };
 
 export const getWalletConnection = (type: TransferWallet) => {

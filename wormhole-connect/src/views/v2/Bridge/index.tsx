@@ -212,7 +212,10 @@ const Bridge = () => {
   // Pre-fetch available routes
 
   // Connect to any previously used wallets for the selected networks
-  useConnectToLastUsedWallet();
+  const { isConnecting: isConnectingWallet } = useConnectToLastUsedWallet(
+    sourceChain,
+    destChain,
+  );
 
   // Call to initiate transfer inputs validations
   useValidate();
@@ -358,6 +361,7 @@ const Bridge = () => {
           dataTestId="source-asset-picker"
           balances={sourceBalances}
           isFetchingBalances={isFetchingBalances}
+          isConnectingWallet={isConnectingWallet}
           fetchTokensProgress={
             sourceChain && sendingWallet
               ? fetchTokensProgress[`${sourceChain}-${sendingWallet.address}`]
@@ -376,6 +380,7 @@ const Bridge = () => {
     sourceTokens,
     lastTokenCacheUpdate,
     isTransactionInProgress,
+    isConnectingWallet,
     sendingWallet,
     dispatch,
     sourceBalances,
@@ -412,6 +417,7 @@ const Bridge = () => {
           dataTestId="dest-asset-picker"
           balances={destBalances}
           isFetchingBalances={isFetchingBalances}
+          isConnectingWallet={isConnectingWallet}
           fetchTokensProgress={
             destChain && receivingWallet
               ? fetchTokensProgress[`${destChain}-${receivingWallet.address}`]
@@ -428,6 +434,7 @@ const Bridge = () => {
     destToken,
     sourceToken,
     supportedDestTokens,
+    isConnectingWallet,
     isFetchingSupportedDestTokens,
     isTransactionInProgress,
     receivingWallet,
