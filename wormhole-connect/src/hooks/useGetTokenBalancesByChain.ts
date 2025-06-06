@@ -47,6 +47,10 @@ const useGetTokenBalancesByChain = (
     [key: string]: { balance: any; lastUpdated: number };
   }>({});
 
+  // Keep a ref of the balances to persist across renders
+  const balancesRef = useRef<BalanceMap>({});
+  balancesRef.current = balances;
+
   // Create a stable key for each request
   const getRequestKey = (chain: Chain, wallet: WalletData) =>
     `${chain}-${wallet.address}`;
@@ -70,6 +74,25 @@ const useGetTokenBalancesByChain = (
   useEffect(() => {
     // Don't run this more than once concurrently for the same combination
     if (isFetchingRef.current && currentKeyRef.current === currentKey) {
+      return;
+    }
+
+    // Check if all requested balances are already cached
+    let hasAllBalances = true;
+    for (const request of requests) {
+      const key = getRequestKey(request.chain, request.wallet);
+      if (
+        !balancesRef.current[key] ||
+        Object.keys(balancesRef.current[key]).length === 0
+      ) {
+        hasAllBalances = false;
+        break;
+      }
+    }
+
+    // If we already have all balances, don't refetch
+    if (hasAllBalances && requests.length > 0) {
+      setIsFetching(false);
       return;
     }
 
@@ -332,24 +355,59 @@ const useGetTokenBalancesByChain = (
     };
 
     const fetchAllBalances = async () => {
+      // First, check if we already have cached balances for all requests
+      let allCached = true;
+      const cachedResults: BalanceMap = {};
+
+      for (const request of requests) {
+        const key = getRequestKey(request.chain, request.wallet);
+        const existingBalances = balancesRef.current[key];
+
+        if (existingBalances && Object.keys(existingBalances).length > 0) {
+          // We have cached balances for this chain/wallet
+          cachedResults[key] = existingBalances;
+        } else {
+          allCached = false;
+        }
+      }
+
+      // If all balances are cached, use them immediately
+      if (allCached) {
+        setIsFetching(false);
+        isFetchingRef.current = false;
+        return;
+      }
+
       const results = await Promise.all(
         requests.map(async (request) => {
+          const key = getRequestKey(request.chain, request.wallet);
+
+          // Skip if we already have balances for this chain/wallet
+          if (cachedResults[key]) {
+            return {
+              key,
+              balances: cachedResults[key],
+            };
+          }
+
           const balances = await fetchBalancesForChain(
             request.chain,
             request.wallet,
             request.tokens,
           );
           return {
-            key: getRequestKey(request.chain, request.wallet),
+            key,
             balances,
           };
         }),
       );
 
       if (isActiveRef.current) {
-        const newBalances: BalanceMap = {};
+        const newBalances: BalanceMap = { ...balancesRef.current };
         for (const result of results) {
-          newBalances[result.key] = result.balances;
+          if (result.balances && Object.keys(result.balances).length > 0) {
+            newBalances[result.key] = result.balances;
+          }
         }
 
         setBalances(newBalances);
