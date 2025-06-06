@@ -38,18 +38,20 @@ const useGetTokenBalancesByChain = (
 
   const { getOrFetchToken } = useTokens();
 
-  const isFetchingRef = useRef<Map<Chain, boolean>>(new Map());
-  const failedTokens = useRef<Set<string>>(new Set());
-  const isActiveRef = useRef<boolean>(false);
+  // Combine all refs into a single state ref to reduce complexity
+  const stateRef = useRef({
+    isFetchingByChain: new Map<Chain, boolean>(),
+    failedTokens: new Set<string>(),
+    isActive: false,
+    balanceCache: {} as Record<
+      string,
+      { balance: amount.Amount; lastUpdated: number }
+    >,
+    currentBalances: {} as BalanceMap,
+  });
 
-  // Simple in-memory cache for balances
-  const balanceCacheRef = useRef<{
-    [key: string]: { balance: amount.Amount; lastUpdated: number };
-  }>({});
-
-  // Keep a ref of the balances to persist across renders
-  const balancesRef = useRef<BalanceMap>({});
-  balancesRef.current = balances;
+  // Update the current balances in the ref
+  stateRef.current.currentBalances = balances;
 
   // Create a stable key for each request
   const getRequestKey = (chain: Chain, wallet: WalletData) =>
@@ -77,13 +79,16 @@ const useGetTokenBalancesByChain = (
       return;
     }
 
+    // Capture ref value for cleanup
+    const state = stateRef.current;
+
     // Check if all requested balances are already cached
     let hasAllBalances = true;
     for (const request of requests) {
       const key = getRequestKey(request.chain, request.wallet);
       if (
-        !balancesRef.current[key] ||
-        Object.keys(balancesRef.current[key]).length === 0
+        !state.currentBalances[key] ||
+        Object.keys(state.currentBalances[key]).length === 0
       ) {
         hasAllBalances = false;
         break;
@@ -98,7 +103,7 @@ const useGetTokenBalancesByChain = (
 
     // Set up the refs for this execution
     currentKeyRef.current = currentKey;
-    isActiveRef.current = true;
+    state.isActive = true;
     setIsFetching(true);
 
     const fetchBalancesForChain = async (
@@ -107,22 +112,18 @@ const useGetTokenBalancesByChain = (
       tokens: Token[],
     ): Promise<Balances> => {
       // Check if already fetching for this specific chain
-      if (isFetchingRef.current.get(chain)) {
-        console.log('already fetching for chain', chain);
+      if (stateRef.current.isFetchingByChain.get(chain)) {
         return {};
       }
-      console.log('fetching for chain', chain, wallet, isFetchingRef.current);
-      isFetchingRef.current.set(chain, true);
+      stateRef.current.isFetchingByChain.set(chain, true);
       const chainConfig = config.chains[chain];
       if (!chainConfig) {
-        console.log(1);
-        isFetchingRef.current.set(chain, false);
+        stateRef.current.isFetchingByChain.set(chain, false);
         return {};
       }
 
       if (chainToPlatform(chainConfig.sdkName) !== wallet.type) {
-        console.log(2);
-        isFetchingRef.current.set(chain, false);
+        stateRef.current.isFetchingByChain.set(chain, false);
         return {};
       }
 
@@ -133,15 +134,14 @@ const useGetTokenBalancesByChain = (
         `${chain}-${wallet.address}-${token.key}`;
 
       if (tokens.length === 0) {
-        console.log(3);
-        isFetchingRef.current.set(chain, false);
+        stateRef.current.isFetchingByChain.set(chain, false);
         return updatedBalances;
       }
 
       // Check cache first
       const tokensToFetch: Token[] = [];
       for (const token of tokens) {
-        const cached = balanceCacheRef.current[cacheKey(token)];
+        const cached = stateRef.current.balanceCache[cacheKey(token)];
         if (cached && cached.lastUpdated > fiveMinutesAgo) {
           updatedBalances[token.key] = cached;
         } else {
@@ -150,8 +150,7 @@ const useGetTokenBalancesByChain = (
       }
 
       if (tokensToFetch.length === 0) {
-        console.log(5);
-        isFetchingRef.current.set(chain, false);
+        stateRef.current.isFetchingByChain.set(chain, false);
         return updatedBalances;
       }
 
@@ -220,7 +219,7 @@ const useGetTokenBalancesByChain = (
 
                 if (bus === null) continue;
 
-                if (failedTokens.current.has(key)) {
+                if (stateRef.current.failedTokens.has(key)) {
                   continue;
                 }
 
@@ -236,7 +235,7 @@ const useGetTokenBalancesByChain = (
                     lastUpdated: now,
                   };
                   updatedBalances[token.key] = balanceData;
-                  balanceCacheRef.current[cacheKey(token)] = balanceData;
+                  stateRef.current.balanceCache[cacheKey(token)] = balanceData;
                 } else {
                   unknownTokens.push([address, bus]);
                 }
@@ -244,7 +243,7 @@ const useGetTokenBalancesByChain = (
 
               usedGetBalances = true;
 
-              if (unknownTokens.length > 0 && isActiveRef.current) {
+              if (unknownTokens.length > 0 && stateRef.current.isActive) {
                 const requestKey = getRequestKey(chain, wallet);
                 setFetchTokensProgress((prev) => ({
                   ...prev,
@@ -258,8 +257,8 @@ const useGetTokenBalancesByChain = (
                 let processedCount = 0;
 
                 for (let i = 0; i < unknownTokens.length; i += BATCH_SIZE) {
-                  if (!isActiveRef.current) {
-                    isFetchingRef.current.set(chain, false);
+                  if (!stateRef.current.isActive) {
+                    stateRef.current.isFetchingByChain.set(chain, false);
                     return updatedBalances;
                   }
 
@@ -276,7 +275,7 @@ const useGetTokenBalancesByChain = (
                           Wormhole.tokenId(chain, tokenAddress),
                         );
                         if (!token) {
-                          failedTokens.current.add(
+                          stateRef.current.failedTokens.add(
                             tokenKey(chain, tokenAddress),
                           );
                           return;
@@ -294,13 +293,15 @@ const useGetTokenBalancesByChain = (
                         updatedBalances[token.key] = balanceData;
                         // Cache using chain-wallet-token key
                         const key = `${chain}-${wallet.address}-${token.key}`;
-                        balanceCacheRef.current[key] = balanceData;
+                        stateRef.current.balanceCache[key] = balanceData;
                       } catch (e) {
                         console.error(
                           `Failed to fetch token metadata for ${tokenAddress}:`,
                           e,
                         );
-                        failedTokens.current.add(tokenKey(chain, tokenAddress));
+                        stateRef.current.failedTokens.add(
+                          tokenKey(chain, tokenAddress),
+                        );
                       } finally {
                         processedCount++;
                       }
@@ -352,7 +353,7 @@ const useGetTokenBalancesByChain = (
                   lastUpdated: now,
                 };
                 updatedBalances[token.key] = balanceData;
-                balanceCacheRef.current[cacheKey(token)] = balanceData;
+                stateRef.current.balanceCache[cacheKey(token)] = balanceData;
               } catch (e) {
                 console.error(
                   `Failed to fetch balance for token ${token.key}`,
@@ -366,9 +367,8 @@ const useGetTokenBalancesByChain = (
         console.error('Failed to get token balances', e);
       }
 
-      console.log('fetched for chain', chain, wallet, updatedBalances);
       // Clear fetching state for this chain
-      isFetchingRef.current.set(chain, false);
+      stateRef.current.isFetchingByChain.set(chain, false);
       return updatedBalances;
     };
 
@@ -379,12 +379,12 @@ const useGetTokenBalancesByChain = (
 
       for (const request of requests) {
         const key = getRequestKey(request.chain, request.wallet);
-        const existingBalances = balancesRef.current[key];
+        const existingBalances = stateRef.current.currentBalances[key];
 
         if (existingBalances && Object.keys(existingBalances).length > 0) {
           // We have cached balances for this chain/wallet
           cachedResults[key] = existingBalances;
-          isFetchingRef.current.set(request.chain, false);
+          stateRef.current.isFetchingByChain.set(request.chain, false);
         } else {
           allCached = false;
         }
@@ -420,8 +420,8 @@ const useGetTokenBalancesByChain = (
         }),
       );
 
-      if (isActiveRef.current) {
-        const newBalances: BalanceMap = { ...balancesRef.current };
+      if (stateRef.current.isActive) {
+        const newBalances: BalanceMap = { ...stateRef.current.currentBalances };
         for (const result of results) {
           if (result.balances && Object.keys(result.balances).length > 0) {
             newBalances[result.key] = result.balances;
@@ -432,7 +432,7 @@ const useGetTokenBalancesByChain = (
 
         // Check if any chain is still fetching
         const anyChainFetching = Array.from(
-          isFetchingRef.current.values(),
+          stateRef.current.isFetchingByChain.values(),
         ).some((fetching) => fetching);
         setIsFetching(anyChainFetching);
       }
@@ -441,7 +441,7 @@ const useGetTokenBalancesByChain = (
     fetchAllBalances();
 
     return () => {
-      isActiveRef.current = false;
+      state.isActive = false;
       if (currentKeyRef.current === currentKey) {
         currentKeyRef.current = undefined;
       }

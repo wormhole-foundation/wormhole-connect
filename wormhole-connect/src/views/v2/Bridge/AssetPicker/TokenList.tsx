@@ -163,10 +163,6 @@ const TokenList = (props: Props) => {
   const shouldShowEmptyMessage =
     sortedTokens.length === 0 && !shouldShowLoadingState;
 
-  if (!props.isSource && shouldShowLoadingState) {
-    console.log(props.isFetching, haveSomePrices);
-  }
-
   const searchList = (
     <SearchableList<Token>
       searchPlaceholder={placeholder}

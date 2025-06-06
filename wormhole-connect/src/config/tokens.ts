@@ -323,6 +323,15 @@ export class TokenMapping<T> {
   get empty(): boolean {
     return this.size === 0;
   }
+
+  // Create a deep copy of this TokenMapping
+  clone(): TokenMapping<T> {
+    const cloned = new TokenMapping<T>();
+    this.forEach((tokenId, value) => {
+      cloned.add(tokenId, value);
+    });
+    return cloned;
+  }
 }
 
 export class TokenCache extends TokenMapping<Token> {

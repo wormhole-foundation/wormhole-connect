@@ -198,14 +198,7 @@ export const useConnectToLastUsedWallet = (
 
     let canceled = false;
 
-    console.log('calling connect last used wallet', sourceChain, destChain);
-
     const connect = async () => {
-      console.log(
-        'async func in connect last used wallet',
-        sourceChain,
-        destChain,
-      );
       try {
         if (sourceChain && !canceled)
           await connectLastUsedWallet(
