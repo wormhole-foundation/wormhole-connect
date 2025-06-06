@@ -44,7 +44,10 @@ const useGetTokenBalancesByChain = (
 
   // Simple in-memory cache for balances
   const balanceCacheRef = useRef<{
-    [key: string]: { balance: any; lastUpdated: number };
+    [key: string]: {
+      balance: { balance: amount.Amount; lastUpdated: Date };
+      lastUpdated: number;
+    };
   }>({});
 
   // Keep a ref of the balances to persist across renders
@@ -446,7 +449,7 @@ const useGetTokenBalancesByChain = (
         currentKeyRef.current = undefined;
       }
     };
-  }, [currentKey, getOrFetchToken]);
+  }, [requests, currentKey, getOrFetchToken]);
 
   return { isFetching, balances, fetchTokensProgress };
 };

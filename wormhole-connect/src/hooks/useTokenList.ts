@@ -76,6 +76,7 @@ export const useTokenList = ({
     }
 
     return tokens;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tokenList,
     searchQuery,
