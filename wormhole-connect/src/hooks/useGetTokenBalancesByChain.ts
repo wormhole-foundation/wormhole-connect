@@ -44,10 +44,7 @@ const useGetTokenBalancesByChain = (
 
   // Simple in-memory cache for balances
   const balanceCacheRef = useRef<{
-    [key: string]: {
-      balance: { balance: amount.Amount; lastUpdated: Date };
-      lastUpdated: number;
-    };
+    [key: string]: { balance: amount.Amount; lastUpdated: number };
   }>({});
 
   // Keep a ref of the balances to persist across renders
