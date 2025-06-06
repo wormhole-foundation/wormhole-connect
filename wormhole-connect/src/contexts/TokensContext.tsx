@@ -13,6 +13,7 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useRef,
 } from 'react';
 import { fetchTokenPrices } from 'utils/coingecko';
 import { useDebouncedCallback } from 'use-debounce';
@@ -57,10 +58,9 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     config.tokens.lastUpdate,
   );
 
-  const [tokenPrices, _setTokenPrices] = useState<TokenMapping<TokenPrice>>(
-    new TokenMapping(),
-  );
+  const tokenPrices = useRef<TokenMapping<TokenPrice>>(new TokenMapping());
   const tokenPricesToFetch = React.useRef<Set<string>>(new Set());
+  const tokenPricesFetching = React.useRef<Set<string>>(new Set());
 
   const [isFetchingTokenPrices, setIsFetchingPrices] = useState(false);
   const [lastTokenPriceUpdate, setLastPriceUpdate] = useState(new Date());
@@ -111,13 +111,9 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
   const updateTokenPrices = useDebouncedCallback(async () => {
     if (tokenPricesToFetch.current.size === 0) return;
 
-    const tokenIds = Array.from(tokenPricesToFetch.current.values());
-
-    const tokens = (
-      await Promise.all(tokenIds.map((t) => getOrFetchToken(parseTokenKey(t))))
-    ).filter((t) => t !== undefined);
-
-    console.info('Fetching token prices', tokens);
+    const tokens = Array.from(tokenPricesToFetch.current.values()).map((t) =>
+      parseTokenKey(t),
+    );
 
     try {
       setIsFetchingPrices(true);
@@ -125,7 +121,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
 
       // Flag that this price is being fetched, so that we don't start another concurrent request for it in getTokenPrice
       for (const token of tokens) {
-        tokenPrices.add(token, {
+        tokenPrices.current.add(token, {
           timestamp,
           price: undefined,
           isFetching: true,
@@ -133,24 +129,31 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
       }
 
       // Clear list for future invocations of getTokenPrice
+      for (const token of tokens) {
+        tokenPricesFetching.current.add(tokenKey(token));
+      }
       tokenPricesToFetch.current.clear();
+
+      console.info('Fetching token prices', tokens);
 
       const prices = await fetchTokenPrices(tokens);
 
       for (const token of tokens) {
         const price = prices.get(token);
         if (price) {
-          tokenPrices.add(token, {
+          tokenPrices.current.add(token, {
             timestamp,
             price,
           });
         } else {
-          tokenPrices.add(token, {
+          tokenPrices.current.add(token, {
             timestamp,
             price: undefined,
           });
         }
       }
+
+      tokenPricesFetching.current.clear();
     } catch (e) {
       console.error(e);
     } finally {
@@ -167,11 +170,11 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     }
     // For wrapped tokens, we use the original token's price since they are equivalent.
     const tokenId = token.tokenBridgeOriginalTokenId ?? token;
-    const cachedPrice = tokenPrices.get(tokenId);
+    const cachedPrice = tokenPrices.current.get(tokenId);
 
     if (cachedPrice) {
       return cachedPrice.price;
-    } else {
+    } else if (!tokenPricesFetching.current.has(tokenKey(tokenId))) {
       tokenPricesToFetch.current.add(tokenKey(tokenId));
       updateTokenPrices();
       return undefined;
