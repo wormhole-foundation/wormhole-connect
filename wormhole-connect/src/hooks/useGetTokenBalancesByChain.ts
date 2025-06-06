@@ -38,7 +38,7 @@ const useGetTokenBalancesByChain = (
 
   const { getOrFetchToken } = useTokens();
 
-  const isFetchingRef = useRef<boolean>(false);
+  const isFetchingRef = useRef<Map<Chain, boolean>>(new Map());
   const failedTokens = useRef<Set<string>>(new Set());
   const isActiveRef = useRef<boolean>(false);
 
@@ -73,7 +73,7 @@ const useGetTokenBalancesByChain = (
 
   useEffect(() => {
     // Don't run this more than once concurrently for the same combination
-    if (isFetchingRef.current && currentKeyRef.current === currentKey) {
+    if (currentKeyRef.current === currentKey) {
       return;
     }
 
@@ -97,7 +97,6 @@ const useGetTokenBalancesByChain = (
     }
 
     // Set up the refs for this execution
-    isFetchingRef.current = true;
     currentKeyRef.current = currentKey;
     isActiveRef.current = true;
     setIsFetching(true);
@@ -107,11 +106,23 @@ const useGetTokenBalancesByChain = (
       wallet: WalletData,
       tokens: Token[],
     ): Promise<Balances> => {
-      console.log('fetching for chain', chain, wallet);
+      // Check if already fetching for this specific chain
+      if (isFetchingRef.current.get(chain)) {
+        console.log('already fetching for chain', chain);
+        return {};
+      }
+      console.log('fetching for chain', chain, wallet, isFetchingRef.current);
+      isFetchingRef.current.set(chain, true);
       const chainConfig = config.chains[chain];
-      if (!chainConfig) return {};
+      if (!chainConfig) {
+        console.log(1);
+        isFetchingRef.current.set(chain, false);
+        return {};
+      }
 
       if (chainToPlatform(chainConfig.sdkName) !== wallet.type) {
+        console.log(2);
+        isFetchingRef.current.set(chain, false);
         return {};
       }
 
@@ -122,6 +133,8 @@ const useGetTokenBalancesByChain = (
         `${chain}-${wallet.address}-${token.key}`;
 
       if (tokens.length === 0) {
+        console.log(3);
+        isFetchingRef.current.set(chain, false);
         return updatedBalances;
       }
 
@@ -137,6 +150,8 @@ const useGetTokenBalancesByChain = (
       }
 
       if (tokensToFetch.length === 0) {
+        console.log(5);
+        isFetchingRef.current.set(chain, false);
         return updatedBalances;
       }
 
@@ -244,6 +259,7 @@ const useGetTokenBalancesByChain = (
 
                 for (let i = 0; i < unknownTokens.length; i += BATCH_SIZE) {
                   if (!isActiveRef.current) {
+                    isFetchingRef.current.set(chain, false);
                     return updatedBalances;
                   }
 
@@ -351,6 +367,8 @@ const useGetTokenBalancesByChain = (
       }
 
       console.log('fetched for chain', chain, wallet, updatedBalances);
+      // Clear fetching state for this chain
+      isFetchingRef.current.set(chain, false);
       return updatedBalances;
     };
 
@@ -366,6 +384,7 @@ const useGetTokenBalancesByChain = (
         if (existingBalances && Object.keys(existingBalances).length > 0) {
           // We have cached balances for this chain/wallet
           cachedResults[key] = existingBalances;
+          isFetchingRef.current.set(request.chain, false);
         } else {
           allCached = false;
         }
@@ -374,7 +393,6 @@ const useGetTokenBalancesByChain = (
       // If all balances are cached, use them immediately
       if (allCached) {
         setIsFetching(false);
-        isFetchingRef.current = false;
         return;
       }
 
@@ -411,10 +429,13 @@ const useGetTokenBalancesByChain = (
         }
 
         setBalances(newBalances);
-        setIsFetching(false);
-      }
 
-      isFetchingRef.current = false;
+        // Check if any chain is still fetching
+        const anyChainFetching = Array.from(
+          isFetchingRef.current.values(),
+        ).some((fetching) => fetching);
+        setIsFetching(anyChainFetching);
+      }
     };
 
     fetchAllBalances();
@@ -422,7 +443,6 @@ const useGetTokenBalancesByChain = (
     return () => {
       isActiveRef.current = false;
       if (currentKeyRef.current === currentKey) {
-        isFetchingRef.current = false;
         currentKeyRef.current = undefined;
       }
     };
