@@ -51,7 +51,7 @@ const WalletSidebar = (props: Props) => {
         flexDirection: 'row' as const,
         padding: '12px 16px',
       },
-      drawerPaper: {
+      drawer: {
         width: '360px',
       },
       notInstalled: {
@@ -82,9 +82,6 @@ const WalletSidebar = (props: Props) => {
       },
       submitButton: {
         width: '100%',
-      },
-      sidebarContainer: {
-        width: '360px',
       },
     }),
     [theme],
@@ -276,7 +273,6 @@ const WalletSidebar = (props: Props) => {
                     helperText={addressError}
                   />
                   <Button
-                    sx={styles.submitButton}
                     variant="contained"
                     color="primary"
                     onClick={submitAddress}
@@ -317,11 +313,11 @@ const WalletSidebar = (props: Props) => {
       onClose={() => props.onClose?.()}
       slotProps={{
         paper: {
-          sx: styles.drawerPaper,
+          sx: styles.drawer,
         },
       }}
     >
-      <Box sx={styles.sidebarContainer}>{sidebarContent}</Box>
+      <Box sx={styles.drawer}>{sidebarContent}</Box>
     </Drawer>
   );
 };

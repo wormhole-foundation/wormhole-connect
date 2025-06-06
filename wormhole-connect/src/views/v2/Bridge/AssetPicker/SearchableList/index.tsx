@@ -25,18 +25,18 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const scrollbarStyles = useCustomScrollbar();
   const [query, setQuery] = useState('');
 
-  const styles = useMemo(() => ({
+  const styles = {
     wrapper: {
-      maxHeight: 240,
+      maxHeight: '240px',
       display: 'flex',
       flexDirection: 'column' as const,
       padding: 0,
     },
     searchList: {
-      marginTop: 12,
+      marginTop: '12px',
       overflow: 'auto',
     },
-  }), []);
+  };
 
   const { items, filterFn } = props;
 
