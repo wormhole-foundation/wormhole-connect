@@ -26,7 +26,7 @@ import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { joinClass } from 'utils/style';
 import { useTokenList } from 'hooks/useTokenList';
-import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import { Balances } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
@@ -100,6 +100,9 @@ type Props = {
   isSource: boolean;
   isTransactionInProgress: boolean;
   dataTestId?: string;
+  balances: Balances;
+  isFetchingBalances: boolean;
+  fetchTokensProgress: number | null;
 };
 
 const AssetPicker = (props: Props) => {
@@ -110,13 +113,6 @@ const AssetPicker = (props: Props) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { classes } = useStyles();
 
-  // Get token balances for filtering
-  const { balances, fetchTokensProgress } = useGetTokenBalances(
-    props.wallet,
-    props.chain,
-    props.tokenList || [],
-  );
-
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
     searchQuery,
@@ -124,7 +120,7 @@ const AssetPicker = (props: Props) => {
     selectedToken: props.token,
     sourceToken: props.sourceToken,
     wallet: props.wallet,
-    balances,
+    balances: props.balances,
     isSourceList: props.isSource, // true for source, false for destination
   });
 
@@ -283,6 +279,8 @@ const AssetPicker = (props: Props) => {
           {!showChainSearch && chainConfig && (
             <TokenList
               tokenList={sortedTokens}
+              balances={props.balances}
+              isFetchingBalances={props.isFetchingBalances}
               isFetching={props.isFetching}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
@@ -334,6 +332,8 @@ const AssetPicker = (props: Props) => {
             <TokenList
               tokenList={sortedTokens}
               isFetching={props.isFetching}
+              balances={props.balances}
+              isFetchingBalances={props.isFetchingBalances}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
@@ -344,7 +344,7 @@ const AssetPicker = (props: Props) => {
                 props.setToken(key);
                 popupState.close();
               }}
-              fetchTokensProgress={fetchTokensProgress}
+              fetchTokensProgress={props.fetchTokensProgress}
             />
           )}
         </Popover>

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { accessBalance, Balances, updateBalances } from 'store/transferInput';
 import config, { getWormholeContextV2, WormholeConnectConfig } from 'config';
 import { Token, tokenKey } from 'config/tokens';
@@ -34,15 +34,29 @@ const useGetTokenBalances = (
   const dispatch = useDispatch();
   const isFetchingRef = useRef<boolean>(false);
   const failedTokens = useRef<Set<string>>(new Set());
+  const isActiveRef = useRef<boolean>(false);
+  const currentKeyRef = useRef<string | undefined>(undefined);
 
   const [fetchTokensProgress, setFetchTokensProgress] = useState<null | number>(
     null,
   );
 
+  // Create a stable key for the current wallet/chain combination
+  const currentKey = wallet && chain ? `${wallet.address}-${chain}` : undefined;
+
+  // Create a stable token keys string to detect actual token changes
+  const tokenKeys = useMemo(
+    () =>
+      tokens
+        .map((t) => t.key)
+        .sort()
+        .join(','),
+    [tokens],
+  );
+
   useEffect(() => {
-    // Don't run this more than once concurrently
-    if (isFetchingRef.current) {
-      setIsFetching(false);
+    // Don't run this more than once concurrently for the same wallet/chain
+    if (isFetchingRef.current && currentKeyRef.current === currentKey) {
       return;
     }
 
@@ -51,7 +65,8 @@ const useGetTokenBalances = (
       !wallet.address ||
       !chain ||
       !config.chains[chain] ||
-      tokens.length === 0
+      tokens.length === 0 ||
+      !currentKey
     ) {
       setIsFetching(false);
       return;
@@ -67,9 +82,11 @@ const useGetTokenBalances = (
       return;
     }
 
+    // Set up the refs for this execution
     isFetchingRef.current = true;
+    currentKeyRef.current = currentKey;
+    isActiveRef.current = true;
     setIsFetching(true);
-    const isActive = true;
 
     const getBalances = async () => {
       const updatedBalances: Balances = {};
@@ -210,7 +227,11 @@ const useGetTokenBalances = (
                 );
               }
 
-              console.debug('processing unknownTokens', unknownTokens);
+              console.debug(
+                `[${currentKey}] processing unknownTokens`,
+                unknownTokens.length,
+                'tokens',
+              );
 
               if (unknownTokens.length > 0) {
                 setFetchTokensProgress(0.0);
@@ -222,7 +243,7 @@ const useGetTokenBalances = (
                 let processedCount = 0;
 
                 for (let i = 0; i < unknownTokens.length; i += BATCH_SIZE) {
-                  if (!isActive) {
+                  if (!isActiveRef.current) {
                     return;
                   }
 
@@ -355,7 +376,7 @@ const useGetTokenBalances = (
         }
       }
 
-      if (isActive) {
+      if (isActiveRef.current) {
         setIsFetching(false);
       }
       // Reset the fetching lock
@@ -365,10 +386,21 @@ const useGetTokenBalances = (
     getBalances();
 
     return () => {
-      //isActive = false;
-      //isFetchingRef.current = false;
+      isActiveRef.current = false;
+      if (currentKeyRef.current === currentKey) {
+        isFetchingRef.current = false;
+        currentKeyRef.current = undefined;
+      }
     };
-  }, [chain, tokens, wallet]);
+  }, [
+    chain,
+    tokenKeys,
+    wallet,
+    currentKey,
+    cachedBalances,
+    dispatch,
+    getOrFetchToken,
+  ]);
 
   return { isFetching, balances, fetchTokensProgress };
 };

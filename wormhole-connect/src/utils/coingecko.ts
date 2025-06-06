@@ -106,48 +106,7 @@ export const fetchTokenPrices = async (
     }
   }
 
-  const promises = Object.keys(chainsAndAddresses).map((chain) => {
-    const addresses = chainsAndAddresses[chain];
-
-    return new Promise((resolve, reject) => {
-      const addrs = addresses.join(',');
-      const cgChain = CHAIN_IDS[chain] || chain.toLowerCase();
-
-      coingeckoRequest(
-        `/api/v3/simple/token_price/${cgChain}?contract_addresses=${addrs}&vs_currencies=usd`,
-        params,
-      )
-        .then((data) => {
-          if (data['error'] !== undefined || data['error_code'] !== undefined) {
-            reject(data['error']);
-          } else {
-            resolve(
-              Object.keys(data)
-                .map((addr) => {
-                  try {
-                    const tokenId = Wormhole.tokenId(chain as Chain, addr);
-
-                    if (data[addr]) {
-                      return {
-                        tokenId,
-                        price: data[addr].usd,
-                      };
-                    } else {
-                      return null;
-                    }
-                  } catch (e) {
-                    // Error parsing address
-                    console.error('Coingecko error', e);
-                    return null;
-                  }
-                })
-                .filter((d) => d !== null),
-            );
-          }
-        })
-        .catch(reject);
-    });
-  });
+  let promises: Promise<{ tokenId: TokenId; price: any }[]>[] = [];
 
   if (nativeTokens.length > 0) {
     promises.push(
@@ -190,6 +149,54 @@ export const fetchTokenPrices = async (
       }),
     );
   }
+
+  promises = promises.concat(
+    Object.keys(chainsAndAddresses).map((chain) => {
+      const addresses = chainsAndAddresses[chain];
+
+      return new Promise((resolve, reject) => {
+        const addrs = addresses.join(',');
+        const cgChain = CHAIN_IDS[chain] || chain.toLowerCase();
+
+        coingeckoRequest(
+          `/api/v3/simple/token_price/${cgChain}?contract_addresses=${addrs}&vs_currencies=usd`,
+          params,
+        )
+          .then((data) => {
+            if (
+              data['error'] !== undefined ||
+              data['error_code'] !== undefined
+            ) {
+              reject(data['error']);
+            } else {
+              resolve(
+                Object.keys(data)
+                  .map((addr) => {
+                    try {
+                      const tokenId = Wormhole.tokenId(chain as Chain, addr);
+
+                      if (data[addr]) {
+                        return {
+                          tokenId,
+                          price: data[addr].usd,
+                        };
+                      } else {
+                        return null;
+                      }
+                    } catch (e) {
+                      // Error parsing address
+                      console.error('Coingecko error', e);
+                      return null;
+                    }
+                  })
+                  .filter((d) => d !== null),
+              );
+            }
+          })
+          .catch(reject);
+      });
+    }),
+  );
 
   const results = (await Promise.allSettled(promises))
     .map((r) => {

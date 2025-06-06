@@ -244,6 +244,7 @@ export const filterTokensByBalance = (
   walletAddress?: string,
 ): Token[] => {
   if (!walletAddress) return tokens;
+  if (Object.keys(balances).length === 0) return tokens;
 
   return tokens.filter((t) => {
     const bal = balances[tokenKey(t)]?.balance;

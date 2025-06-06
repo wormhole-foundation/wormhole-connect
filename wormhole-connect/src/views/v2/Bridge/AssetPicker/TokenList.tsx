@@ -13,7 +13,6 @@ import Typography from '@mui/material/Typography';
 import { makeStyles } from 'tss-react/mui';
 import { toNative } from '@wormhole-foundation/sdk';
 
-import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
@@ -22,6 +21,7 @@ import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { calculateUSDPrice } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
+import { Balances } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {
@@ -50,6 +50,8 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   tokenList: Array<Token>;
+  balances: Balances;
+  isFetchingBalances: boolean;
   isFetching?: boolean;
   selectedChainConfig: ChainConfig;
   selectedToken?: Token;
@@ -66,13 +68,12 @@ const TokenList = (props: Props) => {
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
 
-  const { getOrFetchToken, isFetchingToken, getTokenPrice } = useTokens();
-
-  const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
-    props.wallet,
-    props.selectedChainConfig.sdkName,
-    props.tokenList || [],
-  );
+  const {
+    getOrFetchToken,
+    isFetchingToken,
+    getTokenPrice,
+    isFetchingTokenPrices,
+  } = useTokens();
 
   useEffect(() => {
     // When the search query or chain changes, see if the search query is a valid address on the selected chain.
@@ -111,7 +112,22 @@ const TokenList = (props: Props) => {
   );
 
   const shouldShowEmptyMessage =
-    sortedTokens.length === 0 && !isFetchingTokenBalances && !props.isFetching;
+    sortedTokens.length === 0 &&
+    !props.isFetchingBalances &&
+    !props.isFetching &&
+    !isFetchingTokenPrices;
+
+  if (shouldShowEmptyMessage) {
+    console.log(
+      sortedTokens,
+      props.balances,
+      props.isFetchingBalances,
+      props.isFetching,
+      isFetchingTokenPrices,
+    );
+  }
+
+  console.log(shouldShowEmptyMessage, props.balances);
 
   const placeholder = `Search for a token${
     tokenPastingIsEnabled ? ' or paste an address' : ''
@@ -147,7 +163,7 @@ const TokenList = (props: Props) => {
         )
       }
       loading={
-        props.isFetching &&
+        (props.isFetching || Object.keys(props.balances).length === 0) &&
         [1, 2, 3].map((x) => (
           <ListItemButton className={classes.tokenLoader} dense>
             <Box padding="8px 16px">
@@ -187,7 +203,7 @@ const TokenList = (props: Props) => {
         return false;
       }}
       renderFn={(token: Token) => {
-        const balance = balances?.[token.key]?.balance;
+        const balance = props.balances?.[token.key]?.balance;
         const price = balance
           ? calculateUSDPrice(getTokenPrice, balance, token)
           : null;
@@ -203,7 +219,7 @@ const TokenList = (props: Props) => {
             balance={balance}
             price={price}
             isSelected={token.key === props.selectedToken?.key}
-            isFetchingBalance={isFetchingTokenBalances}
+            isFetchingBalance={props.isFetchingBalances}
           />
         );
       }}
