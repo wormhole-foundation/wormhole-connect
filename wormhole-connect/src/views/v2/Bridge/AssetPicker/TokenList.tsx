@@ -158,15 +158,14 @@ const TokenList = (props: Props) => {
         Object.keys(props.balances).length === 0 ||
         !haveSomePrices)
     : (props.wallet?.address || props.isConnectingWallet) &&
-      props.sourceToken &&
-      props.isFetching;
+      (props.isFetching || props.isFetchingBalances);
 
   const shouldShowEmptyMessage =
-    sortedTokens.length === 0 &&
-    !props.isFetchingBalances &&
-    !props.isFetching &&
-    !props.isConnectingWallet &&
-    !shouldShowLoadingState;
+    sortedTokens.length === 0 && !shouldShowLoadingState;
+
+  if (!props.isSource && shouldShowLoadingState) {
+    console.log(props.isFetching, haveSomePrices);
+  }
 
   const searchList = (
     <SearchableList<Token>
