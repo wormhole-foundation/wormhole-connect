@@ -163,6 +163,7 @@ const TokenList = (props: Props) => {
         )
       }
       loading={
+        props.wallet?.address &&
         (props.isFetching || Object.keys(props.balances).length === 0) &&
         [1, 2, 3].map((x) => (
           <ListItemButton className={classes.tokenLoader} dense>
