@@ -110,32 +110,6 @@ export const sortTokensByPreference = (
   });
 };
 
-export const sortTokensByUsdBalance = (
-  tokens: Token[],
-  selectedToken: Token | undefined,
-  balances: Record<string, { balance: any }>,
-  getTokenPrice: (token: Token) => number | undefined,
-): Token[] => {
-  return tokens.sort((a, b) => {
-    if (selectedToken && isSameToken(selectedToken, a)) {
-      return -1;
-    }
-    if (selectedToken && isSameToken(selectedToken, b)) {
-      return 1;
-    }
-
-    const balanceA = calculateTokenUSDBalance(a, balances, getTokenPrice);
-    const balanceB = calculateTokenUSDBalance(b, balances, getTokenPrice);
-
-    if (balanceA !== balanceB) {
-      return balanceB - balanceA;
-    } else {
-      // If equal scores and USD balance, compare by symbol
-      return a.symbol.localeCompare(b.symbol);
-    }
-  });
-};
-
 export const applyTokenWhitelist = (
   tokens: Token[],
   selectedChainConfig: ChainConfig,

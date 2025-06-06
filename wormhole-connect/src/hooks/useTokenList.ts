@@ -11,7 +11,6 @@ import {
   applyCustomTokenSupport,
   filterTokensByBalance,
   applyShittokenFilter,
-  sortTokensByUsdBalance,
 } from 'utils/tokenListUtils';
 
 interface UseTokenListParams {
@@ -43,23 +42,12 @@ export const useTokenList = ({
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     let tokens = applyTokenSearch(tokenList, searchQuery, selectedChainConfig);
 
-    if (isSourceList && wallet.address) {
-      // For source list, we simply sort by USD balance
-      tokens = sortTokensByUsdBalance(
-        tokens,
-        selectedToken,
-        balances,
-        getTokenPrice,
-      );
-    } else {
-      // For dest list, we sort by a few heuristics
-      tokens = sortTokensByPreference(
-        tokens,
-        selectedToken,
-        balances,
-        getTokenPrice,
-      );
-    }
+    tokens = sortTokensByPreference(
+      tokens,
+      selectedToken,
+      balances,
+      getTokenPrice,
+    );
 
     // Apply token whitelist filtering if configured
     tokens = applyTokenWhitelist(tokens, selectedChainConfig);
