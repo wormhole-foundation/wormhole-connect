@@ -114,54 +114,80 @@ const TokenList = (props: Props) => {
 
   const sortedTokens = props.tokenList;
 
-  const noTokensMessage = useMemo(
-    () => (
+  const emptyMessage = useMemo(() => {
+    let message = '';
+
+    if (!props.wallet?.address) {
+      message = 'Connect wallet to see available tokens';
+    } else if (props.isSource) {
+      message = 'No supported tokens found in wallet';
+    } else if (!props.sourceToken) {
+      message = 'Please select a source token first';
+    } else {
+      message = 'No supported destination tokens for this route';
+    }
+
+    return (
       <Typography variant="body2" color={theme.palette.grey.A400}>
-        {props.isSource
-          ? 'No supported tokens found in wallet'
-          : props.sourceToken
-          ? 'No output tokens supported'
-          : 'Please select a source token'}
+        {message}
       </Typography>
-    ),
-    [theme.palette.grey.A400],
-  );
-
-  // Calculate the price coverage percentage
-  const priceCoverage = useMemo(() => {
-    if (sortedTokens.length === 0) return 0;
-
-    let tokensWithPrices = 0;
-    sortedTokens.forEach((token) => {
-      if (
-        tokenPrices.has(token.key) &&
-        tokenPrices.get(token.key) !== undefined
-      ) {
-        tokensWithPrices++;
-      }
-    });
-
-    return tokensWithPrices / sortedTokens.length;
-  }, [sortedTokens, tokenPrices]);
-
-  // Show loading state only if we have less than 50% price coverage AND we're actively loading
-  const haveSomePrices = priceCoverage > 0;
+    );
+  }, [
+    props.wallet?.address,
+    props.isSource,
+    props.sourceToken,
+    theme.palette.grey.A400,
+  ]);
 
   const placeholder = `Search for a token${
     tokenPastingIsEnabled ? ' or paste an address' : ''
   }`;
 
-  const shouldShowLoadingState = props.isSource
-    ? (props.wallet?.address || props.isConnectingWallet) &&
-      (props.isFetching ||
-        props.isFetchingBalances ||
-        Object.keys(props.balances).length === 0 ||
-        !haveSomePrices)
-    : (props.wallet?.address || props.isConnectingWallet) &&
-      (props.isFetching || props.isFetchingBalances);
+  // Determine the current state of the token list
+  const listState = useMemo(() => {
+    // No wallet connected - show empty state
+    if (!props.wallet?.address && !props.isConnectingWallet) {
+      return 'empty';
+    }
 
-  const shouldShowEmptyMessage =
-    sortedTokens.length === 0 && !shouldShowLoadingState;
+    // Currently fetching initial data
+    if (props.isFetching || props.isFetchingBalances) {
+      return 'loading';
+    }
+
+    // For source chain, check if we have balance data
+    if (props.isSource) {
+      const hasBalanceData = Object.keys(props.balances).length > 0;
+      const hasSomePrices = Array.from(tokenPrices.values()).some(
+        (price) => price !== undefined,
+      );
+
+      // Still loading if we don't have any balance data or prices yet
+      if (!hasBalanceData || !hasSomePrices) {
+        return 'loading';
+      }
+    }
+
+    // We have data but no tokens to show
+    if (sortedTokens.length === 0) {
+      return 'empty';
+    }
+
+    // Normal state - show the token list
+    return 'ready';
+  }, [
+    props.wallet?.address,
+    props.isConnectingWallet,
+    props.isFetching,
+    props.isFetchingBalances,
+    props.isSource,
+    props.balances,
+    tokenPrices,
+    sortedTokens.length,
+  ]);
+
+  const shouldShowLoadingState = listState === 'loading';
+  const shouldShowEmptyMessage = listState === 'empty';
 
   const searchList = (
     <SearchableList<Token>
@@ -170,7 +196,7 @@ const TokenList = (props: Props) => {
       dataTestId="token-search-list"
       listTitle={
         shouldShowEmptyMessage ? (
-          noTokensMessage
+          emptyMessage
         ) : (
           <Box display="flex" width="100%">
             <Typography
