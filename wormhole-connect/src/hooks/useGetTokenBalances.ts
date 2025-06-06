@@ -3,7 +3,7 @@ import { RootState } from 'store';
 import { useEffect, useState, useRef } from 'react';
 import { accessBalance, Balances, updateBalances } from 'store/transferInput';
 import config, { getWormholeContextV2, WormholeConnectConfig } from 'config';
-import { Token } from 'config/tokens';
+import { Token, tokenKey } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import {
   Chain,
@@ -33,6 +33,7 @@ const useGetTokenBalances = (
   const { getOrFetchToken } = useTokens();
   const dispatch = useDispatch();
   const isFetchingRef = useRef<boolean>(false);
+  const failedTokens = useRef<Set<string>>(new Set());
 
   const [fetchTokensProgress, setFetchTokensProgress] = useState<null | number>(
     null,
@@ -169,7 +170,14 @@ const useGetTokenBalances = (
               const unknownTokens: [string, bigint][] = [];
 
               for (const [address, bus] of sortedTokens) {
+                const key = tokenKey(chain, address);
+
                 if (bus === null) continue;
+
+                if (failedTokens.current.has(key)) {
+                  // Already failed to fetch metadata on this token. Skip.
+                  continue;
+                }
 
                 const token = config.tokens.get(chain, address);
                 if (token) {
@@ -227,6 +235,8 @@ const useGetTokenBalances = (
                     break;
                   }
 
+                  console.log(sortedTokens, unknownTokens);
+
                   const batch = unknownTokens.slice(i, i + BATCH_SIZE);
 
                   await Promise.all(
@@ -237,7 +247,15 @@ const useGetTokenBalances = (
                         const token = await getOrFetchToken(
                           Wormhole.tokenId(chain, tokenAddress),
                         );
-                        if (!token) return;
+                        if (!token) {
+                          console.error(
+                            `Failed to fetch token metadata for ${tokenAddress}:`,
+                          );
+                          failedTokens.current.add(
+                            tokenKey(chain, tokenAddress),
+                          );
+                          return;
+                        }
 
                         const balance = amount.fromBaseUnits(
                           bus ?? 0n,
@@ -248,12 +266,15 @@ const useGetTokenBalances = (
                           balance,
                           lastUpdated: now,
                         };
-                        processedCount++;
                       } catch (e) {
                         console.error(
                           `Failed to fetch token metadata for ${tokenAddress}:`,
                           e,
                         );
+
+                        failedTokens.current.add(tokenKey(chain, tokenAddress));
+                      } finally {
+                        processedCount++;
                       }
                     }),
                   );
@@ -282,59 +303,60 @@ const useGetTokenBalances = (
                 }
               }
             } catch (e) {
-              debugger;
               console.error(e);
             } finally {
               setFetchTokensProgress(null);
             }
+          }
 
-            // Use fallback method if we couldn't use getBalances
-            if (!usedGetBalances) {
-              await Promise.all(
-                needsUpdate.map(async (token) => {
-                  try {
-                    const balanceValue = await platformUtils.getBalance(
-                      config.network,
-                      chain,
-                      rpc,
-                      wallet.address,
-                      token.address,
-                    );
-                    const balance = amount.fromBaseUnits(
-                      balanceValue ?? 0n,
-                      token.decimals,
-                    );
-                    updatedBalances[token.key] = {
-                      balance,
-                      lastUpdated: now,
-                    };
-                  } catch (e) {
-                    // If fetching balance fails, keep the default 0 balance
-                    console.error(
-                      `Failed to fetch balance for token ${token.key}`,
-                      e,
-                    );
-                  }
-                }),
-              );
-            }
+          // Use fallback method if we couldn't use getBalances
+          console.log(usedGetBalances);
+          if (!usedGetBalances) {
+            await Promise.all(
+              needsUpdate.map(async (token) => {
+                try {
+                  const balanceValue = await platformUtils.getBalance(
+                    config.network,
+                    chain,
+                    rpc,
+                    wallet.address,
+                    token.address,
+                  );
+                  const balance = amount.fromBaseUnits(
+                    balanceValue ?? 0n,
+                    token.decimals,
+                  );
+                  updatedBalances[token.key] = {
+                    balance,
+                    lastUpdated: now,
+                  };
+                } catch (e) {
+                  // If fetching balance fails, keep the default 0 balance
+                  console.error(
+                    `Failed to fetch balance for token ${token.key}`,
+                    e,
+                  );
+                }
+              }),
+            );
+          }
+
+          setBalances(updatedBalances);
+
+          if (updateCache) {
+            dispatch(
+              updateBalances({
+                address: wallet.address,
+                chain,
+                balances: updatedBalances,
+              }),
+            );
           }
         }
       }
 
       if (isActive) {
         setIsFetching(false);
-
-        setBalances(updatedBalances);
-        if (updateCache) {
-          dispatch(
-            updateBalances({
-              address: wallet.address,
-              chain,
-              balances: updatedBalances,
-            }),
-          );
-        }
       }
       // Reset the fetching lock
       isFetchingRef.current = false;

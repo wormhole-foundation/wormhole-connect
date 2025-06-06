@@ -589,8 +589,17 @@ export function tokenIdFromTuple(tokenTuple: TokenTuple): TokenId {
   return TokenIdLazy.fromTokenTuple(tokenTuple);
 }
 
-export function tokenKey(tokenId: TokenId): string {
-  return JSON.stringify(tokenIdToTuple(tokenId));
+export function tokenKey(chain: Chain, address: string): string;
+export function tokenKey(tokenId: TokenId): string;
+export function tokenKey(
+  tokenIdOrChain: TokenId | Chain,
+  address?: string,
+): string {
+  if (typeof tokenIdOrChain === 'string') {
+    return JSON.stringify([tokenIdOrChain, address]);
+  } else {
+    return JSON.stringify(tokenIdToTuple(tokenIdOrChain));
+  }
 }
 
 export function parseTokenKey(key: string): TokenId {
