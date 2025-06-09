@@ -195,7 +195,7 @@ export const getUSDFormat = (price: number | undefined): string => {
 };
 
 export const calculateUSDPriceRaw = (
-  getTokenPrice: (token: Token) => number | undefined,
+  getTokenPrice: number | ((token: Token) => number | undefined),
   amount?: sdkAmount.Amount | number,
   token?: Token,
 ): number | undefined => {
@@ -203,7 +203,8 @@ export const calculateUSDPriceRaw = (
     return undefined;
   }
 
-  const usdPrice = getTokenPrice(token);
+  const usdPrice =
+    typeof getTokenPrice === 'function' ? getTokenPrice(token) : getTokenPrice;
   if (usdPrice) {
     if (typeof amount === 'number') {
       return amount * usdPrice;

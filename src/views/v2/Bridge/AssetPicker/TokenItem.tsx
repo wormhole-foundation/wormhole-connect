@@ -152,7 +152,7 @@ function TokenItem(props: TokenItemProps) {
       </Box>
       <Stack alignItems="flex-end">
         <Typography fontSize={14}>
-          {props.isFetchingBalance ? (
+          {props.isFetchingBalance && props.balance === null ? (
             <CircularProgress size={24} />
           ) : props.balance ? (
             sdkAmount.display(sdkAmount.truncate(props.balance, 6))

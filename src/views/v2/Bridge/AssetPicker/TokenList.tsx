@@ -1,43 +1,57 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { toNative } from '@wormhole-foundation/sdk';
 
-import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import type { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
-import { calculateUSDPrice } from 'utils';
+import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
+import { Balances } from 'utils/wallet/types';
 
 type Props = {
   tokenList: Array<Token>;
+  balances: Balances;
+  isFetchingBalances: boolean;
   isFetching?: boolean;
+  isConnectingWallet?: boolean;
   selectedChainConfig: ChainConfig;
   selectedToken?: Token;
   sourceToken?: Token;
+  isSource: boolean;
   wallet: WalletData;
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
   onSelectToken: (key: Token) => void;
+  fetchTokensProgress?: null | number;
 };
 
 const TokenList = (props: Props) => {
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
+  const [tokenPrices, setTokenPrices] = useState<
+    Map<string, number | undefined>
+  >(new Map());
 
-  const { getOrFetchToken, isFetchingToken, getTokenPrice } = useTokens();
+  const {
+    getOrFetchToken,
+    isFetchingToken,
+    getTokenPrices,
+    lastTokenPriceUpdate,
+  } = useTokens();
 
-  const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
-    props.wallet,
-    props.selectedChainConfig.sdkName,
-    props.tokenList || [],
-  );
+  // Get token prices using the synchronous hook pattern
+  // Re-calculate when token list or price updates occur
+  useEffect(() => {
+    const prices = getTokenPrices(props.tokenList);
+    setTokenPrices(prices);
+  }, [props.tokenList, getTokenPrices, lastTokenPriceUpdate]);
 
   useEffect(() => {
     // When the search query or chain changes, see if the search query is a valid address on the selected chain.
@@ -66,17 +80,30 @@ const TokenList = (props: Props) => {
 
   const sortedTokens = props.tokenList;
 
-  const noTokensMessage = useMemo(
-    () => (
-      <Typography variant="body2" color={theme.palette.grey.A400}>
-        No supported tokens found in wallet
-      </Typography>
-    ),
-    [theme.palette.grey.A400],
-  );
+  const emptyMessage = useMemo(() => {
+    let message = '';
 
-  const shouldShowEmptyMessage =
-    sortedTokens.length === 0 && !isFetchingTokenBalances && !props.isFetching;
+    if (!props.wallet?.address) {
+      message = 'Connect wallet to see available tokens';
+    } else if (props.isSource) {
+      message = 'No supported tokens found in wallet';
+    } else if (!props.sourceToken) {
+      message = 'Please select a source token first';
+    } else {
+      message = 'No supported destination tokens for this route';
+    }
+
+    return (
+      <Typography variant="body2" color={theme.palette.grey.A400}>
+        {message}
+      </Typography>
+    );
+  }, [
+    props.wallet?.address,
+    props.isSource,
+    props.sourceToken,
+    theme.palette.grey.A400,
+  ]);
 
   const placeholder = `Search for a token${
     tokenPastingIsEnabled ? ' or paste an address' : ''
@@ -110,6 +137,43 @@ const TokenList = (props: Props) => {
     [theme],
   );
 
+  // Determine the current state of the token list
+  const listState = useMemo(() => {
+    // No wallet connected - show empty state
+    if (!props.wallet?.address && !props.isConnectingWallet) {
+      return 'empty';
+    }
+
+    console.log(props.selectedChainConfig.sdkName, props.isFetchingBalances);
+
+    // Currently fetching initial data
+    if (props.isFetching) {
+      return 'loading';
+    }
+
+    // We have data but no tokens to show
+    if (sortedTokens.length === 0) {
+      return 'empty';
+    }
+
+    // Normal state - show the token list
+    return 'ready';
+  }, [
+    props.wallet?.address,
+    props.isConnectingWallet,
+    props.isFetching,
+    props.isFetchingBalances,
+    props.isSource,
+    props.balances,
+    tokenPrices,
+    sortedTokens.length,
+  ]);
+
+  console.debug(props.selectedChainConfig.sdkName, listState);
+
+  const shouldShowLoadingState = listState === 'loading';
+  const shouldShowEmptyMessage = listState === 'empty';
+
   const searchList = (
     <SearchableList<Token>
       searchPlaceholder={placeholder}
@@ -117,19 +181,25 @@ const TokenList = (props: Props) => {
       dataTestId="token-search-list"
       listTitle={
         shouldShowEmptyMessage ? (
-          noTokensMessage
+          emptyMessage
         ) : (
-          <Typography fontSize={14} color={theme.palette.text.secondary}>
-            Tokens on {props.selectedChainConfig.displayName}
-          </Typography>
+          <Box display="flex" width="100%">
+            <Typography
+              style={{ flexGrow: '2' }}
+              fontSize={14}
+              color={theme.palette.text.secondary}
+            >
+              Tokens on {props.selectedChainConfig.displayName}
+            </Typography>
+          </Box>
         )
       }
       loading={
-        props.isFetching &&
+        shouldShowLoadingState &&
         [1, 2, 3].map((x) => (
-          <ListItemButton sx={styles.tokenLoader} dense>
+          <ListItemButton sx={styles.tokenLoader} dense key={x}>
             <Box padding="8px 16px">
-              <Skeleton key={x} variant="circular" width="36px" height="36px" />
+              <Skeleton variant="circular" width="36px" height="36px" />
             </Box>
           </ListItemButton>
         ))
@@ -165,10 +235,12 @@ const TokenList = (props: Props) => {
         return false;
       }}
       renderFn={(token: Token) => {
-        const balance = balances?.[token.key]?.balance;
-        const price = balance
-          ? calculateUSDPrice(getTokenPrice, balance, token)
-          : null;
+        const balance = props.balances?.[token.key]?.balance;
+        const tokenPrice = tokenPrices.get(token.key);
+        const price =
+          balance && tokenPrice !== undefined
+            ? getUSDFormat(calculateUSDPriceRaw(tokenPrice, balance, token))
+            : null;
 
         return (
           <TokenItem
@@ -181,7 +253,7 @@ const TokenList = (props: Props) => {
             balance={balance}
             price={price}
             isSelected={token.key === props.selectedToken?.key}
-            isFetchingBalance={isFetchingTokenBalances}
+            isFetchingBalance={props.isFetchingBalances}
           />
         );
       }}
@@ -191,11 +263,11 @@ const TokenList = (props: Props) => {
   return (
     <Card sx={styles.card} variant="elevation">
       <CardContent sx={styles.tokenListContainer}>
-        <Box sx={{ display: 'flex', width: '100%', padding: '0 16px' }}>
+        <Box sx={{ display: 'flex', padding: '0 16px' }}>
           <Typography width="100%" sx={styles.title}>
             Select a token
           </Typography>
-          {isFetchingToken ? (
+          {isFetchingToken || props.isFetchingBalances ? (
             <CircularProgress
               sx={{ alignSelf: 'flex-end', marginBottom: '12px' }}
               size={14}

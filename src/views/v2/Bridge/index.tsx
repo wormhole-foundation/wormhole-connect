@@ -206,30 +206,13 @@ const Bridge = () => {
   // Pre-fetch available routes
 
   // Connect to any previously used wallets for the selected networks
-  useConnectToLastUsedWallet();
+  const { isConnecting: isConnectingWallet } = useConnectToLastUsedWallet(
+    sourceChain,
+    destChain,
+  );
 
   // Call to initiate transfer inputs validations
   useValidate();
-
-  const sourceTokenArray = useMemo(() => {
-    return sourceToken ? [sourceToken] : [];
-  }, [sourceToken]);
-
-  const { balances, isFetching: isFetchingBalances } = useGetTokenBalances(
-    sendingWallet,
-    sourceChain,
-    sourceTokenArray,
-  );
-
-  // Validate amount
-  const amountValidation = useAmountValidation({
-    balance: sourceToken ? balances[sourceToken.key]?.balance : null,
-    routes: allSupportedRoutes,
-    quotes,
-    tokenSymbol: sourceToken?.symbol ?? '',
-    isLoading: isFetchingBalances || isFetchingQuotes,
-    disabled: !sourceChain || !sourceToken,
-  });
 
   //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
 
@@ -271,6 +254,48 @@ const Bridge = () => {
         supportedChains.includes(chain.sdkName),
     );
   }, [sourceChain, supportedChains]);
+
+  // Build balance requests for source and destination
+  const sourceBalanceRequest = useMemo(() => {
+    if (sourceChain && sendingWallet?.address) {
+      return {
+        chain: sourceChain,
+        wallet: sendingWallet,
+        tokens: sourceTokens,
+      };
+    }
+    return undefined;
+  }, [sourceChain, sendingWallet, sourceTokens]);
+
+  const destBalanceRequest = useMemo(() => {
+    if (destChain && receivingWallet?.address) {
+      return {
+        chain: destChain,
+        wallet: receivingWallet,
+        tokens: supportedDestTokens,
+      };
+    }
+    return undefined;
+  }, [destChain, receivingWallet, supportedDestTokens]);
+
+  const balances = useGetTokenBalances({
+    source: sourceBalanceRequest,
+    destination: destBalanceRequest,
+  });
+
+  console.log(balances);
+
+  // Validate amount
+  const amountValidation = useAmountValidation({
+    balance: sourceToken
+      ? balances.source.balances[sourceToken.key]?.balance
+      : null,
+    routes: allSupportedRoutes,
+    quotes,
+    tokenSymbol: sourceToken?.symbol ?? '',
+    isLoading: balances.isFetching || isFetchingQuotes,
+    disabled: !sourceChain || !sourceToken,
+  });
 
   // Connect bridge header, which renders any custom overrides for the header
   const header = useMemo(() => {
@@ -314,6 +339,9 @@ const Bridge = () => {
           isSource={true}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="source-asset-picker"
+          isConnectingWallet={isConnectingWallet}
+          balances={balances.source.balances}
+          isFetchingBalances={balances.isFetching}
         />
         <SwapInputs />
       </Box>
@@ -326,8 +354,11 @@ const Bridge = () => {
     sourceToken,
     sourceTokens,
     isTransactionInProgress,
+    isConnectingWallet,
     sendingWallet,
     dispatch,
+    balances.source,
+    balances.isFetching,
   ]);
 
   // Asset picker for the destination network and token
@@ -358,6 +389,9 @@ const Bridge = () => {
           isSource={false}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="dest-asset-picker"
+          isConnectingWallet={isConnectingWallet}
+          balances={balances.destination.balances}
+          isFetchingBalances={balances.isFetching}
         />
       </Box>
     );
@@ -369,10 +403,13 @@ const Bridge = () => {
     destToken,
     sourceToken,
     supportedDestTokens,
+    isConnectingWallet,
     isFetchingSupportedDestTokens,
     isTransactionInProgress,
     receivingWallet,
     dispatch,
+    balances.destination,
+    balances.isFetching,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -591,8 +628,12 @@ const Bridge = () => {
       <AmountInput
         sourceChain={sourceChain}
         supportedSourceTokens={sourceTokens}
-        tokenBalance={sourceToken ? balances[sourceToken.key]?.balance : null}
-        isFetchingTokenBalance={isFetchingBalances}
+        tokenBalance={
+          sourceToken
+            ? balances.source.balances[sourceToken.key]?.balance
+            : null
+        }
+        isFetchingTokenBalance={balances.isFetching}
         error={amountValidation.error}
         warning={amountValidation.warning || walletWarning}
       />
@@ -604,7 +645,7 @@ const Bridge = () => {
             dispatch(setTransferRoute(r));
           }}
           quotes={quotes}
-          isLoading={isFetchingQuotes || isFetchingBalances}
+          isLoading={isFetchingQuotes || balances.isFetching}
         />
       )}
       {transactionError}

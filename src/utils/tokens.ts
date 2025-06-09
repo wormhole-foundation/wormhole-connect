@@ -11,10 +11,13 @@ import {
   chainToPlatform,
   Network,
   NativeAddress,
+  ChainContext,
+  Chain,
 } from '@wormhole-foundation/sdk';
-import { getWormholeContextV2 } from 'config';
+import config, { getWormholeContextV2 } from 'config';
 import { Contract } from 'ethers';
 import { SuiClient } from '@mysten/sui/client';
+import { SDKv2Route } from 'routes/sdkv2/route';
 
 interface TokenMetadataFromRpc {
   symbol: string;
@@ -116,3 +119,36 @@ export async function getTokenMetadataSui(
     return undefined;
   }
 }
+
+// returns true if the token is supported by a NTT route, false otherwise
+export const hasNttRoute = async (
+  token: TokenId,
+  fromContext: ChainContext<Network, Chain>,
+  toContext: ChainContext<Network, Chain>,
+): Promise<boolean> => {
+  const checkRouteSupport = async (routeName: string): Promise<boolean> => {
+    const route: SDKv2Route | undefined = config.routes.get(routeName);
+    if (!route) return false;
+
+    try {
+      const destTokens = await route.rc.supportedDestinationTokens(
+        token,
+        fromContext,
+        toContext,
+      );
+
+      return destTokens.length > 0;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const [isManualSupported, isAutomaticSupported, isM0Supported] =
+    await Promise.all([
+      checkRouteSupport('ManualNtt'),
+      checkRouteSupport('AutomaticNtt'),
+      checkRouteSupport('M0AutomaticRoute'),
+    ]);
+
+  return isManualSupported || isAutomaticSupported || isM0Supported;
+};

@@ -98,6 +98,12 @@ export interface WormholeConnectConfig {
 
   // External resources
   rpcs?: ChainResourceMap;
+  // API keys for EVM indexers like GoldRush of Alchemy
+  // Used for fetching token balances
+  evmIndexers?: {
+    alchemy?: string;
+    goldRush?: string;
+  };
   coingecko?: {
     apiKey?: string;
     customUrl?: string;
@@ -151,6 +157,13 @@ export interface InternalConfig<N extends Network> {
 
   // External resources
   rpcs: ChainResourceMap;
+  // API keys for EVM indexers like GoldRush of Alchemy
+  // Used for fetching token balances
+  evmIndexers?: {
+    alchemy?: string;
+    goldRush?: string;
+  };
+
   mayanApi: string;
   wormholeApi: string;
   wormholeRpcHosts: string[];

@@ -103,6 +103,7 @@ export function buildConfig(
 
     // External resources
     rpcs,
+    evmIndexers: customConfig.evmIndexers,
     mayanApi: 'https://explorer-api.mayan.finance',
     wormholeApi: {
       Mainnet: 'https://api.wormholescan.io/',

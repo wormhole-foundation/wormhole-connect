@@ -21,6 +21,7 @@ import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 import { isFrankensteinToken } from 'utils';
 import { TransferWallet } from 'utils/wallet';
+import { isNttToken } from 'utils/ntt';
 
 type Amount = sdkAmount.Amount;
 
@@ -111,7 +112,6 @@ export class SDKv2Route {
     // TODO this is wrong... it should be filtering the output tokens...
     const isIlliquid = await this.isIlliquidDestToken(
       sourceToken,
-      fromContext.context,
       toContext.context,
     );
 
@@ -157,6 +157,7 @@ export class SDKv2Route {
       destChain,
       recipient,
     );
+
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
     const validationResult = await route.validate(req, {
@@ -209,8 +210,9 @@ export class SDKv2Route {
     options?: routes.AutomaticTokenBridgeRoute.Options,
     recipient?: string,
   ): Promise<routes.QuoteResult<routes.Options>> {
-    if (!fromChain || !toChain)
+    if (!fromChain || !toChain) {
       throw new Error('Need both chains to get a quote from SDKv2');
+    }
 
     const [, quote] = await this.getQuote(
       amountIn,
@@ -324,7 +326,6 @@ export class SDKv2Route {
   // but it should cover the most common cases
   async isIlliquidDestToken(
     token: Token,
-    fromContext: ChainContext<Network, Chain>,
     toContext: ChainContext<Network, Chain>,
   ): Promise<boolean> {
     if (!this.IS_TOKEN_BRIDGE_ROUTE) return false;
@@ -333,11 +334,7 @@ export class SDKv2Route {
 
     // Exclude wormhole-wrapped tokens on the destination chain
     // if the NTT route is supported
-    const isNttSupported = await isNttSupportedToken(
-      token,
-      fromContext,
-      toContext,
-    );
+    const isNttSupported = isNttToken(token);
     if (isNttSupported) {
       return true;
     }
@@ -356,36 +353,3 @@ export class SDKv2Route {
     return false;
   }
 }
-
-// returns true if the token is supported by a NTT route, false otherwise
-const isNttSupportedToken = async (
-  token: Token,
-  fromContext: ChainContext<Network, Chain>,
-  toContext: ChainContext<Network, Chain>,
-): Promise<boolean> => {
-  const checkRouteSupport = async (routeName: string): Promise<boolean> => {
-    const route: SDKv2Route | undefined = config.routes.get(routeName);
-    if (!route) return false;
-
-    try {
-      const destTokens = await route.rc.supportedDestinationTokens(
-        token,
-        fromContext,
-        toContext,
-      );
-
-      return destTokens.length > 0;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const [isManualSupported, isAutomaticSupported, isM0Supported] =
-    await Promise.all([
-      checkRouteSupport('ManualNtt'),
-      checkRouteSupport('AutomaticNtt'),
-      checkRouteSupport('M0AutomaticRoute'),
-    ]);
-
-  return isManualSupported || isAutomaticSupported || isM0Supported;
-};

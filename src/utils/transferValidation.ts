@@ -9,7 +9,6 @@ import {
   setValidations,
   ValidationErr,
   TransferValidations,
-  accessBalance,
 } from 'store/transferInput';
 import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
@@ -119,25 +118,20 @@ export const validateAll = async (
   relayData: RelayState,
   walletData: WalletState,
 ): Promise<TransferValidations> => {
-  const { fromChain, toChain, amount, balances, route } = transferData;
-
-  const token = transferData.token
-    ? config.tokens.get(transferData.token)
-    : undefined;
+  const { fromChain, toChain, amount, route } = transferData;
 
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
   const isAutomatic = getIsAutomatic(route);
-  const sendingTokenBalance = token
-    ? accessBalance(balances, sending.address, fromChain, token)
-    : null;
+  // Balance validation is now handled separately in the UI components
+  const sendingTokenBalance = null;
 
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
     fromChain: validateFromChain(fromChain),
     toChain: validateToChain(toChain, fromChain),
-    amount: validateAmount(amount, sendingTokenBalance?.balance || null),
+    amount: validateAmount(amount, sendingTokenBalance),
     toNativeToken: '',
     relayerFee: '',
     receiveAmount: '',

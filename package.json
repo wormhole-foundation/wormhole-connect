@@ -55,8 +55,8 @@
     "@solana/spl-token": "0.4.0",
     "@solana/wallet-adapter-wallets": "0.19.32",
     "@solana/web3.js": "1.98.0",
-    "@wormhole-foundation/sdk": "1.24.1",
-    "@wormhole-foundation/sdk-definitions": "1.24.1",
+    "@wormhole-foundation/sdk": "2.0.0",
+    "@wormhole-foundation/sdk-definitions": "2.0.0",
     "@wormhole-foundation/sdk-definitions-ntt": "^0.8.0",
     "@wormhole-foundation/sdk-evm-ntt": "^0.8.0",
     "@wormhole-foundation/sdk-icons": "^1.0.0",
@@ -199,37 +199,38 @@
       "axios": "1.4.0"
     },
     "@mayanfinance/wormhole-sdk-route": {
-      "@wormhole-foundation/sdk-connect": "1.24.1",
-      "@wormhole-foundation/sdk-evm": "1.24.1",
-      "@wormhole-foundation/sdk-solana": "1.24.1"
+      "@wormhole-foundation/sdk-connect": "2.0.0",
+      "@wormhole-foundation/sdk-evm": "2.0.0",
+      "@wormhole-foundation/sdk-solana": "2.0.0",
+      "@wormhole-foundation/sdk-sui": "2.0.0"
     },
     "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "1.24.1",
-      "@wormhole-foundation/sdk-definitions": "1.24.1"
+      "@wormhole-foundation/sdk-base": "2.0.0",
+      "@wormhole-foundation/sdk-definitions": "2.0.0"
     },
     "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "1.24.1",
-      "@wormhole-foundation/sdk-definitions": "1.24.1",
-      "@wormhole-foundation/sdk-evm": "1.24.1",
-      "@wormhole-foundation/sdk-evm-core": "1.24.1"
+      "@wormhole-foundation/sdk-base": "2.0.0",
+      "@wormhole-foundation/sdk-definitions": "2.0.0",
+      "@wormhole-foundation/sdk-evm": "2.0.0",
+      "@wormhole-foundation/sdk-evm-core": "2.0.0"
     },
     "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "1.24.1"
+      "@wormhole-foundation/sdk-connect": "2.0.0"
     },
     "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "1.24.1",
-      "@wormhole-foundation/sdk-definitions": "1.24.1",
-      "@wormhole-foundation/sdk-solana": "1.24.1",
-      "@wormhole-foundation/sdk-solana-core": "1.24.1"
+      "@wormhole-foundation/sdk-base": "2.0.0",
+      "@wormhole-foundation/sdk-definitions": "2.0.0",
+      "@wormhole-foundation/sdk-solana": "2.0.0",
+      "@wormhole-foundation/sdk-solana-core": "2.0.0"
     },
     "@wormhole-labs/cctp-executor-route": {
-      "@wormhole-foundation/sdk-aptos": "1.24.1",
-      "@wormhole-foundation/sdk-connect": "1.24.1",
-      "@wormhole-foundation/sdk-evm": "1.24.1",
-      "@wormhole-foundation/sdk-solana": "1.24.1",
-      "@wormhole-foundation/sdk-solana-cctp": "1.24.1",
-      "@wormhole-foundation/sdk-sui": "1.24.1",
-      "@wormhole-foundation/sdk-sui-cctp": "1.24.1"
+      "@wormhole-foundation/sdk-aptos": "2.0.0",
+      "@wormhole-foundation/sdk-connect": "2.0.0",
+      "@wormhole-foundation/sdk-evm": "2.0.0",
+      "@wormhole-foundation/sdk-solana": "2.0.0",
+      "@wormhole-foundation/sdk-solana-cctp": "2.0.0",
+      "@wormhole-foundation/sdk-sui": "2.0.0",
+      "@wormhole-foundation/sdk-sui-cctp": "2.0.0"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"

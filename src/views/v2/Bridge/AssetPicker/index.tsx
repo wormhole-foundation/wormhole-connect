@@ -20,12 +20,12 @@ import config from 'config';
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
+import { Balances } from 'utils/wallet/types';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
-import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 type Props = {
   chain?: Chain | undefined;
@@ -40,6 +40,9 @@ type Props = {
   isSource: boolean;
   isTransactionInProgress: boolean;
   dataTestId?: string;
+  balances: Balances;
+  isFetchingBalances: boolean;
+  isConnectingWallet?: boolean;
 };
 
 const AssetPicker = (props: Props) => {
@@ -49,14 +52,6 @@ const AssetPicker = (props: Props) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Get token balances for filtering
-  const { balances } = useGetTokenBalances(
-    props.wallet,
-    props.chain,
-    props.tokenList || [],
-  );
-
-  // Use the unified hook with filterByBalance based on isSource
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
     searchQuery,
@@ -64,8 +59,8 @@ const AssetPicker = (props: Props) => {
     selectedToken: props.token,
     sourceToken: props.sourceToken,
     wallet: props.wallet,
-    balances,
-    filterByBalance: props.isSource, // true for source, false for destination
+    balances: props.balances,
+    isSourceList: props.isSource, // true for source, false for destination
   });
 
   const popupState = usePopupState({
@@ -281,10 +276,14 @@ const AssetPicker = (props: Props) => {
           {!showChainSearch && chainConfig && (
             <TokenList
               tokenList={sortedTokens}
+              balances={props.balances}
+              isFetchingBalances={props.isFetchingBalances}
               isFetching={props.isFetching}
+              isConnectingWallet={props.isConnectingWallet}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
+              isSource={props.isSource}
               wallet={props.wallet}
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
@@ -329,9 +328,13 @@ const AssetPicker = (props: Props) => {
             <TokenList
               tokenList={sortedTokens}
               isFetching={props.isFetching}
+              balances={props.balances}
+              isFetchingBalances={props.isFetchingBalances}
+              isConnectingWallet={props.isConnectingWallet}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
+              isSource={props.isSource}
               wallet={props.wallet}
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}

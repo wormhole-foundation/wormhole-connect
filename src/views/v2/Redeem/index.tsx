@@ -156,14 +156,14 @@ const Redeem = () => {
     // TODO
   }
 
-  useConnectToLastUsedWallet();
-
   const {
     route: routeName,
     timestamp: txTimestamp,
     isResumeTx,
     txData,
   } = useSelector((state: RootState) => state.redeem);
+
+  useConnectToLastUsedWallet(txData?.fromChain, txData?.toChain);
 
   const [unhandledManualClaimError, setUnhandledManualClaimError] =
     useState<any>(undefined);
