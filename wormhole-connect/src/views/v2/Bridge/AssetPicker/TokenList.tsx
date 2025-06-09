@@ -21,7 +21,7 @@ import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-import { Balances } from 'store/transferInput';
+import { Balances } from 'utils/wallet/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   card: {

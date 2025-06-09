@@ -3,7 +3,7 @@ import type { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
-import type { Balances } from 'store/transferInput';
+import type { Balances } from 'utils/wallet/types';
 import {
   applyTokenSearch,
   sortTokensByPreference,

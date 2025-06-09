@@ -8,6 +8,8 @@ import {
 
 import config from 'config';
 
+export * from './types';
+
 import { Dispatch } from 'redux';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Balances } from 'store/transferInput';
+import { Balances } from 'utils/wallet/types';
 import config, { getWormholeContextV2, WormholeConnectConfig } from 'config';
 import { Token, tokenKey } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';

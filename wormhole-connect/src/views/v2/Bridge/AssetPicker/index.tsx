@@ -20,13 +20,13 @@ import config from 'config';
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
+import { Balances } from 'utils/wallet/types';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { joinClass } from 'utils/style';
 import { useTokenList } from 'hooks/useTokenList';
-import { Balances } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   inputArea: {
