@@ -22,6 +22,7 @@ import RedeemV2 from 'views/v2/Redeem';
 import TxHistory from 'views/v2/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 import SvgDefs from 'icons/SvgDefs';
+import { Box } from '@mui/material';
 
 const AppRouterContent: React.FC = () => {
   const theme = useTheme();
@@ -55,8 +56,8 @@ const AppRouterContent: React.FC = () => {
   }, [hasExternalSearch, dispatch]);
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         textAlign: 'left',
         margin: '40px auto',
         maxWidth: '900px',
@@ -76,7 +77,7 @@ const AppRouterContent: React.FC = () => {
       {route === 'search' && <TxSearch />}
       {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
-    </div>
+    </Box>
   );
 };
 
