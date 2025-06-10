@@ -99,13 +99,26 @@ const useBalanceCache = () => {
   return { getCached, setCached, markFailed, isFailed };
 };
 
-const useGetTokenBalances = (
-  requests: ChainBalanceRequest[],
-): {
+interface UseGetTokenBalancesParams {
+  source?: ChainBalanceRequest;
+  destination?: ChainBalanceRequest;
+}
+
+interface ChainBalanceResult {
+  balances: Balances;
+  fetchTokensProgress: number | null;
+}
+
+interface UseGetTokenBalancesResult {
   isFetching: boolean;
-  balances: BalanceMap;
-  fetchTokensProgress: Record<string, number | null>;
-} => {
+  source: ChainBalanceResult;
+  destination: ChainBalanceResult;
+}
+
+const useGetTokenBalances = ({
+  source,
+  destination,
+}: UseGetTokenBalancesParams): UseGetTokenBalancesResult => {
   const [isFetching, setIsFetching] = useState(false);
   const [balances, setBalances] = useState<BalanceMap>({});
   const [fetchTokensProgress, setFetchTokensProgress] = useState<
@@ -118,19 +131,40 @@ const useGetTokenBalances = (
   // Track active fetches per chain
   const activeFetchesRef = useRef<Map<Chain, boolean>>(new Map());
 
+  // Build requests array from source and destination
+  const requests = useMemo(() => {
+    const reqs: ChainBalanceRequest[] = [];
+    if (source) reqs.push(source);
+    if (destination) reqs.push(destination);
+    return reqs;
+  }, [source, destination]);
+
   // Create stable request signature
   const requestSignature = useMemo(() => {
-    return requests
-      .map((r) => {
-        const tokenKeys = r.tokens
-          .map((t) => t.key)
-          .sort()
-          .join(',');
-        return `${getRequestKey(r.chain, r.wallet)}:${tokenKeys}`;
-      })
-      .sort()
-      .join('|');
-  }, [requests]);
+    const parts: string[] = [];
+    if (source) {
+      const tokenKeys = source.tokens
+        .map((t) => t.key)
+        .sort()
+        .join(',');
+      parts.push(
+        `source:${getRequestKey(source.chain, source.wallet)}:${tokenKeys}`,
+      );
+    }
+    if (destination) {
+      const tokenKeys = destination.tokens
+        .map((t) => t.key)
+        .sort()
+        .join(',');
+      parts.push(
+        `dest:${getRequestKey(
+          destination.chain,
+          destination.wallet,
+        )}:${tokenKeys}`,
+      );
+    }
+    return parts.join('|');
+  }, [source, destination]);
 
   // Process results from indexer
   const processIndexerResults = useCallback(
@@ -385,7 +419,29 @@ const useGetTokenBalances = (
     };
   }, [requests, requestSignature, fetchBalancesForChain]);
 
-  return { isFetching, balances, fetchTokensProgress };
+  // Extract results for source and destination
+  const sourceKey = source ? getRequestKey(source.chain, source.wallet) : null;
+  const destKey = destination
+    ? getRequestKey(destination.chain, destination.wallet)
+    : null;
+
+  const sourceResult: ChainBalanceResult = {
+    balances: sourceKey ? balances[sourceKey] || {} : {},
+    fetchTokensProgress: sourceKey
+      ? fetchTokensProgress[sourceKey] || null
+      : null,
+  };
+
+  const destinationResult: ChainBalanceResult = {
+    balances: destKey ? balances[destKey] || {} : {},
+    fetchTokensProgress: destKey ? fetchTokensProgress[destKey] || null : null,
+  };
+
+  return {
+    isFetching,
+    source: sourceResult,
+    destination: destinationResult,
+  };
 };
 
 export default useGetTokenBalances;

@@ -11,7 +11,7 @@ import config from 'config';
 export * from './types';
 
 import { Dispatch } from 'redux';
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -190,7 +190,7 @@ export const useConnectToLastUsedWallet = (
   destChain?: Chain,
 ): { isConnecting: boolean } => {
   const dispatch = useDispatch();
-  const [isConnecting, setIsConnecting] = React.useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     // Early return if we don't have chains yet

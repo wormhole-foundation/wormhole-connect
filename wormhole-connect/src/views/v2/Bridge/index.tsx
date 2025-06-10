@@ -22,9 +22,7 @@ import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
 import useConfirmTransaction from 'hooks/useConfirmTransaction';
-import useGetTokenBalancesByChain, {
-  ChainBalanceRequest,
-} from 'hooks/useGetTokenBalances';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import { setRoute as setAppRoute } from 'store/router';
@@ -63,56 +61,59 @@ const Bridge = () => {
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const styles = useMemo(() => ({
-    assetPickerContainer: {
-      width: '100%',
-      position: 'relative',
-    },
-    assetPickerTitle: {
-      color: theme.palette.text.secondary,
-      display: 'flex',
-      minHeight: '40px',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    bridgeContent: {
-      margin: 'auto',
-      maxWidth: '420px',
-    },
-    bridgeHeader: {
-      width: '100%',
-      minHeight: '28px',
-      display: 'flex',
-      alignItems: 'center',
-    },
-    doneIcon: {
-      fontSize: '14px',
-      color: theme.palette.success.main,
-    },
-    confirmTransaction: {
-      padding: '8px 16px',
-      borderRadius: '8px',
-      height: '48px',
-      margin: 'auto',
-      maxWidth: '420px',
-      width: '100%',
-    },
-    copyIcon: {
-      fontSize: '14px',
-    },
-    ctaContainer: {
-      marginTop: '8px',
-      width: '100%',
-    },
-    spacer: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-    },
-  }), [theme]);
+  const styles = useMemo(
+    () => ({
+      assetPickerContainer: {
+        width: '100%',
+        position: 'relative',
+      },
+      assetPickerTitle: {
+        color: theme.palette.text.secondary,
+        display: 'flex',
+        minHeight: '40px',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      bridgeContent: {
+        margin: 'auto',
+        maxWidth: '420px',
+      },
+      bridgeHeader: {
+        width: '100%',
+        minHeight: '28px',
+        display: 'flex',
+        alignItems: 'center',
+      },
+      doneIcon: {
+        fontSize: '14px',
+        color: theme.palette.success.main,
+      },
+      confirmTransaction: {
+        padding: '8px 16px',
+        borderRadius: '8px',
+        height: '48px',
+        margin: 'auto',
+        maxWidth: '420px',
+        width: '100%',
+      },
+      copyIcon: {
+        fontSize: '14px',
+      },
+      ctaContainer: {
+        marginTop: '8px',
+        width: '100%',
+      },
+      spacer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+      },
+    }),
+    [theme],
+  );
 
   // --- pipeline state gathering ---
   // Connected wallets, if any
@@ -232,8 +233,8 @@ const Bridge = () => {
     } else {
       return [];
     }
-  // Disabled because we're using the global cache and we have to monitor values that aren't directly used in this hook
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Disabled because we're using the global cache and we have to monitor values that aren't directly used in this hook
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceChain, lastTokenCacheUpdate]);
 
   // Supported chains for the source network
@@ -254,63 +255,43 @@ const Bridge = () => {
     );
   }, [sourceChain, supportedChains]);
 
-  // Build balance requests for chains that have both chain and wallet
-  const balanceRequests = useMemo(() => {
-    const requests: ChainBalanceRequest[] = [];
+  // Build balance requests for source and destination
+  const sourceBalanceRequest = useMemo(() => {
     if (sourceChain && sendingWallet?.address) {
-      requests.push({
+      return {
         chain: sourceChain,
         wallet: sendingWallet,
         tokens: sourceTokens,
-      });
+      };
     }
+    return undefined;
+  }, [sourceChain, sendingWallet, sourceTokens]);
+
+  const destBalanceRequest = useMemo(() => {
     if (destChain && receivingWallet?.address) {
-      requests.push({
+      return {
         chain: destChain,
         wallet: receivingWallet,
         tokens: supportedDestTokens,
-      });
+      };
     }
-    return requests;
-  }, [
-    sourceChain,
-    destChain,
-    sendingWallet,
-    receivingWallet,
-    sourceTokens,
-    supportedDestTokens,
-  ]);
+    return undefined;
+  }, [destChain, receivingWallet, supportedDestTokens]);
 
-  const {
-    balances: balancesByChain,
-    isFetching: isFetchingBalances,
-    fetchTokensProgress,
-  } = useGetTokenBalancesByChain(balanceRequests);
-
-  // Extract balances for source and destination
-  const sourceBalances = useMemo(() => {
-    if (sourceChain && sendingWallet?.address) {
-      const key = `${sourceChain}-${sendingWallet.address}`;
-      return balancesByChain[key] || {};
-    }
-    return {};
-  }, [sourceChain, sendingWallet, balancesByChain]);
-
-  const destBalances = useMemo(() => {
-    if (destChain && receivingWallet?.address) {
-      const key = `${destChain}-${receivingWallet.address}`;
-      return balancesByChain[key] || {};
-    }
-    return {};
-  }, [destChain, receivingWallet, balancesByChain]);
+  const balances = useGetTokenBalances({
+    source: sourceBalanceRequest,
+    destination: destBalanceRequest,
+  });
 
   // Validate amount
   const amountValidation = useAmountValidation({
-    balance: sourceToken ? sourceBalances[sourceToken.key]?.balance : null,
+    balance: sourceToken
+      ? balances.source.balances[sourceToken.key]?.balance
+      : null,
     routes: allSupportedRoutes,
     quotes,
     tokenSymbol: sourceToken?.symbol ?? '',
-    isLoading: isFetchingBalances || isFetchingQuotes,
+    isLoading: balances.isFetching || isFetchingQuotes,
     disabled: !sourceChain || !sourceToken,
   });
 
@@ -356,14 +337,10 @@ const Bridge = () => {
           isSource={true}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="source-asset-picker"
-          balances={sourceBalances}
-          isFetchingBalances={isFetchingBalances}
           isConnectingWallet={isConnectingWallet}
-          fetchTokensProgress={
-            sourceChain && sendingWallet
-              ? fetchTokensProgress[`${sourceChain}-${sendingWallet.address}`]
-              : null
-          }
+          balances={balances.source.balances}
+          isFetchingBalances={balances.isFetching}
+          fetchTokensProgress={balances.source.fetchTokensProgress}
         />
         <SwapInputs />
       </Box>
@@ -379,9 +356,8 @@ const Bridge = () => {
     isConnectingWallet,
     sendingWallet,
     dispatch,
-    sourceBalances,
-    fetchTokensProgress,
-    isFetchingBalances,
+    balances.source,
+    balances.isFetching,
   ]);
 
   // Asset picker for the destination network and token
@@ -412,14 +388,10 @@ const Bridge = () => {
           isSource={false}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="dest-asset-picker"
-          balances={destBalances}
-          isFetchingBalances={isFetchingBalances}
           isConnectingWallet={isConnectingWallet}
-          fetchTokensProgress={
-            destChain && receivingWallet
-              ? fetchTokensProgress[`${destChain}-${receivingWallet.address}`]
-              : null
-          }
+          balances={balances.destination.balances}
+          isFetchingBalances={balances.isFetching}
+          fetchTokensProgress={balances.destination.fetchTokensProgress}
         />
       </Box>
     );
@@ -436,9 +408,8 @@ const Bridge = () => {
     isTransactionInProgress,
     receivingWallet,
     dispatch,
-    destBalances,
-    fetchTokensProgress,
-    isFetchingBalances,
+    balances.destination,
+    balances.isFetching,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -658,9 +629,11 @@ const Bridge = () => {
         sourceChain={sourceChain}
         supportedSourceTokens={sourceTokens}
         tokenBalance={
-          sourceToken ? sourceBalances[sourceToken.key]?.balance : null
+          sourceToken
+            ? balances.source.balances[sourceToken.key]?.balance
+            : null
         }
-        isFetchingTokenBalance={isFetchingBalances}
+        isFetchingTokenBalance={balances.isFetching}
         error={amountValidation.error}
         warning={amountValidation.warning || walletWarning}
       />
@@ -672,7 +645,7 @@ const Bridge = () => {
             dispatch(setTransferRoute(r));
           }}
           quotes={quotes}
-          isLoading={isFetchingQuotes || isFetchingBalances}
+          isLoading={isFetchingQuotes || balances.isFetching}
         />
       )}
       {transactionError}
