@@ -12,12 +12,14 @@ export const isNttToken = (tokenId: TokenId): boolean => {
           for (const key in nttConfig) {
             const options: { chain: Chain; token: string }[] = nttConfig[key];
 
-            for (const opt of options) {
-              if (
-                opt.chain === tokenId.chain &&
-                opt.token === addressString(tokenId)
-              ) {
-                return true;
+            if (options !== undefined) {
+              for (const opt of options) {
+                if (
+                  opt.chain === tokenId.chain &&
+                  opt.token === addressString(tokenId)
+                ) {
+                  return true;
+                }
               }
             }
           }
