@@ -9,16 +9,18 @@ export const isNttToken = (tokenId: TokenId): boolean => {
         const route = config.routes.get(rn);
         if (route) {
           const nttConfig = (route.rc as any).config;
-          for (const key in nttConfig) {
-            const options: { chain: Chain; token: string }[] = nttConfig[key];
+          if (nttConfig) {
+            for (const key in nttConfig.tokens) {
+              const options: { chain: Chain; token: string }[] = nttConfig[key];
 
-            if (options !== undefined) {
-              for (const opt of options) {
-                if (
-                  opt.chain === tokenId.chain &&
-                  opt.token === addressString(tokenId)
-                ) {
-                  return true;
+              if (options) {
+                for (const opt of options) {
+                  if (
+                    opt.chain === tokenId.chain &&
+                    opt.token === addressString(tokenId)
+                  ) {
+                    return true;
+                  }
                 }
               }
             }
