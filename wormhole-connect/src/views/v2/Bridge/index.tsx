@@ -283,6 +283,8 @@ const Bridge = () => {
     destination: destBalanceRequest,
   });
 
+  console.log(balances);
+
   // Validate amount
   const amountValidation = useAmountValidation({
     balance: sourceToken
@@ -340,7 +342,6 @@ const Bridge = () => {
           isConnectingWallet={isConnectingWallet}
           balances={balances.source.balances}
           isFetchingBalances={balances.isFetching}
-          fetchTokensProgress={balances.source.fetchTokensProgress}
         />
         <SwapInputs />
       </Box>
@@ -391,7 +392,6 @@ const Bridge = () => {
           isConnectingWallet={isConnectingWallet}
           balances={balances.destination.balances}
           isFetchingBalances={balances.isFetching}
-          fetchTokensProgress={balances.destination.fetchTokensProgress}
         />
       </Box>
     );

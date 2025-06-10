@@ -43,7 +43,6 @@ type Props = {
   balances: Balances;
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
-  fetchTokensProgress: number | null;
 };
 
 const AssetPicker = (props: Props) => {
@@ -144,64 +143,67 @@ const AssetPicker = (props: Props) => {
   const triggerProps =
     props.isTransactionInProgress || mobile ? {} : bindTrigger(popupState);
 
-  const styles = useMemo(() => ({
-    inputArea: {
-      width: '100%',
-      cursor: 'pointer',
-      maxWidth: '420px',
-      borderRadius: '8px',
-      background: theme.palette.input.fillTreatment
-        ? 'transparent'
-        : theme.palette.input.background,
-      border: theme.palette.input.fillTreatment
-        ? `1px solid ${theme.palette.input.border}`
-        : 'none',
-    },
-    inputAreaEmpty: {
-      borderColor: theme.palette.input.background,
-      background: theme.palette.input.background,
-    },
-    cardContent: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      height: '72px',
-      padding: '16px 20px',
-      ':last-child': {
-        padding: '16px 20px',
+  const styles = useMemo(
+    () => ({
+      inputArea: {
+        width: '100%',
+        cursor: 'pointer',
+        maxWidth: '420px',
+        borderRadius: '8px',
+        background: theme.palette.input.fillTreatment
+          ? 'transparent'
+          : theme.palette.input.background,
+        border: theme.palette.input.fillTreatment
+          ? `1px solid ${theme.palette.input.border}`
+          : 'none',
       },
-    },
-    chainSelector: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    disabled: {
-      opacity: '0.6',
-      cursor: 'default',
-      pointerEvents: 'none',
-    },
-    popover: {
-      marginLeft: '-1px',
-      marginTop: '-1px',
-      width: '422px',
-    },
-    popoverSlot: {
-      width: '100%',
-      maxWidth: '422px',
-      borderRadius: '8px',
-      background: theme.palette.input.background,
-    },
-    backdrop: {
-      backgroundColor: `rgba(0,0,0,0.2)`,
-    },
-    drawer: {
-      background: theme.palette.input.background,
-      borderRadius: '8px',
-      height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
-      maxWidth: '100vw', // Force full-width on small mobile devices
-    },
-  }), [theme]);
+      inputAreaEmpty: {
+        borderColor: theme.palette.input.background,
+        background: theme.palette.input.background,
+      },
+      cardContent: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: '72px',
+        padding: '16px 20px',
+        ':last-child': {
+          padding: '16px 20px',
+        },
+      },
+      chainSelector: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      disabled: {
+        opacity: '0.6',
+        cursor: 'default',
+        pointerEvents: 'none',
+      },
+      popover: {
+        marginLeft: '-1px',
+        marginTop: '-1px',
+        width: '422px',
+      },
+      popoverSlot: {
+        width: '100%',
+        maxWidth: '422px',
+        borderRadius: '8px',
+        background: theme.palette.input.background,
+      },
+      backdrop: {
+        backgroundColor: `rgba(0,0,0,0.2)`,
+      },
+      drawer: {
+        background: theme.palette.input.background,
+        borderRadius: '8px',
+        height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
+        maxWidth: '100vw', // Force full-width on small mobile devices
+      },
+    }),
+    [theme],
+  );
 
   return (
     <>
@@ -233,11 +235,7 @@ const AssetPicker = (props: Props) => {
         {...triggerProps}
       >
         <CardContent sx={styles.cardContent}>
-          <Typography
-            sx={styles.chainSelector}
-            component={'div'}
-            gap={1}
-          >
+          <Typography sx={styles.chainSelector} component={'div'} gap={1}>
             <AssetBadge chainConfig={chainConfig} token={props.token} />
             {selection}
           </Typography>
@@ -344,7 +342,6 @@ const AssetPicker = (props: Props) => {
                 props.setToken(key);
                 popupState.close();
               }}
-              fetchTokensProgress={props.fetchTokensProgress}
             />
           )}
         </Popover>

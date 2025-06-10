@@ -1,12 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  LinearProgress,
-  Skeleton,
-  useTheme,
-} from '@mui/material';
+import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
@@ -151,22 +144,11 @@ const TokenList = (props: Props) => {
       return 'empty';
     }
 
+    console.log(props.selectedChainConfig.sdkName, props.isFetchingBalances);
+
     // Currently fetching initial data
-    if (props.isFetching || props.isFetchingBalances) {
+    if (props.isFetching) {
       return 'loading';
-    }
-
-    // For source chain, check if we have balance data
-    if (props.isSource) {
-      const hasBalanceData = Object.keys(props.balances).length > 0;
-      const hasSomePrices = Array.from(tokenPrices.values()).some(
-        (price) => price !== undefined,
-      );
-
-      // Still loading if we don't have any balance data or prices yet
-      if (!hasBalanceData || !hasSomePrices) {
-        return 'loading';
-      }
     }
 
     // We have data but no tokens to show
@@ -186,6 +168,8 @@ const TokenList = (props: Props) => {
     tokenPrices,
     sortedTokens.length,
   ]);
+
+  console.debug(props.selectedChainConfig.sdkName, listState);
 
   const shouldShowLoadingState = listState === 'loading';
   const shouldShowEmptyMessage = listState === 'empty';
@@ -207,15 +191,6 @@ const TokenList = (props: Props) => {
             >
               Tokens on {props.selectedChainConfig.displayName}
             </Typography>
-
-            <Box style={{ flexGrow: '1', padding: '6px 0' }}>
-              {props.fetchTokensProgress ? (
-                <LinearProgress
-                  variant="determinate"
-                  value={props.fetchTokensProgress * 100}
-                />
-              ) : null}
-            </Box>
           </Box>
         )
       }
@@ -288,11 +263,11 @@ const TokenList = (props: Props) => {
   return (
     <Card sx={styles.card} variant="elevation">
       <CardContent sx={styles.tokenListContainer}>
-        <Box sx={{ display: 'flex', width: '100%', padding: '0 16px' }}>
+        <Box sx={{ display: 'flex', padding: '0 16px' }}>
           <Typography width="100%" sx={styles.title}>
             Select a token
           </Typography>
-          {isFetchingToken ? (
+          {isFetchingToken || props.isFetchingBalances ? (
             <CircularProgress
               sx={{ alignSelf: 'flex-end', marginBottom: '12px' }}
               size={14}
