@@ -45,3 +45,5 @@ yalc.lock
 # rollup plugin analyzer output
 stats.json
 stats.html
+
+.claude/settings.local.json
