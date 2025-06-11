@@ -1,5 +1,0 @@
-{
-  "networks": ["goerli", "polygon"],
-  "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
-  "theme": "light"
-}
