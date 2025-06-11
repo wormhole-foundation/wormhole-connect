@@ -56,9 +56,10 @@ export const useTokenList = ({
     tokens = applyCustomTokenSupport(tokens, sourceToken);
 
     // For source list, we filter further because we're loading arbitrary tokens in their wallet
-    if (isSourceList) {
+    if (isSourceList && !searchQuery) {
       // Filter out possible scamcoins
       tokens = applyShittokenFilter(tokens);
+
       // Conditionally filter by balance (for source tokens only)
       tokens = filterTokensByBalance(tokens, balances, wallet.address);
     }
