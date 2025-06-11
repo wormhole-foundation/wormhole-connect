@@ -289,7 +289,14 @@ const TransactionDetails = () => {
         </Link>
       </Stack>
     );
-  }, [routeContext.route, routeName, sendTx, theme.palette.text.primary]);
+  }, [
+    fromChain,
+    routeContext.route,
+    routeName,
+    sendTx,
+    theme.palette.text.primary,
+    toChain,
+  ]);
 
   const timeToDestination = useMemo(() => {
     let etaDisplay: string | ReactNode = <CircularProgress size={14} />;

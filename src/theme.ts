@@ -9,10 +9,10 @@ export type WormholeConnectTheme = {
   mode: PaletteMode;
   // Background of surrounding application
   background?: PaletteMode;
+  // Background of the container surrounding form fields (asset pickers, amount input and confirm button)
+  formBackground?: PaletteMode;
   // Color of input fields, like asset picker and amount input
   input?: string;
-  // Whether input fields will be transparent
-  inputFillTreatment?: boolean;
   // Primary brand color
   primary?: string;
   // Secondary brand color
@@ -31,14 +31,17 @@ export type WormholeConnectTheme = {
 
 type Color = { main: string };
 
+type BackgroundType = {
+  default: string;
+  form?: string;
+};
+
 export type InternalTheme = {
   mode: PaletteMode;
   primary: Color;
   secondary: Color;
   divider: string;
-  background: {
-    default: string;
-  };
+  background: BackgroundType;
   text: {
     primary: string;
     secondary: string;
@@ -73,7 +76,10 @@ export type InternalTheme = {
   input: {
     background: string;
     border: string;
-    fillTreatment: boolean;
+  };
+  formContainer?: {
+    background: string;
+    border: string;
   };
   font: string;
   logo: string;
@@ -86,6 +92,7 @@ export const light: InternalTheme = {
   divider: '#a0a2a9',
   background: {
     default: 'transparent',
+    form: '#ffffff',
   },
   text: {
     primary: grey[900],
@@ -123,7 +130,6 @@ export const light: InternalTheme = {
   input: {
     background: '#f9f9f9',
     border: '#DEE0E3',
-    fillTreatment: true,
   },
   font: '"Inter", sans-serif',
   logo: '#000000',
@@ -137,6 +143,7 @@ export const dark: InternalTheme = {
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: 'transparent',
+    form: '#010101',
   },
   text: {
     primary: '#ffffff',
@@ -179,8 +186,7 @@ export const dark: InternalTheme = {
   },
   input: {
     background: '#1a1928',
-    border: '#1e1f35',
-    fillTreatment: true,
+    border: '#2B2A2E',
   },
   font: '"Inter", sans-serif',
   logo: '#ffffff',
@@ -204,9 +210,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         background: customTheme.input,
         border: customTheme.secondary || theme.secondary.main,
       };
-    }
-    if (customTheme.inputFillTreatment !== undefined) {
-      theme.input.fillTreatment = customTheme.inputFillTreatment;
     }
     if (customTheme.primary) {
       theme.primary = {

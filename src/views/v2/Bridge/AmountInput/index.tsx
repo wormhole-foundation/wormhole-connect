@@ -13,7 +13,6 @@ import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CircularProgress from '@mui/material/CircularProgress';
 import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -96,7 +95,7 @@ type Props = {
   sourceChain?: Chain;
   supportedSourceTokens: Array<Token>;
   tokenBalance: sdkAmount.Amount | null;
-  isFetchingTokenBalance: boolean;
+  receiveAmount?: number | undefined;
   error?: string;
   warning?: string;
 };
@@ -112,16 +111,12 @@ const AmountInput = (props: Props) => {
     () => ({
       amountContainer: {
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '250px',
       },
       amountInput: {
         borderRadius: '8px',
-        background: theme.palette.input.fillTreatment
-          ? 'transparent'
-          : theme.palette.input.background,
-        border: theme.palette.input.fillTreatment
-          ? `1px solid ${theme.palette.input.border}`
-          : 'none',
+        background: theme.palette.input.background,
+        border: 'none',
       },
       amountInputEmpty: {
         background: theme.palette.input.background,
@@ -130,10 +125,10 @@ const AmountInput = (props: Props) => {
       amountCardContent: {
         display: 'flex',
         alignItems: 'center',
-        height: '72px',
-        padding: '12px 20px',
+        height: '50px',
+        padding: 0,
         ':last-child': {
-          padding: '12px 20px',
+          padding: 0,
         },
       },
       amountTitle: {
@@ -205,22 +200,17 @@ const AmountInput = (props: Props) => {
         >
           Balance:
         </Typography>
-        {props.isFetchingTokenBalance ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14} textAlign="right" sx={styles.balance}>
-            {props.tokenBalance
-              ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
-              : '0'}
-          </Typography>
-        )}
+        <Typography fontSize={14} textAlign="right" sx={styles.balance}>
+          {props.tokenBalance
+            ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
+            : '0'}
+        </Typography>
       </Stack>
     );
   }, [
     isInputDisabled,
     sendingWallet.address,
     styles.balance,
-    props.isFetchingTokenBalance,
     props.tokenBalance,
   ]);
 
@@ -228,7 +218,7 @@ const AmountInput = (props: Props) => {
     setAmountInput(newValue);
   }, []);
 
-  const tokenPriceAdornment = useMemo(() => {
+  const tokenPrice = useMemo(() => {
     const price = calculateUSDPrice(
       getTokenPrice,
       Number(amountInput === '.' ? '0.' : amountInput),
@@ -304,9 +294,6 @@ const AmountInput = (props: Props) => {
 
   return (
     <Box sx={styles.amountContainer}>
-      <Box sx={styles.amountTitle}>
-        <Typography variant="body2">Amount</Typography>
-      </Box>
       <Card
         sx={[styles.amountInput, amountInput === '' && styles.amountInputEmpty]}
       >
@@ -314,40 +301,32 @@ const AmountInput = (props: Props) => {
           <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}
-            inputProps={{
-              style: {
-                color: props.error
-                  ? theme.palette.error.main
-                  : theme.palette.text.primary,
-                fontSize: 24,
-                height: '28px',
-                marginBottom: tokenPriceAdornment ? '16px' : 0, // make sure there is enough space for token price
-              },
-              onWheel: (e) => {
-                // IMPORTANT: We need to prevent the scroll behavior on number inputs.
-                // Otherwise it'll increase/decrease the value when user scrolls on the input control.
-                // See for details: https://github.com/mui/material-ui/issues/7960
-                e.currentTarget.blur();
-              },
-              step: '0.1',
-            }}
             placeholder="0"
+            slotProps={{
+              htmlInput: {
+                style: {
+                  color: props.error
+                    ? theme.palette.error.main
+                    : theme.palette.text.primary,
+                  fontSize: 24,
+                  height: '28px',
+                },
+                onWheel: (e) => {
+                  // IMPORTANT: We need to prevent the scroll behavior on number inputs.
+                  // Otherwise it'll increase/decrease the value when user scrolls on the input control.
+                  // See for details: https://github.com/mui/material-ui/issues/7960
+                  e.currentTarget.blur();
+                },
+                step: '0.1',
+              },
+              input: {
+                disableUnderline: true,
+              },
+            }}
             variant="standard"
             value={debouncedAmountInput}
             onChange={handleChange}
             onDebouncedChange={handleDebouncedChange}
-            InputProps={{
-              disableUnderline: true,
-              startAdornment: tokenPriceAdornment,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Stack alignItems="end" justifyContent="space-between">
-                    {maxButton}
-                    {balance}
-                  </Stack>
-                </InputAdornment>
-              ),
-            }}
           />
         </CardContent>
       </Card>

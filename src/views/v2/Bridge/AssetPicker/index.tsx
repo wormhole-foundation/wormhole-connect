@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Stack, useMediaQuery } from '@mui/material';
+import { Box, Stack, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Backdrop from '@mui/material/Backdrop';
 import Card from '@mui/material/Card';
@@ -12,9 +12,7 @@ import {
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
-import DownIcon from '@mui/icons-material/ExpandMore';
-import UpIcon from '@mui/icons-material/ExpandLess';
-import { Chain } from '@wormhole-foundation/sdk';
+import { Chain, routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
@@ -26,6 +24,10 @@ import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
+import { TransferWallet } from 'utils/wallet';
+import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
+import AmountInput from '../AmountInput';
+import { AmountValidationResult } from 'hooks/useAmountValidation';
 
 type Props = {
   chain?: Chain | undefined;
@@ -33,7 +35,8 @@ type Props = {
   token?: Token;
   sourceToken?: Token;
   tokenList?: Array<Token> | undefined;
-  isFetching?: boolean;
+  isFetchingQuotes?: boolean;
+  isFetchingTokens?: boolean;
   setToken: (value: Token) => void;
   setChain: (value: Chain) => void;
   wallet: WalletData;
@@ -43,6 +46,8 @@ type Props = {
   balances: Balances;
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
+  amountValidation?: AmountValidationResult;
+  quote?: routes.Quote<routes.Options> | undefined;
 };
 
 const AssetPicker = (props: Props) => {
@@ -106,16 +111,12 @@ const AssetPicker = (props: Props) => {
     if (!chainConfig && !props.token) {
       return (
         <Typography component={'div'} fontSize={16}>
-          Select chain and token
+          Select
         </Typography>
       );
     }
 
-    const tokenDisplay = props.token ? (
-      <>{props.token.display}</>
-    ) : (
-      <>Select token</>
-    );
+    const tokenDisplay = props.token ? <>{props.token.display}</> : <>Select</>;
 
     return (
       <div>
@@ -145,30 +146,32 @@ const AssetPicker = (props: Props) => {
 
   const styles = useMemo(
     () => ({
-      inputArea: {
-        width: '100%',
-        cursor: 'pointer',
-        maxWidth: '420px',
-        borderRadius: '8px',
-        background: theme.palette.input.fillTreatment
-          ? 'transparent'
-          : theme.palette.input.background,
-        border: theme.palette.input.fillTreatment
-          ? `1px solid ${theme.palette.input.border}`
-          : 'none',
+      container: {
+        height: '74px',
+        width: '404px',
       },
-      inputAreaEmpty: {
-        borderColor: theme.palette.input.background,
+      title: {
+        color: theme.palette.text.secondary,
+        display: 'flex',
+        minHeight: '40px',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      inputArea: {
+        height: '50px',
+        width: '136px',
+        cursor: 'pointer',
+        borderRadius: '50px',
+        border: `1px solid ${theme.palette.input.border}`,
         background: theme.palette.input.background,
       },
       cardContent: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        height: '72px',
-        padding: '16px 20px',
+        padding: '8px',
         ':last-child': {
-          padding: '16px 20px',
+          padding: '8px',
         },
       },
       chainSelector: {
@@ -205,49 +208,127 @@ const AssetPicker = (props: Props) => {
     [theme],
   );
 
+  const receiveAmount = useMemo(() => {
+    return props.quote
+      ? sdkAmount.whole(props.quote?.destinationToken.amount)
+      : undefined;
+  }, [props.quote]);
+
   return (
     <>
       <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
-      <Card
-        sx={[
-          styles.inputArea,
-          !chainConfig && styles.inputAreaEmpty,
-          props.isTransactionInProgress && styles.disabled,
-        ]}
-        data-testid={props.dataTestId}
-        variant="elevation"
-        onMouseDown={(e) => {
-          if (mobile) {
-            setIsDrawerOpen(true);
-          } else {
-            popupState.open(e);
-          }
-        }}
-        onTouchEnd={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (mobile) {
-            setIsDrawerOpen(true);
-          } else {
-            popupState.open(e);
-          }
-        }}
-        {...triggerProps}
-      >
-        <CardContent sx={styles.cardContent}>
-          <Typography sx={styles.chainSelector} component={'div'} gap={1}>
-            <AssetBadge chainConfig={chainConfig} token={props.token} />
-            {selection}
+      <Stack>
+        <Box sx={styles.title}>
+          <Typography variant="body2">
+            {props.isSource ? 'From' : 'To'}
           </Typography>
-          {popupState.isOpen || isDrawerOpen ? <UpIcon /> : <DownIcon />}
-        </CardContent>
-      </Card>
+          <WalletController
+            type={
+              props.isSource ? TransferWallet.SENDING : TransferWallet.RECEIVING
+            }
+          />
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          {props.isSource ? (
+            <AmountInput
+              sourceChain={props.chain}
+              receiveAmount={receiveAmount}
+              supportedSourceTokens={props.tokenList || []}
+              tokenBalance={
+                props.token ? props.balances[props.token.key]?.balance : null
+              }
+              warning={props.amountValidation?.warning}
+              error={props.amountValidation?.error}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: '100%',
+                maxWidth: '250px',
+              }}
+            >
+              <TextField
+                fullWidth
+                disabled
+                placeholder="0"
+                slotProps={{
+                  htmlInput: {
+                    style: {
+                      fontSize: 24,
+                      height: '28px',
+                    },
+                  },
+                  input: {
+                    disableUnderline: true,
+                  },
+                }}
+                variant="standard"
+                value={receiveAmount}
+              />
+            </Box>
+          )}
+
+          <Card
+            sx={[
+              styles.inputArea,
+              props.isTransactionInProgress && styles.disabled,
+            ]}
+            data-testid={props.dataTestId}
+            variant="elevation"
+            onMouseDown={(e) => {
+              if (mobile) {
+                setIsDrawerOpen(true);
+              } else {
+                popupState.open(e);
+              }
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (mobile) {
+                setIsDrawerOpen(true);
+              } else {
+                popupState.open(e);
+              }
+            }}
+            {...triggerProps}
+          >
+            <CardContent sx={styles.cardContent}>
+              <Typography sx={styles.chainSelector} component={'div'} gap={1}>
+                <AssetBadge chainConfig={chainConfig} token={props.token} />
+                {selection}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <Typography>USD amount here</Typography>
+          <Box>Percent selectors here</Box>
+        </Box>
+      </Stack>
+
       {mobile ? (
         <SwipeableDrawer
           anchor="bottom"
           open={isDrawerOpen}
-          PaperProps={{
-            sx: styles.drawer,
+          slotProps={{
+            paper: {
+              sx: styles.drawer,
+            },
           }}
           transitionDuration={200}
           onOpen={() => setIsDrawerOpen(true)}
@@ -279,8 +360,8 @@ const AssetPicker = (props: Props) => {
               tokenList={sortedTokens}
               balances={props.balances}
               isFetchingBalances={props.isFetchingBalances}
-              isFetching={props.isFetching}
               isConnectingWallet={props.isConnectingWallet}
+              isFetching={props.isFetchingTokens}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
@@ -329,10 +410,10 @@ const AssetPicker = (props: Props) => {
           {!showChainSearch && chainConfig && (
             <TokenList
               tokenList={sortedTokens}
-              isFetching={props.isFetching}
               balances={props.balances}
               isFetchingBalances={props.isFetchingBalances}
               isConnectingWallet={props.isConnectingWallet}
+              isFetching={props.isFetchingTokens}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}

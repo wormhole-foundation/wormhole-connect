@@ -30,7 +30,6 @@ import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import GasSlider from 'views/v2/Bridge/GasSlider';
-import Color from 'color';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -61,9 +60,7 @@ const SingleRoute = (props: Props) => {
         maxWidth: '420px',
       },
       cardSelected: {
-        backgroundColor: theme.palette.input.fillTreatment
-          ? Color(theme.palette.primary.main).alpha(0.05).hexa()
-          : theme.palette.card.background,
+        backgroundColor: theme.palette.card.background,
         borderColor: theme.palette.primary.main,
       },
       cardHeader: {

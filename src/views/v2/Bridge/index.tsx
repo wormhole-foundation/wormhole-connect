@@ -40,8 +40,6 @@ import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
-import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
-import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v2/TxHistory/Widget';
@@ -53,7 +51,7 @@ import { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
 
 const Bridge = () => {
-  const theme = useTheme();
+  const theme: any = useTheme();
   const dispatch = useDispatch();
 
   const { lastTokenCacheUpdate } = useTokens();
@@ -64,8 +62,11 @@ const Bridge = () => {
   const styles = useMemo(
     () => ({
       assetPickerContainer: {
-        width: '100%',
+        width: '420px',
         position: 'relative',
+        background: theme.palette.input.background,
+        borderRadius: '8px',
+        padding: '16px',
       },
       assetPickerTitle: {
         color: theme.palette.text.secondary,
@@ -83,6 +84,7 @@ const Bridge = () => {
         minHeight: '28px',
         display: 'flex',
         alignItems: 'center',
+        padding: '20px 0',
       },
       doneIcon: {
         fontSize: '14px',
@@ -100,16 +102,16 @@ const Bridge = () => {
         fontSize: '14px',
       },
       ctaContainer: {
-        marginTop: '8px',
         width: '100%',
       },
-      spacer: {
+      formContent: {
+        backgroundColor: theme.palette.background.form,
+        borderRadius: '8px',
+        padding: '20px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
+        width: '452px',
+        gap: '4px',
       },
     }),
     [theme],
@@ -317,10 +319,6 @@ const Bridge = () => {
   const sourceAssetPicker = useMemo(() => {
     return (
       <Box sx={styles.assetPickerContainer}>
-        <Box sx={styles.assetPickerTitle}>
-          <Typography variant="body2">From</Typography>
-          <WalletController type={TransferWallet.SENDING} />
-        </Box>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -361,19 +359,17 @@ const Bridge = () => {
 
   // Asset picker for the destination network and token
   const destAssetPicker = useMemo(() => {
+    const quoteResult = quotes && route ? quotes[route] : undefined;
     return (
       <Box sx={styles.assetPickerContainer}>
-        <Box sx={styles.assetPickerTitle}>
-          <Typography variant="body2">To</Typography>
-          <WalletController type={TransferWallet.RECEIVING} />
-        </Box>
         <AssetPicker
           chain={destChain}
           chainList={supportedDestChains}
           token={destToken}
           sourceToken={sourceToken}
           tokenList={supportedDestTokens}
-          isFetching={
+          isFetchingQuotes={isFetchingQuotes}
+          isFetchingTokens={
             supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
           }
           setChain={(value: Chain) => {
@@ -390,6 +386,7 @@ const Bridge = () => {
           isConnectingWallet={isConnectingWallet}
           balances={balances.destination.balances}
           isFetchingBalances={balances.isFetching}
+          quote={quoteResult?.success ? quoteResult : undefined}
         />
       </Box>
     );
@@ -405,6 +402,8 @@ const Bridge = () => {
     isFetchingSupportedDestTokens,
     isTransactionInProgress,
     receivingWallet,
+    quotes,
+    route,
     dispatch,
     balances.destination,
     balances.isFetching,
@@ -477,14 +476,13 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
-  const { isCompatible: isWalletCompatible, warning: walletWarning } =
-    useWalletCompatibility({
-      sendingWallet,
-      receivingWallet,
-      sourceChain,
-      destChain,
-      routes: sortedRoutes,
-    });
+  const { isCompatible: isWalletCompatible } = useWalletCompatibility({
+    sendingWallet,
+    receivingWallet,
+    sourceChain,
+    destChain,
+    routes: sortedRoutes,
+  });
 
   const transactionError = useMemo(() => {
     if (!txError) {
@@ -612,49 +610,36 @@ const Bridge = () => {
       : '';
 
   return (
-    <Box
-      sx={{ ...styles.bridgeContent, ...styles.spacer }}
-      data-testid="bridge-view"
-    >
+    <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
       {header}
       {config.ui.showInProgressWidget && (
         <TxHistoryWidget disabled={isTransactionInProgress} />
       )}
       {bridgeHeader}
-      {sourceAssetPicker}
-      {destAssetPicker}
-      <AmountInput
-        sourceChain={sourceChain}
-        supportedSourceTokens={sourceTokens}
-        tokenBalance={
-          sourceToken
-            ? balances.source.balances[sourceToken.key]?.balance
-            : null
-        }
-        isFetchingTokenBalance={balances.isFetching}
-        error={amountValidation.error}
-        warning={amountValidation.warning || walletWarning}
-      />
-      {hasEnteredAmount && (
-        <Routes
-          routes={sortedRoutes}
-          selectedRoute={route}
-          onRouteChange={(r) => {
-            dispatch(setTransferRoute(r));
-          }}
-          quotes={quotes}
-          isLoading={isFetchingQuotes || balances.isFetching}
-        />
-      )}
-      {transactionError}
-      <Box component="span" sx={styles.ctaContainer}>
-        {hasConnectedWallets ? (
-          <Tooltip title={confirmButtonTooltip}>
-            <span>{confirmTransactionButton}</span>
-          </Tooltip>
-        ) : (
-          walletConnector
+      <Box sx={{ ...styles.formContent }}>
+        {sourceAssetPicker}
+        {destAssetPicker}
+        {hasEnteredAmount && (
+          <Routes
+            routes={sortedRoutes}
+            selectedRoute={route}
+            onRouteChange={(r) => {
+              dispatch(setTransferRoute(r));
+            }}
+            quotes={quotes}
+            isLoading={isFetchingQuotes || balances.isFetching}
+          />
         )}
+        {transactionError}
+        <Box component="span" sx={styles.ctaContainer}>
+          {hasConnectedWallets ? (
+            <Tooltip title={confirmButtonTooltip}>
+              <span>{confirmTransactionButton}</span>
+            </Tooltip>
+          ) : (
+            walletConnector
+          )}
+        </Box>
       </Box>
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />
