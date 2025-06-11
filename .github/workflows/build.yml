@@ -18,12 +18,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "npm"
-          cache-dependency-path: "wormhole-connect/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - run: npm ci
-        working-directory: wormhole-connect
+        working-directory: ./
       - run: npm run lint:ci
-        working-directory: wormhole-connect
+        working-directory: ./
 
   # TODO: figure out why GitHub still runs this test job
   # even when we remove it and clear the workflow cache
@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Run script
         run: npm i prettier && npm run checksdn
-        working-directory: wormhole-connect
+        working-directory: ./
 
   check-token-list:
     runs-on: ubuntu-latest
@@ -53,20 +53,20 @@ jobs:
         with:
           filters: |
             tokens:
-              - 'wormhole-connect/src/config/mainnet/wrappedTokens.ts'
-              - 'wormhole-connect/src/config/testnet/wrappedTokens.ts'
+              - 'src/config/mainnet/wrappedTokens.ts'
+              - 'src/config/testnet/wrappedTokens.ts'
       - uses: actions/setup-node@v4
         if: steps.filter.outputs.tokens == 'true' || github.ref == 'refs/heads/development'
         with:
           node-version: 22
-          cache: "npm"
-          cache-dependency-path: "wormhole-connect/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - run: npm ci
         if: steps.filter.outputs.tokens == 'true' || github.ref == 'refs/heads/development'
-        working-directory: wormhole-connect
+        working-directory: ./
       - run: npm run checkForeignAssets
         if: steps.filter.outputs.tokens == 'true' || github.ref == 'refs/heads/development'
-        working-directory: wormhole-connect
+        working-directory: ./
 
   build-hosted:
     runs-on: ubuntu-latest
@@ -76,12 +76,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "npm"
-          cache-dependency-path: "wormhole-connect/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - run: npm ci
-        working-directory: wormhole-connect
+        working-directory: ./
       - run: npm run build:hosted
-        working-directory: wormhole-connect
+        working-directory: ./
   build-library:
     runs-on: ubuntu-latest
 
@@ -90,21 +90,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "npm"
-          cache-dependency-path: "wormhole-connect/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
       - run: npm ci
-        working-directory: wormhole-connect
+        working-directory: ./
       - name: Build Lib
         run: npm run build:lib 2>&1 | tee build-output.txt
-        working-directory: wormhole-connect
+        working-directory: ./
       - name: Check bundle sizes
         run: |
           echo "Checking JS bundle sizes..."
           SIZE_LIMIT_KB=1024 # 1MB in KB
-          
+
           # Create a temporary file to store large bundles
           touch /tmp/large_bundles
-          
+
           # Find all JS files and their gzip sizes
           grep "\.js.*│.*gzip:" build-output.txt | while read -r line; do
             # Extract filename and size, stripping ANSI color codes
@@ -116,7 +116,7 @@ jobs:
               echo "${filename}|${size_mb}" >> /tmp/large_bundles
             fi
           done
-          
+
           if [ -s /tmp/large_bundles ]; then
             # Construct the bundle list message
             bundle_list=""
@@ -125,10 +125,10 @@ jobs:
             done < /tmp/large_bundles
             
             # Output the consolidated error message
-            echo "::error file=wormhole-connect/package.json,line=1,title=Large Bundles Detected::The following bundles exceed the 1MB size limit:%0A${bundle_list}%0AOptimization suggestions:%0A• Use dynamic imports and/or React.lazy for better code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports"
+            echo "::error file=package.json,line=1,title=Large Bundles Detected::The following bundles exceed the 1MB size limit:%0A${bundle_list}%0AOptimization suggestions:%0A• Use dynamic imports and/or React.lazy for better code splitting%0A• Analyze your bundle with 'npm run analyze' to identify large dependencies%0A• Review and remove unused exports/imports"
             # Uncomment the next line to fail the build if a large bundle is found
             # exit 1
           fi
-          
+
           rm -f /tmp/large_bundles
-        working-directory: wormhole-connect
+        working-directory: ./
