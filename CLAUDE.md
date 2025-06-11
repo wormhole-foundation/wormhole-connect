@@ -9,8 +9,6 @@ Key directories include:
 - `src/` - Main source code for the React component
 - `lib/` - Built library output (gitignored)
 - `dist/` - Distribution files (gitignored)
-- `docs/` - Configuration documentation
-- `docs-api/` - Generated API documentation
 - `scripts/` - Build and utility scripts
 - `tests/` - E2E tests using Playwright
 
