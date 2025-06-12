@@ -7,26 +7,19 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import InputAdornment from '@mui/material/InputAdornment';
-import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import Box from '@mui/material/Box';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
-import { setAmount } from 'store/transferInput';
 import { Token } from 'config/tokens';
 import type { RootState } from 'store';
-import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
-import { useTokens } from 'contexts/TokensContext';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -92,19 +85,22 @@ const DebouncedTextField = memo(
 );
 
 type Props = {
+  value: string;
+  debauncedValue: string;
   sourceChain?: Chain;
   supportedSourceTokens: Array<Token>;
   tokenBalance: sdkAmount.Amount | null;
   receiveAmount?: number | undefined;
   error?: string;
   warning?: string;
+  onChange: (value: string) => void;
+  onDebouncedChange: (value: string) => void;
 };
 
 /**
  * Renders the input control to set the transaction amount
  */
 const AmountInput = (props: Props) => {
-  const dispatch = useDispatch();
   const theme = useTheme();
 
   const styles = useMemo(
@@ -114,13 +110,9 @@ const AmountInput = (props: Props) => {
         maxWidth: '250px',
       },
       amountInput: {
+        background: theme.palette.input.background,
         borderRadius: '8px',
-        background: theme.palette.input.background,
         border: 'none',
-      },
-      amountInputEmpty: {
-        background: theme.palette.input.background,
-        borderColor: theme.palette.input.background,
       },
       amountCardContent: {
         display: 'flex',
@@ -151,152 +143,20 @@ const AmountInput = (props: Props) => {
     [theme],
   );
 
-  const { sending: sendingWallet } = useSelector(
-    (state: RootState) => state.wallet,
-  );
-  const { amount } = useSelector((state: RootState) => state.transferInput);
-
-  const [amountInput, setAmountInput] = useState(
-    amount ? sdkAmount.display(amount) : '',
-  );
-  const [debouncedAmountInput, setDebouncedAmountInput] = useState(
-    amount ? sdkAmount.display(amount) : '',
-  );
-
   const { fromChain: sourceChain, isTransactionInProgress } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
   const { sourceToken } = useGetTokens();
 
-  const { getTokenPrice } = useTokens();
-
-  // Clear the amount input value if the amount is reset outside of this component
-  // This can happen if user swaps selected source and destination assets.
-  useEffect(() => {
-    if (!amount && (amountInput || debouncedAmountInput)) {
-      handleChange('');
-      handleDebouncedChange('');
-    }
-    // We should run this sife-effect only when the amount changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount]);
-
   const isInputDisabled = useMemo(
     () => isTransactionInProgress || !sourceChain || !sourceToken,
     [isTransactionInProgress, sourceChain, sourceToken],
   );
 
-  const balance = useMemo(() => {
-    if (isInputDisabled || !sendingWallet.address) {
-      return null;
-    }
-
-    return (
-      <Stack direction="row" alignItems="center">
-        <Typography
-          component="span"
-          sx={{ ...styles.balance, marginRight: '4px' }}
-        >
-          Balance:
-        </Typography>
-        <Typography fontSize={14} textAlign="right" sx={styles.balance}>
-          {props.tokenBalance
-            ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
-            : '0'}
-        </Typography>
-      </Stack>
-    );
-  }, [
-    isInputDisabled,
-    sendingWallet.address,
-    styles.balance,
-    props.tokenBalance,
-  ]);
-
-  const handleChange = useCallback((newValue: string): void => {
-    setAmountInput(newValue);
-  }, []);
-
-  const tokenPrice = useMemo(() => {
-    const price = calculateUSDPrice(
-      getTokenPrice,
-      Number(amountInput === '.' ? '0.' : amountInput),
-      sourceToken,
-    );
-
-    if (!price) {
-      return null;
-    }
-
-    return (
-      <InputAdornment
-        position="end"
-        sx={{
-          position: 'absolute',
-          top: '38px',
-          margin: 0,
-        }}
-      >
-        <Stack alignItems="start">
-          <Typography
-            color={theme.palette.text.secondary}
-            component="span"
-            fontSize="14px"
-            lineHeight="14px"
-          >
-            {price}
-          </Typography>
-        </Stack>
-      </InputAdornment>
-    );
-  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
-
-  const handleDebouncedChange = useCallback(
-    (newValue: string): void => {
-      dispatch(setAmount(newValue));
-      setDebouncedAmountInput(newValue);
-    },
-    [dispatch],
-  );
-
-  const maxButton = useMemo(() => {
-    const maxButtonDisabled =
-      isInputDisabled || !sendingWallet.address || !props.tokenBalance;
-    return (
-      <Button
-        sx={{ minWidth: '32px', padding: '4px' }}
-        disabled={maxButtonDisabled}
-        onClick={() => {
-          if (props.tokenBalance) {
-            const tokenBalance = sdkAmount.display(props.tokenBalance);
-            handleChange(tokenBalance);
-            handleDebouncedChange(tokenBalance);
-          }
-        }}
-      >
-        <Typography
-          fontSize={14}
-          fontWeight={maxButtonDisabled ? 400 : 600}
-          textTransform="none"
-        >
-          Max
-        </Typography>
-      </Button>
-    );
-  }, [
-    isInputDisabled,
-    sendingWallet.address,
-    props.tokenBalance,
-    handleChange,
-    handleDebouncedChange,
-  ]);
-
   return (
     <Box sx={styles.amountContainer}>
-      <Card
-        sx={[styles.amountInput, amountInput === '' && styles.amountInputEmpty]}
-      >
+      <Card sx={styles.amountInput}>
         <CardContent sx={styles.amountCardContent}>
           <DebouncedTextField
             fullWidth
@@ -324,9 +184,9 @@ const AmountInput = (props: Props) => {
               },
             }}
             variant="standard"
-            value={debouncedAmountInput}
-            onChange={handleChange}
-            onDebouncedChange={handleDebouncedChange}
+            value={props.debauncedValue}
+            onChange={props.onChange}
+            onDebouncedChange={props.onDebouncedChange}
           />
         </CardContent>
       </Card>

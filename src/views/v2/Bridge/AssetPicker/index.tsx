@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Box, Stack, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Backdrop from '@mui/material/Backdrop';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Popover from '@mui/material/Popover';
@@ -16,8 +18,9 @@ import { Chain, routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
+import type { RootState } from 'store';
 import type { WalletData } from 'store/wallet';
-import { isDisabledChain } from 'store/transferInput';
+import { isDisabledChain, setAmount } from 'store/transferInput';
 import { Balances } from 'utils/wallet/types';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
@@ -28,6 +31,7 @@ import { TransferWallet } from 'utils/wallet';
 import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from '../AmountInput';
 import { AmountValidationResult } from 'hooks/useAmountValidation';
+import { OPACITY } from 'utils/style';
 
 type Props = {
   chain?: Chain | undefined;
@@ -48,14 +52,24 @@ type Props = {
   isConnectingWallet?: boolean;
   amountValidation?: AmountValidationResult;
   quote?: routes.Quote<routes.Options> | undefined;
+  tokenBalance?: sdkAmount.Amount | null;
 };
 
 const AssetPicker = (props: Props) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { amount } = useSelector((state: RootState) => state.transferInput);
+
   const [showChainSearch, setShowChainSearch] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [amountInput, setAmountInput] = useState(
+    amount ? sdkAmount.display(amount) : '',
+  );
+  const [debouncedAmountInput, setDebouncedAmountInput] = useState(
+    amount ? sdkAmount.display(amount) : '',
+  );
 
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
@@ -147,8 +161,8 @@ const AssetPicker = (props: Props) => {
   const styles = useMemo(
     () => ({
       container: {
-        height: '74px',
-        width: '404px',
+        height: '104px',
+        maxWidth: '452px',
       },
       title: {
         color: theme.palette.text.secondary,
@@ -214,10 +228,81 @@ const AssetPicker = (props: Props) => {
       : undefined;
   }, [props.quote]);
 
+  const balance = useMemo(() => {
+    if (!props.isSource || !props.wallet.address) {
+      return null;
+    }
+
+    return (
+      <Typography color={theme.palette.text.secondary} variant="body2">
+        {props.tokenBalance
+          ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
+          : '0'}
+      </Typography>
+    );
+  }, [props.isSource, props.wallet.address, props.tokenBalance]);
+
+  const handleAmountChange = useCallback((newValue: string): void => {
+    setAmountInput(newValue);
+  }, []);
+
+  const handleDebouncedAmountChange = useCallback(
+    (newValue: string): void => {
+      dispatch(setAmount(newValue));
+      setDebouncedAmountInput(newValue);
+    },
+    [dispatch],
+  );
+
+  // Clear the amount input value if the amount is reset outside of this component
+  // This can happen if user swaps selected source and destination assets.
+  useEffect(() => {
+    if (!amount && (amountInput || debouncedAmountInput)) {
+      handleAmountChange('');
+      handleDebouncedAmountChange('');
+    }
+    // We should run this sife-effect only when the amount changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount]);
+
+  const maxButton = useMemo(() => {
+    if (!props.wallet.address || !props.tokenBalance) {
+      return null;
+    }
+
+    return (
+      <Button
+        sx={{
+          borderRadius: '50px',
+          minWidth: '40px',
+          padding: '4px',
+          backgroundColor: theme.palette.input.background + OPACITY[30],
+        }}
+        disabled={props.isTransactionInProgress}
+        onClick={() => {
+          if (props.tokenBalance) {
+            const tokenBalance = sdkAmount.display(props.tokenBalance);
+            handleAmountChange(tokenBalance);
+            handleDebouncedAmountChange(tokenBalance);
+          }
+        }}
+      >
+        <Typography fontSize={12} fontWeight={500} textTransform="none">
+          Max
+        </Typography>
+      </Button>
+    );
+  }, [
+    props.tokenBalance,
+    props.wallet.address,
+    handleAmountChange,
+    handleDebouncedAmountChange,
+  ]);
+
   return (
     <>
       <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
-      <Stack>
+      <Stack sx={styles.container}>
         <Box sx={styles.title}>
           <Typography variant="body2">
             {props.isSource ? 'From' : 'To'}
@@ -238,6 +323,8 @@ const AssetPicker = (props: Props) => {
         >
           {props.isSource ? (
             <AmountInput
+              value={amountInput}
+              debauncedValue={debouncedAmountInput}
               sourceChain={props.chain}
               receiveAmount={receiveAmount}
               supportedSourceTokens={props.tokenList || []}
@@ -246,6 +333,8 @@ const AssetPicker = (props: Props) => {
               }
               warning={props.amountValidation?.warning}
               error={props.amountValidation?.error}
+              onChange={handleAmountChange}
+              onDebouncedChange={handleDebouncedAmountChange}
             />
           ) : (
             <Box
@@ -316,8 +405,8 @@ const AssetPicker = (props: Props) => {
             gap: '8px',
           }}
         >
-          <Typography>USD amount here</Typography>
-          <Box>Percent selectors here</Box>
+          <Box>{balance}</Box>
+          <Box>{maxButton}</Box>
         </Box>
       </Stack>
 

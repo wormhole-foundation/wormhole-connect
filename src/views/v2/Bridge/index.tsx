@@ -343,6 +343,7 @@ const Bridge = () => {
       </Box>
     );
   }, [
+    balances,
     styles.assetPickerContainer,
     styles.assetPickerTitle,
     sourceChain,
