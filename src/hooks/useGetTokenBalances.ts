@@ -423,7 +423,6 @@ const useGetTokenBalances = ({
     balances: destKey ? balances[destKey] || {} : {},
   };
 
-  console.log(fetchingKeys.values());
   const isFetching = fetchingKeys.size > 0;
 
   return {

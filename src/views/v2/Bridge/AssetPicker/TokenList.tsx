@@ -144,8 +144,6 @@ const TokenList = (props: Props) => {
       return 'empty';
     }
 
-    console.log(props.selectedChainConfig.sdkName, props.isFetchingBalances);
-
     // Currently fetching initial data
     if (props.isFetching) {
       return 'loading';
@@ -168,8 +166,6 @@ const TokenList = (props: Props) => {
     tokenPrices,
     sortedTokens.length,
   ]);
-
-  console.debug(props.selectedChainConfig.sdkName, listState);
 
   const shouldShowLoadingState = listState === 'loading';
   const shouldShowEmptyMessage = listState === 'empty';

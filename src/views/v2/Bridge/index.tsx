@@ -283,8 +283,6 @@ const Bridge = () => {
     destination: destBalanceRequest,
   });
 
-  console.log(balances);
-
   // Validate amount
   const amountValidation = useAmountValidation({
     balance: sourceToken
