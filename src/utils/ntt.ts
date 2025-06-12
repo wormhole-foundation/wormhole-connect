@@ -4,7 +4,7 @@ import { addressString } from 'config/tokens';
 
 export const isNttToken = (tokenId: TokenId): boolean => {
   return (
-    ['ManualNtt', 'AutomaticNtt', 'M0AutomaticRoute']
+    ['ManualNtt', 'AutomaticNtt', 'M0AutomaticRoute', 'NttExecutorRoute']
       .map((rn) => {
         const route = config.routes.get(rn);
         if (route) {

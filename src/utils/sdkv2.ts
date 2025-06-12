@@ -136,6 +136,7 @@ export async function parseReceipt(
         receipt as ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
       );
     case 'ManualNtt':
+    case 'NttExecutorRoute':
       return parseNttReceipt(
         receipt as ReceiptWithAttestation<NttRoute.ManualAttestationReceipt> & {
           params: NttRoute.ValidatedParams;
