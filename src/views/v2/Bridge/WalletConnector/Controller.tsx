@@ -7,6 +7,8 @@ import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import {
   usePopupState,
@@ -19,7 +21,6 @@ import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from 'utils';
 
-import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
@@ -111,16 +112,20 @@ const ConnectedWallet = (props: Props) => {
             ]}
             {...popupTrigger}
           >
-            <WalletIcons name={wallet.name} icon={wallet.icon} size={20} />
             <Tooltip title="Copied" open={isCopied} placement="top" arrow>
               <Typography
                 sx={styles.walletAddress}
-                fontSize={14}
+                fontSize={12}
                 fontWeight={700}
               >
                 {displayWalletAddress(wallet.type, wallet.address)}
               </Typography>
             </Tooltip>
+            {popupState.isOpen ? (
+              <ExpandLess fontSize="small" />
+            ) : (
+              <ExpandMore fontSize="small" />
+            )}
           </Box>
           <Popover
             {...bindPopover(popupState)}

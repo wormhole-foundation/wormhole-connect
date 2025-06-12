@@ -122,23 +122,14 @@ const AssetPicker = (props: Props) => {
   }, [props.chain]);
 
   const selection = useMemo(() => {
-    if (!chainConfig && !props.token) {
-      return (
-        <Typography component={'div'} fontSize={16}>
-          Select
-        </Typography>
-      );
-    }
-
     const tokenDisplay = props.token ? <>{props.token.display}</> : <>Select</>;
 
     return (
       <div>
         <Typography
           component={'div'}
-          maxWidth={300}
           fontSize={16}
-          fontWeight={700}
+          fontWeight={500}
           sx={{
             display: 'flex',
             overflow: 'hidden',
@@ -148,12 +139,9 @@ const AssetPicker = (props: Props) => {
         >
           {tokenDisplay}
         </Typography>
-        <Typography component={'div'} fontSize={12} sx={{ opacity: 0.6 }}>
-          {chainConfig?.displayName}
-        </Typography>
       </div>
     );
-  }, [chainConfig, props.token]);
+  }, [props.token]);
 
   const triggerProps =
     props.isTransactionInProgress || mobile ? {} : bindTrigger(popupState);
@@ -161,19 +149,19 @@ const AssetPicker = (props: Props) => {
   const styles = useMemo(
     () => ({
       container: {
-        height: '104px',
+        height: '114px',
         maxWidth: '452px',
+        gap: '16px',
       },
       title: {
         color: theme.palette.text.secondary,
         display: 'flex',
-        minHeight: '40px',
-        alignItems: 'center',
+        height: '12px',
         justifyContent: 'space-between',
       },
-      inputArea: {
+      selector: {
         height: '50px',
-        width: '136px',
+        width: '138px',
         cursor: 'pointer',
         borderRadius: '50px',
         border: `1px solid ${theme.palette.input.border}`,
@@ -183,9 +171,9 @@ const AssetPicker = (props: Props) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '8px',
+        padding: '6px',
         ':last-child': {
-          padding: '8px',
+          padding: '6px',
         },
       },
       chainSelector: {
@@ -218,15 +206,27 @@ const AssetPicker = (props: Props) => {
         height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
         maxWidth: '100vw', // Force full-width on small mobile devices
       },
+      percentButton: {
+        borderRadius: '50px',
+        color: theme.palette.text.primary,
+        height: '24px',
+        minWidth: '40px',
+        backgroundColor: theme.palette.text.primary + OPACITY[10],
+        opacity: 0.7,
+      },
     }),
     [theme],
   );
 
   const receiveAmount = useMemo(() => {
+    // If the amount input is empty, we don't need to check the quote which may be for the previous amount
+    if (!amount || amount.amount === '' || amount.amount === '0') {
+      return 0;
+    }
     return props.quote
       ? sdkAmount.whole(props.quote?.destinationToken.amount)
       : undefined;
-  }, [props.quote]);
+  }, [amount, props.quote]);
 
   const balance = useMemo(() => {
     if (!props.isSource || !props.wallet.address) {
@@ -240,7 +240,12 @@ const AssetPicker = (props: Props) => {
           : '0'}
       </Typography>
     );
-  }, [props.isSource, props.wallet.address, props.tokenBalance]);
+  }, [
+    props.isSource,
+    props.wallet.address,
+    props.tokenBalance,
+    theme.palette.text.secondary,
+  ]);
 
   const handleAmountChange = useCallback((newValue: string): void => {
     setAmountInput(newValue);
@@ -265,46 +270,61 @@ const AssetPicker = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount]);
 
-  const maxButton = useMemo(() => {
-    if (!props.wallet.address || !props.tokenBalance) {
-      return null;
-    }
-
-    return (
+  const renderPercentButton = useCallback(
+    (percent: number) => (
       <Button
-        sx={{
-          borderRadius: '50px',
-          minWidth: '40px',
-          padding: '4px',
-          backgroundColor: theme.palette.input.background + OPACITY[30],
-        }}
+        sx={styles.percentButton}
         disabled={props.isTransactionInProgress}
         onClick={() => {
           if (props.tokenBalance) {
-            const tokenBalance = sdkAmount.display(props.tokenBalance);
+            const displayAmount =
+              (sdkAmount.units(props.tokenBalance) * BigInt(percent)) /
+              BigInt(100);
+            const tokenBalance = sdkAmount.display(
+              sdkAmount.fromBaseUnits(
+                displayAmount,
+                props.tokenBalance.decimals,
+              ),
+            );
             handleAmountChange(tokenBalance);
             handleDebouncedAmountChange(tokenBalance);
           }
         }}
       >
         <Typography fontSize={12} fontWeight={500} textTransform="none">
-          Max
+          {percent === 100 ? 'Max' : `${percent}%`}
         </Typography>
       </Button>
+    ),
+    [
+      handleAmountChange,
+      handleDebouncedAmountChange,
+      props.isTransactionInProgress,
+      props.tokenBalance,
+      styles.percentButton,
+    ],
+  );
+
+  const percentButtons = useMemo(() => {
+    if (!props.wallet.address || !props.tokenBalance) {
+      return null;
+    }
+
+    return (
+      <Box sx={{ display: 'flex', gap: '6px' }}>
+        {renderPercentButton(25)}
+        {renderPercentButton(50)}
+        {renderPercentButton(100)}
+      </Box>
     );
-  }, [
-    props.tokenBalance,
-    props.wallet.address,
-    handleAmountChange,
-    handleDebouncedAmountChange,
-  ]);
+  }, [props.wallet.address, props.tokenBalance, renderPercentButton]);
 
   return (
     <>
       <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
       <Stack sx={styles.container}>
         <Box sx={styles.title}>
-          <Typography variant="body2">
+          <Typography fontSize={12} variant="body2">
             {props.isSource ? 'From' : 'To'}
           </Typography>
           <WalletController
@@ -318,7 +338,6 @@ const AssetPicker = (props: Props) => {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: '8px',
           }}
         >
           {props.isSource ? (
@@ -339,8 +358,12 @@ const AssetPicker = (props: Props) => {
           ) : (
             <Box
               sx={{
+                display: 'flex',
+                alignContent: 'center',
+                alignItems: 'center',
                 width: '100%',
                 maxWidth: '250px',
+                height: '46px',
               }}
             >
               <TextField
@@ -351,7 +374,6 @@ const AssetPicker = (props: Props) => {
                   htmlInput: {
                     style: {
                       fontSize: 24,
-                      height: '28px',
                     },
                   },
                   input: {
@@ -366,7 +388,7 @@ const AssetPicker = (props: Props) => {
 
           <Card
             sx={[
-              styles.inputArea,
+              styles.selector,
               props.isTransactionInProgress && styles.disabled,
             ]}
             data-testid={props.dataTestId}
@@ -397,17 +419,20 @@ const AssetPicker = (props: Props) => {
             </CardContent>
           </Card>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            gap: '8px',
-          }}
-        >
-          <Box>{balance}</Box>
-          <Box>{maxButton}</Box>
-        </Box>
+        {props.isSource && (
+          <Box
+            sx={{
+              height: '24px',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              gap: '8px',
+            }}
+          >
+            <Box>{balance}</Box>
+            <Box>{percentButtons}</Box>
+          </Box>
+        )}
       </Stack>
 
       {mobile ? (

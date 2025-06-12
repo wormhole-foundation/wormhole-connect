@@ -117,18 +117,11 @@ const AmountInput = (props: Props) => {
       amountCardContent: {
         display: 'flex',
         alignItems: 'center',
-        height: '50px',
+        height: '46px',
         padding: 0,
         ':last-child': {
           padding: 0,
         },
-      },
-      amountTitle: {
-        color: theme.palette.text.secondary,
-        display: 'flex',
-        minHeight: '40px',
-        alignItems: 'center',
-        justifyContent: 'space-between',
       },
       inputError: {
         marginTop: '12px',
