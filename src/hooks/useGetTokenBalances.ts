@@ -240,10 +240,6 @@ const useGetTokenBalances = ({
         }
       }
 
-      if (tokensToFetch.length === 0) {
-        return updatedBalances;
-      }
-
       // Fetch balances
       const wh = await getWormholeContextV2();
       const platformName = chainToPlatform(chain);
@@ -275,6 +271,10 @@ const useGetTokenBalances = ({
             // Fall through to individual fetching
           }
         }
+      }
+
+      if (tokensToFetch.length === 0) {
+        return updatedBalances;
       }
 
       // Fallback to individual token fetching
