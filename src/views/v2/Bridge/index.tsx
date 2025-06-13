@@ -272,7 +272,7 @@ const Bridge = () => {
       return {
         chain: destChain,
         wallet: receivingWallet,
-        tokens: supportedDestTokens,
+        tokens: config.tokens.getAllForChain(destChain),
       };
     }
     return undefined;
