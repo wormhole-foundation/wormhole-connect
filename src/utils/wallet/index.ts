@@ -338,6 +338,9 @@ function isNightlyInjectedProvider() {
   );
 }
 
+// List of all Ethereum mainnet and testnet sdkNames to support
+const ETHEREUM_CHAINS = ['Ethereum', 'Sepolia'];
+
 export const getWalletOptions = async (
   chain: ChainConfig | undefined,
 ): Promise<WalletData[]> => {
@@ -348,8 +351,8 @@ export const getWalletOptions = async (
   if (platform === 'Evm') {
     const evm = await import('utils/wallet/evm');
     let wallets = Object.values(mapWallets(evm.getWallets(), platform));
-    // Filter out 'Injected Wallet' if Nightly is the active injected provider and chain is Ethereum
-    if (chain.sdkName === 'Ethereum' && isNightlyInjectedProvider()) {
+    // Filter out 'Injected Wallet' if Nightly is the active injected provider and chain is Ethereum mainnet or testnet
+    if (ETHEREUM_CHAINS.includes(chain.sdkName) && isNightlyInjectedProvider()) {
       wallets = wallets.filter((w) => w.name !== 'Injected Wallet');
     }
     return wallets;
