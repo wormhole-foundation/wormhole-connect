@@ -21,7 +21,8 @@ function SwapInputs() {
       swapButton: {
         display: 'flex',
         position: 'absolute',
-        backgroundColor: theme.palette.background.form,
+        backgroundColor: theme.palette.input.background,
+        border: `4px solid ${theme.palette.background.form}`,
         borderRadius: '8px',
         bottom: -20,
         left: 'calc(50% - 18px)',
@@ -29,7 +30,7 @@ function SwapInputs() {
         height: 36,
         zIndex: 1,
         '&:disabled, &:hover': {
-          backgroundColor: theme.palette.background.form,
+          backgroundColor: theme.palette.input.background,
         },
       },
     }),
