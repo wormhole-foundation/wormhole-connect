@@ -115,10 +115,16 @@ const Bridge = () => {
         gap: '16px',
       },
       titleContent: {
-        width: '452px',
+        width: mobile ? '420px' : '452px',
       },
     }),
-    [theme],
+    [
+      mobile,
+      theme.palette.background.form,
+      theme.palette.input.background,
+      theme.palette.success.main,
+      theme.palette.text.secondary,
+    ],
   );
 
   // --- pipeline state gathering ---
@@ -612,16 +618,9 @@ const Bridge = () => {
       ? 'Please select a quote'
       : '';
 
-  return (
-    <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
-      <Box sx={styles.titleContent}>
-        {header}
-        {config.ui.showInProgressWidget && (
-          <TxHistoryWidget disabled={isTransactionInProgress} />
-        )}
-        {bridgeHeader}
-      </Box>
-      <Box sx={{ ...styles.formContent }}>
+  const formContent = useMemo(
+    () => (
+      <>
         <Stack sx={{ gap: '4px' }}>
           {sourceAssetPicker}
           {destAssetPicker}
@@ -647,7 +646,41 @@ const Bridge = () => {
             walletConnector
           )}
         </Box>
+      </>
+    ),
+    [
+      confirmButtonTooltip,
+      confirmTransactionButton,
+      destAssetPicker,
+      dispatch,
+      hasConnectedWallets,
+      hasEnteredAmount,
+      isFetchingBalances,
+      isFetchingQuotes,
+      quotes,
+      route,
+      sortedRoutes,
+      sourceAssetPicker,
+      styles.ctaContainer,
+      transactionError,
+      walletConnector,
+    ],
+  );
+
+  return (
+    <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
+      <Box sx={styles.titleContent}>
+        {header}
+        {config.ui.showInProgressWidget && (
+          <TxHistoryWidget disabled={isTransactionInProgress} />
+        )}
+        {bridgeHeader}
       </Box>
+      {mobile ? (
+        formContent
+      ) : (
+        <Box sx={{ ...styles.formContent }}>{formContent}</Box>
+      )}
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />
     </Box>
