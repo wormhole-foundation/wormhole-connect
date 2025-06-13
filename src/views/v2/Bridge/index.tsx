@@ -4,6 +4,7 @@ import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import CopyIcon from '@mui/icons-material/ContentCopy';
@@ -111,7 +112,10 @@ const Bridge = () => {
         display: 'flex',
         flexDirection: 'column',
         width: '452px',
-        gap: '4px',
+        gap: '16px',
+      },
+      titleContent: {
+        width: '452px',
       },
     }),
     [theme],
@@ -345,7 +349,6 @@ const Bridge = () => {
   }, [
     balances,
     styles.assetPickerContainer,
-    styles.assetPickerTitle,
     sourceChain,
     supportedSourceChains,
     sourceToken,
@@ -392,19 +395,19 @@ const Bridge = () => {
       </Box>
     );
   }, [
+    quotes,
+    route,
     styles.assetPickerContainer,
-    styles.assetPickerTitle,
     destChain,
     supportedDestChains,
     destToken,
     sourceToken,
     supportedDestTokens,
     isConnectingWallet,
+    isFetchingQuotes,
     isFetchingSupportedDestTokens,
-    isTransactionInProgress,
     receivingWallet,
-    quotes,
-    route,
+    isTransactionInProgress,
     dispatch,
     balances.destination,
     balances.isFetching,
@@ -452,7 +455,6 @@ const Bridge = () => {
     dispatch,
     isTransactionInProgress,
     sendingWallet?.address,
-    mobile,
   ]);
 
   const walletConnector = useMemo(() => {
@@ -612,14 +614,18 @@ const Bridge = () => {
 
   return (
     <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
-      {header}
-      {config.ui.showInProgressWidget && (
-        <TxHistoryWidget disabled={isTransactionInProgress} />
-      )}
-      {bridgeHeader}
+      <Box sx={styles.titleContent}>
+        {header}
+        {config.ui.showInProgressWidget && (
+          <TxHistoryWidget disabled={isTransactionInProgress} />
+        )}
+        {bridgeHeader}
+      </Box>
       <Box sx={{ ...styles.formContent }}>
-        {sourceAssetPicker}
-        {destAssetPicker}
+        <Stack sx={{ gap: '4px' }}>
+          {sourceAssetPicker}
+          {destAssetPicker}
+        </Stack>
         {hasEnteredAmount && (
           <Routes
             routes={sortedRoutes}
