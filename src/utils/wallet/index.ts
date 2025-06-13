@@ -329,6 +329,15 @@ const mapWallets = (
     }));
 };
 
+// Utility to detect Nightly extension
+function isNightlyExtensionEnabled() {
+  return (
+    typeof window !== 'undefined' &&
+    window.nightly &&
+    window.nightly.isNightly === true
+  );
+}
+
 export const getWalletOptions = async (
   chain: ChainConfig | undefined,
 ): Promise<WalletData[]> => {
@@ -338,7 +347,15 @@ export const getWalletOptions = async (
   const platform = chainToPlatform(chain.sdkName);
   if (platform === 'Evm') {
     const evm = await import('utils/wallet/evm');
-    return Object.values(mapWallets(evm.getWallets(), platform));
+    let wallets = Object.values(mapWallets(evm.getWallets(), platform));
+    // Filter out 'Injected Wallet' if Nightly extension is enabled and chain is Ethereum
+    if (
+      chain.sdkName === 'Ethereum' &&
+      isNightlyExtensionEnabled()
+    ) {
+      wallets = wallets.filter(w => w.name !== 'Injected Wallet');
+    }
+    return wallets;
   } else if (platform === 'Solana') {
     const solana = await import('utils/wallet/solana');
     const solanaWallets = solana.fetchOptions();
@@ -349,8 +366,16 @@ export const getWalletOptions = async (
     return Object.values(mapWallets(suiOptions, platform));
   } else if (platform === 'Aptos') {
     const aptosWallet = await import('utils/wallet/aptos');
-    const aptosOptions = aptosWallet.fetchOptions();
+    const aptosOptions = await aptosWallet.fetchOptions();
     return Object.values(mapWallets(aptosOptions, platform));
   }
   return [];
 };
+
+// Extend the Window interface to include the 'nightly' property
+// This avoids TypeScript errors when checking for window.nightly
+declare global {
+  interface Window {
+    nightly?: { isNightly?: boolean };
+  }
+}
