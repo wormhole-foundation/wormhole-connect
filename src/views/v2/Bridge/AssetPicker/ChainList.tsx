@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -31,6 +31,7 @@ const SHORT_LIST_SIZE = 5;
 
 const ChainList = (props: Props) => {
   const theme = useTheme();
+  const [chainSearchQuery, setChainSearchQuery] = useState('');
 
   const styles = useMemo(
     () => ({
@@ -175,6 +176,8 @@ const ChainList = (props: Props) => {
         searchPlaceholder="Search for a chain"
         sx={styles.chainSearch}
         items={chainList ?? []}
+        searchQuery={chainSearchQuery}
+        onQueryChange={setChainSearchQuery}
         filterFn={(chain, query) =>
           !query ||
           chain.displayName.toLowerCase().includes(query.toLowerCase())
@@ -201,6 +204,7 @@ const ChainList = (props: Props) => {
     ),
     [
       chainList,
+      chainSearchQuery,
       styles.chainItem,
       styles.chainSearch,
       onChainSelect,
