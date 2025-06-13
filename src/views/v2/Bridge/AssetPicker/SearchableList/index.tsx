@@ -1,4 +1,4 @@
-import React, { memo, useState, ReactNode, useMemo } from 'react';
+import React, { memo, ReactNode, useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -18,12 +18,12 @@ type SearchableListProps<T> = {
   sx?: SxProps<Theme>;
   renderFn: (item: T, index: number) => ReactNode;
   filterFn: (item: T, query: string) => boolean;
-  onQueryChange?: (query: string) => void;
+  onQueryChange: (query: string) => void;
+  searchQuery: string;
 };
 
 function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const scrollbarStyles = useCustomScrollbar();
-  const [query, setQuery] = useState('');
 
   const styles = {
     wrapper: {
@@ -38,11 +38,11 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
     },
   };
 
-  const { items, filterFn } = props;
+  const { items, filterFn, searchQuery } = props;
 
   const filteredList = useMemo(() => {
-    return items.filter((item) => filterFn(item, query));
-  }, [items, filterFn, query]);
+    return items.filter((item) => filterFn(item, searchQuery));
+  }, [items, filterFn, searchQuery]);
 
   return (
     <Box
@@ -51,14 +51,9 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
     >
       {props.title}
       <SearchInput
-        value={query}
+        value={props.searchQuery}
         dataTestId={props.dataTestId}
-        onChange={(val: string) => {
-          setQuery(val);
-          if (props.onQueryChange) {
-            props.onQueryChange(val);
-          }
-        }}
+        onChange={props.onQueryChange}
         placeholder={props.searchPlaceholder}
       />
       <List

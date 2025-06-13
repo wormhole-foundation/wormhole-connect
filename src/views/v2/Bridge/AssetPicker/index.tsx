@@ -322,6 +322,7 @@ const AssetPicker = (props: Props) => {
             wallet={props.wallet}
             onChainSelect={(key) => {
               props.setChain(key);
+              setSearchQuery('');
             }}
           />
           {!showChainSearch && chainConfig && (

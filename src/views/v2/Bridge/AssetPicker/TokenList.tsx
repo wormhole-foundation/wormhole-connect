@@ -175,6 +175,7 @@ const TokenList = (props: Props) => {
       searchPlaceholder={placeholder}
       sx={styles.tokenList}
       dataTestId="token-search-list"
+      searchQuery={props.searchQuery}
       listTitle={
         shouldShowEmptyMessage ? (
           emptyMessage
