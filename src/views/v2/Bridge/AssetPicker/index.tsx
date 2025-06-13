@@ -338,6 +338,7 @@ const AssetPicker = (props: Props) => {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
+            marginTop: props.isSource ? '0' : '16px',
           }}
         >
           {props.isSource ? (
@@ -363,7 +364,7 @@ const AssetPicker = (props: Props) => {
                 alignItems: 'center',
                 width: '100%',
                 maxWidth: '250px',
-                height: '46px',
+                height: '50px',
               }}
             >
               <TextField
@@ -385,7 +386,6 @@ const AssetPicker = (props: Props) => {
               />
             </Box>
           )}
-
           <Card
             sx={[
               styles.selector,
@@ -426,6 +426,7 @@ const AssetPicker = (props: Props) => {
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
+              alignItems: 'center',
               gap: '8px',
             }}
           >
@@ -434,7 +435,6 @@ const AssetPicker = (props: Props) => {
           </Box>
         )}
       </Stack>
-
       {mobile ? (
         <SwipeableDrawer
           anchor="bottom"
