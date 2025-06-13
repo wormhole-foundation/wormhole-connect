@@ -52,7 +52,6 @@ type Props = {
   isConnectingWallet?: boolean;
   amountValidation?: AmountValidationResult;
   quote?: routes.Quote<routes.Options> | undefined;
-  tokenBalance?: sdkAmount.Amount | null;
 };
 
 const AssetPicker = (props: Props) => {
@@ -86,6 +85,13 @@ const AssetPicker = (props: Props) => {
     variant: 'popover',
     popupId: 'asset-picker',
   });
+
+  const tokenBalance = useMemo(() => {
+    if (props.isSource && props.balances && props.token) {
+      return props.balances[props.token.key]?.balance;
+    }
+    return null;
+  }, [props.isSource, props.balances, props.token]);
 
   // Side-effect to reset chain search visibility.
   // Popover and drawer close has an animation, which requires to wait
@@ -235,15 +241,15 @@ const AssetPicker = (props: Props) => {
 
     return (
       <Typography color={theme.palette.text.secondary} variant="body2">
-        {props.tokenBalance
-          ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
+        {tokenBalance
+          ? sdkAmount.display(sdkAmount.truncate(tokenBalance, 6))
           : '0'}
       </Typography>
     );
   }, [
     props.isSource,
     props.wallet.address,
-    props.tokenBalance,
+    tokenBalance,
     theme.palette.text.secondary,
   ]);
 
@@ -276,18 +282,14 @@ const AssetPicker = (props: Props) => {
         sx={styles.percentButton}
         disabled={props.isTransactionInProgress}
         onClick={() => {
-          if (props.tokenBalance) {
-            const displayAmount =
-              (sdkAmount.units(props.tokenBalance) * BigInt(percent)) /
-              BigInt(100);
-            const tokenBalance = sdkAmount.display(
-              sdkAmount.fromBaseUnits(
-                displayAmount,
-                props.tokenBalance.decimals,
-              ),
+          if (tokenBalance) {
+            const balancePercent =
+              (sdkAmount.units(tokenBalance) * BigInt(percent)) / BigInt(100);
+            const displayAmount = sdkAmount.display(
+              sdkAmount.fromBaseUnits(balancePercent, tokenBalance.decimals),
             );
-            handleAmountChange(tokenBalance);
-            handleDebouncedAmountChange(tokenBalance);
+            handleAmountChange(displayAmount);
+            handleDebouncedAmountChange(displayAmount);
           }
         }}
       >
@@ -300,13 +302,13 @@ const AssetPicker = (props: Props) => {
       handleAmountChange,
       handleDebouncedAmountChange,
       props.isTransactionInProgress,
-      props.tokenBalance,
+      tokenBalance,
       styles.percentButton,
     ],
   );
 
   const percentButtons = useMemo(() => {
-    if (!props.wallet.address || !props.tokenBalance) {
+    if (!props.wallet.address || !tokenBalance) {
       return null;
     }
 
@@ -317,7 +319,7 @@ const AssetPicker = (props: Props) => {
         {renderPercentButton(100)}
       </Box>
     );
-  }, [props.wallet.address, props.tokenBalance, renderPercentButton]);
+  }, [props.wallet.address, tokenBalance, renderPercentButton]);
 
   return (
     <>

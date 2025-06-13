@@ -655,7 +655,7 @@ const Bridge = () => {
       dispatch,
       hasConnectedWallets,
       hasEnteredAmount,
-      isFetchingBalances,
+      balances.isFetching,
       isFetchingQuotes,
       quotes,
       route,
