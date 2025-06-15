@@ -117,7 +117,7 @@ const AmountInput = (props: Props) => {
       amountCardContent: {
         display: 'flex',
         alignItems: 'center',
-        height: '46px',
+        height: '50px',
         padding: 0,
         ':last-child': {
           padding: 0,
@@ -161,8 +161,8 @@ const AmountInput = (props: Props) => {
                   color: props.error
                     ? theme.palette.error.main
                     : theme.palette.text.primary,
-                  fontSize: 24,
-                  height: '28px',
+                  fontSize: '36px',
+                  height: '36px',
                 },
                 onWheel: (e) => {
                   // IMPORTANT: We need to prevent the scroll behavior on number inputs.

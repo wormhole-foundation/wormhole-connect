@@ -376,7 +376,8 @@ const AssetPicker = (props: Props) => {
                 slotProps={{
                   htmlInput: {
                     style: {
-                      fontSize: 24,
+                      fontSize: '36px',
+                      height: '36px',
                     },
                   },
                   input: {
