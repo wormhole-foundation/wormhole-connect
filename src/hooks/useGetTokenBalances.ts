@@ -402,7 +402,6 @@ const useGetTokenBalances = ({
     source?.wallet?.address,
     destination?.chain,
     destination?.wallet?.address,
-    fetchBalancesForChain,
   ]);
 
   // Extract results for source and destination
