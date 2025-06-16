@@ -145,7 +145,7 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDC,
   },
   {
-    symbol: 'KLAY',
+    symbol: 'KAIA',
     icon: TokenIcon.KLAY,
     decimals: 18,
     tokenId: { chain: 'Klaytn', address: 'native' },
