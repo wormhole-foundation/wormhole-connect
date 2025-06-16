@@ -80,12 +80,9 @@ const useFetchSupportedRoutes = ({
           );
         }
 
-        // HAX - Enable Mayan routes (except SHUTTLE) for all assets
+        // HAX - Enable Mayan routes for all assets
         // TODO token refactor
-        if (
-          route.rc.name.includes('Mayan') &&
-          route.rc.name !== 'MayanRouteSHUTTLE'
-        ) {
+        if (route.rc.name.includes('Mayan')) {
           supported = true;
         }
 
