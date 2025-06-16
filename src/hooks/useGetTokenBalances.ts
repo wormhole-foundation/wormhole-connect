@@ -11,7 +11,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
-import { sleep } from 'utils';
+import { processBatches } from 'utils/batch';
 
 export interface ChainBalanceRequest {
   chain: Chain;
@@ -166,47 +166,38 @@ const useGetTokenBalances = ({
 
       // Process unknown tokens in batches
       if (unknownTokens.length > 0) {
-        for (
-          let i = 0;
-          i < Math.min(unknownTokens.length, MAX_TOKENS_TO_PROCESS);
-          i += BATCH_SIZE
-        ) {
-          const batch = unknownTokens.slice(i, i + BATCH_SIZE);
-
-          await Promise.all(
-            batch.map(async ([tokenAddress, bus]) => {
-              try {
-                const token = await getOrFetchToken(
-                  Wormhole.tokenId(chain, tokenAddress),
-                );
-                if (token) {
-                  const balance = amount.fromBaseUnits(bus, token.decimals);
-                  const balanceData = {
-                    balance,
-                    lastUpdated: Date.now(),
-                  };
-                  updatedBalances[token.key] = balanceData;
-                  setCached(chain, wallet, token, balance);
-                } else {
-                  markFailed(chain, tokenAddress);
-                }
-              } catch (e) {
-                console.error(
-                  `Failed to fetch token metadata for ${tokenAddress}:`,
-                  e,
-                );
+        await processBatches(
+          unknownTokens,
+          async ([tokenAddress, bus]) => {
+            try {
+              const token = await getOrFetchToken(
+                Wormhole.tokenId(chain, tokenAddress),
+              );
+              if (token) {
+                const balance = amount.fromBaseUnits(bus, token.decimals);
+                const balanceData = {
+                  balance,
+                  lastUpdated: Date.now(),
+                };
+                updatedBalances[token.key] = balanceData;
+                setCached(chain, wallet, token, balance);
+              } else {
                 markFailed(chain, tokenAddress);
               }
-            }),
-          );
-
-          if (
-            i + BATCH_SIZE <
-            Math.min(unknownTokens.length, MAX_TOKENS_TO_PROCESS)
-          ) {
-            await sleep(BATCH_DELAY_MS);
-          }
-        }
+            } catch (e) {
+              console.error(
+                `Failed to fetch token metadata for ${tokenAddress}:`,
+                e,
+              );
+              markFailed(chain, tokenAddress);
+            }
+          },
+          {
+            batchSize: BATCH_SIZE,
+            delayMs: BATCH_DELAY_MS,
+            maxItems: MAX_TOKENS_TO_PROCESS,
+          },
+        );
       }
     },
     [getOrFetchToken, setCached, isFailed, markFailed],
@@ -277,9 +268,10 @@ const useGetTokenBalances = ({
         return updatedBalances;
       }
 
-      // Fallback to individual token fetching
-      await Promise.all(
-        tokensToFetch.map(async (token) => {
+      // Fallback to individual token fetching with batching
+      await processBatches(
+        tokensToFetch,
+        async (token) => {
           try {
             const balanceValue = await platformUtils.getBalance(
               config.network,
@@ -300,7 +292,11 @@ const useGetTokenBalances = ({
           } catch (e) {
             console.error(`Failed to fetch balance for token ${token.key}`, e);
           }
-        }),
+        },
+        {
+          batchSize: BATCH_SIZE,
+          delayMs: BATCH_DELAY_MS,
+        },
       );
 
       return updatedBalances;
