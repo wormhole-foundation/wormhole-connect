@@ -185,7 +185,7 @@ export const dark: InternalTheme = {
     elevation: 'none',
   },
   input: {
-    background: '#1a1928',
+    background: '#1B1A21',
     border: '#2B2A2E',
   },
   font: '"Inter", sans-serif',

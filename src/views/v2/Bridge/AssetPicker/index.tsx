@@ -32,6 +32,7 @@ import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from '../AmountInput';
 import { AmountValidationResult } from 'hooks/useAmountValidation';
 import { OPACITY } from 'utils/style';
+import Color from 'color';
 
 type Props = {
   chain?: Chain | undefined;
@@ -171,7 +172,7 @@ const AssetPicker = (props: Props) => {
         cursor: 'pointer',
         borderRadius: '50px',
         border: `1px solid ${theme.palette.input.border}`,
-        background: theme.palette.input.background,
+        background: Color(theme.palette.input.background).darken(0.2).hex(),
       },
       cardContent: {
         display: 'flex',
