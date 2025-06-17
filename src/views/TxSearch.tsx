@@ -136,7 +136,7 @@ function TxSearch() {
       });
       dispatch(clearSearch());
     }
-  }, [externalSearch]);
+  }, [dispatch, externalSearch]);
 
   const doSearch = useCallback(() => search(), [state]);
 

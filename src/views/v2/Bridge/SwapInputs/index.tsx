@@ -34,7 +34,7 @@ function SwapInputs() {
         },
       },
     }),
-    [],
+    [theme.palette.background.form, theme.palette.input.background],
   );
 
   const canSwap = !isTransactionInProgress && fromChain && toChain;

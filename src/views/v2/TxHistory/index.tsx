@@ -92,7 +92,7 @@ const TxHistory = () => {
         </IconButton>
       </Box>
     );
-  }, [styles.txHistoryHeader, dispatch]);
+  }, [dispatch]);
 
   const transactionList = useMemo(() => {
     if (!transactions) {
@@ -124,8 +124,6 @@ const TxHistory = () => {
       </Box>
     );
   }, [
-    styles.infiniteScroller,
-    styles.spacer,
     hasMore,
     sendingWallet.address,
     theme.palette.text.secondary,
