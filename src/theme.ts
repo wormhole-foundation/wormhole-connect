@@ -143,7 +143,7 @@ export const dark: InternalTheme = {
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: 'transparent',
-    form: '#010101',
+    form: '#333333',
   },
   text: {
     primary: '#ffffff',

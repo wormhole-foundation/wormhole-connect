@@ -19,11 +19,15 @@ import PageHeader from 'components/PageHeader';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
+import { Token } from 'config/tokens';
+import { useTokens } from 'contexts/TokensContext';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
 import useConfirmTransaction from 'hooks/useConfirmTransaction';
+import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import { setRoute as setAppRoute } from 'store/router';
@@ -37,6 +41,7 @@ import {
   clearDestToken,
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
+import { OPACITY } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
@@ -44,12 +49,6 @@ import AssetPicker from 'views/v2/Bridge/AssetPicker';
 import Routes from 'views/v2/Bridge/Routes';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v2/TxHistory/Widget';
-
-import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
-import { useGetTokens } from 'hooks/useGetTokens';
-import { Token } from 'config/tokens';
-
-import { useTokens } from 'contexts/TokensContext';
 
 const Bridge = () => {
   const theme: any = useTheme();
@@ -106,12 +105,17 @@ const Bridge = () => {
         width: '100%',
       },
       formContent: {
-        backgroundColor: theme.palette.background.form,
+        backgroundColor: theme.palette.background.form + OPACITY[30],
         borderRadius: '8px',
         padding: '20px 16px',
         display: 'flex',
         flexDirection: 'column',
         width: '452px',
+        gap: '16px',
+      },
+      formContentMobile: {
+        display: 'flex',
+        flexDirection: 'column',
         gap: '16px',
       },
       titleContent: {
@@ -215,8 +219,6 @@ const Bridge = () => {
     }
   }, [preferredRouteName, route, sortedRoutesWithQuotes, dispatch]);
 
-  // Pre-fetch available routes
-
   // Connect to any previously used wallets for the selected networks
   const { isConnecting: isConnectingWallet } = useConnectToLastUsedWallet(
     sourceChain,
@@ -225,8 +227,6 @@ const Bridge = () => {
 
   // Call to initiate transfer inputs validations
   useValidate();
-
-  //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
 
   // Get input validation result
   const isValid = useMemo(() => isTransferValid(validations), [validations]);
@@ -363,8 +363,6 @@ const Bridge = () => {
     isConnectingWallet,
     sendingWallet,
     dispatch,
-    balances.source,
-    balances.isFetching,
   ]);
 
   // Asset picker for the destination network and token
@@ -676,11 +674,14 @@ const Bridge = () => {
         )}
         {bridgeHeader}
       </Box>
-      {mobile ? (
-        formContent
-      ) : (
-        <Box sx={{ ...styles.formContent }}>{formContent}</Box>
-      )}
+
+      <Box
+        sx={
+          mobile ? { ...styles.formContentMobile } : { ...styles.formContent }
+        }
+      >
+        {formContent}
+      </Box>
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />
     </Box>
