@@ -77,7 +77,7 @@ const Bridge = () => {
       },
       bridgeContent: {
         margin: 'auto',
-        maxWidth: '420px',
+        maxWidth: '452px',
       },
       bridgeHeader: {
         width: '100%',
