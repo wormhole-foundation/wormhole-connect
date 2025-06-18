@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -59,15 +59,10 @@ const Bridge = () => {
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const popoverAnchorRef = useRef<HTMLElement>(null);
+
   const styles = useMemo(
     () => ({
-      assetPickerContainer: {
-        width: '420px',
-        position: 'relative',
-        background: theme.palette.input.background,
-        borderRadius: '8px',
-        padding: '16px',
-      },
       assetPickerTitle: {
         color: theme.palette.text.secondary,
         display: 'flex',
@@ -125,7 +120,6 @@ const Bridge = () => {
     [
       mobile,
       theme.palette.background.form,
-      theme.palette.input.background,
       theme.palette.success.main,
       theme.palette.text.secondary,
     ],
@@ -328,7 +322,7 @@ const Bridge = () => {
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
     return (
-      <Box sx={styles.assetPickerContainer}>
+      <Box ref={popoverAnchorRef}>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -348,13 +342,12 @@ const Bridge = () => {
           isConnectingWallet={isConnectingWallet}
           balances={balances.source.balances}
           isFetchingBalances={balances.isFetching}
+          anchorEl={popoverAnchorRef.current}
         />
-        <SwapInputs />
       </Box>
     );
   }, [
     balances,
-    styles.assetPickerContainer,
     sourceChain,
     supportedSourceChains,
     sourceToken,
@@ -369,39 +362,37 @@ const Bridge = () => {
   const destAssetPicker = useMemo(() => {
     const quoteResult = quotes && route ? quotes[route] : undefined;
     return (
-      <Box sx={styles.assetPickerContainer}>
-        <AssetPicker
-          chain={destChain}
-          chainList={supportedDestChains}
-          token={destToken}
-          sourceToken={sourceToken}
-          tokenList={supportedDestTokens}
-          isFetchingQuotes={isFetchingQuotes}
-          isFetchingTokens={
-            supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
-          }
-          setChain={(value: Chain) => {
-            selectToChain(dispatch, value, receivingWallet);
-            dispatch(clearDestToken());
-          }}
-          setToken={(value: Token) => {
-            dispatch(setDestToken(value.tuple));
-          }}
-          wallet={receivingWallet}
-          isSource={false}
-          isTransactionInProgress={isTransactionInProgress}
-          dataTestId="dest-asset-picker"
-          isConnectingWallet={isConnectingWallet}
-          balances={balances.destination.balances}
-          isFetchingBalances={balances.isFetching}
-          quote={quoteResult?.success ? quoteResult : undefined}
-        />
-      </Box>
+      <AssetPicker
+        chain={destChain}
+        chainList={supportedDestChains}
+        token={destToken}
+        sourceToken={sourceToken}
+        tokenList={supportedDestTokens}
+        isFetchingQuotes={isFetchingQuotes}
+        isFetchingTokens={
+          supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
+        }
+        setChain={(value: Chain) => {
+          selectToChain(dispatch, value, receivingWallet);
+          dispatch(clearDestToken());
+        }}
+        setToken={(value: Token) => {
+          dispatch(setDestToken(value.tuple));
+        }}
+        wallet={receivingWallet}
+        isSource={false}
+        isTransactionInProgress={isTransactionInProgress}
+        dataTestId="dest-asset-picker"
+        isConnectingWallet={isConnectingWallet}
+        balances={balances.destination.balances}
+        isFetchingBalances={balances.isFetching}
+        quote={quoteResult?.success ? quoteResult : undefined}
+        anchorEl={popoverAnchorRef.current}
+      />
     );
   }, [
     quotes,
     route,
-    styles.assetPickerContainer,
     destChain,
     supportedDestChains,
     destToken,
@@ -619,8 +610,9 @@ const Bridge = () => {
   const formContent = useMemo(
     () => (
       <>
-        <Stack sx={{ gap: '4px' }}>
+        <Stack sx={{ gap: '4px', position: 'relative' }}>
           {sourceAssetPicker}
+          <SwapInputs />
           {destAssetPicker}
         </Stack>
         {hasEnteredAmount && (

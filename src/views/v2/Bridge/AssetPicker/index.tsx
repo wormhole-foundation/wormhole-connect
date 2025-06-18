@@ -53,6 +53,7 @@ type Props = {
   isConnectingWallet?: boolean;
   amountValidation?: AmountValidationResult;
   quote?: routes.Quote<routes.Options> | undefined;
+  anchorEl: HTMLElement | null;
 };
 
 const AssetPicker = (props: Props) => {
@@ -155,7 +156,15 @@ const AssetPicker = (props: Props) => {
 
   const styles = useMemo(
     () => ({
+      root: {
+        width: '420px',
+        background: theme.palette.input.background,
+        borderRadius: '8px',
+        padding: '16px',
+      },
       container: {
+        display: 'flex',
+        flexDirection: 'column',
         height: '114px',
         maxWidth: '452px',
         gap: '16px',
@@ -323,9 +332,9 @@ const AssetPicker = (props: Props) => {
   }, [props.wallet.address, tokenBalance, renderPercentButton]);
 
   return (
-    <>
+    <Box sx={styles.root}>
       <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
-      <Stack sx={styles.container}>
+      <Box sx={styles.container}>
         <Box sx={styles.title}>
           <Typography fontSize={12} variant="body2">
             {props.isSource ? 'From' : 'To'}
@@ -438,7 +447,7 @@ const AssetPicker = (props: Props) => {
             <Box>{percentButtons}</Box>
           </Box>
         )}
-      </Stack>
+      </Box>
       {mobile ? (
         <SwipeableDrawer
           anchor="bottom"
@@ -498,6 +507,7 @@ const AssetPicker = (props: Props) => {
         <Popover
           {...bindPopover(popupState)}
           transitionDuration={200}
+          anchorEl={props.anchorEl}
           anchorOrigin={{
             vertical: 'top',
             horizontal: 'center',
@@ -547,7 +557,7 @@ const AssetPicker = (props: Props) => {
           )}
         </Popover>
       )}
-    </>
+    </Box>
   );
 };
 
