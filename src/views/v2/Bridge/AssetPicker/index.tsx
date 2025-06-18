@@ -202,14 +202,9 @@ const AssetPicker = (props: Props) => {
         cursor: 'default',
         pointerEvents: 'none',
       },
-      popover: {
-        marginLeft: '-1px',
-        marginTop: '-1px',
-        width: '422px',
-      },
       popoverSlot: {
         width: '100%',
-        maxWidth: '422px',
+        maxWidth: '420px',
         borderRadius: '8px',
         background: theme.palette.input.background,
       },
@@ -512,7 +507,6 @@ const AssetPicker = (props: Props) => {
             vertical: 'top',
             horizontal: 'center',
           }}
-          sx={styles.popover}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'center',
