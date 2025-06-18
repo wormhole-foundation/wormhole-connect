@@ -282,7 +282,7 @@ const Bridge = () => {
       };
     }
     return undefined;
-  }, [destChain, receivingWallet, supportedDestTokens]);
+  }, [destChain, receivingWallet]);
 
   const balances = useGetTokenBalances({
     source: sourceBalanceRequest,
