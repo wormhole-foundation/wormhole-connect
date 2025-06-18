@@ -6,7 +6,7 @@ import '@wormhole-foundation/sdk-solana-ntt';
 
 import {
   nttAutomaticRoute,
-  NttExecutorRoute,
+  type NttExecutorRoute,
   nttExecutorRoute,
   nttManualRoute,
   NttRoute,
