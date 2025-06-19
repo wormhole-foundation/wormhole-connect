@@ -7,7 +7,7 @@ import config from 'config';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import { routes } from '@wormhole-foundation/sdk';
-import { Box, CircularProgress, Skeleton } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
 
 type Props = {
   routes: string[];
@@ -39,12 +39,12 @@ const Routes = ({ ...props }: Props) => {
     [theme],
   );
 
-  const routes = useMemo(() => {
+  const routesWithQuotes = useMemo(() => {
     return props.routes.filter((rs) => props.quotes[rs] !== undefined);
   }, [props.routes, props.quotes]);
 
   const fastestRoute = useMemo(() => {
-    return routes.reduce(
+    return routesWithQuotes.reduce(
       (fastest, route) => {
         const quote = props.quotes[route];
         if (!quote || !quote.success) return fastest;
@@ -61,10 +61,10 @@ const Routes = ({ ...props }: Props) => {
       },
       { name: '', eta: Infinity },
     );
-  }, [routes, props.quotes]);
+  }, [routesWithQuotes, props.quotes]);
 
   const cheapestRoute = useMemo(() => {
-    return routes.reduce(
+    return routesWithQuotes.reduce(
       (cheapest, route) => {
         const quote = props.quotes[route];
         const rc = config.routes.get(route);
@@ -79,14 +79,16 @@ const Routes = ({ ...props }: Props) => {
       },
       { name: '', amountOut: 0n },
     );
-  }, [routes, props.quotes]);
+  }, [routesWithQuotes, props.quotes]);
 
-  const renderRoutes = useMemo(() => {
+  const routesSorted = useMemo(() => {
     if (showAll) {
-      return routes;
+      return routesWithQuotes;
     }
 
-    const selectedRoute = routes.find((route) => route === props.selectedRoute);
+    const selectedRoute = routesWithQuotes.find(
+      (route) => route === props.selectedRoute,
+    );
 
     // Special case when we have a selected route
     if (selectedRoute) {
@@ -106,7 +108,7 @@ const Routes = ({ ...props }: Props) => {
       } else {
         // if the selected route is neither fastest nor cheapest, we add it at the top
         topRoutes.push(selectedRoute);
-        if (routes.length > 2) {
+        if (routesWithQuotes.length > 2) {
           // if we have more than 2 routes in total, meaning there are at least two more routes to show,
           // then we add one of the fastest or cheapest routes below the selected route
           if (fastestRoute.name) {
@@ -123,20 +125,28 @@ const Routes = ({ ...props }: Props) => {
 
     // If we have fastest and cheapest routes, we show them both at the top
     if (!!fastestRoute.name && !!cheapestRoute.name) {
-      return routes.slice(0, 2);
+      return routesWithQuotes.slice(0, 2);
     }
 
     // Otherwise we might have a cheapest route but none qualifying as fastest,
     // so we show the first route at the top
-    return routes.slice(0, 1);
-  }, [showAll, routes, fastestRoute, cheapestRoute, props.selectedRoute]);
+    return routesWithQuotes.slice(0, 1);
+  }, [
+    showAll,
+    routesWithQuotes,
+    fastestRoute,
+    cheapestRoute,
+    props.selectedRoute,
+  ]);
 
   const hideShowToggle = useMemo(() => {
     // If we have less than 2 routes; or there are 2 but those are the fastest and cheapest routes,
     // we do not show the toggle to view other routes
     if (
-      routes.length < 2 ||
-      (routes.length === 2 && !!fastestRoute.name && !!cheapestRoute.name)
+      routesWithQuotes.length < 2 ||
+      (routesWithQuotes.length === 2 &&
+        !!fastestRoute.name &&
+        !!cheapestRoute.name)
     ) {
       return null;
     }
@@ -154,35 +164,14 @@ const Routes = ({ ...props }: Props) => {
     cheapestRoute.name,
     styles.otherRoutesToggle,
     fastestRoute.name,
-    routes.length,
+    routesWithQuotes.length,
     showAll,
   ]);
 
-  return (
-    <>
-      {props.isLoading || renderRoutes.length > 0 ? (
-        <Box sx={{ display: 'flex', width: '100%' }}>
-          <Typography
-            align="left"
-            fontSize={16}
-            paddingBottom={0}
-            marginTop="8px"
-            marginBottom={0}
-            width="100%"
-            textAlign="left"
-          >
-            Routes
-          </Typography>
-          {props.isLoading ? (
-            <CircularProgress sx={{ alignSelf: 'flex-end' }} size={20} />
-          ) : null}
-        </Box>
-      ) : null}
-
-      {props.isLoading && renderRoutes.length === 0 ? (
-        <Skeleton variant="rounded" height={153} width="100%" />
-      ) : (
-        renderRoutes.map((name, index) => {
+  const routes = useMemo(
+    () => (
+      <>
+        {routesSorted.map((name, index) => {
           const isSelected = name === props.selectedRoute;
           const quoteResult = props.quotes[name];
           const quote = quoteResult?.success ? quoteResult : undefined;
@@ -200,12 +189,44 @@ const Routes = ({ ...props }: Props) => {
               isSelected={isSelected && !quoteError}
               isFastest={name === fastestRoute.name}
               isCheapest={name === cheapestRoute.name}
-              isOnlyChoice={routes.length === 1}
+              isOnlyChoice={routesWithQuotes.length === 1}
               onSelect={props.onRouteChange}
               quote={quote}
             />
           );
-        })
+        })}
+      </>
+    ),
+    [
+      cheapestRoute.name,
+      fastestRoute.name,
+      props.onRouteChange,
+      props.quotes,
+      props.selectedRoute,
+      routesSorted,
+      routesWithQuotes.length,
+    ],
+  );
+
+  return (
+    <>
+      <Box sx={{ display: 'flex', width: '100%' }}>
+        <Typography
+          align="left"
+          fontSize={16}
+          paddingBottom={0}
+          marginTop="8px"
+          marginBottom={0}
+          width="100%"
+          textAlign="left"
+        >
+          Routes
+        </Typography>
+      </Box>
+      {props.isLoading && routesSorted.length === 0 ? (
+        <Skeleton variant="rounded" height={153} width="100%" />
+      ) : (
+        routes
       )}
       {hideShowToggle}
     </>
