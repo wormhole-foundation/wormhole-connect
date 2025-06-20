@@ -5,7 +5,6 @@ import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
-import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -586,16 +585,14 @@ const SingleRoute = (props: Props) => {
           {showGasSlider && (
             <>
               <Divider flexItem sx={{ margin: '0px 16px' }} />
-              <Collapse in={showGasSlider}>
-                <GasSlider
-                  destinationGasDrop={
-                    receiveNativeAmount || amount.fromBaseUnits(0n, 8)
-                  }
-                  disabled={isGasSliderDisabled}
-                  isExecutorRoute={isExecutorRoute(props.route)}
-                  isSelected={isSelected}
-                />
-              </Collapse>
+              <GasSlider
+                destinationGasDrop={
+                  receiveNativeAmount || amount.fromBaseUnits(0n, 8)
+                }
+                disabled={isGasSliderDisabled}
+                isExecutorRoute={isExecutorRoute(props.route)}
+                isSelected={isSelected}
+              />
             </>
           )}
         </CardActionArea>

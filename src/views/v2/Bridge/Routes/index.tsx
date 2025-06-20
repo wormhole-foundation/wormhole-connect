@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Modal from '@mui/material/Modal';
 import Skeleton from '@mui/material/Skeleton';
@@ -11,6 +12,7 @@ import { routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import ClockIcon from 'icons/Clock';
+import CloseIcon from '@mui/icons-material/Close';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 import { millisToHumanString } from 'utils';
 
@@ -80,10 +82,23 @@ const Routes = ({ ...props }: Props) => {
   const routes = useMemo(
     () => (
       <Stack sx={{ gap: '16px' }}>
-        <Box sx={{ display: 'flex', width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
           <Typography component={'span'} fontSize="16px" fontWeight={600}>
             Routes
           </Typography>
+          <IconButton
+            sx={{ opacity: 0.5, padding: 0 }}
+            onClick={() => setShowAll(false)}
+          >
+            <CloseIcon sx={{ height: '24px', width: '24px' }} />
+          </IconButton>
         </Box>
         {routesWithQuotes.map((name, index) => {
           const isSelected = name === props.selectedRoute;
@@ -156,16 +171,19 @@ const Routes = ({ ...props }: Props) => {
   );
 
   const routeDetails = useMemo(() => {
-    if (props.isLoading || !bestRoute) {
+    if (props.isLoading) {
       return (
         <Box sx={{ width: '100%' }}>
-          <Skeleton variant="rounded" height={84} width="100%" />
+          <Skeleton variant="rounded" height={87} width="100%" />
         </Box>
       );
     }
 
     let routeSection: React.ReactNode;
-    if (props.selectedRoute && props.selectedRoute !== bestRoute.rc.meta.name) {
+    if (
+      props.selectedRoute &&
+      props.selectedRoute !== bestRoute?.rc.meta.name
+    ) {
       const selectedRoute = config.routes.get(props.selectedRoute);
       routeSection = (
         <>
@@ -181,7 +199,7 @@ const Routes = ({ ...props }: Props) => {
           Best route
           <span
             style={{ fontWeight: 500 }}
-          >{` via ${bestRoute.rc.meta.provider}`}</span>
+          >{` via ${bestRoute?.rc.meta.provider}`}</span>
         </>
       );
     }
