@@ -3,7 +3,7 @@ import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
 const baseButtonStyles = {
   padding: '8px 16px',
-  borderRadius: '8px',
+  borderRadius: '48px',
   height: '48px',
   margin: 'auto',
   maxWidth: '420px',

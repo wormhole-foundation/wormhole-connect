@@ -87,7 +87,6 @@ const Bridge = () => {
       },
       confirmTransaction: {
         padding: '8px 16px',
-        borderRadius: '8px',
         height: '48px',
         margin: 'auto',
         maxWidth: '420px',
@@ -615,6 +614,16 @@ const Bridge = () => {
           <SwapInputs />
           {destAssetPicker}
         </Stack>
+        {transactionError}
+        <Box component="span" sx={styles.ctaContainer}>
+          {hasConnectedWallets ? (
+            <Tooltip title={confirmButtonTooltip}>
+              <span>{confirmTransactionButton}</span>
+            </Tooltip>
+          ) : (
+            walletConnector
+          )}
+        </Box>
         {hasEnteredAmount && (
           <Routes
             routes={sortedRoutes}
@@ -626,16 +635,6 @@ const Bridge = () => {
             isLoading={isFetchingQuotes || balances.isFetching}
           />
         )}
-        {transactionError}
-        <Box component="span" sx={styles.ctaContainer}>
-          {hasConnectedWallets ? (
-            <Tooltip title={confirmButtonTooltip}>
-              <span>{confirmTransactionButton}</span>
-            </Tooltip>
-          ) : (
-            walletConnector
-          )}
-        </Box>
       </>
     ),
     [

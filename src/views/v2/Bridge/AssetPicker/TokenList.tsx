@@ -160,10 +160,6 @@ const TokenList = (props: Props) => {
     props.wallet?.address,
     props.isConnectingWallet,
     props.isFetching,
-    props.isFetchingBalances,
-    props.isSource,
-    props.balances,
-    tokenPrices,
     sortedTokens.length,
   ]);
 

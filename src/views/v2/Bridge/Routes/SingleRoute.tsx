@@ -51,13 +51,11 @@ const SingleRoute = (props: Props) => {
     () => ({
       container: {
         width: '100%',
-        maxWidth: '420px',
-        marginBottom: '8px',
       },
       card: {
         borderRadius: '8px',
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '412px',
       },
       cardSelected: {
         backgroundColor: theme.palette.card.background,

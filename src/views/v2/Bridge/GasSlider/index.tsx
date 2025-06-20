@@ -31,7 +31,7 @@ const GasSlider = (props: {
       content: {
         width: '100%',
         cursor: 'pointer',
-        maxWidth: '420px',
+        maxWidth: '372px',
         overflow: 'visible',
         padding: '16px 20px',
       },
