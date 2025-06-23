@@ -224,7 +224,8 @@ const Routes = ({ ...props }: Props) => {
           >
             {routeSection}
           </Box>
-          <Box
+          {/* Temp: Will be added back in phase-2 of Connect re-design */}
+          {/* <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -237,7 +238,7 @@ const Routes = ({ ...props }: Props) => {
           >
             Include gas top off
             <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
-          </Box>
+          </Box> */}
           <Box>
             <Link
               component="span"

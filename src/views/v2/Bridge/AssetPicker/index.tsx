@@ -352,7 +352,6 @@ const AssetPicker = (props: Props) => {
             <AmountInput
               value={amountInput}
               debauncedValue={debouncedAmountInput}
-              sourceChain={props.chain}
               receiveAmount={receiveAmount}
               supportedSourceTokens={props.tokenList || []}
               tokenBalance={

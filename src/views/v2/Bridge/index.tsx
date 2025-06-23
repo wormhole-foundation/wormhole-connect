@@ -345,18 +345,21 @@ const Bridge = () => {
           balances={balances.source.balances}
           isFetchingBalances={balances.isFetching}
           anchorEl={popoverAnchorRef.current}
+          amountValidation={amountValidation}
         />
       </Box>
     );
   }, [
-    balances,
     sourceChain,
     supportedSourceChains,
     sourceToken,
     sourceTokens,
+    sendingWallet,
     isTransactionInProgress,
     isConnectingWallet,
-    sendingWallet,
+    balances.source.balances,
+    balances.isFetching,
+    amountValidation,
     dispatch,
   ]);
 
@@ -527,7 +530,27 @@ const Bridge = () => {
     );
   }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
-  const hasError = !!amountValidation.error;
+  const amountValidationError = useMemo(
+    () => (
+      <AlertBannerV2
+        warning={!!amountValidation.warning}
+        error={!!amountValidation.error}
+        content={amountValidation.error || amountValidation.warning}
+        show={!!amountValidation.error || !!amountValidation.warning}
+        color={
+          amountValidation.error
+            ? theme.palette.error.main
+            : theme.palette.warning.main
+        }
+      />
+    ),
+    [
+      amountValidation.error,
+      amountValidation.warning,
+      theme.palette.error.main,
+      theme.palette.warning.main,
+    ],
+  );
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
 
@@ -545,7 +568,7 @@ const Bridge = () => {
     isFetchingQuotes ||
     !hasEnteredAmount ||
     isTransactionInProgress ||
-    hasError;
+    !!amountValidation.error;
 
   // Review transaction button is shown only when everything is ready
   const confirmTransactionButton = useMemo(() => {
@@ -618,7 +641,6 @@ const Bridge = () => {
           <SwapInputs />
           {destAssetPicker}
         </Stack>
-        {transactionError}
         <Box component="span" sx={styles.ctaContainer}>
           {hasConnectedWallets ? (
             <Tooltip title={confirmButtonTooltip}>
@@ -628,6 +650,8 @@ const Bridge = () => {
             walletConnector
           )}
         </Box>
+        {transactionError}
+        {amountValidationError}
         {hasEnteredAmount && (
           <Routes
             routes={sortedRoutes}
@@ -642,21 +666,22 @@ const Bridge = () => {
       </>
     ),
     [
+      sourceAssetPicker,
+      destAssetPicker,
+      styles.ctaContainer,
+      hasConnectedWallets,
       confirmButtonTooltip,
       confirmTransactionButton,
-      destAssetPicker,
-      dispatch,
-      hasConnectedWallets,
-      hasEnteredAmount,
-      balances.isFetching,
-      isFetchingQuotes,
-      quotes,
-      route,
-      sortedRoutes,
-      sourceAssetPicker,
-      styles.ctaContainer,
-      transactionError,
       walletConnector,
+      transactionError,
+      amountValidationError,
+      hasEnteredAmount,
+      sortedRoutes,
+      route,
+      quotes,
+      isFetchingQuotes,
+      balances.isFetching,
+      dispatch,
     ],
   );
 

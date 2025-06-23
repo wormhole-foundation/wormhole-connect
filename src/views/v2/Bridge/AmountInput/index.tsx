@@ -13,10 +13,9 @@ import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
-import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import Box from '@mui/material/Box';
 
-import AlertBannerV2 from 'components/v2/AlertBanner';
 import { Token } from 'config/tokens';
 import type { RootState } from 'store';
 import { useGetTokens } from 'hooks/useGetTokens';
@@ -87,7 +86,6 @@ const DebouncedTextField = memo(
 type Props = {
   value: string;
   debauncedValue: string;
-  sourceChain?: Chain;
   supportedSourceTokens: Array<Token>;
   tokenBalance: sdkAmount.Amount | null;
   receiveAmount?: number | undefined;
@@ -123,9 +121,6 @@ const AmountInput = (props: Props) => {
           padding: 0,
         },
       },
-      inputError: {
-        marginTop: '12px',
-      },
       balance: {
         color: theme.palette.text.secondary,
         fontSize: '14px',
@@ -136,15 +131,22 @@ const AmountInput = (props: Props) => {
     [theme],
   );
 
-  const { fromChain: sourceChain, isTransactionInProgress } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    fromChain: sourceChain,
+    toChain: destChain,
+    isTransactionInProgress,
+  } = useSelector((state: RootState) => state.transferInput);
 
-  const { sourceToken } = useGetTokens();
+  const { sourceToken, destToken } = useGetTokens();
 
   const isInputDisabled = useMemo(
-    () => isTransactionInProgress || !sourceChain || !sourceToken,
-    [isTransactionInProgress, sourceChain, sourceToken],
+    () =>
+      isTransactionInProgress ||
+      !sourceChain ||
+      !sourceToken ||
+      !destChain ||
+      !destToken,
+    [destChain, destToken, isTransactionInProgress, sourceChain, sourceToken],
   );
 
   return (
@@ -183,13 +185,6 @@ const AmountInput = (props: Props) => {
           />
         </CardContent>
       </Card>
-      <AlertBannerV2
-        error={!!props.error}
-        content={props.error || props.warning}
-        show={!!props.error || !!props.warning}
-        color={props.error ? theme.palette.error.main : theme.palette.grey.A400}
-        sx={styles.inputError}
-      />
     </Box>
   );
 };
