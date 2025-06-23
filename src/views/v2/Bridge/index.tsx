@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
 import HistoryIcon from '@mui/icons-material/History';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 
@@ -30,7 +31,6 @@ import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
-import { setRoute as setAppRoute } from 'store/router';
 import {
   selectFromChain,
   selectToChain,
@@ -49,10 +49,13 @@ import AssetPicker from 'views/v2/Bridge/AssetPicker';
 import Routes from 'views/v2/Bridge/Routes';
 import SwapInputs from 'views/v2/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v2/TxHistory/Widget';
+import TxHistory from '../TxHistory';
 
 const Bridge = () => {
   const theme: any = useTheme();
   const dispatch = useDispatch();
+
+  const [showHistory, setShowHistory] = useState(false);
 
   const { lastTokenCacheUpdate } = useTokens();
   const [errorCopied, setErrorCopied] = useState(false);
@@ -429,7 +432,8 @@ const Bridge = () => {
               sx={{ padding: 0 }}
               disabled={isTxHistoryDisabled}
               onClick={() => {
-                dispatch(setAppRoute('history'));
+                // Show or hide the transaction history
+                setShowHistory((value) => !value);
                 config.triggerEvent({
                   type: 'history.load',
                   details: {
@@ -438,17 +442,17 @@ const Bridge = () => {
                 });
               }}
             >
-              <HistoryIcon />
+              {showHistory ? <SwapHorizIcon /> : <HistoryIcon />}
             </IconButton>
           </span>
         </Tooltip>
       </Box>
     );
   }, [
-    styles.bridgeHeader,
-    dispatch,
-    isTransactionInProgress,
     sendingWallet?.address,
+    isTransactionInProgress,
+    styles.bridgeHeader,
+    showHistory,
   ]);
 
   const walletConnector = useMemo(() => {
@@ -606,7 +610,7 @@ const Bridge = () => {
       ? 'Please select a quote'
       : '';
 
-  const formContent = useMemo(
+  const bridgeContent = useMemo(
     () => (
       <>
         <Stack sx={{ gap: '4px', position: 'relative' }}>
@@ -671,7 +675,7 @@ const Bridge = () => {
           mobile ? { ...styles.formContentMobile } : { ...styles.formContent }
         }
       >
-        {formContent}
+        {showHistory ? <TxHistory /> : bridgeContent}
       </Box>
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />

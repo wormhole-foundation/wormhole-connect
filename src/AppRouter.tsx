@@ -19,7 +19,6 @@ import { useExternalSearch } from 'hooks/useExternalSearch';
 
 import BridgeV2 from 'views/v2/Bridge';
 import RedeemV2 from 'views/v2/Redeem';
-import TxHistory from 'views/v2/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 import SvgDefs from 'icons/SvgDefs';
 import { Box } from '@mui/material';
@@ -75,7 +74,6 @@ const AppRouterContent: React.FC = () => {
       {route === 'bridge' && <BridgeV2 />}
       {route === 'redeem' && <RedeemV2 />}
       {route === 'search' && <TxSearch />}
-      {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
     </Box>
   );

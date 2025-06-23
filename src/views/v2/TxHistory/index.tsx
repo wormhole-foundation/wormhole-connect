@@ -1,61 +1,26 @@
 import React, { useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroller';
 import {
   Box,
-  CircularProgress,
-  IconButton,
+  Skeleton,
   Typography,
+  useMediaQuery,
   useTheme,
 } from '@mui/material';
-
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
 import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import config from 'config';
-import PoweredByIcon from 'icons/PoweredBy';
 import useTransactionHistory from 'hooks/useTransactionHistory';
-import { setRoute as setAppRoute } from 'store/router';
 import { trimAddress } from 'utils';
 import TxHistoryItem from 'views/v2/TxHistory/Item';
 
 import type { RootState } from 'store';
 
-const styles = {
-  container: {
-    margin: 'auto',
-    maxWidth: '420px',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  infiniteScroller: {
-    height: '640px',
-    overflow: 'auto',
-    width: '100%',
-  },
-  txHistoryHeader: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  spacer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-} as const;
-
 const TxHistory = () => {
-  const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme: any = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [page, setPage] = useState(0);
 
@@ -64,6 +29,43 @@ const TxHistory = () => {
   });
 
   const sendingWallet = useSelector((state: RootState) => state.wallet.sending);
+
+  const styles = useMemo(
+    () => ({
+      container: {
+        maxWidth: '420px',
+      },
+      containerMobile: {
+        display: 'flex',
+        flexDirection: 'column',
+      },
+      header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+      },
+      infiniteScroller: {
+        height: '640px',
+        overflow: 'auto',
+        width: '100%',
+      },
+      txHistoryHeader: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '16px',
+      },
+      spacer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+    }),
+    [],
+  );
 
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
@@ -87,12 +89,9 @@ const TxHistory = () => {
     return (
       <Box sx={styles.txHistoryHeader}>
         <Header align="left" size={18} text="Transaction history" />
-        <IconButton onClick={() => dispatch(setAppRoute('bridge'))}>
-          <SwapHorizIcon />
-        </IconButton>
       </Box>
     );
-  }, [dispatch]);
+  }, [styles.txHistoryHeader]);
 
   const transactionList = useMemo(() => {
     if (!transactions) {
@@ -126,17 +125,38 @@ const TxHistory = () => {
   }, [
     hasMore,
     sendingWallet.address,
+    styles.infiniteScroller,
+    styles.spacer,
     theme.palette.text.secondary,
     transactions,
   ]);
 
+  const containerStyles = useMemo(() => {
+    return mobile ? styles.containerMobile : styles.container;
+  }, [mobile, styles.container, styles.containerMobile]);
+
   return (
-    <Box sx={{ ...styles.container, ...styles.spacer }}>
+    <Box sx={{ ...containerStyles }}>
       {header}
       {txHistoryHeader}
-      {transactionList}
-      {(!transactions || isFetching) && <CircularProgress />}
-      <PoweredByIcon color={theme.palette.text.primary} />
+      {transactions && transactions.length && !isFetching ? (
+        transactionList
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            padding: '16px',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Skeleton variant="rounded" height={24} width="100%" />
+          <Skeleton variant="rounded" height={48} width="100%" />
+          <Skeleton variant="rounded" height={48} width="100%" />
+        </Box>
+      )}
     </Box>
   );
 };
