@@ -81,7 +81,7 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
       };
     } else {
       return {
-        error: 'No routes found for this transaction.',
+        error: 'No routes found for this transaction amount.',
       };
     }
   }
@@ -90,7 +90,7 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
   if (minAmount) {
     const formattedAmount = sdkAmount.display(minAmount);
     return {
-      warning: `More routes available for amounts exceeding ${formattedAmount} ${props.tokenSymbol}`,
+      warning: `More routes available for ${formattedAmount} ${props.tokenSymbol} or more.`,
     };
   }
 
