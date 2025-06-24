@@ -99,7 +99,11 @@ const useFetchSupportedRoutes = ({
       if (_routes.includes('ManualTBTC')) {
         _routes = _routes.filter(
           (route) =>
-            !['ManualTokenBridge', 'AutomaticTokenBridge'].includes(route),
+            ![
+              'ManualTokenBridge',
+              'AutomaticTokenBridge',
+              'TokenBridgeExecutorRoute',
+            ].includes(route),
         );
       }
 

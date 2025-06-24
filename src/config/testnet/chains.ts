@@ -11,8 +11,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   Avalanche: {
     displayName: 'Fuji',
-    explorerUrl: 'https://testnet.avascan.info/blockchain/c/',
-    explorerName: 'Avascan',
+    explorerUrl: 'https://testnet.snowtrace.io/',
+    explorerName: 'Snowtrace',
     icon: 'Avalanche',
     symbol: 'AVAX',
     sdkName: 'Avalanche',

@@ -28,8 +28,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
   Avalanche: {
     displayName: 'Avalanche',
     sdkName: 'Avalanche',
-    explorerUrl: 'https://avascan.info/blockchain/c/',
-    explorerName: 'Avascan',
+    explorerUrl: 'https://snowtrace.io/',
+    explorerName: 'Snowtrace',
     icon: 'Avalanche',
     symbol: 'AVAX',
   },

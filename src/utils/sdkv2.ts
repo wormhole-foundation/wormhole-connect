@@ -16,6 +16,7 @@ import {
   ChainContext,
   nativeTokenId,
   TBTCBridge,
+  ExecutorTokenBridge,
 } from '@wormhole-foundation/sdk';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
@@ -131,6 +132,10 @@ export async function parseReceipt(
       return await parseTokenBridgeReceipt(
         receipt as ReceiptWithAttestation<TokenBridge.TransferVAA>,
       );
+    case 'TokenBridgeExecutorRoute':
+      return await parseExecutorTokenBridgeReceipt(
+        receipt as ReceiptWithAttestation<ExecutorTokenBridge.VAA>,
+      );
     case 'ManualCCTP':
       return await parseCCTPReceipt(
         receipt as ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
@@ -231,6 +236,23 @@ const parseTokenBridgeReceipt = async (
   }
 
   return txData as TransferInfo;
+};
+
+const parseExecutorTokenBridgeReceipt = async (
+  receipt: ReceiptWithAttestation<ExecutorTokenBridge.VAA>,
+): Promise<TransferInfo> => {
+  const txData = await parseTokenBridgeReceipt(
+    // This is fine since the VAA type is transfer with payload
+    receipt as unknown as ReceiptWithAttestation<TokenBridge.TransferVAA>,
+  );
+
+  txData.recipient =
+    // @ts-ignore
+    receipt.attestation.attestation.payload.payload.targetRecipient
+      .toNative(txData.toChain)
+      .toString();
+
+  return txData;
 };
 
 const parseCCTPReceipt = async (

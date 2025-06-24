@@ -100,23 +100,62 @@ async function createPriorityFeeInstructions(
   let unitsUsed = 200_000;
   let simulationAttempts = 0;
 
+  // The simulation can fail if the compute budget is too low
+  // So we set a higher compute budget for the simulation and
+  // will set the transaction's compute budget based on the actual units used
+  // during the simulation.
+  const simComputeBudgetIx = ComputeBudgetProgram.setComputeUnitLimit({
+    units: 300_000,
+  });
+
+  // Create a copy of the transaction for simulation to avoid mutation
+  let simulationTx: Transaction | VersionedTransaction;
+
+  if (isVersionedTransaction(transaction)) {
+    const luts = (
+      await Promise.all(
+        transaction.message.addressTableLookups.map((acc) =>
+          connection.getAddressLookupTable(acc.accountKey),
+        ),
+      )
+    )
+      .map((lut) => lut.value)
+      .filter((lut) => lut !== null) as AddressLookupTableAccount[];
+    const message = TransactionMessage.decompile(transaction.message, {
+      addressLookupTableAccounts: luts,
+    });
+    message.instructions = [simComputeBudgetIx, ...message.instructions];
+
+    // Create a new VersionedTransaction with the modified message
+    simulationTx = new VersionedTransaction(message.compileToV0Message(luts));
+    simulationTx.signatures = [...transaction.signatures];
+  } else {
+    // Clone the transaction for simulation
+    const txCopy = new Transaction();
+    txCopy.recentBlockhash = transaction.recentBlockhash;
+    txCopy.feePayer = transaction.feePayer;
+    txCopy.instructions = [simComputeBudgetIx, ...transaction.instructions];
+    txCopy.signatures = [...transaction.signatures];
+    simulationTx = txCopy;
+  }
+
   simulationLoop: while (true) {
     if (
-      isVersionedTransaction(transaction) &&
-      !transaction.message.recentBlockhash
+      isVersionedTransaction(simulationTx) &&
+      !simulationTx.message.recentBlockhash
     ) {
       // This is required for versioned transactions
       // SimulateTransaction throws if recentBlockhash is an empty string
       const { blockhash } = await connection.getLatestBlockhash(commitment);
-      transaction.message.recentBlockhash = blockhash;
+      simulationTx.message.recentBlockhash = blockhash;
     }
 
-    const response = await (isVersionedTransaction(transaction)
-      ? connection.simulateTransaction(transaction, {
+    const response = await (isVersionedTransaction(simulationTx)
+      ? connection.simulateTransaction(simulationTx, {
           commitment,
           replaceRecentBlockhash: true,
         })
-      : connection.simulateTransaction(transaction));
+      : connection.simulateTransaction(simulationTx));
 
     if (response.value.err) {
       if (checkKnownSimulationError(response.value)) {
@@ -149,7 +188,7 @@ async function createPriorityFeeInstructions(
     }
   }
 
-  const unitBudget = Math.floor(unitsUsed * 1.2); // Budget in 20% headroom
+  const unitBudget = Math.floor(unitsUsed * 1.2); // Budget in 20% headroom or more if retries occurred
 
   const instructions: TransactionInstruction[] = [];
   instructions.push(
@@ -173,7 +212,7 @@ async function createPriorityFeeInstructions(
     rpcProvider?: SolanaRpcProvider,
   ): Promise<{ fee: number; methodUsed: 'triton' | 'default' | 'minimum' }> => {
     if (rpcProvider === 'triton') {
-      // Triton has an experimental RPC method that accepts a percentile paramater
+      // Triton has an experimental RPC method that accepts a percentile parameter
       // and usually gives more accurate fee numbers.
       try {
         const fee = await determinePriorityFeeTritonOne(

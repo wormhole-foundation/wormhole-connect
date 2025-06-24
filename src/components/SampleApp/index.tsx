@@ -19,6 +19,7 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
  * - DEFAULT_ROUTES
  * - nttRoutes
  * - AutomaticTokenBridgeRoute
+ * - TokenBridgeExecutorRoute
  * - TokenBridgeRoute
  * - AutomaticCCTPRoute
  * - ManualCCTPRoute
@@ -88,6 +89,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.cctpV2StandardExecutorRoute = cctpV2StandardExecutorRoute;
       /* @ts-ignore */
       window.cctpV2FastExecutorRoute = cctpV2FastExecutorRoute;
+      /* @ts-ignore */
+      window.executorTokenBridgeRoute = routes.executorTokenBridgeRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -312,6 +315,12 @@ function SampleApp() {
                   <li>
                     <pre>cctpV2FastExecutorRoute</pre>
                     <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>executorTokenBridgeRoute</pre>
+                    <i>
+                      {'(ExecutorTokenBridgeRoute.Config) -> RouteConstructor'}
+                    </i>
                   </li>
                 </ul>
               </div>

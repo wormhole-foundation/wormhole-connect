@@ -34,7 +34,7 @@ export class SDKv2Route {
     this.IS_TOKEN_BRIDGE_ROUTE = [
       'ManualTokenBridge',
       'AutomaticTokenBridge',
-      'CosmosGateway',
+      'TokenBridgeExecutorRoute',
     ].includes(rc.meta.name);
   }
 
