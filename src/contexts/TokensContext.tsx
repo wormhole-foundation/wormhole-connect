@@ -18,6 +18,7 @@ import React, {
 import { fetchTokenPrices } from 'utils/coingecko';
 import { useDebouncedCallback } from 'use-debounce';
 import { getAddress } from 'ethers';
+import { isNttToken, getNttTokenGroup } from 'utils/ntt';
 
 interface TokensContextType {
   getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>;
@@ -135,6 +136,49 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     [priceState.prices],
   );
 
+  // Helper function to apply NTT fallback prices
+  const applyNttFallbackPrices = useCallback(
+    (
+      tokens: Token[],
+      updatedPrices: TokenMapping<TokenPrice>,
+      fetchedPrices: TokenMapping<number> | undefined,
+      timestamp: Date,
+    ) => {
+      for (const token of tokens) {
+        const cachedPrice = updatedPrices.get(token);
+
+        // If token still doesn't have a price and is an NTT token
+        if (!cachedPrice?.price && isNttToken(token)) {
+          const alternativeTokens = getNttTokenGroup(token);
+
+          // Check if any alternative tokens have prices
+          for (const altToken of alternativeTokens) {
+            // Check both fetched prices and updated cache
+            let altPrice = fetchedPrices?.get(altToken);
+            if (!altPrice) {
+              const altCachedPrice = updatedPrices.get(altToken);
+              altPrice = altCachedPrice?.price;
+            }
+
+            if (altPrice !== undefined) {
+              console.debug(
+                `Using price from ${altToken.symbol} on ${altToken.chain} as fallback for ${token.symbol} on ${token.chain}`,
+              );
+
+              // Cache the fallback price for the original token
+              updatedPrices.add(token, {
+                timestamp,
+                price: altPrice,
+              });
+              break;
+            }
+          }
+        }
+      }
+    },
+    [],
+  );
+
   // Debounced function to batch fetch token prices
   const debouncedFetchPrices = useDebouncedCallback(async () => {
     if (tokensToFetch.current.size === 0) return;
@@ -178,6 +222,9 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
           tokensFetching.current.delete(tokenKey(tokenId));
         }
 
+        // Handle NTT fallback prices for tokens that still don't have prices
+        applyNttFallbackPrices(tokens, updatedPrices, prices, timestamp);
+
         return {
           prices: updatedPrices,
           isFetching: false,
@@ -204,6 +251,9 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
 
           tokensFetching.current.delete(tokenKey(tokenId));
         }
+
+        // Even on error, try NTT fallback using existing cached prices
+        applyNttFallbackPrices(tokens, updatedPrices, undefined, timestamp);
 
         return {
           prices: updatedPrices,
