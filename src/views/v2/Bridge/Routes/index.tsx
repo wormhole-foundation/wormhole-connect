@@ -171,15 +171,8 @@ const Routes = ({ ...props }: Props) => {
   );
 
   const routeDetails = useMemo(() => {
-    if (props.isLoading) {
-      return (
-        <Box sx={{ width: '100%' }}>
-          <Skeleton variant="rounded" height={87} width="100%" />
-        </Box>
-      );
-    }
-
     let routeSection: React.ReactNode;
+
     if (
       props.selectedRoute &&
       props.selectedRoute !== bestRoute?.rc.meta.name
@@ -273,42 +266,71 @@ const Routes = ({ ...props }: Props) => {
       </Box>
     );
   }, [
-    bestRoute,
-    props.isLoading,
+    bestRoute?.rc.meta.name,
+    bestRoute?.rc.meta.provider,
     props.selectedRoute,
     theme.palette.text.primary,
     timeToDestination,
   ]);
 
+  // Done fetching and no routes are available.
+  // This can be an error case which the message is shown by the parent component.
+  if (!props.isLoading && props.routes.length === 0) {
+    return <></>;
+  }
+
   return (
     <>
-      {props.isLoading && routesWithQuotes.length === 0 ? (
-        <Skeleton variant="rounded" height={84} width="100%" />
-      ) : (
-        routeDetails
-      )}
-      <Modal
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        open={showAll}
-        onClose={() => setShowAll(false)}
-      >
+      {props.isLoading ? (
         <Box
           sx={{
-            backgroundColor: theme.palette.background.paper,
-            padding: '24px',
-            borderRadius: '12px',
-            width: '412px',
-            maxHeight: '80vh',
-            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '54px',
+            width: '100%',
+            gap: '12px',
           }}
         >
-          {routes}
+          <Skeleton
+            variant="rounded"
+            height={20}
+            width="100%"
+            sx={{ borderRadius: '20px' }}
+          />
+          <Skeleton
+            variant="rounded"
+            height={20}
+            width="100%"
+            sx={{ borderRadius: '20px' }}
+          />
         </Box>
-      </Modal>
+      ) : (
+        <>
+          {routeDetails}
+          <Modal
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            open={showAll}
+            onClose={() => setShowAll(false)}
+          >
+            <Box
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                padding: '24px',
+                borderRadius: '12px',
+                width: '412px',
+                maxHeight: '80vh',
+                overflowY: 'auto',
+              }}
+            >
+              {routes}
+            </Box>
+          </Modal>
+        </>
+      )}
     </>
   );
 };

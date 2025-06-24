@@ -652,7 +652,7 @@ const Bridge = () => {
         </Box>
         {transactionError}
         {amountValidationError}
-        {hasEnteredAmount && sortedRoutes.length > 0 && (
+        {hasEnteredAmount && (
           <Routes
             routes={sortedRoutes}
             selectedRoute={route}
