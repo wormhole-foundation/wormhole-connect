@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useTheme } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
@@ -15,6 +15,7 @@ import ClockIcon from 'icons/Clock';
 import CloseIcon from '@mui/icons-material/Close';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 import { millisToHumanString } from 'utils';
+import Button from 'components/v2/Button';
 
 type Props = {
   routes: string[];
@@ -26,7 +27,11 @@ type Props = {
 
 const Routes = ({ ...props }: Props) => {
   const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [showAll, setShowAll] = useState(false);
+  const [highlightedRoute, setHighlightedRoute] = useState<string | undefined>(
+    props.selectedRoute,
+  );
 
   const routesWithQuotes = useMemo(() => {
     return props.routes.filter((rs) => props.quotes[rs] !== undefined);
@@ -79,29 +84,35 @@ const Routes = ({ ...props }: Props) => {
     return quote;
   }, [props.selectedRoute, props.quotes]);
 
+  const routesHeader = useMemo(
+    () => (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+        }}
+      >
+        <Typography component={'span'} fontSize="16px" fontWeight={600}>
+          Routes
+        </Typography>
+        <IconButton
+          sx={{ opacity: 0.5, padding: 0 }}
+          onClick={() => setShowAll(false)}
+        >
+          <CloseIcon sx={{ height: '24px', width: '24px' }} />
+        </IconButton>
+      </Box>
+    ),
+    [],
+  );
+
   const routes = useMemo(
     () => (
-      <Stack sx={{ gap: '16px' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-          }}
-        >
-          <Typography component={'span'} fontSize="16px" fontWeight={600}>
-            Routes
-          </Typography>
-          <IconButton
-            sx={{ opacity: 0.5, padding: 0 }}
-            onClick={() => setShowAll(false)}
-          >
-            <CloseIcon sx={{ height: '24px', width: '24px' }} />
-          </IconButton>
-        </Box>
+      <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
         {routesWithQuotes.map((name, index) => {
-          const isSelected = name === props.selectedRoute;
+          const isSelected = name === highlightedRoute;
           const quoteResult = props.quotes[name];
           const quote = quoteResult?.success ? quoteResult : undefined;
           // Default message added as precaution, as 'Error' type cannot be trusted
@@ -120,8 +131,7 @@ const Routes = ({ ...props }: Props) => {
               isCheapest={name === cheapestRoute.name}
               isOnlyChoice={routesWithQuotes.length === 1}
               onSelect={(r) => {
-                setShowAll(false);
-                props.onRouteChange(r);
+                setHighlightedRoute(r);
               }}
               quote={quote}
             />
@@ -129,7 +139,13 @@ const Routes = ({ ...props }: Props) => {
         })}
       </Stack>
     ),
-    [cheapestRoute.name, fastestRoute.name, props, routesWithQuotes],
+    [
+      cheapestRoute.name,
+      fastestRoute.name,
+      highlightedRoute,
+      props.quotes,
+      routesWithQuotes,
+    ],
   );
 
   const bestRoute = useMemo(() => {
@@ -273,6 +289,35 @@ const Routes = ({ ...props }: Props) => {
     timeToDestination,
   ]);
 
+  const selectButton = useMemo(
+    () => (
+      <Button
+        variant="primary"
+        sx={{
+          padding: '16px 24px',
+          height: '48px',
+          borderRadius: '48px',
+        }}
+        onClick={() => {
+          if (highlightedRoute) {
+            props.onRouteChange(highlightedRoute);
+          }
+          setShowAll(false);
+        }}
+        disabled={
+          !!props.selectedRoute && props.selectedRoute === highlightedRoute
+        }
+        data-testid="select-route-button"
+        fullWidth
+      >
+        <Typography fontSize="16px" fontWeight={600} textTransform="none">
+          {mobile ? 'Select' : 'Select Route'}
+        </Typography>
+      </Button>
+    ),
+    [props, highlightedRoute, mobile],
+  );
+
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
   if (!props.isLoading && props.routes.length === 0) {
@@ -321,12 +366,14 @@ const Routes = ({ ...props }: Props) => {
                 backgroundColor: theme.palette.background.paper,
                 padding: '24px',
                 borderRadius: '12px',
-                width: '412px',
-                maxHeight: '80vh',
-                overflowY: 'auto',
+                gap: '16px',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
+              {routesHeader}
               {routes}
+              {selectButton}
             </Box>
           </Modal>
         </>

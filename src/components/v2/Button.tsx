@@ -15,7 +15,7 @@ type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
 
 /**
  * Custom Button component that extends MUI Button
- * @param variant:  Optional propoerty to specify the style variant of the button
+ * @param variant:  Optional property to specify the style variant of the button
  *                  Primary: The main CTA
  *
  */
