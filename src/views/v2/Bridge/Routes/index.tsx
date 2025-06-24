@@ -7,6 +7,7 @@ import Link from '@mui/material/Link';
 import Modal from '@mui/material/Modal';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Typography from '@mui/material/Typography';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { routes } from '@wormhole-foundation/sdk';
@@ -38,7 +39,8 @@ const Routes = ({ ...props }: Props) => {
     ...state.relay,
   }));
 
-  const [showAll, setShowAll] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
   const [highlightedRoute, setHighlightedRoute] = useState<string | undefined>(
     props.selectedRoute,
   );
@@ -112,13 +114,13 @@ const Routes = ({ ...props }: Props) => {
         </Typography>
         <IconButton
           sx={{ opacity: 0.5, padding: 0 }}
-          onClick={() => setShowAll(false)}
+          onClick={() => (mobile ? setShowDrawer(false) : setShowModal(false))}
         >
           <CloseIcon sx={{ height: '24px', width: '24px' }} />
         </IconButton>
       </Box>
     ),
-    [],
+    [mobile],
   );
 
   const routes = useMemo(
@@ -247,7 +249,7 @@ const Routes = ({ ...props }: Props) => {
           >
             {routeSection}
           </Box>
-          {/* Temp: Will be added back in phase-2 of Connect re-design */}
+          {/* Temp: Gas top off will be added in phase-2 of Connect re-design */}
           {/* <Box
             sx={{
               display: 'flex',
@@ -276,7 +278,9 @@ const Routes = ({ ...props }: Props) => {
                 fontWeight: 700,
                 opacity: 0.5,
               }}
-              onClick={() => setShowAll((prev) => !prev)}
+              onClick={() =>
+                mobile ? setShowDrawer(true) : setShowModal((prev) => !prev)
+              }
             >
               View other routes
               <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
@@ -298,6 +302,7 @@ const Routes = ({ ...props }: Props) => {
   }, [
     bestRoute?.rc.meta.name,
     bestRoute?.rc.meta.provider,
+    mobile,
     props.selectedRoute,
     theme.palette.text.primary,
     timeToDestination,
@@ -329,7 +334,7 @@ const Routes = ({ ...props }: Props) => {
           if (gasTokenAmount !== toNativeToken) {
             dispatch(setToNativeToken(gasTokenAmount));
           }
-          setShowAll(false);
+          mobile ? setShowDrawer(false) : setShowModal(false);
         }}
         disabled={selectButtonDisabled}
         data-testid="select-route-button"
@@ -385,31 +390,67 @@ const Routes = ({ ...props }: Props) => {
       ) : (
         <>
           {routeDetails}
-          <Modal
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            open={showAll}
-            onClose={() => setShowAll(false)}
-          >
-            <Box
-              sx={{
-                backgroundColor: theme.palette.background.paper,
-                padding: '24px',
-                borderRadius: '12px',
-                gap: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '420px',
+          {mobile ? (
+            <SwipeableDrawer
+              anchor="bottom"
+              open={showDrawer}
+              slotProps={{
+                paper: {
+                  sx: {
+                    background: theme.palette.input.background,
+                    borderRadius: '8px',
+                    height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
+                    maxWidth: '100vw', // Force full-width on small mobile devices
+                  },
+                },
               }}
+              transitionDuration={200}
+              onOpen={() => setShowDrawer(true)}
+              onClose={() => setShowDrawer(false)}
             >
-              {routesHeader}
-              {routes}
-              {selectButton}
-            </Box>
-          </Modal>
+              <Box
+                sx={{
+                  backgroundColor: theme.palette.background.paper,
+                  padding: '8px',
+                  borderRadius: '12px',
+                  gap: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '420px',
+                }}
+              >
+                {routesHeader}
+                {routes}
+                {selectButton}
+              </Box>
+            </SwipeableDrawer>
+          ) : (
+            <Modal
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              open={showModal}
+              onClose={() => setShowModal(false)}
+            >
+              <Box
+                sx={{
+                  backgroundColor: theme.palette.background.paper,
+                  padding: '24px',
+                  borderRadius: '12px',
+                  gap: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '420px',
+                }}
+              >
+                {routesHeader}
+                {routes}
+                {selectButton}
+              </Box>
+            </Modal>
+          )}
         </>
       )}
     </>
