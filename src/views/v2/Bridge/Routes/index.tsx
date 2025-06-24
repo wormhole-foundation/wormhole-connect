@@ -303,6 +303,14 @@ const Routes = ({ ...props }: Props) => {
     timeToDestination,
   ]);
 
+  const selectButtonDisabled = useMemo(() => {
+    return (
+      !!props.selectedRoute &&
+      props.selectedRoute === highlightedRoute &&
+      toNativeToken === gasTokenAmount / 100
+    );
+  }, [props.selectedRoute, highlightedRoute, toNativeToken, gasTokenAmount]);
+
   const selectButton = useMemo(
     () => (
       <Button
@@ -323,11 +331,7 @@ const Routes = ({ ...props }: Props) => {
           }
           setShowAll(false);
         }}
-        disabled={
-          !!props.selectedRoute &&
-          props.selectedRoute === highlightedRoute &&
-          toNativeToken === gasTokenAmount / 100
-        }
+        disabled={selectButtonDisabled}
         data-testid="select-route-button"
         fullWidth
       >
@@ -336,7 +340,15 @@ const Routes = ({ ...props }: Props) => {
         </Typography>
       </Button>
     ),
-    [props, highlightedRoute, mobile, gasTokenAmount, toNativeToken, dispatch],
+    [
+      selectButtonDisabled,
+      mobile,
+      highlightedRoute,
+      gasTokenAmount,
+      toNativeToken,
+      props,
+      dispatch,
+    ],
   );
 
   // Done fetching and no routes are available.
@@ -390,6 +402,7 @@ const Routes = ({ ...props }: Props) => {
                 gap: '16px',
                 display: 'flex',
                 flexDirection: 'column',
+                width: '420px',
               }}
             >
               {routesHeader}
