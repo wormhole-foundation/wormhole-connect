@@ -40,8 +40,9 @@ type Props = {
   isFastest?: boolean;
   isCheapest?: boolean;
   isOnlyChoice?: boolean;
-  onSelect?: (route: string) => void;
   quote?: routes.Quote<routes.Options>;
+  onSelect?: (route: string) => void;
+  onGasChange?: (nativeAmount: number) => void;
 };
 
 const SingleRoute = (props: Props) => {
@@ -592,6 +593,11 @@ const SingleRoute = (props: Props) => {
                 disabled={isGasSliderDisabled}
                 isExecutorRoute={isExecutorRoute(props.route)}
                 isSelected={isSelected}
+                onGasChange={(nativeAmount: number) => {
+                  if (typeof props.onGasChange === 'function') {
+                    props.onGasChange(nativeAmount);
+                  }
+                }}
               />
             </>
           )}

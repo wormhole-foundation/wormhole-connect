@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
@@ -16,6 +17,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 import { millisToHumanString } from 'utils';
 import Button from 'components/v2/Button';
+import { setToNativeToken } from 'store/relay';
+
+import type { RootState } from 'store';
 
 type Props = {
   routes: string[];
@@ -26,11 +30,20 @@ type Props = {
 };
 
 const Routes = ({ ...props }: Props) => {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const { toNativeToken } = useSelector((state: RootState) => ({
+    ...state.relay,
+  }));
+
   const [showAll, setShowAll] = useState(false);
   const [highlightedRoute, setHighlightedRoute] = useState<string | undefined>(
     props.selectedRoute,
+  );
+  const [gasTokenAmount, setGasTokenAmount] = useState<number>(
+    toNativeToken * 100,
   );
 
   const routesWithQuotes = useMemo(() => {
@@ -133,6 +146,7 @@ const Routes = ({ ...props }: Props) => {
               onSelect={(r) => {
                 setHighlightedRoute(r);
               }}
+              onGasChange={(value: number) => setGasTokenAmount(value)}
               quote={quote}
             />
           );
@@ -300,12 +314,19 @@ const Routes = ({ ...props }: Props) => {
         }}
         onClick={() => {
           if (highlightedRoute) {
+            // Set the selected route
             props.onRouteChange(highlightedRoute);
+          }
+          // If there is a new gas drop off amount, update toNativeToken
+          if (gasTokenAmount !== toNativeToken) {
+            dispatch(setToNativeToken(gasTokenAmount));
           }
           setShowAll(false);
         }}
         disabled={
-          !!props.selectedRoute && props.selectedRoute === highlightedRoute
+          !!props.selectedRoute &&
+          props.selectedRoute === highlightedRoute &&
+          toNativeToken === gasTokenAmount / 100
         }
         data-testid="select-route-button"
         fullWidth
@@ -315,7 +336,7 @@ const Routes = ({ ...props }: Props) => {
         </Typography>
       </Button>
     ),
-    [props, highlightedRoute, mobile],
+    [props, highlightedRoute, mobile, gasTokenAmount, toNativeToken, dispatch],
   );
 
   // Done fetching and no routes are available.
