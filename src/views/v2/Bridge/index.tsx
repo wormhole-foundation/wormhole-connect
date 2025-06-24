@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
@@ -587,10 +586,6 @@ const Bridge = () => {
             gap={1}
             textTransform="none"
           >
-            <CircularProgress
-              size={16}
-              sx={{ color: theme.palette.primary.contrastText }}
-            />
             {mobile ? 'Preparing' : 'Preparing transaction'}
           </Typography>
         ) : !isTransactionInProgress && isFetchingQuotes ? (
@@ -600,7 +595,6 @@ const Bridge = () => {
             gap={1}
             textTransform="none"
           >
-            <CircularProgress color="secondary" size={16} />
             {mobile ? 'Refreshing' : 'Refreshing quote'}
           </Typography>
         ) : (
@@ -614,7 +608,6 @@ const Bridge = () => {
     confirmTransactionDisabled,
     styles.confirmTransaction,
     isTransactionInProgress,
-    theme.palette.primary.contrastText,
     mobile,
     isFetchingQuotes,
     onConfirm,
@@ -660,7 +653,7 @@ const Bridge = () => {
               dispatch(setTransferRoute(r));
             }}
             quotes={quotes}
-            isLoading={isFetchingQuotes || balances.isFetching}
+            isLoading={isFetchingQuotes}
           />
         )}
       </>
@@ -680,7 +673,6 @@ const Bridge = () => {
       route,
       quotes,
       isFetchingQuotes,
-      balances.isFetching,
       dispatch,
     ],
   );
