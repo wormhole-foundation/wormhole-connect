@@ -161,10 +161,6 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
             }
 
             if (altPrice !== undefined) {
-              console.debug(
-                `Using price from ${altToken.symbol} on ${altToken.chain} as fallback for ${token.symbol} on ${token.chain}`,
-              );
-
               // Cache the fallback price for the original token
               updatedPrices.add(token, {
                 timestamp,
@@ -302,7 +298,27 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
     (token: Token): number | undefined => {
       // Delegate to getTokenPrices for consistency
       const prices = getTokenPrices([token]);
-      return prices.get(token.key);
+      let price = prices.get(token.key);
+
+      // If price is not available and this is an NTT token, try fallback tokens
+      if (price === undefined && isNttToken(token)) {
+        const alternativeTokens = getNttTokenGroup(token);
+        if (alternativeTokens.length > 0) {
+          // Try to get prices for alternative tokens
+          const altPrices = getTokenPrices(alternativeTokens);
+
+          // Use the first available price from the same NTT group
+          for (const altToken of alternativeTokens) {
+            const altPrice = altPrices.get(altToken.key);
+            if (altPrice !== undefined) {
+              price = altPrice;
+              break;
+            }
+          }
+        }
+      }
+
+      return price;
     },
     [getTokenPrices],
   );
