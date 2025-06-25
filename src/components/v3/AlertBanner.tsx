@@ -1,6 +1,6 @@
 import React, { CSSProperties, useMemo } from 'react';
 import { Collapse, Typography, useTheme, SxProps, Box } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/ErrorOutline';
+import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 
 type Props = {
   show: boolean;
@@ -52,14 +52,8 @@ function AlertBanner(props: Props) {
         style={props.style || {}}
         data-testid={props.testId}
       >
-        {
-          <ErrorIcon
-            fontSize="small"
-            htmlColor={themeColor}
-            sx={{ paddingTop: '2px' }}
-          />
-        }
-        <Typography color={themeColor} fontSize={14}>
+        <ReportProblemOutlinedIcon fontSize="small" htmlColor={themeColor} />
+        <Typography color={themeColor} fontSize={14} fontWeight={700}>
           {props.content}
         </Typography>
       </Box>

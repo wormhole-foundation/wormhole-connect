@@ -25,10 +25,10 @@ import {
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 
-import AlertBannerV2 from 'components/v2/AlertBanner';
+import AlertBannerV2 from 'components/v3/AlertBanner';
 import PageHeader from 'components/PageHeader';
 import { Alignment } from 'components/Header';
-import Button from 'components/v2/Button';
+import Button from 'components/v3/Button';
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';

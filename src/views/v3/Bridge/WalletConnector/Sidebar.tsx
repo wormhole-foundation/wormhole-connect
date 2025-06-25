@@ -23,7 +23,7 @@ import config from 'config';
 import { RootState } from 'store';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 
-import AlertBannerV2 from 'components/v2/AlertBanner';
+import AlertBannerV2 from 'components/v3/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
 import WalletIcon from 'icons/WalletIcons';
 import { validateWalletAddress } from 'utils/address';

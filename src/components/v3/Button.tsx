@@ -3,7 +3,7 @@ import { default as MUIButton, ButtonProps } from '@mui/material/Button';
 
 const baseButtonStyles = {
   padding: '8px 16px',
-  borderRadius: '8px',
+  borderRadius: '48px',
   height: '48px',
   margin: 'auto',
   maxWidth: '420px',
@@ -15,7 +15,7 @@ type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
 
 /**
  * Custom Button component that extends MUI Button
- * @param variant:  Optional propoerty to specify the style variant of the button
+ * @param variant:  Optional property to specify the style variant of the button
  *                  Primary: The main CTA
  *
  */

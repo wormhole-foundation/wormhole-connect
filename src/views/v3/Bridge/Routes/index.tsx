@@ -17,7 +17,7 @@ import ClockIcon from 'icons/Clock';
 import CloseIcon from '@mui/icons-material/Close';
 import SingleRoute from 'views/v3/Bridge/Routes/SingleRoute';
 import { millisToHumanString } from 'utils';
-import Button from 'components/v2/Button';
+import Button from 'components/v3/Button';
 import { setToNativeToken } from 'store/relay';
 
 import type { RootState } from 'store';

@@ -17,7 +17,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import AlertBannerV2 from 'components/v2/AlertBanner';
+import AlertBannerV2 from 'components/v3/AlertBanner';
 import config, { getWormholeContextV2 } from 'config';
 import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';

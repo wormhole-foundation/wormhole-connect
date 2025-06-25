@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import Button from 'components/v2/Button';
+import Button from 'components/v3/Button';
 import { RootState } from 'store';
 import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
