@@ -1,7 +1,18 @@
-import React, { forwardRef } from 'react';
-import { default as MUIButton, ButtonProps } from '@mui/material/Button';
+import React, { forwardRef, useMemo, type Ref } from 'react';
+import {
+  Button as MUIButton,
+  type ButtonProps as MUIButtonProps,
+  type SxProps,
+  type Theme,
+} from '@mui/material';
 
-const baseButtonStyles = {
+type ButtonVariant = 'primary' | 'error' | 'default';
+
+interface CustomButtonProps extends Omit<MUIButtonProps, 'variant'> {
+  readonly variant?: ButtonVariant;
+}
+
+const BASE_BUTTON_STYLES: SxProps<Theme> = {
   padding: '8px 16px',
   borderRadius: '48px',
   height: '48px',
@@ -9,72 +20,91 @@ const baseButtonStyles = {
   maxWidth: '420px',
   width: '100%',
   boxShadow: 'none',
-};
+} as const;
 
-type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
+const PRIMARY_BUTTON_STYLES: SxProps<Theme> = {
+  backgroundColor: 'button.primary',
+  color: 'button.primaryText',
+  '&.Mui-disabled': {
+    backgroundColor: 'button.disabled',
+    color: 'button.disabledText',
+  },
+  '&:hover': {
+    boxShadow: 'none',
+    backgroundColor: 'button.hover',
+    '&:disabled': {
+      backgroundColor: 'button.disabled',
+      color: 'button.disabledText',
+    },
+  },
+  '&:active': {
+    boxShadow: 'none',
+    backgroundColor: 'button.action',
+    color: 'button.actionText',
+  },
+} as const;
+
+const ERROR_BUTTON_STYLES: SxProps<Theme> = {
+  backgroundColor: 'error.main',
+  color: 'error.contrastText',
+  '&:disabled': {
+    backgroundColor: 'error.main',
+    color: 'error.contrastText',
+    opacity: 0.4,
+  },
+} as const;
+
+// Style variants mapping
+const VARIANT_STYLES = {
+  primary: PRIMARY_BUTTON_STYLES,
+  error: ERROR_BUTTON_STYLES,
+} as const;
 
 /**
- * Custom Button component that extends MUI Button
- * @param variant:  Optional property to specify the style variant of the button
- *                  Primary: The main CTA
+ * Custom Button component that extends MUI Button with predefined variants
  *
+ * @param variant - The style variant of the button:
+ *   - 'primary': Main CTA button with primary colors
+ *   - 'error': Error state button with error colors
+ *   - 'default': Standard MUI button (fallback)
+ * @param sx - Additional style overrides
+ * @param rest - All other MUI Button props
+ * @param ref - Forwarded ref to the button element
+ *
+ * @returns A styled button component
  */
-const Button = forwardRef<HTMLButtonElement, Props>((props: Props, ref) => {
-  const { variant, sx, ...rest } = props;
+const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
+  ({ variant = 'default', sx, ...rest }, ref: Ref<HTMLButtonElement>) => {
+    const computedStyles = useMemo((): SxProps<Theme> => {
+      // Handle default variant separately
+      if (variant === 'default') {
+        return sx ?? {};
+      }
 
-  if (variant === 'primary') {
-    return (
-      <MUIButton
-        ref={ref}
-        variant="contained"
-        {...rest}
-        sx={{
-          ...baseButtonStyles,
-          backgroundColor: 'button.primary',
-          color: 'button.primaryText',
-          '&.Mui-disabled': {
-            backgroundColor: 'button.disabled',
-            color: 'button.disabledText',
-          },
-          '&:hover': {
-            boxShadow: 'none',
-            backgroundColor: 'button.hover',
-            '&:disabled': {
-              backgroundColor: 'button.disabled',
-              color: 'button.disabledText',
-            },
-          },
-          '&:active': {
-            boxShadow: 'none',
-            backgroundColor: 'button.action',
-            color: 'button.actionText',
-          },
-          ...sx,
-        }}
-      />
-    );
-  } else if (variant === 'error') {
-    return (
-      <MUIButton
-        ref={ref}
-        variant="contained"
-        {...rest}
-        sx={{
-          ...baseButtonStyles,
-          backgroundColor: 'error.main',
-          color: 'error.contrastText',
-          '&:disabled': {
-            backgroundColor: 'error.main',
-            color: 'error.contrastText',
-            opacity: 0.4,
-          },
-          ...sx,
-        }}
-      />
-    );
-  }
+      // Get variant styles (we know it exists for 'primary' and 'error')
+      const variantStyles =
+        VARIANT_STYLES[variant as keyof typeof VARIANT_STYLES];
 
-  return <MUIButton ref={ref} sx={sx} {...rest} />;
-});
+      // Type assertion to help TypeScript understand the filtered array is still valid SxProps
+      return [BASE_BUTTON_STYLES, variantStyles, sx].filter(
+        Boolean,
+      ) as SxProps<Theme>;
+    }, [variant, sx]);
+
+    // Determine MUI variant based on custom variant
+    const muiVariant = useMemo((): MUIButtonProps['variant'] => {
+      return variant === 'primary' || variant === 'error'
+        ? 'contained'
+        : 'text';
+    }, [variant]);
+
+    return (
+      <MUIButton ref={ref} variant={muiVariant} sx={computedStyles} {...rest} />
+    );
+  },
+);
+
+// Add display name for better debugging
+Button.displayName = 'Button';
 
 export default Button;
