@@ -1,40 +1,30 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
 
+const styles = {
+  swapButton: {
+    display: 'block',
+    position: 'absolute',
+    bottom: -44,
+    left: 'calc(50% - 20px)',
+    width: 40,
+    height: 40,
+    zIndex: 1,
+  },
+} as const;
+
 function SwapInputs() {
   const dispatch = useDispatch();
-  const theme: any = useTheme();
+  const [rotateAnimation, setRotateAnimation] = useState('');
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
-  );
-
-  const styles = useMemo(
-    () => ({
-      swapButton: {
-        display: 'flex',
-        position: 'absolute',
-        backgroundColor: theme.palette.input.background,
-        border: `4px solid ${theme.palette.background.form}`,
-        borderRadius: '8px',
-        left: 'calc(50% - 18px)',
-        top: 'calc(50% - 18px)',
-        width: 36,
-        height: 36,
-        zIndex: 1,
-        '&:disabled, &:hover': {
-          backgroundColor: theme.palette.input.background,
-        },
-      },
-    }),
-    [theme.palette.background.form, theme.palette.input.background],
   );
 
   const canSwap = !isTransactionInProgress && fromChain && toChain;
@@ -42,23 +32,41 @@ function SwapInputs() {
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;
 
+    setRotateAnimation((val) =>
+      val === 'spinRight' ? 'spinLeft' : 'spinRight',
+    );
+
     dispatch(swapInputs());
     dispatch(swapWallets());
     dispatch(setAmount(''));
   }, [canSwap, isTransactionInProgress, dispatch]);
 
   return (
-    <IconButton sx={styles.swapButton} onClick={swap} disabled={!canSwap}>
-      <ArrowDownwardIcon
-        sx={{
-          borderRadius: '8px',
-          fontSize: '14px',
-          stroke: canSwap
-            ? theme.palette.text.primary
-            : theme.palette.text.disabled,
-          strokeWidth: 2,
-        }}
-      />
+    <IconButton
+      sx={{
+        ...styles.swapButton,
+        animation: `${rotateAnimation} 0.3s linear 1`,
+        '@keyframes spinRight': {
+          '0%': {
+            transform: 'rotate(-180deg)',
+          },
+          '100%': {
+            transform: 'rotate(0deg)',
+          },
+        },
+        '@keyframes spinLeft': {
+          '0%': {
+            transform: 'rotate(180deg)',
+          },
+          '100%': {
+            transform: 'rotate(0deg)',
+          },
+        },
+      }}
+      onClick={swap}
+      disabled={!canSwap}
+    >
+      <SwapVertIcon />
     </IconButton>
   );
 }

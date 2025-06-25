@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { Stack, Typography, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -14,7 +14,6 @@ import { amount } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
-import { setToNativeToken } from 'store/relay';
 import { useTokens } from 'contexts/TokensContext';
 import Color from 'color';
 
@@ -23,15 +22,15 @@ const GasSlider = (props: {
   disabled: boolean;
   isExecutorRoute: boolean;
   isSelected: boolean;
+  onGasChange: (value: number) => void;
 }) => {
-  const dispatch = useDispatch();
   const theme = useTheme();
   const styles = useMemo(
     () => ({
       content: {
         width: '100%',
         cursor: 'pointer',
-        maxWidth: '420px',
+        maxWidth: '372px',
         overflow: 'visible',
         padding: '16px 20px',
       },
@@ -67,6 +66,18 @@ const GasSlider = (props: {
     [theme],
   );
 
+  const {
+    destinationGasDrop,
+    disabled,
+    isExecutorRoute,
+    isSelected,
+    onGasChange,
+  } = props;
+
+  const { toNativeToken } = useSelector((state: RootState) => ({
+    ...state.relay,
+  }));
+
   const { fromChain: sourceChain, toChain: destChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -76,34 +87,30 @@ const GasSlider = (props: {
   const destGasToken = config.tokens.getGasToken(destChain!);
   const sourceGasToken = config.tokens.getGasToken(sourceChain!);
 
-  const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
-  const [percentage, setPercentage] = useState(0);
+  const [isGasSliderOpen, setIsGasSliderOpen] = useState(
+    isSelected && destinationGasDrop.amount !== '0',
+  );
+  const [percentage, setPercentage] = useState(toNativeToken * 100);
 
   useEffect(() => {
-    if (!props.isSelected) {
+    if (!isSelected) {
       // When Route is not selected ensure that the gas slider is closed
       // and the percentage is set to 0.
       setIsGasSliderOpen(false);
       setPercentage(0);
     }
-  }, [dispatch, props.isSelected]);
-
-  useEffect(() => {
-    dispatch(setToNativeToken(percentage / 100));
-  }, [percentage, dispatch]);
+  }, [isSelected]);
 
   const nativeGasPrice = useMemo(() => {
     if (!destChain || !destGasToken) {
       return null;
     }
 
-    const tokenAmount = amount.display(
-      amount.truncate(props.destinationGasDrop, 6),
-    );
+    const tokenAmount = amount.display(amount.truncate(destinationGasDrop, 6));
 
     const tokenPrice = calculateUSDPrice(
       getTokenPrice,
-      props.destinationGasDrop,
+      destinationGasDrop,
       destGasToken,
     );
     const tokenPriceWithParanthesis = tokenPrice ? `(${tokenPrice})` : '';
@@ -111,7 +118,7 @@ const GasSlider = (props: {
     return `+${tokenAmount} ${destGasToken.symbol} ${tokenPriceWithParanthesis}`;
     // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destGasToken, lastTokenPriceUpdate, props.destinationGasDrop, destChain]);
+  }, [destGasToken, lastTokenPriceUpdate, destinationGasDrop, destChain]);
 
   const percentSelection = useMemo(
     () => (
@@ -124,8 +131,10 @@ const GasSlider = (props: {
           if (newPercentValue === percentage) {
             // Unselect if user clicks on the same value
             setPercentage(0);
+            onGasChange(0);
           } else {
             setPercentage(newPercentValue);
+            onGasChange(newPercentValue / 100);
           }
         }}
       >
@@ -140,7 +149,7 @@ const GasSlider = (props: {
         </ToggleButton>
       </ToggleButtonGroup>
     ),
-    [styles.toggleButton, percentage],
+    [percentage, styles.toggleButton, onGasChange],
   );
 
   // Checking required values
@@ -168,7 +177,7 @@ const GasSlider = (props: {
             },
           }}
           checked={isGasSliderOpen}
-          disabled={props.disabled}
+          disabled={disabled}
           onClick={(e: any) => {
             const { checked } = e.target;
 
@@ -176,10 +185,12 @@ const GasSlider = (props: {
 
             if (!checked) {
               setPercentage(0);
-            } else if (props.isExecutorRoute) {
+              onGasChange(0);
+            } else if (isExecutorRoute) {
               // Gas slider becomes a binary switch for executor routes
               // If turned on, gas top-up is set to 100%
               setPercentage(100);
+              onGasChange(1);
             }
           }}
         />
@@ -187,7 +198,7 @@ const GasSlider = (props: {
       <Collapse in={isGasSliderOpen} unmountOnExit>
         <Box sx={styles.container}>
           <Stack>
-            {!props.isExecutorRoute && percentSelection}
+            {!isExecutorRoute && percentSelection}
             <Box sx={styles.amounts}>
               <Stack alignItems="center" flexDirection="row">
                 <Typography
@@ -199,7 +210,7 @@ const GasSlider = (props: {
                 </Typography>
                 <Tooltip
                   title={
-                    props.isExecutorRoute
+                    isExecutorRoute
                       ? `Add a small amount of ${sourceGasToken.symbol} to your transaction to receive ${nativeGasPrice} on ${destChain}.`
                       : 'This additional gas is swapped from a percentage of your transfer amount.'
                   }

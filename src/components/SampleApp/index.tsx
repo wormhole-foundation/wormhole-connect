@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 
 import WormholeConnect from '../../WormholeConnect';
+import config from 'config';
 import { WormholeConnectConfig } from 'config/types';
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
 
@@ -390,6 +391,12 @@ function SampleApp() {
                       <pre>input</pre>
                       <i>string;</i>
                     </li>
+                    {config.ui?.experimental?.enableUIRefreshV3 && (
+                      <li>
+                        <pre>inputFillTreatment</pre>
+                        <i>boolean;</i>
+                      </li>
+                    )}
                     <li>
                       <pre>primary</pre>
                       <i>string;</i>

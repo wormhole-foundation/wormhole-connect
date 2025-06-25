@@ -7,18 +7,27 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
+import InputAdornment from '@mui/material/InputAdornment';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import Typography from '@mui/material/Typography';
+import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import Box from '@mui/material/Box';
 
+import AlertBannerV2 from 'components/v2/AlertBanner';
+import { setAmount } from 'store/transferInput';
 import { Token } from 'config/tokens';
 import type { RootState } from 'store';
+import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
+import { useTokens } from 'contexts/TokensContext';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -84,42 +93,58 @@ const DebouncedTextField = memo(
 );
 
 type Props = {
-  value: string;
-  debauncedValue: string;
+  sourceChain?: Chain;
   supportedSourceTokens: Array<Token>;
   tokenBalance: sdkAmount.Amount | null;
-  receiveAmount?: number | undefined;
+  isFetchingTokenBalance: boolean;
   error?: string;
   warning?: string;
-  onChange: (value: string) => void;
-  onDebouncedChange: (value: string) => void;
 };
 
 /**
  * Renders the input control to set the transaction amount
  */
 const AmountInput = (props: Props) => {
+  const dispatch = useDispatch();
   const theme = useTheme();
 
   const styles = useMemo(
     () => ({
       amountContainer: {
         width: '100%',
-        maxWidth: '250px',
+        maxWidth: '420px',
       },
       amountInput: {
-        background: theme.palette.input.background,
         borderRadius: '8px',
-        border: 'none',
+        background: theme.palette.input.fillTreatment
+          ? 'transparent'
+          : theme.palette.input.background,
+        border: theme.palette.input.fillTreatment
+          ? `1px solid ${theme.palette.input.border}`
+          : 'none',
+      },
+      amountInputEmpty: {
+        background: theme.palette.input.background,
+        borderColor: theme.palette.input.background,
       },
       amountCardContent: {
         display: 'flex',
         alignItems: 'center',
-        height: '50px',
-        padding: 0,
+        height: '72px',
+        padding: '12px 20px',
         ':last-child': {
-          padding: 0,
+          padding: '12px 20px',
         },
+      },
+      amountTitle: {
+        color: theme.palette.text.secondary,
+        display: 'flex',
+        minHeight: '40px',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      inputError: {
+        marginTop: '12px',
       },
       balance: {
         color: theme.palette.text.secondary,
@@ -131,60 +156,208 @@ const AmountInput = (props: Props) => {
     [theme],
   );
 
-  const {
-    fromChain: sourceChain,
-    toChain: destChain,
-    isTransactionInProgress,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { sending: sendingWallet } = useSelector(
+    (state: RootState) => state.wallet,
+  );
+  const { amount } = useSelector((state: RootState) => state.transferInput);
 
-  const { sourceToken, destToken } = useGetTokens();
+  const [amountInput, setAmountInput] = useState(
+    amount ? sdkAmount.display(amount) : '',
+  );
+  const [debouncedAmountInput, setDebouncedAmountInput] = useState(
+    amount ? sdkAmount.display(amount) : '',
+  );
+
+  const { fromChain: sourceChain, isTransactionInProgress } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
+  const { sourceToken } = useGetTokens();
+
+  const { getTokenPrice } = useTokens();
+
+  // Clear the amount input value if the amount is reset outside of this component
+  // This can happen if user swaps selected source and destination assets.
+  useEffect(() => {
+    if (!amount && (amountInput || debouncedAmountInput)) {
+      handleChange('');
+      handleDebouncedChange('');
+    }
+    // We should run this sife-effect only when the amount changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount]);
 
   const isInputDisabled = useMemo(
-    () =>
-      isTransactionInProgress ||
-      !sourceChain ||
-      !sourceToken ||
-      !destChain ||
-      !destToken,
-    [destChain, destToken, isTransactionInProgress, sourceChain, sourceToken],
+    () => isTransactionInProgress || !sourceChain || !sourceToken,
+    [isTransactionInProgress, sourceChain, sourceToken],
   );
+
+  const balance = useMemo(() => {
+    if (isInputDisabled || !sendingWallet.address) {
+      return null;
+    }
+
+    return (
+      <Stack direction="row" alignItems="center">
+        <Typography
+          component="span"
+          sx={{ ...styles.balance, marginRight: '4px' }}
+        >
+          Balance:
+        </Typography>
+        {props.isFetchingTokenBalance ? (
+          <CircularProgress size={14} />
+        ) : (
+          <Typography fontSize={14} textAlign="right" sx={styles.balance}>
+            {props.tokenBalance
+              ? sdkAmount.display(sdkAmount.truncate(props.tokenBalance, 6))
+              : '0'}
+          </Typography>
+        )}
+      </Stack>
+    );
+  }, [
+    isInputDisabled,
+    sendingWallet.address,
+    styles.balance,
+    props.isFetchingTokenBalance,
+    props.tokenBalance,
+  ]);
+
+  const handleChange = useCallback((newValue: string): void => {
+    setAmountInput(newValue);
+  }, []);
+
+  const tokenPriceAdornment = useMemo(() => {
+    const price = calculateUSDPrice(
+      getTokenPrice,
+      Number(amountInput === '.' ? '0.' : amountInput),
+      sourceToken,
+    );
+
+    if (!price) {
+      return null;
+    }
+
+    return (
+      <InputAdornment
+        position="end"
+        sx={{
+          position: 'absolute',
+          top: '38px',
+          margin: 0,
+        }}
+      >
+        <Stack alignItems="start">
+          <Typography
+            color={theme.palette.text.secondary}
+            component="span"
+            fontSize="14px"
+            lineHeight="14px"
+          >
+            {price}
+          </Typography>
+        </Stack>
+      </InputAdornment>
+    );
+  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
+
+  const handleDebouncedChange = useCallback(
+    (newValue: string): void => {
+      dispatch(setAmount(newValue));
+      setDebouncedAmountInput(newValue);
+    },
+    [dispatch],
+  );
+
+  const maxButton = useMemo(() => {
+    const maxButtonDisabled =
+      isInputDisabled || !sendingWallet.address || !props.tokenBalance;
+    return (
+      <Button
+        sx={{ minWidth: '32px', padding: '4px' }}
+        disabled={maxButtonDisabled}
+        onClick={() => {
+          if (props.tokenBalance) {
+            const tokenBalance = sdkAmount.display(props.tokenBalance);
+            handleChange(tokenBalance);
+            handleDebouncedChange(tokenBalance);
+          }
+        }}
+      >
+        <Typography
+          fontSize={14}
+          fontWeight={maxButtonDisabled ? 400 : 600}
+          textTransform="none"
+        >
+          Max
+        </Typography>
+      </Button>
+    );
+  }, [
+    isInputDisabled,
+    sendingWallet.address,
+    props.tokenBalance,
+    handleChange,
+    handleDebouncedChange,
+  ]);
 
   return (
     <Box sx={styles.amountContainer}>
-      <Card sx={styles.amountInput}>
+      <Box sx={styles.amountTitle}>
+        <Typography variant="body2">Amount</Typography>
+      </Box>
+      <Card
+        sx={[styles.amountInput, amountInput === '' && styles.amountInputEmpty]}
+      >
         <CardContent sx={styles.amountCardContent}>
           <DebouncedTextField
             fullWidth
             disabled={isInputDisabled}
-            placeholder="0"
-            slotProps={{
-              htmlInput: {
-                style: {
-                  color: props.error
-                    ? theme.palette.error.main
-                    : theme.palette.text.primary,
-                  fontSize: '36px',
-                  height: '36px',
-                },
-                onWheel: (e) => {
-                  // IMPORTANT: We need to prevent the scroll behavior on number inputs.
-                  // Otherwise it'll increase/decrease the value when user scrolls on the input control.
-                  // See for details: https://github.com/mui/material-ui/issues/7960
-                  e.currentTarget.blur();
-                },
-                step: '0.1',
+            inputProps={{
+              style: {
+                color: props.error
+                  ? theme.palette.error.main
+                  : theme.palette.text.primary,
+                fontSize: 24,
+                height: '28px',
+                marginBottom: tokenPriceAdornment ? '16px' : 0, // make sure there is enough space for token price
               },
-              input: {
-                disableUnderline: true,
+              onWheel: (e) => {
+                // IMPORTANT: We need to prevent the scroll behavior on number inputs.
+                // Otherwise it'll increase/decrease the value when user scrolls on the input control.
+                // See for details: https://github.com/mui/material-ui/issues/7960
+                e.currentTarget.blur();
               },
+              step: '0.1',
             }}
+            placeholder="0"
             variant="standard"
-            value={props.debauncedValue}
-            onChange={props.onChange}
-            onDebouncedChange={props.onDebouncedChange}
+            value={debouncedAmountInput}
+            onChange={handleChange}
+            onDebouncedChange={handleDebouncedChange}
+            InputProps={{
+              disableUnderline: true,
+              startAdornment: tokenPriceAdornment,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Stack alignItems="end" justifyContent="space-between">
+                    {maxButton}
+                    {balance}
+                  </Stack>
+                </InputAdornment>
+              ),
+            }}
           />
         </CardContent>
       </Card>
+      <AlertBannerV2
+        error={!!props.error}
+        content={props.error || props.warning}
+        show={!!props.error || !!props.warning}
+        color={props.error ? theme.palette.error.main : theme.palette.grey.A400}
+        sx={styles.inputError}
+      />
     </Box>
   );
 };

@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
@@ -19,6 +25,8 @@ import { useExternalSearch } from 'hooks/useExternalSearch';
 
 import BridgeV2 from 'views/v2/Bridge';
 import RedeemV2 from 'views/v2/Redeem';
+import TxHistory from 'views/v2/TxHistory';
+import BridgeV3 from 'views/v3/Bridge';
 import { RouteContext } from 'contexts/RouteContext';
 import SvgDefs from 'icons/SvgDefs';
 import { Box } from '@mui/material';
@@ -54,6 +62,15 @@ const AppRouterContent: React.FC = () => {
     }
   }, [hasExternalSearch, dispatch]);
 
+  // TODO: Deprecate with UI refresh v3
+  const bridgeView = useMemo(() => {
+    return config.ui.experimental?.enableUIRefreshV3 ? (
+      <BridgeV3 />
+    ) : (
+      <BridgeV2 />
+    );
+  }, [config.ui.experimental?.enableUIRefreshV3]);
+
   return (
     <Box
       sx={{
@@ -71,9 +88,10 @@ const AppRouterContent: React.FC = () => {
       }}
     >
       <SvgDefs />
-      {route === 'bridge' && <BridgeV2 />}
+      {route === 'bridge' && bridgeView}
       {route === 'redeem' && <RedeemV2 />}
       {route === 'search' && <TxSearch />}
+      {route === 'history' && <TxHistory />}
       {route === 'terms' && <Terms />}
     </Box>
   );

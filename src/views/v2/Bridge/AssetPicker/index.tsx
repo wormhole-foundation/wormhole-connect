@@ -1,9 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Box, Stack, TextField, useMediaQuery } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Backdrop from '@mui/material/Backdrop';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Popover from '@mui/material/Popover';
@@ -14,25 +12,20 @@ import {
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
-import { Chain, routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import DownIcon from '@mui/icons-material/ExpandMore';
+import UpIcon from '@mui/icons-material/ExpandLess';
+import { Chain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
-import type { RootState } from 'store';
 import type { WalletData } from 'store/wallet';
-import { isDisabledChain, setAmount } from 'store/transferInput';
+import { isDisabledChain } from 'store/transferInput';
 import { Balances } from 'utils/wallet/types';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
-import { TransferWallet } from 'utils/wallet';
-import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
-import AmountInput from '../AmountInput';
-import { AmountValidationResult } from 'hooks/useAmountValidation';
-import { OPACITY } from 'utils/style';
-import Color from 'color';
 
 type Props = {
   chain?: Chain | undefined;
@@ -40,8 +33,7 @@ type Props = {
   token?: Token;
   sourceToken?: Token;
   tokenList?: Array<Token> | undefined;
-  isFetchingQuotes?: boolean;
-  isFetchingTokens?: boolean;
+  isFetching?: boolean;
   setToken: (value: Token) => void;
   setChain: (value: Chain) => void;
   wallet: WalletData;
@@ -51,26 +43,14 @@ type Props = {
   balances: Balances;
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
-  amountValidation?: AmountValidationResult;
-  quote?: routes.Quote<routes.Options> | undefined;
-  anchorEl: HTMLElement | null;
 };
 
 const AssetPicker = (props: Props) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { amount } = useSelector((state: RootState) => state.transferInput);
-
   const [showChainSearch, setShowChainSearch] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [amountInput, setAmountInput] = useState(
-    amount ? sdkAmount.display(amount) : '',
-  );
-  const [debouncedAmountInput, setDebouncedAmountInput] = useState(
-    amount ? sdkAmount.display(amount) : '',
-  );
 
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
@@ -87,13 +67,6 @@ const AssetPicker = (props: Props) => {
     variant: 'popover',
     popupId: 'asset-picker',
   });
-
-  const tokenBalance = useMemo(() => {
-    if (props.isSource && props.balances && props.token) {
-      return props.balances[props.token.key]?.balance;
-    }
-    return null;
-  }, [props.isSource, props.balances, props.token]);
 
   // Side-effect to reset chain search visibility.
   // Popover and drawer close has an animation, which requires to wait
@@ -130,14 +103,27 @@ const AssetPicker = (props: Props) => {
   }, [props.chain]);
 
   const selection = useMemo(() => {
-    const tokenDisplay = props.token ? <>{props.token.display}</> : <>Select</>;
+    if (!chainConfig && !props.token) {
+      return (
+        <Typography component={'div'} fontSize={16}>
+          Select chain and token
+        </Typography>
+      );
+    }
+
+    const tokenDisplay = props.token ? (
+      <>{props.token.display}</>
+    ) : (
+      <>Select token</>
+    );
 
     return (
       <div>
         <Typography
           component={'div'}
+          maxWidth={300}
           fontSize={16}
-          fontWeight={500}
+          fontWeight={700}
           sx={{
             display: 'flex',
             overflow: 'hidden',
@@ -147,49 +133,42 @@ const AssetPicker = (props: Props) => {
         >
           {tokenDisplay}
         </Typography>
+        <Typography component={'div'} fontSize={12} sx={{ opacity: 0.6 }}>
+          {chainConfig?.displayName}
+        </Typography>
       </div>
     );
-  }, [props.token]);
+  }, [chainConfig, props.token]);
 
   const triggerProps =
     props.isTransactionInProgress || mobile ? {} : bindTrigger(popupState);
 
   const styles = useMemo(
     () => ({
-      root: {
-        width: '420px',
-        background: theme.palette.input.background,
-        borderRadius: '8px',
-        padding: '16px',
-      },
-      container: {
-        display: 'flex',
-        flexDirection: 'column',
-        height: '114px',
-        maxWidth: '452px',
-        gap: '16px',
-      },
-      title: {
-        color: theme.palette.text.secondary,
-        display: 'flex',
-        height: '12px',
-        justifyContent: 'space-between',
-      },
-      selector: {
-        height: '50px',
-        width: '138px',
+      inputArea: {
+        width: '100%',
         cursor: 'pointer',
-        borderRadius: '50px',
-        border: `1px solid ${theme.palette.input.border}`,
-        background: Color(theme.palette.input.background).darken(0.2).hex(),
+        maxWidth: '420px',
+        borderRadius: '8px',
+        background: theme.palette.input.fillTreatment
+          ? 'transparent'
+          : theme.palette.input.background,
+        border: theme.palette.input.fillTreatment
+          ? `1px solid ${theme.palette.input.border}`
+          : 'none',
+      },
+      inputAreaEmpty: {
+        borderColor: theme.palette.input.background,
+        background: theme.palette.input.background,
       },
       cardContent: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '6px',
+        height: '72px',
+        padding: '16px 20px',
         ':last-child': {
-          padding: '6px',
+          padding: '16px 20px',
         },
       },
       chainSelector: {
@@ -202,9 +181,14 @@ const AssetPicker = (props: Props) => {
         cursor: 'default',
         pointerEvents: 'none',
       },
+      popover: {
+        marginLeft: '-1px',
+        marginTop: '-1px',
+        width: '422px',
+      },
       popoverSlot: {
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '422px',
         borderRadius: '8px',
         background: theme.palette.input.background,
       },
@@ -217,239 +201,53 @@ const AssetPicker = (props: Props) => {
         height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
         maxWidth: '100vw', // Force full-width on small mobile devices
       },
-      percentButton: {
-        borderRadius: '50px',
-        color: theme.palette.text.primary,
-        height: '24px',
-        minWidth: '40px',
-        backgroundColor: theme.palette.text.primary + OPACITY[10],
-        opacity: 0.7,
-      },
     }),
     [theme],
   );
 
-  const receiveAmount = useMemo(() => {
-    // If the amount input is empty, we don't need to check the quote which may be for the previous amount
-    if (!amount || amount.amount === '' || amount.amount === '0') {
-      return 0;
-    }
-    return props.quote
-      ? sdkAmount.whole(props.quote?.destinationToken.amount)
-      : undefined;
-  }, [amount, props.quote]);
-
-  const balance = useMemo(() => {
-    if (!props.isSource || !props.wallet.address) {
-      return null;
-    }
-
-    return (
-      <Typography color={theme.palette.text.secondary} variant="body2">
-        {tokenBalance
-          ? sdkAmount.display(sdkAmount.truncate(tokenBalance, 6))
-          : '0'}
-      </Typography>
-    );
-  }, [
-    props.isSource,
-    props.wallet.address,
-    tokenBalance,
-    theme.palette.text.secondary,
-  ]);
-
-  const handleAmountChange = useCallback((newValue: string): void => {
-    setAmountInput(newValue);
-  }, []);
-
-  const handleDebouncedAmountChange = useCallback(
-    (newValue: string): void => {
-      dispatch(setAmount(newValue));
-      setDebouncedAmountInput(newValue);
-    },
-    [dispatch],
-  );
-
-  // Clear the amount input value if the amount is reset outside of this component
-  // This can happen if user swaps selected source and destination assets.
-  useEffect(() => {
-    if (!amount && (amountInput || debouncedAmountInput)) {
-      handleAmountChange('');
-      handleDebouncedAmountChange('');
-    }
-    // We should run this sife-effect only when the amount changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount]);
-
-  const renderPercentButton = useCallback(
-    (percent: number) => (
-      <Button
-        sx={styles.percentButton}
-        disabled={props.isTransactionInProgress}
-        onClick={() => {
-          if (tokenBalance) {
-            const balancePercent =
-              (sdkAmount.units(tokenBalance) * BigInt(percent)) / BigInt(100);
-            const displayAmount = sdkAmount.display(
-              sdkAmount.fromBaseUnits(balancePercent, tokenBalance.decimals),
-            );
-            handleAmountChange(displayAmount);
-            handleDebouncedAmountChange(displayAmount);
+  return (
+    <>
+      <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
+      <Card
+        sx={[
+          styles.inputArea,
+          !chainConfig && styles.inputAreaEmpty,
+          props.isTransactionInProgress && styles.disabled,
+        ]}
+        data-testid={props.dataTestId}
+        variant="elevation"
+        onMouseDown={(e) => {
+          if (mobile) {
+            setIsDrawerOpen(true);
+          } else {
+            popupState.open(e);
           }
         }}
+        onTouchEnd={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (mobile) {
+            setIsDrawerOpen(true);
+          } else {
+            popupState.open(e);
+          }
+        }}
+        {...triggerProps}
       >
-        <Typography fontSize={12} fontWeight={500} textTransform="none">
-          {percent === 100 ? 'Max' : `${percent}%`}
-        </Typography>
-      </Button>
-    ),
-    [
-      handleAmountChange,
-      handleDebouncedAmountChange,
-      props.isTransactionInProgress,
-      tokenBalance,
-      styles.percentButton,
-    ],
-  );
-
-  const percentButtons = useMemo(() => {
-    if (!props.wallet.address || !tokenBalance) {
-      return null;
-    }
-
-    return (
-      <Box sx={{ display: 'flex', gap: '6px' }}>
-        {renderPercentButton(25)}
-        {renderPercentButton(50)}
-        {renderPercentButton(100)}
-      </Box>
-    );
-  }, [props.wallet.address, tokenBalance, renderPercentButton]);
-
-  return (
-    <Box sx={styles.root}>
-      <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
-      <Box sx={styles.container}>
-        <Box sx={styles.title}>
-          <Typography fontSize={12} variant="body2">
-            {props.isSource ? 'From' : 'To'}
+        <CardContent sx={styles.cardContent}>
+          <Typography sx={styles.chainSelector} component={'div'} gap={1}>
+            <AssetBadge chainConfig={chainConfig} token={props.token} />
+            {selection}
           </Typography>
-          <WalletController
-            type={
-              props.isSource ? TransferWallet.SENDING : TransferWallet.RECEIVING
-            }
-          />
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginTop: props.isSource ? '0' : '16px',
-          }}
-        >
-          {props.isSource ? (
-            <AmountInput
-              value={amountInput}
-              debauncedValue={debouncedAmountInput}
-              receiveAmount={receiveAmount}
-              supportedSourceTokens={props.tokenList || []}
-              tokenBalance={
-                props.token ? props.balances[props.token.key]?.balance : null
-              }
-              warning={props.amountValidation?.warning}
-              error={props.amountValidation?.error}
-              onChange={handleAmountChange}
-              onDebouncedChange={handleDebouncedAmountChange}
-            />
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                alignContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                maxWidth: '250px',
-                height: '50px',
-              }}
-            >
-              <TextField
-                fullWidth
-                disabled
-                placeholder="0"
-                slotProps={{
-                  htmlInput: {
-                    style: {
-                      fontSize: '36px',
-                      height: '36px',
-                    },
-                  },
-                  input: {
-                    disableUnderline: true,
-                  },
-                }}
-                variant="standard"
-                value={receiveAmount}
-              />
-            </Box>
-          )}
-          <Card
-            sx={[
-              styles.selector,
-              props.isTransactionInProgress && styles.disabled,
-            ]}
-            data-testid={props.dataTestId}
-            variant="elevation"
-            onMouseDown={(e) => {
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            {...triggerProps}
-          >
-            <CardContent sx={styles.cardContent}>
-              <Typography sx={styles.chainSelector} component={'div'} gap={1}>
-                <AssetBadge chainConfig={chainConfig} token={props.token} />
-                {selection}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        {props.isSource && (
-          <Box
-            sx={{
-              height: '24px',
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Box>{balance}</Box>
-            <Box>{percentButtons}</Box>
-          </Box>
-        )}
-      </Box>
+          {popupState.isOpen || isDrawerOpen ? <UpIcon /> : <DownIcon />}
+        </CardContent>
+      </Card>
       {mobile ? (
         <SwipeableDrawer
           anchor="bottom"
           open={isDrawerOpen}
-          slotProps={{
-            paper: {
-              sx: styles.drawer,
-            },
+          PaperProps={{
+            sx: styles.drawer,
           }}
           transitionDuration={200}
           onOpen={() => setIsDrawerOpen(true)}
@@ -481,8 +279,8 @@ const AssetPicker = (props: Props) => {
               tokenList={sortedTokens}
               balances={props.balances}
               isFetchingBalances={props.isFetchingBalances}
+              isFetching={props.isFetching}
               isConnectingWallet={props.isConnectingWallet}
-              isFetching={props.isFetchingTokens}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
@@ -501,11 +299,11 @@ const AssetPicker = (props: Props) => {
         <Popover
           {...bindPopover(popupState)}
           transitionDuration={200}
-          anchorEl={props.anchorEl}
           anchorOrigin={{
             vertical: 'top',
             horizontal: 'center',
           }}
+          sx={styles.popover}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'center',
@@ -531,10 +329,10 @@ const AssetPicker = (props: Props) => {
           {!showChainSearch && chainConfig && (
             <TokenList
               tokenList={sortedTokens}
+              isFetching={props.isFetching}
               balances={props.balances}
               isFetchingBalances={props.isFetchingBalances}
               isConnectingWallet={props.isConnectingWallet}
-              isFetching={props.isFetchingTokens}
               selectedChainConfig={chainConfig}
               selectedToken={props.token}
               sourceToken={props.sourceToken}
@@ -550,7 +348,7 @@ const AssetPicker = (props: Props) => {
           )}
         </Popover>
       )}
-    </Box>
+    </>
   );
 };
 

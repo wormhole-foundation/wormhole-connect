@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
 import HistoryIcon from '@mui/icons-material/History';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 
@@ -18,14 +19,17 @@ import PageHeader from 'components/PageHeader';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
+import { Token } from 'config/tokens';
+import { useTokens } from 'contexts/TokensContext';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';
 import { useAmountValidation } from 'hooks/useAmountValidation';
 import useConfirmTransaction from 'hooks/useConfirmTransaction';
+import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
-import { setRoute as setAppRoute } from 'store/router';
 import {
   selectFromChain,
   selectToChain,
@@ -36,37 +40,31 @@ import {
   clearDestToken,
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
+import { OPACITY } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
-import WalletConnector from 'views/v2/Bridge/WalletConnector';
-import AssetPicker from 'views/v2/Bridge/AssetPicker';
-import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
-import AmountInput from 'views/v2/Bridge/AmountInput';
-import Routes from 'views/v2/Bridge/Routes';
-import SwapInputs from 'views/v2/Bridge/SwapInputs';
-import TxHistoryWidget from 'views/v2/TxHistory/Widget';
-
-import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
-import { useGetTokens } from 'hooks/useGetTokens';
-import { Token } from 'config/tokens';
-
-import { useTokens } from 'contexts/TokensContext';
+import WalletConnector from 'views/v3/Bridge/WalletConnector';
+import AssetPicker from 'views/v3/Bridge/AssetPicker';
+import Routes from 'views/v3/Bridge/Routes';
+import SwapInputs from 'views/v3/Bridge/SwapInputs';
+import TxHistoryWidget from 'views/v3/TxHistory/Widget';
+import TxHistory from '../TxHistory';
 
 const Bridge = () => {
-  const theme = useTheme();
+  const theme: any = useTheme();
   const dispatch = useDispatch();
+
+  const [showHistory, setShowHistory] = useState(false);
 
   const { lastTokenCacheUpdate } = useTokens();
   const [errorCopied, setErrorCopied] = useState(false);
 
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const popoverAnchorRef = useRef<HTMLElement>(null);
+
   const styles = useMemo(
     () => ({
-      assetPickerContainer: {
-        width: '100%',
-        position: 'relative',
-      },
       assetPickerTitle: {
         color: theme.palette.text.secondary,
         display: 'flex',
@@ -76,13 +74,14 @@ const Bridge = () => {
       },
       bridgeContent: {
         margin: 'auto',
-        maxWidth: '420px',
+        maxWidth: '452px',
       },
       bridgeHeader: {
         width: '100%',
         minHeight: '28px',
         display: 'flex',
         alignItems: 'center',
+        padding: '20px 0',
       },
       doneIcon: {
         fontSize: '14px',
@@ -90,7 +89,6 @@ const Bridge = () => {
       },
       confirmTransaction: {
         padding: '8px 16px',
-        borderRadius: '8px',
         height: '48px',
         margin: 'auto',
         maxWidth: '420px',
@@ -100,19 +98,32 @@ const Bridge = () => {
         fontSize: '14px',
       },
       ctaContainer: {
-        marginTop: '8px',
         width: '100%',
       },
-      spacer: {
+      formContent: {
+        backgroundColor: theme.palette.background.form + OPACITY[30],
+        borderRadius: '8px',
+        padding: '20px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
+        width: '452px',
+        gap: '16px',
+      },
+      formContentMobile: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+      },
+      titleContent: {
+        width: mobile ? '420px' : '452px',
       },
     }),
-    [theme],
+    [
+      mobile,
+      theme.palette.background.form,
+      theme.palette.success.main,
+      theme.palette.text.secondary,
+    ],
   );
 
   // --- pipeline state gathering ---
@@ -203,8 +214,6 @@ const Bridge = () => {
     }
   }, [preferredRouteName, route, sortedRoutesWithQuotes, dispatch]);
 
-  // Pre-fetch available routes
-
   // Connect to any previously used wallets for the selected networks
   const { isConnecting: isConnectingWallet } = useConnectToLastUsedWallet(
     sourceChain,
@@ -213,8 +222,6 @@ const Bridge = () => {
 
   // Call to initiate transfer inputs validations
   useValidate();
-
-  //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
 
   // Get input validation result
   const isValid = useMemo(() => isTransferValid(validations), [validations]);
@@ -276,7 +283,7 @@ const Bridge = () => {
       };
     }
     return undefined;
-  }, [destChain, receivingWallet, supportedDestTokens]);
+  }, [destChain, receivingWallet]);
 
   const balances = useGetTokenBalances({
     source: sourceBalanceRequest,
@@ -316,11 +323,7 @@ const Bridge = () => {
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
     return (
-      <Box sx={styles.assetPickerContainer}>
-        <Box sx={styles.assetPickerTitle}>
-          <Typography variant="body2">From</Typography>
-          <WalletController type={TransferWallet.SENDING} />
-        </Box>
+      <Box ref={popoverAnchorRef}>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -340,71 +343,70 @@ const Bridge = () => {
           isConnectingWallet={isConnectingWallet}
           balances={balances.source.balances}
           isFetchingBalances={balances.isFetching}
+          anchorEl={popoverAnchorRef.current}
+          amountValidation={amountValidation}
         />
-        <SwapInputs />
       </Box>
     );
   }, [
-    styles.assetPickerContainer,
-    styles.assetPickerTitle,
     sourceChain,
     supportedSourceChains,
     sourceToken,
     sourceTokens,
+    sendingWallet,
     isTransactionInProgress,
     isConnectingWallet,
-    sendingWallet,
-    dispatch,
-    balances.source,
+    balances.source.balances,
     balances.isFetching,
+    amountValidation,
+    dispatch,
   ]);
 
   // Asset picker for the destination network and token
   const destAssetPicker = useMemo(() => {
+    const quoteResult = quotes && route ? quotes[route] : undefined;
     return (
-      <Box sx={styles.assetPickerContainer}>
-        <Box sx={styles.assetPickerTitle}>
-          <Typography variant="body2">To</Typography>
-          <WalletController type={TransferWallet.RECEIVING} />
-        </Box>
-        <AssetPicker
-          chain={destChain}
-          chainList={supportedDestChains}
-          token={destToken}
-          sourceToken={sourceToken}
-          tokenList={supportedDestTokens}
-          isFetching={
-            supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
-          }
-          setChain={(value: Chain) => {
-            selectToChain(dispatch, value, receivingWallet);
-            dispatch(clearDestToken());
-          }}
-          setToken={(value: Token) => {
-            dispatch(setDestToken(value.tuple));
-          }}
-          wallet={receivingWallet}
-          isSource={false}
-          isTransactionInProgress={isTransactionInProgress}
-          dataTestId="dest-asset-picker"
-          isConnectingWallet={isConnectingWallet}
-          balances={balances.destination.balances}
-          isFetchingBalances={balances.isFetching}
-        />
-      </Box>
+      <AssetPicker
+        chain={destChain}
+        chainList={supportedDestChains}
+        token={destToken}
+        sourceToken={sourceToken}
+        tokenList={supportedDestTokens}
+        isFetchingQuotes={isFetchingQuotes}
+        isFetchingTokens={
+          supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
+        }
+        setChain={(value: Chain) => {
+          selectToChain(dispatch, value, receivingWallet);
+          dispatch(clearDestToken());
+        }}
+        setToken={(value: Token) => {
+          dispatch(setDestToken(value.tuple));
+        }}
+        wallet={receivingWallet}
+        isSource={false}
+        isTransactionInProgress={isTransactionInProgress}
+        dataTestId="dest-asset-picker"
+        isConnectingWallet={isConnectingWallet}
+        balances={balances.destination.balances}
+        isFetchingBalances={balances.isFetching}
+        quote={quoteResult?.success ? quoteResult : undefined}
+        anchorEl={popoverAnchorRef.current}
+      />
     );
   }, [
-    styles.assetPickerContainer,
-    styles.assetPickerTitle,
+    quotes,
+    route,
     destChain,
     supportedDestChains,
     destToken,
     sourceToken,
     supportedDestTokens,
     isConnectingWallet,
+    isFetchingQuotes,
     isFetchingSupportedDestTokens,
-    isTransactionInProgress,
     receivingWallet,
+    isTransactionInProgress,
     dispatch,
     balances.destination,
     balances.isFetching,
@@ -432,7 +434,8 @@ const Bridge = () => {
               sx={{ padding: 0 }}
               disabled={isTxHistoryDisabled}
               onClick={() => {
-                dispatch(setAppRoute('history'));
+                // Show or hide the transaction history
+                setShowHistory((value) => !value);
                 config.triggerEvent({
                   type: 'history.load',
                   details: {
@@ -441,18 +444,17 @@ const Bridge = () => {
                 });
               }}
             >
-              <HistoryIcon />
+              {showHistory ? <SwapHorizIcon /> : <HistoryIcon />}
             </IconButton>
           </span>
         </Tooltip>
       </Box>
     );
   }, [
-    styles.bridgeHeader,
-    dispatch,
-    isTransactionInProgress,
     sendingWallet?.address,
-    mobile,
+    isTransactionInProgress,
+    styles.bridgeHeader,
+    showHistory,
   ]);
 
   const walletConnector = useMemo(() => {
@@ -477,14 +479,13 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
-  const { isCompatible: isWalletCompatible, warning: walletWarning } =
-    useWalletCompatibility({
-      sendingWallet,
-      receivingWallet,
-      sourceChain,
-      destChain,
-      routes: sortedRoutes,
-    });
+  const { isCompatible: isWalletCompatible } = useWalletCompatibility({
+    sendingWallet,
+    receivingWallet,
+    sourceChain,
+    destChain,
+    routes: sortedRoutes,
+  });
 
   const transactionError = useMemo(() => {
     if (!txError) {
@@ -528,7 +529,27 @@ const Bridge = () => {
     );
   }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
-  const hasError = !!amountValidation.error;
+  const amountValidationError = useMemo(
+    () => (
+      <AlertBannerV2
+        warning={!!amountValidation.warning}
+        error={!!amountValidation.error}
+        content={amountValidation.error || amountValidation.warning}
+        show={!!amountValidation.error || !!amountValidation.warning}
+        color={
+          amountValidation.error
+            ? theme.palette.error.main
+            : theme.palette.warning.main
+        }
+      />
+    ),
+    [
+      amountValidation.error,
+      amountValidation.warning,
+      theme.palette.error.main,
+      theme.palette.warning.main,
+    ],
+  );
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
 
@@ -546,7 +567,7 @@ const Bridge = () => {
     isFetchingQuotes ||
     !hasEnteredAmount ||
     isTransactionInProgress ||
-    hasError;
+    !!amountValidation.error;
 
   // Review transaction button is shown only when everything is ready
   const confirmTransactionButton = useMemo(() => {
@@ -565,10 +586,6 @@ const Bridge = () => {
             gap={1}
             textTransform="none"
           >
-            <CircularProgress
-              size={16}
-              sx={{ color: theme.palette.primary.contrastText }}
-            />
             {mobile ? 'Preparing' : 'Preparing transaction'}
           </Typography>
         ) : !isTransactionInProgress && isFetchingQuotes ? (
@@ -578,7 +595,6 @@ const Bridge = () => {
             gap={1}
             textTransform="none"
           >
-            <CircularProgress color="secondary" size={16} />
             {mobile ? 'Refreshing' : 'Refreshing quote'}
           </Typography>
         ) : (
@@ -592,7 +608,6 @@ const Bridge = () => {
     confirmTransactionDisabled,
     styles.confirmTransaction,
     isTransactionInProgress,
-    theme.palette.primary.contrastText,
     mobile,
     isFetchingQuotes,
     onConfirm,
@@ -611,50 +626,73 @@ const Bridge = () => {
       ? 'Please select a quote'
       : '';
 
-  return (
-    <Box
-      sx={{ ...styles.bridgeContent, ...styles.spacer }}
-      data-testid="bridge-view"
-    >
-      {header}
-      {config.ui.showInProgressWidget && (
-        <TxHistoryWidget disabled={isTransactionInProgress} />
-      )}
-      {bridgeHeader}
-      {sourceAssetPicker}
-      {destAssetPicker}
-      <AmountInput
-        sourceChain={sourceChain}
-        supportedSourceTokens={sourceTokens}
-        tokenBalance={
-          sourceToken
-            ? balances.source.balances[sourceToken.key]?.balance
-            : null
-        }
-        isFetchingTokenBalance={balances.isFetching}
-        error={amountValidation.error}
-        warning={amountValidation.warning || walletWarning}
-      />
-      {hasEnteredAmount && (
-        <Routes
-          routes={sortedRoutes}
-          selectedRoute={route}
-          onRouteChange={(r) => {
-            dispatch(setTransferRoute(r));
-          }}
-          quotes={quotes}
-          isLoading={isFetchingQuotes || balances.isFetching}
-        />
-      )}
-      {transactionError}
-      <Box component="span" sx={styles.ctaContainer}>
-        {hasConnectedWallets ? (
-          <Tooltip title={confirmButtonTooltip}>
-            <span>{confirmTransactionButton}</span>
-          </Tooltip>
-        ) : (
-          walletConnector
+  const bridgeContent = useMemo(
+    () => (
+      <>
+        <Stack sx={{ gap: '4px', position: 'relative' }}>
+          {sourceAssetPicker}
+          <SwapInputs />
+          {destAssetPicker}
+        </Stack>
+        <Box component="span" sx={styles.ctaContainer}>
+          {hasConnectedWallets ? (
+            <Tooltip title={confirmButtonTooltip}>
+              <span>{confirmTransactionButton}</span>
+            </Tooltip>
+          ) : (
+            walletConnector
+          )}
+        </Box>
+        {transactionError}
+        {amountValidationError}
+        {hasEnteredAmount && (
+          <Routes
+            routes={sortedRoutes}
+            selectedRoute={route}
+            onRouteChange={(r) => {
+              dispatch(setTransferRoute(r));
+            }}
+            quotes={quotes}
+            isLoading={isFetchingQuotes}
+          />
         )}
+      </>
+    ),
+    [
+      sourceAssetPicker,
+      destAssetPicker,
+      styles.ctaContainer,
+      hasConnectedWallets,
+      confirmButtonTooltip,
+      confirmTransactionButton,
+      walletConnector,
+      transactionError,
+      amountValidationError,
+      hasEnteredAmount,
+      sortedRoutes,
+      route,
+      quotes,
+      isFetchingQuotes,
+      dispatch,
+    ],
+  );
+
+  return (
+    <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
+      <Box sx={styles.titleContent}>
+        {header}
+        {config.ui.showInProgressWidget && (
+          <TxHistoryWidget disabled={isTransactionInProgress} />
+        )}
+        {bridgeHeader}
+      </Box>
+
+      <Box
+        sx={
+          mobile ? { ...styles.formContentMobile } : { ...styles.formContent }
+        }
+      >
+        {showHistory ? <TxHistory /> : bridgeContent}
       </Box>
       <PoweredByIcon color={theme.palette.text.primary} />
       <FooterNavBar />

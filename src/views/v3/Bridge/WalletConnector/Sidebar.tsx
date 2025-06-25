@@ -295,7 +295,6 @@ const WalletSidebar = (props: Props) => {
     styles.smOnly,
     styles.addressInputContainer,
     styles.addressField,
-    styles.submitButton,
     props.type,
     props.onClose,
     props.showAddressInput,

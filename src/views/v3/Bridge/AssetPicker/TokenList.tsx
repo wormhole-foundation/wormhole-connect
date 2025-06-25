@@ -8,8 +8,8 @@ import { toNative } from '@wormhole-foundation/sdk';
 import type { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
-import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
-import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
+import SearchableList from 'views/v3/Bridge/AssetPicker/SearchableList';
+import TokenItem from 'views/v3/Bridge/AssetPicker/TokenItem';
 import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
@@ -160,10 +160,6 @@ const TokenList = (props: Props) => {
     props.wallet?.address,
     props.isConnectingWallet,
     props.isFetching,
-    props.isFetchingBalances,
-    props.isSource,
-    props.balances,
-    tokenPrices,
     sortedTokens.length,
   ]);
 

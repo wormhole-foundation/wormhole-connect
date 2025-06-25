@@ -5,7 +5,6 @@ import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
-import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -29,8 +28,7 @@ import FastestRoute from 'icons/FastestRoute';
 import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
-import GasSlider from 'views/v2/Bridge/GasSlider';
-import Color from 'color';
+import GasSlider from 'views/v3/Bridge/GasSlider';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -42,8 +40,9 @@ type Props = {
   isFastest?: boolean;
   isCheapest?: boolean;
   isOnlyChoice?: boolean;
-  onSelect?: (route: string) => void;
   quote?: routes.Quote<routes.Options>;
+  onSelect?: (route: string) => void;
+  onGasChange?: (nativeAmount: number) => void;
 };
 
 const SingleRoute = (props: Props) => {
@@ -52,18 +51,14 @@ const SingleRoute = (props: Props) => {
     () => ({
       container: {
         width: '100%',
-        maxWidth: '420px',
-        marginBottom: '8px',
       },
       card: {
         borderRadius: '8px',
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '412px',
       },
       cardSelected: {
-        backgroundColor: theme.palette.input.fillTreatment
-          ? Color(theme.palette.primary.main).alpha(0.05).hexa()
-          : theme.palette.card.background,
+        backgroundColor: theme.palette.card.background,
         borderColor: theme.palette.primary.main,
       },
       cardHeader: {
@@ -591,16 +586,19 @@ const SingleRoute = (props: Props) => {
           {showGasSlider && (
             <>
               <Divider flexItem sx={{ margin: '0px 16px' }} />
-              <Collapse in={showGasSlider}>
-                <GasSlider
-                  destinationGasDrop={
-                    receiveNativeAmount || amount.fromBaseUnits(0n, 8)
+              <GasSlider
+                destinationGasDrop={
+                  receiveNativeAmount || amount.fromBaseUnits(0n, 8)
+                }
+                disabled={isGasSliderDisabled}
+                isExecutorRoute={isExecutorRoute(props.route)}
+                isSelected={isSelected}
+                onGasChange={(nativeAmount: number) => {
+                  if (typeof props.onGasChange === 'function') {
+                    props.onGasChange(nativeAmount);
                   }
-                  disabled={isGasSliderDisabled}
-                  isExecutorRoute={isExecutorRoute(props.route)}
-                  isSelected={isSelected}
-                />
-              </Collapse>
+                }}
+              />
             </>
           )}
         </CardActionArea>
