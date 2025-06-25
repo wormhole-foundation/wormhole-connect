@@ -455,15 +455,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.WSTETH,
   },
   {
-    symbol: 'KLAY',
+    symbol: 'KAIA',
     decimals: 18,
     icon: TokenIcon.KLAY,
     tokenId: { chain: 'Klaytn', address: 'native' },
   },
   {
-    symbol: 'WKLAY',
+    symbol: 'wKAIA',
     decimals: 18,
-    name: 'wKLAY',
+    name: 'wKAIA',
     icon: TokenIcon.KLAY,
     tokenId: {
       chain: 'Klaytn',

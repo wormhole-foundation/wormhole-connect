@@ -70,7 +70,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
     explorerUrl: 'https://kairos.kaiascope.com/',
     explorerName: 'Kaia Scope',
     icon: 'Klaytn',
-    symbol: 'KLAY',
+    symbol: 'KAIA',
     sdkName: 'Klaytn',
   },
   Sepolia: {

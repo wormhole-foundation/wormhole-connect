@@ -111,7 +111,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerUrl: 'https://kaiascope.com/',
     explorerName: 'Kaia Scope',
     icon: 'Klaytn',
-    symbol: 'KLAY',
+    symbol: 'KAIA',
   },
   Scroll: {
     displayName: 'Scroll',
