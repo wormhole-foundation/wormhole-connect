@@ -28,6 +28,7 @@ declare module '@mui/material/styles' {
     input: {
       background: string;
       border: string;
+      fillTreatment: boolean;
     };
     logo: string;
   }
@@ -59,6 +60,7 @@ declare module '@mui/material/styles' {
     input?: {
       background: string;
       border: string;
+      fillTreatment: boolean;
     };
     logo?: string;
   }

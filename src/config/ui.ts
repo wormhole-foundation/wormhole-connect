@@ -39,7 +39,7 @@ export type TestOptions = {
   enableHeadlessSigner?: boolean;
 };
 
-export type Experiments = '';
+export type Experiments = 'enableUIRefreshV3';
 export type Experimental = {
   [Experiment in Experiments]?: boolean;
 };
