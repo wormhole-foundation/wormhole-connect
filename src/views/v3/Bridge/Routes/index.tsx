@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
@@ -30,7 +30,13 @@ type Props = {
   isLoading: boolean;
 };
 
-const Routes = ({ ...props }: Props) => {
+const Routes = ({
+  routes: routesList,
+  selectedRoute,
+  onRouteChange,
+  quotes,
+  isLoading,
+}: Props) => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -42,20 +48,63 @@ const Routes = ({ ...props }: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [highlightedRoute, setHighlightedRoute] = useState<string | undefined>(
-    props.selectedRoute,
+    selectedRoute,
   );
   const [gasTokenAmount, setGasTokenAmount] = useState<number>(
     toNativeToken * 100,
   );
 
+  // Event handlers
+  const handleCloseModal = useCallback(() => {
+    setHighlightedRoute(selectedRoute);
+    setShowModal(false);
+  }, [selectedRoute]);
+
+  const handleCloseDrawer = useCallback(() => {
+    setShowDrawer(false);
+  }, []);
+
+  const handleToggleRoutes = useCallback(() => {
+    if (mobile) {
+      setShowDrawer(true);
+    } else {
+      setShowModal((prev) => !prev);
+    }
+  }, [mobile]);
+
+  const handleRouteSelect = useCallback((route: string) => {
+    setHighlightedRoute(route);
+  }, []);
+
+  const handleGasTokenChange = useCallback((value: number) => {
+    setGasTokenAmount(value);
+  }, []);
+
+  const handleSelectRoute = useCallback(() => {
+    if (highlightedRoute) {
+      onRouteChange(highlightedRoute);
+    }
+    if (gasTokenAmount !== toNativeToken) {
+      dispatch(setToNativeToken(gasTokenAmount));
+    }
+    mobile ? setShowDrawer(false) : setShowModal(false);
+  }, [
+    highlightedRoute,
+    onRouteChange,
+    gasTokenAmount,
+    toNativeToken,
+    dispatch,
+    mobile,
+  ]);
+
   const routesWithQuotes = useMemo(() => {
-    return props.routes.filter((rs) => props.quotes[rs] !== undefined);
-  }, [props.routes, props.quotes]);
+    return routesList.filter((rs) => quotes[rs] !== undefined);
+  }, [routesList, quotes]);
 
   const fastestRoute = useMemo(() => {
     return routesWithQuotes.reduce(
       (fastest, route) => {
-        const quote = props.quotes[route];
+        const quote = quotes[route];
         if (!quote || !quote.success) return fastest;
 
         if (
@@ -70,12 +119,12 @@ const Routes = ({ ...props }: Props) => {
       },
       { name: '', eta: Infinity },
     );
-  }, [routesWithQuotes, props.quotes]);
+  }, [routesWithQuotes, quotes]);
 
   const cheapestRoute = useMemo(() => {
     return routesWithQuotes.reduce(
       (cheapest, route) => {
-        const quote = props.quotes[route];
+        const quote = quotes[route];
         const rc = config.routes.get(route);
         if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
 
@@ -88,81 +137,20 @@ const Routes = ({ ...props }: Props) => {
       },
       { name: '', amountOut: 0n },
     );
-  }, [routesWithQuotes, props.quotes]);
+  }, [routesWithQuotes, quotes]);
 
   const selectedQuote = useMemo(() => {
-    if (!props.selectedRoute) {
+    if (!selectedRoute) {
       return undefined;
     }
-    const quoteResult = props.quotes[props.selectedRoute];
+    const quoteResult = quotes[selectedRoute];
     const quote = quoteResult?.success ? quoteResult : undefined;
     return quote;
-  }, [props.selectedRoute, props.quotes]);
+  }, [selectedRoute, quotes]);
 
-  const routesHeader = useMemo(
-    () => (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          width: '100%',
-        }}
-      >
-        <Typography component={'span'} fontSize="16px" fontWeight={600}>
-          Routes
-        </Typography>
-        <IconButton
-          sx={{ opacity: 0.5, padding: 0 }}
-          onClick={() => (mobile ? setShowDrawer(false) : setShowModal(false))}
-        >
-          <CloseIcon sx={{ height: '24px', width: '24px' }} />
-        </IconButton>
-      </Box>
-    ),
-    [mobile],
-  );
-
-  const routes = useMemo(
-    () => (
-      <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
-        {routesWithQuotes.map((name, index) => {
-          const isSelected = name === highlightedRoute;
-          const quoteResult = props.quotes[name];
-          const quote = quoteResult?.success ? quoteResult : undefined;
-          // Default message added as precaution, as 'Error' type cannot be trusted
-          const quoteError =
-            quoteResult?.success === false
-              ? quoteResult?.error?.message ??
-                `Error while getting a quote for ${name}.`
-              : undefined;
-          return (
-            <SingleRoute
-              key={name}
-              route={name}
-              error={quoteError}
-              isSelected={isSelected && !quoteError}
-              isFastest={name === fastestRoute.name}
-              isCheapest={name === cheapestRoute.name}
-              isOnlyChoice={routesWithQuotes.length === 1}
-              onSelect={(r) => {
-                setHighlightedRoute(r);
-              }}
-              onGasChange={(value: number) => setGasTokenAmount(value)}
-              quote={quote}
-            />
-          );
-        })}
-      </Stack>
-    ),
-    [
-      cheapestRoute.name,
-      fastestRoute.name,
-      highlightedRoute,
-      props.quotes,
-      routesWithQuotes,
-    ],
-  );
+  const handleCloseRoutes = useCallback(() => {
+    mobile ? handleCloseDrawer() : handleCloseModal();
+  }, [mobile, handleCloseDrawer, handleCloseModal]);
 
   const bestRoute = useMemo(() => {
     if (fastestRoute.name) {
@@ -173,53 +161,19 @@ const Routes = ({ ...props }: Props) => {
     return undefined;
   }, [cheapestRoute.name, fastestRoute.name]);
 
-  const timeToDestination = useMemo(
-    () => (
-      <Box
-        sx={{
-          display: 'flex',
-          height: '21px',
-          alignItems: 'center',
-          gap: '4px',
-        }}
-      >
-        <ClockIcon sx={{ color: '#7A8390', width: '12px', height: '12px' }} />
-        <Typography
-          component="span"
-          fontSize="14px"
-          lineHeight="14px"
-          sx={{
-            color:
-              selectedQuote?.eta && selectedQuote.eta < 60 * 1000
-                ? theme.palette.success.main
-                : theme.palette.text.primary,
-          }}
-        >
-          {selectedQuote?.eta ? millisToHumanString(selectedQuote.eta) : 'N/A'}
-        </Typography>
-      </Box>
-    ),
-    [selectedQuote, theme.palette.success.main, theme.palette.text.primary],
-  );
-
-  const routeDetails = useMemo(() => {
-    let routeSection: React.ReactNode;
-
-    if (
-      props.selectedRoute &&
-      props.selectedRoute !== bestRoute?.rc.meta.name
-    ) {
-      const selectedRoute = config.routes.get(props.selectedRoute);
-      routeSection = (
+  const routeSection = useMemo(() => {
+    if (selectedRoute && selectedRoute !== bestRoute?.rc.meta.name) {
+      const route = config.routes.get(selectedRoute);
+      return (
         <>
           Route
           <span
             style={{ fontWeight: 500 }}
-          >{` via ${selectedRoute.rc.meta.provider}`}</span>
+          >{` via ${route.rc.meta.provider}`}</span>
         </>
       );
     } else {
-      routeSection = (
+      return (
         <>
           Best route
           <span
@@ -228,143 +182,240 @@ const Routes = ({ ...props }: Props) => {
         </>
       );
     }
-
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: '12px',
-        }}
-      >
-        <Stack spacing="12px">
-          <Box
-            sx={{
-              color: theme.palette.text.primary,
-              fontSize: '14px',
-              fontWeight: 700,
-              opacity: 0.5,
-            }}
-          >
-            {routeSection}
-          </Box>
-          {/* Temp: Gas top off will be added in phase-2 of Connect re-design */}
-          {/* <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              color: theme.palette.text.primary,
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 700,
-              opacity: 0.5,
-            }}
-          >
-            Include gas top off
-            <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
-          </Box> */}
-          <Box>
-            <Link
-              component="span"
-              data-testid="other-routes-toggle"
-              underline="none"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                color: theme.palette.text.primary,
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 700,
-                opacity: 0.5,
-              }}
-              onClick={() =>
-                mobile ? setShowDrawer(true) : setShowModal((prev) => !prev)
-              }
-            >
-              View other routes
-              <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
-            </Link>
-          </Box>
-        </Stack>
-        <Box
-          sx={{
-            display: 'flex',
-            fontSize: '14px',
-            justifyContent: 'flex-end',
-            opacity: 0.5,
-          }}
-        >
-          {timeToDestination}
-        </Box>
-      </Box>
-    );
-  }, [
-    bestRoute?.rc.meta.name,
-    bestRoute?.rc.meta.provider,
-    mobile,
-    props.selectedRoute,
-    theme.palette.text.primary,
-    timeToDestination,
-  ]);
+  }, [selectedRoute, bestRoute]);
 
   const selectButtonDisabled = useMemo(() => {
     return (
-      !!props.selectedRoute &&
-      props.selectedRoute === highlightedRoute &&
+      !!selectedRoute &&
+      selectedRoute === highlightedRoute &&
       toNativeToken === gasTokenAmount / 100
     );
-  }, [props.selectedRoute, highlightedRoute, toNativeToken, gasTokenAmount]);
+  }, [selectedRoute, highlightedRoute, toNativeToken, gasTokenAmount]);
 
-  const selectButton = useMemo(
+  // Routes drawer for mobile
+  const routesDrawer = useMemo(
     () => (
-      <Button
-        variant="primary"
-        sx={{
-          padding: '16px 24px',
-          height: '48px',
-          borderRadius: '48px',
+      <SwipeableDrawer
+        anchor="bottom"
+        open={showDrawer}
+        slotProps={{
+          paper: {
+            sx: {
+              background: theme.palette.input.background,
+              borderRadius: '8px',
+              height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
+              maxWidth: '100vw', // Force full-width on small mobile devices
+            },
+          },
         }}
-        onClick={() => {
-          if (highlightedRoute) {
-            // Set the selected route
-            props.onRouteChange(highlightedRoute);
-          }
-          // If there is a new gas drop off amount, update toNativeToken
-          if (gasTokenAmount !== toNativeToken) {
-            dispatch(setToNativeToken(gasTokenAmount));
-          }
-          mobile ? setShowDrawer(false) : setShowModal(false);
-        }}
-        disabled={selectButtonDisabled}
-        data-testid="select-route-button"
-        fullWidth
+        transitionDuration={200}
+        onOpen={() => setShowDrawer(true)}
+        onClose={handleCloseDrawer}
       >
-        <Typography fontSize="16px" fontWeight={600} textTransform="none">
-          {mobile ? 'Select' : 'Select Route'}
-        </Typography>
-      </Button>
+        <Box
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            padding: '8px',
+            borderRadius: '12px',
+            gap: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            width: '420px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <Typography component={'span'} fontSize="16px" fontWeight={600}>
+              Routes
+            </Typography>
+            <IconButton
+              sx={{ opacity: 0.5, padding: 0 }}
+              onClick={handleCloseRoutes}
+            >
+              <CloseIcon sx={{ height: '24px', width: '24px' }} />
+            </IconButton>
+          </Box>
+          <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
+            {routesWithQuotes.map((name) => {
+              const isSelected = name === highlightedRoute;
+              const quoteResult = quotes[name];
+              const quote = quoteResult?.success ? quoteResult : undefined;
+              const quoteError =
+                quoteResult?.success === false
+                  ? quoteResult?.error?.message ??
+                    `Error while getting a quote for ${name}.`
+                  : undefined;
+              return (
+                <SingleRoute
+                  key={name}
+                  route={name}
+                  error={quoteError}
+                  isSelected={isSelected && !quoteError}
+                  isFastest={name === fastestRoute.name}
+                  isCheapest={name === cheapestRoute.name}
+                  isOnlyChoice={routesWithQuotes.length === 1}
+                  onSelect={handleRouteSelect}
+                  onGasChange={handleGasTokenChange}
+                  quote={quote}
+                />
+              );
+            })}
+          </Stack>
+          <Button
+            variant="primary"
+            sx={{
+              padding: '16px 24px',
+              height: '48px',
+              borderRadius: '48px',
+            }}
+            onClick={handleSelectRoute}
+            disabled={selectButtonDisabled}
+            data-testid="select-route-button"
+            fullWidth
+          >
+            <Typography fontSize="16px" fontWeight={600} textTransform="none">
+              Select
+            </Typography>
+          </Button>
+        </Box>
+      </SwipeableDrawer>
     ),
     [
-      selectButtonDisabled,
-      mobile,
+      showDrawer,
+      theme.palette.input.background,
+      theme.palette.background.paper,
+      handleCloseDrawer,
+      handleCloseRoutes,
+      routesWithQuotes,
       highlightedRoute,
-      gasTokenAmount,
-      toNativeToken,
-      props,
-      dispatch,
+      quotes,
+      fastestRoute.name,
+      cheapestRoute.name,
+      handleRouteSelect,
+      handleGasTokenChange,
+      handleSelectRoute,
+      selectButtonDisabled,
+    ],
+  );
+
+  // Routes modal for desktop
+  const routesModal = useMemo(
+    () => (
+      <Modal
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        open={showModal}
+        onClose={handleCloseModal}
+      >
+        <Box
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            padding: '24px',
+            borderRadius: '12px',
+            gap: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            width: '420px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <Typography component={'span'} fontSize="16px" fontWeight={600}>
+              Routes
+            </Typography>
+            <IconButton
+              sx={{ opacity: 0.5, padding: 0 }}
+              onClick={handleCloseRoutes}
+            >
+              <CloseIcon sx={{ height: '24px', width: '24px' }} />
+            </IconButton>
+          </Box>
+          <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
+            {routesWithQuotes.map((name) => {
+              const isSelected = name === highlightedRoute;
+              const quoteResult = quotes[name];
+              const quote = quoteResult?.success ? quoteResult : undefined;
+              const quoteError =
+                quoteResult?.success === false
+                  ? quoteResult?.error?.message ??
+                    `Error while getting a quote for ${name}.`
+                  : undefined;
+              return (
+                <SingleRoute
+                  key={name}
+                  route={name}
+                  error={quoteError}
+                  isSelected={isSelected && !quoteError}
+                  isFastest={name === fastestRoute.name}
+                  isCheapest={name === cheapestRoute.name}
+                  isOnlyChoice={routesWithQuotes.length === 1}
+                  onSelect={handleRouteSelect}
+                  onGasChange={handleGasTokenChange}
+                  quote={quote}
+                />
+              );
+            })}
+          </Stack>
+          <Button
+            variant="primary"
+            sx={{
+              padding: '16px 24px',
+              height: '48px',
+              borderRadius: '48px',
+            }}
+            onClick={handleSelectRoute}
+            disabled={selectButtonDisabled}
+            data-testid="select-route-button"
+            fullWidth
+          >
+            <Typography fontSize="16px" fontWeight={600} textTransform="none">
+              Select Route
+            </Typography>
+          </Button>
+        </Box>
+      </Modal>
+    ),
+    [
+      showModal,
+      theme.palette.background.paper,
+      handleCloseModal,
+      handleCloseRoutes,
+      routesWithQuotes,
+      highlightedRoute,
+      quotes,
+      fastestRoute.name,
+      cheapestRoute.name,
+      handleRouteSelect,
+      handleGasTokenChange,
+      handleSelectRoute,
+      selectButtonDisabled,
     ],
   );
 
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
-  if (!props.isLoading && props.routes.length === 0) {
+  if (!isLoading && routesList.length === 0) {
     return <></>;
   }
 
   return (
     <>
-      {props.isLoading ? (
+      {isLoading ? (
         <Box
           sx={{
             display: 'flex',
@@ -389,68 +440,87 @@ const Routes = ({ ...props }: Props) => {
         </Box>
       ) : (
         <>
-          {routeDetails}
-          {mobile ? (
-            <SwipeableDrawer
-              anchor="bottom"
-              open={showDrawer}
-              slotProps={{
-                paper: {
-                  sx: {
-                    background: theme.palette.input.background,
-                    borderRadius: '8px',
-                    height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
-                    maxWidth: '100vw', // Force full-width on small mobile devices
-                  },
-                },
-              }}
-              transitionDuration={200}
-              onOpen={() => setShowDrawer(true)}
-              onClose={() => setShowDrawer(false)}
-            >
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '12px',
+            }}
+          >
+            <Stack spacing="12px">
               <Box
                 sx={{
-                  backgroundColor: theme.palette.background.paper,
-                  padding: '8px',
-                  borderRadius: '12px',
-                  gap: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '420px',
+                  color: theme.palette.text.primary,
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  opacity: 0.5,
                 }}
               >
-                {routesHeader}
-                {routes}
-                {selectButton}
+                {routeSection}
               </Box>
-            </SwipeableDrawer>
-          ) : (
-            <Modal
+              <Box>
+                <Link
+                  component="span"
+                  data-testid="other-routes-toggle"
+                  underline="none"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: theme.palette.text.primary,
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    opacity: 0.5,
+                  }}
+                  onClick={handleToggleRoutes}
+                >
+                  View other routes
+                  <ChevronRightIcon
+                    fontSize="small"
+                    sx={{ marginLeft: '4px' }}
+                  />
+                </Link>
+              </Box>
+            </Stack>
+            <Box
               sx={{
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                fontSize: '14px',
+                justifyContent: 'flex-end',
+                opacity: 0.5,
               }}
-              open={showModal}
-              onClose={() => setShowModal(false)}
             >
               <Box
                 sx={{
-                  backgroundColor: theme.palette.background.paper,
-                  padding: '24px',
-                  borderRadius: '12px',
-                  gap: '16px',
                   display: 'flex',
-                  flexDirection: 'column',
-                  width: '420px',
+                  height: '21px',
+                  alignItems: 'center',
+                  gap: '4px',
                 }}
               >
-                {routesHeader}
-                {routes}
-                {selectButton}
+                <ClockIcon
+                  sx={{ color: '#7A8390', width: '12px', height: '12px' }}
+                />
+                <Typography
+                  component="span"
+                  fontSize="14px"
+                  lineHeight="14px"
+                  sx={{
+                    color:
+                      selectedQuote?.eta && selectedQuote.eta < 60 * 1000
+                        ? theme.palette.success.main
+                        : theme.palette.text.primary,
+                  }}
+                >
+                  {selectedQuote?.eta
+                    ? millisToHumanString(selectedQuote.eta)
+                    : 'N/A'}
+                </Typography>
               </Box>
-            </Modal>
-          )}
+            </Box>
+          </Box>
+          {mobile ? routesDrawer : routesModal}
         </>
       )}
     </>
