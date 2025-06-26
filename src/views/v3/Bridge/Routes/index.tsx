@@ -425,12 +425,27 @@ const Routes = ({
             gap: '12px',
           }}
         >
-          <Skeleton
-            variant="rounded"
-            height={20}
-            width="100%"
-            sx={{ borderRadius: '20px' }}
-          />
+          <Box
+            sx={{
+              display: 'flex',
+              height: '20px',
+              width: '100%',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Skeleton
+              variant="rounded"
+              height={20}
+              width="70%"
+              sx={{ borderRadius: '20px' }}
+            />
+            <Skeleton
+              variant="rounded"
+              height={20}
+              width="25%"
+              sx={{ borderRadius: '20px' }}
+            />
+          </Box>
           <Skeleton
             variant="rounded"
             height={20}
