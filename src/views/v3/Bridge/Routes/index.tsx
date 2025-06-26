@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
@@ -47,12 +47,22 @@ const Routes = ({
 
   const [showModal, setShowModal] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
-  const [highlightedRoute, setHighlightedRoute] = useState<string | undefined>(
-    selectedRoute,
-  );
+  const [highlightedRoute, setHighlightedRoute] = useState<
+    string | undefined
+  >();
   const [gasTokenAmount, setGasTokenAmount] = useState<number>(
     toNativeToken * 100,
   );
+
+  useEffect(() => {
+    // Reset the highlighted route when the selected route changes
+    if (selectedRoute && selectedRoute !== highlightedRoute) {
+      setHighlightedRoute(selectedRoute);
+    }
+    // Set highlighted route to the selected route when it changes
+    // Triggered only when the selected route changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRoute]);
 
   // Event handlers
   const handleCloseModal = useCallback(() => {
