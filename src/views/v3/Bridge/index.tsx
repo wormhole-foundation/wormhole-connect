@@ -121,7 +121,7 @@ const Bridge = () => {
         gap: '16px',
       },
       titleContent: {
-        width: mobile ? '420px' : '452px',
+        maxWidth: mobile ? '420px' : '452px',
       },
     }),
     [

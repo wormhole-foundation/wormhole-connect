@@ -157,7 +157,7 @@ const AssetPicker = (props: Props) => {
   const styles = useMemo(
     () => ({
       root: {
-        width: '420px',
+        maxWidth: '420px',
         background: theme.palette.input.background,
         borderRadius: '8px',
         padding: '16px',

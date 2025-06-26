@@ -37,7 +37,7 @@ const ChainList = (props: Props) => {
     () => ({
       card: {
         background: theme.palette.input.background,
-        width: '420px',
+        maxWidth: '420px',
         [theme.breakpoints.down('sm')]: {
           width: '100vw',
         },

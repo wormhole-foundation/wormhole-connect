@@ -230,7 +230,7 @@ const Routes = ({
             gap: '16px',
             display: 'flex',
             flexDirection: 'column',
-            width: '420px',
+            maxWidth: '420px',
           }}
         >
           <Box
@@ -334,7 +334,7 @@ const Routes = ({
             gap: '16px',
             display: 'flex',
             flexDirection: 'column',
-            width: '420px',
+            maxWidth: '420px',
           }}
         >
           <Box
