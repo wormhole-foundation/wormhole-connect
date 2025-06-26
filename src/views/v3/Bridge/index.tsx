@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -320,22 +326,55 @@ const Bridge = () => {
     return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
   }, []);
 
-  // Asset picker for the source network and token
-  const sourceAssetPicker = useMemo(() => {
-    return (
+  // Handlers for source asset picker
+  const handleSourceChainChange = useCallback(
+    (value: Chain) => {
+      selectFromChain(dispatch, value, sendingWallet);
+      dispatch(clearToken());
+    },
+    [dispatch, sendingWallet],
+  );
+
+  const handleSourceTokenChange = useCallback(
+    (value: Token) => {
+      dispatch(setToken(value.tuple));
+    },
+    [dispatch],
+  );
+
+  // Handlers for destination asset picker
+  const handleDestChainChange = useCallback(
+    (value: Chain) => {
+      selectToChain(dispatch, value, receivingWallet);
+      dispatch(clearDestToken());
+    },
+    [dispatch, receivingWallet],
+  );
+
+  const handleDestTokenChange = useCallback(
+    (value: Token) => {
+      dispatch(setDestToken(value.tuple));
+    },
+    [dispatch],
+  );
+
+  // Quote result for destination picker
+  const destQuoteResult = useMemo(
+    () => (quotes && route ? quotes[route] : undefined),
+    [quotes, route],
+  );
+
+  // Source asset picker
+  const sourceAssetPicker = useMemo(
+    () => (
       <Box ref={popoverAnchorRef}>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
           token={sourceToken}
           tokenList={sourceTokens}
-          setChain={(value: Chain) => {
-            selectFromChain(dispatch, value, sendingWallet);
-            dispatch(clearToken());
-          }}
-          setToken={(value: Token) => {
-            dispatch(setToken(value.tuple));
-          }}
+          setChain={handleSourceChainChange}
+          setToken={handleSourceTokenChange}
           wallet={sendingWallet}
           isSource={true}
           isTransactionInProgress={isTransactionInProgress}
@@ -347,25 +386,26 @@ const Bridge = () => {
           amountValidation={amountValidation}
         />
       </Box>
-    );
-  }, [
-    sourceChain,
-    supportedSourceChains,
-    sourceToken,
-    sourceTokens,
-    sendingWallet,
-    isTransactionInProgress,
-    isConnectingWallet,
-    balances.source.balances,
-    balances.isFetching,
-    amountValidation,
-    dispatch,
-  ]);
+    ),
+    [
+      sourceChain,
+      supportedSourceChains,
+      sourceToken,
+      sourceTokens,
+      handleSourceChainChange,
+      handleSourceTokenChange,
+      sendingWallet,
+      isTransactionInProgress,
+      isConnectingWallet,
+      balances.source.balances,
+      balances.isFetching,
+      amountValidation,
+    ],
+  );
 
-  // Asset picker for the destination network and token
-  const destAssetPicker = useMemo(() => {
-    const quoteResult = quotes && route ? quotes[route] : undefined;
-    return (
+  // Destination asset picker
+  const destAssetPicker = useMemo(
+    () => (
       <AssetPicker
         chain={destChain}
         chainList={supportedDestChains}
@@ -376,13 +416,8 @@ const Bridge = () => {
         isFetchingTokens={
           supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
         }
-        setChain={(value: Chain) => {
-          selectToChain(dispatch, value, receivingWallet);
-          dispatch(clearDestToken());
-        }}
-        setToken={(value: Token) => {
-          dispatch(setDestToken(value.tuple));
-        }}
+        setChain={handleDestChainChange}
+        setToken={handleDestTokenChange}
         wallet={receivingWallet}
         isSource={false}
         isTransactionInProgress={isTransactionInProgress}
@@ -390,94 +425,73 @@ const Bridge = () => {
         isConnectingWallet={isConnectingWallet}
         balances={balances.destination.balances}
         isFetchingBalances={balances.isFetching}
-        quote={quoteResult?.success ? quoteResult : undefined}
+        quote={destQuoteResult?.success ? destQuoteResult : undefined}
         anchorEl={popoverAnchorRef.current}
       />
-    );
-  }, [
-    quotes,
-    route,
-    destChain,
-    supportedDestChains,
-    destToken,
-    sourceToken,
-    supportedDestTokens,
-    isConnectingWallet,
-    isFetchingQuotes,
-    isFetchingSupportedDestTokens,
-    receivingWallet,
-    isTransactionInProgress,
-    dispatch,
-    balances.destination,
-    balances.isFetching,
-  ]);
+    ),
+    [
+      destChain,
+      supportedDestChains,
+      destToken,
+      sourceToken,
+      supportedDestTokens,
+      isFetchingQuotes,
+      isFetchingSupportedDestTokens,
+      handleDestChainChange,
+      handleDestTokenChange,
+      receivingWallet,
+      isTransactionInProgress,
+      isConnectingWallet,
+      balances.destination.balances,
+      balances.isFetching,
+      destQuoteResult,
+    ],
+  );
 
-  // Header for Bridge view, which includes the title and settings icon.
-  const bridgeHeader = useMemo(() => {
-    const isTxHistoryDisabled =
-      !sendingWallet?.address || isTransactionInProgress;
+  // Handler for history toggle
+  const handleHistoryToggle = useCallback(() => {
+    setShowHistory((value) => !value);
+    config.triggerEvent({
+      type: 'history.load',
+      details: {
+        wallet: sendingWallet?.address,
+      },
+    });
+  }, [sendingWallet?.address]);
 
-    return (
-      <Box sx={styles.bridgeHeader}>
-        <Header
-          align="left"
-          text={config.ui.title ?? 'Wormhole Connect'}
-          size={18}
-          testId="bridge-view-header"
-        />
-        <Tooltip
-          title={!sendingWallet?.address ? 'No connected wallets found' : ''}
-        >
-          <span>
-            <IconButton
-              data-testid="history-button"
-              sx={{ padding: 0 }}
-              disabled={isTxHistoryDisabled}
-              onClick={() => {
-                // Show or hide the transaction history
-                setShowHistory((value) => !value);
-                config.triggerEvent({
-                  type: 'history.load',
-                  details: {
-                    wallet: sendingWallet?.address,
-                  },
-                });
-              }}
-            >
-              {showHistory ? <SwapHorizIcon /> : <HistoryIcon />}
-            </IconButton>
-          </span>
-        </Tooltip>
-      </Box>
-    );
-  }, [
-    sendingWallet?.address,
-    isTransactionInProgress,
-    styles.bridgeHeader,
-    showHistory,
-  ]);
+  const isTxHistoryDisabled =
+    !sendingWallet?.address || isTransactionInProgress;
 
-  const walletConnector = useMemo(() => {
+  // Handler for route change
+  const handleRouteChange = useCallback(
+    (r: string) => {
+      dispatch(setTransferRoute(r));
+    },
+    [dispatch],
+  );
+
+  // Determine which wallet connector to show
+  const walletConnectorProps = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
       return null;
     } else if (sendingWallet?.address && !receivingWallet?.address) {
-      return (
-        <WalletConnector
-          disabled={!destChain}
-          side="destination"
-          type={TransferWallet.RECEIVING}
-        />
-      );
+      return {
+        disabled: !destChain,
+        side: 'destination' as const,
+        type: TransferWallet.RECEIVING,
+      };
     }
-
-    return (
-      <WalletConnector
-        disabled={!sourceChain}
-        side="source"
-        type={TransferWallet.SENDING}
-      />
-    );
-  }, [sourceChain, destChain, sendingWallet, receivingWallet]);
+    return {
+      disabled: !sourceChain,
+      side: 'source' as const,
+      type: TransferWallet.SENDING,
+    };
+  }, [
+    sourceChain,
+    destChain,
+    sendingWallet?.address,
+    receivingWallet?.address,
+  ]);
 
   const { isCompatible: isWalletCompatible } = useWalletCompatibility({
     sendingWallet,
@@ -639,9 +653,9 @@ const Bridge = () => {
             <Tooltip title={confirmButtonTooltip}>
               <span>{confirmTransactionButton}</span>
             </Tooltip>
-          ) : (
-            walletConnector
-          )}
+          ) : walletConnectorProps ? (
+            <WalletConnector {...walletConnectorProps} />
+          ) : null}
         </Box>
         {transactionError}
         {amountValidationError}
@@ -649,9 +663,7 @@ const Bridge = () => {
           <Routes
             routes={sortedRoutes}
             selectedRoute={route}
-            onRouteChange={(r) => {
-              dispatch(setTransferRoute(r));
-            }}
+            onRouteChange={handleRouteChange}
             quotes={quotes}
             isLoading={isFetchingQuotes}
           />
@@ -665,15 +677,15 @@ const Bridge = () => {
       hasConnectedWallets,
       confirmButtonTooltip,
       confirmTransactionButton,
-      walletConnector,
+      walletConnectorProps,
       transactionError,
       amountValidationError,
       hasEnteredAmount,
       sortedRoutes,
       route,
+      handleRouteChange,
       quotes,
       isFetchingQuotes,
-      dispatch,
     ],
   );
 
@@ -684,7 +696,28 @@ const Bridge = () => {
         {config.ui.showInProgressWidget && (
           <TxHistoryWidget disabled={isTransactionInProgress} />
         )}
-        {bridgeHeader}
+        <Box sx={styles.bridgeHeader}>
+          <Header
+            align="left"
+            text={config.ui.title ?? 'Wormhole Connect'}
+            size={18}
+            testId="bridge-view-header"
+          />
+          <Tooltip
+            title={!sendingWallet?.address ? 'No connected wallets found' : ''}
+          >
+            <span>
+              <IconButton
+                data-testid="history-button"
+                sx={{ padding: 0 }}
+                disabled={isTxHistoryDisabled}
+                onClick={handleHistoryToggle}
+              >
+                {showHistory ? <SwapHorizIcon /> : <HistoryIcon />}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Box>
       </Box>
 
       <Box
