@@ -161,4 +161,4 @@ const TxHistory = () => {
   );
 };
 
-export default TxHistory;
+export default React.memo(TxHistory);

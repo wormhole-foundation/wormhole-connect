@@ -104,4 +104,4 @@ const WalletConnector = (props: Props) => {
   return disconnected;
 };
 
-export default WalletConnector;
+export default React.memo(WalletConnector);

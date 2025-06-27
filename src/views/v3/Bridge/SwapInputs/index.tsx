@@ -63,4 +63,4 @@ function SwapInputs() {
   );
 }
 
-export default SwapInputs;
+export default React.memo(SwapInputs);

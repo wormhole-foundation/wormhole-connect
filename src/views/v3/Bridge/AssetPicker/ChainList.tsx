@@ -228,4 +228,4 @@ const ChainList = (props: Props) => {
   );
 };
 
-export default ChainList;
+export default React.memo(ChainList);

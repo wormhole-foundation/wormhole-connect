@@ -733,4 +733,4 @@ const Bridge = () => {
   );
 };
 
-export default Bridge;
+export default React.memo(Bridge);

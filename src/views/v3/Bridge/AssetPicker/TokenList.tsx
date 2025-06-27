@@ -273,4 +273,4 @@ const TokenList = (props: Props) => {
   );
 };
 
-export default TokenList;
+export default React.memo(TokenList);

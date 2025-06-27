@@ -189,4 +189,4 @@ const AmountInput = (props: Props) => {
   );
 };
 
-export default AmountInput;
+export default React.memo(AmountInput);

@@ -979,4 +979,4 @@ const Redeem = () => {
   );
 };
 
-export default Redeem;
+export default React.memo(Redeem);

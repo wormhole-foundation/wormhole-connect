@@ -607,4 +607,4 @@ const SingleRoute = (props: Props) => {
   );
 };
 
-export default SingleRoute;
+export default React.memo(SingleRoute);

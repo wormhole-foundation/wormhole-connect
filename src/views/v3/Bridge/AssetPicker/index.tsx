@@ -554,4 +554,4 @@ const AssetPicker = (props: Props) => {
   );
 };
 
-export default AssetPicker;
+export default React.memo(AssetPicker);
