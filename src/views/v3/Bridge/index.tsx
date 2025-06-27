@@ -114,6 +114,8 @@ const Bridge = () => {
         flexDirection: 'column',
         width: '452px',
         gap: '16px',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)', // Safari support
       },
       formContentMobile: {
         display: 'flex',

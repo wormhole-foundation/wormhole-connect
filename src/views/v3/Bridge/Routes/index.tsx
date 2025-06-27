@@ -335,6 +335,8 @@ const Routes = ({
             display: 'flex',
             flexDirection: 'column',
             width: '420px',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', // Safari support
           }}
         >
           <Box
