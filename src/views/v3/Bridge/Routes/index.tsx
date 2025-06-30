@@ -177,18 +177,22 @@ const Routes = ({
       return (
         <>
           Route
-          <span
-            style={{ fontWeight: 500 }}
-          >{` via ${route.rc.meta.provider}`}</span>
+          {route.rc.meta.provider && (
+            <span
+              style={{ fontWeight: 500 }}
+            >{` via ${route.rc.meta.provider}`}</span>
+          )}
         </>
       );
     } else {
       return (
         <>
           Best route
-          <span
-            style={{ fontWeight: 500 }}
-          >{` via ${bestRoute?.rc.meta.provider}`}</span>
+          {bestRoute?.rc.meta.provider && (
+            <span
+              style={{ fontWeight: 500 }}
+            >{` via ${bestRoute?.rc.meta.provider}`}</span>
+          )}
         </>
       );
     }
