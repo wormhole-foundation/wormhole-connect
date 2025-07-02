@@ -62,7 +62,7 @@
     "@wormhole-foundation/sdk-icons": "^1.0.1",
     "@wormhole-foundation/sdk-route-ntt": "1.0.1",
     "@wormhole-foundation/sdk-solana-ntt": "1.0.1",
-    "@wormhole-labs/cctp-executor-route": "0.9.0",
+    "@wormhole-labs/cctp-executor-route": "0.10.0",
     "@wormhole-labs/wallet-aggregator-aptos": "1.3.0",
     "@wormhole-labs/wallet-aggregator-core": "0.0.1",
     "@wormhole-labs/wallet-aggregator-evm": "0.2.0",
