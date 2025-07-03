@@ -49,10 +49,6 @@ export const getWallets = () => {
         coalesceWormholeChainName(wagmiConfig.name),
         wagmiConfig.rpcUrls.default,
       ),
-      public: getRpcForChain(
-        coalesceWormholeChainName(wagmiConfig.name),
-        wagmiConfig.rpcUrls.public,
-      ),
     },
   }));
 
