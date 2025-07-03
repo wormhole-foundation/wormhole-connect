@@ -710,4 +710,22 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.SEI,
   },
+  {
+    symbol: 'PLUME',
+    tokenId: {
+      chain: 'Plume',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.PLUME,
+  },
+  {
+    symbol: 'BTC',
+    tokenId: {
+      chain: 'Mezo',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.BTC,
+  },
 ];

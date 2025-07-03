@@ -41,6 +41,7 @@ import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
 import BTC from './Tokens/BTC';
 import SONIC from './Chains/SONIC'; // TODO: Create a token icon for S
+import PLUME from './Tokens/PLUME';
 
 const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.WBTC]: WBTC(),
@@ -91,6 +92,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.BERA]: BERA(),
   [TokenIcon.BTC]: BTC(),
   [TokenIcon.SONIC]: SONIC(),
+  [TokenIcon.PLUME]: PLUME(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {

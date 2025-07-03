@@ -185,6 +185,14 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Sonic',
     symbol: 'S',
   },
+  Mezo: {
+    displayName: 'Mezo',
+    sdkName: 'Mezo',
+    explorerUrl: 'https://explorer.mezo.org',
+    explorerName: 'Mezo Explorer',
+    icon: 'Mezo',
+    symbol: 'BTC',
+  },
   Seievm: {
     displayName: "SeiEVM",
     sdkName: 'Seievm',
@@ -192,5 +200,13 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Seitrace',
     icon: 'Seievm',
     symbol: 'SEI',
+  },
+  Plume: {
+    displayName: 'Plume',
+    sdkName: 'Plume',
+    explorerUrl: 'https://explorer.plume.org',
+    explorerName: 'Plume Explorer',
+    icon: 'Plume',
+    symbol: 'PLUME',
   },
 };

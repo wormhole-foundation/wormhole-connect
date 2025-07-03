@@ -23,6 +23,7 @@ const {
   REACT_APP_LINEA_TESTNET_RPC,
   REACT_APP_SONIC_TESTNET_RPC,
   REACT_APP_SEIEVM_TESTNET_RPC,
+  REACT_APP_PLUME_RPC,
 } = import.meta.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -49,4 +50,5 @@ export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('Linea', REACT_APP_LINEA_TESTNET_RPC),
   ...populateRpcField('Sonic', REACT_APP_SONIC_TESTNET_RPC),
   ...populateRpcField('Seievm', REACT_APP_SEIEVM_TESTNET_RPC),
+  ...populateRpcField('Plume', REACT_APP_PLUME_RPC),
 };

@@ -396,4 +396,10 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.SEI,
   },
+  {
+    symbol: 'PLUME',
+    decimals: 18,
+    icon: TokenIcon.PLUME,
+    tokenId: { chain: 'Plume', address: 'native' },
+  },
 ];

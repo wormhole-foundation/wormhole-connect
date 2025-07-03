@@ -185,4 +185,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     sdkName: "Seievm",
     symbol: "SEI",
   },
+  Plume: {
+    displayName: 'Plume',
+    sdkName: 'Plume',
+    explorerUrl: 'https://testnet-explorer.plume.org',
+    explorerName: 'Plume Explorer',
+    icon: 'Plume',
+    symbol: 'PLUME',
+  },
 };
