@@ -216,6 +216,7 @@ export const SANCTIONED_WALLETS = Object.freeze(
     'TTgcTTNbNuFdbrhvbjMZVrdU5KALyzDaPw',
     'TTKnV2S1295UrPr7N67Tp9ykNL7xX2Z4Uj',
     'TTUDyVhhpCC1xJoPmWzdjLAzeoPwbSABdr',
+    'TU4tDFRvcKhAZ1jdihojmBWZqvJhQCnJ4F',
     'TUCsTq7TofTCJRRoHk6RvhMoS2mJLm5Yzq',
     'TV5ZTpKDszLTF6XcMnPongS33pwBgF91by',
     'TVacWx7F5wgMgn49L5frDf9KLgdYy8nPHL',
