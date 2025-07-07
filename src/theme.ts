@@ -142,7 +142,7 @@ export const light: InternalTheme = {
 // wormhole styled theme
 export const dark: InternalTheme = {
   mode: 'dark',
-  primary: { main: '#C1BBF6' },
+  primary: { main: '#AFA7F6' },
   secondary: { main: '#667085' },
   divider: '#ffffff' + OPACITY[20],
   background: {
@@ -256,14 +256,14 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
 
     if (primary.isDark()) {
       primaryText = primary.lightness(95).hex();
-      disabled = primary.alpha(0.4).hexa();
+      disabled = primary.alpha(0.5).hexa();
       disabledText = primary.lightness(95).alpha(0.9).hexa();
       action = primary.darken(0.15).hex();
       actionText = primary.lightness(80).hex();
       hover = primary.darken(0.05).hex();
     } else {
       primaryText = primary.lightness(5).hex();
-      disabled = primary.alpha(0.4).hexa();
+      disabled = primary.alpha(0.5).hexa();
       disabledText = primary.lightness(5).alpha(0.9).hexa();
       action = primary.lighten(0.05).hex();
       actionText = primary.lightness(0).hex();

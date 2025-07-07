@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import Color from 'color';
 
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
@@ -11,6 +12,7 @@ import { swapWallets } from 'store/wallet';
 function SwapInputs() {
   const dispatch = useDispatch();
   const theme: any = useTheme();
+  const [rotateAnimation, setRotateAnimation] = useState('');
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -29,12 +31,41 @@ function SwapInputs() {
         width: 36,
         height: 36,
         zIndex: 1,
-        '&:disabled, &:hover': {
+        transition: 'background-color 0.2s ease-in-out',
+        animation: `${rotateAnimation} 0.3s linear 1`,
+        '@keyframes spinRight': {
+          '0%': {
+            transform: 'rotate(-180deg)',
+          },
+          '100%': {
+            transform: 'rotate(0deg)',
+          },
+        },
+        '@keyframes spinLeft': {
+          '0%': {
+            transform: 'rotate(180deg)',
+          },
+          '100%': {
+            transform: 'rotate(0deg)',
+          },
+        },
+        '&:disabled': {
           backgroundColor: theme.palette.input.background,
+        },
+        '&:hover:not(:disabled)': {
+          backgroundColor:
+            theme.palette.mode === 'dark'
+              ? Color(theme.palette.input.background).lighten(0.1).hex()
+              : Color(theme.palette.input.background).darken(0.1).hex(),
         },
       },
     }),
-    [theme.palette.background.form, theme.palette.input.background],
+    [
+      theme.palette.background.form,
+      theme.palette.input.background,
+      theme.palette.mode,
+      rotateAnimation,
+    ],
   );
 
   const canSwap = !isTransactionInProgress && fromChain && toChain;
@@ -42,21 +73,28 @@ function SwapInputs() {
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;
 
+    setRotateAnimation((val) =>
+      val === 'spinRight' ? 'spinLeft' : 'spinRight',
+    );
+
     dispatch(swapInputs());
     dispatch(swapWallets());
     dispatch(setAmount(''));
   }, [canSwap, isTransactionInProgress, dispatch]);
 
   return (
-    <IconButton sx={styles.swapButton} onClick={swap} disabled={!canSwap}>
-      <ArrowDownwardIcon
+    <IconButton
+      sx={styles.swapButton}
+      disabled={!canSwap}
+      disableRipple
+      onClick={swap}
+    >
+      <SwapVertIcon
         sx={{
-          borderRadius: '8px',
-          fontSize: '14px',
-          stroke: canSwap
+          strokeWidth: 2,
+          color: canSwap
             ? theme.palette.text.primary
             : theme.palette.text.disabled,
-          strokeWidth: 2,
         }}
       />
     </IconButton>
