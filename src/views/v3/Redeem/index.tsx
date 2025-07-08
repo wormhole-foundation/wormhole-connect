@@ -25,7 +25,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 
-import AlertBannerV2 from 'components/v3/AlertBanner';
+import AlertBannerV3 from 'components/v3/AlertBanner';
 import PageHeader from 'components/PageHeader';
 import { Alignment } from 'components/Header';
 import Button from 'components/v3/Button';
@@ -961,12 +961,11 @@ const Redeem = () => {
       <TransactionDetails />
       {actionButton}
       {txDelayedText}
-      <AlertBannerV2
-        error
-        content={claimError}
-        show={!!claimError}
-        sx={styles.errorBox}
-      />
+      {claimError && (
+        <AlertBannerV3 error sx={styles.errorBox}>
+          {claimError}
+        </AlertBannerV3>
+      )}
       <PoweredByIcon color={theme.palette.text.primary} />
       <WalletSidebar
         open={isWalletSidebarOpen}

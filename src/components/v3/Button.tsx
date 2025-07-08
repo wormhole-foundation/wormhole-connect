@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo, type Ref } from 'react';
+import React, { useMemo } from 'react';
 import {
   Button as MUIButton,
   type ButtonProps as MUIButtonProps,
@@ -70,42 +70,35 @@ const VARIANT_STYLES = {
  *   - 'default': Standard MUI button (fallback)
  * @param styleOverrides - Additional style overrides
  * @param rest - All other MUI Button props
- * @param ref - Forwarded ref to the button element
  *
  * @returns A styled button component
  */
-const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
-  (
-    { variant = 'default', styleOverrides, ...rest },
-    ref: Ref<HTMLButtonElement>,
-  ) => {
-    const computedStyles = useMemo((): SxProps<Theme> => {
-      // Handle default variant separately
-      if (variant === 'default') {
-        return styleOverrides ?? {};
-      }
+const Button = ({
+  variant = 'default',
+  styleOverrides,
+  ...rest
+}: CustomButtonProps) => {
+  const computedStyles = useMemo((): SxProps<Theme> => {
+    // Handle default variant separately
+    if (variant === 'default') {
+      return styleOverrides ?? {};
+    }
 
-      // Get variant styles (we know it exists for 'primary' and 'error')
-      const variantStyles =
-        VARIANT_STYLES[variant as keyof typeof VARIANT_STYLES];
+    // Get variant styles (we know it exists for 'primary' and 'error')
+    const variantStyles =
+      VARIANT_STYLES[variant as keyof typeof VARIANT_STYLES];
 
-      // Type assertion to help TypeScript understand the filtered array is still valid SxProps
-      return [BASE_BUTTON_STYLES, variantStyles, styleOverrides].filter(
-        Boolean,
-      ) as SxProps<Theme>;
-    }, [variant, styleOverrides]);
+    // Type assertion to help TypeScript understand the filtered array is still valid SxProps
+    return [BASE_BUTTON_STYLES, variantStyles, styleOverrides].filter(
+      Boolean,
+    ) as SxProps<Theme>;
+  }, [variant, styleOverrides]);
 
-    // Determine MUI variant based on custom variant
-    const muiVariant: MUIButtonProps['variant'] =
-      variant === 'primary' || variant === 'error' ? 'contained' : 'text';
+  // Determine MUI variant based on custom variant
+  const muiVariant: MUIButtonProps['variant'] =
+    variant === 'primary' || variant === 'error' ? 'contained' : 'text';
 
-    return (
-      <MUIButton ref={ref} variant={muiVariant} sx={computedStyles} {...rest} />
-    );
-  },
-);
-
-// Add display name for better debugging
-Button.displayName = 'Button';
+  return <MUIButton variant={muiVariant} sx={computedStyles} {...rest} />;
+};
 
 export default Button;

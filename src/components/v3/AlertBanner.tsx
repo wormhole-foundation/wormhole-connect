@@ -1,16 +1,9 @@
-import React, { useMemo, type ReactNode } from 'react';
-import {
-  Box,
-  Collapse,
-  Typography,
-  useTheme,
-  type SxProps,
-} from '@mui/material';
+import React, { type ReactNode } from 'react';
+import { Box, Typography, useTheme, type SxProps } from '@mui/material';
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 
 interface AlertBannerProps {
-  show: boolean;
-  content: ReactNode;
+  children: ReactNode;
   warning?: boolean;
   error?: boolean;
   testId?: string;
@@ -20,8 +13,7 @@ interface AlertBannerProps {
 }
 
 function AlertBanner({
-  show,
-  content,
+  children,
   warning = false,
   error = false,
   testId,
@@ -32,60 +24,42 @@ function AlertBanner({
   const theme = useTheme();
 
   // Determine the appropriate color based on props
-  const alertColor = useMemo((): string | undefined => {
-    if (color) return color;
-    if (warning) return theme.palette.warning.main;
-    if (error) return theme.palette.error.main;
-    return undefined;
-  }, [
-    color,
-    error,
-    warning,
-    theme.palette.warning.main,
-    theme.palette.error.main,
-  ]);
-
-  // Early return if content is not provided or empty
-  if (!content) {
-    return null;
-  }
+  const alertColor =
+    color ||
+    (warning && theme.palette.warning.main) ||
+    (error && theme.palette.error.main) ||
+    undefined;
 
   return (
-    <Collapse
+    <Box
       className={className}
-      sx={sx}
-      in={show}
-      unmountOnExit
-      timeout="auto"
+      sx={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        gap: '8px',
+        ...sx,
+      }}
+      data-testid={testId}
+      role="alert"
+      aria-live="polite"
     >
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
-          gap: '8px',
-        }}
-        data-testid={testId}
-        role="alert"
-        aria-live="polite"
+      <ReportProblemOutlinedIcon
+        fontSize="small"
+        htmlColor={alertColor}
+        aria-hidden="true"
+      />
+      <Typography
+        color={alertColor}
+        fontSize="14px"
+        fontWeight={700}
+        component="div"
       >
-        <ReportProblemOutlinedIcon
-          fontSize="small"
-          htmlColor={alertColor}
-          aria-hidden="true"
-        />
-        <Typography
-          color={alertColor}
-          fontSize="14px"
-          fontWeight={700}
-          component="div"
-        >
-          {content}
-        </Typography>
-      </Box>
-    </Collapse>
+        {children}
+      </Typography>
+    </Box>
   );
 }
 

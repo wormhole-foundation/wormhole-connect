@@ -17,7 +17,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import AlertBannerV2 from 'components/v3/AlertBanner';
+import AlertBannerV3 from 'components/v3/AlertBanner';
 import config, { getWormholeContextV2 } from 'config';
 import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';
@@ -320,13 +320,15 @@ const WidgetItem = (props: Props) => {
           </CardContent>
         </CardActionArea>
       </Card>
-      <AlertBannerV2
-        sx={styles.alertBanner}
-        color={error ? theme.palette.error.light : theme.palette.grey.A400}
-        content={error}
-        error={!!error}
-        show={!!error}
-      />
+      {error && (
+        <AlertBannerV3
+          sx={styles.alertBanner}
+          color={error ? theme.palette.error.light : theme.palette.grey.A400}
+          error={!!error}
+        >
+          {error}
+        </AlertBannerV3>
+      )}
     </Box>
   );
 };

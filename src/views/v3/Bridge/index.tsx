@@ -22,7 +22,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 import FooterNavBar from 'components/FooterNavBar';
 import Header, { Alignment } from 'components/Header';
 import PageHeader from 'components/PageHeader';
-import AlertBannerV2 from 'components/v3/AlertBanner';
+import AlertBannerV3 from 'components/v3/AlertBanner';
 import Button from 'components/v3/Button';
 import config from 'config';
 import { Token } from 'config/tokens';
@@ -510,12 +510,9 @@ const Bridge = () => {
 
     return (
       <Box sx={{ marginBottom: 2 }}>
-        <AlertBannerV2
-          error
-          content={txError}
-          show={true}
-          testId="send-error-message"
-        />
+        <AlertBannerV3 error testId="send-error-message">
+          {txError}
+        </AlertBannerV3>
         {txErrorInternal && txErrorInternal.message && config.ui.getHelpUrl ? (
           <Typography fontSize={14} sx={{ marginTop: 1 }}>
             Having trouble?{' '}
@@ -545,27 +542,34 @@ const Bridge = () => {
     );
   }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
-  const amountValidationError = useMemo(
-    () => (
-      <AlertBannerV2
-        warning={!!amountValidation.warning}
-        error={!!amountValidation.error}
-        content={amountValidation.error || amountValidation.warning}
-        show={!!amountValidation.error || !!amountValidation.warning}
+  const amountValidationError = useMemo(() => {
+    const hasError = !!amountValidation.error;
+    const hasWarning = !!amountValidation.warning;
+    const message = amountValidation.error || amountValidation.warning;
+
+    if (!hasError && !hasWarning) {
+      return null;
+    }
+
+    return (
+      <AlertBannerV3
+        warning={hasWarning}
+        error={hasError}
         color={
           amountValidation.error
             ? theme.palette.error.main
             : theme.palette.warning.main
         }
-      />
-    ),
-    [
-      amountValidation.error,
-      amountValidation.warning,
-      theme.palette.error.main,
-      theme.palette.warning.main,
-    ],
-  );
+      >
+        {message}
+      </AlertBannerV3>
+    );
+  }, [
+    amountValidation.error,
+    amountValidation.warning,
+    theme.palette.error.main,
+    theme.palette.warning.main,
+  ]);
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
 

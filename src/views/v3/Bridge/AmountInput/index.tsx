@@ -139,15 +139,12 @@ const AmountInput = (props: Props) => {
 
   const { sourceToken, destToken } = useGetTokens();
 
-  const isInputDisabled = useMemo(
-    () =>
-      isTransactionInProgress ||
-      !sourceChain ||
-      !sourceToken ||
-      !destChain ||
-      !destToken,
-    [destChain, destToken, isTransactionInProgress, sourceChain, sourceToken],
-  );
+  const isInputDisabled =
+    isTransactionInProgress ||
+    !sourceChain ||
+    !sourceToken ||
+    !destChain ||
+    !destToken;
 
   return (
     <Box sx={styles.amountContainer}>

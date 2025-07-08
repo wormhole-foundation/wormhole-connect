@@ -13,6 +13,7 @@ import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
 import { isEmptyObject, usePrevious } from './utils';
+import { getExperiment } from './utils/experiments';
 import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
@@ -64,12 +65,8 @@ const AppRouterContent: React.FC = () => {
 
   // TODO: Deprecate with UI refresh v3
   const bridgeView = useMemo(() => {
-    return config.ui.experimental?.enableUIRefreshV3 ? (
-      <BridgeV3 />
-    ) : (
-      <BridgeV2 />
-    );
-  }, [config.ui.experimental?.enableUIRefreshV3]);
+    return getExperiment('enableUIRefreshV3') ? <BridgeV3 /> : <BridgeV2 />;
+  }, []);
 
   return (
     <Box
