@@ -192,13 +192,8 @@ const Redeem = () => {
 
   const getUSDAmount = useUSDamountGetter();
 
-  const etaDate: Date | undefined = useMemo(() => {
-    if (eta && txTimestamp) {
-      return new Date(txTimestamp + eta);
-    } else {
-      return undefined;
-    }
-  }, [eta, txTimestamp]);
+  const etaDate: Date | undefined =
+    eta && txTimestamp ? new Date(txTimestamp + eta) : undefined;
 
   // Initialize the countdown with 0, 0 as we might not have eta or txTimestamp yet
   const { seconds, minutes, isRunning, restart } = useTimer({
@@ -236,19 +231,12 @@ const Redeem = () => {
     }
   }, [routeContext, txTrackingResult.receipt]);
 
-  const isAutomaticRoute = useMemo(() => {
-    if (!routeName) {
-      return false;
-    }
-
-    const route = config.routes.get(routeName);
-
-    if (!route) {
-      return false;
-    }
-
-    return route.AUTOMATIC_DEPOSIT;
-  }, [routeName]);
+  const isAutomaticRoute = !routeName
+    ? false
+    : (() => {
+        const route = config.routes.get(routeName);
+        return route ? route.AUTOMATIC_DEPOSIT : false;
+      })();
 
   const details = getTransferDetails(
     routeName!,
@@ -364,34 +352,28 @@ const Redeem = () => {
   );
 
   // Time remaining to reach the estimated completion of the transaction
-  const remainingEta = useMemo(() => {
+  const remainingEta = (() => {
     const etaCompletion = txTimestamp + eta;
     const now = Date.now();
-    if (etaCompletion > now) {
-      return etaCompletion - now;
-    }
+    return etaCompletion > now ? etaCompletion - now : 0;
+  })();
 
-    return 0;
-    // We need to update the remaining ETA every second, that's why we have seconds in the deps array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txTimestamp, eta, etaExpired, seconds]);
+  const defaults: { text: string; align: Alignment } = {
+    text: '',
+    align: 'left',
+  };
 
-  const header = useMemo(() => {
-    const defaults: { text: string; align: Alignment } = {
-      text: '',
-      align: 'left',
-    };
+  let headerConfig;
 
-    let headerConfig;
+  if (typeof config.ui.pageHeader === 'string') {
+    headerConfig = { ...defaults, text: config.ui.pageHeader };
+  } else {
+    headerConfig = { ...defaults, ...config.ui.pageHeader };
+  }
 
-    if (typeof config.ui.pageHeader === 'string') {
-      headerConfig = { ...defaults, text: config.ui.pageHeader };
-    } else {
-      headerConfig = { ...defaults, ...config.ui.pageHeader };
-    }
-
-    return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
-  }, []);
+  const header = (
+    <PageHeader title={headerConfig.text} align={headerConfig.align} />
+  );
 
   // Header showing the status of the transaction
   const statusHeader = useMemo(() => {
@@ -469,16 +451,9 @@ const Redeem = () => {
   ]);
 
   // Value for determinate circular progress bar
-  const etaProgressValue = useMemo(() => {
-    if (eta) {
-      const completedEta = eta - remainingEta;
-      const percentRatio = completedEta / eta;
-      return percentRatio * 100; // Circular progress value range is 0-100
-    }
-
-    // Set initial value to zero if we don't have an ETA
-    return 0;
-  }, [eta, remainingEta]);
+  const etaProgressValue = eta
+    ? ((eta - remainingEta) / eta) * 100 // Circular progress value range is 0-100
+    : 0; // Set initial value to zero if we don't have an ETA
 
   // In-progress circular progress bar
   const etaCircularProgress = useMemo(() => {

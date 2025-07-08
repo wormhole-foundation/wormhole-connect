@@ -229,34 +229,22 @@ const AssetPicker = (props: Props) => {
     [theme],
   );
 
-  const receiveAmount = useMemo(() => {
-    // If the amount input is empty, we don't need to check the quote which may be for the previous amount
-    if (!amount || amount.amount === '' || amount.amount === '0') {
-      return 0;
-    }
-    return props.quote
+  // If the amount input is empty, we don't need to check the quote which may be for the previous amount
+  const receiveAmount =
+    !amount || amount.amount === '' || amount.amount === '0'
+      ? 0
+      : props.quote
       ? sdkAmount.whole(props.quote?.destinationToken.amount)
       : undefined;
-  }, [amount, props.quote]);
 
-  const balance = useMemo(() => {
-    if (!props.isSource || !props.wallet.address) {
-      return null;
-    }
-
-    return (
+  const balance =
+    !props.isSource || !props.wallet.address ? null : (
       <Typography color={theme.palette.text.secondary} variant="body2">
         {tokenBalance
           ? sdkAmount.display(sdkAmount.truncate(tokenBalance, 6))
           : '0'}
       </Typography>
     );
-  }, [
-    props.isSource,
-    props.wallet.address,
-    tokenBalance,
-    theme.palette.text.secondary,
-  ]);
 
   const handleAmountChange = useCallback((newValue: string): void => {
     setAmountInput(newValue);
@@ -312,19 +300,14 @@ const AssetPicker = (props: Props) => {
     ],
   );
 
-  const percentButtons = useMemo(() => {
-    if (!props.wallet.address || !tokenBalance) {
-      return null;
-    }
-
-    return (
+  const percentButtons =
+    !props.wallet.address || !tokenBalance ? null : (
       <Box sx={{ display: 'flex', gap: '6px' }}>
         {renderPercentButton(25)}
         {renderPercentButton(50)}
         {renderPercentButton(100)}
       </Box>
     );
-  }, [props.wallet.address, tokenBalance, renderPercentButton]);
 
   return (
     <Box sx={styles.root}>

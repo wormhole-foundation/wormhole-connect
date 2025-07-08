@@ -107,69 +107,56 @@ const Routes = ({
     mobile,
   ]);
 
-  const routesWithQuotes = useMemo(() => {
-    return routesList.filter((rs) => quotes[rs] !== undefined);
-  }, [routesList, quotes]);
+  const routesWithQuotes = routesList.filter((rs) => quotes[rs] !== undefined);
 
-  const fastestRoute = useMemo(() => {
-    return routesWithQuotes.reduce(
-      (fastest, route) => {
-        const quote = quotes[route];
-        if (!quote || !quote.success) return fastest;
+  const fastestRoute = routesWithQuotes.reduce(
+    (fastest, route) => {
+      const quote = quotes[route];
+      if (!quote || !quote.success) return fastest;
 
-        if (
-          quote.eta !== undefined &&
-          quote.eta < fastest.eta &&
-          quote.eta < 60_000
-        ) {
-          return { name: route, eta: quote.eta };
-        } else {
-          return fastest;
-        }
-      },
-      { name: '', eta: Infinity },
-    );
-  }, [routesWithQuotes, quotes]);
+      if (
+        quote.eta !== undefined &&
+        quote.eta < fastest.eta &&
+        quote.eta < 60_000
+      ) {
+        return { name: route, eta: quote.eta };
+      }
+      return fastest;
+    },
+    { name: '', eta: Infinity },
+  );
 
-  const cheapestRoute = useMemo(() => {
-    return routesWithQuotes.reduce(
-      (cheapest, route) => {
-        const quote = quotes[route];
-        const rc = config.routes.get(route);
-        if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
+  const cheapestRoute = routesWithQuotes.reduce(
+    (cheapest, route) => {
+      const quote = quotes[route];
+      const rc = config.routes.get(route);
+      if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
 
-        const amountOut = BigInt(quote.destinationToken.amount.amount);
-        if (amountOut > cheapest.amountOut) {
-          return { name: route, amountOut };
-        } else {
-          return cheapest;
-        }
-      },
-      { name: '', amountOut: 0n },
-    );
-  }, [routesWithQuotes, quotes]);
+      const amountOut = BigInt(quote.destinationToken.amount.amount);
+      if (amountOut > cheapest.amountOut) {
+        return { name: route, amountOut };
+      }
+      return cheapest;
+    },
+    { name: '', amountOut: 0n },
+  );
 
-  const selectedQuote = useMemo(() => {
-    if (!selectedRoute) {
-      return undefined;
-    }
-    const quoteResult = quotes[selectedRoute];
-    const quote = quoteResult?.success ? quoteResult : undefined;
-    return quote;
-  }, [selectedRoute, quotes]);
+  const selectedQuote = !selectedRoute
+    ? undefined
+    : (() => {
+        const quoteResult = quotes[selectedRoute];
+        return quoteResult?.success ? quoteResult : undefined;
+      })();
 
   const handleCloseRoutes = useCallback(() => {
     mobile ? handleCloseDrawer() : handleCloseModal();
   }, [mobile, handleCloseDrawer, handleCloseModal]);
 
-  const bestRoute = useMemo(() => {
-    if (fastestRoute.name) {
-      return config.routes.get(fastestRoute.name);
-    } else if (cheapestRoute.name) {
-      return config.routes.get(cheapestRoute.name);
-    }
-    return undefined;
-  }, [cheapestRoute.name, fastestRoute.name]);
+  const bestRoute = fastestRoute.name
+    ? config.routes.get(fastestRoute.name)
+    : cheapestRoute.name
+    ? config.routes.get(cheapestRoute.name)
+    : undefined;
 
   const routeSection = useMemo(() => {
     if (selectedRoute && selectedRoute !== bestRoute?.rc.meta.name) {

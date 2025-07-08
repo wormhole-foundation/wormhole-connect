@@ -311,22 +311,22 @@ const Bridge = () => {
   });
 
   // Connect bridge header, which renders any custom overrides for the header
-  const header = useMemo(() => {
-    const defaults: { text: string; align: Alignment } = {
-      text: '',
-      align: 'left',
-    };
+  const defaults: { text: string; align: Alignment } = {
+    text: '',
+    align: 'left',
+  };
 
-    let headerConfig;
+  let headerConfig;
 
-    if (typeof config.ui.pageHeader === 'string') {
-      headerConfig = { ...defaults, text: config.ui.pageHeader };
-    } else {
-      headerConfig = { ...defaults, ...config.ui.pageHeader };
-    }
+  if (typeof config.ui.pageHeader === 'string') {
+    headerConfig = { ...defaults, text: config.ui.pageHeader };
+  } else {
+    headerConfig = { ...defaults, ...config.ui.pageHeader };
+  }
 
-    return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
-  }, []);
+  const header = (
+    <PageHeader title={headerConfig.text} align={headerConfig.align} />
+  );
 
   // Handlers for source asset picker
   const handleSourceChainChange = useCallback(
@@ -361,10 +361,7 @@ const Bridge = () => {
   );
 
   // Quote result for destination picker
-  const destQuoteResult = useMemo(
-    () => (quotes && route ? quotes[route] : undefined),
-    [quotes, route],
-  );
+  const destQuoteResult = quotes && route ? quotes[route] : undefined;
 
   // Source asset picker
   const sourceAssetPicker = useMemo(
@@ -473,7 +470,7 @@ const Bridge = () => {
   );
 
   // Determine which wallet connector to show
-  const walletConnectorProps = useMemo(() => {
+  const walletConnectorProps = (() => {
     if (sendingWallet?.address && receivingWallet?.address) {
       return null;
     } else if (sendingWallet?.address && !receivingWallet?.address) {
@@ -488,12 +485,7 @@ const Bridge = () => {
       side: 'source' as const,
       type: TransferWallet.SENDING,
     };
-  }, [
-    sourceChain,
-    destChain,
-    sendingWallet?.address,
-    receivingWallet?.address,
-  ]);
+  })();
 
   const { isCompatible: isWalletCompatible } = useWalletCompatibility({
     sendingWallet,
