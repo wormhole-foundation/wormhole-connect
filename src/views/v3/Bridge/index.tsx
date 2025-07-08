@@ -592,7 +592,7 @@ const Bridge = () => {
         disabled={confirmTransactionDisabled}
         data-testid="confirm-transaction-button"
         variant="primary"
-        sx={styles.confirmTransaction}
+        styleOverrides={styles.confirmTransaction}
         onClick={() => onConfirm()}
       >
         {isTransactionInProgress ? (

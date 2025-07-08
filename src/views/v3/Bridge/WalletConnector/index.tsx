@@ -59,7 +59,7 @@ const WalletConnector = (props: Props) => {
           variant="primary"
           data-testid={`${props.side}-section-connect-wallet-button`}
           disabled={disabled}
-          sx={{
+          styleOverrides={{
             '&:disabled': {
               cursor: 'not-allowed',
               pointerEvents: 'all !important',

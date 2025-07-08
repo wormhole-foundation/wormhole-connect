@@ -283,7 +283,7 @@ const Routes = ({
           </Stack>
           <Button
             variant="primary"
-            sx={{
+            styleOverrides={{
               padding: '16px 24px',
               height: '48px',
               borderRadius: '48px',
@@ -389,7 +389,7 @@ const Routes = ({
           </Stack>
           <Button
             variant="primary"
-            sx={{
+            styleOverrides={{
               padding: '16px 24px',
               height: '48px',
               borderRadius: '48px',

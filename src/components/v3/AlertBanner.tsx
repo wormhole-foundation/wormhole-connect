@@ -19,13 +19,7 @@ interface AlertBannerProps {
   className?: string;
 }
 
-/**
- * AlertBanner component for displaying contextual messages with appropriate styling
- *
- * @param props - The props for the AlertBanner component
- * @returns A styled alert banner with optional warning/error styling
- */
-const AlertBanner: React.FC<AlertBannerProps> = ({
+function AlertBanner({
   show,
   content,
   warning = false,
@@ -34,7 +28,7 @@ const AlertBanner: React.FC<AlertBannerProps> = ({
   color,
   sx,
   className,
-}) => {
+}: AlertBannerProps) {
   const theme = useTheme();
 
   // Determine the appropriate color based on props
@@ -93,6 +87,6 @@ const AlertBanner: React.FC<AlertBannerProps> = ({
       </Box>
     </Collapse>
   );
-};
+}
 
 export default AlertBanner;

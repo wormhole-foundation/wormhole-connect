@@ -789,7 +789,7 @@ const Redeem = () => {
   const actionButton = useMemo(() => {
     if (isClaimInProgress) {
       return (
-        <Button disabled variant="primary" sx={styles.actionButton}>
+        <Button disabled variant="primary" styleOverrides={styles.actionButton}>
           <Typography
             display="flex"
             alignItems="center"
@@ -816,7 +816,7 @@ const Redeem = () => {
       return (
         <Button
           variant="primary"
-          sx={styles.actionButton}
+          styleOverrides={styles.actionButton}
           onClick={() => {
             dispatch(clearRedeem());
             dispatch(setRoute('search'));
@@ -845,7 +845,7 @@ const Redeem = () => {
         return (
           <Button
             variant="primary"
-            sx={styles.actionButton}
+            styleOverrides={styles.actionButton}
             onClick={() => setIsWalletSidebarOpen(true)}
           >
             <Typography textTransform="none">
@@ -856,7 +856,7 @@ const Redeem = () => {
       } else {
         return (
           <Button
-            sx={[styles.actionButton, styles.claimButton]}
+            styleOverrides={[styles.actionButton, styles.claimButton]}
             variant={claimError ? 'error' : 'primary'}
             onClick={handleManualClaim}
           >
@@ -872,7 +872,7 @@ const Redeem = () => {
       <>
         <Button
           variant="primary"
-          sx={styles.actionButton}
+          styleOverrides={styles.actionButton}
           onClick={() => {
             dispatch(setRoute('bridge'));
           }}

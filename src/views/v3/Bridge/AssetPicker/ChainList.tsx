@@ -90,32 +90,27 @@ const ChainList = (props: Props) => {
     onChainSelect,
   } = props;
 
-  const [topChains, showMoreButton] = useMemo(() => {
+  const topChains = useMemo(() => {
     const allChains = chainList ?? [];
-    const selectedChain = selectedChainConfig;
 
     // Find the selected chain in supported chains
     const selectedChainIndex = allChains.findIndex((chain) => {
-      return chain.sdkName === selectedChain?.sdkName;
+      return chain.sdkName === selectedChainConfig?.sdkName;
     });
     // If the selected chain is outside the top list, we add it to the top;
     // otherwise we do not change its index in the top list
     if (
-      selectedChain &&
+      selectedChainConfig &&
       selectedChainIndex &&
       selectedChainIndex >= SHORT_LIST_SIZE
     ) {
-      return [
-        [selectedChain, ...allChains.slice(0, SHORT_LIST_SIZE - 1)],
-        allChains.length > SHORT_LIST_SIZE,
-      ];
+      return [selectedChainConfig, ...allChains.slice(0, SHORT_LIST_SIZE - 1)];
     }
 
-    return [
-      allChains.slice(0, SHORT_LIST_SIZE),
-      allChains.length > SHORT_LIST_SIZE,
-    ];
+    return allChains.slice(0, SHORT_LIST_SIZE);
   }, [chainList, selectedChainConfig]);
+
+  const showMoreButton = (chainList?.length ?? 0) > SHORT_LIST_SIZE;
 
   const shortList = useMemo(() => {
     return (
