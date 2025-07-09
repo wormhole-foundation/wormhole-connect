@@ -13,8 +13,8 @@ import config from 'config';
 import ClockIcon from 'icons/Clock';
 import { millisToHumanString } from 'utils';
 import { setToNativeToken } from 'store/relay';
-import RoutesMobile from 'views/v3/Bridge/Routes/RoutesMobile';
-import RoutesDesktop from 'views/v3/Bridge/Routes/RoutesDesktop';
+import RoutesMobile from 'views/v3/Bridge/Routes/RoutesBottomSheet';
+import RoutesDesktop from 'views/v3/Bridge/Routes/RoutesModal';
 
 import type { RootState } from 'store';
 

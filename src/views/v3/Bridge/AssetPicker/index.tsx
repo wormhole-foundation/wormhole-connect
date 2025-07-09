@@ -1,18 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Stack, TextField, useMediaQuery } from '@mui/material';
+import { Box, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Backdrop from '@mui/material/Backdrop';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Popover from '@mui/material/Popover';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import {
-  usePopupState,
-  bindPopover,
-  bindTrigger,
-} from 'material-ui-popup-state/hooks';
+import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 import { Chain, routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
@@ -22,8 +16,6 @@ import type { RootState } from 'store';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain, setAmount } from 'store/transferInput';
 import { Balances } from 'utils/wallet/types';
-import ChainList from './ChainList';
-import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
@@ -33,6 +25,8 @@ import AmountInput from '../AmountInput';
 import { AmountValidationResult } from 'hooks/useAmountValidation';
 import { OPACITY } from 'utils/style';
 import Color from 'color';
+import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
+import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
 
 type Props = {
   chain?: Chain | undefined;
@@ -202,20 +196,8 @@ function AssetPicker(props: Props) {
         cursor: 'default',
         pointerEvents: 'none',
       },
-      popoverSlot: {
-        width: '100%',
-        maxWidth: '420px',
-        borderRadius: '8px',
-        background: theme.palette.input.background,
-      },
       backdrop: {
         backgroundColor: `rgba(0,0,0,0.2)`,
-      },
-      drawer: {
-        background: theme.palette.input.background,
-        borderRadius: '8px',
-        height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
-        maxWidth: '100vw', // Force full-width on small mobile devices
       },
       percentButton: {
         borderRadius: '50px',
@@ -256,6 +238,14 @@ function AssetPicker(props: Props) {
       setDebouncedAmountInput(newValue);
     },
     [dispatch],
+  );
+
+  const handleChainSelect = useCallback(
+    (chain: Chain) => {
+      props.setChain(chain);
+      setSearchQuery('');
+    },
+    [props],
   );
 
   // Clear the amount input value if the amount is reset outside of this component
@@ -426,112 +416,55 @@ function AssetPicker(props: Props) {
         )}
       </Box>
       {mobile ? (
-        <SwipeableDrawer
-          anchor="bottom"
-          open={isDrawerOpen}
-          slotProps={{
-            paper: {
-              sx: styles.drawer,
-            },
+        <AssetPickerDrawer
+          isDrawerOpen={isDrawerOpen}
+          setIsDrawerOpen={setIsDrawerOpen}
+          chainList={props.chainList}
+          chainConfig={chainConfig}
+          showChainSearch={showChainSearch}
+          setShowChainSearch={setShowChainSearch}
+          wallet={props.wallet}
+          sortedTokens={sortedTokens}
+          balances={props.balances}
+          isFetchingBalances={props.isFetchingBalances}
+          isConnectingWallet={props.isConnectingWallet}
+          isFetchingTokens={props.isFetchingTokens}
+          token={props.token}
+          sourceToken={props.sourceToken}
+          isSource={props.isSource}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onChainSelect={handleChainSelect}
+          onTokenSelect={(key: Token) => {
+            props.setToken(key);
+            setIsDrawerOpen(false);
           }}
-          transitionDuration={200}
-          onOpen={() => setIsDrawerOpen(true)}
-          onClose={() => setIsDrawerOpen(false)}
-        >
-          <Stack alignItems="center" paddingBottom="4px" paddingTop="8px">
-            <Box
-              sx={{
-                width: '40px',
-                height: '5px',
-                backgroundColor: theme.palette.text.secondary,
-                borderRadius: '8px',
-              }}
-            ></Box>
-          </Stack>
-          <ChainList
-            chainList={props.chainList}
-            selectedChainConfig={chainConfig}
-            showSearch={showChainSearch}
-            setShowSearch={setShowChainSearch}
-            wallet={props.wallet}
-            onChainSelect={(key) => {
-              props.setChain(key);
-              setSearchQuery('');
-            }}
-          />
-          {!showChainSearch && chainConfig && (
-            <TokenList
-              tokenList={sortedTokens}
-              balances={props.balances}
-              isFetchingBalances={props.isFetchingBalances}
-              isConnectingWallet={props.isConnectingWallet}
-              isFetching={props.isFetchingTokens}
-              selectedChainConfig={chainConfig}
-              selectedToken={props.token}
-              sourceToken={props.sourceToken}
-              isSource={props.isSource}
-              wallet={props.wallet}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              onSelectToken={(key: Token) => {
-                props.setToken(key);
-                setIsDrawerOpen(false);
-              }}
-            />
-          )}
-        </SwipeableDrawer>
+        />
       ) : (
-        <Popover
-          {...bindPopover(popupState)}
-          transitionDuration={200}
+        <AssetPickerPopover
+          popupState={popupState}
           anchorEl={props.anchorEl}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
+          chainList={props.chainList}
+          chainConfig={chainConfig}
+          showChainSearch={showChainSearch}
+          setShowChainSearch={setShowChainSearch}
+          wallet={props.wallet}
+          sortedTokens={sortedTokens}
+          balances={props.balances}
+          isFetchingBalances={props.isFetchingBalances}
+          isConnectingWallet={props.isConnectingWallet}
+          isFetchingTokens={props.isFetchingTokens}
+          token={props.token}
+          sourceToken={props.sourceToken}
+          isSource={props.isSource}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onChainSelect={handleChainSelect}
+          onTokenSelect={(key: Token) => {
+            props.setToken(key);
+            popupState.close();
           }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
-          marginThreshold={4}
-          slotProps={{
-            paper: {
-              sx: [styles.popoverSlot, { borderRadius: '8px' }],
-            },
-          }}
-        >
-          <ChainList
-            chainList={props.chainList}
-            selectedChainConfig={chainConfig}
-            showSearch={showChainSearch}
-            setShowSearch={setShowChainSearch}
-            wallet={props.wallet}
-            onChainSelect={(key) => {
-              props.setChain(key);
-              setSearchQuery('');
-            }}
-          />
-          {!showChainSearch && chainConfig && (
-            <TokenList
-              tokenList={sortedTokens}
-              balances={props.balances}
-              isFetchingBalances={props.isFetchingBalances}
-              isConnectingWallet={props.isConnectingWallet}
-              isFetching={props.isFetchingTokens}
-              selectedChainConfig={chainConfig}
-              selectedToken={props.token}
-              sourceToken={props.sourceToken}
-              isSource={props.isSource}
-              wallet={props.wallet}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              onSelectToken={(key: Token) => {
-                props.setToken(key);
-                popupState.close();
-              }}
-            />
-          )}
-        </Popover>
+        />
       )}
     </Box>
   );
