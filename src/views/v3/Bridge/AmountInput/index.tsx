@@ -104,12 +104,13 @@ function AmountInput(props: Props) {
 
   const htmlInputProps = useMemo(
     () => ({
+      maxLength: 24,
       style: {
         color: props.error
           ? theme.palette.error.main
           : theme.palette.text.primary,
-        fontSize: '36px',
-        height: '36px',
+        fontSize: '32px',
+        height: '32px',
       },
       onWheel: (e) => {
         // IMPORTANT: We need to prevent the scroll behavior on number inputs.

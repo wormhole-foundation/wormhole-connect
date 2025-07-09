@@ -687,6 +687,10 @@ function Bridge() {
     ],
   );
 
+  const iconTooltip =
+    (!sendingWallet?.address && 'No connected wallets found') ||
+    (showHistory ? 'Show bridge' : 'Show history');
+
   return (
     <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
       <Box sx={styles.titleContent}>
@@ -701,12 +705,11 @@ function Bridge() {
             size={18}
             testId="bridge-view-header"
           />
-          <Tooltip
-            title={!sendingWallet?.address ? 'No connected wallets found' : ''}
-          >
+          <Tooltip title={iconTooltip}>
             <span>
               <IconButton
                 data-testid="history-button"
+                aria-label={showHistory ? 'Show bridge' : 'Show history'}
                 sx={{ padding: 0 }}
                 disabled={isTxHistoryDisabled}
                 onClick={handleHistoryToggle}

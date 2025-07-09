@@ -353,8 +353,8 @@ function AssetPicker(props: Props) {
                 slotProps={{
                   htmlInput: {
                     style: {
-                      fontSize: '36px',
-                      height: '36px',
+                      fontSize: '32px',
+                      height: '32px',
                     },
                   },
                   input: {

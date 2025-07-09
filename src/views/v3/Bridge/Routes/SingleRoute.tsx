@@ -75,20 +75,16 @@ const SingleRoute = (props: Props) => {
         marginRight: '24px',
       },
       fastestBadge: {
-        width: '14px',
-        height: '14px',
-        position: 'relative' as const,
-        top: '2px',
+        width: '16px',
+        height: '16px',
         marginRight: '4px',
         fill: theme.palette.primary.main,
       },
       cheapestBadge: {
-        width: '12px',
-        height: '12px',
-        position: 'relative' as const,
-        top: '1px',
-        marginRight: '3px',
-        fill: theme.palette.primary.main,
+        width: '16px',
+        height: '16px',
+        marginRight: '4px',
+        color: theme.palette.primary.main,
       },
       messageContainer: {
         padding: '12px 0px 0px',
@@ -504,16 +500,21 @@ const SingleRoute = (props: Props) => {
   const routeCardBadge = useMemo(() => {
     if (props.isFastest) {
       return (
-        <>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <FastestRoute sx={styles.fastestBadge} />
-          {props.isOnlyChoice ? 'Fast' : 'Fastest'}
-        </>
+          <Typography component="span" fontSize="14px" lineHeight="14px">
+            {props.isOnlyChoice ? 'Fast' : 'Fastest'}
+          </Typography>
+        </Box>
       );
     } else if (props.isCheapest && !props.isOnlyChoice) {
       return (
-        <>
-          <CheapestRoute sx={styles.cheapestBadge} /> Cheapest
-        </>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <CheapestRoute sx={styles.cheapestBadge} />
+          <Typography component="span" fontSize="14px" lineHeight="14px">
+            Cheapest
+          </Typography>
+        </Box>
       );
     } else {
       return null;
