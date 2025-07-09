@@ -139,6 +139,14 @@ function AssetPickerPopover({
             maxWidth: '420px',
             borderRadius: '8px',
             background: theme.palette.input.background,
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', // Safari support
+          },
+        },
+        root: {
+          sx: {
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', // Safari support
           },
         },
       }}

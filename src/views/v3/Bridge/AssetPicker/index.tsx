@@ -2,7 +2,6 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import Backdrop from '@mui/material/Backdrop';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -197,9 +196,6 @@ function AssetPicker(props: Props) {
         cursor: 'default',
         pointerEvents: 'none',
       },
-      backdrop: {
-        backgroundColor: `rgba(0,0,0,0.2)`,
-      },
       percentButton: {
         borderRadius: '50px',
         color: theme.palette.text.primary,
@@ -316,7 +312,6 @@ function AssetPicker(props: Props) {
 
   return (
     <Box sx={styles.root}>
-      <Backdrop open={popupState.isOpen} sx={styles.backdrop} />
       <Box sx={styles.container}>
         <Box sx={styles.title}>
           <Typography fontSize={12} variant="body2">

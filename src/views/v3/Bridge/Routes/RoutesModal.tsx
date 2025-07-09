@@ -129,6 +129,14 @@ function RoutesDesktop({
       }}
       open={open}
       onClose={onClose}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', // Safari support
+          },
+        },
+      }}
     >
       <Box
         sx={{
