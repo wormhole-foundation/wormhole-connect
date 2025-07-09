@@ -43,8 +43,9 @@ export async function getTokenMetadataSolana(
   tokenId: TokenId,
 ): Promise<TokenMetadataFromRpc | undefined> {
   try {
+    if (chainToPlatform(tokenId.chain) !== 'Solana') return undefined;
     const platform = wh.getPlatform('Solana');
-    const rpc = platform.getRpc('Solana');
+    const rpc = platform.getRpc(tokenId.chain as PlatformToChains<'Solana'>);
     const umi = createUmi(rpc);
     umi.use(mplTokenMetadata());
 

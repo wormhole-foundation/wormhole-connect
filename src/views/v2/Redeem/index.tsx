@@ -22,6 +22,7 @@ import {
   isFailed,
   routes,
   isNative,
+  chainToPlatform,
 } from '@wormhole-foundation/sdk';
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 
@@ -646,7 +647,7 @@ const Redeem = () => {
     // to claim the transfer, which will create the ATA.
     if (
       isResumeTx &&
-      toChain === 'Solana' &&
+      chainToPlatform(toChain) === 'Solana' &&
       receivingWallet.address &&
       receivingWallet.type === 'Solana' &&
       receivingWallet.address !== recipient &&

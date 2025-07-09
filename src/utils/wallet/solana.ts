@@ -28,45 +28,55 @@ import {
 import config from 'config';
 
 import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
-import { Network } from '@wormhole-foundation/sdk';
+import { Chain, Network } from '@wormhole-foundation/sdk';
 import { setPriorityFeeInstructions } from 'utils/solana';
 import { sleep } from 'utils';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
 
-export function fetchOptions() {
-  const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
-  const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
+export function fetchOptions(chain: Chain) {
+  if (chain === 'Solana') {
+    const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
+    const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
 
-  return {
-    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-      acc[getWalletName(w)] = w;
-      return acc;
-    }, {} as Record<string, Wallet>),
-    bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
-    clover: new SolanaWallet(new CloverWalletAdapter(), connection),
-    coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
-    solong: new SolanaWallet(new SolongWalletAdapter(), connection),
-    torus: new SolanaWallet(new TorusWalletAdapter(), connection),
-    nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-    ...(config.ui.walletConnectProjectId
-      ? {
-          walletConnect: new SolanaWallet(
-            new WalletConnectWalletAdapter({
-              network: config.isMainnet
-                ? SolanaNetwork.Mainnet
-                : SolanaNetwork.Devnet,
-              options: {
-                projectId: config.ui.walletConnectProjectId,
-                customStoragePrefix: 'wh-connect-solana-adapter',
-              },
-            }),
-            connection,
-          ),
-        }
-      : {}),
-  };
+    return {
+      ...getSolanaStandardWallets(connection).reduce((acc, w) => {
+        acc[getWalletName(w)] = w;
+        return acc;
+      }, {} as Record<string, Wallet>),
+      bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
+      clover: new SolanaWallet(new CloverWalletAdapter(), connection),
+      coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
+      solong: new SolanaWallet(new SolongWalletAdapter(), connection),
+      torus: new SolanaWallet(new TorusWalletAdapter(), connection),
+      nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
+      ...(config.ui.walletConnectProjectId
+        ? {
+            walletConnect: new SolanaWallet(
+              new WalletConnectWalletAdapter({
+                network: config.isMainnet
+                  ? SolanaNetwork.Mainnet
+                  : SolanaNetwork.Devnet,
+                options: {
+                  projectId: config.ui.walletConnectProjectId,
+                  customStoragePrefix: 'wh-connect-solana-adapter',
+                },
+              }),
+              connection,
+            ),
+          }
+        : {}),
+    };
+  } else if (chain === 'Fogo') {
+    if (!config.rpcs.Fogo) throw new Error('Fogo RPC not found');
+    const connection = new Connection(config.rpcs.Fogo);
+    return {
+      nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
+    };
+  }
+
+  throw new Error(`Unsupported chain: ${chain}`);
 }
 
 // This function signs and sends the transaction while constantly checking for confirmation
@@ -78,10 +88,11 @@ export async function signAndSendTransaction(
   options?: ConfirmOptions,
 ) {
   if (!wallet) throw new Error('Wallet not found');
-  if (!config.rpcs.Solana) throw new Error('Solana RPC not found');
+  const rpc = config.rpcs[request.chain];
+  if (!rpc) throw new Error(`${request.chain} RPC not found`);
 
   const commitment = options?.commitment ?? 'finalized';
-  const connection = new Connection(config.rpcs.Solana);
+  const connection = new Connection(rpc);
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);
 

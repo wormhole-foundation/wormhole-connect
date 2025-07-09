@@ -355,7 +355,7 @@ export const getWalletOptions = async (
     return wallets;
   } else if (platform === 'Solana') {
     const solana = await import('utils/wallet/solana');
-    const solanaWallets = solana.fetchOptions();
+    const solanaWallets = solana.fetchOptions(chain.sdkName);
     return Object.values(mapWallets(solanaWallets, platform));
   } else if (platform === 'Sui') {
     const suiWallet = await import('utils/wallet/sui');

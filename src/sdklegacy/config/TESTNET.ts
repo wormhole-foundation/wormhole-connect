@@ -11,6 +11,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Fantom: 'https://rpc.testnet.fantom.network',
     Celo: 'https://alfajores-forno.celo-testnet.org',
     Solana: 'https://api.devnet.solana.com',
+    Fogo: 'https://testnet.fogo.io',
     Moonbeam: 'https://rpc.api.moonbase.moonbeam.network',
     Sui: 'https://fullnode.testnet.sui.io',
     Aptos: 'https://fullnode.testnet.aptoslabs.com/v1',

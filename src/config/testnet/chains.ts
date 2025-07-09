@@ -185,4 +185,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Plume',
     symbol: 'PLUME',
   },
+  Fogo: {
+    displayName: 'Fogo',
+    sdkName: 'Fogo',
+    explorerUrl: 'https://explorer.fogo.io/',
+    explorerName: 'Fogo Explorer',
+    icon: 'Fogo',
+    symbol: 'FOGO',
+  },
 };

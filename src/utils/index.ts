@@ -41,7 +41,7 @@ export function trimTxHash(
 export function displayAddress(chain: Chain, address: string): string {
   if (chainToPlatform.get(chain) === 'Evm') {
     return trimAddress(convertAddress(address));
-  } else if (chain === 'Solana') {
+  } else if (chainToPlatform.get(chain) === 'Solana') {
     return trimAddress(address, 4);
   }
 

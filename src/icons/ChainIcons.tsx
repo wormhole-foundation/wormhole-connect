@@ -29,6 +29,7 @@ import LINEA from './Chains/LINEA';
 import SONIC from './Chains/SONIC';
 import SEIEVM from './Chains/SEIEVM';
 import PLUME from './Chains/PLUME';
+import FOGO from './Chains/FOGO';
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
@@ -56,6 +57,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Sonic: SONIC(),
   Seievm: SEIEVM(),
   Plume: PLUME(),
+  Fogo: FOGO(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

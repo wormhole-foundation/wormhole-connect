@@ -104,6 +104,21 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 9,
   },
   {
+    symbol: 'FOGO',
+    icon: TokenIcon.FOGO,
+    decimals: 9,
+    tokenId: { chain: 'Fogo', address: 'native' },
+  },
+  {
+    symbol: 'WFOGO',
+    icon: TokenIcon.FOGO,
+    decimals: 9,
+    tokenId: {
+      chain: 'Fogo',
+      address: 'So11111111111111111111111111111111111111112',
+    },
+  },
+  {
     symbol: 'USDC',
     tokenId: {
       chain: 'Solana',

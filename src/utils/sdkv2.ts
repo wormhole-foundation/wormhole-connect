@@ -17,6 +17,7 @@ import {
   nativeTokenId,
   TBTCBridge,
   ExecutorTokenBridge,
+  chainToPlatform,
 } from '@wormhole-foundation/sdk';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
@@ -213,7 +214,7 @@ const parseTokenBridgeReceipt = async (
   }
 
   if (payload.to) {
-    if (receipt.to === 'Solana') {
+    if (chainToPlatform(receipt.to) === 'Solana') {
       if (!config.rpcs.Solana) {
         throw new Error('Missing Solana RPC');
       }
