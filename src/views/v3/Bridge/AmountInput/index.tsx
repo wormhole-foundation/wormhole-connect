@@ -98,7 +98,7 @@ type Props = {
 /**
  * Renders the input control to set the transaction amount
  */
-const AmountInput = (props: Props) => {
+function AmountInput(props: Props) {
   const theme = useTheme();
 
   const styles = useMemo(
@@ -184,6 +184,6 @@ const AmountInput = (props: Props) => {
       </Card>
     </Box>
   );
-};
+}
 
 export default React.memo(AmountInput);

@@ -63,7 +63,7 @@ import { clearRedeem } from 'store/redeem';
 import { setSearch } from 'store/search';
 import { isExecutorRoute } from 'utils';
 
-const Redeem = () => {
+function Redeem() {
   const dispatch = useDispatch();
   const theme = useTheme();
 
@@ -951,6 +951,6 @@ const Redeem = () => {
       />
     </Box>
   );
-};
+}
 
 export default React.memo(Redeem);

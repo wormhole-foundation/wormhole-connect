@@ -56,7 +56,7 @@ type Props = {
   anchorEl: HTMLElement | null;
 };
 
-const AssetPicker = (props: Props) => {
+function AssetPicker(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -535,6 +535,6 @@ const AssetPicker = (props: Props) => {
       )}
     </Box>
   );
-};
+}
 
 export default React.memo(AssetPicker);

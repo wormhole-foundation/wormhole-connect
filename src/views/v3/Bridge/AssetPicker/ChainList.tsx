@@ -29,7 +29,7 @@ type Props = {
 
 const SHORT_LIST_SIZE = 5;
 
-const ChainList = (props: Props) => {
+function ChainList(props: Props) {
   const theme = useTheme();
   const [chainSearchQuery, setChainSearchQuery] = useState('');
 
@@ -221,6 +221,6 @@ const ChainList = (props: Props) => {
       </CardContent>
     </Card>
   );
-};
+}
 
 export default React.memo(ChainList);

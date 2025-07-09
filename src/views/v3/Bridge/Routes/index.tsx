@@ -30,13 +30,13 @@ type Props = {
   isLoading: boolean;
 };
 
-const Routes = ({
+function Routes({
   routes: routesList,
   selectedRoute,
   onRouteChange,
   quotes,
   isLoading,
-}: Props) => {
+}: Props) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -543,6 +543,6 @@ const Routes = ({
       )}
     </>
   );
-};
+}
 
 export default React.memo(Routes);

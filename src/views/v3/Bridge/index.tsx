@@ -56,7 +56,7 @@ import SwapInputs from 'views/v3/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v3/TxHistory/Widget';
 import TxHistory from '../TxHistory';
 
-const Bridge = () => {
+function Bridge() {
   const theme: any = useTheme();
   const dispatch = useDispatch();
 
@@ -729,6 +729,6 @@ const Bridge = () => {
       <FooterNavBar />
     </Box>
   );
-};
+}
 
 export default React.memo(Bridge);
