@@ -51,7 +51,7 @@ type Props = {
 };
 
 function AssetPicker(props: Props) {
-  const theme = useTheme();
+  const theme: any = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { amount } = useSelector((state: RootState) => state.transferInput);
@@ -65,6 +65,7 @@ function AssetPicker(props: Props) {
   const [debouncedAmountInput, setDebouncedAmountInput] = useState(
     amount ? sdkAmount.display(amount) : '',
   );
+  const [selectedPercentButton, setSelectedPercentButton] = useState(0);
 
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
@@ -207,6 +208,11 @@ function AssetPicker(props: Props) {
         backgroundColor: theme.palette.text.primary + OPACITY[10],
         opacity: 0.7,
       },
+      percentButtonSelected: {
+        color: theme.palette.background.form,
+        backgroundColor: theme.palette.primary.main,
+        opacity: 'unset',
+      },
     }),
     [theme],
   );
@@ -230,6 +236,7 @@ function AssetPicker(props: Props) {
 
   const handleAmountChange = useCallback((newValue: string): void => {
     setAmountInput(newValue);
+    setSelectedPercentButton(0); // Reset selected percent button when amount changes
   }, []);
 
   const handleDebouncedAmountChange = useCallback(
@@ -262,7 +269,12 @@ function AssetPicker(props: Props) {
   const renderPercentButton = useCallback(
     (percent: number) => (
       <Button
-        sx={styles.percentButton}
+        sx={{
+          ...styles.percentButton,
+          ...(selectedPercentButton === percent
+            ? styles.percentButtonSelected
+            : {}),
+        }}
         disabled={props.isTransactionInProgress}
         onClick={() => {
           if (tokenBalance) {
@@ -273,20 +285,23 @@ function AssetPicker(props: Props) {
             );
             handleAmountChange(displayAmount);
             handleDebouncedAmountChange(displayAmount);
+            setSelectedPercentButton(percent);
           }
         }}
       >
-        <Typography fontSize={12} fontWeight={500} textTransform="none">
+        <Typography fontSize={12} fontWeight={600} textTransform="none">
           {percent === 100 ? 'Max' : `${percent}%`}
         </Typography>
       </Button>
     ),
     [
-      handleAmountChange,
-      handleDebouncedAmountChange,
+      styles.percentButton,
+      styles.percentButtonSelected,
+      selectedPercentButton,
       props.isTransactionInProgress,
       tokenBalance,
-      styles.percentButton,
+      handleAmountChange,
+      handleDebouncedAmountChange,
     ],
   );
 
