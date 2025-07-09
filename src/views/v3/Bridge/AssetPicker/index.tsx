@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -324,7 +324,7 @@ function AssetPicker(props: Props) {
           {props.isSource ? (
             <AmountInput
               value={amountInput}
-              debauncedValue={debouncedAmountInput}
+              debouncedValue={debouncedAmountInput}
               receiveAmount={receiveAmount}
               supportedSourceTokens={props.tokenList || []}
               tokenBalance={
@@ -470,4 +470,4 @@ function AssetPicker(props: Props) {
   );
 }
 
-export default React.memo(AssetPicker);
+export default memo(AssetPicker);

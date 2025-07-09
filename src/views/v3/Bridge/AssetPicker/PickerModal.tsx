@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useTheme } from '@mui/material';
 import Popover from '@mui/material/Popover';
 import { bindPopover } from 'material-ui-popup-state/hooks';
@@ -149,4 +149,4 @@ function AssetPickerPopover({
   );
 }
 
-export default React.memo(AssetPickerPopover);
+export default memo(AssetPickerPopover);

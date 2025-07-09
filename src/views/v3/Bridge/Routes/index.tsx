@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
@@ -349,4 +349,4 @@ function Routes({
   );
 }
 
-export default React.memo(Routes);
+export default memo(Routes);

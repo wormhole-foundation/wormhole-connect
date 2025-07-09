@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -157,4 +157,4 @@ function AssetPickerDrawer({
   );
 }
 
-export default React.memo(AssetPickerDrawer);
+export default memo(AssetPickerDrawer);

@@ -73,6 +73,7 @@ const DebouncedTextField = memo(
       <TextField
         {...props}
         data-testid="amount-input"
+        aria-label="Amount input"
         value={innerValue}
         focused={isFocused}
         onChange={onInnerChange}
@@ -85,7 +86,7 @@ const DebouncedTextField = memo(
 
 type Props = {
   value: string;
-  debauncedValue: string;
+  debouncedValue: string;
   supportedSourceTokens: Array<Token>;
   tokenBalance: sdkAmount.Amount | null;
   receiveAmount?: number | undefined;
@@ -100,6 +101,26 @@ type Props = {
  */
 function AmountInput(props: Props) {
   const theme = useTheme();
+
+  const htmlInputProps = useMemo(
+    () => ({
+      style: {
+        color: props.error
+          ? theme.palette.error.main
+          : theme.palette.text.primary,
+        fontSize: '36px',
+        height: '36px',
+      },
+      onWheel: (e) => {
+        // IMPORTANT: We need to prevent the scroll behavior on number inputs.
+        // Otherwise it'll increase/decrease the value when user scrolls on the input control.
+        // See for details: https://github.com/mui/material-ui/issues/7960
+        e.currentTarget.blur();
+      },
+      step: '0.1',
+    }),
+    [props.error, theme.palette.error.main, theme.palette.text.primary],
+  );
 
   const styles = useMemo(
     () => ({
@@ -155,28 +176,13 @@ function AmountInput(props: Props) {
             disabled={isInputDisabled}
             placeholder="0"
             slotProps={{
-              htmlInput: {
-                style: {
-                  color: props.error
-                    ? theme.palette.error.main
-                    : theme.palette.text.primary,
-                  fontSize: '36px',
-                  height: '36px',
-                },
-                onWheel: (e) => {
-                  // IMPORTANT: We need to prevent the scroll behavior on number inputs.
-                  // Otherwise it'll increase/decrease the value when user scrolls on the input control.
-                  // See for details: https://github.com/mui/material-ui/issues/7960
-                  e.currentTarget.blur();
-                },
-                step: '0.1',
-              },
+              htmlInput: htmlInputProps,
               input: {
                 disableUnderline: true,
               },
             }}
             variant="standard"
-            value={props.debauncedValue}
+            value={props.debouncedValue}
             onChange={props.onChange}
             onDebouncedChange={props.onDebouncedChange}
           />
@@ -186,4 +192,4 @@ function AmountInput(props: Props) {
   );
 }
 
-export default React.memo(AmountInput);
+export default memo(AmountInput);

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -151,4 +151,4 @@ function RoutesDesktop({
   );
 }
 
-export default React.memo(RoutesDesktop);
+export default memo(RoutesDesktop);
