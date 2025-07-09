@@ -130,7 +130,7 @@ const TokenList = (props: Props) => {
       tokenList: {
         maxHeight: '360px',
         [theme.breakpoints.down('sm')]: {
-          maxHeight: '480px',
+          maxHeight: '520px',
         },
       },
     }),

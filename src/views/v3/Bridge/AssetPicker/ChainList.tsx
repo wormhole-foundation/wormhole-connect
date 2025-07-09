@@ -56,9 +56,9 @@ function ChainList(props: Props) {
         marginBottom: '12px',
       },
       chainSearch: {
-        maxHeight: '400px',
+        maxHeight: '480px',
         [theme.breakpoints.down('sm')]: {
-          maxHeight: '600px',
+          maxHeight: '640px',
         },
       },
       chainButton: {
