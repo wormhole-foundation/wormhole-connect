@@ -2,23 +2,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
-import Modal from '@mui/material/Modal';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Typography from '@mui/material/Typography';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import ClockIcon from 'icons/Clock';
-import CloseIcon from '@mui/icons-material/Close';
-import SingleRoute from 'views/v3/Bridge/Routes/SingleRoute';
 import { millisToHumanString } from 'utils';
-import Button from 'components/v3/Button';
 import { setToNativeToken } from 'store/relay';
+import RoutesMobile from 'views/v3/Bridge/Routes/RoutesMobile';
+import RoutesDesktop from 'views/v3/Bridge/Routes/RoutesDesktop';
 
 import type { RootState } from 'store';
 
@@ -148,10 +144,6 @@ function Routes({
         return quoteResult?.success ? quoteResult : undefined;
       })();
 
-  const handleCloseRoutes = useCallback(() => {
-    mobile ? handleCloseDrawer() : handleCloseModal();
-  }, [mobile, handleCloseDrawer, handleCloseModal]);
-
   const bestRoute = fastestRoute.name
     ? config.routes.get(fastestRoute.name)
     : cheapestRoute.name
@@ -192,223 +184,6 @@ function Routes({
       toNativeToken === gasTokenAmount / 100
     );
   }, [selectedRoute, highlightedRoute, toNativeToken, gasTokenAmount]);
-
-  // Routes drawer for mobile
-  const routesDrawer = useMemo(
-    () => (
-      <SwipeableDrawer
-        anchor="bottom"
-        open={showDrawer}
-        slotProps={{
-          paper: {
-            sx: {
-              background: theme.palette.input.background,
-              borderRadius: '8px',
-              height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
-              maxWidth: '100vw', // Force full-width on small mobile devices
-            },
-          },
-        }}
-        transitionDuration={200}
-        onOpen={() => setShowDrawer(true)}
-        onClose={handleCloseDrawer}
-      >
-        <Box
-          sx={{
-            backgroundColor: theme.palette.background.paper,
-            padding: '8px',
-            borderRadius: '12px',
-            gap: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            maxWidth: '420px',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Typography component={'span'} fontSize="16px" fontWeight={600}>
-              Routes
-            </Typography>
-            <IconButton
-              sx={{ opacity: 0.5, padding: 0 }}
-              onClick={handleCloseRoutes}
-            >
-              <CloseIcon sx={{ height: '24px', width: '24px' }} />
-            </IconButton>
-          </Box>
-          <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
-            {routesWithQuotes.map((name) => {
-              const isSelected = name === highlightedRoute;
-              const quoteResult = quotes[name];
-              const quote = quoteResult?.success ? quoteResult : undefined;
-              const quoteError =
-                quoteResult?.success === false
-                  ? quoteResult?.error?.message ??
-                    `Error while getting a quote for ${name}.`
-                  : undefined;
-              return (
-                <SingleRoute
-                  key={name}
-                  route={name}
-                  error={quoteError}
-                  isSelected={isSelected && !quoteError}
-                  isFastest={name === fastestRoute.name}
-                  isCheapest={name === cheapestRoute.name}
-                  isOnlyChoice={routesWithQuotes.length === 1}
-                  onSelect={handleRouteSelect}
-                  onGasChange={handleGasTokenChange}
-                  quote={quote}
-                />
-              );
-            })}
-          </Stack>
-          <Button
-            variant="primary"
-            styleOverrides={{
-              padding: '16px 24px',
-              height: '48px',
-              borderRadius: '48px',
-            }}
-            onClick={handleSelectRoute}
-            disabled={selectButtonDisabled}
-            data-testid="select-route-button"
-            fullWidth
-          >
-            <Typography fontSize="16px" fontWeight={600} textTransform="none">
-              Select
-            </Typography>
-          </Button>
-        </Box>
-      </SwipeableDrawer>
-    ),
-    [
-      showDrawer,
-      theme.palette.input.background,
-      theme.palette.background.paper,
-      handleCloseDrawer,
-      handleCloseRoutes,
-      routesWithQuotes,
-      highlightedRoute,
-      quotes,
-      fastestRoute.name,
-      cheapestRoute.name,
-      handleRouteSelect,
-      handleGasTokenChange,
-      handleSelectRoute,
-      selectButtonDisabled,
-    ],
-  );
-
-  // Routes modal for desktop
-  const routesModal = useMemo(
-    () => (
-      <Modal
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        open={showModal}
-        onClose={handleCloseModal}
-      >
-        <Box
-          sx={{
-            backgroundColor: theme.palette.background.paper,
-            padding: '24px',
-            borderRadius: '12px',
-            gap: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            width: '420px',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)', // Safari support
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Typography component={'span'} fontSize="16px" fontWeight={600}>
-              Routes
-            </Typography>
-            <IconButton
-              sx={{ opacity: 0.5, padding: 0 }}
-              onClick={handleCloseRoutes}
-            >
-              <CloseIcon sx={{ height: '24px', width: '24px' }} />
-            </IconButton>
-          </Box>
-          <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
-            {routesWithQuotes.map((name) => {
-              const isSelected = name === highlightedRoute;
-              const quoteResult = quotes[name];
-              const quote = quoteResult?.success ? quoteResult : undefined;
-              const quoteError =
-                quoteResult?.success === false
-                  ? quoteResult?.error?.message ??
-                    `Error while getting a quote for ${name}.`
-                  : undefined;
-              return (
-                <SingleRoute
-                  key={name}
-                  route={name}
-                  error={quoteError}
-                  isSelected={isSelected && !quoteError}
-                  isFastest={name === fastestRoute.name}
-                  isCheapest={name === cheapestRoute.name}
-                  isOnlyChoice={routesWithQuotes.length === 1}
-                  onSelect={handleRouteSelect}
-                  onGasChange={handleGasTokenChange}
-                  quote={quote}
-                />
-              );
-            })}
-          </Stack>
-          <Button
-            variant="primary"
-            styleOverrides={{
-              padding: '16px 24px',
-              height: '48px',
-              borderRadius: '48px',
-            }}
-            onClick={handleSelectRoute}
-            disabled={selectButtonDisabled}
-            data-testid="select-route-button"
-            fullWidth
-          >
-            <Typography fontSize="16px" fontWeight={600} textTransform="none">
-              Select Route
-            </Typography>
-          </Button>
-        </Box>
-      </Modal>
-    ),
-    [
-      showModal,
-      theme.palette.background.paper,
-      handleCloseModal,
-      handleCloseRoutes,
-      routesWithQuotes,
-      highlightedRoute,
-      quotes,
-      fastestRoute.name,
-      cheapestRoute.name,
-      handleRouteSelect,
-      handleGasTokenChange,
-      handleSelectRoute,
-      selectButtonDisabled,
-    ],
-  );
 
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
@@ -538,7 +313,36 @@ function Routes({
               </Box>
             </Box>
           </Box>
-          {mobile ? routesDrawer : routesModal}
+          {mobile ? (
+            <RoutesMobile
+              open={showDrawer}
+              onOpen={() => setShowDrawer(true)}
+              onClose={handleCloseDrawer}
+              routesWithQuotes={routesWithQuotes}
+              highlightedRoute={highlightedRoute}
+              quotes={quotes}
+              fastestRoute={fastestRoute}
+              cheapestRoute={cheapestRoute}
+              onRouteSelect={handleRouteSelect}
+              onGasChange={handleGasTokenChange}
+              onSelectRoute={handleSelectRoute}
+              selectButtonDisabled={selectButtonDisabled}
+            />
+          ) : (
+            <RoutesDesktop
+              open={showModal}
+              onClose={handleCloseModal}
+              routesWithQuotes={routesWithQuotes}
+              highlightedRoute={highlightedRoute}
+              quotes={quotes}
+              fastestRoute={fastestRoute}
+              cheapestRoute={cheapestRoute}
+              onRouteSelect={handleRouteSelect}
+              onGasChange={handleGasTokenChange}
+              onSelectRoute={handleSelectRoute}
+              selectButtonDisabled={selectButtonDisabled}
+            />
+          )}
         </>
       )}
     </>
