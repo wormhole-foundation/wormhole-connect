@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, TextField, useMediaQuery } from '@mui/material';
+import { Box, TextField, Tooltip, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -130,21 +130,17 @@ function AssetPicker(props: Props) {
     const tokenDisplay = props.token ? <>{props.token.display}</> : <>Select</>;
 
     return (
-      <div>
+      <Tooltip title={props.token?.display ?? 'Select a token'}>
         <Typography
-          component={'div'}
-          fontSize={16}
+          component="div"
+          fontSize="16px"
           fontWeight={500}
-          sx={{
-            display: 'flex',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
+          maxWidth="64px"
+          noWrap
         >
           {tokenDisplay}
         </Typography>
-      </div>
+      </Tooltip>
     );
   }, [props.token]);
 
