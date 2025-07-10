@@ -17,6 +17,7 @@ import { isDisabledChain, setAmount } from 'store/transferInput';
 import { Balances } from 'utils/wallet/types';
 import AssetBadge from 'components/AssetBadge';
 import { Token } from 'config/tokens';
+import { useTokens } from 'contexts/TokensContext';
 import { useTokenList } from 'hooks/useTokenList';
 import { TransferWallet } from 'utils/wallet';
 import WalletController from 'views/v3/Bridge/WalletConnector/Controller';
@@ -26,6 +27,7 @@ import { OPACITY } from 'utils/style';
 import Color from 'color';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
+import { calculateUSDPrice } from 'utils';
 
 type Props = {
   chain?: Chain | undefined;
@@ -54,6 +56,7 @@ function AssetPicker(props: Props) {
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { amount } = useSelector((state: RootState) => state.transferInput);
+  const { getTokenPrice } = useTokens();
 
   const [showChainSearch, setShowChainSearch] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -301,6 +304,32 @@ function AssetPicker(props: Props) {
     ],
   );
 
+  const destTokenUnitPrice = useMemo(() => {
+    if (!props.token) {
+      return null;
+    }
+    const unitPrice = calculateUSDPrice(
+      getTokenPrice,
+      sdkAmount.parse('1', props.token.decimals),
+      props.token,
+    );
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          opacity: 0.7,
+        }}
+      >
+        <Typography
+          color={theme.palette.text.primary}
+          fontSize="14px"
+        >{`1 ${props.token.symbol} = ${unitPrice}`}</Typography>
+      </Box>
+    );
+  }, [props.token, getTokenPrice, theme.palette.text.primary]);
+
   const percentButtons =
     !props.wallet.address || !tokenBalance ? null : (
       <Box sx={{ display: 'flex', gap: '6px' }}>
@@ -328,7 +357,6 @@ function AssetPicker(props: Props) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: props.isSource ? '0' : '16px',
           }}
         >
           {props.isSource ? (
@@ -409,7 +437,7 @@ function AssetPicker(props: Props) {
             </CardContent>
           </Card>
         </Box>
-        {props.isSource && (
+        {props.isSource ? (
           <Box
             sx={{
               height: '24px',
@@ -423,6 +451,8 @@ function AssetPicker(props: Props) {
             <Box>{balance}</Box>
             <Box>{percentButtons}</Box>
           </Box>
+        ) : (
+          destTokenUnitPrice
         )}
       </Box>
       {mobile ? (
