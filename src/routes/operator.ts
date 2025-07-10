@@ -1,5 +1,5 @@
 import config from 'config';
-import { parseTokenKey, Token, tokenKey } from 'config/tokens';
+import { Token, parseTokenKey, tokenKey } from 'config/tokens';
 import { maybeLogSdkError } from 'utils/errors';
 
 import {
@@ -8,8 +8,8 @@ import {
   TransactionId,
   amount as sdkAmount,
   TokenId,
-  Wormhole,
   circle,
+  Wormhole,
 } from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';

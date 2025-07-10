@@ -137,6 +137,14 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'MNT',
     sdkName: 'Mantle',
   },
+  Monad: {
+    displayName: 'Monad',
+    explorerUrl: 'https://testnet.monadexplorer.com/',
+    explorerName: 'Monad Explorer',
+    icon: 'Monad',
+    symbol: 'MON',
+    sdkName: 'Monad',
+  },
   Worldchain: {
     displayName: 'World Chain',
     explorerUrl: 'https://worldchain-sepolia.explorer.alchemy.com/',
@@ -176,5 +184,21 @@ export const TESTNET_CHAINS: ChainsConfig = {
     explorerName: 'Sonicscan',
     icon: 'Sonic',
     symbol: 'S',
+  },
+  Seievm: {
+    displayName: "SeiEVM",
+    explorerUrl: "https://seitrace.com/?chain=atlantic-2",
+    explorerName: "Seitrace",
+    icon: "Seievm",
+    sdkName: "Seievm",
+    symbol: "SEI",
+  },
+  Plume: {
+    displayName: 'Plume',
+    sdkName: 'Plume',
+    explorerUrl: 'https://testnet-explorer.plume.org',
+    explorerName: 'Plume Explorer',
+    icon: 'Plume',
+    symbol: 'PLUME',
   },
 };

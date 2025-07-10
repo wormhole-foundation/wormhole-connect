@@ -45,6 +45,7 @@ import {
   cctpV2StandardExecutorRoute,
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
+import { MonadBridgeRoute } from 'exports/monad';
 import { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -88,6 +89,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.cctpV2StandardExecutorRoute = cctpV2StandardExecutorRoute;
       /* @ts-ignore */
       window.cctpV2FastExecutorRoute = cctpV2FastExecutorRoute;
+      /* @ts-ignore */
+      window.MonadBridgeRoute = () => MonadBridgeRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -312,6 +315,10 @@ function SampleApp() {
                   <li>
                     <pre>cctpV2FastExecutorRoute</pre>
                     <i>{'(CCTPExecutorRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MonadBridgeRoute</pre>
+                    <i>{'RouteConstructor'}</i>
                   </li>
                 </ul>
               </div>

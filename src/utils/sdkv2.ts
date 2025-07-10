@@ -16,15 +16,19 @@ import {
   ChainContext,
   nativeTokenId,
   TBTCBridge,
+  TokenId,
 } from '@wormhole-foundation/sdk';
-import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import {
+  MultiTokenNttRoute,
+  NttRoute,
+} from '@wormhole-foundation/sdk-route-ntt';
 import { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
-import { TokenTuple } from 'config/tokens';
+import { Token, TokenTuple } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
@@ -125,6 +129,7 @@ type ReceiptWithAttestation<AT> =
 export async function parseReceipt(
   route: string,
   receipt: ReceiptWithAttestation<any>,
+  getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>,
 ): Promise<TransferInfo | null> {
   switch (route) {
     case 'ManualTokenBridge':
@@ -156,6 +161,13 @@ export async function parseReceipt(
     case 'CCTPv2FastExecutorRoute':
       return parseCCTPv2Receipt(
         receipt as ReceiptWithAttestation<CCTPv2ExecutorRoute.Attestation>,
+      );
+    case 'MonadBridge':
+      return await parseMultiTokenNttReceipt(
+        receipt as ReceiptWithAttestation<MultiTokenNttRoute.AutomaticAttestationReceipt> & {
+          params: MultiTokenNttRoute.ValidatedParams;
+        },
+        getOrFetchToken,
       );
     default:
       throw new Error(`Unknown route type ${route}`);
@@ -501,6 +513,62 @@ const parseCCTPv2Receipt = async (
   }
 
   return txData as TransferInfo;
+};
+
+const parseMultiTokenNttReceipt = async (
+  receipt: ReceiptWithAttestation<MultiTokenNttRoute.AutomaticAttestationReceipt> & {
+    params: MultiTokenNttRoute.ValidatedParams;
+  },
+  getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>,
+): Promise<TransferInfo> => {
+  let sendTx = '';
+  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+    sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
+
+  // The source and destination tokens may not be in the token cache
+  // so add them if they don't exist
+  const srcToken = await getOrFetchToken(
+    receipt.params.normalizedParams.sourceTokenId,
+  );
+  if (!srcToken) {
+    throw new Error('Unable to fetch source token');
+  }
+
+  const dstToken = await getOrFetchToken(
+    receipt.params.normalizedParams.destinationTokenId,
+  );
+  if (!dstToken) {
+    throw new Error('Unable to fetch destination token');
+  }
+
+  const { attestation } = receipt.attestation;
+  const { nttManagerPayload } = attestation.payload.payload;
+  const trimmedAmount = nttManagerPayload.payload.data.trimmedAmount;
+  const amt = amount.fromBaseUnits(
+    trimmedAmount.amount,
+    trimmedAmount.decimals,
+  );
+
+  return {
+    toChain: receipt.to,
+    fromChain: receipt.from,
+    sendTx,
+    sender: nttManagerPayload.payload.data.sender
+      .toNative(receipt.from)
+      .toString(),
+    recipient: nttManagerPayload.payload.data.to
+      .toNative(receipt.to)
+      .toString(),
+    amount: amt,
+    tokenAddress: srcToken.tokenId.address.toString(),
+    token: srcToken.tuple,
+    tokenDecimals: trimmedAmount.decimals,
+    receivedToken: dstToken.tuple,
+    receiveAmount: amt,
+  };
 };
 
 const isAmount = (amount: any): amount is amount.Amount => {
