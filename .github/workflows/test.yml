@@ -22,7 +22,7 @@ jobs:
       run:
         working-directory: './'
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      image: mcr.microsoft.com/playwright:v1.53.2-noble
       options: --user 1001 # Default user ID in Ubuntu
     steps:
       - uses: actions/checkout@v4
