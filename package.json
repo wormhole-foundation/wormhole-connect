@@ -72,6 +72,7 @@
     "color": "^5.0.0",
     "es-toolkit": "^1.39.8",
     "ethers": "6.13.5",
+    "fast-memoize": "^2.5.2",
     "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",
     "react-infinite-scroller": "^1.2.6",

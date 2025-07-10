@@ -20,7 +20,6 @@ import TokenIcon from 'icons/TokenIcons';
 import {
   calculateUSDPrice,
   calculateUSDPriceRaw,
-  millisToHumanString,
   formatDuration,
   isExecutorRoute,
 } from 'utils';
@@ -33,6 +32,8 @@ import { useTokens } from 'contexts/TokensContext';
 import GasSlider from 'views/v2/Bridge/GasSlider';
 import Color from 'color';
 import { formatWithCommas } from 'utils/formatNumber';
+import TimeToDestination from './TimeToDestination';
+import Provider from './Provider';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -209,41 +210,6 @@ const SingleRoute = (props: Props) => {
     theme.palette.text.primary,
   ]);
 
-  const timeToDestination = useMemo(
-    () => (
-      <Stack direction="row" justifyContent="space-between">
-        <Typography
-          color={theme.palette.text.secondary}
-          component="div"
-          fontSize="14px"
-          lineHeight="14px"
-        >
-          {`Time to ${destChain}`}
-        </Typography>
-        <Typography
-          component="div"
-          fontSize="14px"
-          lineHeight="14px"
-          sx={{
-            color:
-              quote?.eta && quote.eta < 60 * 1000
-                ? theme.palette.success.main
-                : theme.palette.text.primary,
-          }}
-        >
-          {quote?.eta ? millisToHumanString(quote.eta) : 'N/A'}
-        </Typography>
-      </Stack>
-    ),
-    [
-      destChain,
-      quote?.eta,
-      theme.palette.success.main,
-      theme.palette.text.primary,
-      theme.palette.text.secondary,
-    ],
-  );
-
   const isManual = useMemo(() => {
     if (!props.route) {
       return false;
@@ -395,26 +361,6 @@ const SingleRoute = (props: Props) => {
     destChain,
   ]);
 
-  const providerText = useMemo(() => {
-    if (!sourceToken) {
-      return '';
-    }
-
-    const isLidoNttSpecialCase =
-      props.route === 'AutomaticNtt' &&
-      sourceToken?.symbol === 'wstETH' &&
-      ((sourceChain === 'Ethereum' && destChain === 'Bsc') ||
-        (sourceChain === 'Bsc' && destChain === 'Ethereum'));
-
-    const provider = isLidoNttSpecialCase
-      ? 'via NTT: Wormhole + Axelar'
-      : routeConfig.rc.meta.provider
-      ? `via ${routeConfig.rc.meta.provider}`
-      : '';
-
-    return provider;
-  }, [props.route, routeConfig, sourceChain, sourceToken, destChain]);
-
   const receiveAmount = useMemo(() => {
     return quote ? amount.whole(quote?.destinationToken.amount) : undefined;
   }, [quote]);
@@ -481,7 +427,16 @@ const SingleRoute = (props: Props) => {
         lineHeight="14px"
         color={theme.palette.text.secondary}
         component="div"
-      >{`${usdValue} ${providerText}`}</Typography>
+      >
+        <Provider
+          destChain={destChain}
+          provider={routeConfig.rc.meta.provider}
+          route={props.route}
+          sourceChain={sourceChain}
+          sourceTokenSymbol={sourceToken?.symbol}
+          usdValue={usdValue}
+        />
+      </Typography>
     );
     // We want to recompute the price after we update conversion rates (lastTokenPriceUpdate).
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -491,8 +446,11 @@ const SingleRoute = (props: Props) => {
     getTokenPrice,
     lastTokenPriceUpdate,
     props.error,
-    providerText,
+    props.route,
     receiveAmount,
+    routeConfig.rc.meta.provider,
+    sourceChain,
+    sourceToken,
     theme.palette.text.secondary,
   ]);
 
@@ -588,7 +546,9 @@ const SingleRoute = (props: Props) => {
                 ? `You pay gas on ${destChain}`
                 : null}
               {destinationGas}
-              {timeToDestination}
+              {!!quote?.eta && (
+                <TimeToDestination destChain={destChain} eta={quote.eta} />
+              )}
             </Stack>
             {errorMessage}
             {warningMessages}

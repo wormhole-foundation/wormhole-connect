@@ -2,14 +2,10 @@ import config from 'config';
 import type { Token } from 'config/tokens';
 import { parseTokenKey, tokenKey } from 'config/tokens';
 import { maybeLogSdkError } from 'utils/errors';
+import memoize from 'fast-memoize';
 
 import type { Chain, TransactionId, TokenId } from '@wormhole-foundation/sdk';
-import {
-  routes,
-  amount as sdkAmount,
-  Wormhole,
-  circle,
-} from '@wormhole-foundation/sdk';
+import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';
 
@@ -156,25 +152,15 @@ export default class RouteOperator {
 
     await this.forEach(async (name, route) => {
       try {
-        // TODO remove once the SDK has a special return value that represents infinite supported tokens
-        if (name.includes('Mayan')) {
-          // If we have Mayan available, which is a swap route, by default we show the gas token and USDC.
-          supported.add(tokenKey(Wormhole.tokenId(destChain, 'native')));
+        const destTokenIds = await route.supportedDestTokens(
+          name,
+          sourceToken,
+          sourceChain,
+          destChain,
+        );
 
-          const usdcAddr = circle.usdcContract.get(config.network, destChain);
-          if (usdcAddr) {
-            supported.add(tokenKey(Wormhole.tokenId(destChain, usdcAddr)));
-          }
-        } else {
-          const destTokenIds = await route.supportedDestTokens(
-            sourceToken,
-            sourceChain,
-            destChain,
-          );
-
-          for (const token of destTokenIds) {
-            supported.add(tokenKey(token));
-          }
+        for (const token of destTokenIds) {
+          supported.add(tokenKey(token));
         }
       } catch (e) {
         maybeLogSdkError(e);
@@ -217,6 +203,23 @@ export default class RouteOperator {
 
     return quotes;
   }
+
+  isSameChainSwapSupported = memoize((chain: Chain): boolean => {
+    const isSupported = Object.values(this.routes).some((route) => {
+      const { supportsSameChainSwaps, supportedChains } = route.rc;
+
+      const sameChainSwapSupported =
+        typeof supportsSameChainSwaps === 'function' &&
+        supportsSameChainSwaps(config.network, chain);
+
+      return (
+        sameChainSwapSupported &&
+        supportedChains(config.network).includes(chain)
+      );
+    });
+
+    return isSupported;
+  });
 }
 
 // This caches successful quote results from SDK routes and handles multiple concurrent
@@ -300,9 +303,18 @@ class QuoteCache {
           }
           delete this.pending[key];
 
-          if (result.success && result.expires === undefined) {
-            // Default to 60 seconds expiry
-            result.expires = new Date(Date.now() + 60_000);
+          if (result.success) {
+            const now = Date.now();
+
+            // A valid expiry should be at least 5 seconds in the future
+            // and if not, we should default to 60 seconds.
+            const isValidExpiry =
+              result.expires instanceof Date &&
+              result.expires.getTime() > now + 5_000;
+
+            if (!isValidExpiry) {
+              result.expires = new Date(now + 60_000);
+            }
           }
 
           console.debug(`Fetched quote`, routeName, result);

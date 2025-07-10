@@ -7,16 +7,15 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import type { routes } from '@wormhole-foundation/sdk';
 
-import config from 'config';
 import { getBestRoutes } from 'utils/routes';
 import { OPACITY } from 'utils/style';
 import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
-import RoutesMobile from 'views/v3/Bridge/Routes/RoutesBottomSheet';
-import RoutesDesktop from 'views/v3/Bridge/Routes/RoutesModal';
-import RoutesLoader from 'views/v3/Bridge/Routes/RoutesLoader';
-import RoutesLink from 'views/v3/Bridge/Routes/RoutesLink';
-import Eta from 'views/v3/Bridge/Routes/Eta';
+import RoutesMobile from './RoutesBottomSheet';
+import RoutesDesktop from './RoutesModal';
+import RoutesLoader from './RoutesLoader';
+import RoutesLink from './RoutesLink';
+import Eta from './Eta';
 
 type Props = {
   routes: string[];
@@ -40,6 +39,10 @@ function Routes({
   const { toNativeToken } = useSelector((state: RootState) => ({
     ...state.relay,
   }));
+
+  const { toChain: destChain, fromChain: sourceChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
   const [showModal, setShowModal] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -205,23 +208,6 @@ function Routes({
     }
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
-  const getProviderText = useCallback((route?: string) => {
-    if (!route) {
-      return '';
-    }
-
-    const provider = config.routes.get(route)?.rc.meta.provider;
-    if (!provider) {
-      return 'Route';
-    }
-
-    return (
-      <span style={{ fontWeight: 600 }}>
-        Routing <span style={{ fontWeight: 400 }}>{`via ${provider}`}</span>
-      </span>
-    );
-  }, []);
-
   const routeSelectionPills = useMemo(() => {
     if (
       fastestRoute.name &&
@@ -317,7 +303,9 @@ function Routes({
               }}
             >
               <RoutesLink
-                providerText={getProviderText(selectedRoute)}
+                destChain={destChain}
+                route={selectedRoute}
+                sourceChain={sourceChain}
                 onClick={handleToggleRoutes}
               />
               <Eta eta={selectedQuote?.eta} />

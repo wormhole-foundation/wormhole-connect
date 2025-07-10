@@ -12,6 +12,7 @@ import {
   chainToPlatform,
   isSameToken,
   TransferState,
+  circle,
 } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
 
@@ -64,6 +65,7 @@ export class SDKv2Route {
   }
 
   async isRouteSupported(
+    name: string,
     sourceToken: Token,
     destToken: Token,
     fromChain: Chain,
@@ -81,8 +83,17 @@ export class SDKv2Route {
       return false;
     }
 
+    const isMayan = name.includes('Mayan');
+
+    // Mayan can handle any input and output token that has liquidity on a DeX
+    // No need to further check for destination tokens.
+    if (isMayan) {
+      return true;
+    }
+
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
+        name,
         sourceToken,
         fromChain,
         toChain,
@@ -102,6 +113,7 @@ export class SDKv2Route {
   }
 
   async supportedDestTokens(
+    routeName: string,
     sourceToken: Token | undefined,
     fromChain?: Chain | undefined,
     toChain?: Chain | undefined,
@@ -119,22 +131,40 @@ export class SDKv2Route {
 
     if (isIlliquid) return [];
 
+    // TODO remove once the mayan SDK has a special return value that represents infinite supported tokens
+    const isMayan = routeName.includes('Mayan');
+    const usdcAddr = circle.usdcContract.get(config.network, toChain);
+    const isSameChain = fromChain === toChain;
     const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
-    const destTokens = await this.tokenCache.requestWithCache(cacheKey, () =>
-      this.rc.supportedDestinationTokens(
-        sourceToken.tokenId,
-        fromContext.context,
-        toContext.context,
-      ),
-    );
+    const nativeToken = Wormhole.tokenId(toChain, 'native');
+    const usdcToken = usdcAddr ? Wormhole.tokenId(toChain, usdcAddr) : null;
+    // If we have Mayan available, which is a swap route, by default we show the gas token and USDC.
+    const mayanTokens = usdcToken ? [nativeToken, usdcToken] : [nativeToken];
 
-    return destTokens.filter((t) => {
+    const destTokens = isMayan
+      ? mayanTokens
+      : await this.tokenCache.requestWithCache(cacheKey, () =>
+          this.rc.supportedDestinationTokens(
+            sourceToken.tokenId,
+            fromContext.context,
+            toContext.context,
+          ),
+        );
+
+    const filteredTokens = destTokens.filter((t) => {
       const token = config.tokens.get(t);
       if (token && isFrankensteinToken(token, toContext.chain)) {
         return false;
       }
+
+      if (isSameChain && token?.address === sourceToken.address) {
+        return false;
+      }
+
       return true;
     });
+
+    return filteredTokens;
   }
 
   async getQuote(

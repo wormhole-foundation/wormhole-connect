@@ -568,3 +568,21 @@ const getTokenBridgeToken = async (
 
   return config.tokens.get(tokenId);
 };
+
+export function getFilteredChains(
+  supportedChains: Array<Chain>,
+  chainToOmit: Chain | undefined,
+) {
+  const shouldOmit = chainToOmit
+    ? !config.routes.isSameChainSwapSupported(chainToOmit)
+    : false;
+
+  return config.chainsArr.filter((chain) => {
+    if (!supportedChains.includes(chain.sdkName)) {
+      return false;
+    }
+
+    const isChainOmitted = shouldOmit && chainToOmit === chain.sdkName;
+    return !isChainOmitted;
+  });
+}

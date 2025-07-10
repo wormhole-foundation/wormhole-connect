@@ -444,13 +444,13 @@ const Redeem = () => {
     let etaElement: string | ReactNode = <CircularProgress size={14} />;
 
     if (eta) {
-      etaElement = millisToMinutesAndSeconds(eta);
+      etaElement = `ETA ${millisToMinutesAndSeconds(eta)}`;
     }
 
     return (
       <Stack alignItems="center" justifyContent="center">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          ETA {etaElement}
+          {etaElement}
         </Typography>
         <Typography fontSize={28}>{counter}</Typography>
       </Stack>

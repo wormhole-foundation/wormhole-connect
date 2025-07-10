@@ -56,6 +56,7 @@ import SwapInputs from 'views/v3/Bridge/SwapInputs';
 import TxHistoryWidget from 'views/v3/TxHistory/Widget';
 import TxHistory from '../TxHistory';
 import AmountValidationError from './AmountValidationError';
+import { getFilteredChains } from 'utils/sdkv2';
 
 function Bridge() {
   const theme: any = useTheme();
@@ -256,20 +257,12 @@ function Bridge() {
 
   // Supported chains for the source network
   const supportedSourceChains = useMemo(() => {
-    return config.chainsArr.filter((chain) => {
-      return (
-        chain.sdkName !== destChain && supportedChains.includes(chain.sdkName)
-      );
-    });
+    return getFilteredChains(supportedChains, destChain);
   }, [destChain, supportedChains]);
 
   // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
-    return config.chainsArr.filter(
-      (chain) =>
-        chain.sdkName !== sourceChain &&
-        supportedChains.includes(chain.sdkName),
-    );
+    return getFilteredChains(supportedChains, sourceChain);
   }, [sourceChain, supportedChains]);
 
   // Build balance requests for source and destination

@@ -33,8 +33,15 @@ export const validateToChain = (
   if (!chain) return 'Select a destination chain';
   const chainConfig = config.chains[chain];
   if (!chainConfig) return 'Select a destination chain';
-  if (fromChain && chain === fromChain)
+
+  if (
+    fromChain &&
+    chain === fromChain &&
+    !config.routes.isSameChainSwapSupported(chain)
+  ) {
     return 'Source chain and destination chain cannot be the same';
+  }
+
   if (
     config.ui.defaultInputs &&
     config.ui.defaultInputs.requiredChain &&

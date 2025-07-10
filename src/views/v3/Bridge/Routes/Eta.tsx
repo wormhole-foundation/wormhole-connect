@@ -6,8 +6,16 @@ import Typography from '@mui/material/Typography';
 import ClockIcon from 'icons/Clock';
 import { millisToHumanString } from 'utils';
 
-const RoutesLoader = ({ eta }: { eta?: number | undefined }) => {
+interface EtaProps {
+  eta?: number;
+}
+
+function Eta({ eta }: EtaProps) {
   const theme: any = useTheme();
+
+  if (!eta) {
+    return null;
+  }
 
   return (
     <Box
@@ -39,11 +47,11 @@ const RoutesLoader = ({ eta }: { eta?: number | undefined }) => {
           fontSize="14px"
           lineHeight="14px"
         >
-          {eta ? millisToHumanString(eta) : 'N/A'}
+          {millisToHumanString(eta)}
         </Typography>
       </Box>
     </Box>
   );
-};
+}
 
-export default React.memo(RoutesLoader);
+export default React.memo(Eta);

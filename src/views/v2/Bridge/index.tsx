@@ -52,6 +52,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import type { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
+import { getFilteredChains } from 'utils/sdkv2';
 
 const Bridge = () => {
   const theme = useTheme();
@@ -241,20 +242,12 @@ const Bridge = () => {
 
   // Supported chains for the source network
   const supportedSourceChains = useMemo(() => {
-    return config.chainsArr.filter((chain) => {
-      return (
-        chain.sdkName !== destChain && supportedChains.includes(chain.sdkName)
-      );
-    });
+    return getFilteredChains(supportedChains, destChain);
   }, [destChain, supportedChains]);
 
   // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
-    return config.chainsArr.filter(
-      (chain) =>
-        chain.sdkName !== sourceChain &&
-        supportedChains.includes(chain.sdkName),
-    );
+    return getFilteredChains(supportedChains, sourceChain);
   }, [sourceChain, supportedChains]);
 
   // Build balance requests for source and destination

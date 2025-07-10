@@ -5,15 +5,24 @@ import Link from '@mui/material/Link';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 import RoutingIcon from 'icons/Routing';
+import ProviderLabel from './ProviderLabel';
 
-const RoutesLink = ({
-  providerText,
-  onClick,
-}: {
-  providerText?: string | React.JSX.Element;
+interface RoutesLinkProps {
+  destChain?: string;
   onClick: () => void;
-}) => {
-  const theme: any = useTheme();
+  route?: string;
+  sourceChain?: string;
+  sourceTokenSymbol?: string;
+}
+
+function RoutesLink({
+  destChain,
+  onClick,
+  route,
+  sourceChain,
+  sourceTokenSymbol,
+}: RoutesLinkProps) {
+  const theme = useTheme();
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -33,11 +42,16 @@ const RoutesLink = ({
         }}
         onClick={onClick}
       >
-        {providerText}
+        <ProviderLabel
+          destChain={destChain}
+          route={route}
+          sourceChain={sourceChain}
+          sourceTokenSymbol={sourceTokenSymbol}
+        />
         <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
       </Link>
     </Box>
   );
-};
+}
 
 export default React.memo(RoutesLink);
