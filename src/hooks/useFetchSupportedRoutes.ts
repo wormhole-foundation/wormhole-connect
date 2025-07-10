@@ -58,6 +58,7 @@ const useFetchSupportedRoutes = ({
 
         try {
           supported = await route.isRouteSupported(
+            name,
             sourceToken,
             destToken,
             fromChain,

@@ -38,6 +38,7 @@ import {
   MayanRouteWH,
   MayanRouteMCTP,
   MayanRouteSWIFT,
+  MayanRouteMONOCHAIN,
 } from '@mayanfinance/wormhole-sdk-route';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
@@ -76,6 +77,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.MayanRouteWH = MayanRouteWH;
       /* @ts-ignore */
       window.MayanRouteMCTP = MayanRouteMCTP;
+      /* @ts-ignore */
+      window.MayanRouteMONOCHAIN = MayanRouteMONOCHAIN;
       /* @ts-ignore */
       window.MayanRouteSWIFT = MayanRouteSWIFT;
       /* @ts-ignore */
@@ -281,6 +284,10 @@ function SampleApp() {
                   </li>
                   <li>
                     <pre>MayanRouteSWIFT</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MayanRouteMONOCHAIN</pre>
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>
