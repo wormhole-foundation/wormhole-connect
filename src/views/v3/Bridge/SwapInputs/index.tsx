@@ -91,7 +91,7 @@ function SwapInputs() {
     >
       <SwapVertIcon
         sx={{
-          strokeWidth: 2,
+          strokeWidth: 1,
           color: canSwap
             ? theme.palette.text.primary
             : theme.palette.text.disabled,

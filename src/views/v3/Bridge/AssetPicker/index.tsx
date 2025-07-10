@@ -173,20 +173,27 @@ function AssetPicker(props: Props) {
         justifyContent: 'space-between',
       },
       selector: {
-        height: '50px',
-        width: '138px',
         cursor: 'pointer',
         borderRadius: '50px',
         border: `1px solid ${theme.palette.input.border}`,
         background: Color(theme.palette.input.background).darken(0.2).hex(),
+        '&:hover': {
+          borderColor: theme.palette.primary.main,
+        },
       },
       cardContent: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '6px',
+        paddingLeft: '8px',
+        paddingRight: '12px',
+        paddingTop: '6px',
+        paddingBottom: '6px',
         ':last-child': {
-          padding: '6px',
+          paddingLeft: '8px',
+          paddingRight: '12px',
+          paddingTop: '6px',
+          paddingBottom: '6px',
         },
       },
       chainSelector: {

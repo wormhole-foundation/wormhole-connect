@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { Box, Typography, useTheme, type SxProps } from '@mui/material';
-import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 interface AlertBannerProps {
   children: ReactNode;
@@ -46,7 +46,7 @@ function AlertBanner({
       role="alert"
       aria-live="polite"
     >
-      <ReportProblemOutlinedIcon
+      <WarningAmberRoundedIcon
         fontSize="small"
         htmlColor={alertColor}
         aria-hidden="true"
