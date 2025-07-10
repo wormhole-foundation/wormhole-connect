@@ -5,7 +5,6 @@ import { isValidTransactionDigest } from '@mysten/sui/utils';
 import config from 'config';
 import { ChainConfig } from 'config/types';
 import { Token } from 'config/tokens';
-import { isGatewayChain } from './cosmos';
 import {
   Chain,
   Platform,
@@ -127,7 +126,7 @@ export function hexPrefix(hex: string) {
 export function isValidTxId(chain: Chain, tx: string) {
   if (chain === 'Sui') {
     return isValidTransactionDigest(tx);
-  } else if (isGatewayChain(chain as any) || chain === 'Sei') {
+  } else if (chain === 'Sei') {
     return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;

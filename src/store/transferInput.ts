@@ -257,9 +257,7 @@ export const transferInputSlice = createSlice({
 
 export const isDisabledChain = (chain: Chain, wallet: WalletData) => {
   // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-  if (wallet.name === 'OKX Wallet' && chain === 'Evmos') {
-    return true;
-  } else {
+  {
     return !walletAcceptedChains(wallet.type).includes(chain);
   }
 };

@@ -21,7 +21,6 @@ import KAIA from './Chains/KAIA';
 import SCROLL from './Chains/SCROLL';
 import MANTLE from './Chains/MANTLE';
 import XLAYER from './Chains/XLAYER';
-import OSMO from './Chains/OSMO';
 import WORLD from './Chains/WORLD';
 import UNI from './Chains/UNI';
 import BERA from './Chains/BERA';
@@ -49,7 +48,6 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Scroll: SCROLL(),
   Xlayer: XLAYER(),
   Mantle: MANTLE(),
-  Osmosis: OSMO(),
   Worldchain: WORLD(),
   Unichain: UNI(),
   Berachain: BERA(),

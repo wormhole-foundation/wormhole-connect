@@ -54,7 +54,6 @@
     "@reduxjs/toolkit": "^2.5.1",
     "@solana/spl-token": "0.4.0",
     "@solana/wallet-adapter-wallets": "0.19.32",
-    "@solana/web3.js": "1.98.0",
     "@wormhole-foundation/sdk": "3.0.1",
     "@wormhole-foundation/sdk-definitions": "3.0.1",
     "@wormhole-foundation/sdk-definitions-ntt": "1.0.1",
@@ -68,7 +67,7 @@
     "@wormhole-labs/wallet-aggregator-evm": "0.3.1",
     "@wormhole-labs/wallet-aggregator-solana": "0.0.1",
     "@wormhole-labs/wallet-aggregator-sui": "0.0.1",
-    "axios": "1.4.0",
+    "axios": "1.10.0",
     "binary-parser": "^2.2.1",
     "color": "^5.0.0",
     "ethers": "6.13.5",
@@ -138,7 +137,7 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.3",
+    "lint-staged": "^15.2.11",
     "prettier": "^2.8.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -168,23 +167,7 @@
     "*": "prettier --write --ignore-unknown"
   },
   "overrides": {
-    "@injectivelabs/sdk-ts@1.10.72": {
-      "@injectivelabs/token-metadata": "1.10.42",
-      "axios": "1.4.0"
-    },
-    "@injectivelabs/sdk-ts@1.14.11": {
-      "axios": "1.4.0",
-      "ethers": "5.7.2"
-    },
-    "@injectivelabs/utils": {
-      "axios": "1.4.0"
-    },
-    "@injectivelabs/test-utils": {
-      "axios": "1.4.0"
-    },
-    "@cosmjs/tendermint-rpc": {
-      "axios": "1.4.0"
-    },
+    "axios": "1.10.0",
     "@ledgerhq/hw-transport@6.27.1": {
       "@ledgerhq/errors": "6.10.2",
       "@ledgerhq/logs": "6.12.0",
@@ -194,9 +177,6 @@
       "@ledgerhq/errors": "6.10.2",
       "@ledgerhq/logs": "6.12.0",
       "@ledgerhq/devices": "6.27.1"
-    },
-    "@wormhole-foundation/sdk": {
-      "axios": "1.4.0"
     },
     "@mayanfinance/wormhole-sdk-route": {
       "@wormhole-foundation/sdk-connect": "3.0.1",
@@ -215,8 +195,7 @@
       "@wormhole-foundation/sdk-evm-core": "3.0.1"
     },
     "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "3.0.1",
-      "axios": "1.4.0"
+      "@wormhole-foundation/sdk-connect": "3.0.1"
     },
     "@wormhole-foundation/sdk-solana-ntt": {
       "@wormhole-foundation/sdk-base": "3.0.1",
@@ -235,15 +214,6 @@
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"
-    },
-    "@json-rpc-tools/provider": {
-      "axios": "0.27.2"
-    },
-    "@aptos-labs/aptos-client": {
-      "axios": "1.4.0"
-    },
-    "tronweb": {
-      "axios": "1.4.0"
     },
     "vite-plugin-dts": {
       "vue-tsc": "2.0.0"
