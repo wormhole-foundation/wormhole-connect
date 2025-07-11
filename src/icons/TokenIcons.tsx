@@ -101,52 +101,37 @@ function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {
 
 type Props = {
   icon?: TokenIcon | string;
-  height?: number;
+  style?: React.CSSProperties;
 };
 
-function EmptyIcon(props: { size: number }) {
+function EmptyIcon(props: { style: React.CSSProperties }) {
   const theme = useTheme();
-  const { size } = props;
-
-  const styles = useMemo(() => {
-    const baseStyle = {
-      width: size,
-      height: size,
-      borderRadius: '50px',
-    };
+  const sxProps = useMemo(() => {
     if (theme.palette.text && theme.palette.input) {
       return {
-        emptyIcon: {
-          ...baseStyle,
-          background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
-        },
+        ...props.style,
+        background: `color-mix(in hsl, ${theme.palette.text.secondary}, ${theme.palette.input.background} 80%)`,
       };
     }
-    return {
-      emptyIcon: baseStyle,
-    };
-  }, [size, theme]);
+    return props.style;
+  }, [props.style, theme.palette.input, theme.palette.text]);
 
-  return <Box sx={styles.emptyIcon} />;
+  return <Box sx={sxProps} />;
 }
 
 function TokenIconComponent(props: Props) {
-  const size = props.height || 36;
-
   const styles = useMemo(
     () => ({
       container: {
-        height: size,
-        width: size,
+        ...(props.style || { width: '36px', height: '36px' }),
         ...CENTER,
       },
       iconImage: {
-        width: size,
-        height: size,
+        ...(props.style || { width: '36px', height: '36px' }),
         borderRadius: '50px',
       },
     }),
-    [size],
+    [props.style], // Recompute styles only when style prop changes
   );
 
   if (isBuiltinTokenIcon(props.icon) && iconMap[props.icon]) {
@@ -162,7 +147,7 @@ function TokenIconComponent(props: Props) {
     // Default to EmptyIcon if props.icon is undefined or doesn't match other conditions
     return (
       <Box sx={styles.container}>
-        <EmptyIcon size={size} />
+        <EmptyIcon style={styles.iconImage} />
       </Box>
     );
   }
