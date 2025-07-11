@@ -12,7 +12,6 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Optimism: 'ethereum',
   Base: 'ethereum',
   Scroll: 'ethereum',
-  Blast: 'ethereum',
   Bsc: 'binancecoin',
   Polygon: 'matic-network',
   Avalanche: 'avalanche-2',

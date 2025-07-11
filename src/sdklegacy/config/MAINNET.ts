@@ -28,7 +28,6 @@ const MAINNET_CONFIG: WormholeConfig = {
     Injective: 'https://injective-rpc.publicnode.com/', // TODO: use the library to get the correct rpc https://docs.ts.injective.network/querying/querying-api/querying-indexer-explorer#fetch-transaction-using-transaction-hash
     Klaytn: 'https://public-en.node.kaia.io',
     Scroll: 'https://scroll-rpc.publicnode.com',
-    Blast: 'https://blast-rpc.publicnode.com',
     Xlayer: 'https://rpc.xlayer.tech',
     Mantle: 'https://rpc.mantle.xyz',
     Worldchain: 'https://worldchain-mainnet.g.alchemy.com/public',

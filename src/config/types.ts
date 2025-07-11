@@ -57,7 +57,6 @@ export enum TokenIcon {
   'KLAY',
   'NTT',
   'SCROLL',
-  'BLAST',
   'XLAYER',
   'MANTLE',
   'WORLDCHAIN',

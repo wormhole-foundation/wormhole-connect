@@ -113,14 +113,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'SCR',
     sdkName: 'Scroll',
   },
-  Blast: {
-    displayName: 'Blast',
-    explorerUrl: 'https://testnet.blastscan.io/',
-    explorerName: 'Blastscan',
-    icon: 'Blast',
-    symbol: 'BLAST',
-    sdkName: 'Blast',
-  },
   Xlayer: {
     displayName: 'X Layer',
     explorerUrl: 'https://www.okx.com/web3/explorer/xlayer-test/',
@@ -178,12 +170,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'S',
   },
   Seievm: {
-    displayName: "SeiEVM",
-    explorerUrl: "https://seitrace.com/?chain=atlantic-2",
-    explorerName: "Seitrace",
-    icon: "Seievm",
-    sdkName: "Seievm",
-    symbol: "SEI",
+    displayName: 'SeiEVM',
+    explorerUrl: 'https://seitrace.com/?chain=atlantic-2',
+    explorerName: 'Seitrace',
+    icon: 'Seievm',
+    sdkName: 'Seievm',
+    symbol: 'SEI',
   },
   Plume: {
     displayName: 'Plume',

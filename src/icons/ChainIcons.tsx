@@ -19,7 +19,6 @@ import ARBITRUM from './Chains/ARBITRUM';
 import OPTIMISM from './Chains/OPTIMISM';
 import KAIA from './Chains/KAIA';
 import SCROLL from './Chains/SCROLL';
-import BLAST from './Chains/BLAST';
 import MANTLE from './Chains/MANTLE';
 import XLAYER from './Chains/XLAYER';
 import OSMO from './Chains/OSMO';
@@ -48,7 +47,6 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Base: BASE(),
   Klaytn: KAIA(),
   Scroll: SCROLL(),
-  Blast: BLAST(),
   Xlayer: XLAYER(),
   Mantle: MANTLE(),
   Osmosis: OSMO(),

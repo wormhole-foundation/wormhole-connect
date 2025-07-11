@@ -25,7 +25,6 @@ export const TESTNET_WRAPPED_TOKENS: WrappedTokenAddresses = {
       Sui: '0xa600741c469fb57ed01497ddf101e798fa79a9c529bd176675c5c4d970811f80::coin::COIN',
       Aptos:
         '0xbe8f4301c0b54e870902b9a23eeb95ce74ac190531782aa3262337ceb145401a::coin::T',
-      Blast: '0x74C6aA987658FcBaB9FdC2ee65f52Ddd5B2cEd95',
       Klaytn: '0x10257392a2B5e3C4D4bEe1607650a1C0C738202a',
       Scroll: '0x5Bd1ba0040C16b13894A6EbE3d55708c91eF08bb',
       Xlayer: '0xb13a464ceE7455A9b2941bFAe1bB1eB5A6833867',

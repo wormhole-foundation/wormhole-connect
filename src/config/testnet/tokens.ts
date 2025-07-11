@@ -254,21 +254,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    symbol: 'ETH',
-    icon: TokenIcon.BLAST,
-    decimals: 18,
-    tokenId: { chain: 'Blast', address: 'native' },
-  },
-  {
-    symbol: 'WETH',
-    icon: TokenIcon.BLAST,
-    decimals: 18,
-    tokenId: {
-      chain: 'Blast',
-      address: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
-    },
-  },
-  {
     symbol: 'OKB',
     icon: TokenIcon.XLAYER,
     decimals: 18,
@@ -387,8 +372,9 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
     decimals: 6,
     icon: TokenIcon.USDC,
-  }, {
-    symbol: "SEI",
+  },
+  {
+    symbol: 'SEI',
     tokenId: {
       chain: 'Seievm',
       address: 'native',

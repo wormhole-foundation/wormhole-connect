@@ -36,7 +36,6 @@ import PYTH from './Tokens/PYTH';
 import INJ from './Tokens/INJ';
 import NTT from './Tokens/NTT';
 import SCROLL from './Tokens/SCROLL';
-import BLAST from './Tokens/BLAST';
 import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
 import BTC from './Tokens/BTC';
@@ -75,7 +74,6 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.INJ]: INJ(),
   [TokenIcon.NTT]: NTT(),
   [TokenIcon.SCROLL]: SCROLL(),
-  [TokenIcon.BLAST]: BLAST(),
   [TokenIcon.XLAYER]: (
     <img
       style={{ maxHeight: '100%', maxWidth: '100%' }}

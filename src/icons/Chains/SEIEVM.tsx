@@ -21,7 +21,8 @@ function SEIEVM() {
       <defs>
         <linearGradient
           id="paint0_linear_109_191"
-          x1="65.0205" y1="129.148"
+          x1="65.0205"
+          y1="129.148"
           x2="65.0205"
           y2="-2.87836e-07"
           gradientUnits="userSpaceOnUse"

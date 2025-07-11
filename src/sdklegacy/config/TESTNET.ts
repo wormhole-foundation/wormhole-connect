@@ -27,7 +27,6 @@ const TESTNET_CONFIG: WormholeConfig = {
     BaseSepolia: 'https://base-sepolia-rpc.publicnode.com',
     OptimismSepolia: 'https://sepolia.optimism.io',
     Scroll: 'https://scroll-sepolia-rpc.publicnode.com',
-    Blast: 'https://sepolia.blast.io',
     Xlayer: 'https://testrpc.xlayer.tech',
     Mantle: 'https://rpc.sepolia.mantle.xyz',
     Worldchain: 'https://worldchain-sepolia.g.alchemy.com/public',

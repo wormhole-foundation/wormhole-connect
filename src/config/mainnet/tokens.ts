@@ -495,21 +495,6 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    symbol: 'ETH',
-    decimals: 18,
-    icon: TokenIcon.BLAST,
-    tokenId: { chain: 'Blast', address: 'native' },
-  },
-  {
-    symbol: 'WETH',
-    decimals: 18,
-    icon: TokenIcon.BLAST,
-    tokenId: {
-      chain: 'Blast',
-      address: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7',
-    },
-  },
-  {
     symbol: 'OKB',
     decimals: 18,
     icon: TokenIcon.XLAYER,
@@ -702,7 +687,7 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDC,
   },
   {
-    symbol: "SEI",
+    symbol: 'SEI',
     tokenId: {
       chain: 'Seievm',
       address: 'native',

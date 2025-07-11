@@ -154,7 +154,6 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Arbitrum | ArbitrumSepolia |
 | Optimism | OptimismSepolia |
 | Scroll | Scroll |
-| Blast | Blast |
 | Xlayer | Xlayer |
 | Mantle | Mantle |
 | Worldchain | Worldchain |

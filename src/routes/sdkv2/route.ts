@@ -343,7 +343,7 @@ export class SDKv2Route {
     if (
       ['ETH', 'WETH'].includes(symbol) &&
       nativeChain === 'Ethereum' &&
-      (['Scroll', 'Blast', 'Xlayer', 'Mantle', 'Unichain'] as Chain[]).includes(
+      (['Scroll', 'Xlayer', 'Mantle', 'Unichain'] as Chain[]).includes(
         toContext.chain,
       )
     ) {

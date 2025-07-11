@@ -121,14 +121,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Scroll',
     symbol: 'SCR',
   },
-  Blast: {
-    displayName: 'Blast',
-    sdkName: 'Blast',
-    explorerUrl: 'https://blastscan.io/',
-    explorerName: 'Blastscan',
-    icon: 'Blast',
-    symbol: 'BLAST',
-  },
   Xlayer: {
     displayName: 'X Layer',
     sdkName: 'Xlayer',
@@ -194,7 +186,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'BTC',
   },
   Seievm: {
-    displayName: "SeiEVM",
+    displayName: 'SeiEVM',
     sdkName: 'Seievm',
     explorerUrl: 'https://seitrace.com/?chain=pacific-1',
     explorerName: 'Seitrace',
