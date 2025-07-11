@@ -2,9 +2,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
 import Color from 'color';
 
+import SwapVerticalIcon from 'icons/SwapVertical';
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
@@ -24,7 +24,7 @@ function SwapInputs() {
         display: 'flex',
         position: 'absolute',
         backgroundColor: theme.palette.input.background,
-        border: `4px solid ${theme.palette.background.form}`,
+        border: `2px solid ${theme.palette.background.form}`,
         borderRadius: '8px',
         left: 'calc(50% - 18px)',
         top: 'calc(50% - 18px)',
@@ -89,9 +89,10 @@ function SwapInputs() {
       disableRipple
       onClick={swap}
     >
-      <SwapVertIcon
+      <SwapVerticalIcon
         sx={{
-          strokeWidth: 1,
+          width: '36px',
+          height: '36px',
           color: canSwap
             ? theme.palette.text.primary
             : theme.palette.text.disabled,
