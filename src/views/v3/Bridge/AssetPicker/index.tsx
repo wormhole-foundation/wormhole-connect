@@ -316,6 +316,11 @@ function AssetPicker(props: Props) {
       sdkAmount.parse('1', props.token.decimals),
       props.token,
     );
+
+    if (!unitPrice) {
+      return null;
+    }
+
     return (
       <Box
         sx={{
