@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -71,67 +71,6 @@ function AssetPickerDrawer({
     </Stack>
   );
 
-  // Chain list - memoize because it involves chain selection logic
-  const chainListContent = useMemo(
-    () => (
-      <ChainList
-        chainList={chainList}
-        selectedChainConfig={chainConfig}
-        showSearch={showChainSearch}
-        setShowSearch={setShowChainSearch}
-        wallet={wallet}
-        onChainSelect={onChainSelect}
-      />
-    ),
-    [
-      chainList,
-      chainConfig,
-      showChainSearch,
-      setShowChainSearch,
-      wallet,
-      onChainSelect,
-    ],
-  );
-
-  // Token list - memoize because it involves expensive token sorting and filtering
-  const tokenListContent = useMemo(
-    () =>
-      !showChainSearch &&
-      chainConfig && (
-        <TokenList
-          tokenList={sortedTokens}
-          balances={balances}
-          isFetchingBalances={isFetchingBalances}
-          isConnectingWallet={isConnectingWallet}
-          isFetching={isFetchingTokens}
-          selectedChainConfig={chainConfig}
-          selectedToken={token}
-          sourceToken={sourceToken}
-          isSource={isSource}
-          wallet={wallet}
-          searchQuery={searchQuery}
-          onSearchQueryChange={setSearchQuery}
-          onSelectToken={onTokenSelect}
-        />
-      ),
-    [
-      showChainSearch,
-      chainConfig,
-      sortedTokens,
-      balances,
-      isFetchingBalances,
-      isConnectingWallet,
-      isFetchingTokens,
-      token,
-      sourceToken,
-      isSource,
-      wallet,
-      searchQuery,
-      setSearchQuery,
-      onTokenSelect,
-    ],
-  );
-
   return (
     <SwipeableDrawer
       anchor="bottom"
@@ -151,8 +90,31 @@ function AssetPickerDrawer({
       onClose={() => setIsDrawerOpen(false)}
     >
       {drawerHandle}
-      {chainListContent}
-      {tokenListContent}
+      <ChainList
+        chainList={chainList}
+        selectedChainConfig={chainConfig}
+        showSearch={showChainSearch}
+        setShowSearch={setShowChainSearch}
+        wallet={wallet}
+        onChainSelect={onChainSelect}
+      />
+      {!showChainSearch && chainConfig && (
+        <TokenList
+          tokenList={sortedTokens}
+          balances={balances}
+          isFetchingBalances={isFetchingBalances}
+          isConnectingWallet={isConnectingWallet}
+          isFetching={isFetchingTokens}
+          selectedChainConfig={chainConfig}
+          selectedToken={token}
+          sourceToken={sourceToken}
+          isSource={isSource}
+          wallet={wallet}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          onSelectToken={onTokenSelect}
+        />
+      )}
     </SwipeableDrawer>
   );
 }

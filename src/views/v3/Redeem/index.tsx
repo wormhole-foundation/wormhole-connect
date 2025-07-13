@@ -26,8 +26,7 @@ import {
 import { getTokenDetails, getTransferDetails } from 'telemetry';
 
 import AlertBannerV3 from 'components/v3/AlertBanner';
-import PageHeader from 'components/PageHeader';
-import { Alignment } from 'components/Header';
+import ConfigurablePageHeader from 'components/ConfigurablePageHeader';
 import Button from 'components/v3/Button';
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
@@ -231,12 +230,9 @@ function Redeem() {
     }
   }, [routeContext, txTrackingResult.receipt]);
 
-  const isAutomaticRoute = !routeName
-    ? false
-    : (() => {
-        const route = config.routes.get(routeName);
-        return route ? route.AUTOMATIC_DEPOSIT : false;
-      })();
+  const isAutomaticRoute = !!(
+    routeName && config.routes.get(routeName)?.AUTOMATIC_DEPOSIT
+  );
 
   const details = getTransferDetails(
     routeName!,
@@ -357,23 +353,6 @@ function Redeem() {
     const now = Date.now();
     return etaCompletion > now ? etaCompletion - now : 0;
   })();
-
-  const defaults: { text: string; align: Alignment } = {
-    text: '',
-    align: 'left',
-  };
-
-  let headerConfig;
-
-  if (typeof config.ui.pageHeader === 'string') {
-    headerConfig = { ...defaults, text: config.ui.pageHeader };
-  } else {
-    headerConfig = { ...defaults, ...config.ui.pageHeader };
-  }
-
-  const header = (
-    <PageHeader title={headerConfig.text} align={headerConfig.align} />
-  );
 
   // Header showing the status of the transaction
   const statusHeader = useMemo(() => {
@@ -912,7 +891,7 @@ function Redeem() {
       sx={{ ...styles.container, ...styles.spacer }}
       data-testid="redeem-view"
     >
-      {header}
+      <ConfigurablePageHeader />
       <Stack sx={styles.backButton}>
         <IconButton
           sx={{ padding: 0 }}

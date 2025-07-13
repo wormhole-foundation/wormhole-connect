@@ -24,11 +24,10 @@ import {
 } from 'utils';
 
 import type { RootState } from 'store';
-import FastestRoute from 'icons/FastestRoute';
-import CheapestRoute from 'icons/CheapestRoute';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import GasSlider from 'views/v3/Bridge/GasSlider';
+import RouteBadge from './RouteBadge';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -73,18 +72,6 @@ const SingleRoute = (props: Props) => {
         height: '34px',
         width: '34px',
         marginRight: '24px',
-      },
-      fastestBadge: {
-        width: '16px',
-        height: '16px',
-        marginRight: '4px',
-        fill: theme.palette.primary.main,
-      },
-      cheapestBadge: {
-        width: '16px',
-        height: '16px',
-        marginRight: '4px',
-        color: theme.palette.primary.main,
       },
       messageContainer: {
         padding: '12px 0px 0px',
@@ -497,36 +484,6 @@ const SingleRoute = (props: Props) => {
     return 'pointer';
   }, [props.error, isSelected, props.onSelect]);
 
-  const routeCardBadge = useMemo(() => {
-    if (props.isFastest) {
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FastestRoute sx={styles.fastestBadge} />
-          <Typography component="span" fontSize="14px" lineHeight="14px">
-            {props.isOnlyChoice ? 'Fast' : 'Fastest'}
-          </Typography>
-        </Box>
-      );
-    } else if (props.isCheapest && !props.isOnlyChoice) {
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <CheapestRoute sx={styles.cheapestBadge} />
-          <Typography component="span" fontSize="14px" lineHeight="14px">
-            Cheapest
-          </Typography>
-        </Box>
-      );
-    } else {
-      return null;
-    }
-  }, [
-    props.isFastest,
-    props.isCheapest,
-    props.isOnlyChoice,
-    styles.fastestBadge,
-    styles.cheapestBadge,
-  ]);
-
   if (!props.route) {
     return <></>;
   }
@@ -571,7 +528,13 @@ const SingleRoute = (props: Props) => {
             avatar={<TokenIcon icon={destToken?.icon} />}
             title={routeCardHeader}
             subheader={routeCardSubHeader}
-            action={routeCardBadge}
+            action={
+              <RouteBadge
+                isFastest={props.isFastest}
+                isCheapest={props.isCheapest}
+                isOnlyChoice={props.isOnlyChoice}
+              />
+            }
           />
           <CardContent sx={styles.cardContent}>
             <Stack gap="14px">

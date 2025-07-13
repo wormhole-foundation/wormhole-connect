@@ -9,9 +9,8 @@ import {
   useTheme,
 } from '@mui/material';
 
-import PageHeader from 'components/PageHeader';
-import Header, { Alignment } from 'components/Header';
-import config from 'config';
+import Header from 'components/Header';
+import ConfigurablePageHeader from 'components/ConfigurablePageHeader';
 import useTransactionHistory from 'hooks/useTransactionHistory';
 import { trimAddress } from 'utils';
 import TxHistoryItem from 'views/v3/TxHistory/Item';
@@ -67,23 +66,6 @@ const TxHistory = () => {
     [],
   );
 
-  const header = useMemo(() => {
-    const defaults: { text: string; align: Alignment } = {
-      text: '',
-      align: 'left',
-    };
-
-    let headerConfig;
-
-    if (typeof config.ui.pageHeader === 'string') {
-      headerConfig = { ...defaults, text: config.ui.pageHeader };
-    } else {
-      headerConfig = { ...defaults, ...config.ui.pageHeader };
-    }
-
-    return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
-  }, []);
-
   // Header for Transaction History, which includes the title and settings icon
   const txHistoryHeader = useMemo(() => {
     return (
@@ -137,7 +119,7 @@ const TxHistory = () => {
 
   return (
     <Box sx={{ ...containerStyles }}>
-      {header}
+      <ConfigurablePageHeader />
       {txHistoryHeader}
       {transactions && transactions.length && !isFetching ? (
         transactionList

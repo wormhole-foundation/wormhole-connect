@@ -1,15 +1,14 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Modal from '@mui/material/Modal';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { routes } from '@wormhole-foundation/sdk';
 
 import Button from 'components/v3/Button';
-import SingleRoute from 'views/v3/Bridge/Routes/SingleRoute';
+import RoutesList from './RoutesList';
 
 interface RoutesDesktopProps {
   open: boolean;
@@ -57,47 +56,6 @@ function RoutesDesktop({
         <CloseIcon sx={{ height: '24px', width: '24px' }} />
       </IconButton>
     </Box>
-  );
-
-  // List section - memoize because it involves expensive map operation
-  const routesList = useMemo(
-    () => (
-      <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
-        {routesWithQuotes.map((name) => {
-          const isSelected = name === highlightedRoute;
-          const quoteResult = quotes[name];
-          const quote = quoteResult?.success ? quoteResult : undefined;
-          const quoteError =
-            quoteResult?.success === false
-              ? quoteResult?.error?.message ??
-                `Error while getting a quote for ${name}.`
-              : undefined;
-          return (
-            <SingleRoute
-              key={name}
-              route={name}
-              error={quoteError}
-              isSelected={isSelected && !quoteError}
-              isFastest={name === fastestRoute.name}
-              isCheapest={name === cheapestRoute.name}
-              isOnlyChoice={routesWithQuotes.length === 1}
-              onSelect={onRouteSelect}
-              onGasChange={onGasChange}
-              quote={quote}
-            />
-          );
-        })}
-      </Stack>
-    ),
-    [
-      routesWithQuotes,
-      highlightedRoute,
-      quotes,
-      fastestRoute.name,
-      cheapestRoute.name,
-      onRouteSelect,
-      onGasChange,
-    ],
   );
 
   // Select button - simple button, changes rarely, no need to memoize
@@ -152,7 +110,15 @@ function RoutesDesktop({
         }}
       >
         {routesHeader}
-        {routesList}
+        <RoutesList
+          routesWithQuotes={routesWithQuotes}
+          highlightedRoute={highlightedRoute}
+          quotes={quotes}
+          fastestRoute={fastestRoute}
+          cheapestRoute={cheapestRoute}
+          onRouteSelect={onRouteSelect}
+          onGasChange={onGasChange}
+        />
         {selectRoute}
       </Box>
     </Modal>
