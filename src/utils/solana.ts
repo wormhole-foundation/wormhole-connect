@@ -66,6 +66,7 @@ export async function setPriorityFeeInstructions(
 
     // Remove existing compute budget instructions if they were added by the SDK
     message.instructions = message.instructions.filter(computeBudgetIxFilter);
+    unsignedTx.message = message.compileToV0Message(luts);
     message.instructions.push(
       ...(await createPriorityFeeInstructions(connection, unsignedTx)),
     );
