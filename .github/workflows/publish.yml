@@ -33,8 +33,6 @@ jobs:
           sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" package.json
           npm run build:lib
           npm run build:hosted
-          cp ../README.md .
-          cp ../wormhole-connect.png .
           npm publish --tag $(echo $([ ${strarr[0]} == "production" ] && echo "latest" || echo ${strarr[0]})) --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
