@@ -153,20 +153,14 @@ function AmountInput(props: Props) {
     [theme],
   );
 
-  const {
-    fromChain: sourceChain,
-    toChain: destChain,
-    isTransactionInProgress,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { fromChain: sourceChain, isTransactionInProgress } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
 
-  const { sourceToken, destToken } = useGetTokens();
+  const { sourceToken } = useGetTokens();
 
   const isInputDisabled =
-    isTransactionInProgress ||
-    !sourceChain ||
-    !sourceToken ||
-    !destChain ||
-    !destToken;
+    isTransactionInProgress || !sourceChain || !sourceToken;
 
   return (
     <Box sx={styles.amountContainer}>
