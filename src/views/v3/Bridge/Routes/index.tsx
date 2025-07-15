@@ -46,9 +46,11 @@ function Routes({
   const [highlightedRoute, setHighlightedRoute] = useState<
     string | undefined
   >();
-  const [gasTokenAmount, setGasTokenAmount] = useState<number>(
-    toNativeToken * 100,
-  );
+  const [originalToNativeToken, setOriginalToNativeToken] =
+    useState<number>(toNativeToken);
+  const [originalSelectedRoute, setOriginalSelectedRoute] = useState<
+    string | undefined
+  >(selectedRoute);
 
   useEffect(() => {
     // Reset the highlighted route when the selected route changes
@@ -62,46 +64,74 @@ function Routes({
 
   // Event handlers
   const handleCloseModal = useCallback(() => {
-    setHighlightedRoute(selectedRoute);
     setShowModal(false);
-  }, [selectedRoute]);
+    // Only revert if route selection changed (not just gas amount on same route)
+    if (highlightedRoute !== originalSelectedRoute) {
+      setHighlightedRoute(originalSelectedRoute);
+      dispatch(setToNativeToken(originalToNativeToken));
+    }
+  }, [
+    highlightedRoute,
+    originalSelectedRoute,
+    originalToNativeToken,
+    dispatch,
+  ]);
 
   const handleCloseDrawer = useCallback(() => {
     setShowDrawer(false);
-  }, []);
+    // Only revert if route selection changed (not just gas amount on same route)
+    if (highlightedRoute !== originalSelectedRoute) {
+      setHighlightedRoute(originalSelectedRoute);
+      dispatch(setToNativeToken(originalToNativeToken));
+    }
+  }, [
+    highlightedRoute,
+    originalSelectedRoute,
+    originalToNativeToken,
+    dispatch,
+  ]);
 
   const handleToggleRoutes = useCallback(() => {
+    // Store the original values when opening modal/drawer
+    setOriginalToNativeToken(toNativeToken);
+    setOriginalSelectedRoute(selectedRoute);
     if (mobile) {
       setShowDrawer(true);
     } else {
       setShowModal((prev) => !prev);
     }
-  }, [mobile]);
+  }, [mobile, selectedRoute, toNativeToken]);
 
-  const handleRouteSelect = useCallback((route: string) => {
-    setHighlightedRoute(route);
-  }, []);
+  const handleRouteSelect = useCallback(
+    (route: string) => {
+      setHighlightedRoute(route);
+      if (toNativeToken !== 0) {
+        dispatch(setToNativeToken(0));
+      }
+    },
+    [dispatch, toNativeToken],
+  );
 
-  const handleGasTokenChange = useCallback((value: number) => {
-    setGasTokenAmount(value);
-  }, []);
+  const handleGasTokenChange = useCallback(
+    (value: number) => {
+      if (value !== toNativeToken) {
+        dispatch(setToNativeToken(value));
+      }
+    },
+    [dispatch, toNativeToken],
+  );
 
-  const handleSelectRoute = useCallback(() => {
+  const handleRouteConfirm = useCallback(() => {
     if (highlightedRoute) {
       onRouteChange(highlightedRoute);
     }
-    if (gasTokenAmount !== toNativeToken) {
-      dispatch(setToNativeToken(gasTokenAmount));
-    }
+
+    // Update the original values as well since user confirmed their selection
+    setOriginalToNativeToken(toNativeToken);
+    setOriginalSelectedRoute(highlightedRoute);
+
     mobile ? setShowDrawer(false) : setShowModal(false);
-  }, [
-    highlightedRoute,
-    onRouteChange,
-    gasTokenAmount,
-    toNativeToken,
-    dispatch,
-    mobile,
-  ]);
+  }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
   const routesWithQuotes = routesList.filter((rs) => quotes[rs] !== undefined);
 
@@ -178,12 +208,8 @@ function Routes({
   }, [selectedRoute, bestRoute]);
 
   const selectButtonDisabled = useMemo(() => {
-    return (
-      !!selectedRoute &&
-      selectedRoute === highlightedRoute &&
-      toNativeToken === gasTokenAmount / 100
-    );
-  }, [selectedRoute, highlightedRoute, toNativeToken, gasTokenAmount]);
+    return !!selectedRoute && selectedRoute === highlightedRoute;
+  }, [selectedRoute, highlightedRoute]);
 
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
@@ -325,7 +351,7 @@ function Routes({
               cheapestRoute={cheapestRoute}
               onRouteSelect={handleRouteSelect}
               onGasChange={handleGasTokenChange}
-              onSelectRoute={handleSelectRoute}
+              onRouteConfirm={handleRouteConfirm}
               selectButtonDisabled={selectButtonDisabled}
             />
           ) : (
@@ -339,7 +365,7 @@ function Routes({
               cheapestRoute={cheapestRoute}
               onRouteSelect={handleRouteSelect}
               onGasChange={handleGasTokenChange}
-              onSelectRoute={handleSelectRoute}
+              onRouteConfirm={handleRouteConfirm}
               selectButtonDisabled={selectButtonDisabled}
             />
           )}

@@ -39,6 +39,7 @@ type Props = {
   isFastest?: boolean;
   isCheapest?: boolean;
   isOnlyChoice?: boolean;
+  isLoading?: boolean;
   quote?: routes.Quote<routes.Options>;
   onSelect?: (route: string) => void;
   onGasChange?: (nativeAmount: number) => void;
@@ -101,7 +102,6 @@ const SingleRoute = (props: Props) => {
   const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   const { quote, isSelected } = props;
-  const receiveNativeAmount = quote?.destinationNativeGas;
 
   const { sourceToken, destToken } = useGetTokens();
 
@@ -552,9 +552,9 @@ const SingleRoute = (props: Props) => {
               <Divider flexItem sx={{ margin: '0px 16px' }} />
               <GasSlider
                 destinationGasDrop={
-                  receiveNativeAmount || amount.fromBaseUnits(0n, 8)
+                  quote?.destinationNativeGas || amount.fromBaseUnits(0n, 8)
                 }
-                disabled={isGasSliderDisabled}
+                disabled={isGasSliderDisabled || !!props.isLoading}
                 isExecutorRoute={isExecutorRoute(props.route)}
                 isSelected={isSelected}
                 onGasChange={(nativeAmount: number) => {

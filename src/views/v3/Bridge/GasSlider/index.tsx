@@ -87,10 +87,14 @@ const GasSlider = (props: {
   const destGasToken = config.tokens.getGasToken(destChain!);
   const sourceGasToken = config.tokens.getGasToken(sourceChain!);
 
-  const [isGasSliderOpen, setIsGasSliderOpen] = useState(
-    isSelected && destinationGasDrop.amount !== '0',
-  );
+  const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
   const [percentage, setPercentage] = useState(toNativeToken * 100);
+
+  useEffect(() => {
+    if (isSelected && destinationGasDrop.amount !== '0') {
+      setIsGasSliderOpen(true);
+    }
+  }, [destinationGasDrop.amount, isSelected]);
 
   useEffect(() => {
     if (!isSelected) {
@@ -128,23 +132,17 @@ const GasSlider = (props: {
         value={percentage.toString()}
         onChange={(e: any) => {
           const newPercentValue = Number(e.currentTarget.value);
-          if (newPercentValue === percentage) {
-            // Unselect if user clicks on the same value
-            setPercentage(0);
-            onGasChange(0);
-          } else {
-            setPercentage(newPercentValue);
-            onGasChange(newPercentValue / 100);
-          }
+          setPercentage(newPercentValue);
+          onGasChange(newPercentValue);
         }}
       >
-        <ToggleButton sx={styles.toggleButton} disableRipple value="5">
+        <ToggleButton sx={styles.toggleButton} disableRipple value="0.05">
           5%
         </ToggleButton>
-        <ToggleButton sx={styles.toggleButton} disableRipple value="10">
+        <ToggleButton sx={styles.toggleButton} disableRipple value="0.1">
           10%
         </ToggleButton>
-        <ToggleButton sx={styles.toggleButton} disableRipple value="15">
+        <ToggleButton sx={styles.toggleButton} disableRipple value="0.15">
           15%
         </ToggleButton>
       </ToggleButtonGroup>
@@ -177,7 +175,7 @@ const GasSlider = (props: {
             },
           }}
           checked={isGasSliderOpen}
-          disabled={disabled}
+          disabled={disabled || !isSelected} // Disable switch if the route is not selected as well
           onClick={(e: any) => {
             const { checked } = e.target;
 

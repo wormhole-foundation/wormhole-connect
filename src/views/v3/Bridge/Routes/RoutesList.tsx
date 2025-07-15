@@ -10,6 +10,7 @@ type Props = {
   quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
   fastestRoute: { name: string; eta: number };
   cheapestRoute: { name: string; amountOut: bigint };
+  isLoading?: boolean;
   onRouteSelect: (route: string) => void;
   onGasChange: (value: number) => void;
 };
@@ -20,6 +21,7 @@ const RoutesList = ({
   quotes,
   fastestRoute,
   cheapestRoute,
+  isLoading,
   onRouteSelect,
   onGasChange,
 }: Props) => {
@@ -46,6 +48,7 @@ const RoutesList = ({
             onSelect={onRouteSelect}
             onGasChange={onGasChange}
             quote={quote}
+            isLoading={isLoading}
           />
         );
       })}

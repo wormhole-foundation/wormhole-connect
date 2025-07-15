@@ -12,17 +12,18 @@ import RoutesList from './RoutesList';
 
 interface RoutesMobileProps {
   open: boolean;
-  onOpen: () => void;
-  onClose: () => void;
   routesWithQuotes: string[];
   highlightedRoute?: string;
   quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
   fastestRoute: { name: string; eta: number };
   cheapestRoute: { name: string; amountOut: bigint };
-  onRouteSelect: (route: string) => void;
-  onGasChange: (value: number) => void;
-  onSelectRoute: () => void;
   selectButtonDisabled: boolean;
+  isLoading?: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onGasChange: (value: number) => void;
+  onRouteSelect: (route: string) => void;
+  onRouteConfirm: () => void;
 }
 
 function RoutesMobile({
@@ -34,10 +35,11 @@ function RoutesMobile({
   quotes,
   fastestRoute,
   cheapestRoute,
+  selectButtonDisabled,
+  isLoading,
   onRouteSelect,
   onGasChange,
-  onSelectRoute,
-  selectButtonDisabled,
+  onRouteConfirm,
 }: RoutesMobileProps) {
   const theme = useTheme();
 
@@ -61,7 +63,7 @@ function RoutesMobile({
   );
 
   // Select button - simple button, changes rarely, no need to memoize
-  const selectRoute = (
+  const selectRouteButton = (
     <Button
       variant="primary"
       styleOverrides={{
@@ -69,7 +71,7 @@ function RoutesMobile({
         height: '48px',
         borderRadius: '48px',
       }}
-      onClick={onSelectRoute}
+      onClick={onRouteConfirm}
       disabled={selectButtonDisabled}
       data-testid="select-route-button"
       fullWidth
@@ -116,10 +118,11 @@ function RoutesMobile({
           quotes={quotes}
           fastestRoute={fastestRoute}
           cheapestRoute={cheapestRoute}
+          isLoading={isLoading}
           onRouteSelect={onRouteSelect}
           onGasChange={onGasChange}
         />
-        {selectRoute}
+        {selectRouteButton}
       </Box>
     </SwipeableDrawer>
   );
