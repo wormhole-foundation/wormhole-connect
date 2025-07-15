@@ -5,6 +5,7 @@ import {
   connectWallet as connectSourceWallet,
   clearWallet,
   connectReceivingWallet,
+  swapWallets as swapWalletsAction,
 } from 'store/wallet';
 
 import config from 'config';
@@ -330,11 +331,36 @@ export const getWalletAddress = async (
   return wallet?.getAddress();
 };
 
-export const swapWalletConnections = () => {
-  // TODO: how does this work with external wallets?
+export const swapWalletConnections = async () => {
+  // If external wallet manager is configured, use its swap method
+  if (config.externalWalletManager?.swapWallets) {
+    try {
+      await config.externalWalletManager.swapWallets();
+      return;
+    } catch (e: any) {
+      console.error('External wallet swap failed:', e);
+      throw e;
+    }
+  }
+
+  // Original internal wallet logic
   const temp = walletConnection.sending;
   walletConnection.sending = walletConnection.receiving;
   walletConnection.receiving = temp;
+};
+
+// Helper function to handle the complete wallet swap operation
+export const swapWallets = async (dispatch: any) => {
+  try {
+    // Handle external wallet swapping first (if applicable)
+    await swapWalletConnections();
+
+    // Then update Redux state
+    dispatch(swapWalletsAction());
+  } catch (e: any) {
+    console.error('Wallet swap failed:', e);
+    throw e;
+  }
 };
 
 export const disconnect = async (type: TransferWallet) => {
@@ -478,9 +504,8 @@ export const getWalletOptions = async (
     return [];
   }
 
-  // If external wallet manager is configured and internal wallets are disabled,
-  // return empty array to hide internal wallet options
-  if (config.externalWalletManager && config.disableInternalWallets) {
+  // If external wallet manager is configured, hide internal wallet options
+  if (config.externalWalletManager) {
     return [];
   }
 

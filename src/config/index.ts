@@ -166,7 +166,6 @@ export function buildConfig(
 
     // External wallet management
     externalWalletManager: customConfig.externalWalletManager,
-    disableInternalWallets: customConfig.disableInternalWallets,
 
     // White lists
     chains: networkData.chains,

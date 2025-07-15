@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Platform } from '@wormhole-foundation/sdk';
 import {
   disconnect,
-  swapWalletConnections,
   TransferWallet,
 } from 'utils/wallet';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
@@ -107,7 +106,8 @@ export const walletSlice = createSlice({
       state.sending = state.receiving;
       state.receiving = tmp;
 
-      swapWalletConnections();
+      // Note: swapWalletConnections() is called outside this reducer
+      // when external wallet manager is involved since it's now async
 
       // If the new sending wallet is a ReadOnlyWallet,
       // disconnect it since it can't be used for signing

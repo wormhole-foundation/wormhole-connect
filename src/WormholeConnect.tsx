@@ -47,12 +47,13 @@ export default function WormholeConnect({
       <ThemeProvider theme={muiTheme}>
         <ScopedCssBaseline enableColorScheme>
           <ErrorBoundary>
-            <ExternalWalletSync />
-            <TokensProvider>
-              <RouteProvider>
-                <AppRouter config={config} />
-              </RouteProvider>
-            </TokensProvider>
+            <ExternalWalletSync>
+              <TokensProvider>
+                <RouteProvider>
+                  <AppRouter config={config} />
+                </RouteProvider>
+              </TokensProvider>
+            </ExternalWalletSync>
           </ErrorBoundary>
         </ScopedCssBaseline>
       </ThemeProvider>

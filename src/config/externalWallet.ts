@@ -1,5 +1,4 @@
-import { Chain } from '@wormhole-foundation/sdk';
-import { UnsignedTransaction } from '../types';
+import { Chain, UnsignedTransaction } from '@wormhole-foundation/sdk';
 
 export type WalletType = 'sending' | 'receiving';
 
@@ -67,4 +66,10 @@ export interface ExternalWalletManager {
    * Parent should call the provided callback whenever wallet state changes
    */
   onWalletStateChanged?: (callback: WalletStateChangeCallback) => void;
+
+  /**
+   * Optional method to swap sending and receiving wallets
+   * Called when user clicks the swap button in Connect's UI
+   */
+  swapWallets?: () => Promise<void>;
 }

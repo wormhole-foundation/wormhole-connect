@@ -7,7 +7,7 @@ import Color from 'color';
 import SwapVerticalIcon from 'icons/SwapVertical';
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
-import { swapWallets } from 'store/wallet';
+import { swapWallets } from 'utils/wallet';
 
 function SwapInputs() {
   const dispatch = useDispatch();
@@ -70,7 +70,7 @@ function SwapInputs() {
 
   const canSwap = !isTransactionInProgress && fromChain && toChain;
 
-  const swap = useCallback(() => {
+  const swap = useCallback(async () => {
     if (!canSwap || isTransactionInProgress) return;
 
     setRotateAnimation((val) =>
@@ -78,7 +78,11 @@ function SwapInputs() {
     );
 
     dispatch(swapInputs());
-    dispatch(swapWallets());
+    try {
+      await swapWallets(dispatch);
+    } catch (error) {
+      console.error('Failed to swap wallets:', error);
+    }
     dispatch(setAmount(''));
   }, [canSwap, isTransactionInProgress, dispatch]);
 

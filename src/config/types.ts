@@ -144,10 +144,6 @@ export interface WormholeConnectConfig {
   // External wallet management
   externalWalletManager?: ExternalWalletManager;
 
-  // Disable Connect's internal wallet management UI when using external wallet manager
-  // TODO: should externalWalletManager being defined imply this?
-  disableInternalWallets?: boolean;
-
   // UI details
   ui?: UiConfig;
 
@@ -199,7 +195,6 @@ export interface InternalConfig<N extends Network> {
 
   // External wallet management
   externalWalletManager?: ExternalWalletManager;
-  disableInternalWallets?: boolean;
 
   // UI configuration
   ui: UiConfig;

@@ -68,6 +68,11 @@ const externalWalletManager: ExternalWalletManager = {
         walletIcon: state.walletIcon
       });
     });
+  },
+
+  // Optional: Handle wallet swapping (when user clicks swap button)
+  swapWallets: async () => {
+    await myWalletManager.swapWallets();
   }
 };
 
@@ -78,9 +83,6 @@ const App = () => {
       config={{
         // Enable external wallet management
         externalWalletManager,
-        
-        // Disable Connect's internal wallet UI (optional)
-        disableInternalWallets: true,
         
         // Other config options...
         network: 'Mainnet',
@@ -114,10 +116,10 @@ const App = () => {
 - `onWalletRequired(type, chain)` - Notification when Connect needs a wallet
 - `onChainSwitchRequired(type, chain)` - Notification when chain switch is needed  
 - `onWalletStateChanged(callback)` - Register for wallet state change notifications
+- `swapWallets()` - Handle wallet swapping when user clicks swap button
 
 ## Configuration Options
 
-- `externalWalletManager` - Your wallet manager implementation
-- `disableInternalWallets` - Hide Connect's wallet selection UI (default: false)
+- `externalWalletManager` - Your wallet manager implementation (internal wallets are automatically disabled when this is provided)
 
 This allows you to provide a seamless bridging experience while maintaining full control over wallet interactions.

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import config from 'config';
@@ -10,11 +11,17 @@ import { WalletStateChangeCallback } from 'config/externalWallet';
 import { TransferWallet } from './index';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
 
+interface ExternalWalletSyncProps {
+  children: React.ReactNode;
+}
+
 /**
  * Component that handles synchronization between external wallet state
  * and Connect's internal Redux store when external wallet manager is configured
  */
-export const ExternalWalletSync: React.FC = () => {
+export const ExternalWalletSync: React.FC<ExternalWalletSyncProps> = ({
+  children,
+}) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -75,6 +82,6 @@ export const ExternalWalletSync: React.FC = () => {
     syncInitialState();
   }, [dispatch]);
 
-  // This component doesn't render anything
-  return null;
+  // Render children while handling wallet sync in the background
+  return <>{children}</>;
 };
