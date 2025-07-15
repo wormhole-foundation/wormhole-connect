@@ -9,6 +9,7 @@ import { wrapEventHandler } from './events';
 import { capitalize } from './utils';
 
 export * from './types';
+export * from './externalWallet';
 
 import {
   wormhole as getWormholeV2,
@@ -43,6 +44,37 @@ export function buildConfig(
     throw new Error(
       `Invalid env "${network}": Use "Testnet", "Devnet", or "Mainnet"`,
     );
+
+  // Validate external wallet manager configuration
+  // TODO: are these checks really necessary?
+  // if the integrator gets them wrong then it's on them...
+  if (customConfig.externalWalletManager) {
+    const { externalWalletManager } = customConfig;
+
+    if (typeof externalWalletManager.getWalletState !== 'function') {
+      throw new Error(
+        'External wallet manager must implement getWalletState method',
+      );
+    }
+
+    if (typeof externalWalletManager.requestConnection !== 'function') {
+      throw new Error(
+        'External wallet manager must implement requestConnection method',
+      );
+    }
+
+    if (typeof externalWalletManager.requestDisconnection !== 'function') {
+      throw new Error(
+        'External wallet manager must implement requestDisconnection method',
+      );
+    }
+
+    if (typeof externalWalletManager.signAndSendTransaction !== 'function') {
+      throw new Error(
+        'External wallet manager must implement signAndSendTransaction method',
+      );
+    }
+  }
 
   const networkData = { MAINNET, DEVNET, TESTNET }[network.toUpperCase()]!;
 
@@ -131,6 +163,10 @@ export function buildConfig(
     isRouteSupportedHandler: customConfig.isRouteSupportedHandler,
     isTokenSupportedHandler: customConfig.isTokenSupportedHandler,
     filterRoutes: customConfig.filterRoutes,
+
+    // External wallet management
+    externalWalletManager: customConfig.externalWalletManager,
+    disableInternalWallets: customConfig.disableInternalWallets,
 
     // White lists
     chains: networkData.chains,

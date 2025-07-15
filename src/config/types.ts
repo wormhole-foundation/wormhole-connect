@@ -22,8 +22,10 @@ import RouteOperator from 'routes/operator';
 import { UiConfig } from './ui';
 import { TransferInfo } from 'utils/sdkv2';
 import { Token, TokenCache, TokenTuple } from './tokens';
+import { ExternalWalletManager } from './externalWallet';
 
 export * from './ui';
+export * from './externalWallet';
 
 export enum TokenIcon {
   'AVAX' = 1,
@@ -139,6 +141,13 @@ export interface WormholeConnectConfig {
   // filterRoutes can be used to filter the routes that are shown to the user
   filterRoutes?: (routes: string[]) => string[];
 
+  // External wallet management
+  externalWalletManager?: ExternalWalletManager;
+
+  // Disable Connect's internal wallet management UI when using external wallet manager
+  // TODO: should externalWalletManager being defined imply this?
+  disableInternalWallets?: boolean;
+
   // UI details
   ui?: UiConfig;
 
@@ -187,6 +196,10 @@ export interface InternalConfig<N extends Network> {
   isRouteSupportedHandler?: IsRouteSupportedHandler;
   isTokenSupportedHandler?: IsTokenSupportedHandler;
   filterRoutes?: (routes: string[]) => string[];
+
+  // External wallet management
+  externalWalletManager?: ExternalWalletManager;
+  disableInternalWallets?: boolean;
 
   // UI configuration
   ui: UiConfig;

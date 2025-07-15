@@ -1,4 +1,5 @@
 import { ChainConfig } from 'config/types';
+import { WalletType, TransactionRequest } from 'config/externalWallet';
 import { Wallet, WalletState } from '@wormhole-labs/wallet-aggregator-core';
 import {
   connectWallet as connectSourceWallet,
@@ -70,6 +71,55 @@ export const connectWallet = async (
   walletInfo: WalletData,
   dispatch: Dispatch<any>,
 ): Promise<boolean> => {
+  // Check if external wallet manager is configured
+  if (config.externalWalletManager) {
+    // TODO: should we switch chains in here?
+    // TODO: why aren't we setting the wallet connection here?
+    // will not setting the wallet connection cause issues elsewhere?
+    try {
+      const connected = await config.externalWalletManager.requestConnection(
+        type as WalletType,
+        chain,
+      );
+
+      if (connected) {
+        const walletState = await config.externalWalletManager.getWalletState(
+          type as WalletType,
+        );
+
+        // Update Redux state with external wallet data
+        const payload = {
+          address: walletState.address || '',
+          type: chainToPlatform(chain),
+          icon: walletState.walletIcon || '',
+          name: walletState.walletName || 'External Wallet',
+        };
+
+        if (type === TransferWallet.SENDING) {
+          dispatch(connectSourceWallet(payload));
+        } else {
+          dispatch(connectReceivingWallet(payload));
+        }
+
+        config.triggerEvent({
+          type: 'wallet.connect',
+          details: {
+            side: type,
+            chain: chain,
+            wallet: walletState.walletName?.toLowerCase() || 'external',
+          },
+        });
+      }
+
+      return connected;
+    } catch (e: any) {
+      console.error('External wallet connection failed:', e);
+      // TODO: is this an error if the user rejected the connection?
+      throw e;
+    }
+  }
+
+  // Original internal wallet logic
   const { wallet, name } = walletInfo;
 
   setWalletConnection(type, wallet);
@@ -159,6 +209,12 @@ export const connectLastUsedWallet = async (
   chain: Chain,
   dispatch: Dispatch<any>,
 ) => {
+  // Skip auto-connection if external wallet manager is configured
+  // TODO: should the integrator handle this?
+  if (config.externalWalletManager) {
+    return;
+  }
+
   const chainConfig = config.chains[chain!]!;
   const localStorageKey = config.cacheKey(
     `wallet:${chainToPlatform(chainConfig.sdkName)}`,
@@ -234,13 +290,68 @@ export const getWalletConnection = (type: TransferWallet) => {
   return walletConnection[type];
 };
 
+// Helper function to check if wallet is connected (works with both internal and external wallets)
+export const isWalletConnected = async (
+  type: TransferWallet,
+): Promise<boolean> => {
+  if (config.externalWalletManager) {
+    try {
+      const walletState = await config.externalWalletManager.getWalletState(
+        type as WalletType,
+      );
+      return walletState.isConnected;
+    } catch (e) {
+      console.error('Failed to check external wallet state:', e);
+      return false;
+    }
+  }
+
+  const wallet = walletConnection[type];
+  return wallet !== undefined;
+};
+
+// Helper function to get wallet address (works with both internal and external wallets)
+export const getWalletAddress = async (
+  type: TransferWallet,
+): Promise<string | undefined> => {
+  if (config.externalWalletManager) {
+    try {
+      const walletState = await config.externalWalletManager.getWalletState(
+        type as WalletType,
+      );
+      return walletState.address;
+    } catch (e) {
+      console.error('Failed to get external wallet address:', e);
+      return undefined;
+    }
+  }
+
+  const wallet = walletConnection[type];
+  return wallet?.getAddress();
+};
+
 export const swapWalletConnections = () => {
+  // TODO: how does this work with external wallets?
   const temp = walletConnection.sending;
   walletConnection.sending = walletConnection.receiving;
   walletConnection.receiving = temp;
 };
 
 export const disconnect = async (type: TransferWallet) => {
+  // Check if external wallet manager is configured
+  if (config.externalWalletManager) {
+    try {
+      await config.externalWalletManager.requestDisconnection(
+        type as WalletType,
+      );
+      return;
+    } catch (e: any) {
+      console.error('External wallet disconnection failed:', e);
+      throw e;
+    }
+  }
+
+  // Original internal wallet logic
   const w = walletConnection[type]! as any;
   if (!w) return;
   await w.disconnect();
@@ -252,6 +363,28 @@ export const signAndSendTransaction = async (
   walletType: TransferWallet,
   options: any = {},
 ): Promise<string> => {
+  // Check if external wallet manager is configured
+  // TODO: there are additional checks done in the evm/solana/sui/aptos signAndSendTransaction functions
+  // below. should externalWalletManager have a signTransaction method that can be used for solana and evm specifically
+  // which have more checks in the functions below after the transaction is signed?
+  if (config.externalWalletManager) {
+    try {
+      const transactionRequest: TransactionRequest = {
+        chain,
+        transaction: request,
+        walletType: walletType as WalletType,
+      };
+
+      return await config.externalWalletManager.signAndSendTransaction(
+        transactionRequest,
+      );
+    } catch (e: any) {
+      console.error('External wallet transaction failed:', e);
+      throw e;
+    }
+  }
+
+  // Original internal wallet logic
   const chainConfig = config.chains[chain]!;
 
   const wallet = walletConnection[walletType];
@@ -344,6 +477,13 @@ export const getWalletOptions = async (
   if (chain === undefined) {
     return [];
   }
+
+  // If external wallet manager is configured and internal wallets are disabled,
+  // return empty array to hide internal wallet options
+  if (config.externalWalletManager && config.disableInternalWallets) {
+    return [];
+  }
+
   const platform = chainToPlatform(chain.sdkName);
   if (platform === 'Evm') {
     const evm = await import('utils/wallet/evm');
