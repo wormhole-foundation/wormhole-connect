@@ -228,7 +228,7 @@ function AssetPicker(props: Props) {
       : undefined;
 
   const balance =
-    !props.isSource || !props.wallet.address ? null : (
+    !props.isSource || !props.wallet.address || !props.token ? null : (
       <Typography color={theme.palette.text.secondary} variant="body2">
         {tokenBalance
           ? sdkAmount.display(sdkAmount.truncate(tokenBalance, 6))
