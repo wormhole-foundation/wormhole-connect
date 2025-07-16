@@ -28,7 +28,6 @@ export const DEFAULT_ROUTES = [
   routes.CCTPRoute,
   routes.AutomaticTokenBridgeRoute,
   routes.TokenBridgeRoute,
-  routes.AutomaticPorticoRoute,
   routes.TBTCRoute,
 ];
 
