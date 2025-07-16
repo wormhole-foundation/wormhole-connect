@@ -45,37 +45,6 @@ export function buildConfig(
       `Invalid env "${network}": Use "Testnet", "Devnet", or "Mainnet"`,
     );
 
-  // Validate external wallet manager configuration
-  // TODO: are these checks really necessary?
-  // if the integrator gets them wrong then it's on them...
-  if (customConfig.externalWalletManager) {
-    const { externalWalletManager } = customConfig;
-
-    if (typeof externalWalletManager.getWalletState !== 'function') {
-      throw new Error(
-        'External wallet manager must implement getWalletState method',
-      );
-    }
-
-    if (typeof externalWalletManager.requestConnection !== 'function') {
-      throw new Error(
-        'External wallet manager must implement requestConnection method',
-      );
-    }
-
-    if (typeof externalWalletManager.requestDisconnection !== 'function') {
-      throw new Error(
-        'External wallet manager must implement requestDisconnection method',
-      );
-    }
-
-    if (typeof externalWalletManager.signAndSendTransaction !== 'function') {
-      throw new Error(
-        'External wallet manager must implement signAndSendTransaction method',
-      );
-    }
-  }
-
   const networkData = { MAINNET, DEVNET, TESTNET }[network.toUpperCase()]!;
 
   const wrappedTokens = mergeCustomWrappedTokens(

@@ -5,7 +5,7 @@ export type WalletType = 'sending' | 'receiving';
 export interface ExternalWalletState {
   isConnected: boolean;
   address?: string;
-  chainId?: string;
+  chain?: Chain;
   walletName?: string;
   walletIcon?: string;
 }

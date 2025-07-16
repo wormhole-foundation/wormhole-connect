@@ -33,11 +33,12 @@ export const ExternalWalletSync: React.FC<ExternalWalletSyncProps> = ({
       type,
       state,
     ) => {
-      if (state.isConnected && state.address) {
+      // TODO: throw if chain is undefined?
+      if (state.isConnected && state.address && state.chain) {
         // Wallet is connected - update Redux state
         const payload = {
           address: state.address,
-          type: chainToPlatform(state.chainId as any) || 'Evm', // fallback to Evm
+          type: chainToPlatform(state.chain),
           icon: state.walletIcon || '',
           name: state.walletName || 'External Wallet',
         };
