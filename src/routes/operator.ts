@@ -33,6 +33,7 @@ export interface QuoteParams {
   destToken: Token;
   amount: sdkAmount.Amount;
   nativeGas: number;
+  sender?: string; // wallet may be undefined when not connected
   recipient?: string; // wallet may be undefined when not connected
 }
 
@@ -290,6 +291,7 @@ class QuoteCache {
           params.sourceChain,
           params.destChain,
           { nativeGas: params.nativeGas },
+          params.sender,
           params.recipient,
         )
         .then((result: QuoteResult) => {

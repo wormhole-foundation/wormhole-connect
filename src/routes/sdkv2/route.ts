@@ -83,11 +83,11 @@ export class SDKv2Route {
       return false;
     }
 
-    const isMayan = name.includes('Mayan');
+    const canSwap = name.includes('Mayan') || name === 'LiFi';
 
     // Mayan can handle any input and output token that has liquidity on a DeX
     // No need to further check for destination tokens.
-    if (isMayan) {
+    if (canSwap) {
       return true;
     }
 
@@ -174,6 +174,7 @@ export class SDKv2Route {
     sourceChain: Chain,
     destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    sender?: string,
     recipient?: string,
   ): Promise<
     [
@@ -187,6 +188,7 @@ export class SDKv2Route {
       destToken,
       sourceChain,
       destChain,
+      sender,
       recipient,
     );
 
@@ -211,6 +213,7 @@ export class SDKv2Route {
     destToken: Token,
     sourceChain: Chain,
     destChain: Chain,
+    sender?: string,
     recipient?: string,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
@@ -223,6 +226,7 @@ export class SDKv2Route {
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
+        sender: sender ? Wormhole.chainAddress(sourceChain, sender) : undefined,
         recipient: recipient
           ? Wormhole.chainAddress(destChain, recipient)
           : undefined,
@@ -240,6 +244,7 @@ export class SDKv2Route {
     fromChain: Chain,
     toChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    sender?: string,
     recipient?: string,
   ): Promise<routes.QuoteResult<routes.Options>> {
     if (!fromChain || !toChain) {
@@ -253,6 +258,7 @@ export class SDKv2Route {
       fromChain,
       toChain,
       options,
+      sender,
       recipient,
     );
 
@@ -280,6 +286,7 @@ export class SDKv2Route {
       fromChain,
       toChain,
       options,
+      senderAddress,
       recipientAddress,
     );
 

@@ -16,6 +16,11 @@
       "import": "./lib/mayan.mjs",
       "types": "./lib/mayan.d.ts"
     },
+    "./lifi": {
+      "require": "./lib/lifi.js",
+      "import": "./lib/lifi.mjs",
+      "types": "./lib/lifi.d.ts"
+    },
     "./ntt": {
       "require": "./lib/ntt.js",
       "import": "./lib/ntt.mjs",
@@ -67,6 +72,7 @@
     "@wormhole-labs/wallet-aggregator-evm": "0.4.0",
     "@wormhole-labs/wallet-aggregator-solana": "0.0.1",
     "@wormhole-labs/wallet-aggregator-sui": "0.0.1",
+    "@wormhole-labs/lifi-route": "1.1.0",
     "axios": "1.10.0",
     "binary-parser": "^2.2.1",
     "color": "^5.0.0",
@@ -85,6 +91,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "postinstall": "find node_modules/ox -name \"*.ts\" 2>/dev/null | xargs rm -f || true; find node_modules/viem/node_modules/ox -name \"*.ts\" 2>/dev/null | xargs rm -f || true",
     "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host",
     "start:mainnet": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Mainnet vite --host",
     "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
@@ -189,6 +196,8 @@
   },
   "overrides": {
     "axios": "1.10.0",
+    "viem": "2.33.3",
+    "ox": "0.8.6",
     "@ledgerhq/hw-transport@6.27.1": {
       "@ledgerhq/errors": "6.10.2",
       "@ledgerhq/logs": "6.12.0",
