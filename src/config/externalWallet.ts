@@ -51,21 +51,21 @@ export interface ExternalWalletManager {
   signAndSendTransaction: (params: TransactionRequest) => Promise<string>;
 
   /**
-   * Optional callback when Connect needs a wallet but none is connected
+   * Callback when Connect needs a wallet but none is connected
    * Parent can use this to show wallet connection UI
    */
-  onWalletRequired?: (type: WalletType, chain: Chain) => void;
+  onWalletRequired: (type: WalletType, chain: Chain) => void;
 
   /**
-   * Optional callback when Connect needs the wallet to switch to a different chain
+   * Callback when Connect needs the wallet to switch to a different chain
    */
-  onChainSwitchRequired?: (type: WalletType, chain: Chain) => void;
+  onChainSwitchRequired: (type: WalletType, chain: Chain) => void;
 
   /**
    * Register a callback to be notified when wallet state changes in the parent app
    * Parent should call the provided callback whenever wallet state changes
    */
-  onWalletStateChanged?: (callback: WalletStateChangeCallback) => void;
+  onWalletStateChanged: (callback: WalletStateChangeCallback) => void;
 
   /**
    * Optional method to swap sending and receiving wallets

@@ -44,16 +44,14 @@ const WalletConnector = (props: Props) => {
       // If external wallet manager is configured, trigger external wallet connection
       if (config.externalWalletManager) {
         try {
-          if (config.externalWalletManager.onWalletRequired) {
-            const chain =
-              type === TransferWallet.SENDING ? sourceChain : destChain;
+          const chain =
+            type === TransferWallet.SENDING ? sourceChain : destChain;
 
-            if (chain) {
-              config.externalWalletManager.onWalletRequired(
-                type === TransferWallet.SENDING ? 'sending' : 'receiving',
-                chain,
-              );
-            }
+          if (chain) {
+            config.externalWalletManager.onWalletRequired(
+              type === TransferWallet.SENDING ? 'sending' : 'receiving',
+              chain,
+            );
           }
         } catch (error) {
           console.error('Failed to trigger external wallet connection:', error);

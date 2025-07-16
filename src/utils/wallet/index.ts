@@ -1,11 +1,14 @@
 import { ChainConfig } from 'config/types';
-import { WalletType, TransactionRequest } from 'config/externalWallet';
+import { WalletType } from 'config/externalWallet';
 import { Wallet, WalletState } from '@wormhole-labs/wallet-aggregator-core';
 import {
   connectWallet as connectSourceWallet,
   clearWallet,
   connectReceivingWallet,
   swapWallets as swapWalletsAction,
+  connectExternalWallet,
+  disconnectExternalWallet,
+  signAndSendExternalTransaction,
 } from 'store/wallet';
 
 import config from 'config';
@@ -74,34 +77,13 @@ export const connectWallet = async (
 ): Promise<boolean> => {
   // Check if external wallet manager is configured
   if (config.externalWalletManager) {
-    // TODO: should we switch chains in here?
-    // TODO: why aren't we setting the wallet connection here?
-    // will not setting the wallet connection cause issues elsewhere?
-    try {
-      const connected = await config.externalWalletManager.requestConnection(
-        type as WalletType,
-        chain,
-      );
+    // Use the Redux thunk for external wallet connections
+    const result = await dispatch(connectExternalWallet({ type, chain }));
 
-      if (connected) {
-        const walletState = await config.externalWalletManager.getWalletState(
-          type as WalletType,
-        );
+    if (connectExternalWallet.fulfilled.match(result)) {
+      const { walletState } = result.payload;
 
-        // Update Redux state with external wallet data
-        const payload = {
-          address: walletState.address || '',
-          type: chainToPlatform(chain),
-          icon: walletState.walletIcon || '',
-          name: walletState.walletName || 'External Wallet',
-        };
-
-        if (type === TransferWallet.SENDING) {
-          dispatch(connectSourceWallet(payload));
-        } else {
-          dispatch(connectReceivingWallet(payload));
-        }
-
+      if (walletState && walletState.isConnected) {
         config.triggerEvent({
           type: 'wallet.connect',
           details: {
@@ -110,14 +92,11 @@ export const connectWallet = async (
             wallet: walletState.walletName?.toLowerCase() || 'external',
           },
         });
+        return true;
       }
-
-      return connected;
-    } catch (e: any) {
-      console.error('External wallet connection failed:', e);
-      // TODO: is this an error if the user rejected the connection?
-      throw e;
     }
+
+    return false;
   }
 
   // Original internal wallet logic
@@ -363,13 +342,11 @@ export const swapWallets = async (dispatch: any) => {
   }
 };
 
-export const disconnect = async (type: TransferWallet) => {
+export const disconnect = async (type: TransferWallet, dispatch?: any) => {
   // Check if external wallet manager is configured
-  if (config.externalWalletManager) {
+  if (config.externalWalletManager && dispatch) {
     try {
-      await config.externalWalletManager.requestDisconnection(
-        type as WalletType,
-      );
+      await dispatch(disconnectExternalWallet({ type }));
       return;
     } catch (e: any) {
       console.error('External wallet disconnection failed:', e);
@@ -388,22 +365,27 @@ export const signAndSendTransaction = async (
   request: UnsignedTransaction<Network, Chain>,
   walletType: TransferWallet,
   options: any = {},
+  dispatch?: any,
 ): Promise<string> => {
   // Check if external wallet manager is configured
   // TODO: there are additional checks done in the evm/solana/sui/aptos signAndSendTransaction functions
   // below. should externalWalletManager have a signTransaction method that can be used for solana and evm specifically
   // which have more checks in the functions below after the transaction is signed?
-  if (config.externalWalletManager) {
+  if (config.externalWalletManager && dispatch) {
     try {
-      const transactionRequest: TransactionRequest = {
-        chain,
-        transaction: request,
-        walletType: walletType as WalletType,
-      };
-
-      return await config.externalWalletManager.signAndSendTransaction(
-        transactionRequest,
+      const result = await dispatch(
+        signAndSendExternalTransaction({
+          chain,
+          transaction: request,
+          walletType,
+        }),
       );
+
+      if (signAndSendExternalTransaction.fulfilled.match(result)) {
+        return result.payload;
+      }
+
+      throw new Error('External wallet transaction failed');
     } catch (e: any) {
       console.error('External wallet transaction failed:', e);
       throw e;

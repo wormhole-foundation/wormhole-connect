@@ -5,6 +5,10 @@ import relayReducer from './relay';
 import routerReducer from './router';
 import walletReducer from './wallet';
 import searchReducer from './search';
+import {
+  externalWalletMiddleware,
+  initializeExternalWalletSync,
+} from './middleware/externalWallet';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +19,12 @@ export const store = configureStore({
     relay: relayReducer,
     search: searchReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(externalWalletMiddleware),
 });
+
+// Initialize external wallet synchronization
+initializeExternalWalletSync(store);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;

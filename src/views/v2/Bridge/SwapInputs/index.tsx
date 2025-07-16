@@ -6,6 +6,7 @@ import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'utils/wallet';
+import config from 'config';
 
 const styles = {
   swapButton: {
@@ -22,28 +23,37 @@ const styles = {
 function SwapInputs() {
   const dispatch = useDispatch();
   const [rotateAnimation, setRotateAnimation] = useState('');
+  const [isSwapping, setIsSwapping] = useState(false);
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
-  const canSwap = !isTransactionInProgress && fromChain && toChain;
+  const canSwap =
+    !isTransactionInProgress &&
+    !isSwapping &&
+    fromChain &&
+    toChain &&
+    (!config.externalWalletManager || config.externalWalletManager.swapWallets);
 
   const swap = useCallback(async () => {
-    if (!canSwap || isTransactionInProgress) return;
+    if (!canSwap || isTransactionInProgress || isSwapping) return;
 
+    setIsSwapping(true);
     setRotateAnimation((val) =>
       val === 'spinRight' ? 'spinLeft' : 'spinRight',
     );
 
-    dispatch(swapInputs());
     try {
+      dispatch(swapInputs());
       await swapWallets(dispatch);
+      dispatch(setAmount(''));
     } catch (error) {
       console.error('Failed to swap wallets:', error);
+    } finally {
+      setIsSwapping(false);
     }
-    dispatch(setAmount(''));
-  }, [canSwap, isTransactionInProgress, dispatch]);
+  }, [canSwap, isTransactionInProgress, isSwapping, dispatch]);
 
   return (
     <IconButton

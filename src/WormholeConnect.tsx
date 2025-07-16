@@ -14,7 +14,6 @@ import { WormholeConnectConfig } from './config/types';
 import { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 import { TokensProvider } from './contexts/TokensContext';
-import { ExternalWalletSync } from './utils/wallet/ExternalWalletSync';
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
@@ -47,13 +46,11 @@ export default function WormholeConnect({
       <ThemeProvider theme={muiTheme}>
         <ScopedCssBaseline enableColorScheme>
           <ErrorBoundary>
-            <ExternalWalletSync>
-              <TokensProvider>
-                <RouteProvider>
-                  <AppRouter config={config} />
-                </RouteProvider>
-              </TokensProvider>
-            </ExternalWalletSync>
+            <TokensProvider>
+              <RouteProvider>
+                <AppRouter config={config} />
+              </RouteProvider>
+            </TokensProvider>
           </ErrorBoundary>
         </ScopedCssBaseline>
       </ThemeProvider>
