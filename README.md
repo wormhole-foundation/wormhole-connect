@@ -12,6 +12,7 @@ own interface for Wormhole bridging functionality are encouraged to explore the 
 Wormhole Connect is deployed live in several production apps. Here are a few:
 
 - [Portal Bridge](https://portalbridge.com/)
+- [Jupiter](https://jup.ag/onboard/cctp)
 - [PancakeSwap](https://bridge.pancakeswap.finance/wormhole)
 
 
