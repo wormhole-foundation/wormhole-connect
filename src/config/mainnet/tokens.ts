@@ -696,6 +696,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.SEI,
   },
   {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Seievm',
+      address: '0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
     symbol: 'PLUME',
     tokenId: {
       chain: 'Plume',

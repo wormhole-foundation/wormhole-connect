@@ -398,6 +398,15 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.SEI,
   },
   {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Seievm',
+      address: '0x4fCF1784B31630811181f670Aea7A7bEF803eaED',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
     symbol: 'PLUME',
     decimals: 18,
     icon: TokenIcon.PLUME,
