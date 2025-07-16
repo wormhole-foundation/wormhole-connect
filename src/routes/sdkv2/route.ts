@@ -90,6 +90,12 @@ export default class SDKv2Route {
       return false;
     }
 
+    // LiFi can handle any input and output token that has liquidity on a DeX
+    // No need to further check for destination tokens.
+    if (this.rc.meta.name === 'LiFi') {
+      return true;
+    }
+
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
         sourceToken,
@@ -178,6 +184,7 @@ export default class SDKv2Route {
     sourceChain: Chain,
     destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    sender?: string,
     recipient?: string,
   ): Promise<QuoteMetadata> {
     if (!sourceChain || !destChain || !sourceToken || !destToken) {
@@ -189,6 +196,7 @@ export default class SDKv2Route {
       destToken,
       sourceChain,
       destChain,
+      sender,
       recipient,
     );
 
@@ -220,6 +228,7 @@ export default class SDKv2Route {
     destToken: Token,
     sourceChain: Chain,
     destChain: Chain,
+    sender?: string,
     recipient?: string,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
@@ -232,6 +241,7 @@ export default class SDKv2Route {
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
+        sender: sender ? Wormhole.chainAddress(sourceChain, sender) : undefined,
         recipient: recipient
           ? Wormhole.chainAddress(destChain, recipient)
           : undefined,

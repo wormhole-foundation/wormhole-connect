@@ -20,6 +20,7 @@ type Params = {
   destToken: Token | undefined;
   amount?: sdkAmount.Amount;
   nativeGas: number;
+  sender?: string;
   recipient?: string;
 };
 
@@ -213,6 +214,7 @@ export default (routes: string[], params: Params): HookReturn => {
     nonce,
     params.amount,
     params.nativeGas,
+    params.sender,
     params.recipient,
     isVisible,
   ]);
