@@ -339,37 +339,37 @@ function Routes({
               </Box>
             </Box>
           </Box>
-          {mobile ? (
-            <RoutesMobile
-              open={showDrawer}
-              onOpen={() => setShowDrawer(true)}
-              onClose={handleCloseDrawer}
-              routesWithQuotes={routesWithQuotes}
-              highlightedRoute={highlightedRoute}
-              quotes={quotes}
-              fastestRoute={fastestRoute}
-              cheapestRoute={cheapestRoute}
-              onRouteSelect={handleRouteSelect}
-              onGasChange={handleGasTokenChange}
-              onRouteConfirm={handleRouteConfirm}
-              selectButtonDisabled={selectButtonDisabled}
-            />
-          ) : (
-            <RoutesDesktop
-              open={showModal}
-              onClose={handleCloseModal}
-              routesWithQuotes={routesWithQuotes}
-              highlightedRoute={highlightedRoute}
-              quotes={quotes}
-              fastestRoute={fastestRoute}
-              cheapestRoute={cheapestRoute}
-              onRouteSelect={handleRouteSelect}
-              onGasChange={handleGasTokenChange}
-              onRouteConfirm={handleRouteConfirm}
-              selectButtonDisabled={selectButtonDisabled}
-            />
-          )}
         </>
+      )}
+      {mobile ? (
+        <RoutesMobile
+          open={showDrawer}
+          onOpen={() => setShowDrawer(true)}
+          onClose={handleCloseDrawer}
+          routesWithQuotes={routesWithQuotes}
+          highlightedRoute={highlightedRoute}
+          quotes={quotes}
+          fastestRoute={fastestRoute}
+          cheapestRoute={cheapestRoute}
+          onRouteSelect={handleRouteSelect}
+          onGasChange={handleGasTokenChange}
+          onRouteConfirm={handleRouteConfirm}
+          selectButtonDisabled={selectButtonDisabled}
+        />
+      ) : (
+        <RoutesDesktop
+          open={showModal}
+          onClose={handleCloseModal}
+          routesWithQuotes={routesWithQuotes}
+          highlightedRoute={highlightedRoute}
+          quotes={quotes}
+          fastestRoute={fastestRoute}
+          cheapestRoute={cheapestRoute}
+          onRouteSelect={handleRouteSelect}
+          onGasChange={handleGasTokenChange}
+          onRouteConfirm={handleRouteConfirm}
+          selectButtonDisabled={selectButtonDisabled}
+        />
       )}
     </>
   );

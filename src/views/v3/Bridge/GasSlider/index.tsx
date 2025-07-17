@@ -91,10 +91,10 @@ const GasSlider = (props: {
   const [percentage, setPercentage] = useState(toNativeToken * 100);
 
   useEffect(() => {
-    if (isSelected && destinationGasDrop.amount !== '0') {
+    if (isSelected && destinationGasDrop.amount !== '0' && toNativeToken) {
       setIsGasSliderOpen(true);
     }
-  }, [destinationGasDrop.amount, isSelected]);
+  }, [destinationGasDrop.amount, isSelected, toNativeToken]);
 
   useEffect(() => {
     if (!isSelected) {
