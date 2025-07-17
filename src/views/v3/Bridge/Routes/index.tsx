@@ -207,9 +207,8 @@ function Routes({
     }
   }, [selectedRoute, bestRoute]);
 
-  const selectButtonDisabled = useMemo(() => {
-    return !!selectedRoute && selectedRoute === highlightedRoute;
-  }, [selectedRoute, highlightedRoute]);
+  const selectButtonDisabled =
+    !!selectedRoute && selectedRoute === highlightedRoute;
 
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
