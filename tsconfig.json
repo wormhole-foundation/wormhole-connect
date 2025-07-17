@@ -13,7 +13,7 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2021", "dom"],
+    "lib": ["es2022", "dom"],
     "module": "ES2022",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -27,7 +27,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "es2021",
+    "target": "es2022",
     "strict": true,
     "jsx": "react"
   }
