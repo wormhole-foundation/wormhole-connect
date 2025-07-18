@@ -253,6 +253,13 @@ export const isEmptyObject = (value: object | null | undefined) => {
 
 export type ExplorerPathType = 'wallet' | 'tx' | 'token';
 
+// Helper function to append path while preserving query params
+const appendPathToUrl = (baseUrl: string, pathSegment: string): string => {
+  const url = new URL(baseUrl);
+  url.pathname = `${url.pathname}/${pathSegment}`;
+  return url.toString();
+};
+
 export const getExplorerUrl = (
   chain: Chain,
   path: string,
@@ -268,27 +275,31 @@ export const getExplorerUrl = (
 
   switch (pathType) {
     case 'wallet':
-      return chain === 'Aptos'
-        ? `${baseUrl}account/${path}`
-        : `${baseUrl}address/${path}`;
+      switch (chain) {
+        case 'Aptos':
+          return appendPathToUrl(baseUrl, `account/${path}`);
+        default:
+          return appendPathToUrl(baseUrl, `address/${path}`);
+      }
     case 'tx':
       return chain === 'Aptos'
-        ? `${baseUrl}txn/${path}`
-        : `${baseUrl}tx/${path}`;
+        ? appendPathToUrl(baseUrl, `txn/${path}`)
+        : appendPathToUrl(baseUrl, `tx/${path}`);
     default:
       switch (chain) {
         case 'Sui':
-          return `${baseUrl}coin/${path}`;
+          return appendPathToUrl(baseUrl, `coin/${path}`);
         case 'Aptos':
-          return `${baseUrl}${
-            isHexString(path) ? 'fungible_asset' : 'coin'
-          }/${path}`;
+          return appendPathToUrl(
+            baseUrl,
+            `${isHexString(path) ? 'fungible_asset' : 'coin'}/${path}`,
+          );
         case 'Fantom':
         case 'Solana':
         case 'Fogo':
           return `${baseUrl}address/${path}`;
         default:
-          return `${baseUrl}token/${path}`;
+          return appendPathToUrl(baseUrl, `token/${path}`);
       }
   }
 };
