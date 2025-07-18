@@ -27,6 +27,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Sonic: 'sonic-3',
   Linea: 'ethereum',
   Worldchain: 'ethereum',
+  Seievm: 'sei',
   // TODO: add Mezo when available
 };
 
@@ -39,6 +40,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Klaytn: 'klay-token',
   Xlayer: 'x-layer',
   Worldchain: 'world-chain',
+  Seievm: 'sei-v2',
 };
 
 export interface CoingeckoParams {
