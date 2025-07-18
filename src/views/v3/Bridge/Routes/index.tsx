@@ -104,7 +104,14 @@ function Routes({
 
   const handleRouteSelect = useCallback(
     (route: string) => {
+      if (route === highlightedRoute) {
+        // If the route is already highlighted, do nothing
+        // This can happen if the user clicks the same route again
+        return;
+      }
+
       setHighlightedRoute(route);
+
       if (toNativeToken !== 0) {
         dispatch(setToNativeToken(0));
       }

@@ -88,7 +88,7 @@ const GasSlider = (props: {
   const sourceGasToken = config.tokens.getGasToken(sourceChain!);
 
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
-  const [percentage, setPercentage] = useState(toNativeToken * 100);
+  const [percentage, setPercentage] = useState(toNativeToken);
 
   useEffect(() => {
     if (isSelected && destinationGasDrop.amount !== '0' && toNativeToken) {
