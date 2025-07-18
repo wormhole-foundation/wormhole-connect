@@ -285,6 +285,7 @@ export const getExplorerUrl = (
           }/${path}`;
         case 'Fantom':
         case 'Solana':
+        case 'Fogo':
           return `${baseUrl}address/${path}`;
         default:
           return `${baseUrl}token/${path}`;
