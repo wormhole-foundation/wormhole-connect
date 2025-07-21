@@ -323,7 +323,7 @@ const TransactionDetails = () => {
       <Card sx={styles.card}>
         <CardContent>
           <Typography color={theme.palette.text.secondary} marginBottom="12px">
-            {`Transaction #`}
+            {`Transaction `}
             {explorerUrl ? (
               <ExplorerLink url={explorerUrl} text={trimmedTx} />
             ) : (
