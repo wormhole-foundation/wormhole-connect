@@ -43,7 +43,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   Solana: {
     displayName: 'Solana',
-    explorerUrl: 'https://explorer.solana.com/',
+    explorerUrl: 'https://explorer.solana.com/?cluster=devnet',
     explorerName: 'Solana Explorer',
     icon: 'Solana',
     symbol: 'SOL',

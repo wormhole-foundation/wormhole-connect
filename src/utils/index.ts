@@ -256,7 +256,12 @@ export type ExplorerPathType = 'wallet' | 'tx' | 'token';
 // Helper function to append path while preserving query params
 const appendPathToUrl = (baseUrl: string, pathSegment: string): string => {
   const url = new URL(baseUrl);
-  url.pathname = `${url.pathname}/${pathSegment}`;
+
+  // Trim trailing slash from base pathname and leading slash from pathSegment
+  const basePath = url.pathname.replace(/\/+$/, '');
+  const segment = pathSegment.replace(/^\/+/, '');
+
+  url.pathname = `${basePath}/${segment}`;
   return url.toString();
 };
 
