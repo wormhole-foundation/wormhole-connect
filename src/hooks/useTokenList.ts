@@ -12,6 +12,7 @@ import {
   filterTokensByBalance,
   applyShittokenFilter,
 } from 'utils/tokenListUtils';
+import config from 'config';
 
 interface UseTokenListParams {
   tokenList: Token[];
@@ -56,10 +57,12 @@ export const useTokenList = ({
     tokens = applyCustomTokenSupport(tokens, sourceToken);
 
     // For source list, we filter further because we're loading arbitrary tokens in their wallet
-    if (isSourceList && !searchQuery) {
+    if (isSourceList && !searchQuery && config.network === 'Mainnet') {
       // Filter out possible scamcoins
       tokens = applyShittokenFilter(tokens);
+    }
 
+    if (isSourceList && !searchQuery) {
       // Conditionally filter by balance (for source tokens only)
       tokens = filterTokensByBalance(tokens, balances, wallet.address);
     }
