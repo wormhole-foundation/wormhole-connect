@@ -12,7 +12,7 @@ import config from 'config';
 import AssetBadge from 'components/AssetBadge';
 import {
   calculateUSDPrice,
-  getExplorerUrl,
+  getTransactionExplorerUrl,
   getUSDFormat,
   millisToRelativeTime,
   trimTxHash,
@@ -181,7 +181,7 @@ const TxHistoryItem = (props: Props) => {
   }, [senderTimestamp]);
 
   const chainExplorerLink = useMemo(() => {
-    const explorerUrl = getExplorerUrl(fromChain, txHash, 'tx');
+    const explorerUrl = getTransactionExplorerUrl(fromChain, txHash);
     const txHashTrimmed = trimTxHash(txHash, 4, 4);
     return explorerUrl ? (
       <ExplorerLink url={explorerUrl} text={txHashTrimmed} />

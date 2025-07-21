@@ -15,7 +15,7 @@ import TokenIcon from 'icons/TokenIcons';
 import { Token } from 'config/tokens';
 
 import type { Chain } from '@wormhole-foundation/sdk';
-import { chainDisplayName, getExplorerUrl } from 'utils';
+import { chainDisplayName, getTokenExplorerUrl } from 'utils';
 import ChainIcon from 'icons/ChainIcons';
 import Color from 'color';
 
@@ -69,9 +69,7 @@ function TokenItem(props: TokenItemProps) {
 
   const { chain, token } = props;
   const address = token.tokenId?.address.toString();
-  const explorerURL = address
-    ? getExplorerUrl(chain, address, 'token')
-    : undefined;
+  const explorerURL = address ? getTokenExplorerUrl(chain, address) : '';
   const addressDisplay = `${token.shortAddress}`;
 
   return (

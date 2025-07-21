@@ -15,7 +15,8 @@ import AssetBadge from 'components/AssetBadge';
 import ExplorerLink from 'components/ExplorerLink';
 import {
   calculateUSDPrice,
-  getExplorerUrl,
+  getTransactionExplorerUrl,
+  getWalletExplorerUrl,
   millisToHumanString,
   trimAddress,
 } from 'utils';
@@ -90,9 +91,7 @@ const TransactionDetails = () => {
     );
 
     const senderAddress = sender ? trimAddress(sender) : '';
-    const explorerUrl = sender
-      ? getExplorerUrl(fromChain, sender, 'wallet')
-      : '';
+    const explorerUrl = sender ? getWalletExplorerUrl(fromChain, sender) : '';
 
     const formattedAmount = sdkAmount.display(sdkAmount.truncate(amount, 6));
 
@@ -151,7 +150,7 @@ const TransactionDetails = () => {
 
     const recipientAddress = recipient ? trimAddress(recipient) : '';
     const explorerUrl = recipient
-      ? getExplorerUrl(toChain, recipient, 'wallet')
+      ? getWalletExplorerUrl(toChain, recipient)
       : '';
 
     const formattedReceiveAmount = receiveAmount
@@ -309,7 +308,9 @@ const TransactionDetails = () => {
   }, [eta, theme.palette.text.secondary, toChain]);
 
   const trimmedTx = sendTx ? trimAddress(sendTx) : '';
-  const explorerUrl = sendTx ? getExplorerUrl(fromChain, sendTx, 'tx') : '';
+  const explorerUrl = sendTx
+    ? getTransactionExplorerUrl(fromChain, sendTx)
+    : '';
 
   return (
     <Box sx={styles.container}>
