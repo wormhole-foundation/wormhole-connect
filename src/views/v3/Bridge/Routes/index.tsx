@@ -127,6 +127,7 @@ function Routes({
       toggleButton: {
         border: 'none',
         borderRadius: '24px !important', // We need to force override MUI's default border radius
+        width: '100%',
         padding: '4px 0',
         '&.Mui-selected': {
           backgroundColor: theme.palette.primary.main + OPACITY[25],
@@ -243,7 +244,6 @@ function Routes({
               value="fastest"
               disabled={!fastestRoute.name}
               sx={styles.toggleButton}
-              fullWidth
             >
               <Typography sx={styles.toggleButtonLabel}>Fastest</Typography>
             </ToggleButton>
@@ -252,7 +252,6 @@ function Routes({
               value="cheapest"
               disabled={!cheapestRoute.name}
               sx={styles.toggleButton}
-              fullWidth
             >
               <Typography sx={styles.toggleButtonLabel}>Cheapest</Typography>
             </ToggleButton>
