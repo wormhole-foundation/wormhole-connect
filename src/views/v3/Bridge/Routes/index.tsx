@@ -125,13 +125,11 @@ function Routes({
         padding: '4px 0',
       },
       toggleButton: {
-        border: 'none !important',
-        borderRadius: '24px !important',
+        border: 'none',
+        borderRadius: '24px !important', // We need to force override MUI's default border radius
         padding: '4px 0',
         '&.Mui-selected': {
           backgroundColor: theme.palette.primary.main + OPACITY[25],
-          borderRadius: '24px  !important',
-          color: theme.palette.text.primary,
         },
       },
       toggleButtonLabel: {
