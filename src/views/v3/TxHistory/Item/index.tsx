@@ -207,7 +207,7 @@ const TxHistoryItem = (props: Props) => {
                 color={theme.palette.text.secondary}
                 display="flex"
               >
-                <span>Transaction #{chainExplorerLink}</span>
+                <span>Transaction {chainExplorerLink}</span>
                 <span>{transactionDateTime}</span>
               </Typography>
             }

@@ -12,6 +12,11 @@ type Props = {
 const RouteBadge = ({ isFastest, isCheapest, isOnlyChoice }: Props) => {
   const theme = useTheme();
 
+  // If there is only one choice, we don't need to show the badge
+  if (isOnlyChoice) {
+    return null;
+  }
+
   if (isFastest) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -24,13 +29,14 @@ const RouteBadge = ({ isFastest, isCheapest, isOnlyChoice }: Props) => {
           }}
         />
         <Typography component="span" fontSize="14px" lineHeight="14px">
-          {isOnlyChoice ? 'Fast' : 'Fastest'}
+          {/* If the route is both fastest and cheapest, show "Best" */}
+          {isCheapest ? 'Best' : 'Fastest'}
         </Typography>
       </Box>
     );
   }
 
-  if (isCheapest && !isOnlyChoice) {
+  if (isCheapest) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <CheapestRoute

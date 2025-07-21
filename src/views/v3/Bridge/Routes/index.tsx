@@ -5,18 +5,21 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import ClockIcon from 'icons/Clock';
+import RoutingIcon from 'icons/Routing';
 import { millisToHumanString } from 'utils';
+import { OPACITY } from 'utils/style';
+import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 import RoutesMobile from 'views/v3/Bridge/Routes/RoutesBottomSheet';
 import RoutesDesktop from 'views/v3/Bridge/Routes/RoutesModal';
-
-import type { RootState } from 'store';
 
 type Props = {
   routes: string[];
@@ -34,7 +37,7 @@ function Routes({
   isLoading,
 }: Props) {
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme: any = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const { toNativeToken } = useSelector((state: RootState) => ({
@@ -51,16 +54,94 @@ function Routes({
   const [originalSelectedRoute, setOriginalSelectedRoute] = useState<
     string | undefined
   >(selectedRoute);
+  const [selectedRouteBadge, setSelectedRouteBadge] =
+    useState<string>('fastest');
+
+  const routesWithQuotes = routesList.filter((rs) => quotes[rs] !== undefined);
+
+  const selectedQuote = !selectedRoute
+    ? undefined
+    : (() => {
+        const quoteResult = quotes[selectedRoute];
+        return quoteResult?.success ? quoteResult : undefined;
+      })();
+
+  const fastestRoute = routesWithQuotes.reduce(
+    (fastest, route) => {
+      const quote = quotes[route];
+      if (!quote || !quote.success) return fastest;
+
+      if (quote.eta !== undefined && quote.eta < fastest.eta) {
+        return { name: route, eta: quote.eta };
+      }
+      return fastest;
+    },
+    { name: '', eta: Infinity },
+  );
+
+  const cheapestRoute = routesWithQuotes.reduce(
+    (cheapest, route) => {
+      const quote = quotes[route];
+      const rc = config.routes.get(route);
+      if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
+
+      const amountOut = BigInt(quote.destinationToken.amount.amount);
+      if (amountOut > cheapest.amountOut) {
+        return { name: route, amountOut };
+      }
+      return cheapest;
+    },
+    { name: '', amountOut: 0n },
+  );
 
   useEffect(() => {
     // Reset the highlighted route when the selected route changes
-    if (selectedRoute && selectedRoute !== highlightedRoute) {
-      setHighlightedRoute(selectedRoute);
+    if (selectedRoute) {
+      if (selectedRoute !== highlightedRoute) {
+        setHighlightedRoute(selectedRoute);
+      }
+
+      // Set the selected route badge based on the selected route
+      if (selectedRoute === fastestRoute.name) {
+        setSelectedRouteBadge('fastest');
+      } else if (selectedRoute === cheapestRoute.name) {
+        setSelectedRouteBadge('cheapest');
+      } else {
+        setSelectedRouteBadge('');
+      }
     }
+
     // Set highlighted route to the selected route when it changes
     // Triggered only when the selected route changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRoute]);
+  }, [selectedRoute, fastestRoute.name, cheapestRoute.name]);
+
+  const styles = useMemo(
+    () => ({
+      toggleGroup: {
+        height: '32px',
+        width: '100%',
+        gap: '4px',
+        padding: '4px 0',
+      },
+      toggleButton: {
+        border: 'none !important',
+        borderRadius: '24px !important',
+        padding: '4px 0',
+        '&.Mui-selected': {
+          backgroundColor: theme.palette.primary.main + OPACITY[25],
+          borderRadius: '24px  !important',
+          color: theme.palette.text.primary,
+        },
+      },
+      toggleButtonLabel: {
+        fontSize: '12px',
+        fontWeight: 600,
+        textTransform: 'none',
+      },
+    }),
+    [theme],
+  );
 
   // Event handlers
   const handleCloseModal = useCallback(() => {
@@ -116,7 +197,7 @@ function Routes({
         dispatch(setToNativeToken(0));
       }
     },
-    [dispatch, toNativeToken],
+    [dispatch, highlightedRoute, toNativeToken],
   );
 
   const handleGasTokenChange = useCallback(
@@ -140,79 +221,58 @@ function Routes({
     mobile ? setShowDrawer(false) : setShowModal(false);
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
-  const routesWithQuotes = routesList.filter((rs) => quotes[rs] !== undefined);
-
-  const fastestRoute = routesWithQuotes.reduce(
-    (fastest, route) => {
-      const quote = quotes[route];
-      if (!quote || !quote.success) return fastest;
-
-      if (
-        quote.eta !== undefined &&
-        quote.eta < fastest.eta &&
-        quote.eta < 60_000
-      ) {
-        return { name: route, eta: quote.eta };
-      }
-      return fastest;
-    },
-    { name: '', eta: Infinity },
-  );
-
-  const cheapestRoute = routesWithQuotes.reduce(
-    (cheapest, route) => {
-      const quote = quotes[route];
-      const rc = config.routes.get(route);
-      if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
-
-      const amountOut = BigInt(quote.destinationToken.amount.amount);
-      if (amountOut > cheapest.amountOut) {
-        return { name: route, amountOut };
-      }
-      return cheapest;
-    },
-    { name: '', amountOut: 0n },
-  );
-
-  const selectedQuote = !selectedRoute
-    ? undefined
-    : (() => {
-        const quoteResult = quotes[selectedRoute];
-        return quoteResult?.success ? quoteResult : undefined;
-      })();
-
-  const bestRoute = fastestRoute.name
-    ? config.routes.get(fastestRoute.name)
-    : cheapestRoute.name
-    ? config.routes.get(cheapestRoute.name)
-    : undefined;
-
   const routeSection = useMemo(() => {
-    if (selectedRoute && selectedRoute !== bestRoute?.rc.meta.name) {
-      const route = config.routes.get(selectedRoute);
+    if (fastestRoute.name && cheapestRoute.name) {
       return (
-        <>
-          Route
-          {route.rc.meta.provider && (
-            <span
-              style={{ fontWeight: 500 }}
-            >{` via ${route.rc.meta.provider}`}</span>
-          )}
-        </>
-      );
-    } else {
-      return (
-        <>
-          Best route
-          {bestRoute?.rc.meta.provider && (
-            <span
-              style={{ fontWeight: 500 }}
-            >{` via ${bestRoute?.rc.meta.provider}`}</span>
-          )}
-        </>
+        <Box sx={{ maxWidth: '174px' }}>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={selectedRouteBadge}
+            sx={styles.toggleGroup}
+            onChange={(_, value) => {
+              if (value === 'fastest' && fastestRoute.name) {
+                onRouteChange(fastestRoute.name);
+                setSelectedRouteBadge('fastest');
+              } else if (value === 'cheapest' && cheapestRoute.name) {
+                onRouteChange(cheapestRoute.name);
+                setSelectedRouteBadge('cheapest');
+              }
+            }}
+          >
+            <ToggleButton
+              disableRipple
+              value="fastest"
+              disabled={!fastestRoute.name}
+              sx={styles.toggleButton}
+              fullWidth
+            >
+              <Typography sx={styles.toggleButtonLabel}>Fastest</Typography>
+            </ToggleButton>
+            <ToggleButton
+              disableRipple
+              value="cheapest"
+              disabled={!cheapestRoute.name}
+              sx={styles.toggleButton}
+              fullWidth
+            >
+              <Typography sx={styles.toggleButtonLabel}>Cheapest</Typography>
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
       );
     }
-  }, [selectedRoute, bestRoute]);
+
+    return null;
+  }, [
+    fastestRoute.name,
+    cheapestRoute.name,
+    selectedRouteBadge,
+    styles.toggleGroup,
+    styles.toggleButton,
+    styles.toggleButtonLabel,
+    onRouteChange,
+  ]);
 
   const selectButtonDisabled =
     !!selectedRoute && selectedRoute === highlightedRoute;
@@ -274,17 +334,11 @@ function Routes({
             }}
           >
             <Stack spacing="12px">
-              <Box
-                sx={{
-                  color: theme.palette.text.primary,
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  opacity: 0.5,
-                }}
-              >
-                {routeSection}
-              </Box>
-              <Box>
+              {routeSection}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <RoutingIcon
+                  sx={{ color: theme.palette.text.primary, opacity: 0.5 }}
+                />
                 <Link
                   component="span"
                   data-testid="other-routes-toggle"
@@ -300,7 +354,11 @@ function Routes({
                   }}
                   onClick={handleToggleRoutes}
                 >
-                  View other routes
+                  {selectedRoute
+                    ? `Routing via ${
+                        config.routes.get(selectedRoute).rc.meta.provider
+                      }`
+                    : ''}
                   <ChevronRightIcon
                     fontSize="small"
                     sx={{ marginLeft: '4px' }}
@@ -319,9 +377,10 @@ function Routes({
               <Box
                 sx={{
                   display: 'flex',
-                  height: '21px',
+                  height: '32px',
                   alignItems: 'center',
                   gap: '4px',
+                  padding: '4px 0',
                 }}
               >
                 <ClockIcon
