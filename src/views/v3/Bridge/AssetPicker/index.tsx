@@ -28,7 +28,7 @@ import Color from 'color';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
 import { calculateUSDPrice } from 'utils';
-import { useNumberFormatter } from 'hooks/useNumberFormatter';
+import { formatWithCommas } from 'utils/formatNumber';
 
 type Props = {
   chain?: Chain | undefined;
@@ -58,7 +58,6 @@ function AssetPicker(props: Props) {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { amount } = useSelector((state: RootState) => state.transferInput);
   const { getTokenPrice } = useTokens();
-  const { formatWithCommas } = useNumberFormatter();
 
   const [showChainSearch, setShowChainSearch] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

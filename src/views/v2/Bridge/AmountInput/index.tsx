@@ -28,7 +28,7 @@ import type { RootState } from 'store';
 import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
-import { useNumberFormatter } from 'hooks/useNumberFormatter';
+import { formatWithCommas, removeCommas } from 'utils/formatNumber';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -45,7 +45,6 @@ const DebouncedTextField = memo(
   }) => {
     const [innerValue, setInnerValue] = useState<string>(value);
     const [isFocused, setIsFocused] = useState(false);
-    const { formatWithCommas, removeCommas } = useNumberFormatter();
     const deferredOnChange = useDebouncedCallback(
       onDebouncedChange,
       INPUT_DEBOUNCE,
@@ -77,7 +76,7 @@ const DebouncedTextField = memo(
         onChange(valueWithoutFormatting); // callback with no delay
         deferredOnChange(valueWithoutFormatting);
       },
-      [deferredOnChange, onChange, formatWithCommas, removeCommas],
+      [deferredOnChange, onChange],
     );
 
     // Propagate any outside changes to the inner TextField value
@@ -89,7 +88,7 @@ const DebouncedTextField = memo(
       }
       // We should run this sife-effect only when the value changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [value, formatWithCommas]);
+    }, [value]);
 
     return (
       <TextField
@@ -120,7 +119,6 @@ type Props = {
 const AmountInput = (props: Props) => {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { formatWithCommas } = useNumberFormatter();
 
   const styles = useMemo(
     () => ({
@@ -274,13 +272,7 @@ const AmountInput = (props: Props) => {
         </Stack>
       </InputAdornment>
     );
-  }, [
-    amountInput,
-    getTokenPrice,
-    sourceToken,
-    theme.palette.text.secondary,
-    formatWithCommas,
-  ]);
+  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
 
   const handleDebouncedChange = useCallback(
     (newValue: string): void => {
