@@ -100,16 +100,22 @@ function Routes({
       toggleGroup: {
         height: '32px',
         width: '100%',
+        minWidth: '174px',
         gap: '4px',
         padding: '4px 0',
       },
       toggleButton: {
         border: 'none',
         borderRadius: '24px !important', // We need to force override MUI's default border radius
+        color: theme.palette.text.secondary,
         width: '100%',
         padding: '4px 0',
+        fontSize: '12px',
+        fontWeight: 600,
+        textTransform: 'none',
         '&.Mui-selected': {
           backgroundColor: theme.palette.primary.main + OPACITY[25],
+          color: theme.palette.text.primary,
         },
       },
       toggleButtonLabel: {
@@ -199,8 +205,29 @@ function Routes({
     mobile ? setShowDrawer(false) : setShowModal(false);
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
+  const getProviderText = useCallback((route?: string) => {
+    if (!route) {
+      return '';
+    }
+
+    const provider = config.routes.get(route)?.rc.meta.provider;
+    if (!provider) {
+      return 'Route';
+    }
+
+    return (
+      <span style={{ fontWeight: 600 }}>
+        Routing <span style={{ fontWeight: 400 }}>{`via ${provider}`}</span>
+      </span>
+    );
+  }, []);
+
   const routeSection = useMemo(() => {
-    if (fastestRoute.name && cheapestRoute.name) {
+    if (
+      fastestRoute.name &&
+      cheapestRoute.name &&
+      routesWithQuotes.length > 1
+    ) {
       return (
         <Box sx={{ maxWidth: '174px' }}>
           <ToggleButtonGroup
@@ -224,7 +251,7 @@ function Routes({
               disabled={!fastestRoute.name}
               sx={styles.toggleButton}
             >
-              <Typography sx={styles.toggleButtonLabel}>Fastest</Typography>
+              Fastest
             </ToggleButton>
             <ToggleButton
               disableRipple
@@ -232,7 +259,7 @@ function Routes({
               disabled={!cheapestRoute.name}
               sx={styles.toggleButton}
             >
-              <Typography sx={styles.toggleButtonLabel}>Cheapest</Typography>
+              Cheapest
             </ToggleButton>
           </ToggleButtonGroup>
         </Box>
@@ -243,10 +270,10 @@ function Routes({
   }, [
     fastestRoute.name,
     cheapestRoute.name,
+    routesWithQuotes.length,
     selectedRouteBadge,
     styles.toggleGroup,
     styles.toggleButton,
-    styles.toggleButtonLabel,
     onRouteChange,
   ]);
 
@@ -330,11 +357,7 @@ function Routes({
                   }}
                   onClick={handleToggleRoutes}
                 >
-                  {selectedRoute
-                    ? `Routing via ${
-                        config.routes.get(selectedRoute).rc.meta.provider
-                      }`
-                    : ''}
+                  {getProviderText(selectedRoute)}
                   <ChevronRightIcon
                     fontSize="small"
                     sx={{ marginLeft: '4px' }}
@@ -347,7 +370,6 @@ function Routes({
                 display: 'flex',
                 fontSize: '14px',
                 justifyContent: 'flex-end',
-                opacity: 0.5,
               }}
             >
               <Box
@@ -360,18 +382,17 @@ function Routes({
                 }}
               >
                 <ClockIcon
-                  sx={{ color: '#7A8390', width: '12px', height: '12px' }}
+                  sx={{
+                    color: '#7A8390',
+                    width: '12px',
+                    height: '12px',
+                  }}
                 />
                 <Typography
                   component="span"
+                  color={theme.palette.text.primary}
                   fontSize="14px"
                   lineHeight="14px"
-                  sx={{
-                    color:
-                      selectedQuote?.eta && selectedQuote.eta < 60 * 1000
-                        ? theme.palette.success.main
-                        : theme.palette.text.primary,
-                  }}
                 >
                   {selectedQuote?.eta
                     ? millisToHumanString(selectedQuote.eta)
