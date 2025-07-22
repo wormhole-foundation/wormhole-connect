@@ -3,7 +3,6 @@ import config from 'config';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 function SeparatorSymbol(props: { color: string }) {
@@ -38,11 +37,14 @@ function SeparatorSymbol(props: { color: string }) {
 
 function WormholeLogo(props: { color: string }) {
   return (
-    <Stack
-      alignItems="center"
-      direction="row"
-      justifyContent="space-between"
-      gap="4px"
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '4px',
+        width: 'fit-content',
+      }}
     >
       <Typography fontSize="12px" sx={{ opacity: 0.6 }}>
         Powered by
@@ -101,7 +103,7 @@ function WormholeLogo(props: { color: string }) {
           </defs>
         </svg>
       </Link>
-    </Stack>
+    </Box>
   );
 }
 
@@ -131,14 +133,18 @@ function PoweredByIcon(props: { color: string }) {
       gap: '20px 4px',
     },
   };
-  return config.ui.partnerLogo ? (
+  return (
     <Box sx={styles.container}>
-      <WormholeLogo color={props.color} />
-      <SeparatorSymbol color={props.color} />
-      <PartnerLogo src={config.ui.partnerLogo} />
+      {config.ui.partnerLogo ? (
+        <>
+          <WormholeLogo color={props.color} />
+          <SeparatorSymbol color={props.color} />
+          <PartnerLogo src={config.ui.partnerLogo} />
+        </>
+      ) : (
+        <WormholeLogo color={props.color} />
+      )}
     </Box>
-  ) : (
-    <WormholeLogo color={props.color} />
   );
 }
 

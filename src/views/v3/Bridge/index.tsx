@@ -108,7 +108,7 @@ function Bridge() {
         width: '100%',
       },
       formContent: {
-        backgroundColor: theme.palette.background.form + OPACITY[30],
+        backgroundColor: theme.palette.background.form + OPACITY[20],
         borderRadius: '8px',
         padding: '20px 16px',
         display: 'flex',
