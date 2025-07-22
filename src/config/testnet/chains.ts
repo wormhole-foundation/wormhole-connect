@@ -171,7 +171,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   Seievm: {
     displayName: 'SeiEVM',
-    explorerUrl: 'https://seitrace.com/?chain=atlantic-2',
+    explorerUrl: 'https://seitrace.com/?chain=atlantic-2/',
     explorerName: 'Seitrace',
     icon: 'Seievm',
     sdkName: 'Seievm',
@@ -180,7 +180,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   Plume: {
     displayName: 'Plume',
     sdkName: 'Plume',
-    explorerUrl: 'https://testnet-explorer.plume.org',
+    explorerUrl: 'https://testnet-explorer.plume.org/',
     explorerName: 'Plume Explorer',
     icon: 'Plume',
     symbol: 'PLUME',
