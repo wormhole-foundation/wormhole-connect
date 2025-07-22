@@ -20,7 +20,6 @@ function PLUME() {
       </g>
     </svg>
   );
-};
-
+}
 
 export default PLUME;

@@ -28,6 +28,6 @@ function PLUME() {
       </defs>
     </svg>
   );
-};
+}
 
 export default PLUME;

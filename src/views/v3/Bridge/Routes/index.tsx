@@ -15,6 +15,7 @@ import config from 'config';
 import ClockIcon from 'icons/Clock';
 import RoutingIcon from 'icons/Routing';
 import { millisToHumanString } from 'utils';
+import { getBestRoutes } from 'utils/routes';
 import { OPACITY } from 'utils/style';
 import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
@@ -59,40 +60,18 @@ function Routes({
 
   const routesWithQuotes = routesList.filter((rs) => quotes[rs] !== undefined);
 
-  const selectedQuote = !selectedRoute
-    ? undefined
-    : (() => {
-        const quoteResult = quotes[selectedRoute];
-        return quoteResult?.success ? quoteResult : undefined;
-      })();
-
-  const fastestRoute = routesWithQuotes.reduce(
-    (fastest, route) => {
-      const quote = quotes[route];
-      if (!quote || !quote.success) return fastest;
-
-      if (quote.eta !== undefined && quote.eta < fastest.eta) {
-        return { name: route, eta: quote.eta };
-      }
-      return fastest;
-    },
-    { name: '', eta: Infinity },
+  const { fastestRoute, cheapestRoute } = getBestRoutes(
+    routesWithQuotes,
+    quotes,
   );
 
-  const cheapestRoute = routesWithQuotes.reduce(
-    (cheapest, route) => {
-      const quote = quotes[route];
-      const rc = config.routes.get(route);
-      if (!quote || !quote.success || !rc.AUTOMATIC_DEPOSIT) return cheapest;
-
-      const amountOut = BigInt(quote.destinationToken.amount.amount);
-      if (amountOut > cheapest.amountOut) {
-        return { name: route, amountOut };
-      }
-      return cheapest;
-    },
-    { name: '', amountOut: 0n },
-  );
+  const selectedQuote = useMemo(() => {
+    if (!selectedRoute) {
+      return undefined;
+    }
+    const quoteResult = quotes[selectedRoute];
+    return quoteResult?.success ? quoteResult : undefined;
+  }, [selectedRoute, quotes]);
 
   useEffect(() => {
     // Reset the highlighted route when the selected route changes

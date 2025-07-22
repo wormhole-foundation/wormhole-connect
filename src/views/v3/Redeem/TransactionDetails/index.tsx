@@ -322,14 +322,18 @@ const TransactionDetails = () => {
     <Box sx={styles.container}>
       <Card sx={styles.card}>
         <CardContent>
-          <Typography color={theme.palette.text.secondary} marginBottom="12px">
-            {`Transaction `}
-            {explorerUrl ? (
-              <ExplorerLink url={explorerUrl} text={trimmedTx} />
-            ) : (
-              trimmedTx
-            )}
-          </Typography>
+          <Stack direction="row" spacing={1} marginBottom="12px">
+            <Typography color={theme.palette.text.secondary}>
+              Transaction
+            </Typography>
+            <Typography color={theme.palette.text.secondary}>
+              {explorerUrl ? (
+                <ExplorerLink url={explorerUrl} text={trimmedTx} />
+              ) : (
+                trimmedTx
+              )}
+            </Typography>
+          </Stack>
           {sentAmount}
           {verticalConnector}
           {receivedAmount}
