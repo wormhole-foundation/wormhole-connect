@@ -19,6 +19,7 @@ import Box from '@mui/material/Box';
 import { Token } from 'config/tokens';
 import type { RootState } from 'store';
 import { useGetTokens } from 'hooks/useGetTokens';
+import { useNumberFormatter } from 'hooks/useNumberFormatter';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -33,41 +34,53 @@ const DebouncedTextField = memo(
     onChange: (event: string) => void;
     onDebouncedChange: (event: string) => void;
   }) => {
-    const [innerValue, setInnerValue] = useState<string>(value);
+    const [innerValue, setInnerValue] = useState<string>(value ?? '');
     const [isFocused, setIsFocused] = useState(false);
+    const { formatWithCommas, removeCommas } = useNumberFormatter();
     const deferredOnChange = useDebouncedCallback(
       onDebouncedChange,
       INPUT_DEBOUNCE,
     );
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-      (e) => {
+      (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
-        if (value === '.') value = '0.';
+        const valueWithoutFormatting = removeCommas(value);
 
-        const numValue = Number(value);
+        // Handle single decimal input
+        if (valueWithoutFormatting === '.') {
+          value = '0.';
+        }
 
-        if (isNaN(numValue) || numValue < 0) {
-          // allows all but negative numbers
+        const numValue = Number(valueWithoutFormatting);
+
+        // Allow empty string, otherwise validate the number
+        if (
+          valueWithoutFormatting !== '' &&
+          (isNaN(numValue) || numValue < 0)
+        ) {
           return;
         }
 
-        setInnerValue(e.target.value);
-        onChange(e.target.value); // callback with no delay
-        deferredOnChange(e.target.value);
+        const formattedValue = formatWithCommas(valueWithoutFormatting);
+
+        setInnerValue(formattedValue);
+        onChange(valueWithoutFormatting); // callback with no delay
+        deferredOnChange(valueWithoutFormatting);
       },
-      [deferredOnChange, onChange],
+      [deferredOnChange, onChange, formatWithCommas, removeCommas],
     );
 
     // Propagate any outside changes to the inner TextField value
     // The way we do this is by checking when the focus is not on the input component
     useEffect(() => {
       if (!isFocused) {
-        setInnerValue(value);
+        const formattedValue = formatWithCommas(value);
+        setInnerValue(formattedValue);
       }
-      // We should run this sife-effect only when the value changes
+      // We should run this side-effect only when the value changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [value]);
+    }, [value, formatWithCommas]);
 
     return (
       <TextField
@@ -112,7 +125,7 @@ function AmountInput(props: Props) {
         fontSize: '32px',
         height: '32px',
       },
-      onWheel: (e) => {
+      onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
         // IMPORTANT: We need to prevent the scroll behavior on number inputs.
         // Otherwise it'll increase/decrease the value when user scrolls on the input control.
         // See for details: https://github.com/mui/material-ui/issues/7960
@@ -177,7 +190,7 @@ function AmountInput(props: Props) {
               },
             }}
             variant="standard"
-            value={props.debouncedValue}
+            value={props.debouncedValue ?? ''}
             onChange={props.onChange}
             onDebouncedChange={props.onDebouncedChange}
           />

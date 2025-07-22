@@ -28,6 +28,7 @@ import type { RootState } from 'store';
 import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
+import { useNumberFormatter } from 'hooks/useNumberFormatter';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -44,6 +45,7 @@ const DebouncedTextField = memo(
   }) => {
     const [innerValue, setInnerValue] = useState<string>(value);
     const [isFocused, setIsFocused] = useState(false);
+    const { formatWithCommas, removeCommas } = useNumberFormatter();
     const deferredOnChange = useDebouncedCallback(
       onDebouncedChange,
       INPUT_DEBOUNCE,
@@ -52,31 +54,42 @@ const DebouncedTextField = memo(
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e) => {
         let value = e.target.value;
-        if (value === '.') value = '0.';
+        const valueWithoutFormatting = removeCommas(value);
 
-        const numValue = Number(value);
+        // Handle single decimal input
+        if (valueWithoutFormatting === '.') {
+          value = '0.';
+        }
 
-        if (isNaN(numValue) || numValue < 0) {
-          // allows all but negative numbers
+        const numValue = Number(valueWithoutFormatting);
+
+        // Allow empty string, otherwise validate the number
+        if (
+          valueWithoutFormatting !== '' &&
+          (isNaN(numValue) || numValue < 0)
+        ) {
           return;
         }
 
-        setInnerValue(e.target.value);
-        onChange(e.target.value); // callback with no delay
-        deferredOnChange(e.target.value);
+        const formattedValue = formatWithCommas(valueWithoutFormatting);
+
+        setInnerValue(formattedValue);
+        onChange(valueWithoutFormatting); // callback with no delay
+        deferredOnChange(valueWithoutFormatting);
       },
-      [deferredOnChange, onChange],
+      [deferredOnChange, onChange, formatWithCommas, removeCommas],
     );
 
     // Propagate any outside changes to the inner TextField value
     // The way we do this is by checking when the focus is not on the input component
     useEffect(() => {
       if (!isFocused) {
-        setInnerValue(value);
+        const formattedValue = formatWithCommas(value);
+        setInnerValue(formattedValue);
       }
       // We should run this sife-effect only when the value changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [value]);
+    }, [value, formatWithCommas]);
 
     return (
       <TextField
@@ -107,6 +120,7 @@ type Props = {
 const AmountInput = (props: Props) => {
   const dispatch = useDispatch();
   const theme = useTheme();
+  const { formatWithCommas } = useNumberFormatter();
 
   const styles = useMemo(
     () => ({
@@ -255,12 +269,18 @@ const AmountInput = (props: Props) => {
             fontSize="14px"
             lineHeight="14px"
           >
-            {price}
+            {formatWithCommas(price)}
           </Typography>
         </Stack>
       </InputAdornment>
     );
-  }, [amountInput, getTokenPrice, sourceToken, theme.palette.text.secondary]);
+  }, [
+    amountInput,
+    getTokenPrice,
+    sourceToken,
+    theme.palette.text.secondary,
+    formatWithCommas,
+  ]);
 
   const handleDebouncedChange = useCallback(
     (newValue: string): void => {

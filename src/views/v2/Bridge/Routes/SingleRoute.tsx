@@ -31,6 +31,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
 import GasSlider from 'views/v2/Bridge/GasSlider';
 import Color from 'color';
+import { useNumberFormatter } from 'hooks/useNumberFormatter';
 
 const HIGH_FEE_THRESHOLD = 20; // dollhairs
 
@@ -48,6 +49,7 @@ type Props = {
 
 const SingleRoute = (props: Props) => {
   const theme = useTheme();
+  const { formatWithCommas } = useNumberFormatter();
   const styles = useMemo(
     () => ({
       container: {
@@ -419,11 +421,12 @@ const SingleRoute = (props: Props) => {
 
   const receiveAmountTrunc = useMemo(() => {
     if (quote) {
-      return amount.display(amount.truncate(quote.destinationToken.amount, 6));
+      const truncatedAmount = amount.display(amount.truncate(quote.destinationToken.amount, 6));
+      return formatWithCommas(truncatedAmount);
     } else {
       return undefined;
     }
-  }, [quote]);
+  }, [quote, formatWithCommas]);
 
   const routeCardHeader = useMemo(() => {
     if (props.error) {
@@ -489,6 +492,7 @@ const SingleRoute = (props: Props) => {
     providerText,
     receiveAmount,
     theme.palette.text.secondary,
+    formatWithCommas,
   ]);
 
   // There are three states for the Card area cursor:
