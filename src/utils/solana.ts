@@ -125,7 +125,7 @@ async function createPriorityFeeInstructions(
     const message = TransactionMessage.decompile(transaction.message, {
       addressLookupTableAccounts: luts,
     });
-    message.instructions = [simComputeBudgetIx, ...message.instructions];
+    message.instructions = [...message.instructions, simComputeBudgetIx];
 
     // Create a new VersionedTransaction with the modified message
     simulationTx = new VersionedTransaction(message.compileToV0Message(luts));
@@ -135,7 +135,7 @@ async function createPriorityFeeInstructions(
     const txCopy = new Transaction();
     txCopy.recentBlockhash = transaction.recentBlockhash;
     txCopy.feePayer = transaction.feePayer;
-    txCopy.instructions = [simComputeBudgetIx, ...transaction.instructions];
+    txCopy.instructions = [...transaction.instructions, simComputeBudgetIx];
     txCopy.signatures = [...transaction.signatures];
     simulationTx = txCopy;
   }
