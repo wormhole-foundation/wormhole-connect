@@ -227,14 +227,24 @@ function AssetPicker(props: Props) {
       ? sdkAmount.whole(props.quote?.destinationToken.amount)
       : undefined;
 
-  const balance =
-    !props.isSource || !props.wallet.address || !props.token ? null : (
+  const tokenPrice = useMemo(() => {
+    const amount = props.isSource ? amountInput : receiveAmount;
+    if (props.token && amount) {
+      return calculateUSDPrice(
+        getTokenPrice,
+        sdkAmount.parse(amount, props.token.decimals),
+        props.token,
+      );
+    }
+    return null;
+  }, [props.isSource, props.token, amountInput, receiveAmount, getTokenPrice]);
+
+  const amountUSDValue =
+    props.token && tokenPrice ? (
       <Typography color={theme.palette.text.secondary} variant="body2">
-        {tokenBalance
-          ? sdkAmount.display(sdkAmount.truncate(tokenBalance, 6))
-          : '0'}
+        {tokenPrice ?? null}
       </Typography>
-    );
+    ) : null;
 
   const handleAmountChange = useCallback((newValue: string): void => {
     setAmountInput(newValue);
@@ -445,23 +455,23 @@ function AssetPicker(props: Props) {
             </CardContent>
           </Card>
         </Box>
-        {props.isSource ? (
-          <Box
-            sx={{
-              height: '24px',
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Box>{balance}</Box>
+        <Box
+          sx={{
+            height: '24px',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <Box>{amountUSDValue}</Box>
+          {props.isSource ? (
             <Box>{percentButtons}</Box>
-          </Box>
-        ) : (
-          destTokenUnitPrice
-        )}
+          ) : (
+            <Box>{destTokenUnitPrice}</Box>
+          )}
+        </Box>
       </Box>
       {mobile ? (
         <AssetPickerDrawer
