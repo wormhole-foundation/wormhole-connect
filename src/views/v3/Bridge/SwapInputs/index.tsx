@@ -6,11 +6,12 @@ import Color from 'color';
 
 import SwapVerticalIcon from 'icons/SwapVertical';
 import type { RootState } from 'store';
+import useWalletProvider from 'hooks/useWalletProvider';
 import { setAmount, swapInputs } from 'store/transferInput';
-import { swapWallets } from 'store/wallet';
 
 function SwapInputs() {
   const dispatch = useDispatch();
+  const { swapWallets } = useWalletProvider();
   const theme: any = useTheme();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
@@ -77,10 +78,11 @@ function SwapInputs() {
       val === 'spinRight' ? 'spinLeft' : 'spinRight',
     );
 
-    dispatch(swapInputs());
-    dispatch(swapWallets());
-    dispatch(setAmount(''));
-  }, [canSwap, isTransactionInProgress, dispatch]);
+    if (swapWallets()) {
+      dispatch(swapInputs());
+      dispatch(setAmount(''));
+    }
+  }, [canSwap, isTransactionInProgress, dispatch, swapWallets]);
 
   return (
     <IconButton

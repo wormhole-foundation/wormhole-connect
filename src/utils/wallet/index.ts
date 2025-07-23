@@ -1,19 +1,11 @@
 import type { ChainConfig } from 'config/types';
 import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import { WalletState } from '@wormhole-labs/wallet-aggregator-core';
-import {
-  connectWallet as connectSourceWallet,
-  clearWallet,
-  connectReceivingWallet,
-} from 'store/wallet';
 
 import config from 'config';
 
 export * from './types';
-
-import type { Dispatch } from 'redux';
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+export type { WormholeConnectWalletProvider } from './types';
 
 import type {
   Network,
@@ -21,7 +13,7 @@ import type {
   UnsignedTransaction,
   Platform,
 } from '@wormhole-foundation/sdk';
-import { nativeChainIds, chainToPlatform } from '@wormhole-foundation/sdk';
+import { chainToPlatform } from '@wormhole-foundation/sdk';
 
 import type {
   EvmUnsignedTransaction,
@@ -36,17 +28,11 @@ import type {
   AptosChains,
 } from '@wormhole-foundation/sdk-aptos';
 import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
-import { ReadOnlyWallet } from './ReadOnlyWallet';
 
 export enum TransferWallet {
   SENDING = 'sending',
   RECEIVING = 'receiving',
 }
-
-const walletConnection = {
-  sending: undefined as Wallet | undefined,
-  receiving: undefined as Wallet | undefined,
-};
 
 export const walletAcceptedChains = (
   platform: Platform | undefined,
@@ -59,205 +45,13 @@ export const walletAcceptedChains = (
     .map((c) => c.sdkName);
 };
 
-export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
-  walletConnection[type] = wallet;
-};
-
-// Returns false if the wallet connection was rejected by the user
-export const connectWallet = async (
-  type: TransferWallet,
-  chain: Chain,
-  walletInfo: WalletData,
-  dispatch: Dispatch<any>,
-): Promise<boolean> => {
-  const { wallet, name } = walletInfo;
-
-  setWalletConnection(type, wallet);
-
-  const chainConfig = config.chains[chain];
-  if (!chainConfig) {
-    throw new Error(`Unable to find wallets for chain ${chain}`);
-  }
-
-  const platform = chainToPlatform(chain);
-  const _chainId = nativeChainIds.networkChainToNativeChainId.get(
-    config.network,
-    chain,
-  );
-
-  try {
-    const chainId = typeof _chainId === 'bigint' ? Number(_chainId) : _chainId;
-    await wallet.connect({ chainId });
-  } catch (e: any) {
-    if (e.message && e.message.toLowerCase().includes('rejected')) {
-      console.info('User rejected wallet connection');
-      // If user doesn't want to connect to this wallet, this is not an error we need to throw
-      return false;
-    } else {
-      throw e;
-    }
-  }
-
-  config.triggerEvent({
-    type: 'wallet.connect',
-    details: {
-      side: type,
-      chain: chain,
-      wallet: walletInfo.name.toLowerCase(),
-    },
-  });
-
-  const address = wallet.getAddress()!;
-  const payload = {
-    address,
-    type: walletInfo.type,
-    icon: wallet.getIcon(),
-    name: wallet.getName(),
-  };
-
-  if (type === TransferWallet.SENDING) {
-    dispatch(connectSourceWallet(payload));
-  } else {
-    dispatch(connectReceivingWallet(payload));
-  }
-
-  // Clear wallet when the user manually disconnects from outside the app
-  wallet.on('disconnect', () => {
-    wallet.removeAllListeners();
-    // Use setTimeout to defer the dispatch call to the next event loop tick.
-    // This ensures that the dispatch does not occur while a reducer is executing,
-    // preventing the "You may not call store.getState() while the reducer is executing" error.
-    setTimeout(() => {
-      dispatch(clearWallet(type));
-    }, 0);
-    localStorage.removeItem(config.cacheKey(`wallet:${platform}`));
-  });
-
-  // when the user has multiple wallets connected and either changes
-  // or disconnects the current wallet, clear the wallet
-  wallet.on('accountsChanged', (accs: string[]) => {
-    // disconnect only if there are no accounts, or if the new account is different from the current
-    const shouldDisconnect =
-      accs.length === 0 || (accs.length && address && accs[0] !== address);
-
-    if (shouldDisconnect) {
-      wallet.disconnect();
-    }
-  });
-
-  if (name !== ReadOnlyWallet.NAME) {
-    localStorage.setItem(config.cacheKey(`wallet:${platform}`), name);
-  }
-
-  return true;
-};
-
-// Checks localStorage for previously used wallet for this chain
-// and connects to it automatically if it exists.
-export const connectLastUsedWallet = async (
-  type: TransferWallet,
-  chain: Chain,
-  dispatch: Dispatch<any>,
-) => {
-  const chainConfig = config.chains[chain!]!;
-  const localStorageKey = config.cacheKey(
-    `wallet:${chainToPlatform(chainConfig.sdkName)}`,
-  );
-  const lastUsedWallet = localStorage.getItem(localStorageKey);
-
-  // if the last used wallet is not WalletConnect, try to connect to it
-  if (lastUsedWallet && lastUsedWallet !== 'WalletConnect') {
-    const options = await getWalletOptions(chainConfig);
-    const wallet = options.find((w) => w.name === lastUsedWallet);
-    if (wallet) {
-      try {
-        const connected = await connectWallet(type, chain, wallet, dispatch);
-        if (!connected) {
-          localStorage.removeItem(localStorageKey);
-        }
-      } catch (e: any) {
-        localStorage.removeItem(localStorageKey);
-        throw new Error(
-          `Failed to autoconnect to wallet ${lastUsedWallet} for ${chain}: ${e.message}`,
-        );
-      }
-    }
-  }
-};
-
-export const useConnectToLastUsedWallet = (
-  sourceChain?: Chain,
-  destChain?: Chain,
-): { isConnecting: boolean } => {
-  const dispatch = useDispatch();
-  const [isConnecting, setIsConnecting] = useState(false);
-
-  useEffect(() => {
-    // Early return if we don't have chains yet
-    if (!sourceChain && !destChain) {
-      return;
-    }
-
-    let canceled = false;
-
-    const connect = async () => {
-      try {
-        if (sourceChain && !canceled)
-          await connectLastUsedWallet(
-            TransferWallet.SENDING,
-            sourceChain,
-            dispatch,
-          );
-        if (destChain && !canceled)
-          await connectLastUsedWallet(
-            TransferWallet.RECEIVING,
-            destChain,
-            dispatch,
-          );
-      } finally {
-        setIsConnecting(false);
-      }
-    };
-
-    setIsConnecting(true);
-    connect();
-
-    return () => {
-      canceled = true;
-    };
-  }, [sourceChain, destChain, dispatch]);
-
-  return { isConnecting };
-};
-
-export const getWalletConnection = (type: TransferWallet) => {
-  return walletConnection[type];
-};
-
-export const swapWalletConnections = () => {
-  const temp = walletConnection.sending;
-  walletConnection.sending = walletConnection.receiving;
-  walletConnection.receiving = temp;
-};
-
-export const disconnect = async (type: TransferWallet) => {
-  const w = walletConnection[type]! as any;
-  if (!w) return;
-  await w.disconnect();
-};
-
 export const signAndSendTransaction = async (
   chain: Chain,
   request: UnsignedTransaction<Network, Chain>,
-  walletType: TransferWallet,
+  wallet: Wallet,
   options: any = {},
 ): Promise<string> => {
   const chainConfig = config.chains[chain]!;
-
-  const wallet = walletConnection[walletType];
-  if (!wallet) {
-    throw new Error('wallet is undefined');
-  }
 
   const platform = chainToPlatform(chainConfig.sdkName);
 

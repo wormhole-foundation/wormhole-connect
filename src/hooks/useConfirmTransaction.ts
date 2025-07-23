@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';
+import useWalletProvider from 'hooks/useWalletProvider';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import { useGetTokens } from 'hooks/useGetTokens';
 import {
@@ -19,6 +20,8 @@ import { toDecimals } from 'utils/balance';
 import { interpretTransferError } from 'utils/errors';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
+import { SDKv2Signer } from 'routes/sdkv2/signer';
+import { TransferWallet } from 'utils/wallet';
 
 import type { RootState } from 'store';
 import type { RelayerFee } from 'store/relay';
@@ -48,6 +51,7 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
   );
 
   const routeContext = useContext(RouteContext);
+  const { walletProvider } = useWalletProvider();
 
   const transferInput = useSelector((state: RootState) => state.transferInput);
 
@@ -145,16 +149,28 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
         details: transferDetails,
       });
 
+      let signer;
+      if (config.ui.testOptions?.enableHeadlessSigner) {
+        signer = await SDKv2Signer.fromPrivateKey(sourceChain);
+      } else {
+        signer = await SDKv2Signer.fromChain(
+          sourceChain,
+          sendingWallet.address,
+          TransferWallet.SENDING,
+          walletProvider,
+        );
+      }
+
       const [sdkRoute, receipt] = await config.routes
         .get(route)
         .send(
           sourceToken,
           amount,
           sourceChain,
-          sendingWallet.address,
           destChain,
           receivingWallet.address,
           destToken,
+          signer,
           { nativeGas: toNativeToken },
         );
 

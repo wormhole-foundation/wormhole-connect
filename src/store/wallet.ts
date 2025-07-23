@@ -1,11 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { Platform } from '@wormhole-foundation/sdk';
-import {
-  disconnect,
-  swapWalletConnections,
-  TransferWallet,
-} from 'utils/wallet';
+import { TransferWallet } from 'utils/wallet';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
 
 export type WalletData = {
@@ -75,27 +71,12 @@ export const walletSlice = createSlice({
     ) => {
       state[payload] = NO_WALLET;
     },
-    disconnectWallet: (
-      state: WalletState,
-      { payload }: PayloadAction<TransferWallet>,
-    ) => {
-      disconnect(payload);
-      state[payload] = NO_WALLET;
-    },
     setWalletError: (
       state: WalletState,
       { payload }: PayloadAction<{ type: TransferWallet; error: string }>,
     ) => {
       const { type, error } = payload;
       state[type].error = error;
-    },
-    setAddress: (
-      state: WalletState,
-      { payload }: PayloadAction<{ type: TransferWallet; address: string }>,
-    ) => {
-      const { type, address } = payload;
-      state[type].address = address;
-      state[type].currentAddress = address;
     },
     clearWallets: (state: WalletState) => {
       Object.keys(state).forEach((key) => {
@@ -108,12 +89,9 @@ export const walletSlice = createSlice({
       state.sending = state.receiving;
       state.receiving = tmp;
 
-      swapWalletConnections();
-
       // If the new sending wallet is a ReadOnlyWallet,
       // disconnect it since it can't be used for signing
       if (state.sending.name === ReadOnlyWallet.NAME) {
-        disconnect(TransferWallet.SENDING);
         state[TransferWallet.SENDING] = NO_WALLET;
       }
     },
@@ -124,10 +102,8 @@ export const {
   connectWallet,
   connectReceivingWallet,
   clearWallet,
-  setAddress,
   setWalletError,
   clearWallets,
-  disconnectWallet,
   swapWallets,
 } = walletSlice.actions;
 

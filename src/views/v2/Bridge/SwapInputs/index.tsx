@@ -4,8 +4,8 @@ import IconButton from '@mui/material/IconButton';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 import type { RootState } from 'store';
+import useWalletProvider from 'hooks/useWalletProvider';
 import { setAmount, swapInputs } from 'store/transferInput';
-import { swapWallets } from 'store/wallet';
 
 const styles = {
   swapButton: {
@@ -21,6 +21,7 @@ const styles = {
 
 function SwapInputs() {
   const dispatch = useDispatch();
+  const { swapWallets } = useWalletProvider();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(
@@ -36,10 +37,11 @@ function SwapInputs() {
       val === 'spinRight' ? 'spinLeft' : 'spinRight',
     );
 
-    dispatch(swapInputs());
-    dispatch(swapWallets());
-    dispatch(setAmount(''));
-  }, [canSwap, isTransactionInProgress, dispatch]);
+    if (swapWallets()) {
+      dispatch(swapInputs());
+      dispatch(setAmount(''));
+    }
+  }, [canSwap, isTransactionInProgress, dispatch, swapWallets]);
 
   return (
     <IconButton

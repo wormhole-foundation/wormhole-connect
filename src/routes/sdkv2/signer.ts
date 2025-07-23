@@ -16,7 +16,7 @@ import { getSuiSigner } from '@wormhole-foundation/sdk-sui';
 
 import { getWormholeContextV2 } from 'config';
 import type { TransferWallet } from 'utils/wallet';
-import { signAndSendTransaction } from 'utils/wallet';
+import type { WormholeConnectWalletProvider } from 'utils/wallet/types';
 
 // Utility class that bridges between legacy Connect signer interface and SDKv2 signer interface
 export class SDKv2Signer<N extends Network, C extends Chain>
@@ -25,35 +25,41 @@ export class SDKv2Signer<N extends Network, C extends Chain>
   _chain: Chain;
   _chainContextV2: ChainContext<N, C>;
   _address: string;
-  _options: any;
   _walletType: TransferWallet;
+  _walletProvider: WormholeConnectWalletProvider;
 
   constructor(
     chain: Chain,
     chainContextV2: ChainContext<N, C>,
     address: string,
-    options: any,
     walletType: TransferWallet,
+    walletProvider: WormholeConnectWalletProvider,
   ) {
     this._chain = chain;
     this._chainContextV2 = chainContextV2;
     this._address = address;
-    this._options = options;
     this._walletType = walletType;
+    this._walletProvider = walletProvider;
   }
 
   static async fromChain<N extends Network, C extends Chain>(
     chain: Chain,
     address: string,
-    options: any,
     walletType: TransferWallet,
+    walletProvider: WormholeConnectWalletProvider,
   ): Promise<SDKv2Signer<N, C>> {
     const wh = await getWormholeContextV2();
     const chainContextV2 = wh
       .getPlatform(chainToPlatform(chain))
       .getChain(chain) as ChainContext<N, C>;
 
-    return new SDKv2Signer(chain, chainContextV2, address, options, walletType);
+    return new SDKv2Signer(
+      chain,
+      chainContextV2,
+      address,
+      walletType,
+      walletProvider,
+    );
   }
 
   static async fromPrivateKey<N extends Network, C extends Chain>(
@@ -112,12 +118,21 @@ export class SDKv2Signer<N extends Network, C extends Chain>
   async signAndSend(txs: UnsignedTransaction<N, C>[]): Promise<TxHash[]> {
     const txHashes: TxHash[] = [];
 
+    const wallet = this._walletProvider.getWallet(
+      this._chain,
+      this._walletType,
+    );
+    if (!wallet) {
+      throw new Error(
+        `No ${this._walletType} wallet available for ${this._chain}`,
+      );
+    }
+
     for (const tx of txs) {
-      const txId = await signAndSendTransaction(
+      const txId = await this._walletProvider.signAndSendTransaction(
         this._chain,
+        wallet,
         tx,
-        this._walletType,
-        this._options,
       );
       txHashes.push(txId);
     }

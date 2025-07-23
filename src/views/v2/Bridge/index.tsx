@@ -38,7 +38,8 @@ import {
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
-import { TransferWallet, useConnectToLastUsedWallet } from 'utils/wallet';
+import { TransferWallet } from 'utils/wallet';
+import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
 import WalletController from 'views/v2/Bridge/WalletConnector/Controller';

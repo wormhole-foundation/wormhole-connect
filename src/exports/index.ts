@@ -14,6 +14,14 @@ import { routes } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 
 import { Token } from 'config/tokens';
+import { TransferWallet } from 'utils/wallet';
+import type {
+  Wallet,
+  WalletConnectedHandler,
+  WalletEvents,
+  WalletProviderEvents,
+  WormholeConnectWalletProvider,
+} from 'utils/wallet/types';
 
 const {
   AutomaticTokenBridgeRoute,
@@ -35,6 +43,14 @@ export {
   Chain,
   WormholeConnectTheme,
   Token,
+
+  // Wallet related exports
+  TransferWallet,
+  Wallet,
+  WalletEvents,
+  WormholeConnectWalletProvider,
+  WalletProviderEvents,
+  WalletConnectedHandler,
 
   // Routes
   DEFAULT_ROUTES,

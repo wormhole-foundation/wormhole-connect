@@ -7,6 +7,7 @@ import Button from 'components/v3/Button';
 import type { RootState } from 'store';
 import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
+import useWalletProvider from 'hooks/useWalletProvider';
 
 import type { TransferSide } from 'config/types';
 import WalletSidebar from './Sidebar';
@@ -23,19 +24,26 @@ const WalletConnector = (props: Props) => {
   const { disabled = false, type } = props;
 
   const wallet = useSelector((state: RootState) => state.wallet[type]);
+  const { fromChain, toChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+  const { connectWallet, walletProvider } = useWalletProvider();
+
+  const selectedChain = type === TransferWallet.SENDING ? fromChain : toChain;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const connectWallet = useCallback(
+  const handleConnectWallet = useCallback(
     async (popupState?: any) => {
-      if (disabled) {
+      if (disabled || !selectedChain) {
         return;
       }
 
       popupState?.close();
       setIsOpen(true);
+      await connectWallet(selectedChain, type);
     },
-    [disabled],
+    [disabled, selectedChain, type, connectWallet],
   );
 
   const connected = useMemo(() => {
@@ -65,7 +73,7 @@ const WalletConnector = (props: Props) => {
               pointerEvents: 'all !important',
             },
           }}
-          onClick={() => connectWallet()}
+          onClick={() => handleConnectWallet()}
         >
           <Typography textTransform="none">
             {`Connect ${props.side} wallet`}
@@ -87,6 +95,7 @@ const WalletConnector = (props: Props) => {
           <WalletSidebar
             open={isOpen}
             type={props.type}
+            walletProvider={walletProvider}
             onClose={() => {
               setIsOpen(false);
             }}
@@ -95,7 +104,14 @@ const WalletConnector = (props: Props) => {
         </>
       );
     }
-  }, [disabled, isOpen, props.side, props.type, connectWallet]);
+  }, [
+    disabled,
+    isOpen,
+    props.side,
+    props.type,
+    handleConnectWallet,
+    walletProvider,
+  ]);
 
   if (wallet && wallet.address) {
     return connected;
@@ -104,4 +120,4 @@ const WalletConnector = (props: Props) => {
   return disconnected;
 };
 
-export default React.memo(WalletConnector);
+export default WalletConnector;
