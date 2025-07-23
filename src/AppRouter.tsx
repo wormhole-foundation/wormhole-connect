@@ -93,7 +93,6 @@ const AppRouterContent: React.FC = () => {
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
-        padding: '16px',
         fontFamily: theme.typography.fontFamily,
         [theme.breakpoints.down('sm')]: {
           margin: '0 auto',

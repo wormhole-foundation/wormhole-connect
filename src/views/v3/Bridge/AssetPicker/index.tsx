@@ -173,6 +173,7 @@ function AssetPicker(props: Props) {
         borderRadius: '50px',
         border: `1px solid ${theme.palette.input.border}`,
         background: Color(theme.palette.input.background).darken(0.2).hex(),
+        minWidth: '120px',
         '&:hover': {
           borderColor: theme.palette.primary.main,
         },
