@@ -226,7 +226,7 @@ function Routes({
     if (
       fastestRoute.name &&
       cheapestRoute.name &&
-      routesWithQuotes.length > 1
+      cheapestRoute.name !== fastestRoute.name
     ) {
       return (
         <Box sx={{ maxWidth: '174px' }}>
