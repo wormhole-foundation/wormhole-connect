@@ -1,58 +1,95 @@
 import config from 'config';
 
-const getUserLocale = (): string => {
-  return (
-    config?.locale ||
-    (typeof document !== 'undefined' && document.documentElement.lang) ||
-    (typeof navigator !== 'undefined' && navigator.language) ||
-    'en-US'
-  );
+const getUserLocale = (): string =>
+  config?.locale ??
+  navigator?.language ?? // e.g. "en-US"
+  document?.documentElement?.lang ?? // e.g. "en"
+  'en-US';
+
+const getSeparators = (locale: string): { group: string; decimal: string } => {
+  const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
+  return {
+    group: parts.find((p) => p.type === 'group')?.value ?? ',',
+    decimal: parts.find((p) => p.type === 'decimal')?.value ?? '.',
+  };
 };
 
+/**
+ * Format a numeric string with locale‑aware grouping, preserving any
+ * fractional part (including a trailing dot).
+ */
 export const formatWithCommas = (value: string): string => {
   if (!value) return '';
 
   const locale = getUserLocale();
-  const integerFormatter = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-    useGrouping: true,
-  });
+  const { decimal } = getSeparators(locale);
 
   const [integerPart, decimalPart] = value.split('.');
-  let formatted = integerFormatter.format(parseInt(integerPart) || 0);
+  const intNum = parseInt(integerPart, 10) || 0;
 
-  // Add decimal part preserving all digits
+  const formattedInt = new Intl.NumberFormat(locale, {
+    useGrouping: true,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(intNum);
+
+  // Append the locale decimal separator + any digits (or preserve trailing ".")
   if (decimalPart !== undefined || value.endsWith('.')) {
-    formatted += '.' + (decimalPart || '');
+    return formattedInt + decimal + (decimalPart ?? '');
   }
 
-  return formatted;
+  return formattedInt;
 };
 
+/**
+ * Strip locale‑specific grouping separators and convert the decimal
+ * separator to "." so Number() will parse correctly.
+ */
 export const removeCommas = (value: string): string => {
   if (!value) return '';
 
   const locale = getUserLocale();
-  const thousand = (1000).toLocaleString(locale).charAt(1);
-  const decimal = (1.1).toLocaleString(locale).charAt(1);
+  const { group, decimal } = getSeparators(locale);
 
-  return value.split(thousand).join('').replace(decimal, '.');
+  const withoutGroups = value.split(group).join('');
+  return withoutGroups.replace(new RegExp(`\\${decimal}`, 'g'), '.');
 };
 
+/**
+ * Validate raw input as a non‑negative decimal
+ * Allows:
+ *  - the empty string
+ *  - just the locale’s decimal separator (for "0," or "0." beginnings)
+ *  - any number of digits before/after a single separator
+ * * Rejects:
+ *  - multiple separators
+ *  - non‑digit characters
+ *  - leading/trailing non‑digit characters
+ */
 export const isValidDecimalInput = (value: string): boolean => {
-  if (!value) return true;
+  if (typeof value !== 'string') return false;
 
-  // Allow valid decimal number patterns (including starting with ".")
-  if (!/^\d*\.?\d*$/.test(value)) {
-    return false;
-  }
+  const locale = getUserLocale();
+  const { decimal } = getSeparators(locale);
 
-  // Skip number validation for "." to allow "0." input
-  if (value === '.') {
+  if (value === '' || value === decimal) {
     return true;
   }
 
-  const numValue = Number(value);
-  return !isNaN(numValue) && numValue >= 0;
+  const parts = value.split(decimal);
+
+  // Reject more than one decimal separator
+  if (parts.length > 2) {
+    return false;
+  }
+
+  const [intPart, decPart = ''] = parts;
+  // Both sides must be digits only (empty allowed for leading/trailing)
+  if (!/^\d*$/.test(intPart) || !/^\d*$/.test(decPart)) {
+    return false;
+  }
+
+  const normalized = parts.join('.');
+  const numValue = Number(normalized);
+  return Number.isFinite(numValue) && numValue >= 0;
 };
