@@ -28,7 +28,11 @@ import type { RootState } from 'store';
 import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
 import { useTokens } from 'contexts/TokensContext';
-import { formatWithCommas, removeCommas } from 'utils/formatNumber';
+import {
+  formatWithCommas,
+  removeCommas,
+  isValidDecimalInput,
+} from 'utils/formatNumber';
 
 const INPUT_DEBOUNCE = 500;
 
@@ -52,22 +56,17 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e) => {
-        const valueWithoutFormatting = removeCommas(e.target.value);
-        const numValue = Number(valueWithoutFormatting);
+        const value = removeCommas(e.target.value);
 
-        // Allow empty string, otherwise validate the number
-        if (
-          valueWithoutFormatting !== '' &&
-          (isNaN(numValue) || numValue < 0)
-        ) {
+        if (!isValidDecimalInput(value)) {
           return;
         }
 
-        const formattedValue = formatWithCommas(valueWithoutFormatting);
+        const formattedValue = formatWithCommas(value);
 
         setInnerValue(formattedValue);
-        onChange(valueWithoutFormatting);
-        deferredOnChange(valueWithoutFormatting);
+        onChange(value);
+        deferredOnChange(value);
       },
       [deferredOnChange, onChange],
     );
@@ -76,8 +75,7 @@ const DebouncedTextField = memo(
     // The way we do this is by checking when the focus is not on the input component
     useEffect(() => {
       if (!isFocused) {
-        const formattedValue = formatWithCommas(value);
-        setInnerValue(formattedValue);
+        setInnerValue(formatWithCommas(value));
       }
       // We should run this side-effect only when the value changes
       // eslint-disable-next-line react-hooks/exhaustive-deps

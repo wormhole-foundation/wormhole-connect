@@ -39,3 +39,20 @@ export const removeCommas = (value: string): string => {
 
   return value.split(thousand).join('').replace(decimal, '.');
 };
+
+export const isValidDecimalInput = (value: string): boolean => {
+  if (!value) return true;
+
+  // Allow valid decimal number patterns (including starting with ".")
+  if (!/^\d*\.?\d*$/.test(value)) {
+    return false;
+  }
+
+  // Skip number validation for "." to allow "0." input
+  if (value === '.') {
+    return true;
+  }
+
+  const numValue = Number(value);
+  return !isNaN(numValue) && numValue >= 0;
+};
