@@ -1,8 +1,7 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import type { Balances } from 'utils/wallet/types';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { Balances } from 'utils/wallet/types';
 import config, { getWormholeContextV2 } from 'config';
 import type { Token } from 'config/tokens';
-import { tokenKey } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import type { Chain } from '@wormhole-foundation/sdk';
 import {
@@ -13,6 +12,7 @@ import {
 import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
 import { processBatches } from 'utils/batch';
+import { getCached, isFailed, markFailed, setCached } from 'utils/balanceCache';
 
 export interface ChainBalanceRequest {
   chain: Chain;
@@ -23,82 +23,14 @@ export interface ChainBalanceRequest {
 // Map of chain+wallet -> balances
 type BalanceMap = Record<string, Balances>;
 
-interface BalanceCache {
-  balance: amount.Amount;
-  lastUpdated: number;
-}
-
 // Constants
-const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 const BATCH_SIZE = 5;
-const BATCH_DELAY_MS = 250;
+const BATCH_DELAY_MS = 100;
 const MAX_TOKENS_TO_PROCESS = 100;
 
 // Helper to create request key
 const getRequestKey = (chain: Chain, wallet: WalletData) =>
   `${chain}-${wallet.address}`;
-
-// Custom hook for balance cache
-const useBalanceCache = () => {
-  const cacheRef = useRef<Record<string, BalanceCache>>({});
-  const failedTokensRef = useRef<Set<string>>(new Set());
-
-  const getCached = useCallback(
-    (chain: Chain, wallet: WalletData, token: Token) => {
-      const key = `${chain}-${wallet.address}-${token.key}`;
-      const cached = cacheRef.current[key];
-      const now = Date.now();
-
-      if (cached && cached.lastUpdated > now - CACHE_DURATION_MS) {
-        return cached;
-      }
-      return null;
-    },
-    [],
-  );
-
-  const setCached = useCallback(
-    (
-      chain: Chain,
-      wallet: WalletData,
-      token: Token,
-      balance: amount.Amount,
-    ) => {
-      const key = `${chain}-${wallet.address}-${token.key}`;
-      cacheRef.current[key] = {
-        balance,
-        lastUpdated: Date.now(),
-      };
-    },
-    [],
-  );
-
-  const markFailed = useCallback((chain: Chain, address: string) => {
-    failedTokensRef.current.add(tokenKey(chain, address));
-  }, []);
-
-  const isFailed = useCallback((chain: Chain, address: string) => {
-    return failedTokensRef.current.has(tokenKey(chain, address));
-  }, []);
-
-  // Cleanup old cache entries periodically
-  useEffect(() => {
-    const cleanup = () => {
-      const now = Date.now();
-      const cache = cacheRef.current;
-      for (const key in cache) {
-        if (cache[key].lastUpdated < now - CACHE_DURATION_MS * 2) {
-          delete cache[key];
-        }
-      }
-    };
-
-    const interval = setInterval(cleanup, CACHE_DURATION_MS);
-    return () => clearInterval(interval);
-  }, []);
-
-  return { getCached, setCached, markFailed, isFailed };
-};
 
 interface UseGetTokenBalancesParams {
   source?: ChainBalanceRequest;
@@ -123,7 +55,6 @@ const useGetTokenBalances = ({
   const [fetchingKeys, setFetchingKeys] = useState<Set<string>>(new Set());
 
   const { getOrFetchToken } = useTokens();
-  const { getCached, setCached, markFailed, isFailed } = useBalanceCache();
 
   // Keep track of current request keys to avoid stale updates
   const currentRequestKeysRef = useRef<Set<string>>(new Set());
@@ -135,6 +66,7 @@ const useGetTokenBalances = ({
       chain: Chain,
       wallet: WalletData,
       updatedBalances: Balances,
+      tokensToFetch: Token[],
     ) => {
       // Sort tokens by balance units to prioritize tokens that are likely higher value
       const sortedTokens = Object.entries(result)
@@ -159,7 +91,7 @@ const useGetTokenBalances = ({
             lastUpdated: Date.now(),
           };
           updatedBalances[token.key] = balanceData;
-          setCached(chain, wallet, token, balance);
+          setCached(wallet, token, balance);
         } else if (!isFailed(chain, address)) {
           unknownTokens.push([address, bus]);
         }
@@ -181,7 +113,7 @@ const useGetTokenBalances = ({
                   lastUpdated: Date.now(),
                 };
                 updatedBalances[token.key] = balanceData;
-                setCached(chain, wallet, token, balance);
+                setCached(wallet, token, balance);
               } else {
                 markFailed(chain, tokenAddress);
               }
@@ -200,8 +132,20 @@ const useGetTokenBalances = ({
           },
         );
       }
+
+      // Finally, set 0 balance values for tokens we wanted to check balances for which were not in the indexer result
+      for (const token of tokensToFetch) {
+        if (updatedBalances[token.key] === undefined) {
+          const balance = amount.fromBaseUnits(0n, token.decimals);
+          updatedBalances[token.key] = {
+            balance,
+            lastUpdated: Date.now(),
+          };
+          setCached(wallet, token, balance);
+        }
+      }
     },
-    [getOrFetchToken, setCached, isFailed, markFailed],
+    [getOrFetchToken],
   );
 
   // Fetch balances for a single chain
@@ -224,12 +168,16 @@ const useGetTokenBalances = ({
       // Check cache first
       const tokensToFetch: Token[] = [];
       for (const token of tokens) {
-        const cached = getCached(chain, wallet, token);
+        const cached = getCached(wallet, token);
         if (cached) {
           updatedBalances[token.key] = cached;
         } else {
           tokensToFetch.push(token);
         }
+      }
+
+      if (tokensToFetch.length === 0) {
+        return updatedBalances;
       }
 
       // Fetch balances
@@ -256,17 +204,19 @@ const useGetTokenBalances = ({
               platformName === 'Evm' ? config.evmIndexers : undefined,
             );
 
-            await processIndexerResults(result, chain, wallet, updatedBalances);
+            await processIndexerResults(
+              result,
+              chain,
+              wallet,
+              updatedBalances,
+              tokensToFetch,
+            );
             return updatedBalances;
           } catch (e) {
             console.error(`Error calling getBalances on ${chain}:`, e);
             // Fall through to individual fetching
           }
         }
-      }
-
-      if (tokensToFetch.length === 0) {
-        return updatedBalances;
       }
 
       // Fallback to individual token fetching with batching
@@ -289,7 +239,7 @@ const useGetTokenBalances = ({
               balance,
               lastUpdated: Date.now(),
             };
-            setCached(chain, wallet, token, balance);
+            setCached(wallet, token, balance);
           } catch (e) {
             console.error(`Failed to fetch balance for token ${token.key}`, e);
           }
@@ -302,7 +252,7 @@ const useGetTokenBalances = ({
 
       return updatedBalances;
     },
-    [getCached, setCached, processIndexerResults],
+    [processIndexerResults],
   );
 
   // Effect to fetch balances
@@ -411,13 +361,17 @@ const useGetTokenBalances = ({
     ? getRequestKey(destination.chain, destination.wallet)
     : null;
 
-  const sourceResult: ChainBalanceResult = {
-    balances: sourceKey ? balances[sourceKey] || {} : {},
-  };
+  const sourceResult: ChainBalanceResult = useMemo(() => {
+    return {
+      balances: sourceKey ? balances[sourceKey] || {} : {},
+    };
+  }, [balances, sourceKey]);
 
-  const destinationResult: ChainBalanceResult = {
-    balances: destKey ? balances[destKey] || {} : {},
-  };
+  const destinationResult: ChainBalanceResult = useMemo(() => {
+    return {
+      balances: destKey ? balances[destKey] || {} : {},
+    };
+  }, [balances, destKey]);
 
   const isFetching = fetchingKeys.size > 0;
 

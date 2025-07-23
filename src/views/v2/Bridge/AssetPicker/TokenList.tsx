@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import { toNative } from '@wormhole-foundation/sdk';
@@ -39,12 +38,7 @@ const TokenList = (props: Props) => {
     Map<string, number | undefined>
   >(new Map());
 
-  const {
-    getOrFetchToken,
-    isFetchingToken,
-    getTokenPrices,
-    lastTokenPriceUpdate,
-  } = useTokens();
+  const { getOrFetchToken, getTokenPrices, lastTokenPriceUpdate } = useTokens();
 
   // Get token prices using the synchronous hook pattern
   // Re-calculate when token list or price updates occur
@@ -145,7 +139,7 @@ const TokenList = (props: Props) => {
     }
 
     // Currently fetching initial data
-    if (props.isFetching) {
+    if (props.isFetching || props.isFetchingBalances) {
       return 'loading';
     }
 
@@ -264,12 +258,6 @@ const TokenList = (props: Props) => {
           <Typography width="100%" sx={styles.title}>
             Select a token
           </Typography>
-          {isFetchingToken || props.isFetchingBalances ? (
-            <CircularProgress
-              sx={{ alignSelf: 'flex-end', marginBottom: '12px' }}
-              size={14}
-            />
-          ) : null}
         </Box>
         {searchList}
       </CardContent>
