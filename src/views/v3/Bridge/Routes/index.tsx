@@ -270,7 +270,6 @@ function Routes({
   }, [
     fastestRoute.name,
     cheapestRoute.name,
-    routesWithQuotes.length,
     selectedRouteBadge,
     styles.toggleGroup,
     styles.toggleButton,
@@ -332,6 +331,7 @@ function Routes({
             sx={{
               width: '100%',
               display: 'flex',
+              alignItems: 'center',
               justifyContent: 'space-between',
               gap: '12px',
             }}
