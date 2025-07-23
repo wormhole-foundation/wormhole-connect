@@ -52,14 +52,7 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e) => {
-        let value = e.target.value;
-        const valueWithoutFormatting = removeCommas(value);
-
-        // Handle single decimal input
-        if (valueWithoutFormatting === '.') {
-          value = '0.';
-        }
-
+        const valueWithoutFormatting = removeCommas(e.target.value);
         const numValue = Number(valueWithoutFormatting);
 
         // Allow empty string, otherwise validate the number
@@ -73,7 +66,7 @@ const DebouncedTextField = memo(
         const formattedValue = formatWithCommas(valueWithoutFormatting);
 
         setInnerValue(formattedValue);
-        onChange(valueWithoutFormatting); // callback with no delay
+        onChange(valueWithoutFormatting);
         deferredOnChange(valueWithoutFormatting);
       },
       [deferredOnChange, onChange],
@@ -86,7 +79,7 @@ const DebouncedTextField = memo(
         const formattedValue = formatWithCommas(value);
         setInnerValue(formattedValue);
       }
-      // We should run this sife-effect only when the value changes
+      // We should run this side-effect only when the value changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 

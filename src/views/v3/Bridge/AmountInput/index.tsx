@@ -43,13 +43,7 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value;
-        const valueWithoutFormatting = removeCommas(value);
-
-        // Handle single decimal input
-        if (valueWithoutFormatting === '.') {
-          value = '0.';
-        }
+        const valueWithoutFormatting = removeCommas(e.target.value);
 
         const numValue = Number(valueWithoutFormatting);
 
@@ -64,7 +58,7 @@ const DebouncedTextField = memo(
         const formattedValue = formatWithCommas(valueWithoutFormatting);
 
         setInnerValue(formattedValue);
-        onChange(valueWithoutFormatting); // callback with no delay
+        onChange(valueWithoutFormatting);
         deferredOnChange(valueWithoutFormatting);
       },
       [deferredOnChange, onChange],
