@@ -1,18 +1,34 @@
 import config from 'config';
 
+interface Separators {
+  group: string;
+  decimal: string;
+}
+
+const separatorsCache = new Map<string, Separators>();
+
+const getSeparators = (locale: string): Separators => {
+  const cached = separatorsCache.get(locale);
+  if (cached) return cached;
+
+  const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
+  const separators = {
+    group: parts.find((p) => p.type === 'group')?.value ?? ',',
+    decimal: parts.find((p) => p.type === 'decimal')?.value ?? '.',
+  };
+
+  separatorsCache.set(locale, separators);
+  return separators;
+};
+
+/**
+ * Get the user's locale from config or DOM, falling back to en-US if not available.
+ */
 const getUserLocale = (): string =>
   config?.locale ??
   navigator?.language ?? // e.g. "en-US"
   document?.documentElement?.lang ?? // e.g. "en"
   'en-US';
-
-const getSeparators = (locale: string): { group: string; decimal: string } => {
-  const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
-  return {
-    group: parts.find((p) => p.type === 'group')?.value ?? ',',
-    decimal: parts.find((p) => p.type === 'decimal')?.value ?? '.',
-  };
-};
 
 /**
  * Format a numeric string with locale‑aware grouping, preserving any
