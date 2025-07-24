@@ -28,7 +28,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Linea: 'ethereum',
   Worldchain: 'ethereum',
   Seievm: 'sei',
-  // TODO: add Mezo when available
+  Mezo: 'wrapped-bitcoin',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
@@ -41,6 +41,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Xlayer: 'x-layer',
   Worldchain: 'world-chain',
   Seievm: 'sei-v2',
+  Mezo: 'mezo',
 };
 
 export interface CoingeckoParams {
