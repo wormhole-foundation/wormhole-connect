@@ -272,6 +272,18 @@ function AssetPicker(props: Props) {
     [props],
   );
 
+  const handleTokenSelect = useCallback(
+    (token: Token) => {
+      if (props.isSource && props.token?.key !== token.key) {
+        // Reset amount when source token is changed
+        handleAmountChange('');
+        handleDebouncedAmountChange('');
+      }
+      props.setToken(token);
+    },
+    [handleAmountChange, handleDebouncedAmountChange, props],
+  );
+
   // Clear the amount input value if the amount is reset outside of this component
   // This can happen if user swaps selected source and destination assets.
   useEffect(() => {
@@ -498,8 +510,8 @@ function AssetPicker(props: Props) {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onChainSelect={handleChainSelect}
-          onTokenSelect={(key: Token) => {
-            props.setToken(key);
+          onTokenSelect={(token: Token) => {
+            handleTokenSelect(token);
             setIsDrawerOpen(false);
           }}
         />
@@ -523,8 +535,8 @@ function AssetPicker(props: Props) {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onChainSelect={handleChainSelect}
-          onTokenSelect={(key: Token) => {
-            props.setToken(key);
+          onTokenSelect={(token: Token) => {
+            handleTokenSelect(token);
             popupState.close();
           }}
         />
