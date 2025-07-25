@@ -2,18 +2,12 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Typography from '@mui/material/Typography';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import ClockIcon from 'icons/Clock';
-import RoutingIcon from 'icons/Routing';
-import { millisToHumanString } from 'utils';
 import { getBestRoutes } from 'utils/routes';
 import { OPACITY } from 'utils/style';
 import type { RootState } from 'store';
@@ -21,6 +15,8 @@ import { setToNativeToken } from 'store/relay';
 import RoutesMobile from 'views/v3/Bridge/Routes/RoutesBottomSheet';
 import RoutesDesktop from 'views/v3/Bridge/Routes/RoutesModal';
 import RoutesLoader from 'views/v3/Bridge/Routes/RoutesLoader';
+import RoutesLink from 'views/v3/Bridge/Routes/RoutesLink';
+import Eta from 'views/v3/Bridge/Routes/Eta';
 
 type Props = {
   routes: string[];
@@ -222,47 +218,6 @@ function Routes({
     );
   }, []);
 
-  const eta = useMemo(
-    () => (
-      <Box
-        sx={{
-          display: 'flex',
-          fontSize: '14px',
-          justifyContent: 'flex-end',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            height: '32px',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '4px 0',
-          }}
-        >
-          <ClockIcon
-            sx={{
-              color: '#7A8390',
-              width: '12px',
-              height: '12px',
-            }}
-          />
-          <Typography
-            component="span"
-            color={theme.palette.text.primary}
-            fontSize="14px"
-            lineHeight="14px"
-          >
-            {selectedQuote?.eta
-              ? millisToHumanString(selectedQuote.eta)
-              : 'N/A'}
-          </Typography>
-        </Box>
-      </Box>
-    ),
-    [selectedQuote?.eta, theme.palette.text.primary],
-  );
-
   const routeSelectionPills = useMemo(() => {
     if (
       fastestRoute.name &&
@@ -317,37 +272,6 @@ function Routes({
     onRouteChange,
   ]);
 
-  const routesLink = useMemo(() => {
-    return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <RoutingIcon sx={{ color: theme.palette.text.primary, opacity: 0.5 }} />
-        <Link
-          component="span"
-          data-testid="other-routes-toggle"
-          underline="none"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            color: theme.palette.text.primary,
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 700,
-            opacity: 0.5,
-          }}
-          onClick={handleToggleRoutes}
-        >
-          {getProviderText(selectedRoute)}
-          <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
-        </Link>
-      </Box>
-    );
-  }, [
-    getProviderText,
-    handleToggleRoutes,
-    selectedRoute,
-    theme.palette.text.primary,
-  ]);
-
   const selectButtonDisabled =
     !!selectedRoute && selectedRoute === highlightedRoute;
 
@@ -388,8 +312,11 @@ function Routes({
                 width: '100%',
               }}
             >
-              {routesLink}
-              {eta}
+              <RoutesLink
+                providerText={getProviderText(selectedRoute)}
+                onClick={handleToggleRoutes}
+              />
+              <Eta eta={selectedQuote?.eta} />
             </Box>
           </Stack>
         </>
