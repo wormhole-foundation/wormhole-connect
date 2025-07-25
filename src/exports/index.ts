@@ -20,6 +20,7 @@ const {
   TokenBridgeRoute,
   AutomaticCCTPRoute,
   CCTPRoute,
+  TBTCRoute,
 } = routes;
 
 export default WormholeConnect;
@@ -41,6 +42,7 @@ export {
   TokenBridgeRoute,
   AutomaticCCTPRoute,
   CCTPRoute,
+  TBTCRoute,
 };
 
 export * from 'telemetry';
