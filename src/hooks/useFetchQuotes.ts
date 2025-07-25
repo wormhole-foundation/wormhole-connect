@@ -339,9 +339,14 @@ export default (routes: string[], params: Params): HookReturn => {
     // TODO end Mayan beta support special logic
 
     // Hide manual quotes if the integrator has set config.ui.onlyOfferManualRoutesAsFallback to true
+    // Exception: Always show ManualTBTC route for tBTC transfers
     if (config.ui.onlyOfferManualRoutesAsFallback) {
       let hasAutomaticQuote = false;
       const onlyAutomaticQuotes = {};
+      const isTBTCTransfer =
+        params.sourceToken?.symbol === 'tBTC' ||
+        params.destToken?.symbol === 'tBTC';
+
       for (const name in filtered) {
         const quote = filtered[name];
         const route = config.routes.get(name);
@@ -352,6 +357,10 @@ export default (routes: string[], params: Params): HookReturn => {
       }
 
       if (hasAutomaticQuote) {
+        // If this is a tBTC transfer, preserve the ManualTBTC route
+        if (isTBTCTransfer && filtered['ManualTBTC']) {
+          onlyAutomaticQuotes['ManualTBTC'] = filtered['ManualTBTC'];
+        }
         filtered = onlyAutomaticQuotes;
       }
     }
