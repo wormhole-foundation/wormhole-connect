@@ -1,5 +1,3 @@
-import config from 'config';
-
 interface Separators {
   group: string;
   decimal: string;
