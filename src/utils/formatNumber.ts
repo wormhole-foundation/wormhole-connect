@@ -25,7 +25,6 @@ const getSeparators = (locale: string): Separators => {
  * Get the user's locale from config or DOM, falling back to en-US if not available.
  */
 const getUserLocale = (): string =>
-  config?.locale ??
   navigator?.language ?? // e.g. "en-US"
   document?.documentElement?.lang ?? // e.g. "en"
   'en-US';
@@ -35,7 +34,9 @@ const getUserLocale = (): string =>
  * fractional part (including a trailing dot).
  */
 export const formatWithCommas = (value: string): string => {
-  if (!value) return '';
+  if (!value) {
+    return '';
+  }
 
   const locale = getUserLocale();
   const { decimal } = getSeparators(locale);
@@ -62,7 +63,9 @@ export const formatWithCommas = (value: string): string => {
  * separator to "." so Number() will parse correctly.
  */
 export const removeCommas = (value: string): string => {
-  if (!value) return '';
+  if (!value) {
+    return '';
+  }
 
   const locale = getUserLocale();
   const { group, decimal } = getSeparators(locale);
@@ -83,7 +86,9 @@ export const removeCommas = (value: string): string => {
  *  - leading/trailing non‑digit characters
  */
 export const isValidDecimalInput = (value: string): boolean => {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== 'string') {
+    return false;
+  }
 
   const locale = getUserLocale();
   const { decimal } = getSeparators(locale);
