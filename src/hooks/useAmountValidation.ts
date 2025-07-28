@@ -73,7 +73,7 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
 
   if (allRoutesFailed) {
     if (minAmount) {
-      const formattedAmount = sdkAmount.display(minAmount);
+      const formattedAmount = formatMinAmount(minAmount);
       return {
         error: `Amount too small (min ~${formattedAmount} ${props.tokenSymbol})`,
       };
@@ -86,11 +86,26 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
 
   // MinQuote warnings information
   if (minAmount) {
-    const formattedAmount = sdkAmount.display(minAmount);
+    const formattedAmount = formatMinAmount(minAmount);
     return {
       warning: `More routes available for ${formattedAmount} ${props.tokenSymbol} or more.`,
     };
   }
 
   return {};
+};
+
+// Minimum amounts are approximations anyway so we don't need to display ultra-precise figures here.
+// For amounts >  999, we simply round up.
+// For amounts <= 999, we use toPrecision(3) which only shows the first 3 non-zero digits.
+// This way we're not showing excessive precision for any value
+const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
+  const formatted = sdkAmount.display(minAmount);
+  // Minimum amounts are approximations so we do a little floating point fudging
+  const asNumber = parseFloat(formatted);
+  if (asNumber > 999) {
+    return Math.ceil(asNumber).toString();
+  } else {
+    return asNumber.toPrecision(3);
+  }
 };
