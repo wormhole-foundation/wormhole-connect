@@ -21,6 +21,7 @@ type HookReturn = {
   sortedRoutes: string[];
   sortedRoutesWithQuotes: RouteWithQuote[];
   quotes: ReturnType<typeof useFetchQuotes>['quotes'];
+  failedQuotes: ReturnType<typeof useFetchQuotes>['failedQuotes'];
   isFetching: boolean;
 };
 
@@ -76,10 +77,11 @@ export const useSortedRoutesWithQuotes = ({
     ],
   );
 
-  const { quotes, isFetchingInitialQuotes: isFetchingQuotes } = useFetchQuotes(
-    supportedRoutes,
-    quoteParams,
-  );
+  const {
+    quotes,
+    failedQuotes,
+    isFetchingInitialQuotes: isFetchingQuotes,
+  } = useFetchQuotes(supportedRoutes, quoteParams);
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
@@ -155,6 +157,7 @@ export const useSortedRoutesWithQuotes = ({
       sortedRoutes,
       sortedRoutesWithQuotes,
       quotes,
+      failedQuotes,
       isFetching: isFetchingSupportedRoutes || isFetchingQuotes,
     }),
     [
@@ -162,6 +165,7 @@ export const useSortedRoutesWithQuotes = ({
       sortedRoutes,
       sortedRoutesWithQuotes,
       quotes,
+      failedQuotes,
       isFetchingSupportedRoutes,
       isFetchingQuotes,
     ],

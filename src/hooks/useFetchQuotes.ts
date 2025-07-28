@@ -29,6 +29,7 @@ type Params = {
 
 type HookReturn = {
   quotes: Record<string, QuoteResult | undefined>;
+  failedQuotes: Record<string, QuoteResult | undefined>;
   isFetchingInitialQuotes: boolean;
 };
 
@@ -224,7 +225,11 @@ export default (routes: string[], params: Params): HookReturn => {
       params.sourceToken,
     );
 
-    let filtered = Object.assign({}, unfilteredQuotes);
+    let filtered = Object.fromEntries(
+      Object.entries(unfilteredQuotes).filter(
+        ([_name, quote]) => quote.success,
+      ),
+    );
 
     // Filter out quotes that would result in a large instant loss
     // (Transfers >=$1000 with >=10% value loss)
@@ -411,8 +416,17 @@ export default (routes: string[], params: Params): HookReturn => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unfilteredQuotes]);
 
+  const failedQuotes = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(unfilteredQuotes).filter(
+        ([_name, quote]) => !quote.success,
+      ),
+    );
+  }, [unfilteredQuotes]);
+
   return {
     quotes,
+    failedQuotes,
     isFetchingInitialQuotes,
   };
 };

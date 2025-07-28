@@ -143,6 +143,7 @@ const Bridge = () => {
     sortedRoutes,
     sortedRoutesWithQuotes,
     quotes,
+    failedQuotes,
     isFetching: isFetchingQuotes,
   } = useSortedRoutesWithQuotes({
     amount,
@@ -290,6 +291,7 @@ const Bridge = () => {
       : null,
     routes: allSupportedRoutes,
     quotes,
+    failedQuotes,
     tokenSymbol: sourceToken?.symbol ?? '',
     isLoading: balances.isFetching || isFetchingQuotes,
     disabled: !sourceChain || !sourceToken,
