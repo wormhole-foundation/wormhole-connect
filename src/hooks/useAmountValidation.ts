@@ -47,7 +47,7 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
           return minAmount;
         }
       }, undefined as sdkAmount.Amount | undefined),
-    [props.quotes],
+    [props.quotes, props.failedQuotes],
   );
 
   const allRoutesFailed = useMemo(() => {
