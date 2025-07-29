@@ -226,13 +226,15 @@ export default (routes: string[], params: Params): HookReturn => {
       params.sourceToken,
     );
 
-    const [filtered, failedQuotes] = partition(
+    const [quotes, failedQuotes] = partition(
       Object.entries(unfilteredQuotes),
       ([_name, quote]) => quote.success,
     ).map(Object.fromEntries) as [
       Record<string, QuoteResult>,
       Record<string, QuoteResult>,
     ];
+
+    let filtered = { ...quotes };
 
     // Filter out quotes that would result in a large instant loss
     // (Transfers >=$1000 with >=10% value loss)
