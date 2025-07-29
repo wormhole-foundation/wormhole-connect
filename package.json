@@ -70,6 +70,7 @@
     "axios": "1.10.0",
     "binary-parser": "^2.2.1",
     "color": "^5.0.0",
+    "es-toolkit": "^1.39.8",
     "ethers": "6.13.5",
     "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",

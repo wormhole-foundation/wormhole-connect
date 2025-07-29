@@ -2,6 +2,7 @@ import { isSameToken, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
+import { partition } from 'es-toolkit';
 import {
   Wormhole,
   Chain,
@@ -218,18 +219,20 @@ export default (routes: string[], params: Params): HookReturn => {
     isVisible,
   ]);
 
-  const quotes = useMemo(() => {
+  const { quotes, failedQuotes } = useMemo(() => {
     const usdValue = calculateUSDPriceRaw(
       getTokenPrice,
       params.amount,
       params.sourceToken,
     );
 
-    let filtered = Object.fromEntries(
-      Object.entries(unfilteredQuotes).filter(
-        ([_name, quote]) => quote.success,
-      ),
-    );
+    let [filtered, failedQuotes] = partition(
+      Object.entries(unfilteredQuotes),
+      ([_name, quote]) => quote.success,
+    ).map(Object.fromEntries) as [
+      Record<string, QuoteResult>,
+      Record<string, QuoteResult>,
+    ];
 
     // Filter out quotes that would result in a large instant loss
     // (Transfers >=$1000 with >=10% value loss)
@@ -412,16 +415,8 @@ export default (routes: string[], params: Params): HookReturn => {
       }
     }
 
-    return filtered;
+    return { quotes: filtered, failedQuotes };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unfilteredQuotes]);
-
-  const failedQuotes = useMemo(() => {
-    return Object.fromEntries(
-      Object.entries(unfilteredQuotes).filter(
-        ([_name, quote]) => !quote.success,
-      ),
-    );
   }, [unfilteredQuotes]);
 
   return {
