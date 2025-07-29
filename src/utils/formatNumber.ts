@@ -1,3 +1,5 @@
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+
 interface Separators {
   group: string;
   decimal: string;
@@ -111,4 +113,19 @@ export const isValidDecimalInput = (value: string): boolean => {
   const normalized = parts.join('.');
   const numValue = Number(normalized);
   return Number.isFinite(numValue) && numValue >= 0;
+};
+
+// Minimum amounts are approximations anyway so we don't need to display ultra-precise figures here.
+// For amounts >  999, we simply round up.
+// For amounts <= 999, we use toPrecision(3) which only shows the first 3 non-zero digits.
+// This way we're not showing excessive precision for any value
+export const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
+  const formatted = sdkAmount.display(minAmount);
+  // Minimum amounts are approximations so we do a little floating point fudging
+  const asNumber = parseFloat(formatted);
+  if (asNumber > 999) {
+    return Math.ceil(asNumber).toString();
+  } else {
+    return asNumber.toPrecision(3);
+  }
 };
