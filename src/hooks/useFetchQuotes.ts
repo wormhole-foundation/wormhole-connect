@@ -226,7 +226,7 @@ export default (routes: string[], params: Params): HookReturn => {
       params.sourceToken,
     );
 
-    let [filtered, failedQuotes] = partition(
+    const [filtered, failedQuotes] = partition(
       Object.entries(unfilteredQuotes),
       ([_name, quote]) => quote.success,
     ).map(Object.fromEntries) as [
