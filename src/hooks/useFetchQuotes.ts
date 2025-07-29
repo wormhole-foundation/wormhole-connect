@@ -12,6 +12,10 @@ import {
 } from '@wormhole-foundation/sdk';
 import { QuoteParams, QuoteResult } from 'routes/operator';
 import { calculateUSDPriceRaw } from 'utils';
+import {
+  checkCircleGeoblock,
+  CIRCLE_GEOBLOCK_ERROR_MESSAGE,
+} from 'utils/circle-geoblock';
 
 import config from 'config';
 import { Token } from 'config/tokens';
@@ -46,6 +50,9 @@ export default (routes: string[], params: Params): HookReturn => {
     Record<string, QuoteResult>
   >({});
   const [isVisible, setIsVisible] = useState(true);
+  const [isCircleGeoblocked, setIsCircleGeoblocked] = useState<boolean | null>(
+    null,
+  );
 
   useEffect(() => {
     const visibilityHandler = () => {
@@ -57,6 +64,15 @@ export default (routes: string[], params: Params): HookReturn => {
       document.removeEventListener('visibilitychange', visibilityHandler);
     };
   }, []);
+
+  useEffect(() => {
+    const hasCCTPRoute = routes.some(
+      (route) => route === 'AutomaticCCTP' || route === 'CCTP',
+    );
+    if (hasCCTPRoute && isCircleGeoblocked === null) {
+      checkCircleGeoblock().then(setIsCircleGeoblocked);
+    }
+  }, [routes, isCircleGeoblocked]);
 
   // TODO temporary
   // Calculate USD amount for temporary $10,000 Mayan limit
@@ -199,7 +215,21 @@ export default (routes: string[], params: Params): HookReturn => {
 
     config.routes.getQuotes(routes, rParams).then((quoteResults) => {
       if (!unmounted) {
-        setUnfilteredQuotes(quoteResults);
+        // Add geoblocking error to CCTP routes if user is geoblocked
+        if (isCircleGeoblocked) {
+          const modifiedQuotes = { ...quoteResults };
+          for (const routeName in modifiedQuotes) {
+            if (routeName === 'AutomaticCCTP' || routeName === 'CCTP') {
+              modifiedQuotes[routeName] = {
+                success: false,
+                error: new Error(CIRCLE_GEOBLOCK_ERROR_MESSAGE),
+              };
+            }
+          }
+          setUnfilteredQuotes(modifiedQuotes);
+        } else {
+          setUnfilteredQuotes(quoteResults);
+        }
         setIsFetchingInitialQuotes(false);
       }
     });

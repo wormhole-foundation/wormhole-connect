@@ -19,6 +19,10 @@ import { toDecimals } from 'utils/balance';
 import { interpretTransferError } from 'utils/errors';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
+import {
+  checkCircleGeoblock,
+  CIRCLE_GEOBLOCK_ERROR_MESSAGE,
+} from 'utils/circle-geoblock';
 
 import type { RootState } from 'store';
 import type { RelayerFee } from 'store/relay';
@@ -132,6 +136,15 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
         setError('Error validating transfer');
         setErrorInternal(e);
         console.error(e);
+        return;
+      }
+    }
+
+    const isCCTPRoute = route === 'AutomaticCCTP' || route === 'CCTP';
+    if (isCCTPRoute) {
+      const isGeoblocked = await checkCircleGeoblock();
+      if (isGeoblocked) {
+        setError(CIRCLE_GEOBLOCK_ERROR_MESSAGE);
         return;
       }
     }
