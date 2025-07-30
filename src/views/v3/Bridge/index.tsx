@@ -24,7 +24,7 @@ import Header from 'components/Header';
 import AlertBannerV3 from 'components/v3/AlertBanner';
 import Button from 'components/v3/Button';
 import config from 'config';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
 import { useSortedRoutesWithQuotes } from 'hooks/useSortedRoutesWithQuotes';

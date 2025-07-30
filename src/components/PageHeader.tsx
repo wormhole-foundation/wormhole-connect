@@ -4,7 +4,8 @@ import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { setRoute } from 'store/router';
 
-import Header, { Alignment } from './Header';
+import type { Alignment } from './Header';
+import Header from './Header';
 import DownIcon from 'icons/Down';
 
 type PageHeaderProps = {

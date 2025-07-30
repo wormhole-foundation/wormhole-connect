@@ -1,4 +1,4 @@
-import { WormholeConfig } from '../types';
+import type { WormholeConfig } from '../types';
 
 /**
  * default mainnet chain config

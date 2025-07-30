@@ -1,5 +1,5 @@
-import { Chain } from '@wormhole-foundation/sdk';
-import { Alignment } from 'components/Header';
+import type { Chain } from '@wormhole-foundation/sdk';
+import type { Alignment } from 'components/Header';
 
 export type UiConfig = {
   title?: string;

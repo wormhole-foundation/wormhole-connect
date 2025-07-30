@@ -13,7 +13,7 @@ import { amount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { calculateUSDPrice } from 'utils';
-import { RootState } from 'store';
+import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 import { useTokens } from 'contexts/TokensContext';
 import Color from 'color';

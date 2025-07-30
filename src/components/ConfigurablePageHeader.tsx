@@ -1,7 +1,7 @@
 import React from 'react';
 import config from 'config';
 import PageHeader from 'components/PageHeader';
-import { Alignment } from 'components/Header';
+import type { Alignment } from 'components/Header';
 
 const ConfigurablePageHeader = () => {
   const defaults: { text: string; align: Alignment } = {

@@ -1,6 +1,6 @@
 import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 
-import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import {
   BitgetWalletAdapter,
   CloverWalletAdapter,
@@ -11,14 +11,13 @@ import {
   WalletConnectWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 
-import {
-  clusterApiUrl,
+import type {
   ConfirmOptions,
-  Connection,
   RpcResponseAndContext,
   SignatureResult,
   Transaction,
 } from '@solana/web3.js';
+import { clusterApiUrl, Connection } from '@solana/web3.js';
 
 import {
   SolanaWallet,
@@ -27,8 +26,8 @@ import {
 
 import config from 'config';
 
-import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
-import { Chain, Network } from '@wormhole-foundation/sdk';
+import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
+import type { Chain, Network } from '@wormhole-foundation/sdk';
 import { setPriorityFeeInstructions } from 'utils/solana';
 import { sleep } from 'utils';
 

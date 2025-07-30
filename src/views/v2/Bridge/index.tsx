@@ -13,7 +13,8 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 
 import FooterNavBar from 'components/FooterNavBar';
-import Header, { Alignment } from 'components/Header';
+import type { Alignment } from 'components/Header';
+import Header from 'components/Header';
 import PageHeader from 'components/PageHeader';
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
@@ -48,7 +49,7 @@ import TxHistoryWidget from 'views/v2/TxHistory/Widget';
 
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import { useGetTokens } from 'hooks/useGetTokens';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
 

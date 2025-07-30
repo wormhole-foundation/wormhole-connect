@@ -1,4 +1,4 @@
-import { amount } from '@wormhole-foundation/sdk';
+import type { amount } from '@wormhole-foundation/sdk';
 
 export type Balance = {
   lastUpdated: number;

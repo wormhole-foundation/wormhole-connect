@@ -1,9 +1,10 @@
-import { Transaction } from '@mysten/sui/transactions';
-import { SuiWallet, getWallets } from '@wormhole-labs/wallet-aggregator-sui';
-import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import type { Transaction } from '@mysten/sui/transactions';
+import type { SuiWallet } from '@wormhole-labs/wallet-aggregator-sui';
+import { getWallets } from '@wormhole-labs/wallet-aggregator-sui';
+import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 
-import { Network } from '@wormhole-foundation/sdk';
-import {
+import type { Network } from '@wormhole-foundation/sdk';
+import type {
   SuiUnsignedTransaction,
   SuiChains,
 } from '@wormhole-foundation/sdk-sui';

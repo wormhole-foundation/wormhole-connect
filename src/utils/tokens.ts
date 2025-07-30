@@ -4,17 +4,17 @@ import {
   mplTokenMetadata,
 } from '@metaplex-foundation/mpl-token-metadata';
 import { publicKey } from '@metaplex-foundation/umi';
-import {
+import type {
   Wormhole,
   PlatformToChains,
   TokenId,
-  chainToPlatform,
   Network,
   NativeAddress,
 } from '@wormhole-foundation/sdk';
+import { chainToPlatform } from '@wormhole-foundation/sdk';
 import { getWormholeContextV2 } from 'config';
 import { Contract } from 'ethers';
-import { SuiClient } from '@mysten/sui/client';
+import type { SuiClient } from '@mysten/sui/client';
 
 interface TokenMetadataFromRpc {
   symbol: string;

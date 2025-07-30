@@ -1,11 +1,12 @@
-import {
+import type {
   Address,
   ChainId,
   IconSource,
   SendTransactionResult,
-  Wallet,
 } from '@wormhole-labs/wallet-aggregator-core';
-import { Chain, chainToChainId, NativeAddress } from '@wormhole-foundation/sdk';
+import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import type { Chain, NativeAddress } from '@wormhole-foundation/sdk';
+import { chainToChainId } from '@wormhole-foundation/sdk';
 
 export class ReadOnlyWallet extends Wallet {
   private _isConnected = true;

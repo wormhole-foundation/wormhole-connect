@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { ExplorerConfig } from 'config/ui';
-import { ListItemButton, Typography, SxProps, Theme } from '@mui/material';
+import type { ExplorerConfig } from 'config/ui';
+import type { SxProps, Theme } from '@mui/material';
+import { ListItemButton, Typography } from '@mui/material';
 
 type ExplorerLinkProps = {
   address: string;

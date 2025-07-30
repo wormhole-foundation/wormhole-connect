@@ -12,7 +12,7 @@ import { isNative, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import TokenIcon from 'icons/TokenIcons';
 
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 import { chainDisplayName, getTokenExplorerUrl } from 'utils';

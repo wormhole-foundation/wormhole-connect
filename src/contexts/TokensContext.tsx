@@ -1,17 +1,18 @@
+import type { TokenId } from '@wormhole-foundation/sdk';
 import {
   chainToPlatform,
   circle,
   isNative,
-  TokenId,
   toNative,
 } from '@wormhole-foundation/sdk';
 import config, { clearWormholeContextV2 } from 'config';
-import { Token, tokenKey, TokenMapping } from 'config/tokens';
+import type { Token } from 'config/tokens';
+import { tokenKey, TokenMapping } from 'config/tokens';
+import type { ReactNode } from 'react';
 import React, {
   createContext,
   useContext,
   useState,
-  ReactNode,
   useCallback,
   useRef,
 } from 'react';

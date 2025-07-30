@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { ChainConfig } from 'config/types';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
 import type { Balances } from 'utils/wallet/types';

@@ -1,10 +1,5 @@
-import {
-  Chain,
-  chainToPlatform,
-  encoding,
-  NativeAddress,
-  toNative,
-} from '@wormhole-foundation/sdk';
+import type { Chain, NativeAddress } from '@wormhole-foundation/sdk';
+import { chainToPlatform, encoding, toNative } from '@wormhole-foundation/sdk';
 import { isValidSuiAddress } from '@mysten/sui/utils';
 import { Connection, PublicKey } from '@solana/web3.js';
 import {

@@ -1,16 +1,14 @@
+import type { Chain, TokenId, TokenAddress } from '@wormhole-foundation/sdk';
 import {
-  Chain,
-  TokenId,
   canonicalAddress,
   isTokenId,
   isChain,
-  TokenAddress,
   toNative,
   isNative,
   chainToPlatform,
   UniversalAddress,
 } from '@wormhole-foundation/sdk';
-import { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
+import type { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
 import { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 

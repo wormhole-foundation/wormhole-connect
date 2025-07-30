@@ -1,6 +1,7 @@
-import { Wallet, NotSupported } from '@wormhole-labs/wallet-aggregator-core';
+import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import { NotSupported } from '@wormhole-labs/wallet-aggregator-core';
+import type { EVMWallet } from '@wormhole-labs/wallet-aggregator-evm';
 import {
-  EVMWallet,
   Eip6963Wallet,
   Eip6963Wallets,
   InjectedWallet,
@@ -9,11 +10,11 @@ import {
   DEFAULT_CHAINS,
 } from '@wormhole-labs/wallet-aggregator-evm';
 
-import {
+import type {
   EvmUnsignedTransaction,
   EvmChains,
 } from '@wormhole-foundation/sdk-evm';
-import { Network } from '@wormhole-foundation/sdk';
+import type { Network } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import * as ethers from 'ethers';

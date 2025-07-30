@@ -1,4 +1,4 @@
-import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
 export const NTT_TEST_CONFIG_TESTNET: NttRoute.Config = {
   tokens: {

@@ -1,24 +1,26 @@
-import {
+import type {
   Connection,
-  ComputeBudgetProgram,
-  Transaction,
   TransactionInstruction,
   AddressLookupTableAccount,
-  TransactionMessage,
-  VersionedTransaction,
   Commitment,
   SimulatedTransactionResponse,
+} from '@solana/web3.js';
+import {
+  ComputeBudgetProgram,
+  Transaction,
+  TransactionMessage,
+  VersionedTransaction,
   LAMPORTS_PER_SOL,
 } from '@solana/web3.js';
 
+import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import {
   determinePriorityFee,
   determinePriorityFeeTritonOne,
   isVersionedTransaction,
-  SolanaUnsignedTransaction,
 } from '@wormhole-foundation/sdk-solana';
 
-import { Network } from '@wormhole-foundation/sdk';
+import type { Network } from '@wormhole-foundation/sdk';
 import { isEmptyObject, sleep } from 'utils';
 import config from 'config';
 

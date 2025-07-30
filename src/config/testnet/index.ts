@@ -1,4 +1,4 @@
-import { NetworkData } from 'config/types';
+import type { NetworkData } from 'config/types';
 import { TESTNET_CHAINS } from './chains';
 import { TESTNET_RPC_MAPPING } from './rpcs';
 import { TESTNET_TOKENS } from './tokens';

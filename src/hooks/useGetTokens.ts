@@ -1,6 +1,6 @@
 import config from 'config';
-import { Token } from 'config/tokens';
-import { RootState } from 'store';
+import type { Token } from 'config/tokens';
+import type { RootState } from 'store';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 

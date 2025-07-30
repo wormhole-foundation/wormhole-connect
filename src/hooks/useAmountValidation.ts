@@ -1,8 +1,8 @@
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { QuoteResult } from 'routes/operator';
-import { RootState } from 'store';
+import type { QuoteResult } from 'routes/operator';
+import type { RootState } from 'store';
 import { formatMinAmount } from 'utils/formatNumber';
 import { isMinAmountError } from 'utils/sdkv2';
 

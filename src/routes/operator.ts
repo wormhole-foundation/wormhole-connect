@@ -1,13 +1,12 @@
 import config from 'config';
-import { parseTokenKey, Token, tokenKey } from 'config/tokens';
+import type { Token } from 'config/tokens';
+import { parseTokenKey, tokenKey } from 'config/tokens';
 import { maybeLogSdkError } from 'utils/errors';
 
+import type { Chain, TransactionId, TokenId } from '@wormhole-foundation/sdk';
 import {
-  Chain,
   routes,
-  TransactionId,
   amount as sdkAmount,
-  TokenId,
   Wormhole,
   circle,
 } from '@wormhole-foundation/sdk';

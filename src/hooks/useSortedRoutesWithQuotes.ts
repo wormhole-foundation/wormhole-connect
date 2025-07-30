@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import { amount, Chain, routes } from '@wormhole-foundation/sdk';
+import type { amount, Chain, routes } from '@wormhole-foundation/sdk';
 import useFetchQuotes from 'hooks/useFetchQuotes';
 import config from 'config';
 import useFetchSupportedRoutes from './useFetchSupportedRoutes';
-import { Token } from 'config/tokens';
-import { WalletData } from 'store/wallet';
+import type { Token } from 'config/tokens';
+import type { WalletData } from 'store/wallet';
 
 type Quote = routes.Quote<
   routes.Options,

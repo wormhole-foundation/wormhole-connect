@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TransferWallet } from 'utils/wallet';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { TransferWallet } from 'utils/wallet';
 
 export type Route = 'bridge' | 'redeem' | 'history' | 'search' | 'terms';
 

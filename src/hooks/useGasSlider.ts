@@ -1,5 +1,5 @@
 import config from 'config';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
 type Props = {
   destToken?: Token;

@@ -9,7 +9,8 @@ import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { amount, routes } from '@wormhole-foundation/sdk';
+import type { routes } from '@wormhole-foundation/sdk';
+import { amount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { useGasSlider } from 'hooks/useGasSlider';

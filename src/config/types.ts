@@ -1,8 +1,8 @@
 // Legacy SDK
-import { ChainResourceMap, WormholeConfig } from 'sdklegacy';
+import type { ChainResourceMap, WormholeConfig } from 'sdklegacy';
 
 // SDKv2
-import {
+import type {
   Network,
   Wormhole as WormholeV2,
   Chain,
@@ -10,18 +10,18 @@ import {
   routes,
 } from '@wormhole-foundation/sdk';
 
-import { PriorityFeeOptions } from '@wormhole-foundation/sdk-solana';
+import type { PriorityFeeOptions } from '@wormhole-foundation/sdk-solana';
 
-import {
+import type {
   TransferDetails,
   TriggerEventHandler,
   WormholeConnectEventHandler,
 } from 'telemetry/types';
 
-import RouteOperator from 'routes/operator';
-import { UiConfig } from './ui';
-import { TransferInfo } from 'utils/sdkv2';
-import { Token, TokenCache, TokenTuple } from './tokens';
+import type RouteOperator from 'routes/operator';
+import type { UiConfig } from './ui';
+import type { TransferInfo } from 'utils/sdkv2';
+import type { Token, TokenCache, TokenTuple } from './tokens';
 
 export * from './ui';
 

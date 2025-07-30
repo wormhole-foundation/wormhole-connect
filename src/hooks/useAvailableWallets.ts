@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { Chain, chainToPlatform, Platform } from '@wormhole-foundation/sdk';
+import type { Chain, Platform } from '@wormhole-foundation/sdk';
+import { chainToPlatform } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { WalletData, getWalletOptions } from 'utils/wallet';
+import type { WalletData } from 'utils/wallet';
+import { getWalletOptions } from 'utils/wallet';
 
 type WalletOptions = {
   state: 'result' | 'loading' | 'error';

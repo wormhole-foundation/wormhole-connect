@@ -4,9 +4,9 @@ import { useDispatch } from 'react-redux';
 import config from 'config';
 import { setDestToken } from 'store/transferInput';
 
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
-import { Chain, TokenId } from '@wormhole-foundation/sdk';
+import type { Chain, TokenId } from '@wormhole-foundation/sdk';
 import { useTokens } from 'contexts/TokensContext';
 
 type Props = {

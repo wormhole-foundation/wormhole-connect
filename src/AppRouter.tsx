@@ -9,12 +9,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
 import './App.css';
-import { RootState } from './store';
+import type { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
 import { isEmptyObject, usePrevious } from './utils';
 import { getExperiment } from './utils/experiments';
-import { WormholeConnectConfig } from './config/types';
+import type { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
 

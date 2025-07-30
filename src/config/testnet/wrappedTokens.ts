@@ -1,4 +1,4 @@
-import { WrappedTokenAddresses } from 'config/types';
+import type { WrappedTokenAddresses } from 'config/types';
 
 export const TESTNET_WRAPPED_TOKENS: WrappedTokenAddresses = {
   Bsc: {

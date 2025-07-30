@@ -1,16 +1,19 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import config from 'config';
-import { TokenTuple } from 'config/tokens';
+import type { TokenTuple } from 'config/tokens';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { clearWallet, setWalletError, WalletData } from './wallet';
+import type { WalletData } from './wallet';
+import { clearWallet, setWalletError } from './wallet';
+import type { DataWrapper } from './helpers';
 import {
-  DataWrapper,
   errorDataWrapper,
   fetchDataWrapper,
   getEmptyDataWrapper,
   receiveDataWrapper,
 } from './helpers';
-import { Chain, amount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
+import { amount } from '@wormhole-foundation/sdk';
 
 export type ValidationErr = string;
 

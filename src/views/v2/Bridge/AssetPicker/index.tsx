@@ -14,17 +14,17 @@ import {
 import Typography from '@mui/material/Typography';
 import DownIcon from '@mui/icons-material/ExpandMore';
 import UpIcon from '@mui/icons-material/ExpandLess';
-import { Chain } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain } from 'store/transferInput';
-import { Balances } from 'utils/wallet/types';
+import type { Balances } from 'utils/wallet/types';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
 
 type Props = {

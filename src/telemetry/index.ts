@@ -1,6 +1,6 @@
-import { TokenDetails, TransferDetails } from './types';
-import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { Token } from 'config/tokens';
+import type { TokenDetails, TransferDetails } from './types';
+import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Token } from 'config/tokens';
 
 export * from './types';
 

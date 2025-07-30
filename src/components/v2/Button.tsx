@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
-import { default as MUIButton, ButtonProps } from '@mui/material/Button';
+import type { ButtonProps } from '@mui/material/Button';
+import { default as MUIButton } from '@mui/material/Button';
 
 const baseButtonStyles = {
   padding: '8px 16px',

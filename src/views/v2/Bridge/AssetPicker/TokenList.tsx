@@ -6,14 +6,14 @@ import Typography from '@mui/material/Typography';
 import { toNative } from '@wormhole-foundation/sdk';
 
 import type { ChainConfig } from 'config/types';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-import { Balances } from 'utils/wallet/types';
+import type { Balances } from 'utils/wallet/types';
 
 type Props = {
   tokenList: Array<Token>;

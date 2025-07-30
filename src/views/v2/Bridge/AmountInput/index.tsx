@@ -1,12 +1,5 @@
-import React, {
-  ChangeEventHandler,
-  ComponentProps,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import type { ChangeEventHandler, ComponentProps } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
@@ -18,12 +11,13 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import Box from '@mui/material/Box';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import { setAmount } from 'store/transferInput';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import type { RootState } from 'store';
 import { calculateUSDPrice } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';

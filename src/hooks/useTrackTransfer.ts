@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { isCompleted, routes, TransferState } from '@wormhole-foundation/sdk';
+import { isCompleted, TransferState } from '@wormhole-foundation/sdk';
 
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 
-import type { AttestationReceipt } from '@wormhole-foundation/sdk';
+import type { AttestationReceipt, routes } from '@wormhole-foundation/sdk';
 
 // We don't start trying to fetch transfer updates until 1 minute from ETA
 const MINIMUM_ETA = 60 * 1000;

@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
-import { PaletteMode, Theme } from '@mui/material';
+import type { PaletteMode, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
 import Color from 'color';
 

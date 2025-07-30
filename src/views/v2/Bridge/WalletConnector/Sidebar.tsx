@@ -1,4 +1,5 @@
-import React, { JSX, useCallback, useMemo, useState } from 'react';
+import type { JSX } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
 import { useTheme } from '@mui/material';
@@ -20,8 +21,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 
 import config from 'config';
-import { RootState } from 'store';
-import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
+import type { RootState } from 'store';
+import type { WalletData } from 'utils/wallet';
+import { TransferWallet, connectWallet } from 'utils/wallet';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';

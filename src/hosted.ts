@@ -1,7 +1,7 @@
 // This file exports a utility function used to add the hosted version of Connect to a webpage
 import { CONNECT_VERSION } from 'config/constants';
-import { WormholeConnectConfig } from 'config/types';
-import { WormholeConnectTheme } from 'theme';
+import type { WormholeConnectConfig } from 'config/types';
+import type { WormholeConnectTheme } from 'theme';
 
 export interface HostedParameters {
   config?: WormholeConnectConfig;

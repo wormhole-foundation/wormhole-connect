@@ -1,8 +1,8 @@
-import { Chain } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from 'store';
+import type { RootState } from 'store';
 import { clearSearch, setSearch } from 'store/search';
 
 type ExternalSearch = {

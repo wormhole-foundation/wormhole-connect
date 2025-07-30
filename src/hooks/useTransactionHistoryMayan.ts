@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Chain,
-  ChainId,
-  chainIdToChain,
-  TokenId,
-  toNative,
-} from '@wormhole-foundation/sdk';
+import type { Chain, ChainId, TokenId } from '@wormhole-foundation/sdk';
+import { chainIdToChain, toNative } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 

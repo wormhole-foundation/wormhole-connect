@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { routes } from '@wormhole-foundation/sdk';
+import type { routes } from '@wormhole-foundation/sdk';
 
 import Button from 'components/v3/Button';
 import RoutesList from './RoutesList';

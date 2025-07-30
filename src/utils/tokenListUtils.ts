@@ -4,9 +4,9 @@ import {
   amount as sdkAmount,
 } from '@wormhole-foundation/sdk';
 import type { ChainConfig } from 'config/types';
+import type { Token } from 'config/tokens';
 import {
   isSameToken,
-  Token,
   tokenKey,
   isTokenTuple,
   tokenIdFromTuple,

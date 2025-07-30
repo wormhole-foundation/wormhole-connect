@@ -1,5 +1,5 @@
 import config from 'config';
-import { Experiments } from 'config/ui';
+import type { Experiments } from 'config/ui';
 
 // Returns an experimental feature value or the default value if the experiment is not set
 export function getExperiment(key: Experiments, defaultValue = false): boolean {

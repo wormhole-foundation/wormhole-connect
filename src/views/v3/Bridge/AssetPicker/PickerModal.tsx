@@ -7,8 +7,8 @@ import { type Chain } from '@wormhole-foundation/sdk';
 
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
-import { Token } from 'config/tokens';
-import { Balances } from 'utils/wallet/types';
+import type { Token } from 'config/tokens';
+import type { Balances } from 'utils/wallet/types';
 import ChainList from 'views/v3/Bridge/AssetPicker/ChainList';
 import TokenList from 'views/v3/Bridge/AssetPicker/TokenList';
 

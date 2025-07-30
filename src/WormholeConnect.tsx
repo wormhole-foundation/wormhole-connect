@@ -10,8 +10,8 @@ import { store } from './store';
 import AppRouter from './AppRouter';
 import { generateTheme } from './theme';
 import ErrorBoundary from './components/ErrorBoundary';
-import { WormholeConnectConfig } from './config/types';
-import { WormholeConnectTheme } from 'theme';
+import type { WormholeConnectConfig } from './config/types';
+import type { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 import { TokensProvider } from './contexts/TokensContext';
 

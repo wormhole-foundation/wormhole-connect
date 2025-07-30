@@ -3,15 +3,14 @@ import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import { InternalConfig } from './types';
+import type { InternalConfig } from './types';
 import { mergeCustomWrappedTokens, validateDefaults } from './utils';
 import { wrapEventHandler } from './events';
 import { capitalize } from './utils';
 
 export * from './types';
 
-import {
-  wormhole as getWormholeV2,
+import type {
   Wormhole as WormholeV2,
   Network,
   Token as SDKToken,
@@ -19,6 +18,7 @@ import {
   WormholeConfigOverrides as WormholeConfigOverridesV2,
   Chain,
 } from '@wormhole-foundation/sdk';
+import { wormhole as getWormholeV2 } from '@wormhole-foundation/sdk';
 
 import '@wormhole-foundation/sdk/addresses';
 import evm from '@wormhole-foundation/sdk/evm';

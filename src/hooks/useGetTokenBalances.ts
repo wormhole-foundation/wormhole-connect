@@ -1,15 +1,16 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Balances } from 'utils/wallet/types';
+import type { Balances } from 'utils/wallet/types';
 import config, { getWormholeContextV2 } from 'config';
-import { Token, tokenKey } from 'config/tokens';
+import type { Token } from 'config/tokens';
+import { tokenKey } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
+import type { Chain } from '@wormhole-foundation/sdk';
 import {
-  Chain,
   Wormhole,
   amount,
   supportsIndexerUtils,
 } from '@wormhole-foundation/sdk';
-import { WalletData } from 'store/wallet';
+import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
 import { processBatches } from 'utils/batch';
 

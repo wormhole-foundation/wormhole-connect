@@ -1,4 +1,4 @@
-import { ChainsConfig } from '../types';
+import type { ChainsConfig } from '../types';
 
 export const MAINNET_CHAINS: ChainsConfig = {
   Ethereum: {

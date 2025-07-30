@@ -1,21 +1,23 @@
-import { Dispatch, useEffect, useMemo } from 'react';
-import { AnyAction } from '@reduxjs/toolkit';
+import type { Dispatch } from 'react';
+import { useEffect, useMemo } from 'react';
+import type { AnyAction } from '@reduxjs/toolkit';
 
 import config from 'config';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
-import { RootState } from 'store';
-import {
+import type { RootState } from 'store';
+import type {
   TransferInputState,
-  setValidations,
   ValidationErr,
   TransferValidations,
 } from 'store/transferInput';
-import { WalletData, WalletState } from 'store/wallet';
-import { RelayState } from 'store/relay';
+import { setValidations } from 'store/transferInput';
+import type { WalletData, WalletState } from 'store/wallet';
+import type { RelayState } from 'store/relay';
 import { walletAcceptedChains } from './wallet';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
-import { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 export const validateFromChain = (chain: Chain | undefined): ValidationErr => {
   if (!chain) return 'Select a source chain';

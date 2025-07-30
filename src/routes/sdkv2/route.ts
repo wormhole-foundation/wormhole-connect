@@ -1,17 +1,19 @@
-import {
+import type {
   Chain,
   ChainContext,
   Network,
+  TokenId as TokenId,
+  TransactionId,
+  Signer,
+} from '@wormhole-foundation/sdk';
+import {
   Wormhole,
   routes,
   chainToPlatform,
   isSameToken,
-  TokenId as TokenId,
   TransferState,
-  TransactionId,
-  Signer,
 } from '@wormhole-foundation/sdk';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
 import { SDKv2Signer } from './signer';
 

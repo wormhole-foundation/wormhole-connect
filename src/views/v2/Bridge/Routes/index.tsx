@@ -6,7 +6,7 @@ import { useTheme } from '@mui/material';
 import config from 'config';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
-import { routes } from '@wormhole-foundation/sdk';
+import type { routes } from '@wormhole-foundation/sdk';
 import { Box, CircularProgress, Skeleton } from '@mui/material';
 
 type Props = {

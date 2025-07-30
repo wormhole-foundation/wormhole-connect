@@ -12,7 +12,8 @@ import {
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
 import PageHeader from 'components/PageHeader';
-import Header, { Alignment } from 'components/Header';
+import type { Alignment } from 'components/Header';
+import Header from 'components/Header';
 import config from 'config';
 import PoweredByIcon from 'icons/PoweredBy';
 import useTransactionHistory from 'hooks/useTransactionHistory';

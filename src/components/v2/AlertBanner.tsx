@@ -1,5 +1,7 @@
-import React, { CSSProperties, useMemo } from 'react';
-import { Collapse, Typography, useTheme, SxProps, Box } from '@mui/material';
+import type { CSSProperties } from 'react';
+import React, { useMemo } from 'react';
+import type { SxProps } from '@mui/material';
+import { Collapse, Typography, useTheme, Box } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/ErrorOutline';
 
 type Props = {

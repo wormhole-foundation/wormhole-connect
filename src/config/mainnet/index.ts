@@ -1,4 +1,4 @@
-import { NetworkData } from 'config/types';
+import type { NetworkData } from 'config/types';
 import { MAINNET_CHAINS } from './chains';
 import { MAINNET_RPC_MAPPING } from './rpcs';
 import { MAINNET_TOKENS } from './tokens';

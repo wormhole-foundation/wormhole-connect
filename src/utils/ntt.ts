@@ -1,6 +1,7 @@
-import { Chain, TokenId } from '@wormhole-foundation/sdk';
+import type { Chain, TokenId } from '@wormhole-foundation/sdk';
 import config from 'config';
-import { Token, addressString } from 'config/tokens';
+import type { Token } from 'config/tokens';
+import { addressString } from 'config/tokens';
 
 export const nttRoutes = [
   'ManualNtt',

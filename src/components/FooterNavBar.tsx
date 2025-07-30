@@ -2,9 +2,10 @@ import React, { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { Box, useTheme } from '@mui/material';
 import { ICON } from 'utils/style';
-import { Route, setRoute } from 'store/router';
+import type { Route } from 'store/router';
+import { setRoute } from 'store/router';
 import config from 'config';
-import { MenuEntry } from 'config/ui';
+import type { MenuEntry } from 'config/ui';
 
 type MenuItem = {
   label: string;

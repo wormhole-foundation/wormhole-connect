@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TransferInfo } from 'utils/sdkv2';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { TransferInfo } from 'utils/sdkv2';
 
 export interface RedeemState {
   txData?: TransferInfo;

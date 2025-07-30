@@ -1,9 +1,10 @@
-import React, { memo, ReactNode, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import { useCustomScrollbar } from 'utils/style';
-import { SxProps, Theme } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
 
 import SearchInput from './SearchInput';
 

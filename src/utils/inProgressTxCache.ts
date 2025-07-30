@@ -1,5 +1,5 @@
 import config from 'config';
-import { TransactionLocal } from 'config/types';
+import type { TransactionLocal } from 'config/types';
 import { isEmptyObject } from 'utils';
 
 const LOCAL_STORAGE_KEY = 'transactions:inprogress';

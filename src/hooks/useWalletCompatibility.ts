@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Chain } from '@wormhole-foundation/sdk';
-import { WalletData } from '../store/wallet';
+import type { Chain } from '@wormhole-foundation/sdk';
+import type { WalletData } from '../store/wallet';
 
 export type WalletCompatibilityResult = {
   isCompatible: boolean;

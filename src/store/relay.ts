@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TokenTuple } from 'config/tokens';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { TokenTuple } from 'config/tokens';
 
 export interface RelayerFee {
   fee: number;

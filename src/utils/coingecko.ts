@@ -1,4 +1,5 @@
-import { Chain, isNative, TokenId, Wormhole } from '@wormhole-foundation/sdk';
+import type { Chain, TokenId } from '@wormhole-foundation/sdk';
+import { isNative, Wormhole } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { TokenMapping } from 'config/tokens';
 

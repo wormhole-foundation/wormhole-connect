@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import WormholeConnect from '../../WormholeConnect';
 import config from 'config';
-import { WormholeConnectConfig } from 'config/types';
+import type { WormholeConnectConfig } from 'config/types';
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
 
 /*
@@ -47,7 +47,7 @@ import {
   cctpV2StandardExecutorRoute,
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
-import { WormholeConnectTheme } from 'theme';
+import type { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 

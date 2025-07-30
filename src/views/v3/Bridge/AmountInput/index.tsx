@@ -1,22 +1,15 @@
-import React, {
-  ChangeEventHandler,
-  ComponentProps,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import type { ChangeEventHandler, ComponentProps } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import Box from '@mui/material/Box';
 
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import type { RootState } from 'store';
 import { useGetTokens } from 'hooks/useGetTokens';
 import {

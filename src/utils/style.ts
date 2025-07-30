@@ -1,4 +1,5 @@
-import { Theme, useTheme } from '@mui/material';
+import type { Theme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { useMemo } from 'react';
 
 type Class = string | false;

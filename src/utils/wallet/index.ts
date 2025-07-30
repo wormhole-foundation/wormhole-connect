@@ -1,5 +1,6 @@
-import { ChainConfig } from 'config/types';
-import { Wallet, WalletState } from '@wormhole-labs/wallet-aggregator-core';
+import type { ChainConfig } from 'config/types';
+import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import { WalletState } from '@wormhole-labs/wallet-aggregator-core';
 import {
   connectWallet as connectSourceWallet,
   clearWallet,
@@ -10,32 +11,31 @@ import config from 'config';
 
 export * from './types';
 
-import { Dispatch } from 'redux';
+import type { Dispatch } from 'redux';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
+import type {
   Network,
   Chain,
   UnsignedTransaction,
-  nativeChainIds,
   Platform,
-  chainToPlatform,
 } from '@wormhole-foundation/sdk';
+import { nativeChainIds, chainToPlatform } from '@wormhole-foundation/sdk';
 
-import {
+import type {
   EvmUnsignedTransaction,
   EvmChains,
 } from '@wormhole-foundation/sdk-evm';
-import {
+import type {
   SuiUnsignedTransaction,
   SuiChains,
 } from '@wormhole-foundation/sdk-sui';
-import {
+import type {
   AptosUnsignedTransaction,
   AptosChains,
 } from '@wormhole-foundation/sdk-aptos';
-import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
+import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import { ReadOnlyWallet } from './ReadOnlyWallet';
 
 export enum TransferWallet {

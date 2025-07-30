@@ -1,4 +1,5 @@
-import React, { JSX, useCallback, useEffect, useMemo } from 'react';
+import type { JSX } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Dialog, ScopedCssBaseline, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';

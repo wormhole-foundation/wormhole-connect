@@ -3,7 +3,7 @@ import { useTheme, Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import config from 'config';
-import { TransactionLocal } from 'config/types';
+import type { TransactionLocal } from 'config/types';
 import WidgetItem from 'views/v2/TxHistory/Widget/Item';
 import { getTxsFromLocalStorage } from 'utils/inProgressTxCache';
 

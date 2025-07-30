@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import Color from 'color';
 
 import SwapVerticalIcon from 'icons/SwapVertical';
-import { RootState } from 'store';
+import type { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
 

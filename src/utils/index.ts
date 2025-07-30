@@ -3,14 +3,10 @@ import { isHexString } from 'ethers';
 import { isValidTransactionDigest } from '@mysten/sui/utils';
 
 import config from 'config';
-import { ChainConfig } from 'config/types';
-import { Token } from 'config/tokens';
-import {
-  Chain,
-  Platform,
-  chainToPlatform,
-  amount as sdkAmount,
-} from '@wormhole-foundation/sdk';
+import type { ChainConfig } from 'config/types';
+import type { Token } from 'config/tokens';
+import type { Chain, Platform } from '@wormhole-foundation/sdk';
+import { chainToPlatform, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;

@@ -1,8 +1,8 @@
-import { ChainsConfig, WrappedTokenAddresses } from './types';
-import { TokenCache } from './tokens';
-import { Chain } from '@wormhole-foundation/sdk';
-import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
-import { DefaultInputs } from './ui';
+import type { ChainsConfig, WrappedTokenAddresses } from './types';
+import type { TokenCache } from './tokens';
+import type { Chain } from '@wormhole-foundation/sdk';
+import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import type { DefaultInputs } from './ui';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);

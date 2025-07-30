@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { routes } from '@wormhole-foundation/sdk';
+import type { routes } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import { getBestRoutes } from 'utils/routes';

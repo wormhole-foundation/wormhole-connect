@@ -1,4 +1,4 @@
-import { NetworkData } from 'config/types';
+import type { NetworkData } from 'config/types';
 import { DEVNET_CHAINS } from './chains';
 import { DEVNET_RPC_MAPPING } from './rpcs';
 import { DEVNET_TOKENS } from './tokens';

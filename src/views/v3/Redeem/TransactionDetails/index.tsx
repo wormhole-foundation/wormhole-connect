@@ -1,4 +1,5 @@
-import React, { ReactNode, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme, Box } from '@mui/material';
 import Card from '@mui/material/Card';

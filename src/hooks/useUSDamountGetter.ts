@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
 
 export const useUSDamountGetter = (): ((args: {

@@ -16,7 +16,7 @@ import {
   bindPopover,
 } from 'material-ui-popup-state/hooks';
 
-import { RootState } from 'store';
+import type { RootState } from 'store';
 import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from 'utils';

@@ -1,10 +1,10 @@
-import { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import type { Network as AptosNetwork } from '@aptos-labs/wallet-adapter-core';
 import { AptosWallet } from '@wormhole-labs/wallet-aggregator-aptos';
-import { Aptos } from '@aptos-labs/ts-sdk';
+import type { Aptos } from '@aptos-labs/ts-sdk';
 
-import { Network } from '@wormhole-foundation/sdk';
-import {
+import type { Network } from '@wormhole-foundation/sdk';
+import type {
   AptosUnsignedTransaction,
   AptosChains,
 } from '@wormhole-foundation/sdk-aptos';

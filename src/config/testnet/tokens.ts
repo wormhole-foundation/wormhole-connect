@@ -1,4 +1,5 @@
-import { TokenIcon, TokenConfig } from '../types';
+import type { TokenConfig } from '../types';
+import { TokenIcon } from '../types';
 
 export const TESTNET_TOKENS: TokenConfig[] = [
   {

@@ -14,7 +14,7 @@ import type { Chain, ChainId } from '@wormhole-foundation/sdk';
 import type { Transaction } from 'config/types';
 import { toFixedDecimals } from 'utils/balance';
 import { useTokens } from 'contexts/TokensContext';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
 interface WormholeScanTransaction {
   id: string;
@@ -393,7 +393,6 @@ const useTransactionHistoryWHScan = (
     ],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseTransactions = useCallback(
     async (allTxs: Array<WormholeScanTransaction>) => {
       return (

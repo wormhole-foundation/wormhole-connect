@@ -4,11 +4,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import Button from 'components/v2/Button';
-import { RootState } from 'store';
+import type { RootState } from 'store';
 import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
 
-import { TransferSide } from 'config/types';
+import type { TransferSide } from 'config/types';
 import WalletSidebar from './Sidebar';
 
 type Props = {

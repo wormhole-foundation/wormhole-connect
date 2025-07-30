@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 
-import { RootState } from 'store';
+import type { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { swapWallets } from 'store/wallet';
 

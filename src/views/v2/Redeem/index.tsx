@@ -1,10 +1,5 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import type { ReactNode } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material/styles';
@@ -28,7 +23,7 @@ import { getTokenDetails, getTransferDetails } from 'telemetry';
 
 import AlertBannerV2 from 'components/v2/AlertBanner';
 import PageHeader from 'components/PageHeader';
-import { Alignment } from 'components/Header';
+import type { Alignment } from 'components/Header';
 import Button from 'components/v2/Button';
 import config from 'config';
 import { RouteContext } from 'contexts/RouteContext';

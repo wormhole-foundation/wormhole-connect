@@ -16,7 +16,7 @@ import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v3/Bridge/AssetPicker/SearchableList';
 
-import { Chain } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 
 type Props = {
   chainList?: ChainConfig[];

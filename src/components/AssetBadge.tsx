@@ -8,7 +8,7 @@ import ChainIcon from 'icons/ChainIcons';
 import TokenIcon from 'icons/TokenIcons';
 
 import type { ChainConfig } from 'config/types';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 
 type Props = {
   chainConfig?: ChainConfig;

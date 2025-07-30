@@ -1,32 +1,34 @@
 import { getWormholeContextV2 } from 'config';
-import { RelayerFee } from 'store/relay';
-import {
+import type { RelayerFee } from 'store/relay';
+import type {
   Chain,
-  Wormhole,
   AttestedTransferReceipt,
   RedeemedTransferReceipt,
   DestinationQueuedTransferReceipt,
   CompletedTransferReceipt,
   TokenBridge,
   Network,
-  amount,
   routes,
   CircleTransfer,
-  circle,
   ChainContext,
+  ExecutorTokenBridge,
+} from '@wormhole-foundation/sdk';
+import {
+  Wormhole,
+  amount,
+  circle,
   nativeTokenId,
   TBTCBridge,
-  ExecutorTokenBridge,
   chainToPlatform,
 } from '@wormhole-foundation/sdk';
-import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
-import { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
+import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import type { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
-import { TokenTuple } from 'config/tokens';
+import type { TokenTuple } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.

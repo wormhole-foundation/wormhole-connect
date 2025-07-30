@@ -1,5 +1,5 @@
 import { CONNECT_VERSION, CONNECT_GIT_HASH } from './constants';
-import {
+import type {
   WormholeConnectEventCore,
   WormholeConnectEventHandler,
   WormholeConnectEvent,

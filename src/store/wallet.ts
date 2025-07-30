@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Platform } from '@wormhole-foundation/sdk';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { Platform } from '@wormhole-foundation/sdk';
 import {
   disconnect,
   swapWalletConnections,
