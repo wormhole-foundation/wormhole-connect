@@ -1,13 +1,54 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm:*)",
-      "Bash(git:*)",
-      "Bash(ln:*)",
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run build:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run prettier)",
+      "Bash(npm run analyze)",
+      "Bash(npm run preview)",
+      "Bash(npm run commit)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
       "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(pwd)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(echo:*)",
+      "Bash(which:*)",
+      "Bash(date)",
+      "Bash(whoami)",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(npx:*)",
+      "Bash(ln:*)",
       "Bash(diff:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Read(*)",
+      "Grep(*)",
+      "Glob(*)",
+      "LS(*)",
+      "WebSearch(*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:github.com)"
     ],
-    "deny": []
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ssh:*)",
+      "Bash(sudo:*)",
+      "Bash(chmod:*)",
+      "Bash(chown:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)"
+    ]
   }
 }

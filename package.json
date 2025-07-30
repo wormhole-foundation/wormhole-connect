@@ -101,7 +101,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:with-wallet": "playwright test --grep-invert @noWallet",
-    "test:e2e:without-wallet": "playwright test --grep @noWallet"
+    "test:e2e:without-wallet": "playwright test --grep @noWallet",
+    "commit": "cz"
   },
   "browserslist": {
     "production": [
@@ -121,6 +122,8 @@
     "@artursapek/vite-plugin-checker": "0.7.4",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.24.4",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@kev1n-peters/vite-plugin-node-polyfills": "^0.17.4",
     "@playwright/test": "1.54.1",
     "@types/node": "^20",
@@ -132,6 +135,8 @@
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.7",
     "env-cmd": "^10.1.0",
     "eslint": "^8.31.0",
@@ -165,7 +170,11 @@
     }
   },
   "lint-staged": {
-    "*": "prettier --write --ignore-unknown"
+    "!(*.js|*.ts|*.tsx|*.jsx|*.cjs|*.mjs)": "prettier --write --ignore-unknown",
+    "*.{js,ts,tsx,jsx,cjs,mjs}": [
+      "eslint --fix --report-unused-disable-directives --max-warnings 0",
+      "prettier --write --ignore-unknown"
+    ]
   },
   "overrides": {
     "axios": "1.10.0",
@@ -253,6 +262,11 @@
     "@msafe/aptos-aip62-wallet": {
       "@aptos-labs/ts-sdk": "2.0.0",
       "@aptos-labs/wallet-adapter-core": "5.5.0"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
     }
   }
 }
