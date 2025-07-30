@@ -1,0 +1,155 @@
+name: Code Quality
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - development
+      - staging
+      - production
+      - mainnet
+
+jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint:ci
+
+  format:
+    name: Prettier
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Prettier formatting
+        run: npm run prettier:check
+
+  commitlint:
+    name: Commit Message Lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate PR commits
+        run: |
+          echo "Validating commit messages..."
+
+          # Get the base and head commits
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          # Get all commits in the PR
+          COMMITS=$(git rev-list $BASE_SHA..$HEAD_SHA)
+
+          # Check each commit
+          FAILED=false
+          for commit in $COMMITS; do
+            echo ""
+            echo "Checking commit: $commit"
+            COMMIT_MSG=$(git log --format=%B -n 1 $commit)
+            echo "$COMMIT_MSG" | npx commitlint || {
+              FAILED=true
+              echo "❌ Commit $commit has invalid message format"
+            }
+          done
+
+          if [ "$FAILED" = true ]; then
+            echo ""
+            echo "❌ Some commits have invalid messages. Please use conventional commit format."
+            echo "Example: 'feat: add new feature' or 'fix: resolve bug'"
+            echo "Run 'npm run commit' for interactive commit creation."
+            exit 1
+          else
+            echo ""
+            echo "✅ All commit messages are valid!"
+          fi
+
+  code-quality-summary:
+    name: Code Quality Summary
+    runs-on: ubuntu-latest
+    needs: [lint, format, commitlint]
+    if: always()
+
+    steps:
+      - name: Summary
+        run: |
+          echo "## Code Quality Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check job statuses
+          if [ "${{ needs.lint.result }}" == "success" ]; then
+            echo "✅ **ESLint**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **ESLint**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.format.result }}" == "success" ]; then
+            echo "✅ **Prettier**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Prettier**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.commitlint.result }}" == "success" ] || [ "${{ needs.commitlint.result }}" == "skipped" ]; then
+            if [ "${{ needs.commitlint.result }}" == "skipped" ]; then
+              echo "⏭️ **Commit Linting**: Skipped (not a PR)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ **Commit Linting**: Passed" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "❌ **Commit Linting**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Overall status
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.lint.result }}" == "success" ] && \
+             [ "${{ needs.format.result }}" == "success" ] && \
+             ([ "${{ needs.commitlint.result }}" == "success" ] || [ "${{ needs.commitlint.result }}" == "skipped" ]); then
+            echo "### ✅ All quality checks passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Some quality checks failed. Please review the logs above." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

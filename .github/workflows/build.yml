@@ -10,30 +10,6 @@ on:
       - mainnet
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
-      - run: npm ci
-        working-directory: ./
-      - run: npm run lint:ci
-        working-directory: ./
-
-  # TODO: figure out why GitHub still runs this test job
-  # even when we remove it and clear the workflow cache
-  test:
-    if: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Tests
-        run: echo "Skipping test"
-
   check-sdn-list:
     runs-on: ubuntu-latest
 
