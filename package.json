@@ -125,6 +125,7 @@
     "@babel/preset-env": "^7.24.4",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.32.0",
     "@kev1n-peters/vite-plugin-node-polyfills": "^0.17.4",
     "@playwright/test": "1.54.1",
     "@types/node": "^20",
@@ -133,16 +134,16 @@
     "@types/react-dom": "^19.1.4",
     "@types/react-infinite-scroller": "^1.2.5",
     "@types/react-redux": "^7.1.25",
-    "@typescript-eslint/eslint-plugin": "^5.48.1",
-    "@typescript-eslint/parser": "^5.48.1",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.7",
     "env-cmd": "^10.1.0",
-    "eslint": "^8.31.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^8.10.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.11",
     "prettier": "^2.8.8",
@@ -173,8 +174,8 @@
   "lint-staged": {
     "!(*.js|*.ts|*.tsx|*.jsx|*.cjs|*.mjs)": "prettier --write --ignore-unknown",
     "*.{js,ts,tsx,jsx,cjs,mjs}": [
-      "eslint --fix --report-unused-disable-directives --max-warnings 0",
-      "prettier --write --ignore-unknown"
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "overrides": {

@@ -21,8 +21,8 @@ if npx lint-staged; then
     fi
 else
     echo "" >&2
-    echo "❌ ERROR: Found issues in staged files that couldn't be auto-fixed." >&2
-    echo "Please fix the errors above and try committing again." >&2
+    echo "❌ ERROR: Found issues that couldn't be auto-fixed." >&2
+    echo "Please manually fix the errors above and try committing again." >&2
     echo "" >&2
     exit 1
 fi
