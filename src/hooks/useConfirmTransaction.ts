@@ -30,9 +30,9 @@ type Props = {
 
 type ReturnProps = {
   error: string | undefined;
-  // errorInternal can be a result of custom validation, hence of any type.
+  // errorInternal can be a result of custom validation, hence of unknown type.
 
-  errorInternal: any | undefined;
+  errorInternal: unknown | undefined;
   onConfirm: () => void;
 };
 
@@ -40,9 +40,9 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
   const dispatch = useDispatch();
 
   const [error, setError] = useState<string | undefined>(undefined);
-  // errorInternal can be a result of custom validation, hence of any type.
+  // errorInternal can be a result of custom validation, hence of unknown type.
 
-  const [errorInternal, setErrorInternal] = useState<any | undefined>(
+  const [errorInternal, setErrorInternal] = useState<unknown | undefined>(
     undefined,
   );
 

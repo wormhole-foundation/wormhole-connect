@@ -198,7 +198,11 @@ function Routes({
     setOriginalToNativeToken(toNativeToken);
     setOriginalSelectedRoute(highlightedRoute);
 
-    mobile ? setShowDrawer(false) : setShowModal(false);
+    if (mobile) {
+      setShowDrawer(false);
+    } else {
+      setShowModal(false);
+    }
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
   const getProviderText = useCallback((route?: string) => {

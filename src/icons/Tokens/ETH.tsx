@@ -9,9 +9,10 @@ function ETH() {
       width="182"
       viewBox="0 0 182 182"
       style={{ maxHeight: '100%', maxWidth: '100%' }}
+      focusable="false"
     >
       <g>
-        <g id="Layer_1" focusable="false">
+        <g id="Layer_1">
           <g>
             <path
               d="M90.9,181v-45.2l-55.9-32.7,55.9,77.8Z"

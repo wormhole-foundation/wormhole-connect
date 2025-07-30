@@ -431,7 +431,7 @@ function Bridge() {
               )}
             </a>
             {' and '}
-            <a href={config.ui.getHelpUrl} target="_blank">
+            <a href={config.ui.getHelpUrl} target="_blank" rel="noreferrer">
               ask for help
             </a>
             .

@@ -1,16 +1,11 @@
 import js from '@eslint/js';
-import typescript from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
-import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default [
-  // Base JavaScript configuration
-  js.configs.recommended,
-
-  // Prettier config to disable conflicting rules
-  prettierConfig,
-
   // Global ignores (replaces .eslintignore)
   {
     ignores: [
@@ -26,81 +21,80 @@ export default [
     ],
   },
 
-  // TypeScript configuration
+  // Apply to all JS/TS files
   {
-    files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+    files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
     languageOptions: {
-      parser: typescriptParser,
       ecmaVersion: 'latest',
       sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
         },
       },
-      globals: {
-        // Browser globals
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        fetch: 'readonly',
-        localStorage: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        HTMLDivElement: 'readonly',
-        HTMLTextAreaElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        URLSearchParams: 'readonly',
-        BeforeUnloadEvent: 'readonly',
-        Headers: 'readonly',
-        AbortController: 'readonly',
-        history: 'readonly',
-        NodeJS: 'readonly',
+    },
+  },
 
-        // Node globals
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        exports: 'writable',
-        module: 'writable',
-        require: 'readonly',
-        global: 'readonly',
-        URL: 'readonly',
-      },
-    },
+  // Recommended configs
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  reactPlugin.configs.flat.recommended,
+  reactPlugin.configs.flat['jsx-runtime'],
+
+  // React hooks plugin
+  {
     plugins: {
-      '@typescript-eslint': typescript,
-      'react-hooks': reactHooks,
+      'react-hooks': reactHooksPlugin,
     },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
+  },
+
+  // General rules for all files
+  {
     rules: {
       // Original rules from .eslintrc.json
       'comma-dangle': ['error', 'always-multiline'],
       semi: ['error', 'always'],
 
+      // Disable rules that TypeScript handles
+      'no-undef': 'off', // TypeScript handles this
+      'no-unused-vars': 'off', // Use @typescript-eslint/no-unused-vars instead
+      'no-constant-condition': 'off',
+      'no-redeclare': 'off',
+
+      // React rules
+      'react/react-in-jsx-scope': 'off', // Not needed with new JSX transform
+      'react/prop-types': 'off', // We use TypeScript for type checking
+      'react/no-unescaped-entities': 'off', // Allow quotes in JSX
+      'react/display-name': 'off', // Not critical for our use case
+    },
+  },
+
+  // TypeScript-specific rules
+  {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
       // TypeScript rules
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],
-
-      // React hooks rules
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-
-      // General rules
-      'no-constant-condition': 'off',
-      'no-unused-vars': 'off',
-      'no-redeclare': 'off', // TypeScript handles this better
-      'no-undef': 'off', // TypeScript handles this better
-
-      // Additional rules to match TypeScript plugin recommendations
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          args: 'none',
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/consistent-type-imports': [
         'warn',
         {
@@ -111,13 +105,17 @@ export default [
     },
   },
 
-  // Node.js specific files
+  // Strict rules for hooks directory
   {
-    files: ['**/*.js', '**/*.cjs'],
-    languageOptions: {
-      globals: {
-        node: true,
-      },
+    files: ['src/hooks/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/explicit-module-boundary-types': ['error'],
+      '@typescript-eslint/no-explicit-any': ['error', { ignoreRestArgs: true }],
+      '@typescript-eslint/no-non-null-assertion': ['error'],
+      'react-hooks/exhaustive-deps': ['error'],
     },
   },
+
+  // Prettier config to disable conflicting rules (must be last)
+  prettierConfig,
 ];

@@ -40,6 +40,7 @@ function Terms() {
             href="https://portalbridge.com"
             target="_blank"
             style={{ whiteSpace: 'nowrap' }}
+            rel="noreferrer"
           >
             https://portalbridge.com
           </a>{' '}
