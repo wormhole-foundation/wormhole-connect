@@ -93,6 +93,7 @@
     "lint:errors": "scripts/lint.sh --quiet",
     "lint:ci": "scripts/lint_ci.sh",
     "prettier": "prettier --write ./src",
+    "prettier:check": "prettier --check ./src",
     "analyze": "ANALYZE=true NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts",
     "checkForeignAssets": "npx tsx scripts/checkForeignAssetsConfig.ts",
