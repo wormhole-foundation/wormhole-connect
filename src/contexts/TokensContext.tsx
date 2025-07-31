@@ -9,7 +9,7 @@ import config, { clearWormholeContextV2 } from 'config';
 import type { Token } from 'config/tokens';
 import { tokenKey, TokenMapping } from 'config/tokens';
 import type { ReactNode } from 'react';
-import type React from 'react';
+import React from 'react';
 import {
   createContext,
   useContext,

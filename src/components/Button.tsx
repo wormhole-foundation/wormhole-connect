@@ -1,5 +1,5 @@
 import type { MouseEvent, MouseEventHandler } from 'react';
-import type React from 'react';
+import React from 'react';
 import { useMemo } from 'react';
 import { Box, useTheme } from '@mui/material';
 

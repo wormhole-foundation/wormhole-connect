@@ -1,5 +1,5 @@
 import type { ChangeEventHandler, ComponentProps } from 'react';
-import type React from 'react';
+import React from 'react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';

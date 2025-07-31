@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type React from 'react';
+import React from 'react';
 import { useMemo } from 'react';
 import type { SxProps } from '@mui/material';
 import { Collapse, Typography, useTheme, Box } from '@mui/material';

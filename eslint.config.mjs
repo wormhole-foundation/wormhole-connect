@@ -8,7 +8,7 @@ import globals from 'globals';
 // ESLint configuration for wormhole-connect
 // Based on @wormhole-labs/dev-config patterns but adapted for project requirements
 export default [
-  // Global ignores (from dev-config pattern)
+  // Global ignores
   {
     ignores: [
       // Dependencies
@@ -80,7 +80,7 @@ export default [
       'no-unused-vars': 'off',
       'no-constant-condition': 'off',
       'no-redeclare': 'off',
-      'no-console': 'off', // Dev-config has this as warn, but connect allows it
+      'no-console': 'off',
 
       // React rules
       'react/react-in-jsx-scope': 'off',
@@ -88,11 +88,11 @@ export default [
       'react/no-unescaped-entities': 'off',
       'react/display-name': 'off',
 
-      // TypeScript rules - less strict than dev-config defaults
+      // TypeScript rules
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'off', // Dev-config has this as error
-      '@typescript-eslint/no-non-null-assertion': 'off', // Dev-config has this as warn
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -102,13 +102,8 @@ export default [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      '@typescript-eslint/consistent-type-imports': [
-        'warn',
-        {
-          prefer: 'type-imports',
-          disallowTypeAnnotations: false,
-        },
-      ],
+      // Disable consistent-type-imports to prevent React from being imported as type
+      '@typescript-eslint/consistent-type-imports': 'off',
     },
   },
 

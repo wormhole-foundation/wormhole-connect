@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme, Box } from '@mui/material';
