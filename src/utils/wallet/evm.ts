@@ -94,7 +94,7 @@ export async function signAndSendTransaction(
   const evmWallet = w as EVMWallet;
 
   const signer = await evmWallet.getSigner();
-  if (!signer) throw new Error('No signer found for chain' + chainName);
+  if (!signer) throw new Error(`No signer found for chain${  chainName}`);
 
   const expectedChainId = request.transaction.chainId
     ? ethers.getBigInt(request.transaction.chainId)

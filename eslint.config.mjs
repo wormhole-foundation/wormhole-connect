@@ -102,13 +102,8 @@ export default [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      '@typescript-eslint/consistent-type-imports': [
-        'warn',
-        {
-          prefer: 'type-imports',
-          disallowTypeAnnotations: false,
-        },
-      ],
+      // Disable to prevent React from being imported as type
+      '@typescript-eslint/consistent-type-imports': 'off',
       
       // Override dev-config type-aware rules (downgrade to warn)
       '@typescript-eslint/no-floating-promises': 'warn', // dev-config has 'error'

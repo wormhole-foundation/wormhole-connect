@@ -412,7 +412,7 @@ function Bridge() {
         <AlertBannerV3 error testId="send-error-message">
           {txError}
         </AlertBannerV3>
-        {txErrorInternal && txErrorInternal.message && config.ui.getHelpUrl ? (
+        {txErrorInternal?.message && config.ui.getHelpUrl ? (
           <Typography fontSize={14} sx={{ marginTop: 1 }}>
             Having trouble?{' '}
             <a

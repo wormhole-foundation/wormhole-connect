@@ -502,7 +502,7 @@ const Bridge = () => {
           show={true}
           testId="send-error-message"
         />
-        {txErrorInternal && txErrorInternal.message && config.ui.getHelpUrl ? (
+        {txErrorInternal?.message && config.ui.getHelpUrl ? (
           <Typography fontSize={14} sx={{ marginTop: 1 }}>
             Having trouble?{' '}
             <a

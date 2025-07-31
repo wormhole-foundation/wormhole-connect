@@ -47,7 +47,7 @@ const Routes = ({ ...props }: Props) => {
     return routes.reduce(
       (fastest, route) => {
         const quote = props.quotes[route];
-        if (!quote || !quote.success) return fastest;
+        if (!quote?.success) return fastest;
 
         if (
           quote.eta !== undefined &&

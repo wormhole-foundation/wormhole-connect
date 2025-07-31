@@ -1,5 +1,4 @@
 // Using require for prettier config as prettier doesn't support ES modules for config files
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const devConfig = require('@wormhole-labs/dev-config/prettier');
 
 // Re-export the dev-config prettier configuration with project-specific overrides
