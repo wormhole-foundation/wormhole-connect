@@ -5,17 +5,29 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
 
+// ESLint configuration for wormhole-connect
+// Based on @wormhole-labs/dev-config patterns but adapted for project requirements
 export default [
-  // Global ignores (replaces .eslintignore)
+  // Global ignores (from dev-config pattern)
   {
     ignores: [
-      'node_modules/**',
-      'dist/**',
-      'lib/**',
-      'coverage/**',
+      // Dependencies
+      '**/node_modules/**',
+      '**/jspm_packages/**',
+
+      // Build outputs
+      '**/dist/**',
+      '**/build/**',
+      '**/lib/**',
+      '**/coverage/**',
+      '**/.next/**',
+
+      // Config files
       '*.config.js',
       '*.config.mjs',
       '*.config.ts',
+
+      // Wormhole Connect specific
       'scripts/**/*.js',
       'public/**',
     ],
@@ -59,33 +71,28 @@ export default [
   // General rules for all files
   {
     rules: {
-      // Original rules from .eslintrc.json
+      // Original rules from wormhole-connect
       'comma-dangle': ['error', 'always-multiline'],
       semi: ['error', 'always'],
 
-      // Disable rules that TypeScript handles
-      'no-undef': 'off', // TypeScript handles this
-      'no-unused-vars': 'off', // Use @typescript-eslint/no-unused-vars instead
+      // Disable rules that conflict with current codebase
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
       'no-constant-condition': 'off',
       'no-redeclare': 'off',
+      'no-console': 'off', // Dev-config has this as warn, but connect allows it
 
       // React rules
-      'react/react-in-jsx-scope': 'off', // Not needed with new JSX transform
-      'react/prop-types': 'off', // We use TypeScript for type checking
-      'react/no-unescaped-entities': 'off', // Allow quotes in JSX
-      'react/display-name': 'off', // Not critical for our use case
-    },
-  },
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      'react/no-unescaped-entities': 'off',
+      'react/display-name': 'off',
 
-  // TypeScript-specific rules
-  {
-    files: ['**/*.{ts,tsx}'],
-    rules: {
-      // TypeScript rules
+      // TypeScript rules - less strict than dev-config defaults
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-explicit-any': 'off', // Dev-config has this as error
+      '@typescript-eslint/no-non-null-assertion': 'off', // Dev-config has this as warn
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -105,7 +112,7 @@ export default [
     },
   },
 
-  // Strict rules for hooks directory
+  // Strict rules for hooks directory (keep existing behavior)
   {
     files: ['src/hooks/**/*.{ts,tsx}'],
     rules: {

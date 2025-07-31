@@ -137,6 +137,7 @@
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "@wormhole-labs/dev-config": "^1.2.0",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.7",

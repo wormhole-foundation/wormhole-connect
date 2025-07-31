@@ -67,9 +67,7 @@ const WalletConnector = (props: Props) => {
           }}
           onClick={() => connectWallet()}
         >
-          <Typography textTransform="none">
-            {`Connect ${props.side} wallet`}
-          </Typography>
+          <Typography textTransform="none">{`Connect ${props.side} wallet`}</Typography>
         </Button>
       </span>
     );

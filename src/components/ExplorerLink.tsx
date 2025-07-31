@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import Link from '@mui/material/Link';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useTheme } from '@mui/material/styles';

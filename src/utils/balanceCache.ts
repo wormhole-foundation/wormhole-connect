@@ -1,6 +1,6 @@
-import { amount, Chain } from '@wormhole-foundation/sdk';
-import { Token } from 'config/tokens';
-import { WalletData } from 'store/wallet';
+import type { amount, Chain } from '@wormhole-foundation/sdk';
+import type { Token } from 'config/tokens';
+import type { WalletData } from 'store/wallet';
 
 interface BalanceCache {
   balance: amount.Amount;

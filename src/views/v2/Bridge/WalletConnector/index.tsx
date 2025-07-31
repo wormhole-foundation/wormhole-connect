@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -67,9 +67,7 @@ const WalletConnector = (props: Props) => {
           }}
           onClick={() => connectWallet()}
         >
-          <Typography textTransform="none">
-            {`Connect ${props.side} wallet`}
-          </Typography>
+          <Typography textTransform="none">{`Connect ${props.side} wallet`}</Typography>
         </Button>
       </span>
     );

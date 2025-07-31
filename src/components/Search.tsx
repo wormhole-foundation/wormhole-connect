@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import type React from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { Box, useTheme } from '@mui/material';
 import InputTransparent from './InputTransparent';
 import SearchIcon from 'icons/Search';
