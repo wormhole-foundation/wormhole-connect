@@ -11,6 +11,7 @@ const thirdPartyPkgs = {
   '@wormhole-foundation/sdk-route-ntt': 'native-token-transfers/sdk/route',
   '@wormhole-foundation/sdk-solana-ntt': 'native-token-transfers/solana',
   '@wormhole-foundation/sdk-evm-ntt': 'native-token-transfers/evm/ts',
+  '@wormhole-foundation/sdk-sui-ntt': 'native-token-transfers/sui/ts',
   ntt: 'native-token-transfers',
 };
 

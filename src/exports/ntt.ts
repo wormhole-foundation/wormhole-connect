@@ -3,6 +3,7 @@ import type { routes } from '@wormhole-foundation/sdk';
 import '@wormhole-foundation/sdk-definitions-ntt';
 import '@wormhole-foundation/sdk-evm-ntt';
 import '@wormhole-foundation/sdk-solana-ntt';
+import '@wormhole-foundation/sdk-sui-ntt';
 
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import {
