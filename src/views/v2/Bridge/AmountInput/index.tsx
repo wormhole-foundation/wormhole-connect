@@ -252,7 +252,7 @@ const AmountInput = (props: Props) => {
             fontSize="14px"
             lineHeight="14px"
           >
-            {formatWithCommas(price)}
+            {price}
           </Typography>
         </Stack>
       </InputAdornment>
