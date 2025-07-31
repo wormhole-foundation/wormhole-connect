@@ -27,27 +27,30 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
   // Min amount available
   const minAmount = useMemo(
     () =>
-      Object.values(props.failedQuotes).reduce((minAmount, quoteResult) => {
-        if (quoteResult?.success) {
-          return minAmount;
-        }
+      Object.values(props.failedQuotes).reduce(
+        (minAmount, quoteResult) => {
+          if (quoteResult?.success) {
+            return minAmount;
+          }
 
-        if (!isMinAmountError(quoteResult?.error)) {
-          return minAmount;
-        }
+          if (!isMinAmountError(quoteResult?.error)) {
+            return minAmount;
+          }
 
-        if (!minAmount) {
-          return quoteResult.error.min;
-        }
+          if (!minAmount) {
+            return quoteResult.error.min;
+          }
 
-        const minAmountNum = BigInt(quoteResult.error.min.amount);
-        const existingMin = BigInt(minAmount.amount);
-        if (minAmountNum < existingMin) {
-          return quoteResult.error.min;
-        } else {
-          return minAmount;
-        }
-      }, undefined as sdkAmount.Amount | undefined),
+          const minAmountNum = BigInt(quoteResult.error.min.amount);
+          const existingMin = BigInt(minAmount.amount);
+          if (minAmountNum < existingMin) {
+            return quoteResult.error.min;
+          } else {
+            return minAmount;
+          }
+        },
+        undefined as sdkAmount.Amount | undefined,
+      ),
     [props.failedQuotes],
   );
 

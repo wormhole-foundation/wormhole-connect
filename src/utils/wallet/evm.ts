@@ -39,7 +39,7 @@ const getRpcForChain = (
 const coalesceWormholeChainName = (name: string) =>
   ({
     'BNB Smart Chain': 'Bsc',
-  }[name] || name);
+  })[name] || name;
 
 export const getWallets = () => {
   const CHAINS_CONFIG = DEFAULT_CHAINS.map((wagmiConfig) => ({

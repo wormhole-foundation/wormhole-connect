@@ -62,8 +62,8 @@ const coingeckoRequest = async (
   const hostname = config.coingecko?.customUrl
     ? config.coingecko.customUrl
     : config.coingecko?.apiKey
-    ? COINGECKO_URL_PRO
-    : COINGECKO_URL;
+      ? COINGECKO_URL_PRO
+      : COINGECKO_URL;
 
   return fetch(`${hostname}${path}`, {
     signal: params?.abort?.signal,

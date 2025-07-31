@@ -33,8 +33,8 @@ const RoutesList = ({
         const quote = quoteResult?.success ? quoteResult : undefined;
         const quoteError =
           quoteResult?.success === false
-            ? quoteResult?.error?.message ??
-              `Error while getting a quote for ${name}.`
+            ? (quoteResult?.error?.message ??
+              `Error while getting a quote for ${name}.`)
             : undefined;
         return (
           <SingleRoute

@@ -410,8 +410,8 @@ const SingleRoute = (props: Props) => {
     const provider = isLidoNttSpecialCase
       ? 'via NTT: Wormhole + Axelar'
       : routeConfig.rc.meta.provider
-      ? `via ${routeConfig.rc.meta.provider}`
-      : '';
+        ? `via ${routeConfig.rc.meta.provider}`
+        : '';
 
     return provider;
   }, [props.route, routeConfig, sourceChain, sourceToken, destChain]);

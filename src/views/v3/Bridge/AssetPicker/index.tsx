@@ -227,8 +227,8 @@ function AssetPicker(props: Props) {
     !amount || amount.amount === '' || amount.amount === '0'
       ? 0
       : props.quote
-      ? sdkAmount.whole(props.quote?.destinationToken.amount)
-      : undefined;
+        ? sdkAmount.whole(props.quote?.destinationToken.amount)
+        : undefined;
 
   const tokenPrice = useMemo(() => {
     const tokenAmount = props.isSource

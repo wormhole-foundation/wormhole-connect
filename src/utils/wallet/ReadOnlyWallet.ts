@@ -13,7 +13,10 @@ export class ReadOnlyWallet extends Wallet {
 
   static readonly NAME = 'ReadOnlyWallet';
 
-  constructor(readonly _address: NativeAddress<Chain>, readonly _chain: Chain) {
+  constructor(
+    readonly _address: NativeAddress<Chain>,
+    readonly _chain: Chain,
+  ) {
     super();
   }
 

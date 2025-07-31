@@ -156,9 +156,8 @@ const LOCAL_STORAGE_KEY_THEME = 'wormhole-connect:sample:custom-theme';
 function SampleApp() {
   const [customConfig, setCustomConfig] = useState<WormholeConnectConfig>();
   const [customConfigOpen, setCustomConfigOpen] = useState(false);
-  const [customConfigInput, setCustomConfigInput] = useState(
-    loadInitialConfig(),
-  );
+  const [customConfigInput, setCustomConfigInput] =
+    useState(loadInitialConfig());
   const [isLoadingCustomConfig, setIsLoadingCustomConfig] = useState(true);
 
   const [customTheme, setCustomTheme] = useState<

@@ -40,10 +40,13 @@ export function fetchOptions(chain: Chain) {
     const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
 
     return {
-      ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-        acc[getWalletName(w)] = w;
-        return acc;
-      }, {} as Record<string, Wallet>),
+      ...getSolanaStandardWallets(connection).reduce(
+        (acc, w) => {
+          acc[getWalletName(w)] = w;
+          return acc;
+        },
+        {} as Record<string, Wallet>,
+      ),
       bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
       clover: new SolanaWallet(new CloverWalletAdapter(), connection),
       coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),

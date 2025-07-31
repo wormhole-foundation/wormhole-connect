@@ -1,44 +1,17 @@
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
+import wormholeDevConfig from '@wormhole-labs/dev-config/eslint';
 
 // ESLint configuration for wormhole-connect
-// Based on @wormhole-labs/dev-config patterns but adapted for project requirements
 export default [
-  // Global ignores
-  {
-    ignores: [
-      // Dependencies
-      '**/node_modules/**',
-      '**/jspm_packages/**',
+  // Use wormhole dev-config as base
+  ...wormholeDevConfig,
 
-      // Build outputs
-      '**/dist/**',
-      '**/build/**',
-      '**/lib/**',
-      '**/coverage/**',
-      '**/.next/**',
-
-      // Config files
-      '*.config.js',
-      '*.config.mjs',
-      '*.config.ts',
-
-      // Wormhole Connect specific
-      'scripts/**/*.js',
-      'public/**',
-    ],
-  },
-
-  // Apply to all JS/TS files
+  // Browser/Node globals for React
   {
     files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
       globals: {
         ...globals.browser,
         ...globals.node,
@@ -49,11 +22,14 @@ export default [
         },
       },
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
   },
 
-  // Recommended configs
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+  // React plugin configs
   reactPlugin.configs.flat.recommended,
   reactPlugin.configs.flat['jsx-runtime'],
 
@@ -68,46 +44,29 @@ export default [
     },
   },
 
-  // General rules for all files
+  // Project-specific overrides for wormhole-connect
   {
     rules: {
-      // Original rules from wormhole-connect
-      'comma-dangle': ['error', 'always-multiline'],
-      semi: ['error', 'always'],
-
-      // Disable rules that conflict with current codebase
-      'no-undef': 'off',
+      // Disable base JS rule (TypeScript handles this)
       'no-unused-vars': 'off',
-      'no-constant-condition': 'off',
-      'no-redeclare': 'off',
-      'no-console': 'off',
-
-      // React rules
+      
+      // React specific overrides
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react/no-unescaped-entities': 'off',
       'react/display-name': 'off',
 
-      // TypeScript rules
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      // Less strict than dev-config defaults for this project
+      'no-console': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        {
-          args: 'none',
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-      // Disable consistent-type-imports to prevent React from being imported as type
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/consistent-type-imports': 'off',
     },
   },
 
-  // Strict rules for hooks directory (keep existing behavior)
+  // Strict rules for hooks directory
   {
     files: ['src/hooks/**/*.{ts,tsx}'],
     rules: {
@@ -118,6 +77,11 @@ export default [
     },
   },
 
-  // Prettier config to disable conflicting rules (must be last)
-  prettierConfig,
+  // Additional ignores for wormhole-connect
+  {
+    ignores: [
+      'scripts/**/*.js',
+      'public/**',
+    ],
+  },
 ];

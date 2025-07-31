@@ -507,14 +507,14 @@ function Bridge() {
     !sourceChain || !sourceToken
       ? 'Please select a source asset'
       : !destChain || !destToken
-      ? 'Please select a destination asset'
-      : !hasEnteredAmount
-      ? 'Please enter an amount'
-      : isFetchingQuotes
-      ? 'Loading quotes...'
-      : !route
-      ? 'Please select a quote'
-      : '';
+        ? 'Please select a destination asset'
+        : !hasEnteredAmount
+          ? 'Please enter an amount'
+          : isFetchingQuotes
+            ? 'Loading quotes...'
+            : !route
+              ? 'Please select a quote'
+              : '';
 
   const bridgeContent = (
     <>
