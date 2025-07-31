@@ -34,7 +34,7 @@ import { RouteContext } from 'contexts/RouteContext';
 import SvgDefs from 'icons/SvgDefs';
 import { Box } from '@mui/material';
 
-const AppRouterContent: React.FC = () => {
+const AppRouterContent = () => {
   const theme = useTheme();
   const routeContext = useContext(RouteContext);
   const route = useSelector((state: RootState) => state.router.route);

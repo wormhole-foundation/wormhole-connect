@@ -1,7 +1,13 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import {
+  createDefaultAuthorizationCache,
+  createDefaultChainSelector,
+  createDefaultWalletNotFoundHandler,
+  registerMwa,
+} from '@solana-mobile/wallet-standard-mobile';
 
 import Button from 'components/v2/Button';
 import type { RootState } from 'store';
@@ -32,6 +38,23 @@ const WalletConnector = (props: Props) => {
   const selectedChain = type === TransferWallet.SENDING ? fromChain : toChain;
 
   const [isOpen, setIsOpen] = useState(false);
+
+  // Register the MWA (Mobile Wallet Adapter) on component mount
+  // This allows the app to interact with wallets that support the MWA standard.
+  // See for more details: https://docs.solanamobile.com/mobile-wallet-adapter/migrating-to-wallet-standard
+  useEffect(() => {
+    registerMwa({
+      appIdentity: {
+        name: 'Wormhole Connect',
+        uri: 'https://portalbridge.com/',
+        icon: '/logo192.png',
+      },
+      authorizationCache: createDefaultAuthorizationCache(),
+      chains: ['solana:devnet', 'solana:mainnet'],
+      chainSelector: createDefaultChainSelector(),
+      onWalletNotFound: createDefaultWalletNotFoundHandler(),
+    });
+  }, []);
 
   const handleConnectWallet = useCallback(
     async (popupState?: any) => {
