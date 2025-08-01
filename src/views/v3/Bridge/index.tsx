@@ -57,6 +57,7 @@ import TxHistoryWidget from 'views/v3/TxHistory/Widget';
 import TxHistory from '../TxHistory';
 import AmountValidationError from './AmountValidationError';
 import { getFilteredChains } from 'utils/sdkv2';
+import useGasBalanceValidation from 'hooks/useGasBalanceValidation';
 
 function Bridge() {
   const theme: any = useTheme();
@@ -268,10 +269,21 @@ function Bridge() {
   // Build balance requests for source and destination
   const sourceBalanceRequest = useMemo(() => {
     if (sourceChain && sendingWallet?.address) {
+      const tokensToFetch = [...sourceTokens];
+      const allChainTokens = config.tokens.getAllForChain(sourceChain);
+      const nativeToken = allChainTokens.find((t) => t.isNativeGasToken);
+
+      if (
+        nativeToken &&
+        !tokensToFetch.some((t) => t.key === nativeToken.key)
+      ) {
+        tokensToFetch.push(nativeToken);
+      }
+
       return {
         chain: sourceChain,
         wallet: sendingWallet,
-        tokens: sourceTokens,
+        tokens: tokensToFetch,
       };
     }
     return undefined;
@@ -304,6 +316,14 @@ function Bridge() {
     tokenSymbol: sourceToken?.symbol ?? '',
     isLoading: balances.isFetching || isFetchingQuotes,
     disabled: !sourceChain || !sourceToken,
+  });
+
+  const selectedQuote = route ? quotes[route] : undefined;
+  const gasBalanceValidation = useGasBalanceValidation({
+    sourceChain,
+    quote: selectedQuote,
+    balances: balances.source.balances,
+    isFetching: balances.isFetching,
   });
 
   // Handlers for source asset picker
@@ -450,7 +470,8 @@ function Bridge() {
     isFetchingQuotes ||
     !hasEnteredAmount ||
     isTransactionInProgress ||
-    !!amountValidation.error;
+    !!amountValidation.error ||
+    !!gasBalanceValidation.error;
 
   // Review transaction button is shown only when everything is ready
   const confirmTransactionButton = useMemo(() => {
@@ -569,6 +590,8 @@ function Bridge() {
       </Box>
       {transactionError}
       <AmountValidationError validation={amountValidation} />
+      <AmountValidationError validation={gasBalanceValidation} />
+
       {hasEnteredAmount && (
         <Routes
           routes={sortedRoutes}
