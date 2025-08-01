@@ -24,6 +24,7 @@ type Props = {
   selectedChainConfig: ChainConfig;
   selectedToken?: Token;
   sourceToken?: Token;
+  isSameChainSwap: boolean;
   isSource: boolean;
   wallet: WalletData;
   searchQuery: string;
@@ -203,6 +204,19 @@ const TokenList = (props: Props) => {
       }}
       filterFn={(token, query) => {
         if (query.length === 0) return true;
+
+        if (
+          !props.isSource &&
+          props.isSameChainSwap &&
+          token.addressString === props.sourceToken?.addressString
+        ) {
+          // For same chain swaps don't show the source token
+          // when we are filtering the destination token list.
+          // For source token list allow showing the same token
+          // which will automatically adjust the destination token
+          // when selected.
+          return false;
+        }
 
         const queryLC = query.toLowerCase();
 

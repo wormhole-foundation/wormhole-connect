@@ -219,6 +219,8 @@ const Bridge = () => {
 
   //useFetchTokenPrices(sourceToken ? [sourceToken.tokenId] : []);
 
+  const isSameChainSwap = sourceChain === destChain;
+
   // Get input validation result
   const isValid = useMemo(() => isTransferValid(validations), [validations]);
 
@@ -330,6 +332,7 @@ const Bridge = () => {
             dispatch(setToken(value.tuple));
           }}
           wallet={sendingWallet}
+          isSameChainSwap={isSameChainSwap}
           isSource={true}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="source-asset-picker"
@@ -349,6 +352,7 @@ const Bridge = () => {
     sourceTokens,
     isTransactionInProgress,
     isConnectingWallet,
+    isSameChainSwap,
     sendingWallet,
     dispatch,
     balances.source,
@@ -380,6 +384,7 @@ const Bridge = () => {
             dispatch(setDestToken(value.tuple));
           }}
           wallet={receivingWallet}
+          isSameChainSwap={isSameChainSwap}
           isSource={false}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="dest-asset-picker"
@@ -400,6 +405,7 @@ const Bridge = () => {
     isConnectingWallet,
     isFetchingSupportedDestTokens,
     isTransactionInProgress,
+    isSameChainSwap,
     receivingWallet,
     dispatch,
     balances.destination,

@@ -25,6 +25,7 @@ interface AssetPickerPopoverProps {
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
   isFetchingTokens?: boolean;
+  isSameChainSwap: boolean;
   token?: Token;
   sourceToken?: Token;
   isSource: boolean;
@@ -47,6 +48,7 @@ function AssetPickerPopover({
   isFetchingBalances,
   isConnectingWallet,
   isFetchingTokens,
+  isSameChainSwap,
   token,
   sourceToken,
   isSource,
@@ -108,6 +110,7 @@ function AssetPickerPopover({
           selectedChainConfig={chainConfig}
           selectedToken={token}
           sourceToken={sourceToken}
+          isSameChainSwap={isSameChainSwap}
           isSource={isSource}
           wallet={wallet}
           searchQuery={searchQuery}

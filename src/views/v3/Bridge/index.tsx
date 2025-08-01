@@ -157,6 +157,7 @@ function Bridge() {
   }));
 
   const { sourceToken, destToken } = useGetTokens();
+  const isSameChainSwap = sourceChain === destChain;
 
   // --- pipeline usage ---
   const {
@@ -522,6 +523,7 @@ function Bridge() {
             setChain={handleSourceChainChange}
             setToken={handleSourceTokenChange}
             wallet={sendingWallet}
+            isSameChainSwap={isSameChainSwap}
             isSource={true}
             isTransactionInProgress={isTransactionInProgress}
             dataTestId="source-asset-picker"
@@ -548,6 +550,7 @@ function Bridge() {
           setChain={handleDestChainChange}
           setToken={handleDestTokenChange}
           wallet={receivingWallet}
+          isSameChainSwap={isSameChainSwap}
           isSource={false}
           isTransactionInProgress={isTransactionInProgress}
           dataTestId="dest-asset-picker"

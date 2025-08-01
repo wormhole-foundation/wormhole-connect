@@ -25,6 +25,7 @@ interface AssetPickerDrawerProps {
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
   isFetchingTokens?: boolean;
+  isSameChainSwap: boolean;
   token?: Token;
   sourceToken?: Token;
   isSource: boolean;
@@ -47,6 +48,7 @@ function AssetPickerDrawer({
   isFetchingBalances,
   isConnectingWallet,
   isFetchingTokens,
+  isSameChainSwap,
   token,
   sourceToken,
   isSource,
@@ -105,6 +107,7 @@ function AssetPickerDrawer({
           isFetchingBalances={isFetchingBalances}
           isConnectingWallet={isConnectingWallet}
           isFetching={isFetchingTokens}
+          isSameChainSwap={isSameChainSwap}
           selectedChainConfig={chainConfig}
           selectedToken={token}
           sourceToken={sourceToken}

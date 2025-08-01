@@ -42,6 +42,7 @@ type Props = {
   setToken: (value: Token) => void;
   setChain: (value: Chain) => void;
   wallet: WalletData;
+  isSameChainSwap: boolean;
   isSource: boolean;
   isTransactionInProgress: boolean;
   dataTestId?: string;
@@ -510,6 +511,7 @@ function AssetPicker(props: Props) {
           isFetchingBalances={props.isFetchingBalances}
           isConnectingWallet={props.isConnectingWallet}
           isFetchingTokens={props.isFetchingTokens}
+          isSameChainSwap={props.isSameChainSwap}
           token={props.token}
           sourceToken={props.sourceToken}
           isSource={props.isSource}
@@ -535,6 +537,7 @@ function AssetPicker(props: Props) {
           isFetchingBalances={props.isFetchingBalances}
           isConnectingWallet={props.isConnectingWallet}
           isFetchingTokens={props.isFetchingTokens}
+          isSameChainSwap={props.isSameChainSwap}
           token={props.token}
           sourceToken={props.sourceToken}
           isSource={props.isSource}
