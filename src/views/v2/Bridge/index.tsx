@@ -53,6 +53,7 @@ import type { Token } from 'config/tokens';
 
 import { useTokens } from 'contexts/TokensContext';
 import { getFilteredChains } from 'utils/sdkv2';
+import useGasBalanceValidation from 'hooks/useGasBalanceValidation';
 
 const Bridge = () => {
   const theme = useTheme();
@@ -253,10 +254,21 @@ const Bridge = () => {
   // Build balance requests for source and destination
   const sourceBalanceRequest = useMemo(() => {
     if (sourceChain && sendingWallet?.address) {
+      const tokensToFetch = [...sourceTokens];
+      const allChainTokens = config.tokens.getAllForChain(sourceChain);
+      const nativeToken = allChainTokens.find((t) => t.isNativeGasToken);
+
+      if (
+        nativeToken &&
+        !tokensToFetch.some((t) => t.key === nativeToken.key)
+      ) {
+        tokensToFetch.push(nativeToken);
+      }
+
       return {
         chain: sourceChain,
         wallet: sendingWallet,
-        tokens: sourceTokens,
+        tokens: tokensToFetch,
       };
     }
     return undefined;
@@ -289,6 +301,14 @@ const Bridge = () => {
     tokenSymbol: sourceToken?.symbol ?? '',
     isLoading: balances.isFetching || isFetchingQuotes,
     disabled: !sourceChain || !sourceToken,
+  });
+
+  const selectedQuote = route ? quotes[route] : undefined;
+  const gasBalanceValidation = useGasBalanceValidation({
+    sourceChain,
+    quote: selectedQuote,
+    balances: balances.source.balances,
+    isFetching: balances.isFetching,
   });
 
   // Connect bridge header, which renders any custom overrides for the header
@@ -524,7 +544,7 @@ const Bridge = () => {
     );
   }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
-  const hasError = !!amountValidation.error;
+  const hasError = !!amountValidation.error || !!gasBalanceValidation.error;
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
 
@@ -631,6 +651,14 @@ const Bridge = () => {
         error={amountValidation.error}
         warning={amountValidation.warning || walletWarning}
       />
+      <Box sx={{ marginTop: 2 }}>
+        <AlertBannerV2
+          error
+          content={gasBalanceValidation.error}
+          show={!!gasBalanceValidation.error}
+          testId="gas-balance-error"
+        />
+      </Box>
       {hasEnteredAmount && (
         <Routes
           routes={sortedRoutes}
