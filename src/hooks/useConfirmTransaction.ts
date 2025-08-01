@@ -23,6 +23,7 @@ import { validate, isTransferValid } from 'utils/transferValidation';
 import type { RootState } from 'store';
 import type { RelayerFee } from 'store/relay';
 import type { QuoteResult } from 'routes/operator';
+import { clearCache as clearBalanceCache } from 'utils/balanceCache';
 
 type Props = {
   quotes: Record<string, QuoteResult | undefined>;
@@ -156,6 +157,9 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
           destToken,
           { nativeGas: toNativeToken },
         );
+
+      // Clear cached balances on sending chain
+      clearBalanceCache(sendingWallet, sourceChain);
 
       const txId =
         'originTxs' in receipt

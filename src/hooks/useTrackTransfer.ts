@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { isCompleted, TransferState } from '@wormhole-foundation/sdk';
+import { clearCache as clearBalanceCache } from 'utils/balanceCache';
 
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 
 import type { AttestationReceipt, routes } from '@wormhole-foundation/sdk';
+import { useSelector } from 'react-redux';
+import type { RootState } from 'store';
 
 // We don't start trying to fetch transfer updates until 1 minute from ETA
 const MINIMUM_ETA = 60 * 1000;
@@ -30,6 +33,9 @@ const useTrackTransfer = (props: Props): ReturnProps => {
   const [receipt, setReceipt] = useState<routes.Receipt<AttestationReceipt>>();
 
   const { eta, route: routeName } = props;
+
+  const wallet = useSelector((state: RootState) => state.wallet);
+  const { receiving: receivingWallet } = wallet;
 
   // Set initial receipt from the caller
   useEffect(() => {
@@ -89,6 +95,9 @@ const useTrackTransfer = (props: Props): ReturnProps => {
 
               if (isCompleted(currentReceipt)) {
                 setCompleted(true);
+
+                // Clear cached balances on receiving chain
+                clearBalanceCache(receivingWallet, receipt.to);
                 break;
               }
 
@@ -125,7 +134,7 @@ const useTrackTransfer = (props: Props): ReturnProps => {
     return () => {
       isActive = false;
     };
-  }, [eta, receipt, routeName]);
+  }, [eta, receipt, routeName, receivingWallet]);
 
   return {
     isCompleted: completed,

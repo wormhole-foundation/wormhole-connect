@@ -1,6 +1,6 @@
-import { amount, Chain } from '@wormhole-foundation/sdk';
-import { Token } from 'config/tokens';
-import { WalletData } from 'store/wallet';
+import type { amount, Chain } from '@wormhole-foundation/sdk';
+import type { Token } from 'config/tokens';
+import type { WalletData } from 'store/wallet';
 
 interface BalanceCache {
   balance: amount.Amount;
@@ -47,4 +47,14 @@ const isFailed = (chain: Chain, tokenAddr: string): boolean => {
   return failedTokens.has(`${chain}:${tokenAddr}`);
 };
 
-export { getCached, setCached, markFailed, isFailed };
+const clearCache = (wallet: WalletData, chain: Chain) => {
+  for (const key in cache) {
+    console.log(key);
+    if (key.startsWith(`${chain}:${wallet.address}`)) {
+      console.info('clearing', key);
+      delete cache[key];
+    }
+  }
+};
+
+export { getCached, setCached, clearCache, markFailed, isFailed };
