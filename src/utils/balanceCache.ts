@@ -49,9 +49,7 @@ const isFailed = (chain: Chain, tokenAddr: string): boolean => {
 
 const clearCache = (wallet: WalletData, chain: Chain) => {
   for (const key in cache) {
-    console.log(key);
     if (key.startsWith(`${chain}:${wallet.address}`)) {
-      console.info('clearing', key);
       delete cache[key];
     }
   }
