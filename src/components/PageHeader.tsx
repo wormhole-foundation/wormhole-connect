@@ -66,7 +66,7 @@ function PageHeader({
   );
 
   function goBack() {
-    dispatch(setRoute('bridge'));
+    dispatch(setRoute('history'));
   }
 
   return (

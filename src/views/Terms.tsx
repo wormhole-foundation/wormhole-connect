@@ -2,6 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import PageHeader from 'components/PageHeader';
 import FooterNavBar from 'components/FooterNavBar';
+import config from 'config';
 
 function Terms() {
   const styles = {
@@ -509,7 +510,7 @@ function Terms() {
           </li>
         </ol>
       </Box>
-      <FooterNavBar />
+      {config.ui.showFooter && <FooterNavBar />}
     </Box>
   );
 }

@@ -1,5 +1,12 @@
-import type { ChangeEventHandler, ComponentProps } from 'react';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEventHandler,
+  type ComponentProps,
+} from 'react';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { useTheme } from '@mui/material';
@@ -100,13 +107,19 @@ function AmountInput(props: Props) {
 
   const htmlInputProps = useMemo(
     () => ({
-      maxLength: 24,
+      maxLength: 22,
       style: {
         color: props.error
           ? theme.palette.error.main
           : theme.palette.text.primary,
-        fontSize: '32px',
-        height: '32px',
+        // Shrink the font size based on the length of the input value
+        fontSize:
+          props.value.length > 12
+            ? '20px'
+            : props.value.length > 6
+            ? '28px'
+            : '36px',
+        height: '36px',
       },
       onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
         // IMPORTANT: We need to prevent the scroll behavior on number inputs.
@@ -116,7 +129,12 @@ function AmountInput(props: Props) {
       },
       step: '0.1',
     }),
-    [props.error, theme.palette.error.main, theme.palette.text.primary],
+    [
+      props.error,
+      props.value.length,
+      theme.palette.error.main,
+      theme.palette.text.primary,
+    ],
   );
 
   const styles = useMemo(

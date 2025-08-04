@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroller';
 import {
   Box,
+  Button,
   Skeleton,
   Typography,
   useMediaQuery,
@@ -16,8 +17,10 @@ import { trimAddress } from 'utils';
 import TxHistoryItem from 'views/v3/TxHistory/Item';
 
 import type { RootState } from 'store';
+import { setRoute } from 'store/router';
 
 const TxHistory = () => {
+  const dispatch = useDispatch();
   const theme: any = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -53,9 +56,11 @@ const TxHistory = () => {
         width: '100%',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between',
         marginBottom: '16px',
       },
       spacer: {
+        width: mobile ? '388px' : '420px', // In mobile we don't have the form background that has 16px padding left and right
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
@@ -63,17 +68,34 @@ const TxHistory = () => {
         justifyContent: 'center',
       },
     }),
-    [],
+    [mobile],
   );
 
   // Header for Transaction History, which includes the title and settings icon
   const txHistoryHeader = useMemo(() => {
     return (
       <Box sx={styles.txHistoryHeader}>
-        <Header align="left" size={18} text="Transaction history" />
+        <Box>
+          <Header align="left" size={18} text="Transaction history" />
+        </Box>
+        <Button
+          variant="text"
+          sx={{
+            color: theme.palette.text.primary,
+            padding: 0,
+            textTransform: 'none',
+            textDecoration: 'none',
+            '&:hover': {
+              textDecoration: 'underline',
+            },
+          }}
+          onClick={() => dispatch(setRoute('search'))}
+        >
+          {mobile ? 'Resume' : 'Resume Transaction'}
+        </Button>
       </Box>
     );
-  }, [styles.txHistoryHeader]);
+  }, [dispatch, mobile, styles.txHistoryHeader, theme.palette.text.primary]);
 
   const transactionList = useMemo(() => {
     if (!transactions) {
@@ -129,9 +151,9 @@ const TxHistory = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            padding: '16px',
             alignItems: 'center',
             justifyContent: 'center',
+            width: mobile ? '388px' : '420px', // In mobile we don't have the form background that has 16px padding left and right
           }}
         >
           <Skeleton variant="rounded" height={24} width="100%" />

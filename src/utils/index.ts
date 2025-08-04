@@ -351,10 +351,10 @@ export const isStableCoin = (token: Token) => {
 export const millisToHumanString = (ts: number): string => {
   if (ts >= 2 * 60000) {
     const minutes = Math.ceil(ts / 60000);
-    return `~${minutes} min`;
+    return `${minutes} min`;
   } else {
     const seconds = Math.ceil(ts / 1000);
-    return `~${seconds} sec`;
+    return `${seconds} sec`;
   }
 };
 
@@ -367,18 +367,18 @@ export const millisToRelativeTime = (ts: number): string => {
   if (ts > daysMultiplier) {
     // It's been more than a day, show "# days ago"
     const days = Math.floor(ts / daysMultiplier);
-    return `~${days} ${days === 1 ? 'day' : 'days'} ago`;
+    return `${days} ${days === 1 ? 'day' : 'days'} ago`;
   } else if (ts > hoursMultiplier) {
     // It's been more than an hour, show "# hours ago"
     const hours = Math.floor(ts / hoursMultiplier);
-    return `~${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
   } else if (ts > minsMultiplier) {
     // It's been more than a minute ago, show "# minutes ago"
     const minutes = Math.floor(ts / minsMultiplier);
-    return `~${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
   } else {
     // It's been less than a minute ago, but we approx up to one minute
-    return '~1 minute ago';
+    return '1 minute ago';
   }
 };
 

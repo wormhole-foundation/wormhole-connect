@@ -21,6 +21,9 @@ export type UiConfig = {
   // Shows in-progress widgets
   showInProgressWidget?: boolean;
 
+  // Shows FooterNav
+  showFooter?: boolean;
+
   // Set to true to disable the ability to paste in a token address
   disableUserInputtedTokens?: boolean;
 
@@ -79,6 +82,7 @@ export interface MenuEntry {
 export function createUiConfig(customConfig: UiConfig): UiConfig {
   return {
     ...customConfig,
+    showFooter: customConfig.showFooter ?? true, // Footer is shown by default if not specified
     experimental: customConfig.experimental ?? {},
     walletConnectProjectId:
       customConfig?.walletConnectProjectId ??

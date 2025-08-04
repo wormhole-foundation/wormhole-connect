@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import RoutingIcon from 'icons/Routing';
 import ProviderLabel from './ProviderLabel';
 
 interface RoutesLinkProps {
@@ -26,7 +25,6 @@ function RoutesLink({
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <RoutingIcon sx={{ color: theme.palette.text.primary, opacity: 0.5 }} />
       <Link
         component="span"
         data-testid="other-routes-toggle"

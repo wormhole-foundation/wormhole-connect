@@ -9,6 +9,7 @@ import { isMinAmountError } from 'utils/sdkv2';
 export type AmountValidationResult = {
   error?: string;
   warning?: string;
+  info?: string;
 };
 
 type Props = {
@@ -89,7 +90,7 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
   if (minAmount) {
     const formattedAmount = formatMinAmount(minAmount);
     return {
-      warning: `More routes available for ${formattedAmount} ${props.tokenSymbol} or more.`,
+      info: `More routes available for ${formattedAmount} ${props.tokenSymbol} or more.`,
     };
   }
 

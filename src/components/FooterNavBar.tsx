@@ -19,10 +19,7 @@ function itemAppender(acc: MenuItem[], item: MenuEntry) {
 }
 
 function defaultMenuItems(navigate: (name: Route) => void): MenuItem[] {
-  return [
-    { label: 'Resume Transaction', handleClick: () => navigate('search') },
-    { label: 'Terms of Service', handleClick: () => navigate('terms') },
-  ];
+  return [{ label: 'Terms of Service', handleClick: () => navigate('terms') }];
 }
 
 export default function FooterNavBar() {

@@ -99,7 +99,7 @@ function Routes({
       toggleGroup: {
         height: '32px',
         width: '100%',
-        minWidth: '174px',
+        maxWidth: '174px',
         gap: '4px',
         padding: '4px 0',
       },
@@ -215,7 +215,14 @@ function Routes({
       cheapestRoute.name !== fastestRoute.name
     ) {
       return (
-        <Box sx={{ maxWidth: '174px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+          }}
+        >
           <ToggleButtonGroup
             exclusive
             size="small"
@@ -281,24 +288,16 @@ function Routes({
             sx={{
               width: '100%',
               alignItems: 'center',
-              gap: '12px',
+              gap: '16px',
             }}
           >
-            <Box
-              sx={{
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-              }}
-            >
-              {routeSelectionPills}
-            </Box>
+            {routeSelectionPills}
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                padding: '0 8px',
                 width: '100%',
               }}
             >

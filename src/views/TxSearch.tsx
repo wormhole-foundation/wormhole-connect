@@ -241,18 +241,20 @@ function TxSearch() {
           'Search'
         )}
       </Button>
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: '700px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginTop: '20px',
-        }}
-      >
-        <FooterNavBar />
-      </Box>
+      {config.ui.showFooter && (
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '700px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginTop: '20px',
+          }}
+        >
+          <FooterNavBar />
+        </Box>
+      )}
     </Box>
   );
 }

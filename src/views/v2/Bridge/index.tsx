@@ -658,8 +658,12 @@ const Bridge = () => {
           walletConnector
         )}
       </Box>
-      <PoweredByIcon color={theme.palette.text.primary} />
-      <FooterNavBar />
+      {config.ui.showFooter && (
+        <>
+          <PoweredByIcon color={theme.palette.text.primary} />
+          <FooterNavBar />
+        </>
+      )}
     </Box>
   );
 };

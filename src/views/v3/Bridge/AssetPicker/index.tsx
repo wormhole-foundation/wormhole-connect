@@ -209,7 +209,7 @@ function AssetPicker(props: Props) {
       percentButton: {
         borderRadius: '50px',
         color: theme.palette.text.primary,
-        height: '24px',
+        height: '22px',
         minWidth: '40px',
         backgroundColor: theme.palette.text.primary + OPACITY[10],
         opacity: 0.7,
@@ -231,6 +231,8 @@ function AssetPicker(props: Props) {
       ? sdkAmount.whole(props.quote?.destinationToken.amount)
       : undefined;
 
+  const receiveAmountText = receiveAmount ? receiveAmount.toString() : '';
+
   const tokenPrice = useMemo(() => {
     const tokenAmount = props.isSource
       ? amount
@@ -249,7 +251,7 @@ function AssetPicker(props: Props) {
 
   const amountUSDValue =
     props.token && tokenPrice ? (
-      <Typography color={theme.palette.text.secondary} variant="body2">
+      <Typography color={theme.palette.text.secondary} fontSize="12px">
         {tokenPrice ?? null}
       </Typography>
     ) : null;
@@ -381,7 +383,7 @@ function AssetPicker(props: Props) {
     <Box sx={styles.root}>
       <Box sx={styles.container}>
         <Box sx={styles.title}>
-          <Typography fontSize={12} variant="body2">
+          <Typography fontSize={12} fontWeight={500} variant="body2">
             {props.isSource ? 'From' : 'To'}
           </Typography>
           <WalletController
@@ -428,9 +430,16 @@ function AssetPicker(props: Props) {
                 placeholder="0"
                 slotProps={{
                   htmlInput: {
+                    maxLength: 22,
                     style: {
-                      fontSize: '32px',
-                      height: '32px',
+                      // Shrink the font size based on the length of the input value
+                      fontSize:
+                        receiveAmountText.length > 12
+                          ? '20px'
+                          : receiveAmountText.length > 6
+                          ? '28px'
+                          : '36px',
+                      height: '36px',
                     },
                   },
                   input: {
@@ -438,11 +447,7 @@ function AssetPicker(props: Props) {
                   },
                 }}
                 variant="standard"
-                value={
-                  receiveAmount
-                    ? formatWithCommas(receiveAmount.toString())
-                    : ''
-                }
+                value={formatWithCommas(receiveAmountText)}
               />
             </Box>
           )}
@@ -481,7 +486,7 @@ function AssetPicker(props: Props) {
         </Box>
         <Box
           sx={{
-            height: '24px',
+            height: '22px',
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',

@@ -14,7 +14,6 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
-import HistoryIcon from '@mui/icons-material/History';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -33,6 +32,7 @@ import useConfirmTransaction from 'hooks/useConfirmTransaction';
 import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
+import HistoryIcon from 'icons/History';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import {
@@ -572,15 +572,6 @@ function Bridge() {
       </Box>
       {transactionError}
       <AmountValidationError validation={amountValidation} />
-      {hasEnteredAmount && (
-        <Routes
-          routes={sortedRoutes}
-          selectedRoute={route}
-          onRouteChange={handleRouteChange}
-          quotes={quotes}
-          isLoading={isFetchingQuotes}
-        />
-      )}
     </>
   );
 
@@ -607,11 +598,22 @@ function Bridge() {
               <IconButton
                 data-testid="history-button"
                 aria-label={showHistory ? 'Show bridge' : 'Show history'}
-                sx={{ padding: 0 }}
+                sx={{
+                  backgroundColor: theme.palette.background.form + OPACITY[20],
+                  padding: '12px',
+                  width: '40px',
+                  height: '40px',
+                  border: `1px solid ${theme.palette.input.border}`,
+                  borderRadius: '40px',
+                }}
                 disabled={isTxHistoryDisabled}
                 onClick={handleHistoryToggle}
               >
-                {showHistory ? <SwapHorizIcon /> : <HistoryIcon />}
+                {showHistory ? (
+                  <SwapHorizIcon sx={{ fontSize: '16px' }} />
+                ) : (
+                  <HistoryIcon sx={{ fontSize: '16px' }} />
+                )}
               </IconButton>
             </span>
           </Tooltip>
@@ -625,8 +627,23 @@ function Bridge() {
       >
         {showHistory ? <TxHistory /> : bridgeContent}
       </Box>
-      <PoweredByIcon color={theme.palette.text.primary} />
-      <FooterNavBar />
+      {hasEnteredAmount && !showHistory && (
+        <Box sx={{ marginTop: '12px', width: '100%' }}>
+          <Routes
+            routes={sortedRoutes}
+            selectedRoute={route}
+            onRouteChange={handleRouteChange}
+            quotes={quotes}
+            isLoading={isFetchingQuotes}
+          />
+        </Box>
+      )}
+      {config.ui.showFooter && (
+        <>
+          <PoweredByIcon color={theme.palette.text.primary} />
+          <FooterNavBar />
+        </>
+      )}
     </Box>
   );
 }

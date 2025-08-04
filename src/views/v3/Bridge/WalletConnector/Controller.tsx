@@ -116,7 +116,7 @@ const ConnectedWallet = (props: Props) => {
               <Typography
                 sx={styles.walletAddress}
                 fontSize={12}
-                fontWeight={700}
+                fontWeight={400}
               >
                 {displayWalletAddress(wallet.type, wallet.address)}
               </Typography>

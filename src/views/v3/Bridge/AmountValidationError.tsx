@@ -1,35 +1,21 @@
 import React from 'react';
-import { useTheme } from '@mui/material';
 import AlertBannerV3 from 'components/v3/AlertBanner';
 
-type ValidationResult = {
-  error?: string;
-  warning?: string;
-};
+import type { AmountValidationResult } from 'hooks/useAmountValidation';
 
 type Props = {
-  validation: ValidationResult;
+  validation: AmountValidationResult;
 };
 
 const AmountValidationError = ({ validation }: Props) => {
-  const theme = useTheme();
+  const message = validation.error || validation.warning || validation.info;
 
-  const hasError = !!validation.error;
-  const hasWarning = !!validation.warning;
-  const message = validation.error || validation.warning;
-
-  if (!hasError && !hasWarning) {
+  if (!message) {
     return null;
   }
 
   return (
-    <AlertBannerV3
-      warning={hasWarning}
-      error={hasError}
-      color={
-        validation.error ? theme.palette.error.main : theme.palette.warning.main
-      }
-    >
+    <AlertBannerV3 error={!!validation.error} warning={!!validation.warning}>
       {message}
     </AlertBannerV3>
   );
