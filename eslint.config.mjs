@@ -43,7 +43,6 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   reactPlugin.configs.flat.recommended,
-  reactPlugin.configs.flat['jsx-runtime'],
 
   // React hooks plugin
   {
@@ -70,7 +69,6 @@ export default [
       'no-redeclare': 'off',
 
       // React rules
-      'react/react-in-jsx-scope': 'off', // Not needed with new JSX transform
       'react/prop-types': 'off', // We use TypeScript for type checking
       'react/no-unescaped-entities': 'off', // Allow quotes in JSX
       'react/display-name': 'off', // Not critical for our use case
