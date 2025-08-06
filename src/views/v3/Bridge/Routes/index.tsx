@@ -101,7 +101,9 @@ function Routes({
         width: '100%',
         maxWidth: '174px',
         gap: '4px',
-        padding: '4px 0',
+        padding: '4px',
+        backgroundColor: theme.palette.input.background,
+        borderRadius: '24px',
       },
       toggleButton: {
         border: 'none',
@@ -299,6 +301,7 @@ function Routes({
                 justifyContent: 'space-between',
                 padding: '0 8px',
                 width: '100%',
+                height: '18px',
               }}
             >
               <RoutesLink
