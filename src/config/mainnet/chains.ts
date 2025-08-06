@@ -201,4 +201,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Plume',
     symbol: 'PLUME',
   },
+  HyperEVM: {
+    displayName: 'HyperEVM',
+    sdkName: 'HyperEVM',
+    explorerUrl: 'https://hyperevmscan.io/',
+    explorerName: 'HyperEVMScan',
+    icon: 'HyperEVM',
+    symbol: 'HYPE',
+  },
 };
