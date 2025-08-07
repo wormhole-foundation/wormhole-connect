@@ -53,6 +53,27 @@ jobs:
       - name: Check Prettier formatting
         run: npm run prettier:check
 
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
   commitlint:
     name: Commit Message Lint
     runs-on: ubuntu-latest
@@ -111,7 +132,7 @@ jobs:
   code-quality-summary:
     name: Code Quality Summary
     runs-on: ubuntu-latest
-    needs: [lint, format, commitlint]
+    needs: [lint, format, unit-tests, commitlint]
     if: always()
 
     steps:
@@ -133,6 +154,12 @@ jobs:
             echo "❌ **Prettier**: Failed" >> $GITHUB_STEP_SUMMARY
           fi
 
+          if [ "${{ needs.unit-tests.result }}" == "success" ]; then
+            echo "✅ **Unit Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Unit Tests**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
           if [ "${{ needs.commitlint.result }}" == "success" ] || [ "${{ needs.commitlint.result }}" == "skipped" ]; then
             if [ "${{ needs.commitlint.result }}" == "skipped" ]; then
               echo "⏭️ **Commit Linting**: Skipped (not a PR)" >> $GITHUB_STEP_SUMMARY
@@ -147,6 +174,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ needs.lint.result }}" == "success" ] && \
              [ "${{ needs.format.result }}" == "success" ] && \
+             [ "${{ needs.unit-tests.result }}" == "success" ] && \
              ([ "${{ needs.commitlint.result }}" == "success" ] || [ "${{ needs.commitlint.result }}" == "skipped" ]); then
             echo "### ✅ All quality checks passed!" >> $GITHUB_STEP_SUMMARY
           else
