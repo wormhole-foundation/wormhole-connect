@@ -129,16 +129,12 @@ export default class RouteOperator {
 
   allSupportedChains(): Chain[] {
     const supported = new Set<Chain>();
-    for (const key in config.chains) {
-      const chain = key as Chain;
-      this.forEach(async (_name, route) => {
-        if (!supported.has(chain)) {
-          const isSupported = route.isSupportedChain(chain);
-          if (isSupported) {
-            supported.add(chain);
-          }
-        }
-      });
+    // Check each route for supported chains
+    for (const routeName of this.preference) {
+      const route = this.routes[routeName];
+      // Get fresh list from route constructor to avoid stale cached data
+      const supportedChains = route.rc.supportedChains(config.network);
+      supportedChains.forEach((chain: Chain) => supported.add(chain));
     }
     return Array.from(supported);
   }
