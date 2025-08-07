@@ -27,9 +27,9 @@ import { useExternalSearch } from 'hooks/useExternalSearch';
 import BridgeV2 from 'views/v2/Bridge';
 import RedeemV2 from 'views/v2/Redeem';
 import TxHistoryV2 from 'views/v2/TxHistory';
+import type { BridgeProps } from 'views/v3/Bridge';
 import BridgeV3 from 'views/v3/Bridge';
 import RedeemV3 from 'views/v3/Redeem';
-import TxHistoryV3 from 'views/v3/TxHistory';
 import { RouteContext } from 'contexts/RouteContext';
 import SvgDefs from 'icons/SvgDefs';
 import { Box } from '@mui/material';
@@ -66,8 +66,12 @@ const AppRouterContent: React.FC = () => {
   }, [hasExternalSearch, dispatch]);
 
   // TODO: Deprecate with UI refresh v3
-  const bridgeView = useMemo(() => {
-    return getExperiment('enableUIRefreshV3') ? <BridgeV3 /> : <BridgeV2 />;
+  const getBridgeView = useCallback((props: BridgeProps) => {
+    return getExperiment('enableUIRefreshV3') ? (
+      <BridgeV3 {...props} />
+    ) : (
+      <BridgeV2 />
+    );
   }, []);
 
   // TODO: Deprecate with UI refresh v3
@@ -78,7 +82,7 @@ const AppRouterContent: React.FC = () => {
   // TODO: Deprecate with UI refresh v3
   const txHistoryView = useMemo(() => {
     return getExperiment('enableUIRefreshV3') ? (
-      <TxHistoryV3 />
+      getBridgeView({ showHistory: true })
     ) : (
       <TxHistoryV2 />
     );
@@ -100,7 +104,7 @@ const AppRouterContent: React.FC = () => {
       }}
     >
       <SvgDefs />
-      {route === 'bridge' && bridgeView}
+      {route === 'bridge' && getBridgeView({ showHistory: false })}
       {route === 'redeem' && redeemView}
       {route === 'history' && txHistoryView}
       {route === 'search' && <TxSearch />}

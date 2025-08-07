@@ -58,11 +58,15 @@ import TxHistory from '../TxHistory';
 import AmountValidationError from './AmountValidationError';
 import { getFilteredChains } from 'utils/sdkv2';
 
-function Bridge() {
+export type BridgeProps = {
+  showHistory?: boolean;
+};
+
+function Bridge(props: BridgeProps) {
   const theme: any = useTheme();
   const dispatch = useDispatch();
 
-  const [showHistory, setShowHistory] = useState(false);
+  const [showHistory, setShowHistory] = useState(props.showHistory ?? false);
 
   const { lastTokenCacheUpdate } = useTokens();
   const [errorCopied, setErrorCopied] = useState(false);
