@@ -246,8 +246,9 @@ function Bridge(props: BridgeProps) {
   const supportedChains = useMemo(
     () => config.routes.allSupportedChains(),
     // Disabled because we're using the global cache and we have to monitor values that aren't directly used in this hook
+    // Include config.routes to ensure updates when routes change dynamically (e.g., NTT config loading)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [config.chains],
+    [config.chains, config.routes],
   );
 
   const sourceTokens = useMemo(() => {
