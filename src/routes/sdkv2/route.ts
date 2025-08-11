@@ -264,10 +264,10 @@ export class SDKv2Route {
     sourceToken: Token,
     amount: Amount,
     fromChain: Chain,
+    signer: Signer,
     toChain: Chain,
     recipientAddress: string,
     destToken: Token,
-    signer: Signer,
     options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<[routes.Route<Network>, routes.Receipt]> {
     const [route, quote, req] = await this.getQuote(

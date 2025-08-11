@@ -167,10 +167,10 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
           sourceToken,
           amount,
           sourceChain,
+          signer,
           destChain,
           receivingWallet.address,
           destToken,
-          signer,
           { nativeGas: toNativeToken },
         );
 

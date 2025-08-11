@@ -69,7 +69,7 @@ function WalletProvider({
         type: 'wallet.connect',
         details: {
           side: type,
-          chain: chain,
+          chain,
           wallet: wallet.getName().toLowerCase(),
         },
       });
