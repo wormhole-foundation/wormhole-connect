@@ -67,8 +67,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   Klaytn: {
     displayName: 'Kaia',
-    explorerUrl: 'https://kairos.kaiascope.com/',
-    explorerName: 'Kaia Scope',
+    explorerUrl: 'https://kairos.kaiascan.io/',
+    explorerName: 'KaiaScan',
     icon: 'Klaytn',
     symbol: 'KAIA',
     sdkName: 'Klaytn',

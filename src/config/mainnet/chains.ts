@@ -108,8 +108,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
   Klaytn: {
     displayName: 'Kaia',
     sdkName: 'Klaytn',
-    explorerUrl: 'https://kaiascope.com/',
-    explorerName: 'Kaia Scope',
+    explorerUrl: 'https://kaiascan.io/',
+    explorerName: 'KaiaScan',
     icon: 'Klaytn',
     symbol: 'KAIA',
   },

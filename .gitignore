@@ -47,3 +47,6 @@ stats.json
 stats.html
 
 .claude/settings.local.json
+
+# Intellij
+.idea
