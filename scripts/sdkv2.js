@@ -1,25 +1,23 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const WORK_ROOT = process.env['WORK_ROOT'];
+const WORK_ROOT = process.env['WORK_ROOT'] || os.homedir();
 
 const thirdPartyPkgs = {
   '@mayanfinance/wormhole-sdk-route': 'wormhole-sdk-route',
   '@wormhole-foundation/sdk-definitions-ntt':
     'native-token-transfers/sdk/definitions',
-  '@wormhole-foundation/sdk-route-ntt':
-    'native-token-transfers/sdk/route',
-  '@wormhole-foundation/sdk-solana-ntt':
-    'native-token-transfers/solana',
+  '@wormhole-foundation/sdk-route-ntt': 'native-token-transfers/sdk/route',
+  '@wormhole-foundation/sdk-solana-ntt': 'native-token-transfers/solana',
   '@wormhole-foundation/sdk-evm-ntt': 'native-token-transfers/evm/ts',
   ntt: 'native-token-transfers',
 };
 
-if (!WORK_ROOT) {
-  console.error(
-    'Please export a WORK_ROOT env var containing the absolute path to a directory containing the following repos:\n- wormhole-sdk-ts\n- example-native-token-transfers',
+if (!process.env['WORK_ROOT']) {
+  console.log(
+    `Using default WORK_ROOT: ${WORK_ROOT}\nTo specify a different directory, export WORK_ROOT env var containing the absolute path to a directory with the repos:\n- wormhole-sdk-ts\n- native-token-transfers`,
   );
-  process.exit(1);
 }
 
 const SDK_PATH = path.join(WORK_ROOT, 'wormhole-sdk-ts');
