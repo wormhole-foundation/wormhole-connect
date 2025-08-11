@@ -42,6 +42,9 @@ const AppRouterContent: React.FC = () => {
 
   const prevRoute = usePrevious(route);
   const { hasExternalSearch } = useExternalSearch();
+
+  const UIRefreshV3Enabled = getExperiment('enableUIRefreshV3');
+
   useEffect(() => {
     const redeemRoute = 'redeem';
     const bridgeRoute = 'bridge';
@@ -66,27 +69,26 @@ const AppRouterContent: React.FC = () => {
   }, [hasExternalSearch, dispatch]);
 
   // TODO: Deprecate with UI refresh v3
-  const getBridgeView = useCallback((props: BridgeProps) => {
-    return getExperiment('enableUIRefreshV3') ? (
-      <BridgeV3 {...props} />
-    ) : (
-      <BridgeV2 />
-    );
-  }, []);
+  const getBridgeView = useCallback(
+    (props: BridgeProps) => {
+      return UIRefreshV3Enabled ? <BridgeV3 {...props} /> : <BridgeV2 />;
+    },
+    [UIRefreshV3Enabled],
+  );
 
   // TODO: Deprecate with UI refresh v3
   const redeemView = useMemo(() => {
-    return getExperiment('enableUIRefreshV3') ? <RedeemV3 /> : <RedeemV2 />;
-  }, []);
+    return UIRefreshV3Enabled ? <RedeemV3 /> : <RedeemV2 />;
+  }, [UIRefreshV3Enabled]);
 
   // TODO: Deprecate with UI refresh v3
   const txHistoryView = useMemo(() => {
-    return getExperiment('enableUIRefreshV3') ? (
+    return UIRefreshV3Enabled ? (
       getBridgeView({ showHistory: true })
     ) : (
       <TxHistoryV2 />
     );
-  }, []);
+  }, [UIRefreshV3Enabled, getBridgeView]);
 
   return (
     <Box

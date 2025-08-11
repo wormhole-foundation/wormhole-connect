@@ -7,6 +7,7 @@ import { setRoute } from 'store/router';
 import type { Alignment } from './Header';
 import Header from './Header';
 import DownIcon from 'icons/Down';
+import { getExperiment } from 'utils/experiments';
 
 type PageHeaderProps = {
   title: string;
@@ -25,6 +26,7 @@ function PageHeader({
 }: PageHeaderProps) {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const UIRefreshV3Enabled = getExperiment('enableUIRefreshV3');
 
   const styles = useMemo(
     () => ({
@@ -66,7 +68,7 @@ function PageHeader({
   );
 
   function goBack() {
-    dispatch(setRoute('history'));
+    dispatch(setRoute(UIRefreshV3Enabled ? 'history' : 'bridge'));
   }
 
   return (

@@ -6,6 +6,7 @@ import type { Route } from 'store/router';
 import { setRoute } from 'store/router';
 import config from 'config';
 import type { MenuEntry } from 'config/ui';
+import { getExperiment } from 'utils/experiments';
 
 type MenuItem = {
   label: string;
@@ -19,11 +20,23 @@ function itemAppender(acc: MenuItem[], item: MenuEntry) {
 }
 
 function defaultMenuItems(navigate: (name: Route) => void): MenuItem[] {
-  return [{ label: 'Terms of Service', handleClick: () => navigate('terms') }];
+  const items: MenuItem[] = [];
+  if (!getExperiment('enableUIRefreshV3')) {
+    items.push({
+      label: 'Resume Transaction',
+      handleClick: () => navigate('search'),
+    });
+  }
+  items.push({
+    label: 'Terms of Service',
+    handleClick: () => navigate('terms'),
+  });
+  return items;
 }
 
 export default function FooterNavBar() {
   const theme = useTheme();
+
   const styles = useMemo(
     () => ({
       menuIcon: ICON,
