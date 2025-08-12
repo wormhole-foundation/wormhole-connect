@@ -784,6 +784,11 @@ const Redeem = () => {
     walletProvider,
   ]);
 
+  const handleConnectReceivingWallet = useCallback(async () => {
+    setIsWalletSidebarOpen(true);
+    await connectWallet(toChain, TransferWallet.RECEIVING);
+  }, [connectWallet, toChain]);
+
   // Main CTA button which has separate states for automatic and manual claims
   const actionButton = useMemo(() => {
     if (isClaimInProgress) {
@@ -845,10 +850,7 @@ const Redeem = () => {
           <Button
             variant="primary"
             sx={styles.actionButton}
-            onClick={async () => {
-              setIsWalletSidebarOpen(true);
-              await connectWallet(toChain, TransferWallet.RECEIVING);
-            }}
+            onClick={handleConnectReceivingWallet}
           >
             <Typography textTransform="none">
               Connect receiving wallet
@@ -903,11 +905,9 @@ const Redeem = () => {
     isConnectedToReceivingWallet,
     claimError,
     handleManualClaim,
+    handleConnectReceivingWallet,
     dispatch,
     fromChain,
-    walletProvider,
-    connectWallet,
-    toChain,
   ]);
 
   const txDelayedText = useMemo(() => {
