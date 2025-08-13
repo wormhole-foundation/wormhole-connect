@@ -1,18 +1,22 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import { defineConfig, loadEnv, ConfigEnv, LibraryFormats } from 'vite';
 import type { PreRenderedAsset } from 'rollup';
 import react from '@vitejs/plugin-react-swc';
-import checker from '@artursapek/vite-plugin-checker';
+import checker from 'vite-plugin-checker';
 // Until this is merged or that issue is fixed some other way, we have to use
 // this fork of vite-plugin-node-polyfills.
 // https://github.com/davidmyersdev/vite-plugin-node-polyfills/pull/89
 import { nodePolyfills } from '@kev1n-peters/vite-plugin-node-polyfills';
 import dts from 'vite-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
+import packageJson from './package.json';
 
-const packagePath = './package.json';
-const { version } = require(packagePath);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const { version } = packageJson;
 
 let gitHash = 'unknown';
 try {
