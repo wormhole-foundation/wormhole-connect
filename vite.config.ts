@@ -64,9 +64,14 @@ const resolve = {
 };
 
 const plugins = [
-  checker({
-    typescript: true,
-  }),
+  // Disabled during build - types are handled by dts plugin
+  process.env.NODE_ENV !== 'production' &&
+    checker({
+      typescript: {
+        tsconfigPath: './tsconfig.json',
+        exclude: ['**/node_modules/**', '**/dist/**', '**/lib/**'],
+      },
+    }),
   dts({
     insertTypesEntry: true,
   }),
