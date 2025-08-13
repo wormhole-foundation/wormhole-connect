@@ -5,7 +5,7 @@ import { maybeLogSdkError } from 'utils/errors';
 import memoize from 'fast-memoize';
 
 import type { Chain, TransactionId, TokenId } from '@wormhole-foundation/sdk';
-import { routes, amount as sdkAmount, circle, Wormhole } from '@wormhole-foundation/sdk';
+import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';
 
