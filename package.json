@@ -190,6 +190,7 @@
   },
   "overrides": {
     "axios": "1.10.0",
+    "viem": "2.33.3",
     "@ledgerhq/hw-transport@6.27.1": {
       "@ledgerhq/errors": "6.10.2",
       "@ledgerhq/logs": "6.12.0",
