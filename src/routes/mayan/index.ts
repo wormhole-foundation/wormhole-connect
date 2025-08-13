@@ -61,7 +61,7 @@ import {
   toMayanChainName,
   isTestnetSupportedChain,
   txStatusToReceipt,
-} from './utils';
+} from '../../utils/mayan/utils';
 import {
   createAssociatedTokenAccountIdempotentInstruction,
   createTransferInstruction,
@@ -75,9 +75,12 @@ import {
   TransactionInstruction,
   VersionedTransaction,
 } from '@solana/web3.js';
-import { Transaction } from '@mysten/sui/transactions';
 import { SuiClient } from '@mysten/sui/client';
-import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
+import {
+  createTransactionRequest,
+  getEvmContractAddress,
+} from '../../utils/mayan/evm/utils';
+import { Transaction } from '@mysten/sui/dist/cjs/transactions';
 
 export namespace MayanRoute {
   export type Options = {
@@ -523,7 +526,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
 
     const res = await axios.get(fetchQuoteUrl.toString());
     if (res.status !== 200) {
-      throw new Error('Unable to fetch quote', { cause: res });
+      throw new Error(`Unable to fetch quote cause:${res}`);
     }
 
     const quotes = res.data?.quotes?.filter((quote: MayanQuote) =>
@@ -649,16 +652,6 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
         const data = e?.response?.data;
 
         if (data?.code === 'AMOUNT_TOO_SMALL') {
-          // When amount is too small, Mayan SDK returns errors in this format:
-          //
-          // {
-          //   code: "AMOUNT_TOO_SMALL",
-          //   data: { minAmountIn: 0.00055 },
-          //   message: "Amount too small (min ~0.00055 ETH)"
-          // }
-          //
-          // We parse this and return a standardized Wormhole SDK MinAmountError
-
           const minAmountIn = data?.data?.minAmountIn;
           const minAmount = this.getMinAmount(
             minAmountIn,
@@ -676,7 +669,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
         if (data?.msg) {
           return {
             success: false,
-            error: Error(data?.msg, { cause: data }),
+            error: new Error(`${data?.msg} cause: ${data}`),
           };
         }
       }
