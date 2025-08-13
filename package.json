@@ -30,11 +30,6 @@
       "require": "./lib/executor.js",
       "import": "./lib/executor.mjs",
       "types": "./lib/executor.d.ts"
-    },
-    "./monad": {
-      "require": "./lib/monad.js",
-      "import": "./lib/monad.mjs",
-      "types": "./lib/monad.d.ts"
     }
   },
   "files": [
@@ -59,7 +54,6 @@
     "@reduxjs/toolkit": "^2.5.1",
     "@solana/spl-token": "0.4.0",
     "@solana/wallet-adapter-wallets": "0.19.32",
-    "@solana/web3.js": "^1.98.2",
     "@wormhole-foundation/sdk": "3.2.0",
     "@wormhole-foundation/sdk-definitions": "3.2.0",
     "@wormhole-foundation/sdk-definitions-ntt": "0.9.0-multi-token-alpha.0",
@@ -73,6 +67,7 @@
     "@wormhole-labs/wallet-aggregator-evm": "0.4.0",
     "@wormhole-labs/wallet-aggregator-solana": "0.0.1",
     "@wormhole-labs/wallet-aggregator-sui": "0.0.1",
+    "@wormhole-labs/lifi-route": "1.1.0",
     "axios": "1.10.0",
     "binary-parser": "^2.2.1",
     "color": "^5.0.0",
