@@ -88,6 +88,12 @@ const Routes = ({ ...props }: Props) => {
 
     const selectedRoute = routes.find((route) => route === props.selectedRoute);
 
+    // Find manual routes (routes without AUTOMATIC_DEPOSIT)
+    const manualRoutes = routes.filter((route) => {
+      const rc = config.routes.get(route);
+      return rc && !rc.AUTOMATIC_DEPOSIT;
+    });
+
     // Special case when we have a selected route
     if (selectedRoute) {
       const topRoutes: Array<string> = [];
@@ -118,26 +124,41 @@ const Routes = ({ ...props }: Props) => {
           }
         }
       }
+
+      for (const manualRoute of manualRoutes) {
+        if (!topRoutes.includes(manualRoute)) {
+          topRoutes.push(manualRoute);
+        }
+      }
+
       return topRoutes;
     }
 
-    // If we have fastest and cheapest routes, we show them both at the top
-    if (!!fastestRoute.name && !!cheapestRoute.name) {
-      return routes.slice(0, 2);
+    const defaultRoutes: Array<string> = [];
+
+    if (fastestRoute.name) {
+      defaultRoutes.push(fastestRoute.name);
+    }
+    if (cheapestRoute.name && cheapestRoute.name !== fastestRoute.name) {
+      defaultRoutes.push(cheapestRoute.name);
     }
 
-    // Otherwise we might have a cheapest route but none qualifying as fastest,
-    // so we show the first route at the top
-    return routes.slice(0, 1);
+    for (const manualRoute of manualRoutes) {
+      if (!defaultRoutes.includes(manualRoute)) {
+        defaultRoutes.push(manualRoute);
+      }
+    }
+
+    if (defaultRoutes.length === 0 && routes.length > 0) {
+      return routes.slice(0, 1);
+    }
+
+    return defaultRoutes;
   }, [showAll, routes, fastestRoute, cheapestRoute, props.selectedRoute]);
 
   const hideShowToggle = useMemo(() => {
-    // If we have less than 2 routes; or there are 2 but those are the fastest and cheapest routes,
-    // we do not show the toggle to view other routes
-    if (
-      routes.length < 2 ||
-      (routes.length === 2 && !!fastestRoute.name && !!cheapestRoute.name)
-    ) {
+    // Check if we're showing all available routes already
+    if (renderRoutes.length === routes.length) {
       return null;
     }
 
@@ -150,13 +171,7 @@ const Routes = ({ ...props }: Props) => {
         {showAll ? 'Hide other routes' : 'View other routes'}
       </Link>
     );
-  }, [
-    cheapestRoute.name,
-    styles.otherRoutesToggle,
-    fastestRoute.name,
-    routes.length,
-    showAll,
-  ]);
+  }, [renderRoutes.length, routes.length, styles.otherRoutesToggle, showAll]);
 
   return (
     <>
