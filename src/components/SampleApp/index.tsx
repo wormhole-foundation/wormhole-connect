@@ -42,6 +42,13 @@ import {
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
 import type { WormholeConnectTheme } from 'theme';
+import {
+  MayanRoute,
+  MayanRouteMCTP,
+  MayanRouteMONOCHAIN,
+  MayanRouteSWIFT,
+  MayanRouteWH,
+} from 'routes/mayan';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 

@@ -80,7 +80,7 @@ import {
   createTransactionRequest,
   getEvmContractAddress,
 } from '../../utils/mayan/evm/utils';
-import { Transaction } from '@mysten/sui/dist/cjs/transactions';
+import { Transaction } from '@mysten/sui/transactions';
 
 export namespace MayanRoute {
   export type Options = {
