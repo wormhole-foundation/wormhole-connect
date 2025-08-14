@@ -33,13 +33,6 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
  *
  */
 import { routes } from '@wormhole-foundation/sdk';
-import {
-  MayanRoute,
-  MayanRouteWH,
-  MayanRouteMCTP,
-  MayanRouteSWIFT,
-  MayanRouteMONOCHAIN,
-} from '@mayanfinance/wormhole-sdk-route';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { nttRoutes } from 'exports/ntt';
