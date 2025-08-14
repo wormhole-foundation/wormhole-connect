@@ -766,7 +766,6 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
         const contractAddress = getEvmContractAddress(
           request.fromChain.network,
           feeUnits,
-          true,
         );
 
         const amountUnits = amount.units(

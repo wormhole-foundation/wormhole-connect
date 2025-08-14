@@ -67,6 +67,7 @@ function createMayanForwarderShim() {
   return { encodeFunctionData, getMsgValue };
 }
 
+// @ts-ignore
 function useMayanForwarderShim(
   network: Network,
   feeUnits: bigint,

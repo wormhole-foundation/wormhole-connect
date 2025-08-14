@@ -1,4 +1,6 @@
 import type { Network, routes } from '@wormhole-foundation/sdk-connect';
+import { MayanRouteBase } from './MayanRouteBase';
+import type { MayanProtocol } from './types';
 
 export class MayanRoute<N extends Network>
   extends MayanRouteBase<N>
@@ -9,5 +11,10 @@ export class MayanRoute<N extends Network>
     provider: 'Mayan',
   };
 
-  override protocols: MayanProtocol[] = ['WH', 'MCTP', 'SWIFT', 'MONO_CHAIN'];
+  override protocols: Array<MayanProtocol> = [
+    'WH',
+    'MCTP',
+    'SWIFT',
+    'MONO_CHAIN',
+  ];
 }
