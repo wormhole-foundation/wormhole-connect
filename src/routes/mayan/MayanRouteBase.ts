@@ -1,32 +1,40 @@
-import {
+import type {
   ComposableSuiMoveCallsOptions,
   Quote as MayanQuote,
-  QuoteParams,
-  ReferrerAddresses,
+} from '@mayanfinance/swap-sdk';
+import {
   createSwapFromSolanaInstructions,
   createSwapFromSuiMoveCalls,
   generateFetchQuoteUrl,
   getSwapFromEvmTxPayload,
+  type QuoteParams,
+  type ReferrerAddresses,
 } from '@mayanfinance/swap-sdk';
+import type { SuiClient } from '@mysten/sui/dist/cjs/client';
+import { Transaction } from '@mysten/sui/dist/cjs/transactions';
 import {
-  generateFetchQuoteUrl as generateFetchQuoteUrlTestnet,
-  createSwapFromSolanaInstructions as createSwapFromSolanaInstructionsTestnet,
-  createSwapFromSuiMoveCalls as createSwapFromSuiMoveCallsTestnet,
-  getSwapFromEvmTxPayload as getSwapFromEvmTxPayloadTestnet,
-} from '@testnet-mayan/swap-sdk';
+  createAssociatedTokenAccountIdempotentInstruction,
+  createTransferInstruction,
+  getAssociatedTokenAddressSync,
+} from '@solana/spl-token';
+import type { Connection, TransactionInstruction } from '@solana/web3.js';
 import {
+  MessageV0,
+  PublicKey,
+  SystemProgram,
+  VersionedTransaction,
+} from '@solana/web3.js';
+import type {
   Chain,
   ChainAddress,
-  ChainContext,
-  Network,
   Signer,
   SourceInitiatedTransferReceipt,
-  TokenId,
   TransactionId,
-  TransferState,
-  Wormhole,
+} from '@wormhole-foundation/sdk-connect';
+import {
   amount,
   canonicalAddress,
+  circle,
   isAttested,
   isCompleted,
   isNative,
@@ -38,93 +46,57 @@ import {
   isSourceInitiated,
   nativeChainIds,
   routes,
+  TransferState,
+  Wormhole,
+  type ChainContext,
+  type Network,
+  type TokenId,
 } from '@wormhole-foundation/sdk-connect';
-import { chainToPlatform, circle } from '@wormhole-foundation/sdk-base';
-import {
-  EvmChains,
-  EvmPlatform,
-  EvmUnsignedTransaction,
-} from '@wormhole-foundation/sdk-evm';
 import {
   SolanaPlatform,
   SolanaUnsignedTransaction,
 } from '@wormhole-foundation/sdk-solana';
 import {
+  createTransactionRequest,
+  getEvmContractAddress,
+} from 'utils/mayan/evm/utils';
+import {
+  getNativeContractAddress,
+  getTransactionStatus,
+  isTestnetSupportedChain,
+  supportedChains,
+  txStatusToReceipt,
+} from 'utils/mayan/utils';
+
+import {
+  createSwapFromSolanaInstructions as createSwapFromSolanaInstructionsTestnet,
+  createSwapFromSuiMoveCalls as createSwapFromSuiMoveCallsTestnet,
+  generateFetchQuoteUrl as generateFetchQuoteUrlTestnet,
+  getSwapFromEvmTxPayload as getSwapFromEvmTxPayloadTestnet,
+} from '@testnet-mayan/swap-sdk';
+import type { EvmChains } from '@wormhole-foundation/sdk-evm';
+import {
+  EvmPlatform,
+  EvmUnsignedTransaction,
+} from '@wormhole-foundation/sdk-evm';
+import {
   SuiPlatform,
   SuiUnsignedTransaction,
 } from '@wormhole-foundation/sdk-sui';
 import axios from 'axios';
-import {
-  getNativeContractAddress,
-  getTransactionStatus,
-  supportedChains,
-  toMayanChainName,
-  isTestnetSupportedChain,
-  txStatusToReceipt,
-} from '../../utils/mayan/utils';
-import {
-  createAssociatedTokenAccountIdempotentInstruction,
-  createTransferInstruction,
-  getAssociatedTokenAddressSync,
-} from '@solana/spl-token';
-import {
-  Connection,
-  MessageV0,
-  PublicKey,
-  SystemProgram,
-  TransactionInstruction,
-  VersionedTransaction,
-} from '@solana/web3.js';
-import { SuiClient } from '@mysten/sui/client';
-import {
-  createTransactionRequest,
-  getEvmContractAddress,
-} from '../../utils/mayan/evm/utils';
-import { Transaction } from '@mysten/sui/transactions';
+import type {
+  MayanProtocol,
+  Op,
+  Q,
+  QR,
+  R,
+  ReferrerParams,
+  Tp,
+  Vp,
+  Vr,
+} from './types';
 
-export namespace MayanRoute {
-  export type Options = {
-    gasDrop: number;
-    slippageBps: number | 'auto';
-    optimizeFor: 'cost' | 'speed';
-  };
-  export type NormalizedParams = {
-    slippageBps: number | 'auto';
-  };
-  export interface ValidatedParams
-    extends routes.ValidatedTransferParams<Options> {
-    normalizedParams: NormalizedParams;
-  }
-}
-
-type Op = MayanRoute.Options;
-type Vp = MayanRoute.ValidatedParams;
-type Q = routes.Quote<Op, Vp, MayanQuote>;
-type QR = routes.QuoteResult<Op, Vp, MayanQuote>;
-type R = routes.Receipt;
-
-type Tp = routes.TransferParams<Op>;
-type Vr = routes.ValidationResult<Op>;
-
-type MayanProtocol =
-  | 'WH'
-  | 'MCTP'
-  | 'SWIFT'
-  | 'FAST_MCTP'
-  | 'SHUTTLE'
-  | 'MONO_CHAIN';
-
-type ReferrerParams<N extends Network> = {
-  getReferrerBps?: (request: routes.RouteTransferRequest<N>) => number;
-  referrers?: Partial<Record<Chain, string>>;
-
-  // For temp feature flagging only
-  isNewSolanaReferralEnabled?: boolean; // To be removed eventually
-  isNewSuiReferralEnabled?: boolean; // To be removed eventually
-  isNewEvmReferralEnabled?: boolean; // To be removed eventually
-};
-
-class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
+export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   N,
   Op,
   Vp,
@@ -148,7 +120,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   // Helper function to normalize quote for testnet compatibility
   protected normalizeQuoteForTestnet(quote: MayanQuote): any {
     // Remove properties that don't exist in testnet SDK
-    const { hyperCoreParams, ...testnetCompatibleQuote } = quote;
+    const { ...testnetCompatibleQuote } = quote;
     return testnetCompatibleQuote;
   }
 
@@ -164,7 +136,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return ['Mainnet', 'Testnet'];
   }
 
-  static supportedChains(network: Network): Chain[] {
+  static supportedChains(network: Network): Array<Chain> {
     return supportedChains(network);
   }
 
@@ -222,45 +194,13 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       : getNativeContractAddress(tokenId.chain);
   }
 
-  // TODO remove function
-  // Temp for feature flagging purposes
-  isNewReferralEnabled(request: routes.RouteTransferRequest<N>) {
-    const referralParams = this.getReferralParameters(request);
-
-    const {
-      isNewSolanaReferralEnabled,
-      isNewEvmReferralEnabled,
-      isNewSuiReferralEnabled,
-    } = referralParams;
-
-    const { fromChain } = request;
-    const isSolana = fromChain.chain === 'Solana';
-    const isSui = fromChain.chain === 'Sui';
-    const isEvm = !isSolana && !isSui;
-
-    if (isSolana) {
-      return !!isNewSolanaReferralEnabled;
-    }
-
-    if (isSui) {
-      return !!isNewSuiReferralEnabled;
-    }
-
-    if (isEvm) {
-      return !!isNewEvmReferralEnabled;
-    }
-
-    return false;
-  }
-
   getFeeInBaseUnits(
     request: routes.RouteTransferRequest<N>,
     amountString: string,
   ) {
-    const isNewReferralEnabled = this.isNewReferralEnabled(request);
     const { referrerBps, referrer } = this.getReferralParameters(request);
 
-    if (!referrerBps || !referrer || !isNewReferralEnabled) {
+    if (!referrerBps || !referrer) {
       return 0n;
     }
 
@@ -300,22 +240,15 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   async injectReferralInstructionsForSolana(
     connection: Connection,
     request: routes.RouteTransferRequest<N>,
-    instructionsFromMayanSwap: TransactionInstruction[],
+    instructionsFromMayanSwap: Array<TransactionInstruction>,
     sender: PublicKey,
     originalAmount: string,
   ) {
     const { fromChain, source } = request;
-    const referralParams = this.getReferralParameters(request);
-    const { isNewSolanaReferralEnabled } = referralParams;
     const referrerAddress = this.referrerAddress()?.solana;
     const referralFee = this.getFeeInBaseUnits(request, originalAmount);
 
-    if (
-      !referrerAddress ||
-      !referralFee ||
-      fromChain.network !== 'Mainnet' ||
-      !isNewSolanaReferralEnabled
-    ) {
+    if (!referrerAddress || !referralFee || fromChain.network !== 'Mainnet') {
       return instructionsFromMayanSwap;
     }
 
@@ -391,18 +324,11 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     originalAmount: string,
   ) {
     const { fromChain, source } = request;
-    const referralParams = this.getReferralParameters(request);
-    const { isNewSuiReferralEnabled } = referralParams;
     const referrerAddress = this.referrerAddress()?.sui;
     const referralFee = this.getFeeInBaseUnits(request, originalAmount);
     const remainingAmount = this.getQuoteAmountIn64(request, originalAmount);
 
-    if (
-      !referrerAddress ||
-      !referralFee ||
-      fromChain.network !== 'Mainnet' ||
-      !isNewSuiReferralEnabled
-    ) {
+    if (!referrerAddress || !referralFee || fromChain.network !== 'Mainnet') {
       return {};
     }
 
@@ -487,13 +413,9 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     };
 
     const referralParams = this.getReferralParameters(request);
-    const isNewReferralEnabled = this.isNewReferralEnabled(request);
 
-    // TODO remove this code once new referral code is ready
-    if (!isNewReferralEnabled) {
-      quoteParams.referrer = referralParams.referrer;
-      quoteParams.referrerBps = referralParams.referrerBps;
-    }
+    quoteParams.referrer = referralParams.referrer;
+    quoteParams.referrerBps = referralParams.referrerBps;
 
     const quoteOpts = {
       swift: this.protocols.includes('SWIFT'),
@@ -694,7 +616,6 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       const txs: TransactionId[] = [];
       const rpc = await request.fromChain.getRpc();
       const feeUnits = this.getFeeInBaseUnits(request, quote.params.amount);
-      const isNewReferralEnabled = this.isNewReferralEnabled(request);
 
       if (request.fromChain.chain === 'Solana') {
         const { instructions, signers, lookupTables } =
@@ -711,7 +632,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 quote.details!,
                 originAddress,
                 destinationAddress,
-                isNewReferralEnabled ? null : referrerAddress,
+                referrerAddress,
                 rpc,
                 { allowSwapperOffCurve: true },
               ));
@@ -795,7 +716,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               quote.details!,
               originAddress,
               destinationAddress,
-              isNewReferralEnabled ? null : referrerAddress,
+              referrerAddress,
               undefined,
               rpc,
               options,
@@ -845,7 +766,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
         const contractAddress = getEvmContractAddress(
           request.fromChain.network,
           feeUnits,
-          isNewReferralEnabled,
+          true,
         );
 
         const amountUnits = amount.units(
@@ -899,7 +820,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               quote.details!,
               originAddress,
               destinationAddress,
-              isNewReferralEnabled ? null : referrerAddress,
+              referrerAddress,
               originAddress,
               Number(nativeChainId!),
               undefined,
@@ -912,10 +833,10 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
           amountUnits,
           feeUnits,
           originAddress,
-          referrerAddress?.evm!,
+          referrerAddress?.evm ?? '',
           tokenAddress,
           isNativeToken,
-          isNewReferralEnabled,
+          true,
         );
 
         txReqs.push(
@@ -1025,21 +946,10 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     };
   }
 
-  getReferralParameters(request: routes.RouteTransferRequest<N>): Pick<
-    QuoteParams,
-    'referrerBps' | 'referrer'
-  > & {
-    isNewEvmReferralEnabled?: boolean;
-    isNewSolanaReferralEnabled?: boolean;
-    isNewSuiReferralEnabled?: boolean;
-  } {
-    const {
-      referrers,
-      getReferrerBps,
-      isNewEvmReferralEnabled,
-      isNewSolanaReferralEnabled,
-      isNewSuiReferralEnabled,
-    } = this.constructor as ReferrerParams<N>;
+  getReferralParameters(
+    request: routes.RouteTransferRequest<N>,
+  ): Pick<QuoteParams, 'referrerBps' | 'referrer'> {
+    const { referrers, getReferrerBps } = this.constructor as ReferrerParams<N>;
 
     // TODO fix this function to when fully migrated to v2 referral
     const isReferralEnabled =
@@ -1049,98 +959,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       ? {
           referrer: referrers.Solana, // Mayan referrer system expects solana
           referrerBps: getReferrerBps(request),
-          isNewEvmReferralEnabled,
-          isNewSolanaReferralEnabled,
-          isNewSuiReferralEnabled,
         }
       : {};
   }
-}
-
-export class MayanRoute<N extends Network>
-  extends MayanRouteBase<N>
-  implements routes.StaticRouteMethods<typeof MayanRoute>
-{
-  static meta = {
-    name: 'MayanSwap',
-    provider: 'Mayan',
-  };
-
-  override protocols: MayanProtocol[] = ['WH', 'MCTP', 'SWIFT', 'MONO_CHAIN'];
-}
-
-export class MayanRouteSWIFT<N extends Network>
-  extends MayanRouteBase<N>
-  implements routes.StaticRouteMethods<typeof MayanRouteSWIFT>
-{
-  static meta = {
-    name: 'MayanSwapSWIFT',
-    provider: 'Mayan Swift',
-  };
-
-  override protocols: MayanProtocol[] = ['SWIFT'];
-}
-
-export class MayanRouteMCTP<N extends Network>
-  extends MayanRouteBase<N>
-  implements routes.StaticRouteMethods<typeof MayanRouteMCTP>
-{
-  static meta = {
-    name: 'MayanSwapMCTP',
-    provider: 'Mayan MCTP',
-  };
-
-  override protocols: MayanProtocol[] = ['MCTP'];
-}
-
-export class MayanRouteWH<N extends Network>
-  extends MayanRouteBase<N>
-  implements routes.StaticRouteMethods<typeof MayanRouteWH>
-{
-  static meta = {
-    name: 'MayanSwapWH',
-    provider: 'Mayan',
-  };
-
-  override protocols: MayanProtocol[] = ['WH'];
-}
-
-export class MayanRouteMONOCHAIN<N extends Network>
-  extends MayanRouteBase<N>
-  implements routes.StaticRouteMethods<typeof MayanRouteMONOCHAIN>
-{
-  static meta = {
-    name: 'MayanSwapMONOCHAIN',
-    provider: 'Mayan Mono Chain',
-  };
-
-  override protocols: MayanProtocol[] = ['MONO_CHAIN'];
-
-  static supportsSameChainSwaps(network: Network, chain: Chain) {
-    const platform = chainToPlatform(chain);
-    const isPlatformSupported = platform === 'Solana' || platform === 'Evm';
-    return network === 'Mainnet' && isPlatformSupported;
-  }
-}
-
-export function createMayanRouteWithReferrerFee<
-  N extends Network,
-  T extends
-    | typeof MayanRoute<N>
-    | typeof MayanRouteSWIFT<N>
-    | typeof MayanRouteMCTP<N>
-    | typeof MayanRouteWH<N>
-    | typeof MayanRouteMONOCHAIN<N>,
->(
-  classConstructor: T,
-  properties: ReferrerParams<N> = {},
-): T & ReferrerParams<N> {
-  if (
-    properties?.referrers &&
-    typeof properties?.getReferrerBps === 'function'
-  ) {
-    Object.assign(classConstructor, properties);
-  }
-
-  return classConstructor as T & ReferrerParams<N>;
 }

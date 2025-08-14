@@ -1,8 +1,1 @@
-export {
-  MayanRoute,
-  MayanRouteWH,
-  MayanRouteMCTP,
-  MayanRouteSWIFT,
-  MayanRouteMONOCHAIN,
-  createMayanRouteWithReferrerFee,
-} from 'routes/mayan';
+export { Op, Q, QR, R, Tp, Vp, Vr } from 'routes/mayan/types';

@@ -1,12 +1,12 @@
-import {
+import type {
   ChainName as MayanChainName,
   SolanaTransactionSigner,
 } from '@mayanfinance/swap-sdk';
-import { ChainName as MayanTestnetChainName } from '@testnet-mayan/swap-sdk';
+import type { ChainName as MayanTestnetChainName } from '@testnet-mayan/swap-sdk';
 
 // Testnet chain names supported by @testnet-mayan/swap-sdk
 import { Transaction, VersionedTransaction } from '@solana/web3.js';
-import {
+import type {
   AttestationReceipt,
   Chain,
   CompletedTransferReceipt,
@@ -16,20 +16,22 @@ import {
   Signer,
   TokenId,
   TransactionId,
+  routes,
+  Network,
+} from '@wormhole-foundation/sdk-connect';
+import {
   TransferState,
   deserialize,
   encoding,
   isSignOnlySigner,
-  routes,
   toChain,
   circle,
-  Network,
   Wormhole,
 } from '@wormhole-foundation/sdk-connect';
 import { isEvmNativeSigner } from '@wormhole-foundation/sdk-evm';
-import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
+import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import axios from 'axios';
-import { ethers } from 'ethers';
+import type { ethers } from 'ethers';
 
 export function getNativeContractAddress(chain: Chain): string {
   if (chain === 'Sui') return '0x2::sui::SUI';
@@ -160,7 +162,7 @@ export function mayanEvmSigner(signer: Signer): ethers.Signer {
 export function mayanEvmProvider(signer: ethers.Signer) {
   return {
     getBlock: async function (): Promise<{ timestamp: number }> {
-      let block = await signer.provider!.getBlock('latest');
+      const block = await signer.provider!.getBlock('latest');
       if (block === null)
         throw new Error('Failed to get latest Ethereum block');
       return block;
@@ -335,7 +337,7 @@ export function txStatusToReceipt(txStatus: TransactionStatus): routes.Receipt {
       };
     });
 
-  let refundTxs: Array<{ chain: Chain; txid: string }> = [];
+  const refundTxs: Array<{ chain: Chain; txid: string }> = [];
   if (txStatus.refundTxHash) {
     refundTxs.push({
       chain: toWormholeChainName(txStatus.refundChain),

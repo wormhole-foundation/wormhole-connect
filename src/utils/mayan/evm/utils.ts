@@ -1,7 +1,14 @@
-import { ethers, TransactionRequest } from 'ethers';
-import { MayanForwarderShimContractABI } from './abi';
 import { addresses } from '@mayanfinance/swap-sdk';
-import { Network } from '@wormhole-foundation/sdk-connect';
+import type { Network } from '@wormhole-foundation/sdk-connect';
+import type { TransactionRequest } from 'ethers';
+import { ethers } from 'ethers';
+import type { MayanRoute } from 'routes/mayan/MayanRoute';
+import type { MayanRouteMCTP } from 'routes/mayan/MayanRouteMCTP';
+import type { MayanRouteMONOCHAIN } from 'routes/mayan/MayanRouteMONOCHAIN';
+import type { MayanRouteSWIFT } from 'routes/mayan/MayanRouteSwift';
+import type { MayanRouteWH } from 'routes/mayan/MayanRouteWH';
+import type { ReferrerParams } from 'routes/mayan/types';
+import { MayanForwarderShimContractABI } from './abi';
 
 const ForwardEth = 'forwardEth';
 const ForwardERC20 = 'forwardERC20';
@@ -63,23 +70,19 @@ function createMayanForwarderShim() {
 function useMayanForwarderShim(
   network: Network,
   feeUnits: bigint,
-  isNewEvmReferralEnabled?: boolean,
+  d?: boolean,
 ) {
-  if (feeUnits <= 0n || !isNewEvmReferralEnabled || network !== 'Mainnet') {
+  if (feeUnits <= 0n || network !== 'Mainnet') {
     return false;
   }
 
   return true;
 }
 
-function getEvmContractAddress(
-  network: Network,
-  feeUnits: bigint,
-  isNewEvmReferralEnabled?: boolean,
-) {
-  if (useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)) {
-    return MayanForwarderShimContractAddress;
-  }
+function getEvmContractAddress(network: Network, feeUnits: bigint) {
+  // if (useMayanForwarderShim(network, feeUnits)) {
+  //   return MayanForwarderShimContractAddress;
+  // }
 
   return addresses.MAYAN_FORWARDER_CONTRACT;
 }
@@ -95,10 +98,8 @@ function createTransactionRequest(
   isNativeToken: boolean,
   isNewEvmReferralEnabled?: boolean,
 ): TransactionRequest {
-  if (
-    !mayanTxRequest.data ||
-    !useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)
-  ) {
+  //TODO: || !useMayanForwarderShim(network, feeUnits) hook call was used inside a function, figure out where it needs to go
+  if (!mayanTxRequest.data) {
     return mayanTxRequest;
   }
 
@@ -124,8 +125,30 @@ function createTransactionRequest(
   };
 }
 
+export function createMayanRouteWithReferrerFee<
+  N extends Network,
+  T extends
+    | typeof MayanRoute<N>
+    | typeof MayanRouteSWIFT<N>
+    | typeof MayanRouteMCTP<N>
+    | typeof MayanRouteWH<N>
+    | typeof MayanRouteMONOCHAIN<N>,
+>(
+  classConstructor: T,
+  properties: ReferrerParams<N> = {},
+): T & ReferrerParams<N> {
+  if (
+    properties?.referrers &&
+    typeof properties?.getReferrerBps === 'function'
+  ) {
+    Object.assign(classConstructor, properties);
+  }
+
+  return classConstructor as T & ReferrerParams<N>;
+}
+
 export {
   createMayanForwarderShim,
-  getEvmContractAddress,
   createTransactionRequest,
+  getEvmContractAddress,
 };
