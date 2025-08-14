@@ -106,7 +106,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:with-wallet": "playwright test --grep-invert @noWallet",
     "test:e2e:without-wallet": "playwright test --grep @noWallet",
-    "commit": "cz"
+    "commit": "cz",
+    "prepare": "husky install"
   },
   "browserslist": {
     "production": [
