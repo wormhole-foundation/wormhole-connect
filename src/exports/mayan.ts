@@ -1,8 +1,8 @@
 export {
-  createMayanRouteWithReferrerFee,
   MayanRoute,
-  MayanRouteMCTP,
-  MayanRouteMONOCHAIN,
-  MayanRouteSWIFT,
   MayanRouteWH,
-} from 'routes/mayan';
+  MayanRouteMCTP,
+  MayanRouteSWIFT,
+  MayanRouteMONOCHAIN,
+  createMayanRouteWithReferrerFee,
+} from '@mayanfinance/wormhole-sdk-route';
