@@ -54,17 +54,6 @@ import {
   SolanaPlatform,
   SolanaUnsignedTransaction,
 } from '@wormhole-foundation/sdk-solana';
-import {
-  createTransactionRequest,
-  getEvmContractAddress,
-} from 'utils/mayan/evm/utils';
-import {
-  getNativeContractAddress,
-  getTransactionStatus,
-  isTestnetSupportedChain,
-  supportedChains,
-  txStatusToReceipt,
-} from 'utils/mayan/utils';
 
 import type { SuiClient } from '@mysten/sui/client';
 import { Transaction } from '@mysten/sui/transactions';
@@ -84,6 +73,7 @@ import {
   SuiUnsignedTransaction,
 } from '@wormhole-foundation/sdk-sui';
 import axios from 'axios';
+import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
 import type {
   MayanProtocol,
   Op,
@@ -95,6 +85,13 @@ import type {
   Vp,
   Vr,
 } from './types';
+import {
+  getNativeContractAddress,
+  getTransactionStatus,
+  isTestnetSupportedChain,
+  supportedChains,
+  txStatusToReceipt,
+} from './utils';
 export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   N,
   Op,
