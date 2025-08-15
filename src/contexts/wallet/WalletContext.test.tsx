@@ -8,6 +8,7 @@ import WalletProvider from './WalletProvider';
 import WalletContext from './WalletContext';
 import { internalWalletProvider } from 'utils/wallet/InternalWalletProvider';
 import { TransferWallet } from 'utils/wallet';
+import { Chain } from 'exports';
 
 const mockStore = configureStore({
   reducer: {
@@ -215,74 +216,91 @@ describe('WalletContext with InternalWalletProvider', () => {
   });
 
   describe.each([
-    { walletType: TransferWallet.SENDING, actionName: 'connectWallet' },
+    {
+      walletType: TransferWallet.SENDING,
+      actionName: 'connectWallet',
+      chain: 'Ethereum' as Chain,
+      address: '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3',
+      platformType: 'Evm',
+    },
     {
       walletType: TransferWallet.RECEIVING,
       actionName: 'connectReceivingWallet',
+      chain: 'Solana' as Chain,
+      address: '7gw96i3Bs4dp3xsvtimJe6Uf5FHj2e1ik9pVRnpPf4BF',
+      platformType: 'Solana',
     },
-  ])('wallet $walletType', ({ walletType, actionName }) => {
-    it(`should dispatch ${actionName} action when connecting`, async () => {
-      const { result } = renderHook(() => useContext(WalletContext), {
-        wrapper,
+  ])(
+    'wallet $walletType',
+    ({ walletType, actionName, chain, address, platformType }) => {
+      it(`should dispatch ${actionName} action when connecting`, async () => {
+        const { result } = renderHook(() => useContext(WalletContext), {
+          wrapper,
+        });
+
+        // Mock wallet address for this specific test
+        vi.mocked(mockWallet.getAddress).mockReturnValue(address);
+
+        const storeActions = await import('store/wallet');
+        const connectAction =
+          storeActions[actionName as keyof typeof storeActions];
+
+        let connectPromise: Promise<any>;
+        act(() => {
+          connectPromise = result.current!.connectWallet(chain, walletType);
+        });
+
+        act(() => {
+          internalWalletProvider.onWalletSelected(
+            mockWallet,
+            chain,
+            walletType,
+          );
+        });
+
+        await connectPromise!;
+
+        expect(connectAction).toHaveBeenCalledWith({
+          address,
+          type: platformType,
+          icon: 'wallet-icon.png',
+          name: 'TestWallet',
+        });
       });
 
-      const storeActions = await import('store/wallet');
-      const connectAction =
-        storeActions[actionName as keyof typeof storeActions];
+      it(`should clear wallet address when disconnected`, async () => {
+        const { result } = renderHook(() => useContext(WalletContext), {
+          wrapper,
+        });
 
-      let connectPromise: Promise<any>;
-      act(() => {
-        connectPromise = result.current!.connectWallet('Ethereum', walletType);
+        vi.mocked(mockWallet.getAddress).mockReturnValue(address);
+
+        const { clearWallet } = await import('store/wallet');
+
+        let connectPromise: Promise<any>;
+        act(() => {
+          connectPromise = result.current!.connectWallet(chain, walletType);
+        });
+
+        act(() => {
+          internalWalletProvider.onWalletSelected(
+            mockWallet,
+            chain,
+            walletType,
+          );
+        });
+
+        await connectPromise!;
+
+        await act(async () => {
+          await result.current!.disconnectWallet(chain, walletType);
+        });
+
+        expect(mockWallet.disconnect).toHaveBeenCalled();
+        expect(clearWallet).toHaveBeenCalledWith(walletType);
       });
-
-      act(() => {
-        internalWalletProvider.onWalletSelected(
-          mockWallet,
-          'Ethereum',
-          walletType,
-        );
-      });
-
-      await connectPromise!;
-
-      expect(connectAction).toHaveBeenCalledWith({
-        address: '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3',
-        type: 'Evm',
-        icon: 'wallet-icon.png',
-        name: 'TestWallet',
-      });
-    });
-
-    it(`should clear wallet address when disconnected`, async () => {
-      const { result } = renderHook(() => useContext(WalletContext), {
-        wrapper,
-      });
-
-      const { clearWallet } = await import('store/wallet');
-
-      let connectPromise: Promise<any>;
-      act(() => {
-        connectPromise = result.current!.connectWallet('Ethereum', walletType);
-      });
-
-      act(() => {
-        internalWalletProvider.onWalletSelected(
-          mockWallet,
-          'Ethereum',
-          walletType,
-        );
-      });
-
-      await connectPromise!;
-
-      await act(async () => {
-        await result.current!.disconnectWallet('Ethereum', walletType);
-      });
-
-      expect(mockWallet.disconnect).toHaveBeenCalled();
-      expect(clearWallet).toHaveBeenCalledWith(walletType);
-    });
-  });
+    },
+  );
 
   it('should handle auto-connect with last used wallet', async () => {
     localStorage.setItem('test-wallet:Evm', 'TestWallet');
