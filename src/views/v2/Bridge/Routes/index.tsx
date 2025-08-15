@@ -81,6 +81,14 @@ const Routes = ({ ...props }: Props) => {
     );
   }, [routes, props.quotes]);
 
+  // Find manual routes (routes without AUTOMATIC_DEPOSIT)
+  const manualRoutes = useMemo(() => {
+    return routes.filter((route) => {
+      const rc = config.routes.get(route);
+      return rc && !rc.AUTOMATIC_DEPOSIT;
+    });
+  }, [routes]);
+
   const renderRoutes = useMemo(() => {
     if (showAll) {
       return routes;
@@ -91,53 +99,68 @@ const Routes = ({ ...props }: Props) => {
     // Special case when we have a selected route
     if (selectedRoute) {
       const topRoutes: Array<string> = [];
-      // if the selected route is the fastest, add it first and the cheapest route below
-      if (selectedRoute === fastestRoute.name) {
+
+      const isSelectedFastest = selectedRoute === fastestRoute.name;
+      const isSelectedCheapest = selectedRoute === cheapestRoute.name;
+
+      if (isSelectedFastest) {
+        // Selected is fastest: show selected first, then cheapest
         topRoutes.push(selectedRoute);
         if (cheapestRoute.name && cheapestRoute.name !== selectedRoute) {
           topRoutes.push(cheapestRoute.name);
         }
-      } else if (selectedRoute === cheapestRoute.name) {
-        // if the selected route is the cheapest add the fastest route first and selected below
+      } else if (isSelectedCheapest) {
+        // Selected is cheapest: show fastest first, then selected
         if (fastestRoute.name && fastestRoute.name !== selectedRoute) {
           topRoutes.push(fastestRoute.name);
         }
         topRoutes.push(selectedRoute);
       } else {
-        // if the selected route is neither fastest nor cheapest, we add it at the top
+        // Selected is neither: show selected first, then fastest or cheapest if we have >2 routes
         topRoutes.push(selectedRoute);
         if (routes.length > 2) {
-          // if we have more than 2 routes in total, meaning there are at least two more routes to show,
-          // then we add one of the fastest or cheapest routes below the selected route
-          if (fastestRoute.name) {
-            // Add the fastest route if it we have one
-            topRoutes.push(fastestRoute.name);
-          } else if (cheapestRoute.name) {
-            // otherwise add the cheapest route
-            topRoutes.push(cheapestRoute.name);
+          const routeToAdd = fastestRoute.name || cheapestRoute.name;
+          if (routeToAdd) {
+            topRoutes.push(routeToAdd);
           }
         }
       }
-      return topRoutes;
+
+      // Add manual routes that aren't already in topRoutes
+      return [...new Set([...topRoutes, ...manualRoutes])];
     }
 
-    // If we have fastest and cheapest routes, we show them both at the top
-    if (!!fastestRoute.name && !!cheapestRoute.name) {
-      return routes.slice(0, 2);
+    const defaultRoutes: Array<string> = [];
+
+    if (fastestRoute.name) {
+      defaultRoutes.push(fastestRoute.name);
+    }
+    if (cheapestRoute.name && cheapestRoute.name !== fastestRoute.name) {
+      defaultRoutes.push(cheapestRoute.name);
     }
 
-    // Otherwise we might have a cheapest route but none qualifying as fastest,
-    // so we show the first route at the top
-    return routes.slice(0, 1);
-  }, [showAll, routes, fastestRoute, cheapestRoute, props.selectedRoute]);
+    // Always include manual routes in the default view
+    const uniqueDefaultRoutes = [
+      ...new Set([...defaultRoutes, ...manualRoutes]),
+    ];
+
+    if (uniqueDefaultRoutes.length === 0 && routes.length > 0) {
+      return routes.slice(0, 1);
+    }
+
+    return uniqueDefaultRoutes;
+  }, [
+    showAll,
+    routes,
+    fastestRoute,
+    cheapestRoute,
+    props.selectedRoute,
+    manualRoutes,
+  ]);
 
   const hideShowToggle = useMemo(() => {
-    // If we have less than 2 routes; or there are 2 but those are the fastest and cheapest routes,
-    // we do not show the toggle to view other routes
-    if (
-      routes.length < 2 ||
-      (routes.length === 2 && !!fastestRoute.name && !!cheapestRoute.name)
-    ) {
+    // Check if we're showing all available routes already
+    if (renderRoutes.length === routes.length) {
       return null;
     }
 
@@ -150,13 +173,7 @@ const Routes = ({ ...props }: Props) => {
         {showAll ? 'Hide other routes' : 'View other routes'}
       </Link>
     );
-  }, [
-    cheapestRoute.name,
-    styles.otherRoutesToggle,
-    fastestRoute.name,
-    routes.length,
-    showAll,
-  ]);
+  }, [renderRoutes.length, routes.length, styles.otherRoutesToggle, showAll]);
 
   return (
     <>
@@ -182,7 +199,7 @@ const Routes = ({ ...props }: Props) => {
       {props.isLoading && renderRoutes.length === 0 ? (
         <Skeleton variant="rounded" height={153} width="100%" />
       ) : (
-        renderRoutes.map((name, index) => {
+        renderRoutes.map((name) => {
           const isSelected = name === props.selectedRoute;
           const quoteResult = props.quotes[name];
           const quote = quoteResult?.success ? quoteResult : undefined;

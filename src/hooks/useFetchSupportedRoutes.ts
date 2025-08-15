@@ -47,6 +47,7 @@ const useFetchSupportedRoutes = ({
       await config.routes.forEach(async (name, route) => {
         // Disable manual routes when the receiving wallet is a ReadOnlyWallet
         // because the receiving wallet can't sign/complete the transaction
+
         if (
           !route.AUTOMATIC_DEPOSIT &&
           receivingWallet?.name === ReadOnlyWallet.NAME
@@ -87,6 +88,10 @@ const useFetchSupportedRoutes = ({
           route.rc.name.includes('Mayan') &&
           route.rc.name !== 'MayanRouteSHUTTLE'
         ) {
+          supported = true;
+        }
+
+        if (route.rc.name === 'LiFi') {
           supported = true;
         }
 

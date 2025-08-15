@@ -16,6 +16,11 @@
       "import": "./lib/mayan.mjs",
       "types": "./lib/mayan.d.ts"
     },
+    "./lifi": {
+      "require": "./lib/lifi.js",
+      "import": "./lib/lifi.mjs",
+      "types": "./lib/lifi.d.ts"
+    },
     "./ntt": {
       "require": "./lib/ntt.js",
       "import": "./lib/ntt.mjs",
@@ -54,8 +59,8 @@
     "@reduxjs/toolkit": "^2.5.1",
     "@solana/spl-token": "0.4.0",
     "@solana/wallet-adapter-wallets": "0.19.32",
-    "@wormhole-foundation/sdk": "3.2.0",
-    "@wormhole-foundation/sdk-definitions": "3.2.0",
+    "@wormhole-foundation/sdk": "3.3.0",
+    "@wormhole-foundation/sdk-definitions": "3.3.0",
     "@wormhole-foundation/sdk-definitions-ntt": "0.9.0-multi-token-alpha.0",
     "@wormhole-foundation/sdk-evm-ntt": "0.9.0-multi-token-alpha.0",
     "@wormhole-foundation/sdk-icons": "^1.0.6",
@@ -82,9 +87,11 @@
     "rpc-websockets": "^7.11.0",
     "sha3": "^2.1.4",
     "use-debounce": "^9.0.4",
+    "vite-plugin-checker": "^0.10.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "postinstall": "find node_modules/ox -name \"*.ts\" 2>/dev/null | xargs rm -f || true; find node_modules/viem/node_modules/ox -name \"*.ts\" 2>/dev/null | xargs rm -f || true",
     "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host",
     "start:mainnet": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Mainnet vite --host",
     "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
@@ -123,7 +130,6 @@
     ]
   },
   "devDependencies": {
-    "@artursapek/vite-plugin-checker": "0.7.4",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.24.4",
     "@commitlint/cli": "^19.8.1",
@@ -191,6 +197,7 @@
   "overrides": {
     "axios": "1.10.0",
     "viem": "2.33.3",
+    "ox": "0.8.6",
     "@ledgerhq/hw-transport@6.27.1": {
       "@ledgerhq/errors": "6.10.2",
       "@ledgerhq/logs": "6.12.0",
@@ -201,39 +208,45 @@
       "@ledgerhq/logs": "6.12.0",
       "@ledgerhq/devices": "6.27.1"
     },
+    "@wormhole-labs/lifi-route": {
+      "@wormhole-foundation/sdk-connect": "3.3.0",
+      "@wormhole-foundation/sdk-evm": "3.3.0",
+      "@wormhole-foundation/sdk-solana": "3.3.0",
+      "@wormhole-foundation/sdk-sui": "3.3.0"
+    },
     "@mayanfinance/wormhole-sdk-route": {
-      "@wormhole-foundation/sdk-connect": "3.2.0",
-      "@wormhole-foundation/sdk-evm": "3.2.0",
-      "@wormhole-foundation/sdk-solana": "3.2.0",
-      "@wormhole-foundation/sdk-sui": "3.2.0"
+      "@wormhole-foundation/sdk-connect": "3.3.0",
+      "@wormhole-foundation/sdk-evm": "3.3.0",
+      "@wormhole-foundation/sdk-solana": "3.3.0",
+      "@wormhole-foundation/sdk-sui": "3.3.0"
     },
     "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "3.2.0",
-      "@wormhole-foundation/sdk-definitions": "3.2.0"
+      "@wormhole-foundation/sdk-base": "3.3.0",
+      "@wormhole-foundation/sdk-definitions": "3.3.0"
     },
     "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "3.2.0",
-      "@wormhole-foundation/sdk-definitions": "3.2.0",
-      "@wormhole-foundation/sdk-evm": "3.2.0",
-      "@wormhole-foundation/sdk-evm-core": "3.2.0"
+      "@wormhole-foundation/sdk-base": "3.3.0",
+      "@wormhole-foundation/sdk-definitions": "3.3.0",
+      "@wormhole-foundation/sdk-evm": "3.3.0",
+      "@wormhole-foundation/sdk-evm-core": "3.3.0"
     },
     "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "3.2.0"
+      "@wormhole-foundation/sdk-connect": "3.3.0"
     },
     "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "3.2.0",
-      "@wormhole-foundation/sdk-definitions": "3.2.0",
-      "@wormhole-foundation/sdk-solana": "3.2.0",
-      "@wormhole-foundation/sdk-solana-core": "3.2.0"
+      "@wormhole-foundation/sdk-base": "3.3.0",
+      "@wormhole-foundation/sdk-definitions": "3.3.0",
+      "@wormhole-foundation/sdk-solana": "3.3.0",
+      "@wormhole-foundation/sdk-solana-core": "3.3.0"
     },
     "@wormhole-labs/cctp-executor-route": {
-      "@wormhole-foundation/sdk-aptos": "3.2.0",
-      "@wormhole-foundation/sdk-connect": "3.2.0",
-      "@wormhole-foundation/sdk-evm": "3.2.0",
-      "@wormhole-foundation/sdk-solana": "3.2.0",
-      "@wormhole-foundation/sdk-solana-cctp": "3.2.0",
-      "@wormhole-foundation/sdk-sui": "3.2.0",
-      "@wormhole-foundation/sdk-sui-cctp": "3.2.0"
+      "@wormhole-foundation/sdk-aptos": "3.3.0",
+      "@wormhole-foundation/sdk-connect": "3.3.0",
+      "@wormhole-foundation/sdk-evm": "3.3.0",
+      "@wormhole-foundation/sdk-solana": "3.3.0",
+      "@wormhole-foundation/sdk-solana-cctp": "3.3.0",
+      "@wormhole-foundation/sdk-sui": "3.3.0",
+      "@wormhole-foundation/sdk-sui-cctp": "3.3.0"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"

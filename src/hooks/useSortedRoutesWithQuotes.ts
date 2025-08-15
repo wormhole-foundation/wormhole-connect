@@ -33,6 +33,7 @@ interface UseSortedRoutesWithQuotesArgs {
   toNativeToken: number;
   sourceToken?: Token;
   destToken?: Token;
+  sendingWallet: WalletData;
   receivingWallet: WalletData;
 }
 
@@ -44,6 +45,7 @@ export const useSortedRoutesWithQuotes = ({
   toNativeToken,
   sourceToken,
   destToken,
+  sendingWallet,
   receivingWallet,
 }: UseSortedRoutesWithQuotesArgs): HookReturn => {
   const { supportedRoutes, isFetching: isFetchingSupportedRoutes } =
@@ -64,6 +66,7 @@ export const useSortedRoutesWithQuotes = ({
       destChain: toChain,
       destToken,
       nativeGas: toNativeToken,
+      sender: sendingWallet?.address,
       recipient: receivingWallet?.address,
     }),
     [
@@ -73,6 +76,7 @@ export const useSortedRoutesWithQuotes = ({
       destToken,
       toChain,
       toNativeToken,
+      sendingWallet?.address,
       receivingWallet?.address,
     ],
   );

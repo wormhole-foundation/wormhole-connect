@@ -186,8 +186,13 @@ function Redeem() {
 
   const getUSDAmount = useUSDamountGetter();
 
-  const etaDate: Date | undefined =
-    eta && txTimestamp ? new Date(txTimestamp + eta) : undefined;
+  const etaDate: Date | undefined = useMemo(() => {
+    if (eta && txTimestamp) {
+      return new Date(txTimestamp + eta);
+    } else {
+      return undefined;
+    }
+  }, [eta, txTimestamp]);
 
   // Initialize the countdown with 0, 0 as we might not have eta or txTimestamp yet
   const { seconds, minutes, isRunning, restart } = useTimer({

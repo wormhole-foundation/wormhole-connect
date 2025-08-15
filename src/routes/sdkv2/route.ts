@@ -83,11 +83,11 @@ export class SDKv2Route {
       return false;
     }
 
-    const isMayan = name.includes('Mayan');
+    const canSwap = name.includes('Mayan') || name === 'LiFi';
 
     // Mayan can handle any input and output token that has liquidity on a DeX
     // No need to further check for destination tokens.
-    if (isMayan) {
+    if (canSwap) {
       return true;
     }
 
@@ -148,17 +148,17 @@ export class SDKv2Route {
     if (isIlliquid) return [];
 
     // TODO remove once the mayan SDK has a special return value that represents infinite supported tokens
-    const isMayan = routeName.includes('Mayan');
+    const canSwap = routeName.includes('Mayan') || routeName === 'LiFi';
     const usdcAddr = circle.usdcContract.get(config.network, toChain);
     const isSameChain = fromChain === toChain;
     const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
     const nativeToken = Wormhole.tokenId(toChain, 'native');
     const usdcToken = usdcAddr ? Wormhole.tokenId(toChain, usdcAddr) : null;
     // If we have Mayan available, which is a swap route, by default we show the gas token and USDC.
-    const mayanTokens = usdcToken ? [nativeToken, usdcToken] : [nativeToken];
+    const swapTokens = usdcToken ? [nativeToken, usdcToken] : [nativeToken];
 
-    const destTokens = isMayan
-      ? mayanTokens
+    const destTokens = canSwap
+      ? swapTokens
       : await this.tokenCache.requestWithCache(cacheKey, () =>
           this.rc.supportedDestinationTokens(
             sourceToken.tokenId,
@@ -190,6 +190,7 @@ export class SDKv2Route {
     sourceChain: Chain,
     destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    sender?: string,
     recipient?: string,
   ): Promise<
     [
@@ -203,6 +204,7 @@ export class SDKv2Route {
       destToken,
       sourceChain,
       destChain,
+      sender,
       recipient,
     );
 
@@ -227,6 +229,7 @@ export class SDKv2Route {
     destToken: Token,
     sourceChain: Chain,
     destChain: Chain,
+    sender?: string,
     recipient?: string,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
@@ -238,6 +241,7 @@ export class SDKv2Route {
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
+        sender: sender ? Wormhole.chainAddress(sourceChain, sender) : undefined,
         recipient: recipient
           ? Wormhole.chainAddress(destChain, recipient)
           : undefined,
@@ -257,6 +261,7 @@ export class SDKv2Route {
     fromChain: Chain,
     toChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    sender?: string,
     recipient?: string,
   ): Promise<routes.QuoteResult<routes.Options>> {
     if (!fromChain || !toChain) {
@@ -270,6 +275,7 @@ export class SDKv2Route {
       fromChain,
       toChain,
       options,
+      sender,
       recipient,
     );
 
@@ -297,6 +303,7 @@ export class SDKv2Route {
       fromChain,
       toChain,
       options,
+      senderAddress,
       recipientAddress,
     );
 
