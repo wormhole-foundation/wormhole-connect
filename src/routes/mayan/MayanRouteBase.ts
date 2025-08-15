@@ -10,8 +10,6 @@ import {
   type QuoteParams,
   type ReferrerAddresses,
 } from '@mayanfinance/swap-sdk';
-import type { SuiClient } from '@mysten/sui/dist/cjs/client';
-import { Transaction } from '@mysten/sui/dist/cjs/transactions';
 import {
   createAssociatedTokenAccountIdempotentInstruction,
   createTransferInstruction,
@@ -68,6 +66,8 @@ import {
   txStatusToReceipt,
 } from 'utils/mayan/utils';
 
+import type { SuiClient } from '@mysten/sui/client';
+import { Transaction } from '@mysten/sui/transactions';
 import {
   createSwapFromSolanaInstructions as createSwapFromSolanaInstructionsTestnet,
   createSwapFromSuiMoveCalls as createSwapFromSuiMoveCallsTestnet,

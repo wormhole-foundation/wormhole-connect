@@ -38,6 +38,11 @@ import {
   cctpV2StandardExecutorRoute,
 } from 'exports/executor';
 import { nttRoutes } from 'exports/ntt';
+import { MayanRoute } from 'routes/mayan/MayanRoute';
+import { MayanRouteMCTP } from 'routes/mayan/MayanRouteMCTP';
+import { MayanRouteMONOCHAIN } from 'routes/mayan/MayanRouteMONOCHAIN';
+import { MayanRouteSWIFT } from 'routes/mayan/MayanRouteSwift';
+import { MayanRouteWH } from 'routes/mayan/MayanRouteWH';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import type { WormholeConnectTheme } from 'theme';
 import { NTT_TEST_CONFIG_MAINNET, NTT_TEST_CONFIG_TESTNET } from './consts';

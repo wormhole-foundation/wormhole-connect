@@ -81,9 +81,11 @@ function useMayanForwarderShim(
 }
 
 function getEvmContractAddress(network: Network, feeUnits: bigint) {
-  // if (useMayanForwarderShim(network, feeUnits)) {
-  //   return MayanForwarderShimContractAddress;
-  // }
+  // TODO: Refactor, hooks shouldn't be called with in functions
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  if (useMayanForwarderShim(network, feeUnits)) {
+    return MayanForwarderShimContractAddress;
+  }
 
   return addresses.MAYAN_FORWARDER_CONTRACT;
 }
@@ -100,10 +102,10 @@ function createTransactionRequest(
   isNewEvmReferralEnabled?: boolean,
 ): TransactionRequest {
   //TODO: || !useMayanForwarderShim(network, feeUnits) hook call was used inside a function, figure out where it needs to go
-  if (!mayanTxRequest.data) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  if (!mayanTxRequest.data || !useMayanForwarderShim(network, feeUnits)) {
     return mayanTxRequest;
   }
-
   const mayanForwarder = createMayanForwarderShim();
 
   const data = mayanForwarder.encodeFunctionData(
