@@ -1,3 +1,4 @@
+export { default as createMayanRouteWithReferrerFee } from '../../utils/mayan/utils';
 export { default as MayanRoute } from './MayanRoute';
 export { default as MayanRouteMCTP } from './MayanRouteMCTP';
 export { default as MayanRouteMONOCHAIN } from './MayanRouteMONOCHAIN';

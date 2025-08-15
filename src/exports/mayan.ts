@@ -1,4 +1,5 @@
 export {
+  createMayanRouteWithReferrerFee,
   MayanRoute,
   MayanRouteMCTP,
   MayanRouteMONOCHAIN,
