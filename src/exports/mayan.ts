@@ -1,6 +1,5 @@
 export {
   MayanRoute,
-  MayanRouteBase,
   MayanRouteMCTP,
   MayanRouteMONOCHAIN,
   MayanRouteSWIFT,
