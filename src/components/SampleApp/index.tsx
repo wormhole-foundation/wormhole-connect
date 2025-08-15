@@ -1,11 +1,10 @@
+import React, { useEffect, useState } from 'react';
 import './styles.css';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
 
-import WormholeConnect from '../../WormholeConnect';
 import config from 'config';
 import type { WormholeConnectConfig } from 'config/types';
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
+import WormholeConnect from '../../WormholeConnect';
 
 /*
  *
@@ -34,21 +33,21 @@ import { compressToBase64, decompressFromBase64 } from 'lz-string';
  */
 import { routes } from '@wormhole-foundation/sdk';
 import {
-  MayanRoute,
-  MayanRouteWH,
-  MayanRouteMCTP,
-  MayanRouteSWIFT,
-  MayanRouteMONOCHAIN,
-} from '@mayanfinance/wormhole-sdk-route';
-import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
-import { DEFAULT_ROUTES } from 'routes/operator';
+  cctpExecutorRoute,
+  cctpV2FastExecutorRoute,
+  cctpV2StandardExecutorRoute,
+} from 'exports/executor';
 import { nttRoutes } from 'exports/ntt';
 import {
-  cctpExecutorRoute,
-  cctpV2StandardExecutorRoute,
-  cctpV2FastExecutorRoute,
-} from 'exports/executor';
+  MayanRoute,
+  MayanRouteMCTP,
+  MayanRouteMONOCHAIN,
+  MayanRouteSWIFT,
+  MayanRouteWH,
+} from 'routes/mayan';
+import { DEFAULT_ROUTES } from 'routes/operator';
 import type { WormholeConnectTheme } from 'theme';
+import { NTT_TEST_CONFIG_MAINNET, NTT_TEST_CONFIG_TESTNET } from './consts';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
