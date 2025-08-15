@@ -32,14 +32,12 @@ import { isEvmNativeSigner } from '@wormhole-foundation/sdk-evm';
 import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import axios from 'axios';
 import type { ethers } from 'ethers';
-import type {
-  MayanRoute,
-  MayanRouteMCTP,
-  MayanRouteMONOCHAIN,
-  MayanRouteSWIFT,
-  MayanRouteWH,
-} from 'routes/mayan';
-import type { ReferrerParams } from 'routes/mayan/types';
+import type MayanRoute from './MayanRoute';
+import type MayanRouteMCTP from './MayanRouteMCTP';
+import type MayanRouteMONOCHAIN from './MayanRouteMONOCHAIN';
+import type MayanRouteSWIFT from './MayanRouteSWIFT';
+import type MayanRouteWH from './MayanRouteWH';
+import type { ReferrerParams } from './types';
 
 export function getNativeContractAddress(chain: Chain): string {
   if (chain === 'Sui') return '0x2::sui::SUI';
@@ -469,7 +467,7 @@ export function getUSDCTokenId(
   return Wormhole.tokenId(chain, usdcContract);
 }
 
-export default function createMayanRouteWithReferrerFee<
+export function createMayanRouteWithReferrerFee<
   N extends Network,
   T extends
     | typeof MayanRoute<N>
