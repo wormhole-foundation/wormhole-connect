@@ -1,8 +1,8 @@
 import type { Network, routes } from '@wormhole-foundation/sdk-connect';
-import { MayanRouteBase } from './MayanRouteBase';
+import MayanRouteBase from './MayanRouteBase';
 import type { MayanProtocol } from './types';
 
-export class MayanRoute<N extends Network>
+export default class MayanRoute<N extends Network>
   extends MayanRouteBase<N>
   implements routes.StaticRouteMethods<typeof MayanRoute>
 {

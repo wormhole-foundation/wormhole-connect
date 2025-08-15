@@ -96,12 +96,9 @@ import type {
   Vr,
 } from './types';
 
-export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
-  N,
-  Op,
-  Vp,
-  R
-> {
+export default class MayanRouteBase<
+  N extends Network,
+> extends routes.AutomaticRoute<N, Op, Vp, R> {
   MAX_SLIPPAGE = 1;
 
   static NATIVE_GAS_DROPOFF_SUPPORTED = false;
