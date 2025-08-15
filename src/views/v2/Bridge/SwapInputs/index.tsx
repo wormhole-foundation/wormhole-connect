@@ -37,10 +37,10 @@ function SwapInputs() {
       val === 'spinRight' ? 'spinLeft' : 'spinRight',
     );
 
-    if (swapWallets()) {
-      dispatch(swapInputs());
-      dispatch(setAmount(''));
-    }
+    swapWallets();
+
+    dispatch(swapInputs());
+    dispatch(setAmount(''));
   }, [canSwap, isTransactionInProgress, dispatch, swapWallets]);
 
   return (

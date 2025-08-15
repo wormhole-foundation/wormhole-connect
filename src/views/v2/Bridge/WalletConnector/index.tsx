@@ -99,7 +99,6 @@ const WalletConnector = (props: Props) => {
               setIsOpen(false);
             }}
             showAddressInput={props.type === TransferWallet.RECEIVING}
-            walletProvider={walletProvider}
           />
         </>
       );

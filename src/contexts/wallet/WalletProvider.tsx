@@ -111,12 +111,9 @@ function WalletProvider({
     [setupWalletConnection, walletProvider],
   );
 
-  const swapWallets = useCallback((): boolean => {
-    const success = walletProvider.swapWallets();
-    if (success) {
-      dispatch(swapWalletsAction());
-    }
-    return success;
+  const swapWallets = useCallback((): void => {
+    walletProvider.swapWallets();
+    dispatch(swapWalletsAction());
   }, [dispatch, walletProvider]);
 
   const disconnectWallet = useCallback(

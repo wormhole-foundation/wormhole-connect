@@ -84,7 +84,7 @@ export interface WormholeConnectWalletProvider {
     transaction: UnsignedTransaction<Network, Chain>,
   ): Promise<string>;
 
-  swapWallets(): boolean;
+  swapWallets(): void;
 
   on<T extends keyof WalletProviderEvents>(
     event: T,

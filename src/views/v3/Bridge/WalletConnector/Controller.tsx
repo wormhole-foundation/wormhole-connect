@@ -35,8 +35,7 @@ const COPY_MESSAGE_TIMOUT = 1000;
 // Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
   const theme = useTheme();
-  const { connectWallet, disconnectWallet, walletProvider } =
-    useWalletProvider();
+  const { connectWallet, disconnectWallet } = useWalletProvider();
 
   const styles = useMemo(
     () => ({
@@ -170,7 +169,6 @@ const ConnectedWallet = (props: Props) => {
       <WalletSidebar
         open={isOpen}
         type={props.type}
-        walletProvider={walletProvider}
         onClose={() => {
           setIsOpen(false);
         }}

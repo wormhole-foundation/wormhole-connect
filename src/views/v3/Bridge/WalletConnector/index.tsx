@@ -95,7 +95,6 @@ const WalletConnector = (props: Props) => {
           <WalletSidebar
             open={isOpen}
             type={props.type}
-            walletProvider={walletProvider}
             onClose={() => {
               setIsOpen(false);
             }}

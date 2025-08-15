@@ -13,7 +13,7 @@ export interface WalletContextType {
     autoConnect?: boolean,
   ) => Promise<Wallet | null>;
   disconnectWallet: (chain: Chain, type: TransferWallet) => Promise<void>;
-  swapWallets: () => boolean;
+  swapWallets: () => void;
   walletProvider: WormholeConnectWalletProvider;
   isConnecting: boolean;
 }

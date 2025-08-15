@@ -191,7 +191,7 @@ async function signAndSendTransactionInternal(
   return await signAndSendTransaction(chain, transaction, wallet);
 }
 
-function swapWallets(): boolean {
+function swapWallets(): void {
   const temp = walletConnections.sending;
   walletConnections.sending = walletConnections.receiving;
   walletConnections.receiving = temp;
@@ -199,8 +199,6 @@ function swapWallets(): boolean {
   if (walletConnections.sending?.wallet.getName() === 'ReadOnlyWallet') {
     walletConnections.sending.wallet.disconnect();
   }
-
-  return true;
 }
 
 function on<T extends keyof WalletProviderEvents>(
@@ -276,5 +274,5 @@ export type InternalWalletProvider = typeof internalWalletProvider;
 export function isInternalProvider(
   provider: WormholeConnectWalletProvider,
 ): provider is InternalWalletProvider {
-  return 'isInternal' in provider && provider.isInternal === true;
+  return Object.hasOwn(provider, 'isInternal');
 }

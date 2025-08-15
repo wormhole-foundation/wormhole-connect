@@ -933,7 +933,6 @@ function Redeem() {
       <WalletSidebar
         open={isWalletSidebarOpen}
         type={TransferWallet.RECEIVING}
-        walletProvider={walletProvider}
         onClose={() => {
           setIsWalletSidebarOpen(false);
         }}
