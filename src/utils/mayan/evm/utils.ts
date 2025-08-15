@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import type { MayanRoute } from 'routes/mayan/MayanRoute';
 import type { MayanRouteMCTP } from 'routes/mayan/MayanRouteMCTP';
 import type { MayanRouteMONOCHAIN } from 'routes/mayan/MayanRouteMONOCHAIN';
-import type { MayanRouteSWIFT } from 'routes/mayan/MayanRouteSwift';
+import type { MayanRouteSWIFT } from 'routes/mayan/MayanRouteSWIFT';
 import type { MayanRouteWH } from 'routes/mayan/MayanRouteWH';
 import type { ReferrerParams } from 'routes/mayan/types';
 import { MayanForwarderShimContractABI } from './abi';

@@ -41,7 +41,7 @@ import { nttRoutes } from 'exports/ntt';
 import { MayanRoute } from 'routes/mayan/MayanRoute';
 import { MayanRouteMCTP } from 'routes/mayan/MayanRouteMCTP';
 import { MayanRouteMONOCHAIN } from 'routes/mayan/MayanRouteMONOCHAIN';
-import { MayanRouteSWIFT } from 'routes/mayan/MayanRouteSwift';
+import { MayanRouteSWIFT } from 'routes/mayan/MayanRouteSWIFT';
 import { MayanRouteWH } from 'routes/mayan/MayanRouteWH';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import type { WormholeConnectTheme } from 'theme';
