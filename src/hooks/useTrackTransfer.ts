@@ -5,7 +5,11 @@ import { clearCache as clearBalanceCache } from 'utils/balanceCache';
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 
-import type { AttestationReceipt, routes, TokenId } from '@wormhole-foundation/sdk';
+import type {
+  AttestationReceipt,
+  routes,
+  TokenId,
+} from '@wormhole-foundation/sdk';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
 import { useTokens } from 'contexts/TokensContext';
@@ -144,7 +148,14 @@ const useTrackTransfer = (props: Props): ReturnProps => {
     return () => {
       isActive = false;
     };
-  }, [eta, receipt, routeName, receivingWallet, receivedTokenId, getOrFetchToken]);
+  }, [
+    eta,
+    receipt,
+    routeName,
+    receivingWallet,
+    receivedTokenId,
+    getOrFetchToken,
+  ]);
 
   return {
     isCompleted: completed,
