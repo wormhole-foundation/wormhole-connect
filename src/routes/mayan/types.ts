@@ -21,6 +21,11 @@ export type MayanProtocol =
 export type ReferrerParams<N extends Network> = {
   getReferrerBps?: (request: routes.RouteTransferRequest<N>) => number;
   referrers?: Partial<Record<Chain, string>>;
+
+  // For temp feature flagging only
+  isNewSolanaReferralEnabled?: boolean; // To be removed eventually
+  isNewSuiReferralEnabled?: boolean; // To be removed eventually
+  isNewEvmReferralEnabled?: boolean; // To be removed eventually
 };
 
 export interface MayanRouteOptions {

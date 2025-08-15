@@ -2,14 +2,6 @@ import { addresses } from '@mayanfinance/swap-sdk';
 import type { Network } from '@wormhole-foundation/sdk-connect';
 import type { TransactionRequest } from 'ethers';
 import { ethers } from 'ethers';
-import type {
-  MayanRoute,
-  MayanRouteMCTP,
-  MayanRouteMONOCHAIN,
-  MayanRouteSWIFT,
-  MayanRouteWH,
-} from 'routes/mayan';
-import type { ReferrerParams } from 'routes/mayan/types';
 import { MayanForwarderShimContractABI } from './abi';
 
 const ForwardEth = 'forwardEth';
@@ -69,23 +61,26 @@ function createMayanForwarderShim() {
   return { encodeFunctionData, getMsgValue };
 }
 
-// @ts-ignore
 function useMayanForwarderShim(
   network: Network,
   feeUnits: bigint,
-  d?: boolean,
+  isNewEvmReferralEnabled?: boolean,
 ) {
-  if (feeUnits <= 0n || network !== 'Mainnet') {
+  if (feeUnits <= 0n || !isNewEvmReferralEnabled || network !== 'Mainnet') {
     return false;
   }
 
   return true;
 }
 
-function getEvmContractAddress(network: Network, feeUnits: bigint) {
+function getEvmContractAddress(
+  network: Network,
+  feeUnits: bigint,
+  isNewEvmReferralEnabled?: boolean,
+) {
   // TODO: Refactor, hooks shouldn't be called with in functions
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  if (useMayanForwarderShim(network, feeUnits)) {
+  if (useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)) {
     return MayanForwarderShimContractAddress;
   }
 
@@ -104,10 +99,14 @@ function createTransactionRequest(
   isNewEvmReferralEnabled?: boolean,
 ): TransactionRequest {
   //TODO: || !useMayanForwarderShim(network, feeUnits) hook call was used inside a function, figure out where it needs to go
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  if (!mayanTxRequest.data || !useMayanForwarderShim(network, feeUnits)) {
+  if (
+    !mayanTxRequest.data ||
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    !useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)
+  ) {
     return mayanTxRequest;
   }
+
   const mayanForwarder = createMayanForwarderShim();
 
   const data = mayanForwarder.encodeFunctionData(
@@ -128,28 +127,6 @@ function createTransactionRequest(
     value,
     chainId: mayanTxRequest.chainId,
   };
-}
-
-export function createMayanRouteWithReferrerFee<
-  N extends Network,
-  T extends
-    | typeof MayanRoute<N>
-    | typeof MayanRouteSWIFT<N>
-    | typeof MayanRouteMCTP<N>
-    | typeof MayanRouteWH<N>
-    | typeof MayanRouteMONOCHAIN<N>,
->(
-  classConstructor: T,
-  properties: ReferrerParams<N> = {},
-): T & ReferrerParams<N> {
-  if (
-    properties?.referrers &&
-    typeof properties?.getReferrerBps === 'function'
-  ) {
-    Object.assign(classConstructor, properties);
-  }
-
-  return classConstructor as T & ReferrerParams<N>;
 }
 
 export {
