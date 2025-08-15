@@ -132,17 +132,17 @@ export class SDKv2Route {
     if (isIlliquid) return [];
 
     // TODO remove once the mayan SDK has a special return value that represents infinite supported tokens
-    const isMayan = routeName.includes('Mayan');
+    const canSwap = routeName.includes('Mayan') || routeName === 'LiFi';
     const usdcAddr = circle.usdcContract.get(config.network, toChain);
     const isSameChain = fromChain === toChain;
     const cacheKey = `supportedDestTokens-${sourceToken.address}-${fromChain}-${toChain}`;
     const nativeToken = Wormhole.tokenId(toChain, 'native');
     const usdcToken = usdcAddr ? Wormhole.tokenId(toChain, usdcAddr) : null;
     // If we have Mayan available, which is a swap route, by default we show the gas token and USDC.
-    const mayanTokens = usdcToken ? [nativeToken, usdcToken] : [nativeToken];
+    const swapTokens = usdcToken ? [nativeToken, usdcToken] : [nativeToken];
 
-    const destTokens = isMayan
-      ? mayanTokens
+    const destTokens = canSwap
+      ? swapTokens
       : await this.tokenCache.requestWithCache(cacheKey, () =>
           this.rc.supportedDestinationTokens(
             sourceToken.tokenId,
