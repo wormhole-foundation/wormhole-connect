@@ -8,6 +8,10 @@ import type { Chain, TransactionId, TokenId } from '@wormhole-foundation/sdk';
 import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';
+import {
+  cctpV2FastExecutorRoute,
+  cctpV2StandardExecutorRoute,
+} from '@wormhole-labs/cctp-executor-route';
 
 export interface TxInfo {
   route: string;
@@ -19,9 +23,11 @@ export type QuoteResult = routes.QuoteResult<routes.Options>;
 type forEachCallback<T> = (name: string, route: SDKv2Route) => T;
 
 export const DEFAULT_ROUTES = [
-  routes.AutomaticCCTPRoute,
-  routes.CCTPRoute,
   routes.AutomaticTokenBridgeRoute,
+  routes.AutomaticCCTPRoute, // CCTP v1 automatic
+  routes.CCTPRoute, // CCTP v1 manual
+  cctpV2FastExecutorRoute() as routes.RouteConstructor, // CCTPv2 automatic/fast
+  cctpV2StandardExecutorRoute() as routes.RouteConstructor, // CCTPv2 manual/standard
   routes.TokenBridgeRoute,
   routes.TBTCRoute,
 ];
