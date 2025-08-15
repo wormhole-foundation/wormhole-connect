@@ -208,6 +208,12 @@
       "@ledgerhq/logs": "6.12.0",
       "@ledgerhq/devices": "6.27.1"
     },
+    "@wormhole-labs/lifi-route": {
+      "@wormhole-foundation/sdk-connect": "3.3.0",
+      "@wormhole-foundation/sdk-evm": "3.3.0",
+      "@wormhole-foundation/sdk-solana": "3.3.0",
+      "@wormhole-foundation/sdk-sui": "3.3.0"
+    },
     "@mayanfinance/wormhole-sdk-route": {
       "@wormhole-foundation/sdk-connect": "3.3.0",
       "@wormhole-foundation/sdk-evm": "3.3.0",
