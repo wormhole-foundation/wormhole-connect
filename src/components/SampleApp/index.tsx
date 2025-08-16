@@ -39,7 +39,7 @@ import {
   MayanRouteMCTP,
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
-} from '@mayanfinance/wormhole-sdk-route';
+} from '../../routes/mayan';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { nttRoutes } from 'exports/ntt';

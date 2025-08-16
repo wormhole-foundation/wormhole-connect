@@ -5,4 +5,4 @@ export {
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
   createMayanRouteWithReferrerFee,
-} from '@mayanfinance/wormhole-sdk-route';
+} from '../routes/mayan';
