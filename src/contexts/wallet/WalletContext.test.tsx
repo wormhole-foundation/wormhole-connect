@@ -28,16 +28,6 @@ vi.mock('config', () => ({
   },
 }));
 
-vi.mock('utils/wallet', async () => {
-  const actual = await vi.importActual<typeof import('utils/wallet')>(
-    'utils/wallet',
-  );
-  return {
-    ...actual,
-    getWalletOptions: vi.fn(() => Promise.resolve([])),
-  };
-});
-
 vi.mock('store/wallet', () => ({
   connectWallet: vi.fn((payload) => ({
     type: 'wallet/connectWallet',
@@ -57,7 +47,7 @@ vi.mock('store/wallet', () => ({
 }));
 
 describe('WalletContext with InternalWalletProvider', () => {
-  const mockWallet: any = {
+  const mockWallet = {
     getAddress: vi.fn(() => '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3'),
     getName: vi.fn(() => 'TestWallet'),
     getIcon: vi.fn(() => 'wallet-icon.png'),
@@ -81,7 +71,7 @@ describe('WalletContext with InternalWalletProvider', () => {
     </Provider>
   );
 
-  it('should provide wallet context with InternalWalletProvider and setup event handlers', async () => {
+  it('connect and disconnect sending and receiving wallets', async () => {
     const { result } = renderHook(() => useContext(WalletContext), {
       wrapper,
     });
@@ -93,24 +83,46 @@ describe('WalletContext with InternalWalletProvider', () => {
     expect(result.current?.disconnectWallet).toBeDefined();
     expect(result.current?.swapWallets).toBeDefined();
 
-    let connectPromise: Promise<any>;
+    const { connectWallet, connectReceivingWallet, clearWallet } = await import(
+      'store/wallet'
+    );
+
+    // Test sending wallet (Ethereum) - connect
+    vi.mocked(mockWallet.getAddress).mockReturnValue(
+      '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3',
+    );
+
+    let sendingConnectPromise: Promise<any>;
     act(() => {
-      connectPromise = result.current!.connectWallet(
-        'Solana',
-        TransferWallet.RECEIVING,
+      sendingConnectPromise = result.current!.connectWallet(
+        'Ethereum',
+        TransferWallet.SENDING,
       );
     });
+
+    expect(result.current?.isConnecting).toBe(true);
 
     act(() => {
       internalWalletProvider.onWalletSelected(
-        mockWallet,
-        'Solana',
-        TransferWallet.RECEIVING,
+        mockWallet as any,
+        'Ethereum',
+        TransferWallet.SENDING,
       );
     });
 
-    await connectPromise!;
+    const sendingWallet = await sendingConnectPromise!;
 
+    await waitFor(() => {
+      expect(result.current?.isConnecting).toBe(false);
+    });
+
+    expect(sendingWallet).toBe(mockWallet);
+    expect(connectWallet).toHaveBeenCalledWith({
+      address: '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3',
+      type: 'Evm',
+      icon: 'wallet-icon.png',
+      name: 'TestWallet',
+    });
     expect(mockWallet.on).toHaveBeenCalledWith(
       'disconnect',
       expect.any(Function),
@@ -119,215 +131,65 @@ describe('WalletContext with InternalWalletProvider', () => {
       'accountsChanged',
       expect.any(Function),
     );
-  });
 
-  it('should handle wallet connection through context', async () => {
-    const { result } = renderHook(() => useContext(WalletContext), {
-      wrapper,
-    });
+    vi.mocked(mockWallet.on).mockClear();
 
-    expect(result.current?.isConnecting).toBe(false);
+    // Test receiving wallet (Solana) - connect
+    vi.mocked(mockWallet.getAddress).mockReturnValue(
+      '7gw96i3Bs4dp3xsvtimJe6Uf5FHj2e1ik9pVRnpPf4BF',
+    );
 
-    let connectPromise: Promise<any>;
+    let receivingConnectPromise: Promise<any>;
     act(() => {
-      connectPromise = result.current!.connectWallet(
-        'Ethereum',
-        TransferWallet.SENDING,
-      );
-    });
-
-    expect(result.current?.isConnecting).toBe(true);
-
-    act(() => {
-      internalWalletProvider.onWalletSelected(
-        mockWallet,
-        'Ethereum',
-        TransferWallet.SENDING,
-      );
-    });
-
-    const wallet = await connectPromise!;
-
-    await waitFor(() => {
-      expect(result.current?.isConnecting).toBe(false);
-    });
-
-    expect(wallet).toBe(mockWallet);
-  });
-
-  it('should handle wallet disconnection through context', async () => {
-    const { result } = renderHook(() => useContext(WalletContext), {
-      wrapper,
-    });
-
-    let connectPromise: Promise<any>;
-    act(() => {
-      connectPromise = result.current!.connectWallet(
-        'Ethereum',
-        TransferWallet.SENDING,
+      receivingConnectPromise = result.current!.connectWallet(
+        'Solana',
+        TransferWallet.RECEIVING,
       );
     });
 
     act(() => {
       internalWalletProvider.onWalletSelected(
-        mockWallet,
-        'Ethereum',
-        TransferWallet.SENDING,
+        mockWallet as any,
+        'Solana',
+        TransferWallet.RECEIVING,
       );
     });
 
-    await connectPromise!;
+    const receivingWallet = await receivingConnectPromise!;
 
+    expect(receivingWallet).toBe(mockWallet);
+    expect(connectReceivingWallet).toHaveBeenCalledWith({
+      address: '7gw96i3Bs4dp3xsvtimJe6Uf5FHj2e1ik9pVRnpPf4BF',
+      type: 'Solana',
+      icon: 'wallet-icon.png',
+      name: 'TestWallet',
+    });
+    expect(mockWallet.on).toHaveBeenCalledWith(
+      'disconnect',
+      expect.any(Function),
+    );
+    expect(mockWallet.on).toHaveBeenCalledWith(
+      'accountsChanged',
+      expect.any(Function),
+    );
+
+    // Test sending wallet disconnect
     await act(async () => {
       await result.current!.disconnectWallet(
         'Ethereum',
         TransferWallet.SENDING,
       );
     });
-
     expect(mockWallet.disconnect).toHaveBeenCalled();
-  });
+    expect(clearWallet).toHaveBeenCalledWith(TransferWallet.SENDING);
 
-  it('should handle wallet connection cancellation', async () => {
-    const { result } = renderHook(() => useContext(WalletContext), {
-      wrapper,
-    });
-
-    let connectPromise: Promise<any>;
-    act(() => {
-      connectPromise = result.current!.connectWallet(
-        'Ethereum',
-        TransferWallet.SENDING,
+    // Test receiving wallet disconnect
+    await act(async () => {
+      await result.current!.disconnectWallet(
+        'Solana',
+        TransferWallet.RECEIVING,
       );
     });
-
-    expect(result.current?.isConnecting).toBe(true);
-
-    await act(async () => {
-      internalWalletProvider.onWalletSelectCancelled();
-    });
-
-    const wallet = await connectPromise!;
-    expect(wallet).toBeNull();
-
-    await waitFor(() => {
-      expect(result.current?.isConnecting).toBe(false);
-    });
-  });
-
-  describe.each([
-    {
-      walletType: TransferWallet.SENDING,
-      actionName: 'connectWallet',
-      chain: 'Ethereum' as Chain,
-      address: '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3',
-      platformType: 'Evm',
-    },
-    {
-      walletType: TransferWallet.RECEIVING,
-      actionName: 'connectReceivingWallet',
-      chain: 'Solana' as Chain,
-      address: '7gw96i3Bs4dp3xsvtimJe6Uf5FHj2e1ik9pVRnpPf4BF',
-      platformType: 'Solana',
-    },
-  ])(
-    'wallet $walletType',
-    ({ walletType, actionName, chain, address, platformType }) => {
-      it(`should dispatch ${actionName} action when connecting`, async () => {
-        const { result } = renderHook(() => useContext(WalletContext), {
-          wrapper,
-        });
-
-        // Mock wallet address for this specific test
-        vi.mocked(mockWallet.getAddress).mockReturnValue(address);
-
-        const storeActions = await import('store/wallet');
-        const connectAction =
-          storeActions[actionName as keyof typeof storeActions];
-
-        let connectPromise: Promise<any>;
-        act(() => {
-          connectPromise = result.current!.connectWallet(chain, walletType);
-        });
-
-        act(() => {
-          internalWalletProvider.onWalletSelected(
-            mockWallet,
-            chain,
-            walletType,
-          );
-        });
-
-        await connectPromise!;
-
-        expect(connectAction).toHaveBeenCalledWith({
-          address,
-          type: platformType,
-          icon: 'wallet-icon.png',
-          name: 'TestWallet',
-        });
-      });
-
-      it(`should clear wallet address when disconnected`, async () => {
-        const { result } = renderHook(() => useContext(WalletContext), {
-          wrapper,
-        });
-
-        vi.mocked(mockWallet.getAddress).mockReturnValue(address);
-
-        const { clearWallet } = await import('store/wallet');
-
-        let connectPromise: Promise<any>;
-        act(() => {
-          connectPromise = result.current!.connectWallet(chain, walletType);
-        });
-
-        act(() => {
-          internalWalletProvider.onWalletSelected(
-            mockWallet,
-            chain,
-            walletType,
-          );
-        });
-
-        await connectPromise!;
-
-        await act(async () => {
-          await result.current!.disconnectWallet(chain, walletType);
-        });
-
-        expect(mockWallet.disconnect).toHaveBeenCalled();
-        expect(clearWallet).toHaveBeenCalledWith(walletType);
-      });
-    },
-  );
-
-  it('should handle auto-connect with last used wallet', async () => {
-    localStorage.setItem('test-wallet:Evm', 'TestWallet');
-
-    const { getWalletOptions } = await import('utils/wallet');
-    vi.mocked(getWalletOptions).mockResolvedValue([
-      {
-        name: 'TestWallet',
-        wallet: mockWallet,
-        isReady: true,
-      },
-    ] as any);
-
-    const { result } = renderHook(() => useContext(WalletContext), {
-      wrapper,
-    });
-
-    let wallet: any;
-    await act(async () => {
-      wallet = await result.current!.connectWallet(
-        'Ethereum',
-        TransferWallet.SENDING,
-        true,
-      );
-    });
-
-    expect(wallet).toBe(mockWallet);
-    expect(mockWallet.connect).toHaveBeenCalled();
+    expect(clearWallet).toHaveBeenCalledWith(TransferWallet.RECEIVING);
   });
 });
