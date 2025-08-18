@@ -1,23 +1,19 @@
 import { addresses } from '@mayanfinance/swap-sdk';
 import type { Network } from '@wormhole-foundation/sdk-connect';
 import type { TransactionRequest } from 'ethers';
-import { ethers } from 'ethers';
-import { MayanForwarderShimContractABI } from './abi';
-
-const ForwardEth = 'forwardEth';
-const ForwardERC20 = 'forwardERC20';
-
-const MayanForwarderShimContractAddress =
-  '0x87a26566dbb3bf206634c1792a96ff4989e3f56e';
+import {
+  ForwardERC20,
+  ForwardEth,
+  MAYAN_FORWARDER_SHIM_CONTRACT_ADDRESS,
+  MAYAN_FORWARDER_SHIM_CONTRACT_INTERFACE,
+} from '../consts';
 
 function createMayanForwarderShim() {
-  const contractInterface = new ethers.Interface(MayanForwarderShimContractABI);
-
   function encodeForwardEth(forwarderData: string, payee: string, fee: bigint) {
-    return contractInterface.encodeFunctionData(ForwardEth, [
-      forwarderData,
-      { payee, fee },
-    ]);
+    return MAYAN_FORWARDER_SHIM_CONTRACT_INTERFACE.encodeFunctionData(
+      ForwardEth,
+      [forwarderData, { payee, fee }],
+    );
   }
 
   function encodeForwardERC20(
@@ -27,12 +23,10 @@ function createMayanForwarderShim() {
     payee: string,
     fee: bigint,
   ) {
-    return contractInterface.encodeFunctionData(ForwardERC20, [
-      forwarderData,
-      tokenIn,
-      amountIn,
-      { payee, fee },
-    ]);
+    return MAYAN_FORWARDER_SHIM_CONTRACT_INTERFACE.encodeFunctionData(
+      ForwardERC20,
+      [forwarderData, tokenIn, amountIn, { payee, fee }],
+    );
   }
 
   function encodeFunctionData(
@@ -61,29 +55,18 @@ function createMayanForwarderShim() {
   return { encodeFunctionData, getMsgValue };
 }
 
-function useMayanForwarderShim(
-  network: Network,
-  feeUnits: bigint,
-  isNewEvmReferralEnabled?: boolean,
-) {
-  if (feeUnits <= 0n || !isNewEvmReferralEnabled || network !== 'Mainnet') {
+function getMayanForwarderShim(network: Network, feeUnits: bigint) {
+  if (feeUnits <= 0n || network !== 'Mainnet') {
     return false;
   }
 
   return true;
 }
 
-function getEvmContractAddress(
-  network: Network,
-  feeUnits: bigint,
-  isNewEvmReferralEnabled?: boolean,
-) {
-  // TODO: Refactor, hooks shouldn't be called with in functions
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  if (useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)) {
-    return MayanForwarderShimContractAddress;
+function getEvmContractAddress(network: Network, feeUnits: bigint) {
+  if (getMayanForwarderShim(network, feeUnits)) {
+    return MAYAN_FORWARDER_SHIM_CONTRACT_ADDRESS;
   }
-
   return addresses.MAYAN_FORWARDER_CONTRACT;
 }
 
@@ -96,14 +79,8 @@ function createTransactionRequest(
   referrer: string,
   tokenAddress: string,
   isNativeToken: boolean,
-  isNewEvmReferralEnabled?: boolean,
 ): TransactionRequest {
-  if (
-    !mayanTxRequest.data ||
-    // TODO: Refactor, hooks shouldn't be called with in functions
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    !useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)
-  ) {
+  if (!mayanTxRequest.data || !getMayanForwarderShim(network, feeUnits)) {
     return mayanTxRequest;
   }
 
@@ -122,7 +99,7 @@ function createTransactionRequest(
 
   return {
     from: sender,
-    to: MayanForwarderShimContractAddress,
+    to: MAYAN_FORWARDER_SHIM_CONTRACT_ADDRESS,
     data,
     value,
     chainId: mayanTxRequest.chainId,
