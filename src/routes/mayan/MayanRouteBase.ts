@@ -400,17 +400,14 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       amountIn64: this.getQuoteAmountIn64(request, params.amount),
       fromToken: this.toMayanAddress(request.source.id),
       toToken: this.toMayanAddress(request.destination.id),
+      // @ts-ignore
       fromChain: toMayanChainName(fromChain.network, fromChain.chain),
+      // @ts-ignore
       toChain: toMayanChainName(toChain.network, toChain.chain),
       ...this.getDefaultOptions(),
       ...params.options,
       slippageBps: 'auto',
     };
-
-    const referralParams = this.getReferralParameters(request);
-
-    quoteParams.referrer = referralParams.referrer;
-    quoteParams.referrerBps = referralParams.referrerBps;
 
     const quoteOpts = {
       swift: this.protocols.includes('SWIFT'),
@@ -637,7 +634,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 quote.details!,
                 originAddress,
                 destinationAddress,
-                referrerAddress,
+                null,
                 rpc,
                 { allowSwapperOffCurve: true },
               ));
@@ -721,7 +718,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               quote.details!,
               originAddress,
               destinationAddress,
-              referrerAddress,
+              null,
               undefined,
               rpc,
               options,
@@ -824,7 +821,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               quote.details!,
               originAddress,
               destinationAddress,
-              referrerAddress,
+              null,
               originAddress,
               Number(nativeChainId!),
               undefined,
