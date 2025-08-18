@@ -193,8 +193,8 @@ async function signAndSendTransactionInternal(
 }
 
 function swapWallets(): void {
-  if (walletConnections.sending?.wallet.getName() === ReadOnlyWallet.NAME) {
-    walletConnections.sending.wallet.disconnect();
+  if (walletConnections.receiving?.wallet.getName() === ReadOnlyWallet.NAME) {
+    walletConnections.receiving.wallet.disconnect();
   }
 
   const temp = walletConnections.sending;
