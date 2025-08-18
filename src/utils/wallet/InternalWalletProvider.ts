@@ -9,6 +9,7 @@ import type {
 import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import config from 'config';
 import type { UnsignedTransaction } from '@wormhole-foundation/sdk-definitions';
+import { ReadOnlyWallet } from './ReadOnlyWallet';
 
 /**
  * Built-in wallet provider that integrates with @wormhole-labs/wallet-aggregator-core
@@ -69,7 +70,7 @@ function setWalletConnection(
 
   wallet.on('disconnect', handleDisconnect);
 
-  if (localStorageKey && wallet.getName() !== 'ReadOnlyWallet') {
+  if (localStorageKey && wallet.getName() !== ReadOnlyWallet.NAME) {
     localStorage.setItem(localStorageKey, wallet.getName());
   }
 }
@@ -192,13 +193,13 @@ async function signAndSendTransactionInternal(
 }
 
 function swapWallets(): void {
+  if (walletConnections.sending?.wallet.getName() === ReadOnlyWallet.NAME) {
+    walletConnections.sending.wallet.disconnect();
+  }
+
   const temp = walletConnections.sending;
   walletConnections.sending = walletConnections.receiving;
   walletConnections.receiving = temp;
-
-  if (walletConnections.sending?.wallet.getName() === 'ReadOnlyWallet') {
-    walletConnections.sending.wallet.disconnect();
-  }
 }
 
 function on<T extends keyof WalletProviderEvents>(
