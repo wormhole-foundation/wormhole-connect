@@ -81,7 +81,7 @@ export const useAmountValidation = (props: Props): AmountValidationResult => {
       };
     } else {
       return {
-        error: 'No routes found for this transaction amount.',
+        error: 'No route available.',
       };
     }
   }
