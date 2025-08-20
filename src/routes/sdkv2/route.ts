@@ -138,14 +138,25 @@ export class SDKv2Route {
     // If we have Mayan available, which is a swap route, by default we show the gas token and USDC.
     const mayanTokens = usdcToken ? [nativeToken, usdcToken] : [nativeToken];
 
+    const routeSupportedTokenFetcher = async () => {
+      try {
+        const tokens = await this.rc.supportedDestinationTokens(
+          sourceToken.tokenId,
+          fromContext.context,
+          toContext.context,
+        );
+
+        return tokens;
+      } catch {
+        return [];
+      }
+    };
+
     const destTokens = isMayan
       ? mayanTokens
-      : await this.tokenCache.requestWithCache(cacheKey, () =>
-          this.rc.supportedDestinationTokens(
-            sourceToken.tokenId,
-            fromContext.context,
-            toContext.context,
-          ),
+      : await this.tokenCache.requestWithCache(
+          cacheKey,
+          routeSupportedTokenFetcher,
         );
 
     const filteredTokens = destTokens.filter((t) => {
