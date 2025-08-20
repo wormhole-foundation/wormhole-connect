@@ -66,6 +66,7 @@ export enum TokenIcon {
   'PLUME',
   'FOGO',
   'HYPE',
+  'XRP',
 }
 
 // Used in bridging components
