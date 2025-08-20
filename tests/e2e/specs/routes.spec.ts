@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 import { compressToBase64 } from 'lz-string';
@@ -75,6 +76,11 @@ testConfigs.forEach(
         // Enter amount
         await bridgeView.enterAmount(amount);
 
+        // Click the link to open Routes modal
+        const routeToggle = page.getByTestId('other-routes-toggle');
+        await routeToggle.isVisible();
+        await routeToggle.click();
+
         // Route should be visible and selected by default
         await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
       },
@@ -119,8 +125,16 @@ testConfigs.forEach(
       // Enter amount
       await bridgeView.enterAmount(amount);
 
+      // Click the link to open Routes modal
+      const routeToggle = page.getByTestId('other-routes-toggle');
+      await routeToggle.isVisible();
+      await routeToggle.click();
+
       // Route should be visible and selected by default
       await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
+
+      // Close the routes modal/drawer
+      await page.getByTestId('routes-close-button').click();
 
       // Start transaction
       await bridgeView.startTransaction();

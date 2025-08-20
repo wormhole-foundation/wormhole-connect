@@ -1,5 +1,5 @@
 import { circle } from '@wormhole-foundation/sdk';
-import { TestConfig } from './types';
+import type { TestConfig } from './types';
 
 const COINGECKO_API_KEY = process.env.REACT_APP_TEST_CG_AK || '';
 
@@ -7,6 +7,7 @@ const mayanSWIFT = `{
   network: 'mainnet',
   coinGeckoApiKey: '${COINGECKO_API_KEY}',
   ui: {
+    experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
     testOptions: {
       enableHeadlessSigner: true,
@@ -21,6 +22,7 @@ const CCTPExecutor = `{
   network: 'mainnet',
   coinGeckoApiKey: '${COINGECKO_API_KEY}',
   ui: {
+    experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
     testOptions: {
       enableHeadlessSigner: true,
@@ -35,7 +37,7 @@ export const testConfigs: Array<TestConfig> = [
   {
     name: 'MayanSwapSWIFT',
     config: mayanSWIFT,
-    enabled: false,
+    enabled: true,
     sourceWallet: {
       address: process.env.REACT_APP_TEST_EVM_ADDR || '',
       privateKey: process.env.REACT_APP_TEST_EVM_PK || '',
@@ -53,7 +55,7 @@ export const testConfigs: Array<TestConfig> = [
       symbol: 'USDC',
       address: circle.usdcContract.get('Mainnet', 'Base'),
     },
-    amount: '1',
+    amount: '3',
     waitForCompletion: true,
   },
   {

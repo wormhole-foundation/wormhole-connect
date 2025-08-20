@@ -1,4 +1,5 @@
-import { expect, Locator, Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 const NONCE_ERROR = new RegExp('nonce has already been used', 'mi');
 
@@ -75,12 +76,24 @@ export class BridgeView {
     tokenSymbol: string,
   ) {
     await this.srcAssetPicker.click();
-    await this.page.getByTestId(chainTestId).click();
-    await this.page
+
+    // Wait for the chain button to be clickable
+    // This works whether it's in a modal, drawer, or inline
+    const chainButton = this.page.getByTestId(chainTestId);
+    await chainButton.waitFor({ state: 'visible' });
+    await chainButton.click();
+
+    // Wait for search input to be visible after chain selection
+    const searchInput = this.page
       .getByTestId('token-search-list-input')
-      .getByRole('textbox')
-      .fill(tokenSymbol);
-    await this.page.getByTestId(tokenTestId).click();
+      .getByRole('textbox');
+    await searchInput.waitFor({ state: 'visible' });
+    await searchInput.fill(tokenSymbol);
+
+    // Wait for token button and click it
+    const tokenButton = this.page.getByTestId(tokenTestId);
+    await tokenButton.waitFor({ state: 'visible' });
+    await tokenButton.click();
   }
 
   async selectDestAsset(
@@ -89,12 +102,24 @@ export class BridgeView {
     tokenSymbol: string,
   ) {
     await this.destAssetPicker.click();
-    await this.page.getByTestId(chainTestId).click();
-    await this.page
+
+    // Wait for the chain button to be clickable
+    // This works whether it's in a modal, drawer, or inline
+    const chainButton = this.page.getByTestId(chainTestId);
+    await chainButton.waitFor({ state: 'visible' });
+    await chainButton.click();
+
+    // Wait for search input to be visible after chain selection
+    const searchInput = this.page
       .getByTestId('token-search-list-input')
-      .getByRole('textbox')
-      .fill(tokenSymbol);
-    await this.page.getByTestId(tokenTestId).click();
+      .getByRole('textbox');
+    await searchInput.waitFor({ state: 'visible' });
+    await searchInput.fill(tokenSymbol);
+
+    // Wait for token button and click it
+    const tokenButton = this.page.getByTestId(tokenTestId);
+    await tokenButton.waitFor({ state: 'visible' });
+    await tokenButton.click();
   }
 
   async enterAmount(amount: string) {
