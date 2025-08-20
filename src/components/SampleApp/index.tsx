@@ -48,7 +48,10 @@ import {
   cctpV2StandardExecutorRoute,
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
-import { MonadBridgeRoute } from 'exports/monad';
+import {
+  MonadBridgeExecutorRoute,
+  MonadBridgeManualRoute,
+} from 'exports/monad';
 import { LiFiRoute } from 'exports/lifi';
 import type { WormholeConnectTheme } from 'theme';
 
@@ -98,7 +101,9 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.executorTokenBridgeRoute = routes.executorTokenBridgeRoute;
       /* @ts-ignore */
-      window.MonadBridgeRoute = () => MonadBridgeRoute;
+      window.MonadBridgeExecutorRoute = () => MonadBridgeExecutorRoute;
+      /* @ts-ignore */
+      window.MonadBridgeManualRoute = () => MonadBridgeManualRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -335,7 +340,11 @@ function SampleApp() {
                     </i>
                   </li>
                   <li>
-                    <pre>MonadBridgeRoute</pre>
+                    <pre>MonadBridgeRouteExecutorRoute</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MonadBridgeManualRoute</pre>
                     <i>{'RouteConstructor'}</i>
                   </li>
                 </ul>

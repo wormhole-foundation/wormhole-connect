@@ -5,7 +5,11 @@ import { maybeLogSdkError } from 'utils/errors';
 import memoize from 'fast-memoize';
 
 import type { Chain, TransactionId, TokenId } from '@wormhole-foundation/sdk';
-import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import {
+  isUnattestedTokenId,
+  routes,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2';
 
@@ -145,7 +149,7 @@ export default class RouteOperator {
     sourceChain: Chain,
     destChain: Chain,
   ): Promise<TokenId[]> {
-    const supported: Set<string> = new Set();
+    const supported: TokenId[] = [];
 
     await this.forEach(async (name, route) => {
       try {
@@ -157,14 +161,18 @@ export default class RouteOperator {
         );
 
         for (const token of destTokenIds) {
-          supported.add(tokenKey(token));
+          if (isUnattestedTokenId(token)) {
+            supported.push(token);
+          } else {
+            supported.push(parseTokenKey(tokenKey(token)));
+          }
         }
       } catch (e) {
         maybeLogSdkError(e);
       }
     });
 
-    return Array.from(supported).map(parseTokenKey);
+    return supported;
   }
 
   async getQuotes(

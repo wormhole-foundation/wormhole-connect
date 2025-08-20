@@ -169,9 +169,9 @@ export async function parseReceipt(
       return parseCCTPv2Receipt(
         receipt as ReceiptWithAttestation<CCTPv2ExecutorRoute.Attestation>,
       );
-    case 'MonadBridge':
+    case 'MonadBridgeExecutorRoute':
       return await parseMultiTokenNttReceipt(
-        receipt as ReceiptWithAttestation<MultiTokenNttRoute.AutomaticAttestationReceipt> & {
+        receipt as ReceiptWithAttestation<MultiTokenNttRoute.ManualAttestationReceipt> & {
           params: MultiTokenNttRoute.ValidatedParams;
         },
         getOrFetchToken,
@@ -540,7 +540,7 @@ const parseCCTPv2Receipt = async (
 };
 
 const parseMultiTokenNttReceipt = async (
-  receipt: ReceiptWithAttestation<MultiTokenNttRoute.AutomaticAttestationReceipt> & {
+  receipt: ReceiptWithAttestation<MultiTokenNttRoute.ManualAttestationReceipt> & {
     params: MultiTokenNttRoute.ValidatedParams;
   },
   getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>,
@@ -569,7 +569,7 @@ const parseMultiTokenNttReceipt = async (
   }
 
   const { attestation } = receipt.attestation;
-  const { nttManagerPayload } = attestation.payload.payload;
+  const { nttManagerPayload } = attestation.payload;
   const trimmedAmount = nttManagerPayload.payload.data.trimmedAmount;
   const amt = amount.fromBaseUnits(
     trimmedAmount.amount,
@@ -580,9 +580,7 @@ const parseMultiTokenNttReceipt = async (
     toChain: receipt.to,
     fromChain: receipt.from,
     sendTx,
-    sender: nttManagerPayload.payload.data.sender
-      .toNative(receipt.from)
-      .toString(),
+    sender: undefined, // not available in the VAA
     recipient: nttManagerPayload.payload.data.to
       .toNative(receipt.to)
       .toString(),

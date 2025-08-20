@@ -92,7 +92,7 @@ export class SDKv2Route {
     }
 
     if (
-      this.rc.meta.name === 'MonadBridge' &&
+      this.rc.meta.name === 'MonadBridgeExecutorRoute' &&
       sourceToken.isTokenBridgeWrappedToken
     ) {
       // Prevent double wrapping
@@ -129,7 +129,7 @@ export class SDKv2Route {
     if (!fromChain || !toChain || !sourceToken) return [];
 
     if (
-      this.rc.meta.name === 'MonadBridge' &&
+      this.rc.meta.name === 'MonadBridgeExecutorRoute' &&
       sourceToken?.isTokenBridgeWrappedToken
     ) {
       // Prevent double wrapping
