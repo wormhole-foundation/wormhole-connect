@@ -31,6 +31,7 @@ import SEIEVM from './Chains/SEIEVM';
 import PLUME from './Chains/PLUME';
 import FOGO from './Chains/FOGO';
 import HyperEVM from './Chains/HYPEREVM';
+import XRPLEVM from './Chains/XRPLEVM';
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
@@ -60,6 +61,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Plume: PLUME(),
   Fogo: FOGO(),
   HyperEVM: HyperEVM(),
+  XRPLEVM: XRPLEVM(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

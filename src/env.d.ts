@@ -54,6 +54,7 @@ interface ImportMetaEnv {
   REACT_APP_MEZO_TESTNET_RPC: string;
   REACT_APP_SEIEVM_TESTNET_RPC: string;
   REACT_APP_PLUME_TESTNET_RPC: string;
+  REACT_APP_XRPLEVM_TESTNET_RPC: string;
 
   // devnet
   REACT_APP_ETHEREUM_DEVNET_RPC: string;

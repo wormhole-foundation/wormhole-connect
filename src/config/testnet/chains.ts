@@ -193,4 +193,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Fogo',
     symbol: 'FOGO',
   },
+  XRPLEVM: {
+    displayName: 'XRPL Testnet',
+    sdkName: 'XRPLEVM',
+    icon: 'XRPLEVM',
+    explorerUrl: 'https://testnet.xrpl.org/',
+    explorerName: 'XRPL Explorer',
+    symbol: 'XRP',
+  },
 };
