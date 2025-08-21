@@ -59,7 +59,7 @@
     "@wormhole-foundation/sdk-definitions": "3.4.1",
     "@wormhole-foundation/sdk-definitions-ntt": "2.0.0",
     "@wormhole-foundation/sdk-evm-ntt": "2.0.0",
-    "@wormhole-foundation/sdk-icons": "^1.0.6",
+    "@wormhole-foundation/sdk-icons": "3.4.1",
     "@wormhole-foundation/sdk-route-ntt": "2.0.0",
     "@wormhole-foundation/sdk-solana-ntt": "2.0.0",
     "@wormhole-foundation/sdk-sui-ntt": "2.0.0",
