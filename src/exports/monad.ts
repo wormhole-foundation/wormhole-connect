@@ -16,6 +16,7 @@ import '@wormhole-foundation/sdk-definitions-ntt';
 import '@wormhole-foundation/sdk-evm-ntt';
 import '@wormhole-foundation/sdk-solana-ntt';
 
+// export MONAD_WormholeTransceiver=0x929Fd90a52294c3C9F0A20cD1d783054Ed73b22F
 // export MONAD_GmpManager=0xd5d871b5235f4eC89783b2D4c569399c2e347bB3
 // export MONAD_MultiTokenNtt=0x8e07EBf7C4561333069F82E879313021b8aBad92
 // export SEPOLIA_WormholeTransceiver=0x25e2A24c57f31E8bde679B8cf2018cB86b6313Ea
@@ -44,18 +45,18 @@ export class MonadBridgeExecutorRoute<N extends Network>
       contracts: [
         {
           chain: 'Sepolia',
-          manager: '0x6c5aAE4622B835058A41879bA5e128019B9047d6',
-          gmpManager: '0xDaeE3A6B4196E3e46015b364F1DAe54CEAE74A91',
+          manager: '0xe4247DD690a5C903781c617d362e69ac3225566a',
+          gmpManager: '0xD2AbD2D35a86e298D4e929D4eEf88207f579eF2a',
           transceiver: {
-            wormhole: '0x3D11D1c1a8763c8508e0F3d4F6ec08D0D6cC293e',
+            wormhole: '0x25e2A24c57f31E8bde679B8cf2018cB86b6313Ea',
           },
         },
         {
           chain: 'Monad',
-          manager: '0x600D3C45Cd002E7359D12597Bb8058a0C32A20Df',
-          gmpManager: '0x641a6608e2959c0D7Fe2a5F267DFDA519ED43d98',
+          manager: '0x8e07EBf7C4561333069F82E879313021b8aBad92',
+          gmpManager: '0xd5d871b5235f4eC89783b2D4c569399c2e347bB3',
           transceiver: {
-            wormhole: '0xf72AbB2B4C53B722643355A9816Ddddcd7F215F4',
+            wormhole: '0x929Fd90a52294c3C9F0A20cD1d783054Ed73b22F',
           },
         },
       ],
@@ -101,18 +102,18 @@ export class MonadBridgeManualRoute<N extends Network>
     contracts: [
       {
         chain: 'Sepolia',
-        manager: '0x6c5aAE4622B835058A41879bA5e128019B9047d6',
-        gmpManager: '0xDaeE3A6B4196E3e46015b364F1DAe54CEAE74A91',
+        manager: '0xe4247DD690a5C903781c617d362e69ac3225566a',
+        gmpManager: '0xD2AbD2D35a86e298D4e929D4eEf88207f579eF2a',
         transceiver: {
-          wormhole: '0x3D11D1c1a8763c8508e0F3d4F6ec08D0D6cC293e',
+          wormhole: '0x25e2A24c57f31E8bde679B8cf2018cB86b6313Ea',
         },
       },
       {
         chain: 'Monad',
-        manager: '0x600D3C45Cd002E7359D12597Bb8058a0C32A20Df',
-        gmpManager: '0x641a6608e2959c0D7Fe2a5F267DFDA519ED43d98',
+        manager: '0x8e07EBf7C4561333069F82E879313021b8aBad92',
+        gmpManager: '0xd5d871b5235f4eC89783b2D4c569399c2e347bB3',
         transceiver: {
-          wormhole: '0xf72AbB2B4C53B722643355A9816Ddddcd7F215F4',
+          wormhole: '0x929Fd90a52294c3C9F0A20cD1d783054Ed73b22F',
         },
       },
     ],

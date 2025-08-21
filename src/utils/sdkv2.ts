@@ -169,6 +169,7 @@ export async function parseReceipt(
       return parseCCTPv2Receipt(
         receipt as ReceiptWithAttestation<CCTPv2ExecutorRoute.Attestation>,
       );
+    case 'MonadBridgeManualRoute':
     case 'MonadBridgeExecutorRoute':
       return await parseMultiTokenNttReceipt(
         receipt as ReceiptWithAttestation<MultiTokenNttRoute.ManualAttestationReceipt> & {
