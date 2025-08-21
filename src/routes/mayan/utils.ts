@@ -74,6 +74,7 @@ const chainNameMap = {
   Optimism: 'optimism',
   Unichain: 'unichain',
   Sui: 'sui',
+  HyperEVM: 'hyperevm',
 } as Record<Chain, MayanChainName>;
 
 // Mapping of Wormhole chains to testnet Mayan chain names
