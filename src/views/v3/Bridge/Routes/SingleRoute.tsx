@@ -114,7 +114,7 @@ const SingleRoute = (props: Props) => {
     isTransactionInProgress,
   });
 
-  const { isHighFee } = useMemo(() => {
+  const isHighFee = useMemo(() => {
     if (!quote || !sourceToken || !destToken || !inputAmount) {
       return { isHighFee: false };
     }
@@ -132,12 +132,12 @@ const SingleRoute = (props: Props) => {
     );
 
     if (inputUsd === undefined || outputUsd === undefined || inputUsd <= 0) {
-      return { isHighFee: false };
+      return false;
     }
 
     const delta = Math.max(0, inputUsd - outputUsd);
     const percent = (delta / inputUsd) * 100;
-    return { isHighFee: percent >= HIGH_FEE_PERCENT };
+    return percent >= HIGH_FEE_PERCENT;
   }, [getTokenPrice, quote, sourceToken, destToken, inputAmount]);
 
   const destinationGas = useMemo(() => {
