@@ -68,11 +68,18 @@ export class SDKv2Route {
     fromChain: Chain,
     toChain: Chain,
   ): Promise<boolean> {
+    const isSameChain = fromChain === toChain;
+
+    if (
+      isSameChain &&
+      !this.rc.supportsSameChainSwaps?.(config.network, fromChain)
+    ) {
+      return false;
+    }
+
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
-
     const supportedChains = this.rc.supportedChains(config.network);
-
     const fromChainSupported = supportedChains.includes(fromContext.chain);
     const toChainSupported = supportedChains.includes(toContext.chain);
 

@@ -291,10 +291,6 @@ function SampleApp() {
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>
-                    <pre>MayanRouteSHUTTLE</pre>
-                    <i>{'RouteConstructor'}</i>
-                  </li>
-                  <li>
                     <pre>nttRoutes</pre>{' '}
                     <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
                   </li>

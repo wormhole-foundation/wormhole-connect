@@ -343,7 +343,7 @@ const SingleRoute = (props: Props) => {
                 fontSize={14}
                 lineHeight="18px"
               >
-                {`Price impact is greater than ${HIGH_FEE_PERCENT}%.`}
+                {`Price impact is greater than ${HIGH_FEE_PERCENT}%`}
               </Typography>
               <Typography
                 color={theme.palette.text.secondary}
