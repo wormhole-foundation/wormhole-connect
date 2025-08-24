@@ -75,7 +75,7 @@ export class BridgeView {
     );
   }
 
-  private async selectAsset(
+  async selectAsset(
     assetPicker: Locator,
     chainName: string,
     tokenSymbol: string,
@@ -133,6 +133,61 @@ export class BridgeView {
 
   async enterAmount(amount: string) {
     await this.amountInput.fill(amount);
+  }
+
+  async setupTransaction(
+    sourceAsset: any,
+    destinationAsset: any,
+    amount: string,
+    sourceWallet?: any,
+    destinationWallet?: any,
+  ) {
+    // Verify key elements are present in bridge view
+    await this.verifyElements();
+
+    // Connect wallets if needed
+    if (sourceWallet) {
+      await this.connectSrcWallet(sourceWallet.address);
+    }
+
+    // Select source asset
+    await this.selectSrcAsset(
+      sourceAsset.chain,
+      sourceAsset.symbol,
+      sourceAsset.address!,
+    );
+
+    // Connect destination wallet if needed
+    if (destinationWallet) {
+      await this.connectDestWallet(destinationWallet.address);
+    }
+
+    // Select destination asset
+    await this.selectDestAsset(
+      destinationAsset.chain,
+      destinationAsset.symbol,
+      destinationAsset.address!,
+    );
+
+    // Enter amount
+    await this.enterAmount(amount);
+  }
+
+  async verifyRouteSelection(routeName: string) {
+    // Click the link to open Routes modal
+    const routeToggle = this.page.getByRole('button', {
+      name: 'View other routes',
+    });
+    await routeToggle.isVisible();
+    await routeToggle.click();
+
+    // Route should be visible and selected by default
+    await expect(
+      this.page.getByRole('button', { name: `Select ${routeName} route` }),
+    ).toBeVisible();
+
+    // Close the routes modal/drawer
+    await this.page.getByRole('button', { name: /Close routes/ }).click();
   }
 
   async startTransaction() {

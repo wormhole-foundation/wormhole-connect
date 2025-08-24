@@ -55,45 +55,19 @@ testConfigs.forEach(
 
         const configQuery = compressToBase64(config);
 
-        // Navigate to brige view
+        // Navigate to bridge view
         await page.goto(`/?config=${configQuery}`);
         await page.waitForLoadState('load');
 
-        // Verify key elements are present in bridge view
-        await bridgeView.verifyElements();
-
-        const sourceChain = sourceAsset.chain;
-
-        // Select source asset
-        await bridgeView.selectSrcAsset(
-          sourceChain,
-          sourceAsset.symbol,
-          sourceAsset.address!,
+        // Set up bridge transaction with no wallets
+        await bridgeView.setupTransaction(
+          sourceAsset,
+          destinationAsset,
+          amount,
         );
 
-        const destinationChain = destinationAsset.chain;
-
-        // Select destination asset
-        await bridgeView.selectDestAsset(
-          destinationChain,
-          destinationAsset.symbol,
-          destinationAsset.address!,
-        );
-
-        // Enter amount
-        await bridgeView.enterAmount(amount);
-
-        // Click the link to open Routes modal
-        const routeToggle = page.getByRole('button', {
-          name: 'View other routes',
-        });
-        await routeToggle.isVisible();
-        await routeToggle.click();
-
-        // Route should be visible and selected by default
-        await expect(
-          page.getByRole('button', { name: `Select ${name} route` }),
-        ).toBeVisible();
+        // Verify route selection
+        await bridgeView.verifyRouteSelection(name);
       },
     );
 
@@ -110,54 +84,21 @@ testConfigs.forEach(
 
       const configQuery = compressToBase64(config);
 
-      // Navigate to brige view
+      // Navigate to bridge view
       await page.goto(`/?config=${configQuery}`);
       await page.waitForLoadState('load');
 
-      // Verify key elements are present in bridge view
-      await bridgeView.verifyElements();
-
-      // Set source wallet
-      await bridgeView.connectSrcWallet(sourceWallet.address);
-
-      const sourceChain = sourceAsset.chain;
-
-      // Select source asset
-      await bridgeView.selectSrcAsset(
-        sourceChain,
-        sourceAsset.symbol,
-        sourceAsset.address!,
+      // Set up bridge transaction with wallets
+      await bridgeView.setupTransaction(
+        sourceAsset,
+        destinationAsset,
+        amount,
+        sourceWallet,
+        destinationWallet,
       );
 
-      // Set destination wallet
-      await bridgeView.connectDestWallet(destinationWallet.address);
-
-      const destinationChain = destinationAsset.chain;
-
-      // Select destination asset
-      await bridgeView.selectDestAsset(
-        destinationChain,
-        destinationAsset.symbol,
-        destinationAsset.address!,
-      );
-
-      // Enter amount
-      await bridgeView.enterAmount(amount);
-
-      // Click the link to open Routes modal
-      const routeToggle = page.getByRole('button', {
-        name: 'View other routes',
-      });
-      await routeToggle.isVisible();
-      await routeToggle.click();
-
-      // Route should be visible and selected by default
-      await expect(
-        page.getByRole('button', { name: `Select ${name} route` }),
-      ).toBeVisible();
-
-      // Close the routes modal/drawer
-      await page.getByRole('button', { name: /Close routes/ }).click();
+      // Verify route selection
+      await bridgeView.verifyRouteSelection(name);
 
       // Start transaction
       await bridgeView.startTransaction();
