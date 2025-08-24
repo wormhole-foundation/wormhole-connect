@@ -75,8 +75,6 @@ const DebouncedTextField = memo(
     return (
       <TextField
         {...props}
-        data-testid="amount-input"
-        aria-label="Amount input"
         value={innerValue}
         focused={isFocused}
         onChange={onInnerChange}
@@ -107,6 +105,7 @@ function AmountInput(props: Props) {
 
   const htmlInputProps = useMemo(
     () => ({
+      'aria-label': 'Amount input',
       maxLength: 22,
       style: {
         color: props.error
@@ -122,13 +121,13 @@ function AmountInput(props: Props) {
         height: '36px',
         textAlign: 'right',
       },
+      step: '0.1',
       onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
         // IMPORTANT: We need to prevent the scroll behavior on number inputs.
         // Otherwise it'll increase/decrease the value when user scrolls on the input control.
         // See for details: https://github.com/mui/material-ui/issues/7960
         e.currentTarget.blur();
       },
-      step: '0.1',
     }),
     [
       props.error,

@@ -480,6 +480,7 @@ const SingleRoute = (props: Props) => {
       >
         <CardActionArea
           component="div"
+          aria-label={`Select ${props.route} route`}
           disabled={
             isTransactionInProgress ||
             typeof props.onSelect !== 'function' ||

@@ -1,5 +1,4 @@
-import type { Page } from '@playwright/test';
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 import { compressToBase64 } from 'lz-string';
@@ -45,6 +44,14 @@ testConfigs.forEach(
       { tag: '@noWallet' },
       async () => {
         test.skip(!enabled, `Test ${name} is disabled`);
+        test.skip(
+          !sourceAsset.address,
+          `Test ${name} is missing source token address`,
+        );
+        test.skip(
+          !destinationAsset.address,
+          `Test ${name} is missing destination token address`,
+        );
 
         const configQuery = compressToBase64(config);
 
@@ -55,39 +62,51 @@ testConfigs.forEach(
         // Verify key elements are present in bridge view
         await bridgeView.verifyElements();
 
-        const sourceChain = sourceAsset.chain.toLowerCase();
+        const sourceChain = sourceAsset.chain;
 
         // Select source asset
         await bridgeView.selectSrcAsset(
-          `chain-button-${sourceChain}`,
-          `token-button-${sourceChain}-${sourceAsset.address}`,
+          sourceChain,
           sourceAsset.symbol,
+          sourceAsset.address!,
         );
 
-        const destinationChain = destinationAsset.chain.toLowerCase();
+        const destinationChain = destinationAsset.chain;
 
         // Select destination asset
         await bridgeView.selectDestAsset(
-          `chain-button-${destinationChain}`,
-          `token-button-${destinationChain}-${destinationAsset.address}`,
+          destinationChain,
           destinationAsset.symbol,
+          destinationAsset.address!,
         );
 
         // Enter amount
         await bridgeView.enterAmount(amount);
 
         // Click the link to open Routes modal
-        const routeToggle = page.getByTestId('other-routes-toggle');
+        const routeToggle = page.getByRole('button', {
+          name: 'View other routes',
+        });
         await routeToggle.isVisible();
         await routeToggle.click();
 
         // Route should be visible and selected by default
-        await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
+        await expect(
+          page.getByRole('button', { name: `Select ${name} route` }),
+        ).toBeVisible();
       },
     );
 
     test(`Should complete transaction - ${name}`, async () => {
       test.skip(!enabled, `Test ${name} is disabled`);
+      test.skip(
+        !sourceAsset.address,
+        `Test ${name} is missing source token address`,
+      );
+      test.skip(
+        !destinationAsset.address,
+        `Test ${name} is missing destination token address`,
+      );
 
       const configQuery = compressToBase64(config);
 
@@ -101,40 +120,44 @@ testConfigs.forEach(
       // Set source wallet
       await bridgeView.connectSrcWallet(sourceWallet.address);
 
-      const sourceChain = sourceAsset.chain.toLowerCase();
+      const sourceChain = sourceAsset.chain;
 
       // Select source asset
       await bridgeView.selectSrcAsset(
-        `chain-button-${sourceChain}`,
-        `token-button-${sourceChain}-${sourceAsset.address}`,
+        sourceChain,
         sourceAsset.symbol,
+        sourceAsset.address!,
       );
 
       // Set destination wallet
       await bridgeView.connectDestWallet(destinationWallet.address);
 
-      const destinationChain = destinationAsset.chain.toLowerCase();
+      const destinationChain = destinationAsset.chain;
 
       // Select destination asset
       await bridgeView.selectDestAsset(
-        `chain-button-${destinationChain}`,
-        `token-button-${destinationChain}-${destinationAsset.address}`,
+        destinationChain,
         destinationAsset.symbol,
+        destinationAsset.address!,
       );
 
       // Enter amount
       await bridgeView.enterAmount(amount);
 
       // Click the link to open Routes modal
-      const routeToggle = page.getByTestId('other-routes-toggle');
+      const routeToggle = page.getByRole('button', {
+        name: 'View other routes',
+      });
       await routeToggle.isVisible();
       await routeToggle.click();
 
       // Route should be visible and selected by default
-      await expect(page.getByTestId(`route-${name}-selected`)).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: `Select ${name} route` }),
+      ).toBeVisible();
 
       // Close the routes modal/drawer
-      await page.getByTestId('routes-close-button').click();
+      await page.getByRole('button', { name: /Close routes/ }).click();
 
       // Start transaction
       await bridgeView.startTransaction();

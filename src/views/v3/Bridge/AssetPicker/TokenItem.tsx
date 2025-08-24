@@ -80,6 +80,7 @@ function TokenItem(props: TokenItemProps) {
       }}
       dense
       data-testid={`token-button-${chain.toLowerCase()}-${token.address.toString()}`}
+      aria-label={`Select ${token.display || token.symbol}`}
       onMouseDown={props.onClick}
     >
       <Box sx={styles.tokenDetails}>

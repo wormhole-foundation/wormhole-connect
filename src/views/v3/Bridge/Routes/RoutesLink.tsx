@@ -28,6 +28,8 @@ function RoutesLink({
       <Link
         component="span"
         data-testid="other-routes-toggle"
+        role="button"
+        aria-label="View other routes"
         underline="none"
         sx={{
           display: 'flex',

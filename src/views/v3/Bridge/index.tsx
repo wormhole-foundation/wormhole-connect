@@ -465,6 +465,7 @@ function Bridge(props: BridgeProps) {
       <Button
         disabled={confirmTransactionDisabled}
         data-testid="confirm-transaction-button"
+        aria-label="Confirm transaction"
         variant="primary"
         styleOverrides={styles.confirmTransaction}
         onClick={() => onConfirm()}

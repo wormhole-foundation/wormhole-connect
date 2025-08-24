@@ -62,6 +62,7 @@ export default function SearchInput(props: SearchInputProps) {
         data-testid={`${props.dataTestId}-input`}
         fullWidth
         placeholder={props.placeholder}
+        aria-label="Search"
         size="small"
         variant="outlined"
         value={props.value}

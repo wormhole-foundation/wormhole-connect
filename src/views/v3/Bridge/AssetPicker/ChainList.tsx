@@ -121,6 +121,7 @@ function ChainList(props: Props) {
               selected={selectedChainConfig?.sdkName === chain.sdkName}
               sx={styles.chainButton}
               data-testid={`chain-button-${chain.sdkName.toLowerCase()}`}
+              aria-label={`Select ${chain.displayName}`}
               onClick={() => onChainSelect(chain.sdkName)}
             >
               <ChainIcon icon={chain.icon} />
