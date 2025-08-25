@@ -144,7 +144,7 @@ const SingleRoute = (props: Props) => {
 
     const inputUsd = calculateUSDPriceRaw(
       getTokenPrice,
-      inputAmount,
+      amount.whole(quote.sourceToken.amount),
       sourceToken,
     );
     const outputAmount = amount.whole(quote.destinationToken.amount);
