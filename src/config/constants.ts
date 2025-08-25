@@ -28,4 +28,5 @@ export const CHAIN_ORDER: Chain[] = [
   'Berachain',
   'Mezo',
   'Fogo',
+  'HyperEVM',
 ];

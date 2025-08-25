@@ -723,4 +723,31 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.BTC,
   },
+  {
+    symbol: 'HYPE',
+    tokenId: {
+      chain: 'HyperEVM',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.HYPE,
+  },
+  {
+    symbol: 'wHYPE',
+    tokenId: {
+      chain: 'HyperEVM',
+      address: '0x5555555555555555555555555555555555555555',
+    },
+    decimals: 18,
+    icon: TokenIcon.HYPE,
+  },
+  {
+    symbol: 'USDT0',
+    tokenId: {
+      chain: 'HyperEVM',
+      address: '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDT,
+  },
 ];
