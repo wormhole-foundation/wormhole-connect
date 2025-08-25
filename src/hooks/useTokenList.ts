@@ -62,8 +62,10 @@ export const useTokenList = ({
       tokens = applyShittokenFilter(tokens);
     }
 
+    // Filter by balance for source tokens when not searching
+    // This allows users to search for zero-balance tokens by contract address if needed
+    // Never filter destination tokens by balance
     if (isSourceList && !searchQuery) {
-      // Conditionally filter by balance (for source tokens only)
       tokens = filterTokensByBalance(tokens, balances, wallet.address);
     }
 
