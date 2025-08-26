@@ -1,20 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
-import { toNative } from '@wormhole-foundation/sdk';
 
 import type { ChainConfig } from 'config/types';
 import type { Token } from 'config/tokens';
-import { isSameToken } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v2/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v2/Bridge/AssetPicker/TokenItem';
 import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
-import { useTokens } from 'contexts/TokensContext';
 import type { Balances } from 'utils/wallet/types';
-import { filterTokensByBalance } from 'utils/tokenListUtils';
+import { useTokenListWithSearch } from 'hooks/useTokenListWithSearch';
 
 type Props = {
   tokenList: Array<Token>;
@@ -37,109 +34,18 @@ type Props = {
 const TokenList = (props: Props) => {
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
-  const [tokenPrices, setTokenPrices] = useState<
-    Map<string, number | undefined>
-  >(new Map());
-  const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
 
-  const { getOrFetchToken, getTokenPrices, lastTokenPriceUpdate } = useTokens();
-
-  // Get token prices using the synchronous hook pattern
-  // Re-calculate when token list or price updates occur
-  useEffect(() => {
-    const allTokens = [...props.tokenList, ...searchedTokens];
-    const prices = getTokenPrices(allTokens);
-    setTokenPrices(prices);
-  }, [props.tokenList, searchedTokens, getTokenPrices, lastTokenPriceUpdate]);
-
-  useEffect(() => {
-    // When the search query or chain changes, see if the search query is a valid address on the selected chain.
-    // If it is, see if we have a token in the token cache for that address.
-    // If not, try to find it.
-    if (tokenPastingIsEnabled) {
-      try {
-        if (props.searchQuery !== '') {
-          const chain = props.selectedChainConfig.sdkName;
-          const address = toNative(chain, props.searchQuery);
-
-          if (address) {
-            const existing = config.tokens.get(chain, props.searchQuery);
-
-            const addTokenIfNotExists = (token: Token) => {
-              setSearchedTokens((prev) => {
-                const alreadyExists = prev.some((t) => isSameToken(t, token));
-                return alreadyExists ? prev : [...prev, token];
-              });
-            };
-
-            if (!existing) {
-              getOrFetchToken({ chain, address }).then((fetchedToken) => {
-                if (fetchedToken) {
-                  addTokenIfNotExists(fetchedToken);
-                }
-              });
-            } else {
-              // Token already exists in cache, add it to searchedTokens if not already there
-              addTokenIfNotExists(existing);
-            }
-          }
-        } else {
-          // Clear searched tokens when search query is empty
-          setSearchedTokens([]);
-        }
-      } catch (_e) {
-        // Failed to parse the search query as an address... this is expected to happen a lot
-      }
-    }
-    // Run the side-effect only when search query or chain changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.searchQuery, props.selectedChainConfig.sdkName]);
-
-  // Merge searched tokens with the provided token list and filter for same-chain swaps
-  const sortedTokens = useMemo(() => {
-    const mergedTokens = [...props.tokenList]; // This is already filtered by useTokenList
-
-    // Add searched tokens that aren't already in the list
-    // For source tokens, only add searched tokens if they have balance (unless searching)
-    for (const searchedToken of searchedTokens) {
-      if (!mergedTokens.some((t) => isSameToken(t, searchedToken))) {
-        // For source list, filter searched tokens by balance when not actively searching
-        if (props.isSource && !props.searchQuery) {
-          const filteredSearchedTokens = filterTokensByBalance(
-            [searchedToken],
-            props.balances,
-            props.wallet.address,
-          );
-          // Only add if it passes the balance filter
-          if (filteredSearchedTokens.length > 0) {
-            mergedTokens.push(searchedToken);
-          }
-        } else {
-          // For destination tokens or when searching, add all searched tokens
-          mergedTokens.push(searchedToken);
-        }
-      }
-    }
-
-    // For destination token list in same-chain swaps, filter out the source token
-    // This prevents users from selecting the same token on both sides
-    if (!props.isSource && props.isSameChainSwap && props.sourceToken) {
-      return mergedTokens.filter(
-        (token) => token.addressString !== props.sourceToken?.addressString,
-      );
-    }
-
-    return mergedTokens;
-  }, [
-    props.tokenList,
-    searchedTokens,
-    props.isSource,
-    props.isSameChainSwap,
-    props.sourceToken,
-    props.searchQuery,
-    props.balances,
-    props.wallet.address,
-  ]);
+  const { sortedTokens, tokenPrices } = useTokenListWithSearch({
+    baseTokenList: props.tokenList,
+    searchQuery: props.searchQuery,
+    chain: props.selectedChainConfig.sdkName,
+    isSource: props.isSource,
+    isSameChainSwap: props.isSameChainSwap,
+    sourceToken: props.sourceToken,
+    balances: props.balances,
+    walletAddress: props.wallet.address,
+    tokenPastingEnabled: tokenPastingIsEnabled,
+  });
 
   const emptyMessage = useMemo(() => {
     let message = '';

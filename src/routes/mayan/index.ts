@@ -72,8 +72,8 @@ import {
   SuiUnsignedTransaction,
 } from '@wormhole-foundation/sdk-sui';
 import axios from 'axios';
-import config from 'config';
 import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
+import { getAllTokenIdsForChain } from '../utils/tokenHelpers';
 import {
   getNativeContractAddress,
   getTransactionStatus,
@@ -174,9 +174,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   static async supportedSourceTokens(
     fromChain: ChainContext<Network>,
   ): Promise<TokenId[]> {
-    return config.tokens
-      .getAllForChain(fromChain.chain)
-      .map((token) => token.tokenId);
+    return getAllTokenIdsForChain(fromChain.chain);
   }
 
   static isProtocolSupported<N extends Network>(
@@ -191,9 +189,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     _fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
-    return config.tokens
-      .getAllForChain(toChain.chain)
-      .map((token) => token.tokenId);
+    return getAllTokenIdsForChain(toChain.chain);
   }
 
   async isAvailable(): Promise<boolean> {
