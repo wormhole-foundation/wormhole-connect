@@ -5,10 +5,10 @@ import config from 'config';
 import { setDestToken } from 'store/transferInput';
 
 import type { Token } from 'config/tokens';
-import { isSameToken } from 'config/tokens';
 
 import type { Chain, TokenId } from '@wormhole-foundation/sdk';
 import { useTokens } from 'contexts/TokensContext';
+import { addSourceTokenToDestinations } from './useAddSourceTokenToDestinations';
 
 type Props = {
   sourceChain: Chain | undefined;
@@ -83,22 +83,12 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
         return;
       }
 
-      // If we have a source token, check if it's available on the destination chain
-      // and add it to the list if it's not already there (unless it's a same-chain swap)
-      if (sourceToken && destChain && sourceChain !== destChain) {
-        const sourceOnDest = config.tokens.get(
-          destChain,
-          sourceToken.addressString,
-        );
-        if (sourceOnDest) {
-          const alreadyInList = supported.some((t) =>
-            isSameToken(t, sourceOnDest),
-          );
-          if (!alreadyInList) {
-            supported.push(sourceOnDest);
-          }
-        }
-      }
+      supported = addSourceTokenToDestinations(
+        sourceToken,
+        sourceChain,
+        destChain,
+        supported,
+      );
 
       setSupportedDestTokens(supported);
 
