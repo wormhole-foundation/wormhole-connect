@@ -26,6 +26,7 @@ const {
   REACT_APP_MEZO_RPC,
   REACT_APP_PLUME_RPC,
   REACT_APP_HYPEREVM_RPC,
+  REACT_APP_XRPL_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -55,4 +56,5 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('Mezo', REACT_APP_MEZO_RPC),
   ...populateRpcField('Plume', REACT_APP_PLUME_RPC),
   ...populateRpcField('HyperEVM', REACT_APP_HYPEREVM_RPC),
+  ...populateRpcField('XRPLEVM', REACT_APP_XRPL_RPC),
 };
