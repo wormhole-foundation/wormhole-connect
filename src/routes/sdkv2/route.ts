@@ -86,14 +86,6 @@ export class SDKv2Route {
       return false;
     }
 
-    const isMayan = name.includes('Mayan');
-
-    // Mayan can handle any input and output token that has liquidity on a DeX
-    // No need to further check for destination tokens.
-    if (isMayan) {
-      return true;
-    }
-
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
         name,

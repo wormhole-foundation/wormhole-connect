@@ -170,13 +170,6 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return supportedChains(network);
   }
 
-  // Mayan can handle any input and output token that has liquidity on a DeX
-  static async supportedSourceTokens(
-    fromChain: ChainContext<Network>,
-  ): Promise<TokenId[]> {
-    return getAllTokenIdsForChain(fromChain.chain);
-  }
-
   static isProtocolSupported<N extends Network>(
     chain: ChainContext<N>,
   ): boolean {
