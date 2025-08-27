@@ -73,7 +73,7 @@ import {
 } from '@wormhole-foundation/sdk-sui';
 import axios from 'axios';
 import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
-import { getAllTokenIdsForChain } from '../utils/tokenHelpers';
+import { getAllTokenIdsForChain } from '../../utils/tokenHelpers';
 import {
   getNativeContractAddress,
   getTransactionStatus,
@@ -182,6 +182,7 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     _fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
+    // TODO update this function to only allow HyperCore/USDC
     return getAllTokenIdsForChain(toChain.chain);
   }
 

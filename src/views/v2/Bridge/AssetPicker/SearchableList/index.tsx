@@ -18,7 +18,7 @@ type SearchableListProps<T> = {
   dataTestId?: string;
   sx?: SxProps<Theme>;
   renderFn: (item: T, index: number) => ReactNode;
-  filterFn: (item: T, query: string) => boolean;
+  filterFn?: (item: T, query: string) => boolean;
   onQueryChange: (query: string) => void;
   searchQuery: string;
 };
@@ -42,6 +42,11 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
   const { items, filterFn, searchQuery } = props;
 
   const filteredList = useMemo(() => {
+    // Skip filtering if no filterFn provided (already filtered by parent)
+    if (!filterFn) {
+      return items;
+    }
+
     return items.filter((item) => filterFn(item, searchQuery));
   }, [items, filterFn, searchQuery]);
 

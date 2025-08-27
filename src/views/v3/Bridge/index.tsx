@@ -188,7 +188,6 @@ function Bridge(props: BridgeProps) {
       sourceChain,
       destChain,
       sourceToken,
-      route,
     });
 
   const {

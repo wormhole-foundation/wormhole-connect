@@ -1,12 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useDeferredValue,
+} from 'react';
 import { toNative } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
-import { isSameToken } from 'config/tokens';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 import { filterTokensByBalance } from 'utils/tokenListUtils';
 import type { Balances } from 'utils/wallet/types';
+import { unionBy } from 'es-toolkit';
 
 interface UseTokenListWithSearchParams {
   baseTokenList: Token[];
@@ -44,104 +50,111 @@ export const useTokenListWithSearch = ({
   tokenPastingEnabled = true,
 }: UseTokenListWithSearchParams): UseTokenListWithSearchReturn => {
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
-  const [tokenPrices, setTokenPrices] = useState<
-    Map<string, number | undefined>
-  >(new Map());
-  const { getOrFetchToken, getTokenPrices, lastTokenPriceUpdate } = useTokens();
+  const { getOrFetchToken, getTokenPrices } = useTokens();
+  const deferredSearch = useDeferredValue(searchQuery);
 
-  // Handle token search by address
+  const addTokenIfNotExists = useCallback((token: Token) => {
+    // Dedupe happens later via unionBy in the memoized list.
+    setSearchedTokens((prev) => [...prev, token]);
+  }, []);
+
   useEffect(() => {
-    if (!chain || !tokenPastingEnabled) {
+    if (!chain || !tokenPastingEnabled || !deferredSearch) {
       setSearchedTokens([]);
       return;
     }
 
-    if (searchQuery) {
-      try {
-        const address = toNative(chain, searchQuery);
+    // First try exact address match for pasting
+    try {
+      const address = toNative(chain, deferredSearch);
 
-        if (address) {
-          const existing = config.tokens.get(chain, searchQuery);
+      if (address) {
+        const existing = config.tokens.get(chain, deferredSearch);
 
-          const addTokenIfNotExists = (token: Token) => {
-            setSearchedTokens((prev) => {
-              const alreadyExists = prev.some((t) => isSameToken(t, token));
-              return alreadyExists ? prev : [...prev, token];
-            });
-          };
-
-          if (!existing) {
-            getOrFetchToken({ chain, address }).then((fetchedToken) => {
-              if (fetchedToken) {
-                addTokenIfNotExists(fetchedToken);
-              }
-            });
-          } else {
-            addTokenIfNotExists(existing);
-          }
-        }
-      } catch (_e) {
-        // Failed to parse as address - expected behavior
-      }
-    } else {
-      setSearchedTokens([]);
-    }
-  }, [searchQuery, chain, getOrFetchToken, tokenPastingEnabled]);
-
-  // Merge and filter tokens
-  const sortedTokens = useMemo(() => {
-    const mergedTokens = [...baseTokenList];
-
-    // Add searched tokens that aren't already in the list
-    for (const searchedToken of searchedTokens) {
-      if (!mergedTokens.some((t) => isSameToken(t, searchedToken))) {
-        // For source list, filter searched tokens by balance when not actively searching
-        if (isSource && !searchQuery) {
-          const filteredSearchedTokens = filterTokensByBalance(
-            [searchedToken],
-            balances,
-            walletAddress,
-          );
-          // Only add if it passes the balance filter
-          if (filteredSearchedTokens.length > 0) {
-            mergedTokens.push(searchedToken);
-          }
+        if (!existing) {
+          // Note: we intentionally do not await this promise; we opportunistically
+          // add the token when it resolves to keep typing responsive.
+          getOrFetchToken({ chain, address }).then((fetchedToken) => {
+            // Guard against stale results if chain or query changed
+            if (fetchedToken) {
+              addTokenIfNotExists(fetchedToken);
+            }
+          });
         } else {
-          // For destination tokens or when searching, add all searched tokens
-          mergedTokens.push(searchedToken);
+          addTokenIfNotExists(existing);
         }
       }
+    } catch {
+      // Failed to parse as full address - expected for partial searches
+    }
+  }, [
+    deferredSearch,
+    chain,
+    getOrFetchToken,
+    tokenPastingEnabled,
+    addTokenIfNotExists,
+  ]);
+
+  const sortedTokens = useMemo(() => {
+    // Merge base tokens with any fetched tokens
+    let tokens = unionBy(baseTokenList, searchedTokens, (t) => t.key);
+
+    if (deferredSearch) {
+      const searchLower = deferredSearch.toLowerCase();
+      tokens = tokens.filter((token) => {
+        if (
+          token.symbol?.toLowerCase().includes(searchLower) ||
+          token.name?.toLowerCase().includes(searchLower)
+        ) {
+          return true;
+        }
+
+        if (token.addressString.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        // Check original token address if wrapped
+        if (
+          token.tokenBridgeOriginalTokenId &&
+          token.tokenBridgeOriginalTokenId.address
+            .toString()
+            .toLowerCase()
+            .includes(searchLower)
+        ) {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
+    // Filter by balance for source tokens when not searching
+    if (isSource && !deferredSearch) {
+      tokens = filterTokensByBalance(tokens, balances, walletAddress);
     }
 
     // For destination token list in same-chain swaps, filter out the source token
     if (!isSource && isSameChainSwap && sourceToken) {
-      return mergedTokens.filter(
-        (token) => token.addressString !== sourceToken.addressString,
+      tokens = tokens.filter(
+        (t) => t.addressString !== sourceToken.addressString,
       );
     }
 
-    return mergedTokens;
+    return tokens;
   }, [
     baseTokenList,
     searchedTokens,
+    deferredSearch,
     isSource,
     isSameChainSwap,
     sourceToken,
-    searchQuery,
     balances,
     walletAddress,
   ]);
 
-  // Get token prices for all tokens
-  const allTokens = useMemo(
-    () => [...baseTokenList, ...searchedTokens],
-    [baseTokenList, searchedTokens],
-  );
-
-  useEffect(() => {
-    const prices = getTokenPrices(allTokens);
-    setTokenPrices(prices);
-  }, [allTokens, getTokenPrices, lastTokenPriceUpdate]);
+  const tokenPrices = useMemo(() => {
+    return getTokenPrices([...baseTokenList, ...searchedTokens]);
+  }, [getTokenPrices, baseTokenList, searchedTokens]);
 
   return {
     sortedTokens,

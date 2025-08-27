@@ -169,45 +169,6 @@ const TokenList = (props: Props) => {
       onQueryChange={(query) => {
         props.onSearchQueryChange(query);
       }}
-      filterFn={(token, query) => {
-        if (query.length === 0) return true;
-
-        if (
-          !props.isSource &&
-          props.isSameChainSwap &&
-          token.addressString === props.sourceToken?.addressString
-        ) {
-          // For same chain swaps don't show the source token
-          // when we are filtering the destination token list.
-          // For source token list allow showing the same token
-          // which will automatically adjust the destination token
-          // when selected.
-          return false;
-        }
-
-        const queryLC = query.toLowerCase();
-
-        const symbolMatch = [token.symbol, token.name].some((criteria) =>
-          criteria?.toLowerCase()?.startsWith?.(queryLC),
-        );
-        if (symbolMatch) return true;
-
-        if (token.address.toString().toLowerCase() === queryLC) {
-          return true;
-        }
-
-        if (
-          token.tokenBridgeOriginalTokenId &&
-          token.tokenBridgeOriginalTokenId.address
-            .toString()
-            .toLowerCase()
-            .includes(queryLC)
-        ) {
-          return true;
-        }
-
-        return false;
-      }}
       renderFn={(token: Token) => {
         const balance = props.balances?.[token.key]?.balance;
         const tokenPrice = tokenPrices.get(token.key);
