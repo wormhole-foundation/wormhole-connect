@@ -164,7 +164,6 @@ const Bridge = () => {
       sourceChain,
       destChain,
       sourceToken,
-      route,
     });
 
   const {
