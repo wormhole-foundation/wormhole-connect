@@ -754,6 +754,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     symbol: 'XRP',
     tokenId: {
       chain: 'XRPLEVM',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.XRP,
+  },
+  {
+    symbol: 'WXRP',
+    tokenId: {
+      chain: 'XRPLEVM',
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
     decimals: 18,
