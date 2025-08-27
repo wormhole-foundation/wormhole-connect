@@ -102,48 +102,44 @@ export const useSortedRoutesWithQuotes = ({
 
   // Only routes with quotes are sorted.
   const sortedRoutesWithQuotes = useMemo(() => {
-    return bucketByEta(routesWithQuotes)
-      .map((bucket) => {
-        return bucket.sort((routeA, routeB) => {
-          const routeConfigA = config.routes.get(routeA.route);
-          const routeConfigB = config.routes.get(routeB.route);
+    return routesWithQuotes.sort((routeA, routeB) => {
+      const routeConfigA = config.routes.get(routeA.route);
+      const routeConfigB = config.routes.get(routeB.route);
 
-          // Prioritize preferred route to avoid flickering the UI
-          // when the preferred route gets autoselected
-          if (preferredRouteName) {
-            if (routeA.route === preferredRouteName) {
-              return -1;
-            } else if (routeB.route === preferredRouteName) {
-              return 1;
-            }
-          }
+      // Prioritize preferred route to avoid flickering the UI
+      // when the preferred route gets autoselected
+      if (preferredRouteName) {
+        if (routeA.route === preferredRouteName) {
+          return -1;
+        } else if (routeB.route === preferredRouteName) {
+          return 1;
+        }
+      }
 
-          // 1. Prioritize automatic routes
-          if (
-            routeConfigA.AUTOMATIC_DEPOSIT &&
-            !routeConfigB.AUTOMATIC_DEPOSIT
-          ) {
-            return -1;
-          } else if (
-            !routeConfigA.AUTOMATIC_DEPOSIT &&
-            routeConfigB.AUTOMATIC_DEPOSIT
-          ) {
-            return 1;
-          }
+      // 1. Sort by ETA (fastest first)
+      const etaA = routeA.quote.eta ?? Infinity;
+      const etaB = routeB.quote.eta ?? Infinity;
+      if (etaA !== etaB) {
+        return etaA - etaB;
+      }
 
-          // 2. Compare destination token amounts
-          const destAmountA = BigInt(
-            routeA.quote.destinationToken.amount.amount,
-          );
-          const destAmountB = BigInt(
-            routeB.quote.destinationToken.amount.amount,
-          );
-          // Note: Sort callback return strictly expects Number
-          // Returning BigInt results in TypeError
-          return Number(destAmountB - destAmountA);
-        });
-      })
-      .flat();
+      // 2. If ETA is the same, prioritize automatic routes
+      if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
+        return -1;
+      } else if (
+        !routeConfigA.AUTOMATIC_DEPOSIT &&
+        routeConfigB.AUTOMATIC_DEPOSIT
+      ) {
+        return 1;
+      }
+
+      // 3. If still tied, compare destination token amounts
+      const destAmountA = BigInt(routeA.quote.destinationToken.amount.amount);
+      const destAmountB = BigInt(routeB.quote.destinationToken.amount.amount);
+      // Note: Sort callback return strictly expects Number
+      // Returning BigInt results in TypeError
+      return Number(destAmountB - destAmountA);
+    });
   }, [preferredRouteName, routesWithQuotes]);
 
   const sortedRoutes = useMemo(
@@ -170,28 +166,4 @@ export const useSortedRoutesWithQuotes = ({
       isFetchingQuotes,
     ],
   );
-};
-
-const bucketByEta = (
-  routesWithQuotes: RouteWithQuote[],
-): RouteWithQuote[][] => {
-  const thresholds = [60 * 1000, Infinity];
-  const buckets: RouteWithQuote[][] = [];
-  for (let i = 0; i < thresholds.length; i++) {
-    buckets.push([]);
-  }
-
-  for (const routeAndQuote of routesWithQuotes) {
-    const { quote } = routeAndQuote;
-    for (let i = 0; i < thresholds.length; i++) {
-      const threshold = thresholds[i];
-      const eta = quote.eta ?? Infinity;
-      if (eta <= threshold) {
-        buckets[i].push(routeAndQuote);
-        break;
-      }
-    }
-  }
-
-  return buckets;
 };
