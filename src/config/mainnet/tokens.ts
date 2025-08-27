@@ -750,4 +750,13 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 6,
     icon: TokenIcon.USDT,
   },
+  {
+    symbol: 'XRP',
+    tokenId: {
+      chain: 'XRPLEVM',
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+    },
+    decimals: 18,
+    icon: TokenIcon.XRP,
+  },
 ];

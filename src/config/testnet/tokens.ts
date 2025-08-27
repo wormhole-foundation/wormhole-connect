@@ -413,4 +413,13 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.PLUME,
     tokenId: { chain: 'Plume', address: 'native' },
   },
+  {
+    symbol: 'XRP',
+    tokenId: {
+      chain: 'XRPLEVM',
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+    },
+    decimals: 18,
+    icon: TokenIcon.XRP,
+  },
 ];

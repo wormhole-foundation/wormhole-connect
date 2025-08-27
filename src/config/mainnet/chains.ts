@@ -210,10 +210,10 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'HYPE',
   },
   XRPLEVM: {
-    displayName: 'XRP Ledger',
+    displayName: 'XRPL EVM',
     sdkName: 'XRPLEVM',
-    explorerUrl: 'https://livenet.xrpl.org/',
-    explorerName: 'XRPL Explorer',
+    explorerUrl: 'https://explorer.xrplevm.org/',
+    explorerName: 'XRPL EVM Explorer',
     icon: 'XRPLEVM',
     symbol: 'XRPL',
   },
