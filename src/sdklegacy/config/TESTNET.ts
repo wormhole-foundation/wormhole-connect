@@ -29,6 +29,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Mezo: 'https://rpc.test.mezo.org',
     Linea: 'https://linea-sepolia-rpc.publicnode.com',
     Sonic: 'https://sonic-blaze-rpc.publicnode.com',
+    XRPLEVM: 'https://rpc.testnet.xrplevm.org/',
   },
 };
 

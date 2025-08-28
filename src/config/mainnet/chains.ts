@@ -215,6 +215,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerUrl: 'https://explorer.xrplevm.org/',
     explorerName: 'XRPL EVM Explorer',
     icon: 'XRPLEVM',
-    symbol: 'XRPL',
+    symbol: 'XRP',
   },
 };
