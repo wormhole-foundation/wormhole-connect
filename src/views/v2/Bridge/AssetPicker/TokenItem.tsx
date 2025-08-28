@@ -27,6 +27,7 @@ type TokenItemProps = {
   onClick: () => void;
   isSelected?: boolean;
   isFetchingBalance?: boolean;
+  isSource?: boolean;
 };
 
 function TokenItem(props: TokenItemProps) {
@@ -153,16 +154,25 @@ function TokenItem(props: TokenItemProps) {
           {props.isFetchingBalance && props.balance === null ? (
             <CircularProgress size={24} />
           ) : props.balance ? (
-            sdkAmount.display(sdkAmount.truncate(props.balance, 6))
+            // For destination tokens, hide balance if it's 0
+            !props.isSource && sdkAmount.display(props.balance) === '0' ? (
+              ''
+            ) : (
+              sdkAmount.display(sdkAmount.truncate(props.balance, 6))
+            )
           ) : (
             ''
           )}
         </Typography>
-        {props.price && (
-          <Typography color={theme.palette.text.secondary} fontSize="10px">
-            {props.price}
-          </Typography>
-        )}
+        {props.price &&
+          // For destination tokens, hide price if balance is 0
+          (!props.isSource &&
+          props.balance &&
+          sdkAmount.display(props.balance) === '0' ? null : (
+            <Typography color={theme.palette.text.secondary} fontSize="10px">
+              {props.price}
+            </Typography>
+          ))}
       </Stack>
     </ListItemButton>
   );
