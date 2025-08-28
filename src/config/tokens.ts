@@ -356,6 +356,10 @@ export class TokenCache extends TokenMapping<Token> {
       return this.findBySymbol('Celo', 'CELO');
     }
 
+    if (chain === 'XRPLEVM') {
+      return this.findBySymbol('XRPLEVM', 'XRP');
+    }
+
     return this.get(chain, 'native');
   }
 
