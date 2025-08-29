@@ -427,6 +427,12 @@ function AssetPicker(props: Props) {
               props.isTransactionInProgress && styles.disabled,
             ]}
             data-testid={props.dataTestId}
+            role="button"
+            aria-label={
+              props.isSource
+                ? 'Select source asset'
+                : 'Select destination asset'
+            }
             variant="elevation"
             onMouseDown={(e) => {
               if (mobile) {
@@ -506,44 +512,6 @@ function AssetPicker(props: Props) {
               />
             </Box>
           )}
-          <Card
-            sx={[
-              styles.selector,
-              props.isTransactionInProgress && styles.disabled,
-            ]}
-            data-testid={props.dataTestId}
-            role="button"
-            aria-label={
-              props.isSource
-                ? 'Select source asset'
-                : 'Select destination asset'
-            }
-            variant="elevation"
-            onMouseDown={(e) => {
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            {...triggerProps}
-          >
-            <CardContent sx={styles.cardContent}>
-              <Typography sx={styles.chainSelector} component={'div'} gap={1}>
-                <AssetBadge chainConfig={chainConfig} token={props.token} />
-                {selection}
-              </Typography>
-            </CardContent>
-          </Card>
         </Box>
         <Box
           sx={{
