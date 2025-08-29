@@ -1,5 +1,5 @@
 import type { InternalConfig } from 'config';
-import type { Chain, Token, Token } from 'exports';
+import type { Chain, Token } from 'exports';
 import { UserActions } from 'exports';
 
 export const handleSelectChain = (
