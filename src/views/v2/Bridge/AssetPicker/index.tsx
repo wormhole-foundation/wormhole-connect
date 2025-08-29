@@ -28,6 +28,7 @@ import type { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
 import { getTokenSymbol } from 'utils';
 import { UserActions } from 'telemetry';
+import { handleSelectChain, handleSelectToken } from 'telemetry/utils';
 
 type Props = {
   chain?: Chain | undefined;
@@ -271,14 +272,7 @@ const AssetPicker = (props: Props) => {
             setShowSearch={setShowChainSearch}
             wallet={props.wallet}
             onChainSelect={(key) => {
-              config.triggerEvent({
-                type: 'user.action',
-                details: {
-                  action: props.isSource
-                    ? UserActions.SelectSrcChain
-                    : UserActions.SelectDestChain,
-                },
-              });
+              handleSelectChain(key, props.isSource, config);
               props.setChain(key);
               setSearchQuery('');
             }}
@@ -299,14 +293,7 @@ const AssetPicker = (props: Props) => {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
-                config.triggerEvent({
-                  type: 'user.action',
-                  details: {
-                    action: props.isSource
-                      ? UserActions.SelectSrcToken
-                      : UserActions.SelectDestToken,
-                  },
-                });
+                handleSelectToken(key, props.isSource, config);
                 props.setToken(key);
                 setIsDrawerOpen(false);
               }}
@@ -340,14 +327,7 @@ const AssetPicker = (props: Props) => {
             setShowSearch={setShowChainSearch}
             wallet={props.wallet}
             onChainSelect={(key) => {
-              config.triggerEvent({
-                type: 'user.action',
-                details: {
-                  action: props.isSource
-                    ? UserActions.SelectSrcChain
-                    : UserActions.SelectDestChain,
-                },
-              });
+              handleSelectChain(key, props.isSource, config);
               props.setChain(key);
               setSearchQuery('');
             }}
@@ -368,14 +348,8 @@ const AssetPicker = (props: Props) => {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
-                config.triggerEvent({
-                  type: 'user.action',
-                  details: {
-                    action: props.isSource
-                      ? UserActions.SelectSrcToken
-                      : UserActions.SelectDestToken,
-                  },
-                });
+                handleSelectToken(key, props.isSource, config);
+
                 props.setToken(key);
                 popupState.close();
               }}

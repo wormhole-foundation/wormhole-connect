@@ -1,4 +1,5 @@
 import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Token } from 'config/tokens';
 import type { WormholeConnectConfig } from 'config/types';
 import type { TransferWallet } from 'utils/wallet';
 
@@ -110,12 +111,20 @@ export const enum UserActions {
   SelectDestChain = 'select.dest.chain',
 }
 
-export interface UserActionEvent {
+type UserActionValueMap = {
+  [UserActions.SelectSrcToken]: Token;
+  [UserActions.SelectDestToken]: Token;
+  [UserActions.SelectSrcChain]: Chain;
+  [UserActions.SelectDestChain]: Chain;
+};
+
+export type UserActionEvent<A extends UserActions = UserActions> = {
   type: 'user.action';
   details: {
-    action: UserActions;
+    action: A;
+    value: UserActionValueMap[A];
   };
-}
+};
 
 export type WormholeConnectEventCore =
   | LoadEvent
