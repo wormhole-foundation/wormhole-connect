@@ -27,8 +27,10 @@ import AssetBadge from 'components/AssetBadge';
 import type { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
 import { getTokenSymbol } from 'utils';
-import { UserActions } from 'telemetry';
-import { handleSelectChain, handleSelectToken } from 'telemetry/utils';
+import {
+  handleTelemetryOnChainSelect,
+  handleTelemetryOnTokenSelect,
+} from 'telemetry/utils';
 
 type Props = {
   chain?: Chain | undefined;
@@ -272,7 +274,7 @@ const AssetPicker = (props: Props) => {
             setShowSearch={setShowChainSearch}
             wallet={props.wallet}
             onChainSelect={(key) => {
-              handleSelectChain(key, props.isSource, config);
+              handleTelemetryOnChainSelect(key, props.isSource, config);
               props.setChain(key);
               setSearchQuery('');
             }}
@@ -293,7 +295,7 @@ const AssetPicker = (props: Props) => {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
-                handleSelectToken(key, props.isSource, config);
+                handleTelemetryOnTokenSelect(key, props.isSource, config);
                 props.setToken(key);
                 setIsDrawerOpen(false);
               }}
@@ -327,7 +329,7 @@ const AssetPicker = (props: Props) => {
             setShowSearch={setShowChainSearch}
             wallet={props.wallet}
             onChainSelect={(key) => {
-              handleSelectChain(key, props.isSource, config);
+              handleTelemetryOnChainSelect(key, props.isSource, config);
               props.setChain(key);
               setSearchQuery('');
             }}
@@ -348,8 +350,7 @@ const AssetPicker = (props: Props) => {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
-                handleSelectToken(key, props.isSource, config);
-
+                handleTelemetryOnTokenSelect(key, props.isSource, config);
                 props.setToken(key);
                 popupState.close();
               }}
