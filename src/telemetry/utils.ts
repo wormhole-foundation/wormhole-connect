@@ -1,11 +1,12 @@
+import type { Network } from '@wormhole-foundation/sdk-connect';
 import type { InternalConfig } from 'config';
 import type { Chain, Token } from 'exports';
 import { UserActions } from 'exports';
 
-export const handleSelectChain = (
+export const handleTelemetryOnChainSelect = (
   chain: Chain,
   isSource: boolean,
-  config: InternalConfig<'Mainnet' | 'Testnet' | 'Devnet'>,
+  config: InternalConfig<Network>,
 ) => {
   config.triggerEvent({
     type: 'user.action',
@@ -18,10 +19,10 @@ export const handleSelectChain = (
   });
 };
 
-export const handleSelectToken = (
+export const handleTelemetryOnTokenSelect = (
   token: Token,
   isSource: boolean,
-  config: InternalConfig<'Mainnet' | 'Testnet' | 'Devnet'>,
+  config: InternalConfig<Network>,
 ) => {
   config.triggerEvent({
     type: 'user.action',
