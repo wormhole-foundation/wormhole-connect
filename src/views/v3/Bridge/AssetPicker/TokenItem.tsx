@@ -3,21 +3,20 @@ import { Box, Tooltip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import { isNative, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { isNative } from '@wormhole-foundation/sdk';
 
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import TokenIcon from 'icons/TokenIcons';
 
 import type { Token } from 'config/tokens';
 
-import type { Chain } from '@wormhole-foundation/sdk';
+import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { chainDisplayName, getTokenExplorerUrl } from 'utils';
 import ChainIcon from 'icons/ChainIcons';
 import Color from 'color';
+import TokenBalance from 'components/TokenBalance';
 
 type TokenItemProps = {
   token: Token;
@@ -27,6 +26,7 @@ type TokenItemProps = {
   onClick: () => void;
   isSelected?: boolean;
   isFetchingBalance?: boolean;
+  isSource?: boolean;
 };
 
 function TokenItem(props: TokenItemProps) {
@@ -148,22 +148,12 @@ function TokenItem(props: TokenItemProps) {
           </Box>
         </div>
       </Box>
-      <Stack alignItems="flex-end">
-        <Typography fontSize={14}>
-          {props.isFetchingBalance && props.balance === null ? (
-            <CircularProgress size={24} />
-          ) : props.balance ? (
-            sdkAmount.display(sdkAmount.truncate(props.balance, 6))
-          ) : (
-            ''
-          )}
-        </Typography>
-        {props.price && (
-          <Typography color={theme.palette.text.secondary} fontSize="10px">
-            {props.price}
-          </Typography>
-        )}
-      </Stack>
+      <TokenBalance
+        balance={props.balance}
+        price={props.price}
+        isSource={props.isSource}
+        isFetching={props.isFetchingBalance}
+      />
     </ListItemButton>
   );
 }

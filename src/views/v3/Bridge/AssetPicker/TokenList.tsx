@@ -187,6 +187,7 @@ const TokenList = (props: Props) => {
             onClick={() => {
               props.onSelectToken(token);
             }}
+            isSource={props.isSource}
             balance={balance}
             price={price}
             isSelected={token.key === props.selectedToken?.key}
