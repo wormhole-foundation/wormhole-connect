@@ -103,13 +103,28 @@ export interface HistoryLoadEvent {
   };
 }
 
+export const enum UserActions {
+  SelectSrcToken = 'select.src.token',
+  SelectSrcChain = 'select.src.chain',
+  SelectDestToken = 'select.dest.token',
+  SelectDestChain = 'select.dest.chain',
+}
+
+export interface UserActionEvent {
+  type: 'user.action';
+  details: {
+    action: UserActions;
+  };
+}
+
 export type WormholeConnectEventCore =
   | LoadEvent
   | UpdateConfigEvent
   | TransferEvent
   | TransferErrorEvent
   | ConnectWalletEvent
-  | HistoryLoadEvent;
+  | HistoryLoadEvent
+  | UserActionEvent;
 
 export interface WormholeConnectEventMeta {
   meta: {
