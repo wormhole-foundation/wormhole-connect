@@ -120,6 +120,7 @@ function AmountInput(props: Props) {
             ? '28px'
             : '36px',
         height: '36px',
+        textAlign: 'right',
       },
       onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
         // IMPORTANT: We need to prevent the scroll behavior on number inputs.

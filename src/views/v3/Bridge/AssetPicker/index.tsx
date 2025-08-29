@@ -95,6 +95,28 @@ function AssetPicker(props: Props) {
     return null;
   }, [props.isSource, props.balances, props.token]);
 
+  const tokenBalanceDisplay = useMemo(() => {
+    if (!tokenBalance) {
+      return null;
+    }
+    const displayValue = `Balance: ${sdkAmount.display(tokenBalance)}`;
+    return (
+      <Typography
+        sx={{
+          color: theme.palette.text.secondary,
+          fontSize: '12px',
+          maxWidth: '240px',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          ariaLabel: displayValue,
+        }}
+      >
+        {displayValue}
+      </Typography>
+    );
+  }, [theme.palette.text.secondary, tokenBalance]);
+
   // Side-effect to reset chain search visibility.
   // Popover and drawer close has an animation, which requires to wait
   // a tiny bit before resetting showChainSearch.
@@ -399,6 +421,38 @@ function AssetPicker(props: Props) {
             justifyContent: 'space-between',
           }}
         >
+          <Card
+            sx={[
+              styles.selector,
+              props.isTransactionInProgress && styles.disabled,
+            ]}
+            data-testid={props.dataTestId}
+            variant="elevation"
+            onMouseDown={(e) => {
+              if (mobile) {
+                setIsDrawerOpen(true);
+              } else {
+                popupState.open(e);
+              }
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (mobile) {
+                setIsDrawerOpen(true);
+              } else {
+                popupState.open(e);
+              }
+            }}
+            {...triggerProps}
+          >
+            <CardContent sx={styles.cardContent}>
+              <Typography sx={styles.chainSelector} component={'div'} gap={1}>
+                <AssetBadge chainConfig={chainConfig} token={props.token} />
+                {selection}
+              </Typography>
+            </CardContent>
+          </Card>
           {props.isSource ? (
             <AmountInput
               value={amountInput}
@@ -440,6 +494,7 @@ function AssetPicker(props: Props) {
                           ? '28px'
                           : '36px',
                       height: '36px',
+                      textAlign: 'right',
                     },
                   },
                   input: {
@@ -451,38 +506,6 @@ function AssetPicker(props: Props) {
               />
             </Box>
           )}
-          <Card
-            sx={[
-              styles.selector,
-              props.isTransactionInProgress && styles.disabled,
-            ]}
-            data-testid={props.dataTestId}
-            variant="elevation"
-            onMouseDown={(e) => {
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            {...triggerProps}
-          >
-            <CardContent sx={styles.cardContent}>
-              <Typography sx={styles.chainSelector} component={'div'} gap={1}>
-                <AssetBadge chainConfig={chainConfig} token={props.token} />
-                {selection}
-              </Typography>
-            </CardContent>
-          </Card>
         </Box>
         <Box
           sx={{
@@ -494,11 +517,15 @@ function AssetPicker(props: Props) {
             gap: '8px',
           }}
         >
-          <Box>{amountUSDValue}</Box>
+          {props.isSource ? (
+            <Box>{tokenBalanceDisplay}</Box>
+          ) : (
+            <Box>{destTokenUnitPrice}</Box>
+          )}
           {props.isSource ? (
             <Box>{percentButtons}</Box>
           ) : (
-            <Box>{destTokenUnitPrice}</Box>
+            <Box>{amountUSDValue}</Box>
           )}
         </Box>
       </Box>
