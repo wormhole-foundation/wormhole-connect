@@ -156,7 +156,7 @@ const WalletSidebar = (props: Props) => {
 
     for (const sanctioned of SANCTIONED_WALLETS) {
       if (nativeAddress.toString().toLowerCase() === sanctioned.toLowerCase()) {
-        setAddressError('Sanctioned Address');
+        setAddressError('Restricted Address');
         dispatch(clearWallet(TransferWallet.RECEIVING));
         return;
       }

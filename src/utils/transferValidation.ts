@@ -93,7 +93,7 @@ export const validateWallet = async (
   try {
     const isSanctioned = checkAddressIsSanctioned(wallet.address);
     if (isSanctioned)
-      return 'This address is sanctioned, bridging is not available';
+      return 'This address is restricted, bridging is not available';
   } catch (e) {
     // TODO: how do we want to handle if we get an error from the API?
     console.error(e);
