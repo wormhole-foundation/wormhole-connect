@@ -35,17 +35,18 @@ const TokenList = (props: Props) => {
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
 
-  const { sortedTokens, tokenPrices } = useTokenListWithSearch({
-    baseTokenList: props.tokenList,
-    searchQuery: props.searchQuery,
-    chain: props.selectedChainConfig.sdkName,
-    isSource: props.isSource,
-    isSameChainSwap: props.isSameChainSwap,
-    sourceToken: props.sourceToken,
-    balances: props.balances,
-    walletAddress: props.wallet.address,
-    tokenPastingEnabled: tokenPastingIsEnabled,
-  });
+  const { sortedTokens, tokenPrices, userTokens, otherTokens } =
+    useTokenListWithSearch({
+      baseTokenList: props.tokenList,
+      searchQuery: props.searchQuery,
+      chain: props.selectedChainConfig.sdkName,
+      isSource: props.isSource,
+      isSameChainSwap: props.isSameChainSwap,
+      sourceToken: props.sourceToken,
+      balances: props.balances,
+      walletAddress: props.wallet.address,
+      tokenPastingEnabled: tokenPastingIsEnabled,
+    });
 
   const emptyMessage = useMemo(() => {
     let message = '';
@@ -106,11 +107,6 @@ const TokenList = (props: Props) => {
 
   // Determine the current state of the token list
   const listState = useMemo(() => {
-    // No wallet connected - show empty state
-    if (!props.wallet?.address && !props.isConnectingWallet) {
-      return 'empty';
-    }
-
     // Currently fetching initial data
     if (props.isFetching || props.isFetchingBalances) {
       return 'loading';
@@ -123,19 +119,64 @@ const TokenList = (props: Props) => {
 
     // Normal state - show the token list
     return 'ready';
-  }, [
-    props.wallet?.address,
-    props.isConnectingWallet,
-    props.isFetching,
-    props.isFetchingBalances,
-    sortedTokens.length,
-  ]);
+  }, [props.isFetching, props.isFetchingBalances, sortedTokens.length]);
 
   const shouldShowLoadingState = listState === 'loading';
   const shouldShowEmptyMessage = listState === 'empty';
+  const shouldShowSections =
+    props.isSource &&
+    props.wallet?.address &&
+    !props.searchQuery &&
+    (userTokens.length > 0 || otherTokens.length > 0);
+
+  const renderTokenItem = (token: Token) => {
+    const balance = props.balances?.[token.key]?.balance;
+    const tokenPrice = tokenPrices.get(token.key);
+    const price =
+      balance && tokenPrice !== undefined
+        ? getUSDFormat(calculateUSDPriceRaw(tokenPrice, balance, token))
+        : null;
+
+    return (
+      <TokenItem
+        key={token.key}
+        token={token}
+        chain={props.selectedChainConfig.sdkName}
+        onClick={() => {
+          props.onSelectToken(token);
+        }}
+        balance={balance}
+        price={price}
+        isSelected={token.key === props.selectedToken?.key}
+        isFetchingBalance={props.isFetchingBalances}
+        isSource={props.isSource}
+      />
+    );
+  };
+
+  // Create a combined list with section markers for sectioned display
+  const displayItems = useMemo(() => {
+    if (!shouldShowSections) {
+      return sortedTokens;
+    }
+
+    const items: (Token | { isSection: true; title: string })[] = [];
+
+    if (userTokens.length > 0) {
+      items.push({ isSection: true, title: 'Your tokens' });
+      items.push(...userTokens);
+    }
+
+    if (otherTokens.length > 0) {
+      items.push({ isSection: true, title: 'Other available tokens' });
+      items.push(...otherTokens);
+    }
+
+    return items;
+  }, [shouldShowSections, sortedTokens, userTokens, otherTokens]);
 
   const searchList = (
-    <SearchableList<Token>
+    <SearchableList<Token | { isSection: true; title: string }>
       searchPlaceholder={placeholder}
       sx={styles.tokenList}
       dataTestId="token-search-list"
@@ -165,33 +206,32 @@ const TokenList = (props: Props) => {
           </ListItemButton>
         ))
       }
-      items={sortedTokens}
+      items={displayItems}
       onQueryChange={(query) => {
         props.onSearchQueryChange(query);
       }}
-      renderFn={(token: Token) => {
-        const balance = props.balances?.[token.key]?.balance;
-        const tokenPrice = tokenPrices.get(token.key);
-        const price =
-          balance && tokenPrice !== undefined
-            ? getUSDFormat(calculateUSDPriceRaw(tokenPrice, balance, token))
-            : null;
+      renderFn={(
+        item: Token | { isSection: true; title: string },
+        index: number,
+      ) => {
+        if ('isSection' in item && item.isSection) {
+          return (
+            <Typography
+              key={`section-${index}`}
+              sx={{
+                padding: '8px 16px',
+                fontWeight: 600,
+                marginTop: index > 0 ? '8px' : 0,
+              }}
+              fontSize={12}
+              color={theme.palette.text.secondary}
+            >
+              {item.title}
+            </Typography>
+          );
+        }
 
-        return (
-          <TokenItem
-            key={token.key}
-            token={token}
-            chain={props.selectedChainConfig.sdkName}
-            onClick={() => {
-              props.onSelectToken(token);
-            }}
-            balance={balance}
-            price={price}
-            isSelected={token.key === props.selectedToken?.key}
-            isFetchingBalance={props.isFetchingBalances}
-            isSource={props.isSource}
-          />
-        );
+        return renderTokenItem(item as Token);
       }}
     />
   );
