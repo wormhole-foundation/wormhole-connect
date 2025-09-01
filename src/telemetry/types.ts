@@ -126,6 +126,11 @@ export type UserActionEvent<A extends UserActions = UserActions> = {
   };
 };
 
+// Helper type to narrow value by action
+export type UserActionEvents = {
+  [A in UserActions]: UserActionEvent<A>;
+}[UserActions];
+
 export type WormholeConnectEventCore =
   | LoadEvent
   | UpdateConfigEvent
