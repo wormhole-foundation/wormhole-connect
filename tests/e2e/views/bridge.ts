@@ -96,6 +96,7 @@ export class BridgeView {
     const searchInput = this.page.getByRole('textbox', { name: 'Search' });
     await searchInput.waitFor({ state: 'visible' });
     await searchInput.fill(tokenAddress);
+    await this.page.waitForTimeout(500); // Wait for search results to update
 
     // Wait for the token to be visible in search results
     const tokenButton = this.page.getByRole('button', {

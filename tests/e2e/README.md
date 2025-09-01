@@ -32,7 +32,6 @@ Before running the tests, ensure you have the following installed:
    ```env
    REACT_APP_TEST_EVM_ADDR=your_test_wallet_address
    REACT_APP_TEST_EVM_PK=your_test_wallet_private_key
-   REACT_APP_TEST_CG_AK=your_coingecko_api_key
    ```
 
 4. **Setup RPC endpoints**

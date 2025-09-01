@@ -1,7 +1,6 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, type Page } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
-import { compressToBase64 } from 'lz-string';
 
 import { BridgeView } from '../views/bridge';
 import { RedeemView } from '../views/redeem';
@@ -53,7 +52,7 @@ testConfigs.forEach(
           `Test ${name} is missing destination token address`,
         );
 
-        const configQuery = compressToBase64(config);
+        const configQuery = btoa(config);
 
         // Navigate to bridge view
         await page.goto(`/?config=${configQuery}`);
@@ -82,7 +81,7 @@ testConfigs.forEach(
         `Test ${name} is missing destination token address`,
       );
 
-      const configQuery = compressToBase64(config);
+      const configQuery = btoa(config);
 
       // Navigate to bridge view
       await page.goto(`/?config=${configQuery}`);

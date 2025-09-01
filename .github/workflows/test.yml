@@ -38,7 +38,6 @@ jobs:
         run: npm run test:e2e:with-wallet
         env:
           BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:5173' }}
-          REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
           REACT_APP_TEST_EVM_ADDR: ${{ secrets.REACT_APP_TEST_EVM_ADDR }}
           REACT_APP_TEST_EVM_PK: ${{ secrets.REACT_APP_TEST_EVM_PK }}
       - name: Run Playwright tests without wallet
@@ -46,7 +45,6 @@ jobs:
         run: npm run test:e2e:without-wallet
         env:
           BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:5173' }}
-          REACT_APP_TEST_CG_AK: ${{ secrets.REACT_APP_TEST_CG_AK }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

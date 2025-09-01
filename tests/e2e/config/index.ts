@@ -1,11 +1,9 @@
 import { circle } from '@wormhole-foundation/sdk';
 import type { TestConfig } from './types';
 
-const COINGECKO_API_KEY = process.env.REACT_APP_TEST_CG_AK || '';
-
 const mayanSWIFT = `{
   network: 'mainnet',
-  coinGeckoApiKey: '${COINGECKO_API_KEY}',
+  coingecko: { customUrl: 'https://coingecko.labsapis.com' },
   ui: {
     experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
@@ -20,7 +18,7 @@ const mayanSWIFT = `{
 
 const CCTPExecutor = `{
   network: 'mainnet',
-  coinGeckoApiKey: '${COINGECKO_API_KEY}',
+  coingecko: { customUrl: 'https://coingecko.labsapis.com' },
   ui: {
     experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,

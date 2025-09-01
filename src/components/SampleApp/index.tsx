@@ -5,7 +5,6 @@ import { useState } from 'react';
 import WormholeConnect from '../../WormholeConnect';
 import config from 'config';
 import type { WormholeConnectConfig } from 'config/types';
-import { compressToBase64, decompressFromBase64 } from 'lz-string';
 
 /*
  *
@@ -111,7 +110,7 @@ const loadInitialConfig = (): string => {
   const configCached = localStorage.getItem(LOCAL_STORAGE_KEY_CONFIG);
 
   if (configQuery) {
-    return decompressFromBase64(configQuery);
+    return atob(configQuery);
   } else if (configCached) {
     return configCached;
   } else {
@@ -142,7 +141,7 @@ const loadBackgroundColor = (): string => {
 const setUrlQueryParam = (configInput: string) => {
   const url = new URL(window.location.toString());
 
-  const compressedQuery = compressToBase64(configInput);
+  const compressedQuery = btoa(configInput);
 
   if (configInput === '' || configInput.length > MAX_URL_SIZE) {
     url.searchParams.delete('config');

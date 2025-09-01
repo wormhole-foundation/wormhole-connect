@@ -40,16 +40,12 @@ For running transaction tests (tests without `@noWallet` tag), you need to set t
 # Test wallet configuration (only needed for transaction tests)
 REACT_APP_TEST_EVM_ADDR=your_test_wallet_address
 REACT_APP_TEST_EVM_PK=your_test_wallet_private_key
-
-# API keys
-REACT_APP_TEST_CG_AK=your_coingecko_api_key
 ```
 
 **Option 2: Export directly in terminal**
 ```bash
 export REACT_APP_TEST_EVM_ADDR=your_test_wallet_address
 export REACT_APP_TEST_EVM_PK=your_test_wallet_private_key
-export REACT_APP_TEST_CG_AK=your_coingecko_api_key
 ```
 
 ⚠️ **Security Note**: Never commit `.env` files or expose private keys in code.
