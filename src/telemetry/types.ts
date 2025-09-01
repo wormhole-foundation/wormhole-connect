@@ -104,7 +104,7 @@ export interface HistoryLoadEvent {
   };
 }
 
-export const enum UserActions {
+export enum UserActions {
   SelectSrcToken = 'select.src.token',
   SelectSrcChain = 'select.src.chain',
   SelectDestToken = 'select.dest.token',
