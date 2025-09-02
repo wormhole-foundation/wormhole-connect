@@ -168,10 +168,10 @@ export const useTokenListWithSearch = ({
     walletAddress,
   ]);
 
-  const tokenPrices = useMemo(() => {
-    // Only compute prices for tokens we will render
-    return getTokenPrices(sortedTokens);
-  }, [getTokenPrices, sortedTokens]);
+  const tokenPrices = useMemo(
+    () => getTokenPrices(sortedTokens),
+    [getTokenPrices, sortedTokens],
+  );
 
   return {
     sortedTokens,

@@ -56,9 +56,8 @@ const TokenList = (props: Props) => {
     if (props.isSource) {
       message = props.wallet?.address
         ? 'No supported tokens found in wallet'
-        : 'Connect wallet to see available tokens';
+        : '';
     } else {
-      // Destination side should never require a wallet or a selected source token
       message = 'No supported destination tokens for this route';
     }
 
@@ -104,11 +103,7 @@ const TokenList = (props: Props) => {
   // Determine the current state of the token list
   const listState = useMemo(() => {
     // For source list, require wallet to show balances/tokens from wallet
-    if (
-      props.isSource &&
-      !props.wallet?.address &&
-      !props.isConnectingWallet
-    ) {
+    if (props.isSource && !props.wallet?.address && !props.isConnectingWallet) {
       return 'empty';
     }
 

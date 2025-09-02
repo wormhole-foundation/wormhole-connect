@@ -56,7 +56,7 @@ import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
 import { clearRedeem } from 'store/redeem';
 import { setSearch } from 'store/search';
-import { isExecutorRoute } from 'utils';
+import { isExecutorRoute, getTokenDisplayName } from 'utils';
 
 function Redeem() {
   const dispatch = useDispatch();
@@ -874,7 +874,8 @@ function Redeem() {
     }
 
     const { to, queueReleaseTime } = routeContext.receipt;
-    const symbol = config.tokens.get(receivedToken)?.symbol || '';
+    const tokenConfig = config.tokens.get(receivedToken);
+    const symbol = tokenConfig ? getTokenDisplayName(tokenConfig) : '';
     const releaseTime = queueReleaseTime.toLocaleString();
 
     return (
