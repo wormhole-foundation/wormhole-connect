@@ -22,10 +22,10 @@ type ReturnProps = {
 
 /**
  * Compute the destination tokens for a given source token and chains.
- * This handles three cases:
- * 1. No source chain selected - returns all tokens on destination chain
- * 2. Both chains selected with source token - fetches supported destination tokens from routes
- * 3. Both chains selected without source token - returns empty array
+ * Behavior:
+ * 1. If no destination chain: return empty
+ * 2. If no source chain OR no source token: return all tokens on destination chain
+ * 3. If both chains selected AND a source token: fetch supported destination tokens from routes
  */
 const computeDestTokensForChains = async (
   sourceChain: Chain | undefined,
@@ -37,9 +37,9 @@ const computeDestTokensForChains = async (
     return [];
   }
 
-  // User hasn't selected a source chain yet, so we
+  // If source chain is not selected OR source token is not selected,
   // return all of the known tokens on the destination chain.
-  if (!sourceChain) {
+  if (!sourceChain || !sourceToken) {
     return config.tokens.getAllForChain(destChain);
   }
 

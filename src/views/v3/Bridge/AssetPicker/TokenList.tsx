@@ -53,13 +53,12 @@ const TokenList = (props: Props) => {
   const emptyMessage = useMemo(() => {
     let message = '';
 
-    if (!props.wallet?.address) {
-      message = 'Connect wallet to see available tokens';
-    } else if (props.isSource) {
-      message = 'No supported tokens found in wallet';
-    } else if (!props.sourceToken) {
-      message = 'Please select a source token first';
+    if (props.isSource) {
+      message = props.wallet?.address
+        ? 'No supported tokens found in wallet'
+        : 'Connect wallet to see available tokens';
     } else {
+      // Destination side should never require a wallet or a selected source token
       message = 'No supported destination tokens for this route';
     }
 
@@ -68,12 +67,7 @@ const TokenList = (props: Props) => {
         {message}
       </Typography>
     );
-  }, [
-    props.wallet?.address,
-    props.isSource,
-    props.sourceToken,
-    theme.palette.grey.A400,
-  ]);
+  }, [props.wallet?.address, props.isSource, theme.palette.grey.A400]);
 
   const placeholder = `Search for a token${
     tokenPastingIsEnabled ? ' or paste an address' : ''
@@ -109,8 +103,12 @@ const TokenList = (props: Props) => {
 
   // Determine the current state of the token list
   const listState = useMemo(() => {
-    // No wallet connected - show empty state
-    if (!props.wallet?.address && !props.isConnectingWallet) {
+    // For source list, require wallet to show balances/tokens from wallet
+    if (
+      props.isSource &&
+      !props.wallet?.address &&
+      !props.isConnectingWallet
+    ) {
       return 'empty';
     }
 
@@ -127,6 +125,7 @@ const TokenList = (props: Props) => {
     // Normal state - show the token list
     return 'ready';
   }, [
+    props.isSource,
     props.wallet?.address,
     props.isConnectingWallet,
     props.isFetching,
