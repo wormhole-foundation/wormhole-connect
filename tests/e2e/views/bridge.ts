@@ -179,7 +179,7 @@ export class BridgeView {
     const routeToggle = this.page.getByRole('button', {
       name: 'View other routes',
     });
-    await routeToggle.isVisible();
+    await expect(routeToggle).toBeVisible();
     await routeToggle.click();
 
     // Route should be visible and selected by default
@@ -188,7 +188,12 @@ export class BridgeView {
     ).toBeVisible();
 
     // Close the routes modal/drawer
-    await this.page.getByRole('button', { name: /Close routes/ }).click();
+    const closeButton = this.page.getByRole('button', { name: /Close routes/ });
+    await expect(closeButton).toBeVisible();
+    await closeButton.click();
+
+    // Wait for modal to close
+    await expect(closeButton).not.toBeVisible();
   }
 
   async startTransaction() {

@@ -80,6 +80,14 @@ testConfigs.forEach(
         !destinationAsset.address,
         `Test ${name} is missing destination token address`,
       );
+      test.skip(
+        !sourceWallet?.address,
+        `Test ${name} is missing source wallet address`,
+      );
+      test.skip(
+        !destinationWallet?.address,
+        `Test ${name} is missing destination wallet address`,
+      );
 
       const configQuery = btoa(config);
 

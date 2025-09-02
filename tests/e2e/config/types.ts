@@ -4,7 +4,7 @@ export type TestConfig = {
   name: string;
   config: string;
   enabled: boolean;
-  sourceWallet: {
+  sourceWallet?: {
     address: string;
     privateKey: string;
   };
@@ -13,7 +13,7 @@ export type TestConfig = {
     symbol: string;
     address: string | undefined;
   };
-  destinationWallet: {
+  destinationWallet?: {
     address: string;
   };
   destinationAsset: {
