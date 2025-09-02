@@ -17,6 +17,7 @@ import {
   chainDisplayName,
   getTokenExplorerUrl,
   getTokenDisplayName,
+  getTokenDisplaySymbol,
 } from 'utils';
 import ChainIcon from 'icons/ChainIcons';
 import Color from 'color';
@@ -77,6 +78,7 @@ function TokenItem(props: TokenItemProps) {
   const addressDisplay = `${token.shortAddress}`;
 
   const displayName = getTokenDisplayName(token);
+  const displaySymbol = getTokenDisplaySymbol(token);
 
   return (
     <ListItemButton
@@ -112,13 +114,13 @@ function TokenItem(props: TokenItemProps) {
               </Tooltip>
             ) : null}
 
-            {token.symbol ? (
+            {displaySymbol ? (
               <Typography fontSize={10} color={theme.palette.text.secondary}>
-                {token.symbol}
+                {displaySymbol}
               </Typography>
             ) : null}
 
-            {token.symbol && !token.isNativeGasToken ? (
+            {displaySymbol && !token.isNativeGasToken ? (
               <Typography
                 fontSize={10}
                 color={theme.palette.text.secondary}

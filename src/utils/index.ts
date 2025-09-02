@@ -89,6 +89,23 @@ export function getTokenDisplayName(token: Token): string {
   return token.display;
 }
 
+// Returns a short symbol-like string for a token, honoring tokenNameOverrides.
+// Unlike getTokenDisplayName, this never prefers the token's long name.
+export function getTokenDisplaySymbol(token: Token): string {
+  const chainOverrides = config.ui?.tokenNameOverrides?.[token.chain];
+
+  if (chainOverrides) {
+    const addrLower = token.addressString.toLowerCase();
+    for (const [address, name] of Object.entries(chainOverrides)) {
+      if (address.toLowerCase() === addrLower) {
+        return name;
+      }
+    }
+  }
+
+  return token.symbol;
+}
+
 export function chainDisplayName(chain: Chain): string {
   const chainConfig = config.chains[chain];
   if (chainConfig) {
