@@ -20,7 +20,7 @@ import {
   getWalletExplorerUrl,
   millisToHumanString,
   trimAddress,
-  getTokenDisplayName,
+  getTokenSymbol,
 } from 'utils';
 import { getExplorerInfo } from 'utils/sdkv2';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
@@ -102,7 +102,7 @@ const TransactionDetails = () => {
         <AssetBadge chainConfig={sourceChainConfig} token={sourceTokenConfig} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {formattedAmount} {getTokenDisplayName(sourceToken)}
+            {formattedAmount} {getTokenSymbol(sourceToken)}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {isFetchingTokenPrices ? (
@@ -164,7 +164,7 @@ const TransactionDetails = () => {
         <AssetBadge chainConfig={destChainConfig} token={destToken} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {formattedReceiveAmount} {getTokenDisplayName(destToken)}
+            {formattedReceiveAmount} {getTokenSymbol(destToken)}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {isFetchingTokenPrices ? (

@@ -26,7 +26,7 @@ import TokenList from './TokenList';
 import AssetBadge from 'components/AssetBadge';
 import type { Token } from 'config/tokens';
 import { useTokenList } from 'hooks/useTokenList';
-import { getTokenDisplayName } from 'utils';
+import { getTokenSymbol } from 'utils';
 
 type Props = {
   chain?: Chain | undefined;
@@ -114,7 +114,7 @@ const AssetPicker = (props: Props) => {
     }
 
     const tokenDisplay = props.token
-      ? getTokenDisplayName(props.token)
+      ? getTokenSymbol(props.token)
       : 'Select token';
 
     return (

@@ -34,7 +34,7 @@ import { setRoute as setAppRoute } from 'store/router';
 import { setToChain } from 'store/transferInput';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { removeTxFromLocalStorage } from 'utils/inProgressTxCache';
-import { getTokenDisplayName } from 'utils';
+import { getTokenSymbol } from 'utils';
 import { minutesAndSecondsWithPadding } from 'utils/transferValidation';
 
 import type { TransactionLocal } from 'config/types';
@@ -297,7 +297,7 @@ const WidgetItem = (props: Props) => {
                 <Typography fontSize={14} marginRight="8px">
                   {`${sdkAmount.display(
                     sdkAmount.truncate(amount, 6),
-                  )} ${getTokenDisplayName(token)}`}
+                  )} ${getTokenSymbol(token)}`}
                 </Typography>
                 <Box sx={styles.chainIconContainer}>
                   <ChainIcon
