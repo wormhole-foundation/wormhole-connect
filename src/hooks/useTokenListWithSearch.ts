@@ -10,6 +10,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
+import { getTokenDisplayName } from 'utils';
 import { filterTokensByBalance } from 'utils/tokenListUtils';
 import type { Balances } from 'utils/wallet/types';
 import { unionBy } from 'es-toolkit';
@@ -102,10 +103,12 @@ export const useTokenListWithSearch = ({
     if (deferredSearch) {
       const searchLower = deferredSearch.toLowerCase();
       tokens = tokens.filter((token) => {
-        if (
-          token.symbol?.toLowerCase().includes(searchLower) ||
-          token.name?.toLowerCase().includes(searchLower)
-        ) {
+        const overrideName = getTokenDisplayName(token)?.toLowerCase();
+        const symbolMatch = token.symbol?.toLowerCase().includes(searchLower);
+        const nameMatch = token.name?.toLowerCase().includes(searchLower);
+        const overrideMatch = overrideName?.includes(searchLower);
+
+        if (symbolMatch || nameMatch || overrideMatch) {
           return true;
         }
 

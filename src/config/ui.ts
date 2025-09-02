@@ -36,6 +36,9 @@ export type UiConfig = {
 
   // UI experimental features
   experimental?: Experimental;
+
+  // Override token names for specific chains and addresses (ex: display "SOL" instead of "WSOL")
+  tokenNameOverrides?: { [chain in Chain]?: { [address: string]: string } };
 };
 
 export type TestOptions = {

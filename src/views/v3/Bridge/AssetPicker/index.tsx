@@ -28,7 +28,7 @@ import { OPACITY } from 'utils/style';
 import Color from 'color';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
-import { calculateUSDPrice } from 'utils';
+import { calculateUSDPrice, getTokenDisplayName } from 'utils';
 import { formatWithCommas } from 'utils/formatNumber';
 
 type Props = {
@@ -152,10 +152,12 @@ function AssetPicker(props: Props) {
   }, [props.chain]);
 
   const selection = useMemo(() => {
-    const tokenDisplay = props.token ? <>{props.token.display}</> : <>Select</>;
-
     return (
-      <Tooltip title={props.token?.display ?? 'Select a token'}>
+      <Tooltip
+        title={
+          props.token ? getTokenDisplayName(props.token) : 'Select a token'
+        }
+      >
         <Typography
           component="div"
           fontSize="16px"
@@ -163,7 +165,7 @@ function AssetPicker(props: Props) {
           maxWidth="64px"
           noWrap
         >
-          {tokenDisplay}
+          {props.token ? getTokenDisplayName(props.token) : 'Select'}
         </Typography>
       </Tooltip>
     );

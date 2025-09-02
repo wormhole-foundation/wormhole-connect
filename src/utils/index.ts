@@ -69,6 +69,26 @@ export function getGasToken(chain: Chain): Token {
   return gasToken;
 }
 
+export function getTokenDisplayName(token: Token): string {
+  const chainOverrides = config.ui?.tokenNameOverrides?.[token.chain];
+
+  if (!chainOverrides) {
+    return token.display;
+  }
+
+  const addrLower = token.addressString.toLowerCase();
+
+  for (const [address, name] of Object.entries(chainOverrides)) {
+    if (address.toLowerCase() === addrLower) {
+      return name;
+    }
+  }
+
+  // example code for UNI WSOL -> SOL: { Unichain: { '0xb...B97': 'SOL' } }
+
+  return token.display;
+}
+
 export function chainDisplayName(chain: Chain): string {
   const chainConfig = config.chains[chain];
   if (chainConfig) {
