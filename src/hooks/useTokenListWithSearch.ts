@@ -4,6 +4,7 @@ import {
   useMemo,
   useState,
   useDeferredValue,
+  startTransition,
 } from 'react';
 import { toNative } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -53,6 +54,10 @@ export const useTokenListWithSearch = ({
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
   const { getOrFetchToken, getTokenPrices } = useTokens();
   const deferredSearch = useDeferredValue(searchQuery);
+  const searchLower = useMemo(
+    () => (deferredSearch ? deferredSearch.toLowerCase() : ''),
+    [deferredSearch],
+  );
 
   const addTokenIfNotExists = useCallback((token: Token) => {
     // Dedupe happens later via unionBy in the memoized list.
@@ -61,6 +66,12 @@ export const useTokenListWithSearch = ({
 
   useEffect(() => {
     if (!chain || !tokenPastingEnabled || !deferredSearch) {
+      setSearchedTokens([]);
+      return;
+    }
+
+    // Avoid running address parsing/fetching for very short inputs
+    if (deferredSearch.length < 10) {
       setSearchedTokens([]);
       return;
     }
@@ -78,11 +89,11 @@ export const useTokenListWithSearch = ({
           getOrFetchToken({ chain, address }).then((fetchedToken) => {
             // Guard against stale results if chain or query changed
             if (fetchedToken) {
-              addTokenIfNotExists(fetchedToken);
+              startTransition(() => addTokenIfNotExists(fetchedToken));
             }
           });
         } else {
-          addTokenIfNotExists(existing);
+          startTransition(() => addTokenIfNotExists(existing));
         }
       }
     } catch {
@@ -97,11 +108,12 @@ export const useTokenListWithSearch = ({
   ]);
 
   const sortedTokens = useMemo(() => {
-    // Merge base tokens with any fetched tokens
-    let tokens = unionBy(baseTokenList, searchedTokens, (t) => t.key);
+    // Merge base tokens with any fetched tokens only when searching
+    let tokens = deferredSearch
+      ? unionBy(baseTokenList, searchedTokens, (t) => t.key)
+      : baseTokenList;
 
     if (deferredSearch) {
-      const searchLower = deferredSearch.toLowerCase();
       tokens = tokens.filter((token) => {
         const overrideName = getTokenDisplayName(token)?.toLowerCase();
         const symbolMatch = token.symbol?.toLowerCase().includes(searchLower);
@@ -148,6 +160,7 @@ export const useTokenListWithSearch = ({
     baseTokenList,
     searchedTokens,
     deferredSearch,
+    searchLower,
     isSource,
     isSameChainSwap,
     sourceToken,
@@ -156,8 +169,9 @@ export const useTokenListWithSearch = ({
   ]);
 
   const tokenPrices = useMemo(() => {
-    return getTokenPrices([...baseTokenList, ...searchedTokens]);
-  }, [getTokenPrices, baseTokenList, searchedTokens]);
+    // Only compute prices for tokens we will render
+    return getTokenPrices(sortedTokens);
+  }, [getTokenPrices, sortedTokens]);
 
   return {
     sortedTokens,
