@@ -5,10 +5,7 @@ import { defineConfig, loadEnv, ConfigEnv, LibraryFormats } from 'vite';
 import type { PreRenderedAsset } from 'rollup';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
-// Until this is merged or that issue is fixed some other way, we have to use
-// this fork of vite-plugin-node-polyfills.
-// https://github.com/davidmyersdev/vite-plugin-node-polyfills/pull/89
-import { nodePolyfills } from '@kev1n-peters/vite-plugin-node-polyfills';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import dts from 'vite-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
 import packageJson from './package.json';
@@ -100,19 +97,9 @@ const plugins = [
     }),
 ].filter(Boolean);
 
-const optimizeDeps = {
-  include: [
-    '@emotion/react',
-    '@mui/material/Tooltip',
-    '@mui/material/Unstable_Grid2',
-  ],
-};
+const optimizeDeps = {};
 
-interface AssetInfo {
-  name: string;
-}
-
-let output: {
+const output: {
   assetFileNames: (assetInfo: PreRenderedAsset) => string;
   inlineDynamicImports: boolean;
   exports: 'named' | 'default' | 'none' | 'auto';
@@ -126,12 +113,6 @@ let output: {
   inlineDynamicImports: false,
   exports: 'named' as const,
 };
-
-let external = [
-  // TODO figure out why these have to be here. build fails without it
-  '@particle-network/solana-wallet',
-  '@particle-network/auth',
-];
 
 export default defineConfig(({ command, mode }: ConfigEnv) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -153,7 +134,6 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
             index: 'index.html',
           } as Record<string, string>,
           output,
-          external,
         },
       },
       plugins,
@@ -187,7 +167,6 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               entryFileNames: '[name].js',
               ...output,
             },
-            external,
           },
         },
         plugins,
@@ -232,7 +211,6 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
               '@mui/icons-material',
               '@mui/styled-engine',
               '@mui/system',
-              ...external,
             ],
           },
         },
