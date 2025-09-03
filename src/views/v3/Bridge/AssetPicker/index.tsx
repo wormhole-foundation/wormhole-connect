@@ -387,7 +387,7 @@ function AssetPicker(props: Props) {
         <Typography
           color={theme.palette.text.primary}
           fontSize="14px"
-        >{`1 ${props.token.symbol} = ${unitPrice}`}</Typography>
+        >{`1 ${getTokenSymbol(props.token)} = ${unitPrice}`}</Typography>
       </Box>
     );
   }, [props.token, getTokenPrice, theme.palette.text.primary]);
