@@ -99,23 +99,26 @@ function AssetPicker(props: Props) {
     if (!tokenBalance) {
       return null;
     }
-    const displayValue = `Balance: ${sdkAmount.display(tokenBalance)}`;
+    const displayValue = `${sdkAmount.display(tokenBalance)} ${
+      props.token?.symbol || ''
+    }`;
     return (
       <Typography
+        component="div"
         sx={{
-          color: theme.palette.text.secondary,
+          color: theme.palette.text.secondary + OPACITY[50],
           fontSize: '12px',
+          fontWeight: 500,
           maxWidth: '240px',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          ariaLabel: displayValue,
         }}
       >
         {displayValue}
       </Typography>
     );
-  }, [theme.palette.text.secondary, tokenBalance]);
+  }, [props.token?.symbol, theme.palette.text.secondary, tokenBalance]);
 
   // Side-effect to reset chain search visibility.
   // Popover and drawer close has an animation, which requires to wait
@@ -191,6 +194,7 @@ function AssetPicker(props: Props) {
         color: theme.palette.text.secondary,
         display: 'flex',
         height: '12px',
+        alignItems: 'center',
         justifyContent: 'space-between',
       },
       selector: {
@@ -381,16 +385,16 @@ function AssetPicker(props: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-end',
-          opacity: 0.7,
         }}
       >
         <Typography
-          color={theme.palette.text.primary}
-          fontSize="14px"
+          color={theme.palette.text.secondary + OPACITY[50]}
+          fontSize="12px"
+          fontWeight={500}
         >{`1 ${getTokenSymbol(props.token)} = ${unitPrice}`}</Typography>
       </Box>
     );
-  }, [props.token, getTokenPrice, theme.palette.text.primary]);
+  }, [props.token, getTokenPrice, theme.palette.text.secondary]);
 
   const percentButtons =
     !props.wallet.address || !tokenBalance ? null : (
@@ -408,11 +412,22 @@ function AssetPicker(props: Props) {
           <Typography fontSize={12} fontWeight={500} variant="body2">
             {props.isSource ? 'From' : 'To'}
           </Typography>
-          <WalletController
-            type={
-              props.isSource ? TransferWallet.SENDING : TransferWallet.RECEIVING
-            }
-          />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            {tokenBalanceDisplay}
+            <WalletController
+              type={
+                props.isSource
+                  ? TransferWallet.SENDING
+                  : TransferWallet.RECEIVING
+              }
+            />
+          </Box>
         </Box>
         <Box
           sx={{
@@ -523,11 +538,7 @@ function AssetPicker(props: Props) {
             gap: '8px',
           }}
         >
-          {props.isSource ? (
-            <Box>{tokenBalanceDisplay}</Box>
-          ) : (
-            <Box>{destTokenUnitPrice}</Box>
-          )}
+          {<Box>{!props.isSource && destTokenUnitPrice}</Box>}
           {props.isSource ? (
             <Box>{percentButtons}</Box>
           ) : (

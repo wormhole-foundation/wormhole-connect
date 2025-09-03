@@ -45,7 +45,6 @@ const ConnectedWallet = (props: Props) => {
         justifyContent: 'center',
         borderRadius: '8px',
         cursor: 'pointer',
-        paddingTop: '2px',
         opacity: 1.0,
       },
       walletAddress: {
