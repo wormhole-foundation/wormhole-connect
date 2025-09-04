@@ -27,7 +27,7 @@ type TokenItemProps = {
   isSelected?: boolean;
   isFetchingBalance?: boolean;
   isSource?: boolean;
-  dimmed?: boolean;
+  isDimmed?: boolean;
 };
 
 function TokenItem(props: TokenItemProps) {
@@ -80,7 +80,7 @@ function TokenItem(props: TokenItemProps) {
       sx={{
         ...styles.tokenListItem,
         ...(props.isSelected && styles.tokenListItemSelected),
-        ...(props.dimmed ? { opacity: 0.6 } : {}),
+        ...(props.isDimmed ? { opacity: 0.6 } : {}),
       }}
       dense
       data-testid={`token-button-${chain.toLowerCase()}-${token.address.toString()}`}

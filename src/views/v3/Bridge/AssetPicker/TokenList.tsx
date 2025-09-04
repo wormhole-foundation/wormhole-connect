@@ -214,7 +214,7 @@ const TokenList = (props: Props) => {
               price={price}
               isSelected={token.key === props.selectedToken?.key}
               isFetchingBalance={props.isFetchingBalances}
-              dimmed={isRestSection}
+              isDimmed={isRestSection}
             />
           </Fragment>
         );
