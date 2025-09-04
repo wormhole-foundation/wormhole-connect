@@ -27,6 +27,7 @@ type TokenItemProps = {
   isSelected?: boolean;
   isFetchingBalance?: boolean;
   isSource?: boolean;
+  dimmed?: boolean;
 };
 
 function TokenItem(props: TokenItemProps) {
@@ -79,6 +80,7 @@ function TokenItem(props: TokenItemProps) {
       sx={{
         ...styles.tokenListItem,
         ...(props.isSelected && styles.tokenListItemSelected),
+        ...(props.dimmed ? { opacity: 0.6 } : {}),
       }}
       dense
       data-testid={`token-button-${chain.toLowerCase()}-${token.address.toString()}`}
@@ -154,7 +156,6 @@ function TokenItem(props: TokenItemProps) {
       <TokenBalance
         balance={props.balance}
         price={props.price}
-        isSource={props.isSource}
         isFetching={props.isFetchingBalance}
       />
     </ListItemButton>

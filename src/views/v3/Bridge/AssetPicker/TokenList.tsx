@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -14,6 +14,7 @@ import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 import type { Balances } from 'utils/wallet/types';
 import { useTokenListWithSearch } from 'hooks/useTokenListWithSearch';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 type Props = {
   tokenList: Array<Token>;
@@ -102,11 +103,6 @@ const TokenList = (props: Props) => {
 
   // Determine the current state of the token list
   const listState = useMemo(() => {
-    // For source list, require wallet to show balances/tokens from wallet
-    if (props.isSource && !props.wallet?.address && !props.isConnectingWallet) {
-      return 'empty';
-    }
-
     // Currently fetching initial data
     if (props.isFetching) {
       return 'loading';
@@ -130,27 +126,43 @@ const TokenList = (props: Props) => {
   const shouldShowLoadingState = listState === 'loading';
   const shouldShowEmptyMessage = listState === 'empty';
 
+  // Build sectioned list for source picker when not searching
+  const isGroupingEnabled = props.isSource && !props.searchQuery;
+
+  const { itemsForRender, ownedCount } = useMemo(() => {
+    if (!isGroupingEnabled) {
+      return { itemsForRender: sortedTokens, ownedCount: 0 };
+    }
+
+    const hasPositiveBalance = (token: Token) => {
+      const bal = props.balances?.[token.key]?.balance;
+      return !!(bal && sdkAmount.units(bal) > 0n);
+    };
+
+    const nativeToken = sortedTokens.find((token) => token.isNativeGasToken);
+    const ownedTokens = sortedTokens.filter(hasPositiveBalance);
+    const ownedSet = new Set(ownedTokens.map((t) => t.key));
+
+    const nativePart =
+      nativeToken && !ownedSet.has(nativeToken.key) ? [nativeToken] : [];
+
+    const rest = sortedTokens.filter(
+      (t) =>
+        !ownedSet.has(t.key) && (!nativeToken || t.key !== nativeToken.key),
+    );
+
+    const itemsForRender = [...ownedTokens, ...nativePart, ...rest];
+
+    return { itemsForRender, ownedCount: ownedTokens.length };
+  }, [isGroupingEnabled, props.balances, sortedTokens]);
+
   const searchList = (
     <SearchableList<Token>
       searchPlaceholder={placeholder}
       sx={styles.tokenList}
       dataTestId="token-search-list"
       searchQuery={props.searchQuery}
-      listTitle={
-        shouldShowEmptyMessage ? (
-          emptyMessage
-        ) : (
-          <Box display="flex" width="100%">
-            <Typography
-              style={{ flexGrow: '2' }}
-              fontSize={14}
-              color={theme.palette.text.secondary}
-            >
-              Tokens on {props.selectedChainConfig.displayName}
-            </Typography>
-          </Box>
-        )
-      }
+      listTitle={shouldShowEmptyMessage ? emptyMessage : ''}
       loading={
         shouldShowLoadingState &&
         [1, 2, 3].map((x) => (
@@ -161,11 +173,11 @@ const TokenList = (props: Props) => {
           </ListItemButton>
         ))
       }
-      items={sortedTokens}
+      items={itemsForRender}
       onQueryChange={(query) => {
         props.onSearchQueryChange(query);
       }}
-      renderFn={(token: Token) => {
+      renderFn={(token: Token, index: number) => {
         const balance = props.balances?.[token.key]?.balance;
         const tokenPrice = tokenPrices.get(token.key);
         const price =
@@ -173,20 +185,37 @@ const TokenList = (props: Props) => {
             ? getUSDFormat(calculateUSDPriceRaw(tokenPrice, balance, token))
             : null;
 
+        const isRestSection = isGroupingEnabled && index >= ownedCount;
+
         return (
-          <TokenItem
-            key={token.key}
-            token={token}
-            chain={props.selectedChainConfig.sdkName}
-            onClick={() => {
-              props.onSelectToken(token);
-            }}
-            isSource={props.isSource}
-            balance={balance}
-            price={price}
-            isSelected={token.key === props.selectedToken?.key}
-            isFetchingBalance={props.isFetchingBalances}
-          />
+          <Fragment key={token.key}>
+            {isGroupingEnabled && index === 0 && ownedCount > 0 && (
+              <Box sx={{ padding: '4px 16px' }}>
+                <Typography fontSize={14} color={theme.palette.text.secondary}>
+                  Your tokens
+                </Typography>
+              </Box>
+            )}
+            {isGroupingEnabled && index === ownedCount && (
+              <Box sx={{ padding: '4px 16px' }}>
+                <Typography fontSize={14} color={theme.palette.text.secondary}>
+                  All tokens
+                </Typography>
+              </Box>
+            )}
+            <TokenItem
+              key={token.key}
+              token={token}
+              chain={props.selectedChainConfig.sdkName}
+              onClick={() => props.onSelectToken(token)}
+              isSource={props.isSource}
+              balance={balance}
+              price={price}
+              isSelected={token.key === props.selectedToken?.key}
+              isFetchingBalance={props.isFetchingBalances}
+              dimmed={isRestSection}
+            />
+          </Fragment>
         );
       }}
     />
@@ -196,9 +225,6 @@ const TokenList = (props: Props) => {
     <Card sx={styles.card} variant="elevation">
       <CardContent sx={styles.tokenListContainer}>
         <Box sx={{ display: 'flex', padding: '0 16px' }}>
-          <Typography width="100%" sx={styles.title}>
-            Select a token
-          </Typography>
           {isFetchingToken || props.isFetchingBalances ? (
             <CircularProgress
               sx={{ alignSelf: 'flex-end', marginBottom: '12px' }}
