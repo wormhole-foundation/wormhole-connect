@@ -199,8 +199,14 @@ export const getUSDFormat = (price: number | undefined): string => {
     return '';
   }
 
+  // Explicit zero
   if (price === 0) {
     return '$0';
+  }
+
+  // Show values that would round to $0.00 but are positive
+  if (price > 0 && price < 0.01) {
+    return '<$0.01';
   }
 
   return Intl.NumberFormat('en-EN', {
