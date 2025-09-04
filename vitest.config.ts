@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -13,6 +14,7 @@ export default defineConfig({
       '**/e2e/**',
       '**/tests/**',
     ],
+    watch: false,
   },
   resolve: {
     alias: {
@@ -30,6 +32,7 @@ export default defineConfig({
       public: path.resolve(__dirname, './public'),
       views: path.resolve(__dirname, './src/views'),
       exports: path.resolve(__dirname, './src/exports'),
+      theme: path.resolve(__dirname, './src/theme'),
     },
   },
 });

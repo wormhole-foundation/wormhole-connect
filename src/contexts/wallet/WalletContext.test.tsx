@@ -91,23 +91,22 @@ describe('WalletContext with InternalWalletProvider', () => {
     );
 
     // Sending wallet (Ethereum)
-    let sendingConnectPromise: Promise<any>;
-    act(() => {
-      sendingConnectPromise = result.current!.connectWallet(
+    let sendingWallet: any;
+    await act(async () => {
+      const sendingConnectPromise = result.current!.connectWallet(
         'Ethereum',
         TransferWallet.SENDING,
       );
-    });
 
-    act(() => {
       internalWalletProvider.onWalletSelected(
         mockSendingWallet as any,
         'Ethereum',
         TransferWallet.SENDING,
       );
+
+      sendingWallet = await sendingConnectPromise;
     });
 
-    const sendingWallet = await sendingConnectPromise!;
     expect(sendingWallet).toBe(mockSendingWallet);
 
     expect(connectWallet).toHaveBeenCalledWith({
@@ -122,23 +121,22 @@ describe('WalletContext with InternalWalletProvider', () => {
     );
 
     // Receiving wallet (Solana)
-    let receivingConnectPromise: Promise<any>;
-    act(() => {
-      receivingConnectPromise = result.current!.connectWallet(
+    let receivingWallet: any;
+    await act(async () => {
+      const receivingConnectPromise = result.current!.connectWallet(
         'Solana',
         TransferWallet.RECEIVING,
       );
-    });
 
-    act(() => {
       internalWalletProvider.onWalletSelected(
         mockReceivingWallet as any,
         'Solana',
         TransferWallet.RECEIVING,
       );
+
+      receivingWallet = await receivingConnectPromise;
     });
 
-    const receivingWallet = await receivingConnectPromise!;
     expect(receivingWallet).toBe(mockReceivingWallet);
 
     expect(connectReceivingWallet).toHaveBeenCalledWith({
