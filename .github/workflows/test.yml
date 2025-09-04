@@ -15,7 +15,6 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    continue-on-error: true
     environment: ci
     permissions: read-all
     defaults:
