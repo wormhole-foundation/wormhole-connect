@@ -115,28 +115,27 @@ const TokenList = (props: Props) => {
 
     // Normal state - show the token list
     return 'ready';
-  }, [
-    props.isSource,
-    props.wallet?.address,
-    props.isConnectingWallet,
-    props.isFetching,
-    sortedTokens.length,
-  ]);
+  }, [props.isFetching, sortedTokens.length]);
 
   const shouldShowLoadingState = listState === 'loading';
   const shouldShowEmptyMessage = listState === 'empty';
 
   // Build sectioned list for source picker when not searching
   const isGroupingEnabled = props.isSource && !props.searchQuery;
+  const isWalletConnected = Boolean(props.wallet?.address);
 
-  const { itemsForRender, ownedCount } = useMemo(() => {
+  const { listItems, ownedCount } = useMemo(() => {
     if (!isGroupingEnabled) {
-      return { itemsForRender: sortedTokens, ownedCount: 0 };
+      return { listItems: sortedTokens, ownedCount: 0 };
     }
 
     const hasPositiveBalance = (token: Token) => {
+      if (!isWalletConnected) {
+        return false;
+      }
+
       const bal = props.balances?.[token.key]?.balance;
-      return !!(bal && sdkAmount.units(bal) > 0n);
+      return Boolean(bal && sdkAmount.units(bal) > 0n);
     };
 
     const nativeToken = sortedTokens.find((token) => token.isNativeGasToken);
@@ -147,14 +146,14 @@ const TokenList = (props: Props) => {
       nativeToken && !ownedSet.has(nativeToken.key) ? [nativeToken] : [];
 
     const rest = sortedTokens.filter(
-      (t) =>
-        !ownedSet.has(t.key) && (!nativeToken || t.key !== nativeToken.key),
+      (tok) =>
+        !ownedSet.has(tok.key) && (!nativeToken || tok.key !== nativeToken.key),
     );
 
-    const itemsForRender = [...ownedTokens, ...nativePart, ...rest];
+    const listItems = [...ownedTokens, ...nativePart, ...rest];
 
-    return { itemsForRender, ownedCount: ownedTokens.length };
-  }, [isGroupingEnabled, props.balances, sortedTokens]);
+    return { listItems, ownedCount: ownedTokens.length };
+  }, [isGroupingEnabled, isWalletConnected, props.balances, sortedTokens]);
 
   const searchList = (
     <SearchableList<Token>
@@ -173,7 +172,7 @@ const TokenList = (props: Props) => {
           </ListItemButton>
         ))
       }
-      items={itemsForRender}
+      items={listItems}
       onQueryChange={(query) => {
         props.onSearchQueryChange(query);
       }}
@@ -185,7 +184,9 @@ const TokenList = (props: Props) => {
             ? getUSDFormat(calculateUSDPriceRaw(tokenPrice, balance, token))
             : null;
 
-        const isRestSection = isGroupingEnabled && index >= ownedCount;
+        // Do not dim when no wallet is connected
+        const isRestSection =
+          isGroupingEnabled && isWalletConnected && index >= ownedCount;
 
         return (
           <Fragment key={token.key}>
