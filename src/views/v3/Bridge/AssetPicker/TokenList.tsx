@@ -14,7 +14,8 @@ import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 import type { Balances } from 'utils/wallet/types';
 import { useTokenListWithSearch } from 'hooks/useTokenListWithSearch';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import TokenSectionHeader from './TokenSectionHeader';
+import { useTokenListGrouping } from 'hooks/useTokenListGrouping';
 
 type Props = {
   tokenList: Array<Token>;
@@ -124,36 +125,12 @@ const TokenList = (props: Props) => {
   const isGroupingEnabled = props.isSource && !props.searchQuery;
   const isWalletConnected = Boolean(props.wallet?.address);
 
-  const { listItems, ownedCount } = useMemo(() => {
-    if (!isGroupingEnabled) {
-      return { listItems: sortedTokens, ownedCount: 0 };
-    }
-
-    const hasPositiveBalance = (token: Token) => {
-      if (!isWalletConnected) {
-        return false;
-      }
-
-      const bal = props.balances?.[token.key]?.balance;
-      return Boolean(bal && sdkAmount.units(bal) > 0n);
-    };
-
-    const nativeToken = sortedTokens.find((token) => token.isNativeGasToken);
-    const ownedTokens = sortedTokens.filter(hasPositiveBalance);
-    const ownedSet = new Set(ownedTokens.map((t) => t.key));
-
-    const nativePart =
-      nativeToken && !ownedSet.has(nativeToken.key) ? [nativeToken] : [];
-
-    const rest = sortedTokens.filter(
-      (tok) =>
-        !ownedSet.has(tok.key) && (!nativeToken || tok.key !== nativeToken.key),
-    );
-
-    const listItems = [...ownedTokens, ...nativePart, ...rest];
-
-    return { listItems, ownedCount: ownedTokens.length };
-  }, [isGroupingEnabled, isWalletConnected, props.balances, sortedTokens]);
+  const { listItems, ownedCount } = useTokenListGrouping({
+    sortedTokens,
+    isWalletConnected,
+    isGroupingEnabled,
+    balances: props.balances,
+  });
 
   const searchList = (
     <SearchableList<Token>
@@ -190,20 +167,11 @@ const TokenList = (props: Props) => {
 
         return (
           <Fragment key={token.key}>
-            {isGroupingEnabled && index === 0 && ownedCount > 0 && (
-              <Box sx={{ padding: '4px 16px' }}>
-                <Typography fontSize={14} color={theme.palette.text.secondary}>
-                  Your tokens
-                </Typography>
-              </Box>
-            )}
-            {isGroupingEnabled && index === ownedCount && (
-              <Box sx={{ padding: '4px 16px' }}>
-                <Typography fontSize={14} color={theme.palette.text.secondary}>
-                  All tokens
-                </Typography>
-              </Box>
-            )}
+            <TokenSectionHeader
+              index={index}
+              ownedCount={ownedCount}
+              isGroupingEnabled={isGroupingEnabled}
+            />
             <TokenItem
               key={token.key}
               token={token}
