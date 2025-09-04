@@ -203,6 +203,10 @@ export const getUSDFormat = (price: number | undefined): string => {
     return '$0';
   }
 
+  if (price > 0 && price < 0.01) {
+    return '<$0.01';
+  }
+
   return Intl.NumberFormat('en-EN', {
     style: 'currency',
     currency: 'USD',
