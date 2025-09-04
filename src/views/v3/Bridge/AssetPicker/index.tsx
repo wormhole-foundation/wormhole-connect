@@ -100,7 +100,7 @@ function AssetPicker(props: Props) {
       return null;
     }
     const displayValue = `${sdkAmount.display(tokenBalance)} ${
-      props.token?.symbol || ''
+      props.token ? getTokenSymbol(props.token) : ''
     }`;
     return (
       <Typography
@@ -118,7 +118,7 @@ function AssetPicker(props: Props) {
         {displayValue}
       </Typography>
     );
-  }, [props.token?.symbol, theme.palette.text.secondary, tokenBalance]);
+  }, [props.token, theme.palette.text.secondary, tokenBalance]);
 
   // Side-effect to reset chain search visibility.
   // Popover and drawer close has an animation, which requires to wait
