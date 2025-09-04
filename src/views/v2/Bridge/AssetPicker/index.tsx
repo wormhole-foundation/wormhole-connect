@@ -296,6 +296,7 @@ const AssetPicker = (props: Props) => {
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
                 handleTelemetryOnTokenSelect(key, props.isSource, config);
+                handleTelemetryOnChainSelect(key.chain, props.isSource, config);
                 props.setToken(key);
                 setIsDrawerOpen(false);
               }}
@@ -351,6 +352,7 @@ const AssetPicker = (props: Props) => {
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
                 handleTelemetryOnTokenSelect(key, props.isSource, config);
+                handleTelemetryOnChainSelect(key.chain, props.isSource, config);
                 props.setToken(key);
                 popupState.close();
               }}

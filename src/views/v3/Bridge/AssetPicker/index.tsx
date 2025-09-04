@@ -307,6 +307,7 @@ function AssetPicker(props: Props) {
   const handleTokenSelect = useCallback(
     (token: Token) => {
       handleTelemetryOnTokenSelect(token, props.isSource, config);
+      handleTelemetryOnChainSelect(token.chain, props.isSource, config);
       if (props.isSource && props.token?.key !== token.key) {
         // Reset amount when source token is changed
         handleAmountChange('');
