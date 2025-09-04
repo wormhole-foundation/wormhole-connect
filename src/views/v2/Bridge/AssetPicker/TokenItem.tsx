@@ -153,7 +153,6 @@ function TokenItem(props: TokenItemProps) {
       <TokenBalance
         balance={props.balance}
         price={props.price}
-        isSource={props.isSource}
         isFetching={props.isFetchingBalance}
       />
     </ListItemButton>

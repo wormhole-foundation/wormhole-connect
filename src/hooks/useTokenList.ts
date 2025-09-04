@@ -9,7 +9,6 @@ import {
   sortTokensByPreference,
   applyTokenWhitelist,
   applyCustomTokenSupport,
-  filterTokensByBalance,
   applyShittokenFilter,
 } from 'utils/tokenListUtils';
 import config from 'config';
@@ -60,13 +59,6 @@ export const useTokenList = ({
     if (isSourceList && !searchQuery && config.network === 'Mainnet') {
       // Filter out possible scamcoins
       tokens = applyShittokenFilter(tokens);
-    }
-
-    // Filter by balance for source tokens when not searching
-    // This allows users to search for zero-balance tokens by contract address if needed
-    // Never filter destination tokens by balance
-    if (isSourceList && !searchQuery) {
-      tokens = filterTokensByBalance(tokens, balances, wallet.address);
     }
 
     return tokens;

@@ -5,12 +5,10 @@ import { useTheme } from '@mui/material/styles';
 
 const TokenBalance = ({
   balance,
-  isSource,
   isFetching,
   price,
 }: {
   balance: sdkAmount.Amount | null;
-  isSource?: boolean;
   isFetching?: boolean;
   price?: string | null;
 }) => {
@@ -26,8 +24,8 @@ const TokenBalance = ({
     );
   }
 
-  const shouldHideBalance =
-    !isSource && balance && sdkAmount.display(balance) === '0';
+  // Hide 0 / $0 for both source and destination lists
+  const shouldHideBalance = !balance || sdkAmount.display(balance) === '0';
 
   return (
     <Stack alignItems="flex-end">

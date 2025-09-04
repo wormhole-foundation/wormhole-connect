@@ -12,7 +12,6 @@ import type { Token } from 'config/tokens';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 import { getTokenSymbol } from 'utils';
-import { filterTokensByBalance } from 'utils/tokenListUtils';
 import type { Balances } from 'utils/wallet/types';
 import { unionBy } from 'es-toolkit';
 
@@ -140,11 +139,6 @@ export const useTokenListWithSearch = ({
       });
     }
 
-    // Filter by balance for source tokens when not searching
-    if (isSource && !deferredSearch) {
-      tokens = filterTokensByBalance(tokens, balances, walletAddress);
-    }
-
     // For destination token list in same-chain swaps, filter out the source token
     if (!isSource && isSameChainSwap && sourceToken) {
       tokens = tokens.filter(
@@ -161,8 +155,6 @@ export const useTokenListWithSearch = ({
     isSource,
     isSameChainSwap,
     sourceToken,
-    balances,
-    walletAddress,
   ]);
 
   const tokenPrices = useMemo(
