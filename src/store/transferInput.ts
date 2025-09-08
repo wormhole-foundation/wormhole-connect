@@ -51,11 +51,11 @@ export interface TransferInputState {
 
 // This is a function because config might have changed since we last cleared this store
 function getInitialState(): TransferInputState {
-  const { from, to } = config.ui.defaultInputs || {};
-  const fromChain = from?.chain;
-  const fromToken = from?.token;
-  const toChain = to?.chain;
-  const toToken = to?.token;
+  const { source, destination } = config.ui.defaultInputs || {};
+  const fromChain = source?.chain;
+  const fromToken = source?.token;
+  const toChain = destination?.chain;
+  const toToken = destination?.token;
   const fromTokenTuple =
     fromToken && fromChain
       ? config.tokens.findByAddressOrSymbol(fromChain, fromToken)?.tuple

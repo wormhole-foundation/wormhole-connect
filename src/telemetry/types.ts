@@ -1,6 +1,6 @@
 import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import type { Token } from 'config/tokens';
 import type { WormholeConnectConfig } from 'config/types';
+import type { Token } from 'config/tokens';
 import type { TransferWallet } from 'utils/wallet';
 
 export interface LoadEvent {

@@ -1,6 +1,7 @@
 import config from 'config';
-import type { Chain, Token } from 'exports';
-import { UserActions } from 'exports';
+import type { Chain } from '@wormhole-foundation/sdk-base';
+import type { Token } from 'config/tokens';
+import { UserActions } from './types';
 
 export const handleTelemetryOnChainSelect = (
   chain: Chain,

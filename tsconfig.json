@@ -8,7 +8,6 @@
   ],
   "compilerOptions": {
     "baseUrl": "src",
-    "allowImportingTsExtensions": true,
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,

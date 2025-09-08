@@ -50,14 +50,14 @@ export type Experimental = {
   [Experiment in Experiments]?: boolean;
 };
 
-export interface ChainTokenSelection {
+export interface ChainTokenPair {
   chain: Chain;
   token?: string;
 }
 
 export interface DefaultInputs {
-  from?: ChainTokenSelection;
-  to?: ChainTokenSelection;
+  source?: ChainTokenPair;
+  destination?: ChainTokenPair;
   requiredChain?: Chain;
   preferredRouteName?: string;
 }
