@@ -179,7 +179,7 @@ export class BridgeView {
     const routeToggle = this.page.getByRole('button', {
       name: 'View other routes',
     });
-    await expect(routeToggle).toBeVisible();
+    await routeToggle.waitFor({ state: 'visible' });
     await routeToggle.click();
 
     // Route should be visible and selected by default
