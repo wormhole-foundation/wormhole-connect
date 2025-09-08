@@ -44,11 +44,14 @@ const defaultProps = {
   onDebouncedChange: vi.fn(),
 };
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <Provider store={mockStore}>
-    <ThemeProvider theme={theme}>{children}</ThemeProvider>
-  </Provider>
-);
+const AppWrapper =
+  (store = mockStore) =>
+  ({ children }: { children: React.ReactNode }) =>
+    (
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      </Provider>
+    );
 
 describe('AmountInput', () => {
   beforeEach(() => {
@@ -57,14 +60,14 @@ describe('AmountInput', () => {
 
   it('renders and displays the provided value', () => {
     const props = { ...defaultProps, value: '100', debouncedValue: '100' };
-    render(<AmountInput {...props} />, { wrapper });
+    render(<AmountInput {...props} />, { wrapper: AppWrapper() });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
     expect(input).toBeInTheDocument();
     expect(input).toHaveValue('100');
   });
 
   it('calls onChange when input value changes', () => {
-    render(<AmountInput {...defaultProps} />, { wrapper });
+    render(<AmountInput {...defaultProps} />, { wrapper: AppWrapper() });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
     fireEvent.change(input, { target: { value: '123' } });
     expect(defaultProps.onChange).toHaveBeenCalledWith('123');
@@ -80,18 +83,8 @@ describe('AmountInput', () => {
       },
     });
 
-    const wrapperWithNoChain = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <Provider store={storeWithNoChain}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
-      </Provider>
-    );
-
     render(<AmountInput {...defaultProps} />, {
-      wrapper: wrapperWithNoChain,
+      wrapper: AppWrapper(storeWithNoChain),
     });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
     expect(input).toBeDisabled();
@@ -104,7 +97,7 @@ describe('AmountInput', () => {
       destToken: { symbol: 'USDC', decimals: 6 },
     } as any);
 
-    render(<AmountInput {...defaultProps} />, { wrapper });
+    render(<AmountInput {...defaultProps} />, { wrapper: AppWrapper() });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
     expect(input).toBeDisabled();
   });
@@ -119,25 +112,15 @@ describe('AmountInput', () => {
       },
     });
 
-    const wrapperWithTxInProgress = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <Provider store={storeWithTxInProgress}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
-      </Provider>
-    );
-
     render(<AmountInput {...defaultProps} />, {
-      wrapper: wrapperWithTxInProgress,
+      wrapper: AppWrapper(storeWithTxInProgress),
     });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
     expect(input).toBeDisabled();
   });
 
   it('rejects invalid input (non-numeric characters)', () => {
-    render(<AmountInput {...defaultProps} />, { wrapper });
+    render(<AmountInput {...defaultProps} />, { wrapper: AppWrapper() });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
 
     fireEvent.change(input, { target: { value: 'abc' } });
@@ -150,7 +133,7 @@ describe('AmountInput', () => {
       value: '1000000',
       debouncedValue: '1000000',
     };
-    render(<AmountInput {...props} />, { wrapper });
+    render(<AmountInput {...props} />, { wrapper: AppWrapper() });
     const input = screen.getByRole('textbox', { name: 'Amount input' });
     await waitFor(() => {
       expect(input).toHaveValue('1,000,000');
