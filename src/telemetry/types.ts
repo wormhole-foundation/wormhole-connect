@@ -1,6 +1,5 @@
 import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { WormholeConnectConfig } from 'config/types';
-import type { Token } from 'config/tokens';
 import type { TransferWallet } from 'utils/wallet';
 
 export interface LoadEvent {
@@ -104,41 +103,13 @@ export interface HistoryLoadEvent {
   };
 }
 
-export enum UserActions {
-  SelectSrcToken = 'select.src.token',
-  SelectSrcChain = 'select.src.chain',
-  SelectDestToken = 'select.dest.token',
-  SelectDestChain = 'select.dest.chain',
-}
-
-type UserActionValueMap = {
-  [UserActions.SelectSrcToken]: Token;
-  [UserActions.SelectDestToken]: Token;
-  [UserActions.SelectSrcChain]: Chain;
-  [UserActions.SelectDestChain]: Chain;
-};
-
-export type UserActionEvent<A extends UserActions = UserActions> = {
-  type: 'user.action';
-  details: {
-    action: A;
-    value: UserActionValueMap[A];
-  };
-};
-
-// Helper type to narrow value by action
-export type UserActionEvents = {
-  [A in UserActions]: UserActionEvent<A>;
-}[UserActions];
-
 export type WormholeConnectEventCore =
   | LoadEvent
   | UpdateConfigEvent
   | TransferEvent
   | TransferErrorEvent
   | ConnectWalletEvent
-  | HistoryLoadEvent
-  | UserActionEvent;
+  | HistoryLoadEvent;
 
 export interface WormholeConnectEventMeta {
   meta: {

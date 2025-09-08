@@ -30,10 +30,6 @@ import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
 import { calculateUSDPrice, getTokenSymbol } from 'utils';
 import { formatWithCommas } from 'utils/formatNumber';
-import {
-  handleTelemetryOnChainSelect,
-  handleTelemetryOnTokenSelect,
-} from 'telemetry/utils';
 
 type Props = {
   chain?: Chain | undefined;
@@ -301,7 +297,6 @@ function AssetPicker(props: Props) {
 
   const handleChainSelect = useCallback(
     (chain: Chain) => {
-      handleTelemetryOnChainSelect(chain, props.isSource);
       props.setChain(chain);
       setSearchQuery('');
     },
@@ -310,8 +305,6 @@ function AssetPicker(props: Props) {
 
   const handleTokenSelect = useCallback(
     (token: Token) => {
-      handleTelemetryOnTokenSelect(token, props.isSource);
-      handleTelemetryOnChainSelect(token.chain, props.isSource);
       if (props.isSource && props.token?.key !== token.key) {
         // Reset amount when source token is changed
         handleAmountChange('');

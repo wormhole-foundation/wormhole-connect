@@ -135,38 +135,33 @@ export const validateDefaults = (
   tokens: TokenCache,
 ) => {
   if (!defaults) return;
-  if (defaults.source?.chain) {
-    const chain = chains[defaults.source.chain];
+  if (defaults.fromChain) {
+    const chain = chains[defaults.fromChain];
     if (!chain) {
       error(
-        `Invalid chain name "${defaults.source.chain}" specified for defaultInputs.source.chain`,
+        `Invalid chain name "${defaults.fromChain}" specified for defaultInputs.fromChain`,
       );
-      delete defaults.source;
+      delete defaults.fromChain;
     }
   }
-  if (defaults.destination?.chain) {
-    const chain = chains[defaults.destination.chain];
+  if (defaults.toChain) {
+    const chain = chains[defaults.toChain];
     if (!chain) {
       error(
-        `Invalid chain name "${defaults.destination.chain}" specified for defaultInputs.destination.chain`,
+        `Invalid chain name "${defaults.toChain}" specified for defaultInputs.toChain`,
       );
-      delete defaults.destination;
+      delete defaults.fromChain;
+    }
+  }
+  if (defaults.fromChain && defaults.toChain) {
+    if (defaults.fromChain === defaults.toChain) {
+      error(
+        `Source and destination chain cannot be the same, check the defaultInputs configuration`,
+      );
     }
   }
 
-  if (defaults.source?.token && defaults.destination?.token) {
-    if (defaults.source.token === defaults.destination.token) {
-      error(
-        `Source and destination token cannot be the same, check the defaultInputs configuration`,
-      );
-    }
-  }
-
-  if (
-    defaults.source?.chain &&
-    defaults.destination?.chain &&
-    defaults.requiredChain
-  ) {
+  if (defaults.fromChain && defaults.toChain && defaults.requiredChain) {
     const requiredConfig = chains[defaults.requiredChain];
     if (!requiredConfig) {
       error(
@@ -174,8 +169,8 @@ export const validateDefaults = (
       );
     }
     if (
-      defaults.destination.chain !== defaults.requiredChain &&
-      defaults.source.chain !== defaults.requiredChain
+      defaults.toChain !== defaults.requiredChain &&
+      defaults.fromChain !== defaults.requiredChain
     ) {
       error(
         `Source chain or destination chain must equal the required network`,
@@ -183,29 +178,29 @@ export const validateDefaults = (
     }
   }
 
-  if (defaults.source?.chain && defaults.source?.token) {
+  if (defaults.fromChain && defaults.fromToken) {
     const token = tokens.findByAddressOrSymbol(
-      defaults.source.chain,
-      defaults.source.token,
+      defaults.fromChain,
+      defaults.fromToken,
     );
     if (!token) {
       error(
-        `Invalid token "${defaults.source?.token}" specified for defaultInputs.fromToken`,
+        `Invalid token "${defaults.fromToken}" specified for defaultInputs.fromToken`,
       );
-      delete defaults.source.token;
+      delete defaults.fromToken;
     }
   }
 
-  if (defaults.destination?.chain && defaults.destination?.token) {
+  if (defaults.toChain && defaults.toToken) {
     const token = tokens.findByAddressOrSymbol(
-      defaults.destination.chain,
-      defaults.destination.token,
+      defaults.toChain,
+      defaults.toToken,
     );
     if (!token) {
       error(
-        `Invalid token "${defaults.destination?.token}" specified for defaultInputs.toToken`,
+        `Invalid token "${defaults.toToken}" specified for defaultInputs.toToken`,
       );
-      delete defaults.destination.token;
+      delete defaults.toToken;
     }
   }
 
