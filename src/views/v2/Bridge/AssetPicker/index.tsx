@@ -274,7 +274,7 @@ const AssetPicker = (props: Props) => {
             setShowSearch={setShowChainSearch}
             wallet={props.wallet}
             onChainSelect={(key) => {
-              handleTelemetryOnChainSelect(key, props.isSource, config);
+              handleTelemetryOnChainSelect(key, props.isSource);
               props.setChain(key);
               setSearchQuery('');
             }}
@@ -295,8 +295,8 @@ const AssetPicker = (props: Props) => {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
-                handleTelemetryOnTokenSelect(key, props.isSource, config);
-                handleTelemetryOnChainSelect(key.chain, props.isSource, config);
+                handleTelemetryOnTokenSelect(key, props.isSource);
+                handleTelemetryOnChainSelect(key.chain, props.isSource);
                 props.setToken(key);
                 setIsDrawerOpen(false);
               }}
@@ -330,7 +330,7 @@ const AssetPicker = (props: Props) => {
             setShowSearch={setShowChainSearch}
             wallet={props.wallet}
             onChainSelect={(key) => {
-              handleTelemetryOnChainSelect(key, props.isSource, config);
+              handleTelemetryOnChainSelect(key, props.isSource);
               props.setChain(key);
               setSearchQuery('');
             }}
@@ -351,8 +351,8 @@ const AssetPicker = (props: Props) => {
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={(key: Token) => {
-                handleTelemetryOnTokenSelect(key, props.isSource, config);
-                handleTelemetryOnChainSelect(key.chain, props.isSource, config);
+                handleTelemetryOnTokenSelect(key, props.isSource);
+                handleTelemetryOnChainSelect(key.chain, props.isSource);
                 props.setToken(key);
                 popupState.close();
               }}
