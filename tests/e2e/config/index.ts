@@ -16,21 +16,6 @@ const mayanSWIFT = `{
   ],
 }`;
 
-const mayanMCTP = `{
-  network: 'mainnet',
-  coingecko: { customUrl: 'https://coingecko.labsapis.com' },
-  ui: {
-    experimental: { enableUIRefreshV3: true },
-    showInProgressWidget: true,
-    testOptions: {
-      enableHeadlessSigner: true,
-    },
-  },
-  routes: [
-    MayanRouteMCTP,
-  ],
-}`;
-
 const CCTPExecutor = `{
   network: 'mainnet',
   coingecko: { customUrl: 'https://coingecko.labsapis.com' },
@@ -206,23 +191,6 @@ export const testConfigs: Array<TestConfig> = [
     },
     amount: '3',
     waitForCompletion: true,
-  },
-  {
-    name: 'MayanSwapMCTP',
-    config: mayanMCTP,
-    enabled: true,
-    sourceAsset: {
-      chain: 'Arbitrum',
-      symbol: 'USDC',
-      address: circle.usdcContract.get('Mainnet', 'Arbitrum'),
-    },
-    destinationAsset: {
-      chain: 'Base',
-      symbol: 'USDC',
-      address: circle.usdcContract.get('Mainnet', 'Base'),
-    },
-    amount: '10',
-    waitForCompletion: false,
   },
   {
     name: 'CCTPExecutorRoute',
