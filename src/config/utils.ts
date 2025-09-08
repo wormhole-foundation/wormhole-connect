@@ -153,10 +153,11 @@ export const validateDefaults = (
       delete defaults.destination;
     }
   }
-  if (defaults.source?.chain && defaults.destination?.chain) {
-    if (defaults.source.chain === defaults.destination.chain) {
+
+  if (defaults.source?.token && defaults.destination?.token) {
+    if (defaults.source.token === defaults.destination.token) {
       error(
-        `Source and destination chain cannot be the same, check the defaultInputs configuration`,
+        `Source and destination token cannot be the same, check the defaultInputs configuration`,
       );
     }
   }
