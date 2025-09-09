@@ -84,6 +84,7 @@ function AssetPickerDrawer({
             borderRadius: '8px',
             height: 'calc(100vh - 40px)', // Force full-height on small mobile devices with 40px padding at the top
             maxWidth: '100vw', // Force full-width on small mobile devices
+            position: 'relative',
           },
         },
       }}
@@ -118,6 +119,7 @@ function AssetPickerDrawer({
           onSelectToken={onTokenSelect}
         />
       )}
+      {/* Skeletons are rendered within TokenList; progress bar removed */}
     </SwipeableDrawer>
   );
 }

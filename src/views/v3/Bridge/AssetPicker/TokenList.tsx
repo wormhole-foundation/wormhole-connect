@@ -1,7 +1,12 @@
 import React, { Fragment, useMemo } from 'react';
-import { Box, Card, CardContent, Skeleton, useTheme } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
-import ListItemButton from '@mui/material/ListItemButton';
+import {
+  Box,
+  Card,
+  CardContent,
+  ListItemButton,
+  Skeleton,
+  useTheme,
+} from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import type { ChainConfig } from 'config/types';
@@ -11,7 +16,6 @@ import SearchableList from 'views/v3/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v3/Bridge/AssetPicker/TokenItem';
 import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
 import config from 'config';
-import { useTokens } from 'contexts/TokensContext';
 import type { Balances } from 'utils/wallet/types';
 import { useTokenListWithSearch } from 'hooks/useTokenListWithSearch';
 import TokenSectionHeader from './TokenSectionHeader';
@@ -38,7 +42,6 @@ type Props = {
 const TokenList = (props: Props) => {
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
-  const { isFetchingToken } = useTokens();
 
   const { sortedTokens, tokenPrices } = useTokenListWithSearch({
     baseTokenList: props.tokenList,
@@ -87,10 +90,10 @@ const TokenList = (props: Props) => {
         fontSize: 14,
         marginBottom: '8px',
       },
-      tokenLoader: {
-        padding: 0,
+      tokenLoaderRow: {
         display: 'flex',
         justifyContent: 'space-between',
+        padding: '8px 16px',
       },
       tokenList: {
         maxHeight: '360px',
@@ -118,10 +121,8 @@ const TokenList = (props: Props) => {
     return 'ready';
   }, [props.isFetching, sortedTokens.length]);
 
-  const shouldShowLoadingState = listState === 'loading';
-  const shouldShowEmptyMessage = listState === 'empty';
-
   // Build sectioned list for source picker when not searching
+  // Keep section headers visible while loading to reduce perceived jump
   const isGroupingEnabled = props.isSource && !props.searchQuery;
   const isWalletConnected = Boolean(props.wallet?.address);
 
@@ -138,16 +139,55 @@ const TokenList = (props: Props) => {
       sx={styles.tokenList}
       dataTestId="token-search-list"
       searchQuery={props.searchQuery}
-      listTitle={shouldShowEmptyMessage ? emptyMessage : ''}
+      listTitle={listState === 'empty' ? emptyMessage : ''}
       loading={
-        shouldShowLoadingState &&
-        [1, 2, 3].map((x) => (
-          <ListItemButton sx={styles.tokenLoader} dense key={x}>
-            <Box padding="8px 16px">
-              <Skeleton variant="circular" width="36px" height="36px" />
-            </Box>
-          </ListItemButton>
-        ))
+        listState === 'loading' && (
+          <>
+            {[1, 2, 3, 4, 5].map((x) => (
+              <ListItemButton key={x} sx={styles.tokenLoaderRow} dense>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Skeleton variant="circular" width={36} height={36} />
+                  <Box sx={{ ml: 2 }}>
+                    <Skeleton
+                      variant="rounded"
+                      height={14}
+                      width={120}
+                      sx={{ borderRadius: '8px' }}
+                    />
+                    <Skeleton
+                      variant="rounded"
+                      height={10}
+                      width={90}
+                      sx={{ borderRadius: '8px', mt: 0.5 }}
+                    />
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    width: 120,
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Box sx={{ width: '100%' }}>
+                    <Skeleton
+                      variant="rounded"
+                      height={14}
+                      width="80%"
+                      sx={{ borderRadius: '8px', ml: '20%' }}
+                    />
+                    <Skeleton
+                      variant="rounded"
+                      height={10}
+                      width="60%"
+                      sx={{ borderRadius: '8px', mt: 0.5, ml: '40%' }}
+                    />
+                  </Box>
+                </Box>
+              </ListItemButton>
+            ))}
+          </>
+        )
       }
       items={listItems}
       onQueryChange={(query) => {
@@ -192,17 +232,7 @@ const TokenList = (props: Props) => {
 
   return (
     <Card sx={styles.card} variant="elevation">
-      <CardContent sx={styles.tokenListContainer}>
-        <Box sx={{ display: 'flex', padding: '0 16px' }}>
-          {isFetchingToken || props.isFetchingBalances ? (
-            <CircularProgress
-              sx={{ alignSelf: 'flex-end', marginBottom: '12px' }}
-              size={14}
-            />
-          ) : null}
-        </Box>
-        {searchList}
-      </CardContent>
+      <CardContent sx={styles.tokenListContainer}>{searchList}</CardContent>
     </Card>
   );
 };

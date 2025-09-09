@@ -157,6 +157,7 @@ function TokenItem(props: TokenItemProps) {
         balance={props.balance}
         price={props.price}
         isFetching={props.isFetchingBalance}
+        variant="skeleton"
       />
     </ListItemButton>
   );

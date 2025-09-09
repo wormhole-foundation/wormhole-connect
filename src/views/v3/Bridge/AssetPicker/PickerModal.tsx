@@ -82,6 +82,7 @@ function AssetPickerPopover({
             background: theme.palette.input.background,
             backdropFilter: 'blur(4px)',
             WebkitBackdropFilter: 'blur(4px)', // Safari support
+            position: 'relative',
           },
         },
         root: {
@@ -118,6 +119,7 @@ function AssetPickerPopover({
           onSelectToken={onTokenSelect}
         />
       )}
+      {/* Skeletons are rendered within TokenList; progress bar removed */}
     </Popover>
   );
 }
