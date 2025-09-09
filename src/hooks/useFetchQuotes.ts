@@ -58,7 +58,7 @@ export default (routes: string[], params: Params): HookReturn => {
   // TODO temporary
   // Calculate USD amount for temporary $10,000 Mayan limit
   const { getTokenPrice } = useTokens();
-  const { isTransactionInProgress } = useSelector(
+  const { route, isTransactionInProgress } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -147,8 +147,11 @@ export default (routes: string[], params: Params): HookReturn => {
       unmounted = true;
     };
 
+    // If a transfer is in progress, only fetch quotes for the selected route
+    const routesToFetch = isTransactionInProgress && route ? [route] : routes;
+
     if (
-      routes.length === 0 ||
+      routesToFetch.length === 0 ||
       !params.sourceChain ||
       !params.sourceToken ||
       !params.destChain ||
@@ -190,11 +193,14 @@ export default (routes: string[], params: Params): HookReturn => {
     // However, when fetching updates afterwards, we do not need to show
     // this in-progress state because there are already existing quotes
     // to show - this is less jarring.
-    if (Object.keys(unfilteredQuotes).length === 0 && routes.length !== 0) {
+    if (
+      Object.keys(unfilteredQuotes).length === 0 &&
+      routesToFetch.length !== 0
+    ) {
       setIsFetchingInitialQuotes(true);
     }
 
-    config.routes.getQuotes(routes, rParams).then((quoteResults) => {
+    config.routes.getQuotes(routesToFetch, rParams).then((quoteResults) => {
       if (!unmounted) {
         setUnfilteredQuotes(quoteResults);
         setIsFetchingInitialQuotes(false);
