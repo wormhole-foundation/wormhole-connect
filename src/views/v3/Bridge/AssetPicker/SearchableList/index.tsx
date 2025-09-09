@@ -34,7 +34,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
       padding: 0,
     },
     searchList: {
-      marginTop: '12px',
+      marginTop: 0,
       overflow: 'auto',
     },
   };
@@ -62,6 +62,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         placeholder={props.searchPlaceholder}
       />
       <List
+        disablePadding
         sx={{ ...styles.searchList, ...scrollbarStyles }}
         data-testid={props.dataTestId}
       >

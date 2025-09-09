@@ -1,5 +1,4 @@
 import { Box, useTheme } from '@mui/material';
-
 import { Typography } from '@mui/material';
 import React from 'react';
 
@@ -14,23 +13,39 @@ const TokenSectionHeader = ({
 }) => {
   const theme = useTheme();
 
+  if (!isGroupingEnabled) {
+    return null;
+  }
+
+  let label: string | null = null;
+
+  if (index === 0 && ownedCount > 0) {
+    label = 'Your tokens';
+  }
+
+  if (index === ownedCount) {
+    label = 'All tokens';
+  }
+
+  if (!label) {
+    return null;
+  }
+
   return (
-    <>
-      {isGroupingEnabled && index === 0 && ownedCount > 0 && (
-        <Box sx={{ padding: '4px 16px' }}>
-          <Typography fontSize={14} color={theme.palette.text.secondary}>
-            Your tokens
-          </Typography>
-        </Box>
-      )}
-      {isGroupingEnabled && index === ownedCount && (
-        <Box sx={{ padding: '4px 16px' }}>
-          <Typography fontSize={14} color={theme.palette.text.secondary}>
-            All tokens
-          </Typography>
-        </Box>
-      )}
-    </>
+    <Box
+      sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 2,
+        padding: `${theme.spacing(1)} 16px 4px 16px`,
+        background: theme.palette.input.background,
+        transition: 'background-color 150ms ease',
+      }}
+    >
+      <Typography fontSize={14} color={theme.palette.text.secondary}>
+        {label}
+      </Typography>
+    </Box>
   );
 };
 
