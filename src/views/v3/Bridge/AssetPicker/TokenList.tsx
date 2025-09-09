@@ -122,7 +122,6 @@ const TokenList = (props: Props) => {
   }, [props.isFetching, sortedTokens.length]);
 
   // Build sectioned list for source picker when not searching
-  // Keep section headers visible while loading to reduce perceived jump
   const isGroupingEnabled = props.isSource && !props.searchQuery;
   const isWalletConnected = Boolean(props.wallet?.address);
 
@@ -156,7 +155,7 @@ const TokenList = (props: Props) => {
                     />
                     <Skeleton
                       variant="rounded"
-                      height={10}
+                      height={14}
                       width={90}
                       sx={{ borderRadius: '8px', mt: 0.5 }}
                     />
@@ -178,7 +177,7 @@ const TokenList = (props: Props) => {
                     />
                     <Skeleton
                       variant="rounded"
-                      height={10}
+                      height={14}
                       width="60%"
                       sx={{ borderRadius: '8px', mt: 0.5, ml: '40%' }}
                     />

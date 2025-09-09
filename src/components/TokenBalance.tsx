@@ -30,7 +30,7 @@ const TokenBalance = ({
             />
             <Skeleton
               variant="rounded"
-              height={10}
+              height={14}
               width="60%"
               sx={{ borderRadius: '8px', mt: 0.5 }}
             />
@@ -38,12 +38,10 @@ const TokenBalance = ({
         </Box>
       );
     }
-    // Fallback: original spinner variant (kept for v2 usage)
+
     return (
-      <Box sx={{ width: containerWidth }}>
-        <Stack alignItems="flex-end">
-          <Skeleton variant="circular" width={24} height={24} />
-        </Stack>
+      <Box sx={{ width: containerWidth }} alignItems="flex-end">
+        <Skeleton variant="circular" width={24} height={24} />
       </Box>
     );
   }

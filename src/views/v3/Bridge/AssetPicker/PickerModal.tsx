@@ -119,7 +119,6 @@ function AssetPickerPopover({
           onSelectToken={onTokenSelect}
         />
       )}
-      {/* Skeletons are rendered within TokenList; progress bar removed */}
     </Popover>
   );
 }
