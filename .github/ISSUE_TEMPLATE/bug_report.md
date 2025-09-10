@@ -21,6 +21,7 @@ assignees: ''
 
 ## Experienced behavior
 <!--- Describe what happened after the last step. -->
+<!--- If applicable, paste a screenshot of your console log. -->
 
 
 ## Expected behavior
