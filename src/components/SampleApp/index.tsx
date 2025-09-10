@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 
 import WormholeConnect from '../../WormholeConnect';
-import config from 'config';
 import type { WormholeConnectConfig } from 'config/types';
 
 /*
@@ -48,6 +47,7 @@ import {
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
 import type { WormholeConnectTheme } from 'theme';
+import { getExperiment } from 'utils/experiments';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
@@ -396,7 +396,7 @@ function SampleApp() {
                       <pre>input</pre>
                       <i>string;</i>
                     </li>
-                    {config.ui?.experimental?.enableUIRefreshV3 && (
+                    {getExperiment('enableUIRefreshV3', true) && (
                       <li>
                         <pre>inputFillTreatment</pre>
                         <i>boolean;</i>

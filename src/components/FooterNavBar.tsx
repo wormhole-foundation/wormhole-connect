@@ -21,7 +21,7 @@ function itemAppender(acc: MenuItem[], item: MenuEntry) {
 
 function defaultMenuItems(navigate: (name: Route) => void): MenuItem[] {
   const items: MenuItem[] = [];
-  if (!getExperiment('enableUIRefreshV3')) {
+  if (!getExperiment('enableUIRefreshV3', true)) {
     items.push({
       label: 'Resume Transaction',
       handleClick: () => navigate('search'),

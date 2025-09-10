@@ -43,7 +43,7 @@ const AppRouterContent = () => {
   const prevRoute = usePrevious(route);
   const { hasExternalSearch } = useExternalSearch();
 
-  const UIRefreshV3Enabled = getExperiment('enableUIRefreshV3');
+  const UIRefreshV3Enabled = getExperiment('enableUIRefreshV3', true);
 
   useEffect(() => {
     const redeemRoute = 'redeem';
