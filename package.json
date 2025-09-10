@@ -8,23 +8,28 @@
   "exports": {
     ".": {
       "require": "./lib/index.js",
-      "import": "./lib/index.mjs"
+      "import": "./lib/index.mjs",
+      "types": "./lib/index.d.ts"
     },
     "./mayan": {
       "require": "./lib/mayan.js",
-      "import": "./lib/mayan.mjs"
+      "import": "./lib/mayan.mjs",
+      "types": "./lib/mayan.d.ts"
     },
     "./ntt": {
       "require": "./lib/ntt.js",
-      "import": "./lib/ntt.mjs"
+      "import": "./lib/ntt.mjs",
+      "types": "./lib/ntt.d.ts"
     },
     "./hosted": {
       "require": "./lib/hosted.js",
-      "import": "./lib/hosted.mjs"
+      "import": "./lib/hosted.mjs",
+      "types": "./lib/hosted.d.ts"
     },
     "./executor": {
       "require": "./lib/executor.js",
-      "import": "./lib/executor.mjs"
+      "import": "./lib/executor.mjs",
+      "types": "./lib/executor.d.ts"
     }
   },
   "files": [
