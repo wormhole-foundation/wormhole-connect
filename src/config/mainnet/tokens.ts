@@ -235,7 +235,7 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     tokenId: { chain: 'Solana', address: 'native' },
   },
   {
-    symbol: 'WSOL',
+    symbol: 'SOL',
     decimals: 9,
     tokenId: {
       chain: 'Solana',
