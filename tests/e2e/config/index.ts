@@ -5,7 +5,6 @@ const mayanSWIFT = `{
   network: 'mainnet',
   coingecko: { customUrl: 'https://coingecko.labsapis.com' },
   ui: {
-    experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
     testOptions: {
       enableHeadlessSigner: true,
@@ -20,7 +19,6 @@ const CCTPExecutor = `{
   network: 'mainnet',
   coingecko: { customUrl: 'https://coingecko.labsapis.com' },
   ui: {
-    experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
     testOptions: {
       enableHeadlessSigner: true,
@@ -35,7 +33,6 @@ const CCTPV2Standard = `{
   network: 'mainnet',
   coingecko: { customUrl: 'https://coingecko.labsapis.com' },
   ui: {
-    experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
     testOptions: {
       enableHeadlessSigner: true,
@@ -50,9 +47,8 @@ const NTTRoutes = `{
   network: 'mainnet',
   coingecko: { customUrl: 'https://coingecko.labsapis.com' },
   ui: {
-    experimental: { enableUIRefreshV3: true },
     showInProgressWidget: true,
-    testOptions: { enableHeadlessSigner: false },
+    testOptions: { enableHeadlessSigner: true },
   },
   routes: [
     ...nttRoutes({
