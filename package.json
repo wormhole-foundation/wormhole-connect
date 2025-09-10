@@ -7,29 +7,29 @@
   "types": "./lib/index.d.ts",
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "require": "./lib/index.js",
-      "import": "./lib/index.mjs",
-      "types": "./lib/index.d.ts"
+      "import": "./lib/index.mjs"
     },
     "./mayan": {
+      "types": "./lib/mayan.d.ts",
       "require": "./lib/mayan.js",
-      "import": "./lib/mayan.mjs",
-      "types": "./lib/mayan.d.ts"
+      "import": "./lib/mayan.mjs"
     },
     "./ntt": {
+      "types": "./lib/ntt.d.ts",
       "require": "./lib/ntt.js",
-      "import": "./lib/ntt.mjs",
-      "types": "./lib/ntt.d.ts"
+      "import": "./lib/ntt.mjs"
     },
     "./hosted": {
+      "types": "./lib/hosted.d.ts",
       "require": "./lib/hosted.js",
-      "import": "./lib/hosted.mjs",
-      "types": "./lib/hosted.d.ts"
+      "import": "./lib/hosted.mjs"
     },
     "./executor": {
+      "types": "./lib/executor.d.ts",
       "require": "./lib/executor.js",
-      "import": "./lib/executor.mjs",
-      "types": "./lib/executor.d.ts"
+      "import": "./lib/executor.mjs"
     }
   },
   "files": [
