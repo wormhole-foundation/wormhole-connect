@@ -11,7 +11,6 @@ import {
   routes,
   chainToPlatform,
   isSameToken,
-  isNative,
   TransferState,
 } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
@@ -22,6 +21,10 @@ import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 import { isFrankensteinToken } from 'utils';
 import { isNttToken } from 'utils/ntt';
+import {
+  getWrappedNativeToken,
+  shouldFilterSameChainToken,
+} from 'utils/wrappedNativeTokens';
 
 type Amount = sdkAmount.Amount;
 
@@ -146,18 +149,10 @@ export class SDKv2Route {
       routeSupportedTokenFetcher,
     );
 
-    // Pre-compute wrapped native address when filtering same-chain swaps
-    let wrappedNativeAddr: string | undefined = undefined;
-    if (isSameChain) {
-      try {
-        const tb = await toContext.context.getTokenBridge();
-        wrappedNativeAddr = (await tb.getWrappedNative())
-          .toString()
-          .toLowerCase();
-      } catch {
-        // No-op
-      }
-    }
+    // Get wrapped native address for same-chain swaps
+    const wrappedNativeAddr = isSameChain
+      ? getWrappedNativeToken(config.network, toContext.chain)?.toLowerCase()
+      : undefined;
 
     const filteredTokens = destTokens.filter((t) => {
       const token = config.tokens.get(t);
@@ -165,26 +160,8 @@ export class SDKv2Route {
         return false;
       }
 
-      if (isSameChain && token?.address === sourceToken.address) {
-        return false;
-      }
-
-      // Block same-chain swaps between native gas token and its wrapped native token
-      if (isSameChain && wrappedNativeAddr) {
-        const srcIsNative = isNative(sourceToken.address);
-        const srcIsWrapped =
-          sourceToken.address.toString().toLowerCase() === wrappedNativeAddr;
-
-        const destIsWrappedNative =
-          t.address.toString().toLowerCase() === wrappedNativeAddr;
-        const destIsNative = isNative(t.address);
-
-        if (
-          (srcIsNative && destIsWrappedNative) ||
-          (srcIsWrapped && destIsNative)
-        ) {
-          return false;
-        }
+      if (isSameChain) {
+        return !shouldFilterSameChainToken(sourceToken, wrappedNativeAddr, t);
       }
 
       return true;

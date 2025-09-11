@@ -21,6 +21,7 @@ import {
   TBTCBridge,
   chainToPlatform,
 } from '@wormhole-foundation/sdk';
+import { getWrappedNativeToken } from './wrappedNativeTokens';
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import type { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
 import { Connection } from '@solana/web3.js';
@@ -559,10 +560,10 @@ const getTokenBridgeToken = async (
           address: token.address,
         });
 
-  const wrappedNative = await tb.getWrappedNative();
+  const wrappedNative = getWrappedNativeToken(config.network, chain);
 
   const tokenId =
-    wrappedNative.toString() === tokenAddress.toString()
+    wrappedNative && wrappedNative === tokenAddress.toString()
       ? nativeTokenId(chain)
       : Wormhole.tokenId(chain, tokenAddress.toString());
 

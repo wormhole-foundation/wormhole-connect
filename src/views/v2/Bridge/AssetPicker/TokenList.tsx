@@ -42,8 +42,6 @@ const TokenList = (props: Props) => {
     isSource: props.isSource,
     isSameChainSwap: props.isSameChainSwap,
     sourceToken: props.sourceToken,
-    balances: props.balances,
-    walletAddress: props.wallet.address,
     tokenPastingEnabled: tokenPastingIsEnabled,
   });
 
