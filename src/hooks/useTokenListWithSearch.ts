@@ -12,7 +12,10 @@ import type { Token } from 'config/tokens';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
 import { getTokenSymbol } from 'utils';
-import type { Balances } from 'utils/wallet/types';
+import {
+  getWrappedNativeToken,
+  shouldFilterSameChainToken,
+} from 'utils/wrappedNativeTokens';
 import { unionBy } from 'es-toolkit';
 
 interface UseTokenListWithSearchParams {
@@ -22,8 +25,6 @@ interface UseTokenListWithSearchParams {
   isSource: boolean;
   isSameChainSwap: boolean;
   sourceToken?: Token;
-  balances: Balances;
-  walletAddress: string;
   tokenPastingEnabled?: boolean;
 }
 
@@ -46,8 +47,6 @@ export const useTokenListWithSearch = ({
   isSource,
   isSameChainSwap,
   sourceToken,
-  balances,
-  walletAddress,
   tokenPastingEnabled = true,
 }: UseTokenListWithSearchParams): UseTokenListWithSearchReturn => {
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
@@ -59,6 +58,15 @@ export const useTokenListWithSearch = ({
     // Dedupe happens later via unionBy in the memoized list.
     setSearchedTokens((prev) => [...prev, token]);
   }, []);
+
+  // Get wrapped native address for same-chain swaps (only for destination selection)
+  const wrappedNativeAddr = useMemo(() => {
+    if (!isSameChainSwap || !chain || isSource) {
+      return undefined;
+    }
+    const wrapped = getWrappedNativeToken(config.network, chain);
+    return wrapped?.toLowerCase();
+  }, [isSameChainSwap, chain, isSource]);
 
   useEffect(() => {
     if (!chain || !tokenPastingEnabled || !deferredSearch) {
@@ -139,10 +147,10 @@ export const useTokenListWithSearch = ({
       });
     }
 
-    // For destination token list in same-chain swaps, filter out the source token
-    if (!isSource && isSameChainSwap && sourceToken) {
+    // For destination token list in same-chain swaps, filter out invalid options
+    if (sourceToken && isSameChainSwap && !isSource) {
       tokens = tokens.filter(
-        (t) => t.addressString !== sourceToken.addressString,
+        (t) => !shouldFilterSameChainToken(sourceToken, wrappedNativeAddr, t),
       );
     }
 
@@ -152,9 +160,10 @@ export const useTokenListWithSearch = ({
     searchedTokens,
     deferredSearch,
     searchLower,
-    isSource,
-    isSameChainSwap,
     sourceToken,
+    isSameChainSwap,
+    isSource,
+    wrappedNativeAddr,
   ]);
 
   const tokenPrices = useMemo(

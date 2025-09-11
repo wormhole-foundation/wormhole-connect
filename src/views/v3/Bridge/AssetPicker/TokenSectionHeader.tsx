@@ -2,34 +2,8 @@ import { Box, useTheme } from '@mui/material';
 import { Typography } from '@mui/material';
 import React from 'react';
 
-const TokenSectionHeader = ({
-  index,
-  ownedCount,
-  isGroupingEnabled,
-}: {
-  index: number;
-  ownedCount: number;
-  isGroupingEnabled: boolean;
-}) => {
+const TokenSectionHeader = ({ label }: { label: string }) => {
   const theme = useTheme();
-
-  if (!isGroupingEnabled) {
-    return null;
-  }
-
-  let label: string | null = null;
-
-  if (index === 0 && ownedCount > 0) {
-    label = 'Your tokens';
-  }
-
-  if (index === ownedCount) {
-    label = 'All tokens';
-  }
-
-  if (!label) {
-    return null;
-  }
 
   return (
     <Box

@@ -21,6 +21,10 @@ import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 import { isFrankensteinToken } from 'utils';
 import { isNttToken } from 'utils/ntt';
+import {
+  getWrappedNativeToken,
+  shouldFilterSameChainToken,
+} from 'utils/wrappedNativeTokens';
 
 type Amount = sdkAmount.Amount;
 
@@ -61,7 +65,6 @@ export class SDKv2Route {
   }
 
   async isRouteSupported(
-    name: string,
     sourceToken: Token,
     destToken: Token,
     fromChain: Chain,
@@ -88,7 +91,6 @@ export class SDKv2Route {
 
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
-        name,
         sourceToken,
         fromChain,
         toChain,
@@ -108,7 +110,6 @@ export class SDKv2Route {
   }
 
   async supportedDestTokens(
-    routeName: string,
     sourceToken: Token | undefined,
     fromChain?: Chain | undefined,
     toChain?: Chain | undefined,
@@ -148,14 +149,19 @@ export class SDKv2Route {
       routeSupportedTokenFetcher,
     );
 
+    // Get wrapped native address for same-chain swaps
+    const wrappedNativeAddr = isSameChain
+      ? getWrappedNativeToken(config.network, toContext.chain)?.toLowerCase()
+      : undefined;
+
     const filteredTokens = destTokens.filter((t) => {
       const token = config.tokens.get(t);
       if (token && isFrankensteinToken(token, toContext.chain)) {
         return false;
       }
 
-      if (isSameChain && token?.address === sourceToken.address) {
-        return false;
+      if (isSameChain) {
+        return !shouldFilterSameChainToken(sourceToken, wrappedNativeAddr, t);
       }
 
       return true;

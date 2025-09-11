@@ -42,8 +42,6 @@ const TokenList = (props: Props) => {
     isSource: props.isSource,
     isSameChainSwap: props.isSameChainSwap,
     sourceToken: props.sourceToken,
-    balances: props.balances,
-    walletAddress: props.wallet.address,
     tokenPastingEnabled: tokenPastingIsEnabled,
   });
 
@@ -77,15 +75,6 @@ const TokenList = (props: Props) => {
       },
       tokenListContainer: {
         padding: '16px 0 0 0 !important',
-      },
-      title: {
-        fontSize: 14,
-        marginBottom: '8px',
-      },
-      tokenLoaderRow: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '8px 16px',
       },
       tokenList: {
         maxHeight: '360px',
@@ -147,15 +136,17 @@ const TokenList = (props: Props) => {
             const isRestSection =
               isGroupingEnabled && isWalletConnected && index >= ownedCount;
 
+            const headerLabel = (() => {
+              if (!isGroupingEnabled) return null;
+              if (index === 0 && ownedCount > 0) return 'Your tokens';
+              if (index === ownedCount) return 'All tokens';
+              return null;
+            })();
+
             return (
               <Fragment key={token.key}>
-                <TokenSectionHeader
-                  index={index}
-                  ownedCount={ownedCount}
-                  isGroupingEnabled={isGroupingEnabled}
-                />
+                {headerLabel && <TokenSectionHeader label={headerLabel} />}
                 <TokenItem
-                  key={token.key}
                   token={token}
                   chain={props.selectedChainConfig.sdkName}
                   onClick={() => props.onSelectToken(token)}
