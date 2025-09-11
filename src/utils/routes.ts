@@ -35,3 +35,22 @@ export const getBestRoutes = (
 
   return { fastestRoute, cheapestRoute };
 };
+
+export function getDefaultQuoteExpiry(fromDate: number) {
+  return new Date(fromDate + 30_000);
+}
+
+export function getQuoteExpiry(expiryFromQuote?: Date) {
+  const now = Date.now();
+
+  // A valid expiry should be at least 5 seconds in the future
+  // If not, we should default it to 30 seconds.
+  const isValidExpiry =
+    expiryFromQuote instanceof Date && expiryFromQuote.getTime() > now + 5_000;
+
+  if (!isValidExpiry) {
+    return getDefaultQuoteExpiry(now);
+  }
+
+  return expiryFromQuote;
+}

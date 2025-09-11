@@ -161,18 +161,17 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
         );
       }
 
-      const [sdkRoute, receipt] = await config.routes
-        .get(route)
-        .send(
-          sourceToken,
-          amount,
-          sourceChain,
-          signer,
-          destChain,
-          receivingWallet.address,
-          destToken,
-          { nativeGas: toNativeToken },
-        );
+      const [sdkRoute, receipt] = await config.routes.execute(
+        route,
+        sourceToken,
+        amount,
+        sourceChain,
+        signer,
+        destChain,
+        receivingWallet.address,
+        destToken,
+        { nativeGas: toNativeToken },
+      );
 
       // Clear cached balances on sending chain
       clearBalanceCache(sendingWallet, sourceChain);
