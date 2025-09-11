@@ -611,9 +611,11 @@ class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
         ),
       };
 
-      const deadline64Seconds = parseInt(quote.deadline64, 10) * 1000;
-      const expires = deadline64Seconds
-        ? new Date(deadline64Seconds)
+      // deadline64 is in seconds
+      const deadline64MilliSeconds = parseInt(quote.deadline64, 10) * 1000;
+
+      const expires = deadline64MilliSeconds
+        ? new Date(deadline64MilliSeconds)
         : undefined;
 
       const fullQuote: Q = {

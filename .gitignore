@@ -37,7 +37,6 @@ tsconfig.tsbuildinfo
 
 # Local Netlify folder
 .netlify
-.vscode
 .ignore
 .yalc
 yalc.lock

@@ -83,7 +83,10 @@ export default (routes: string[], params: Params): HookReturn => {
         return;
       }
 
-      const nextExpiry = config.routes.quoteCache.nextExpiry(routes, rParams);
+      const nextExpiry = config.routes.quoteMetadataCache.nextExpiry(
+        routes,
+        rParams,
+      );
 
       if (!nextExpiry) {
         return;
