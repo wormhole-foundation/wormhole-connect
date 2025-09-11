@@ -406,11 +406,21 @@ function Bridge(props: BridgeProps) {
       return null;
     }
 
+    const isStructuredError = typeof txError === 'object' && 'title' in txError;
+    const isSolanaSimulationWarning =
+      isStructuredError &&
+      txErrorInternal?.code === 'ERR_INSUFFICIENT_GAS' &&
+      txError.title?.includes('Solana');
+
     return (
       <Box sx={{ marginBottom: 2 }}>
-        <AlertBannerV3 error testId="send-error-message">
-          {txError}
-        </AlertBannerV3>
+        <AlertBannerV3
+          error={!isSolanaSimulationWarning}
+          warning={isSolanaSimulationWarning}
+          testId="send-error-message"
+          title={isStructuredError ? txError.title : txError}
+          description={isStructuredError ? txError.description : undefined}
+        />
         {txErrorInternal && txErrorInternal.message && config.ui.getHelpUrl ? (
           <Typography fontSize={14} sx={{ marginTop: 1 }}>
             Having trouble?{' '}

@@ -3,7 +3,9 @@ import { Box, Typography, useTheme, type SxProps } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 interface AlertBannerProps {
-  children: ReactNode;
+  children?: ReactNode;
+  title?: ReactNode;
+  description?: ReactNode;
   warning?: boolean;
   error?: boolean;
   testId?: string;
@@ -14,6 +16,8 @@ interface AlertBannerProps {
 
 function AlertBanner({
   children,
+  title,
+  description,
   warning = false,
   error = false,
   testId,
@@ -29,6 +33,9 @@ function AlertBanner({
     (warning && theme.palette.warning.main) ||
     (error && theme.palette.error.main) ||
     undefined;
+
+  // Determine if we have structured content
+  const hasStructuredContent = title !== undefined && description !== undefined;
 
   return (
     <Box
@@ -51,14 +58,25 @@ function AlertBanner({
         htmlColor={alertColor}
         aria-hidden="true"
       />
-      <Typography
-        color={alertColor}
-        fontSize="14px"
-        fontWeight={700}
-        component="div"
-      >
-        {children}
-      </Typography>
+      {hasStructuredContent ? (
+        <Box>
+          <Typography color={alertColor} fontSize="14px" fontWeight={700}>
+            {title}
+          </Typography>
+          <Typography color={theme.palette.text.secondary} fontSize="14px">
+            {description}
+          </Typography>
+        </Box>
+      ) : (
+        <Typography
+          color={alertColor}
+          fontSize="14px"
+          fontWeight={700}
+          component="div"
+        >
+          {children || title}
+        </Typography>
+      )}
     </Box>
   );
 }

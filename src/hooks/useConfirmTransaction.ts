@@ -17,7 +17,7 @@ import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
 import { getTransferDetails } from 'telemetry';
 import { ERR_USER_REJECTED } from 'telemetry/types';
 import { toDecimals } from 'utils/balance';
-import { interpretTransferError } from 'utils/errors';
+import { interpretTransferError, type StructuredError } from 'utils/errors';
 import { addTxToLocalStorage } from 'utils/inProgressTxCache';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
@@ -33,7 +33,7 @@ type Props = {
 };
 
 type ReturnProps = {
-  error: string | undefined;
+  error: string | StructuredError | undefined;
   // errorInternal can be a result of custom validation, hence of unknown type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errorInternal: any | undefined;
@@ -43,7 +43,9 @@ type ReturnProps = {
 const useConfirmTransaction = (props: Props): ReturnProps => {
   const dispatch = useDispatch();
 
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | StructuredError | undefined>(
+    undefined,
+  );
   // errorInternal can be a result of custom validation, hence of unknown type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [errorInternal, setErrorInternal] = useState<any | undefined>(

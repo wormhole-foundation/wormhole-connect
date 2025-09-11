@@ -21,18 +21,27 @@ import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 export const INSUFFICIENT_ALLOWANCE_REGEX = /insufficient token allowance/im;
 export const INSUFFICIENT_LAMPORTS_REGEX =
   /insufficient lamports.*?(\d+).*?(\d+)/im;
+// Solana simulation can fail with various shapes; we treat these as likely
+// insufficient SOL for network fees for short-term UX clarity.
+export const SOLANA_SIMULATION_FAILED_REGEX = /Simulation failed:/im;
 export const USER_REJECTED_REGEX = new RegExp(
   'user rejected|rejected the request|rejected from user|user cancel|aborted by user|plugin closed|denied request signature',
   'mi',
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
 
+export interface StructuredError {
+  title: string;
+  description?: string;
+}
+
 export function interpretTransferError(
   e: any,
   transferDetails: TransferDetails,
-): [string, TransferError] {
+): [string | StructuredError, TransferError] {
   // Fall-back values
-  let uiErrorMessage = 'Error with transfer, please try again';
+  let uiErrorMessage: string | StructuredError =
+    'Error with transfer, please try again';
   let internalErrorCode: TransferErrorType = ERR_UNKNOWN;
 
   if (e.message) {
@@ -86,6 +95,17 @@ export function interpretTransferError(
           currentAmount,
         )} SOL, but required ${sdkAmount.display(requiredAmount)} SOL`;
       }
+      internalErrorCode = ERR_INSUFFICIENT_GAS;
+    } else if (
+      transferDetails.fromChain === 'Solana' &&
+      SOLANA_SIMULATION_FAILED_REGEX.test(e?.message)
+    ) {
+      // Often stems from low SOL to pay fees.
+      uiErrorMessage = {
+        title: 'Transaction simulation failed on Solana.',
+        description:
+          'This can be due to insufficient SOL to cover network fees. Please add more SOL to your wallet and try again.',
+      };
       internalErrorCode = ERR_INSUFFICIENT_GAS;
     }
   }
