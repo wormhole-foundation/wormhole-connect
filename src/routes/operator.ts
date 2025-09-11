@@ -146,10 +146,9 @@ export default class RouteOperator {
   ): Promise<TokenId[]> {
     const supported: Set<string> = new Set();
 
-    await this.forEach(async (name, route) => {
+    await this.forEach(async (_, route) => {
       try {
         const destTokenIds = await route.supportedDestTokens(
-          name,
           sourceToken,
           sourceChain,
           destChain,

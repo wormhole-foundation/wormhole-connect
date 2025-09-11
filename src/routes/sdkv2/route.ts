@@ -62,7 +62,6 @@ export class SDKv2Route {
   }
 
   async isRouteSupported(
-    name: string,
     sourceToken: Token,
     destToken: Token,
     fromChain: Chain,
@@ -89,7 +88,6 @@ export class SDKv2Route {
 
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
-        name,
         sourceToken,
         fromChain,
         toChain,
@@ -109,7 +107,6 @@ export class SDKv2Route {
   }
 
   async supportedDestTokens(
-    routeName: string,
     sourceToken: Token | undefined,
     fromChain?: Chain | undefined,
     toChain?: Chain | undefined,
@@ -154,9 +151,11 @@ export class SDKv2Route {
     if (isSameChain) {
       try {
         const tb = await toContext.context.getTokenBridge();
-        wrappedNativeAddr = tb.getWrappedNative().toString().toLowerCase();
+        wrappedNativeAddr = (await tb.getWrappedNative())
+          .toString()
+          .toLowerCase();
       } catch {
-        console.log('Unable to fetch wrapped native token');
+        // No-op
       }
     }
 
@@ -172,8 +171,8 @@ export class SDKv2Route {
 
       // Block same-chain swaps between native gas token and its wrapped native token
       if (isSameChain && wrappedNativeAddr) {
-        const srcIsNative = sourceToken.isNativeGasToken;
-        const srcIsWrappedNative =
+        const srcIsNative = isNative(sourceToken.address);
+        const srcIsWrapped =
           sourceToken.address.toString().toLowerCase() === wrappedNativeAddr;
 
         const destIsWrappedNative =
@@ -182,7 +181,7 @@ export class SDKv2Route {
 
         if (
           (srcIsNative && destIsWrappedNative) ||
-          (srcIsWrappedNative && destIsNative)
+          (srcIsWrapped && destIsNative)
         ) {
           return false;
         }
