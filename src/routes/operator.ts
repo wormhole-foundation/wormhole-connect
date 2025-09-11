@@ -254,14 +254,7 @@ export default class RouteOperator {
 
     let quoteMetadata = this.quoteMetadataCache.get(routeName, quoteParams);
 
-    const isRefetchRequired =
-      !quoteMetadata?.quote ||
-      !quoteMetadata?.request ||
-      !quoteMetadata?.router;
-
-    if (isRefetchRequired) {
-      // Refetch the quote as cached quote does not exist
-      // This case should be hit rarely
+    if (!quoteMetadata) {
       quoteMetadata = await route.getQuote(
         amount,
         sourceToken,
@@ -273,12 +266,7 @@ export default class RouteOperator {
       );
     }
 
-    return route.send(
-      quoteMetadata as QuoteMetadata,
-      signer,
-      destChain,
-      recipientAddress,
-    );
+    return route.send(quoteMetadata, signer, destChain, recipientAddress);
   }
 }
 
@@ -308,7 +296,7 @@ class QuoteMetadataCache {
     )}:${params.nativeGas}:${params.recipient}`;
   }
 
-  get(routeName: string, params: QuoteParams): Partial<QuoteMetadata> | null {
+  get(routeName: string, params: QuoteParams): QuoteMetadata | null {
     const key = this.quoteParamsKey(routeName, params);
     const quoteMetadata = this.cache[key];
     const hasQuoteExpired = quoteMetadata?.ttl() <= 5_000;
@@ -321,7 +309,7 @@ class QuoteMetadataCache {
     return {
       quote: quoteMetadata.quote,
       request: quoteMetadata.request,
-      router: quoteMetadata.router,
+      routeInstance: quoteMetadata.routeInstance,
     };
   }
 
@@ -343,7 +331,7 @@ class QuoteMetadataCache {
 
     // We don't yet have a pending request for this key, so initiate one
     route
-      .computeQuote(
+      .getQuote(
         params.amount,
         params.sourceToken,
         params.destToken,
@@ -352,7 +340,7 @@ class QuoteMetadataCache {
         { nativeGas: params.nativeGas },
         params.recipient,
       )
-      .then(({ router, quote, request }: Required<QuoteMetadata>) => {
+      .then(({ routeInstance, quote, request }: QuoteMetadata) => {
         const pending = this.pending[key];
 
         for (const { resolve } of pending) {
@@ -365,7 +353,7 @@ class QuoteMetadataCache {
           quote.expires = getQuoteExpiry(quote.expires);
         }
 
-        this.cache[key] = new QuoteMetadataEntry(quote, router, request);
+        this.cache[key] = new QuoteMetadataEntry(quote, routeInstance, request);
       })
       .catch((err: any) => {
         const pending = this.pending[key];
@@ -377,10 +365,14 @@ class QuoteMetadataCache {
         delete this.pending[key];
 
         // Cache uncaught error
-        this.cache[key] = new QuoteMetadataEntry({
-          success: false,
-          error: err,
-        });
+        this.cache[key] = new QuoteMetadataEntry(
+          {
+            success: false,
+            error: err,
+          },
+          {} as routes.Route<Network>,
+          {} as routes.RouteTransferRequest<Network>,
+        );
       });
 
     return new Promise((resolve, reject) => {
@@ -418,17 +410,17 @@ class QuoteMetadataEntry {
   // Last time we fetched a quote
   timestamp: Date;
   // Optional route used for the quote
-  router?: routes.Route<Network>;
+  routeInstance: routes.Route<Network>;
   // Optional request used for the quote
-  request?: routes.RouteTransferRequest<Network>;
+  request: routes.RouteTransferRequest<Network>;
 
   constructor(
     quote: QuoteResult,
-    router?: routes.Route<Network>,
-    request?: routes.RouteTransferRequest<Network>,
+    routeInstance: routes.Route<Network>,
+    request: routes.RouteTransferRequest<Network>,
   ) {
     this.quote = quote;
-    this.router = router;
+    this.routeInstance = routeInstance;
     this.request = request;
     this.timestamp = new Date();
   }
