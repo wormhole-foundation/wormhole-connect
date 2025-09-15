@@ -751,6 +751,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDT,
   },
   {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'HyperEVM',
+      address: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
     symbol: 'XRP',
     tokenId: {
       chain: 'XRPLEVM',

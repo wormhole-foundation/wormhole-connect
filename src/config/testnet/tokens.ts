@@ -414,6 +414,15 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     tokenId: { chain: 'Plume', address: 'native' },
   },
   {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'HyperEVM',
+      address: '0x2B3370eE501B4a559b57D449569354196457D8Ab',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
     symbol: 'XRP',
     tokenId: {
       chain: 'XRPLEVM',
