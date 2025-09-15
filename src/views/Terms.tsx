@@ -30,13 +30,12 @@ function Terms() {
     <Box sx={styles.terms}>
       <PageHeader title="Terms of Service" back />
       <Box sx={styles.body}>
-        <p>Last Updated: April 18, 2025</p>
+        <p>Last Updated: September 15, 2025</p>
         <p>
           These Terms of Service (the "Agreement") explain the terms and
           conditions by which you may access and use the Services provided by
-          W7, LLC (d.b.a. Wormhole Labs) (the "Company," "we," "us," or "our").
-          The "Services" shall include, but not limited to, the website located
-          at{' '}
+          Maha Labs, LLC (the "Company," "we," "us," or "our"). The "Services"
+          shall include, but not limited to, the website located at{' '}
           <a
             href="https://portalbridge.com"
             target="_blank"
