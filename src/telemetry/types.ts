@@ -132,6 +132,14 @@ export type UserActionEvents = {
   [A in UserActions]: UserActionEvent<A>;
 }[UserActions];
 
+export interface QuoteEvent {
+  type: 'quote.received';
+  details: {
+    responseTime: number;
+    quoteResults: Record<string, routes.QuoteResult<routes.Options>>;
+  };
+}
+
 export type WormholeConnectEventCore =
   | LoadEvent
   | UpdateConfigEvent
@@ -139,7 +147,8 @@ export type WormholeConnectEventCore =
   | TransferErrorEvent
   | ConnectWalletEvent
   | HistoryLoadEvent
-  | UserActionEvent;
+  | UserActionEvent
+  | QuoteEvent;
 
 export interface WormholeConnectEventMeta {
   meta: {
