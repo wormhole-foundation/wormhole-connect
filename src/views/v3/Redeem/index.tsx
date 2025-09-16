@@ -608,7 +608,12 @@ function Redeem() {
       receivingWallet.address !== recipient &&
       routeName &&
       // These routes set the recipient address to the associated token address
-      ['ManualTokenBridge', 'ManualCCTP'].includes(routeName)
+      [
+        'ManualTokenBridge',
+        'ManualCCTP',
+        'CCTPv2FastExecutorRoute',
+        'CCTPv2StandardExecutorRoute',
+      ].includes(routeName)
     ) {
       const { address: receiveTokenAddress } = tokenIdFromTuple(receivedToken);
 

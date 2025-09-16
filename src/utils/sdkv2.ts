@@ -506,7 +506,25 @@ const parseCCTPv2Receipt = async (
   // NOTE: the sender is the shim contract, not the user's wallet
   // so don't set that here
 
-  txData.recipient = messageBody.mintRecipient.toNative(receipt.to).toString();
+  if (receipt.to === 'Solana') {
+    if (!config.rpcs.Solana) {
+      throw new Error('Missing Solana RPC');
+    }
+    // the recipient on the VAA is the ATA
+    const ata = messageBody.mintRecipient.toNative(receipt.to).toString();
+    const connection = new Connection(config.rpcs.Solana);
+    try {
+      const account = await splToken.getAccount(connection, new PublicKey(ata));
+      txData.recipient = account.owner.toBase58();
+    } catch (e) {
+      console.error(e);
+      txData.recipient = ata;
+    }
+  } else {
+    txData.recipient = messageBody.mintRecipient
+      .toNative(receipt.to)
+      .toString();
+  }
 
   // The attestation doesn't have the destination token address, but we can deduce which it is
   // just based off the destination chain
