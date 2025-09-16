@@ -94,6 +94,7 @@ export interface ConnectWalletEvent {
     side: TransferWallet;
     chain: Chain;
     wallet: string;
+    address: string | undefined;
   };
 }
 
