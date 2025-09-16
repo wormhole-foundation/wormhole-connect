@@ -37,6 +37,7 @@ import {
   MayanRouteMCTP,
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
+  MayanRouteFastMCTP,
 } from '../../routes/mayan';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
@@ -76,6 +77,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.MayanRouteWH = MayanRouteWH;
       /* @ts-ignore */
       window.MayanRouteMCTP = MayanRouteMCTP;
+      /* @ts-ignore */
+      window.MayanRouteFastMCTP = MayanRouteFastMCTP;
       /* @ts-ignore */
       window.MayanRouteMONOCHAIN = MayanRouteMONOCHAIN;
       /* @ts-ignore */
@@ -283,6 +286,10 @@ function SampleApp() {
                   </li>
                   <li>
                     <pre>MayanRouteSWIFT</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>MayanRouteFastMCTP</pre>
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>
