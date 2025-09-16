@@ -318,6 +318,8 @@ class QuoteMetadataCache {
     params: QuoteParams,
     route: SDKv2Route,
   ): Promise<QuoteResult> {
+    console.debug('Fetching quote using', routeName, params);
+
     const key = this.quoteParamsKey(routeName, params);
     const pending = this.pending[key];
 
@@ -341,6 +343,12 @@ class QuoteMetadataCache {
         params.recipient,
       )
       .then(({ routeInstance, quote, request }: QuoteMetadata) => {
+        console.debug(
+          `\x1b[32mSuccessfully fetched quote using`,
+          routeName,
+          quote,
+        );
+
         const pending = this.pending[key];
 
         for (const { resolve } of pending) {
@@ -356,6 +364,8 @@ class QuoteMetadataCache {
         this.cache[key] = new QuoteMetadataEntry(quote, routeInstance, request);
       })
       .catch((err: any) => {
+        console.debug(`\x1b[31mFailed to fetch quote using`, routeName, err);
+
         const pending = this.pending[key];
 
         for (const { reject } of pending) {
