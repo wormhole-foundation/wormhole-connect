@@ -71,6 +71,7 @@ function WalletProvider({
           side: type,
           chain,
           wallet: wallet.getName().toLowerCase(),
+          address: wallet.getAddress(),
         },
       });
     },
