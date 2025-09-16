@@ -29,6 +29,8 @@ export const USER_REJECTED_REGEX = new RegExp(
   'mi',
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
+const INSUFFICIENT_FUNDS_FOR_GAS_ERROR =
+  'Insufficient funds for network fees. Please add more funds and try again';
 
 export function interpretTransferError(
   e: any,
@@ -53,8 +55,7 @@ export function interpretTransferError(
       uiErrorMessage = 'Transfer timed out, please try again';
       internalErrorCode = ERR_TIMEOUT;
     } else if (InsufficientFundsForGasError.MESSAGE_REGEX.test(e?.message)) {
-      uiErrorMessage =
-        'Insufficient funds for network fees, please add more funds and try again';
+      uiErrorMessage = INSUFFICIENT_FUNDS_FOR_GAS_ERROR;
       internalErrorCode = ERR_INSUFFICIENT_GAS;
     } else if (USER_REJECTED_REGEX.test(e?.message)) {
       uiErrorMessage = 'Transfer rejected in wallet, please try again';
@@ -88,10 +89,9 @@ export function interpretTransferError(
         const gasSymbol = getTokenSymbol(gasToken);
         const chainName = chainDisplayName(gasChain);
         const chainSuffix = chainName ? ` on ${chainName}` : '';
-        uiErrorMessage = `Insufficient ${gasSymbol} for fees${chainSuffix}, please add more ${gasSymbol} and try again`;
+        uiErrorMessage = `Insufficient ${gasSymbol} for fees${chainSuffix}. Please add more ${gasSymbol} and try again`;
       } catch {
-        uiErrorMessage =
-          'Insufficient funds for network fees, please add more funds and try again';
+        uiErrorMessage = INSUFFICIENT_FUNDS_FOR_GAS_ERROR;
       }
       internalErrorCode = ERR_INSUFFICIENT_GAS;
     }
