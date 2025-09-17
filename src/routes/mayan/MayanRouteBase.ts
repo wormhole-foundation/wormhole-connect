@@ -14,7 +14,7 @@ import type { SuiClient } from '@mysten/sui/client';
 import { Transaction } from '@mysten/sui/transactions';
 import {
   createAssociatedTokenAccountIdempotentInstruction,
-  createTransferInstruction,
+  createTransferCheckedInstruction,
   getAssociatedTokenAddressSync,
 } from '@solana/spl-token';
 import type { Connection, TransactionInstruction } from '@solana/web3.js';
@@ -301,11 +301,13 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       }
 
       instructions.push(
-        createTransferInstruction(
+        createTransferCheckedInstruction(
           senderAta,
+          mint,
           referrerAta,
           sender,
           referralFee,
+          source.decimals,
           undefined,
           tokenProgramId,
         ),
