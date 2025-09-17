@@ -37,6 +37,7 @@ import {
   MayanRouteMCTP,
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
+  MayanRouteHyperCore,
 } from '../../routes/mayan';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
@@ -80,6 +81,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.MayanRouteMONOCHAIN = MayanRouteMONOCHAIN;
       /* @ts-ignore */
       window.MayanRouteSWIFT = MayanRouteSWIFT;
+      /* @ts-ignore */
+      window.MayanRouteHyperCore = MayanRouteHyperCore;
       /* @ts-ignore */
       window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
       /* @ts-ignore */

@@ -4,5 +4,6 @@ export {
   MayanRouteMCTP,
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
+  MayanRouteHyperCore,
   createMayanRouteWithReferrerFee,
 } from '../routes/mayan';

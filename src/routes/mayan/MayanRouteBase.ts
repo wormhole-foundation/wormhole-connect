@@ -82,6 +82,7 @@ import {
   toMayanChainName,
   txStatusToReceipt,
 } from './utils';
+import config from 'config';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace MayanRoute {
@@ -1126,6 +1127,97 @@ export class MayanRouteMONOCHAIN<N extends Network>
     const platform = chainToPlatform(chain);
     const isPlatformSupported = platform === 'Solana' || platform === 'Evm';
     return network === 'Mainnet' && isPlatformSupported;
+  }
+}
+
+// HyperCore: restrict to inbound into HyperEVM and USDC-only destination
+export class MayanRouteHyperCore<N extends Network>
+  extends MayanRouteBase<N>
+  implements routes.StaticRouteMethods<typeof MayanRouteHyperCore>
+{
+  static meta = {
+    name: 'MayanSwapHyperCore',
+    provider: 'Mayan HyperCore',
+  };
+
+  override protocols: MayanProtocol[] = ['SWIFT', 'MCTP', 'WH'];
+
+  // Only HyperEVM destination, USDC only
+  static override async supportedDestinationTokens<N extends Network>(
+    _token: TokenId,
+    _fromChain: ChainContext<N>,
+    toChain: ChainContext<N>,
+  ): Promise<TokenId[]> {
+    if (toChain.chain !== 'HyperEVM') {
+      return [];
+    }
+
+    // Return only tokens named USDC for HyperEVM
+    const tokens = getAllTokenIdsForChain(toChain.chain);
+    return tokens.filter((tk) => {
+      const found = config.tokens.findByAddressOrSymbol(
+        'HyperEVM',
+        tk.address.toString(),
+      );
+      return found?.symbol === 'USDC';
+    });
+  }
+
+  override async validate(
+    request: routes.RouteTransferRequest<N>,
+    params: Tp,
+  ): Promise<Vr> {
+    // Enforce inbound-only to HyperEVM and destination token USDC
+    if (request.toChain.chain !== 'HyperEVM') {
+      return {
+        valid: false,
+        params,
+        error: new routes.UnavailableError(
+          new Error('HyperCore route only supports destination HyperEVM'),
+        ),
+      } as Vr;
+    }
+
+    // Disallow starting from HyperCore USDC (ANY except HyperCore USDC)
+    const fromIsHyperCoreUSDC = (() => {
+      const src = config.tokens.findByAddressOrSymbol(
+        request.fromChain.chain,
+        request.source.id.address.toString(),
+      );
+      return request.fromChain.chain === 'HyperEVM' && src?.symbol === 'USDC';
+    })();
+
+    if (fromIsHyperCoreUSDC) {
+      return {
+        valid: false,
+        params,
+        error: new routes.UnavailableError(
+          new Error('Source token cannot be HyperCore USDC'),
+        ),
+      } as Vr;
+    }
+
+    // Destination token must be USDC
+    const destIsUSDC = (() => {
+      const dst = config.tokens.findByAddressOrSymbol(
+        request.toChain.chain,
+        request.destination.id.address.toString(),
+      );
+      return dst?.symbol === 'USDC';
+    })();
+
+    if (!destIsUSDC) {
+      return {
+        valid: false,
+        params,
+        error: new routes.UnavailableError(
+          new Error('Destination token must be USDC on HyperEVM'),
+        ),
+      } as Vr;
+    }
+
+    // Defer to base for normal param normalization
+    return super.validate(request, params);
   }
 }
 
