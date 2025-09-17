@@ -4,6 +4,7 @@ import { getRouteProvider } from './utils';
 
 interface ProviderLabelProps {
   destChain?: string;
+  provider?: string;
   route?: string;
   sourceChain?: string;
   sourceTokenSymbol?: string;
@@ -11,6 +12,7 @@ interface ProviderLabelProps {
 
 function ProviderLabel({
   destChain,
+  provider,
   route,
   sourceChain,
   sourceTokenSymbol,
@@ -20,6 +22,7 @@ function ProviderLabel({
     route,
     sourceChain,
     sourceTokenSymbol,
+    provider,
   );
 
   if (!via) {

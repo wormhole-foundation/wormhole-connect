@@ -16,6 +16,11 @@
       "require": "./lib/mayan.js",
       "import": "./lib/mayan.mjs"
     },
+    "./lifi": {
+      "types": "./lib/lifi.d.ts",
+      "require": "./lib/lifi.js",
+      "import": "./lib/lifi.mjs"
+    },
     "./ntt": {
       "types": "./lib/ntt.d.ts",
       "require": "./lib/ntt.js",
@@ -75,6 +80,7 @@
     "@wormhole-foundation/sdk-sui-core": "3.5.0",
     "@wormhole-foundation/sdk-sui-ntt": "2.0.5",
     "@wormhole-labs/cctp-executor-route": "0.16.0",
+    "@wormhole-labs/lifi-route": "1.3.0",
     "@wormhole-labs/wallet-aggregator-aptos": "1.3.0",
     "@wormhole-labs/wallet-aggregator-core": "0.0.1",
     "@wormhole-labs/wallet-aggregator-evm": "0.9.1",
@@ -241,6 +247,12 @@
       "@wormhole-foundation/sdk-solana-cctp": "3.5.0",
       "@wormhole-foundation/sdk-sui": "3.5.0",
       "@wormhole-foundation/sdk-sui-cctp": "3.5.0"
+    },
+    "@wormhole-labs/lifi-route": {
+      "@wormhole-foundation/sdk-connect": "3.5.0",
+      "@wormhole-foundation/sdk-evm": "3.5.0",
+      "@wormhole-foundation/sdk-solana": "3.5.0",
+      "@wormhole-foundation/sdk-sui": "3.5.0"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"

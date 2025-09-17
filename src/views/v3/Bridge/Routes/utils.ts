@@ -5,7 +5,13 @@ function getRouteProvider(
   route: string | undefined,
   sourceChain: string | undefined,
   sourceTokenSymbol: string | undefined,
+  quoteProvider?: string,
 ) {
+  // If a provider is explicitly passed from the quote, use it
+  if (quoteProvider) {
+    return quoteProvider;
+  }
+
   const isLidoNttSpecialCase =
     route === 'AutomaticNtt' &&
     sourceTokenSymbol === 'wstETH' &&

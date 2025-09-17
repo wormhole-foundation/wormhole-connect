@@ -3,6 +3,7 @@ import { getRouteProvider } from './utils';
 
 interface ProviderWithAmountProps {
   destChain?: string;
+  provider?: string;
   route?: string;
   sourceChain?: string;
   sourceTokenSymbol?: string;
@@ -11,6 +12,7 @@ interface ProviderWithAmountProps {
 
 function ProviderWithAmount({
   destChain,
+  provider,
   route,
   sourceChain,
   sourceTokenSymbol,
@@ -21,6 +23,7 @@ function ProviderWithAmount({
     route,
     sourceChain,
     sourceTokenSymbol,
+    provider,
   );
 
   if (!via) {
