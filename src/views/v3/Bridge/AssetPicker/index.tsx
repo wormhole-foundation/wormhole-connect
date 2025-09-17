@@ -28,7 +28,7 @@ import { OPACITY } from 'utils/style';
 import Color from 'color';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
-import { calculateUSDPrice, getTokenSymbol } from 'utils';
+import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
 import { formatWithCommas } from 'utils/formatNumber';
 import {
   handleTelemetryOnChainSelect,
@@ -104,7 +104,7 @@ function AssetPicker(props: Props) {
       return null;
     }
     const displayValue = `${sdkAmount.display(tokenBalance)} ${
-      props.token ? getTokenSymbol(props.token) : ''
+      props.token ? getTokenDisplaySymbolByTokenAddress(props.token) : ''
     }`;
     return (
       <Typography
@@ -161,7 +161,11 @@ function AssetPicker(props: Props) {
   const selection = useMemo(() => {
     return (
       <Tooltip
-        title={props.token ? getTokenSymbol(props.token) : 'Select a token'}
+        title={
+          props.token
+            ? getTokenDisplaySymbolByTokenAddress(props.token)
+            : 'Select a token'
+        }
       >
         <Typography
           component="div"
@@ -170,7 +174,9 @@ function AssetPicker(props: Props) {
           maxWidth="64px"
           noWrap
         >
-          {props.token ? getTokenSymbol(props.token) : 'Select'}
+          {props.token
+            ? getTokenDisplaySymbolByTokenAddress(props.token)
+            : 'Select'}
         </Typography>
       </Tooltip>
     );
@@ -398,7 +404,9 @@ function AssetPicker(props: Props) {
           color={theme.palette.text.secondary + OPACITY[50]}
           fontSize="12px"
           fontWeight={500}
-        >{`1 ${getTokenSymbol(props.token)} = ${unitPrice}`}</Typography>
+        >{`1 ${getTokenDisplaySymbolByTokenAddress(
+          props.token,
+        )} = ${unitPrice}`}</Typography>
       </Box>
     );
   }, [props.token, getTokenPrice, theme.palette.text.secondary]);

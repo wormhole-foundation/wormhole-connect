@@ -11,7 +11,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-import { getTokenSymbol } from 'utils';
+import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 import {
   getWrappedNativeToken,
   shouldFilterSameChainToken,
@@ -119,7 +119,8 @@ export const useTokenListWithSearch = ({
 
     if (deferredSearch) {
       tokens = tokens.filter((token) => {
-        const overrideName = getTokenSymbol(token)?.toLowerCase();
+        const overrideName =
+          getTokenDisplaySymbolByTokenAddress(token)?.toLowerCase();
         const symbolMatch = token.symbol?.toLowerCase().includes(searchLower);
         const nameMatch = token.name?.toLowerCase().includes(searchLower);
         const overrideMatch = overrideName?.includes(searchLower);

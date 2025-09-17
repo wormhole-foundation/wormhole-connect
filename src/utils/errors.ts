@@ -15,7 +15,11 @@ import {
 } from 'telemetry/types';
 import { InsufficientFundsForGasError } from 'sdklegacy';
 import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { chainDisplayName, getGasToken, getTokenSymbol } from 'utils';
+import {
+  chainDisplayName,
+  getGasToken,
+  getTokenDisplaySymbolByTokenAddress,
+} from 'utils';
 
 // TODO SDKV2
 // attempt to capture errors using regex
@@ -86,7 +90,7 @@ export function interpretTransferError(
       const gasChain = transferDetails.fromChain;
       try {
         const gasToken = getGasToken(gasChain);
-        const gasSymbol = getTokenSymbol(gasToken);
+        const gasSymbol = getTokenDisplaySymbolByTokenAddress(gasToken);
         const chainName = chainDisplayName(gasChain);
         const chainSuffix = chainName ? ` on ${chainName}` : '';
         uiErrorMessage = `Insufficient ${gasSymbol} for fees${chainSuffix}. Please add more ${gasSymbol} and try again`;
