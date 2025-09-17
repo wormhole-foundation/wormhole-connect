@@ -14,6 +14,7 @@ import {
 } from './helpers';
 import type { Chain } from '@wormhole-foundation/sdk';
 import { amount } from '@wormhole-foundation/sdk';
+import { getTokenSymbol } from 'utils';
 
 export type ValidationErr = string;
 
@@ -103,13 +104,10 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
     const token = config.tokens.get(state.token);
     if (token && fromChain) {
       if (token.chain !== fromChain && token.symbol) {
-        const withSameSymbol = config.tokens.findBySymbol(
-          fromChain,
-          token.symbol,
-        );
+        const withSameSymbol = getTokenSymbol(token);
 
         if (withSameSymbol) {
-          state.token = withSameSymbol.tuple;
+          state.token = [token.chain, withSameSymbol];
         }
       }
     }
