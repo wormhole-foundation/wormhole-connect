@@ -4,10 +4,18 @@ import { parseTokenKey, tokenKey } from 'config/tokens';
 import { maybeLogSdkError } from 'utils/errors';
 import memoize from 'fast-memoize';
 
-import type { Chain, TransactionId, TokenId } from '@wormhole-foundation/sdk';
+import type {
+  Chain,
+  TransactionId,
+  TokenId,
+  Network,
+  Signer,
+} from '@wormhole-foundation/sdk';
 import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 
-import SDKv2Route from './sdkv2';
+import SDKv2Route from './sdkv2/route';
+import type { QuoteMetadata } from './types';
+import { getDefaultQuoteExpiry, getQuoteExpiry } from 'utils/routes';
 
 export interface TxInfo {
   route: string;
@@ -39,7 +47,7 @@ export interface QuoteParams {
 export default class RouteOperator {
   preference: string[];
   routes: Record<string, SDKv2Route>;
-  quoteCache: QuoteCache;
+  quoteMetadataCache: QuoteMetadataCache;
 
   constructor(routesConfig: routes.RouteConstructor<any>[] = DEFAULT_ROUTES) {
     const routes = {};
@@ -56,7 +64,7 @@ export default class RouteOperator {
     }
     this.routes = routes;
     this.preference = preference;
-    this.quoteCache = new QuoteCache();
+    this.quoteMetadataCache = new QuoteMetadataCache();
   }
 
   get(name: string): SDKv2Route {
@@ -168,24 +176,29 @@ export default class RouteOperator {
   async getQuotes(
     routes: string[],
     params: QuoteParams,
-  ): Promise<Record<string, routes.QuoteResult<routes.Options>>> {
+  ): Promise<Record<string, QuoteResult>> {
     const results = await Promise.allSettled(
       routes.map((route) => {
-        const cachedResult = this.quoteCache.get(route, params);
-        if (cachedResult) {
-          return cachedResult;
-        } else {
-          return this.quoteCache.fetch(route, params, this.get(route));
+        const quoteMetadata = this.quoteMetadataCache.get(route, params);
+
+        if (quoteMetadata?.quote) {
+          return quoteMetadata.quote;
         }
+
+        return this.quoteMetadataCache.fetchQuote(
+          route,
+          params,
+          this.get(route),
+        );
       }),
     );
 
-    // Convert the array of promise results to a quoteName=>quoteResult map
-    const quotes = {};
+    const quotes: Record<string, QuoteResult> = {};
 
     for (let i = 0; i < routes.length; i++) {
       const route = routes[i];
       const result = results[i];
+
       if (result.status === 'rejected') {
         quotes[route] = {
           success: false,
@@ -215,17 +228,57 @@ export default class RouteOperator {
 
     return isSupported;
   });
+
+  async execute(
+    routeName: string,
+    sourceToken: Token,
+    amount: sdkAmount.Amount,
+    sourceChain: Chain,
+    signer: Signer,
+    destChain: Chain,
+    recipientAddress: string,
+    destToken: Token,
+    options: routes.AutomaticTokenBridgeRoute.Options,
+  ) {
+    const route = this.get(routeName);
+
+    const quoteParams: QuoteParams = {
+      amount,
+      sourceChain,
+      sourceToken,
+      destChain,
+      destToken,
+      nativeGas: options.nativeGas,
+      recipient: recipientAddress,
+    };
+
+    let quoteMetadata = this.quoteMetadataCache.get(routeName, quoteParams);
+
+    if (!quoteMetadata) {
+      quoteMetadata = await route.getQuote(
+        amount,
+        sourceToken,
+        destToken,
+        sourceChain,
+        destChain,
+        options,
+        recipientAddress,
+      );
+    }
+
+    return route.send(quoteMetadata, signer, destChain, recipientAddress);
+  }
 }
 
 // This caches successful quote results from SDK routes and handles multiple concurrent
 // async functions asking for the same quote gracefully.
 //
 // If we are already fetching a quote and a second hook requests the same quote elsewhere,
-// we queue up a Promise in `QuoteCacheEntry.pending` that we resolve when the original
+// we queue up a Promise in `QuoteMetadataEntry.pending` that we resolve when the original
 // quote request is resolved. This just prevents us from making redundant API calls when
 // multiple components or hooks are interested in a quote.
-class QuoteCache {
-  cache: Record<string, QuoteCacheEntry>;
+class QuoteMetadataCache {
+  cache: Record<string, QuoteMetadataEntry>;
   pending: Record<string, QuotePromiseHandlers[]>;
 
   constructor() {
@@ -243,96 +296,98 @@ class QuoteCache {
     )}:${params.nativeGas}:${params.recipient}`;
   }
 
-  get(routeName: string, params: QuoteParams): QuoteResult | null {
+  get(routeName: string, params: QuoteParams): QuoteMetadata | null {
     const key = this.quoteParamsKey(routeName, params);
-    const cachedVal = this.cache[key];
-    if (cachedVal) {
-      if (cachedVal.ttl() > 5) {
-        return cachedVal.result;
-      } else {
-        delete this.cache[key];
-      }
+    const quoteMetadata = this.cache[key];
+    const hasQuoteExpired = quoteMetadata?.ttl() <= 5_000;
+
+    if (!quoteMetadata || hasQuoteExpired) {
+      delete this.cache[key];
+      return null;
     }
 
-    return null;
+    return {
+      quote: quoteMetadata.quote,
+      request: quoteMetadata.request,
+      routeInstance: quoteMetadata.routeInstance,
+    };
   }
 
-  async fetch(
+  async fetchQuote(
     routeName: string,
     params: QuoteParams,
     route: SDKv2Route,
   ): Promise<QuoteResult> {
-    console.debug('Fetching quote', routeName, params);
+    console.debug('Fetching quote using', routeName, params);
 
     const key = this.quoteParamsKey(routeName, params);
     const pending = this.pending[key];
+
     if (pending) {
       // We already have a pending request for this key, so don't create a new one.
       // Instead, subscribe to its result when it resolves
       return new Promise((resolve, reject) => {
         pending.push({ resolve, reject });
       });
-    } else {
-      // Initialize list of promises awaiting this result
-      const returnPromise: Promise<QuoteResult> = new Promise(
-        (resolve, reject) => {
-          this.pending[key] = [{ resolve, reject }];
-        },
-      );
+    }
 
-      // We don't yet have a pending request for this key, so initiate one
-      route
-        .computeQuote(
-          params.amount,
-          params.sourceToken,
-          params.destToken,
-          params.sourceChain,
-          params.destChain,
-          { nativeGas: params.nativeGas },
-          params.recipient,
-        )
-        .then((result: QuoteResult) => {
-          const pending = this.pending[key];
-          for (const { resolve } of pending) {
-            resolve(result);
-          }
-          delete this.pending[key];
+    // We don't yet have a pending request for this key, so initiate one
+    route
+      .getQuote(
+        params.amount,
+        params.sourceToken,
+        params.destToken,
+        params.sourceChain,
+        params.destChain,
+        { nativeGas: params.nativeGas },
+        params.recipient,
+      )
+      .then(({ routeInstance, quote, request }: QuoteMetadata) => {
+        console.debug(
+          `\x1b[32mSuccessfully fetched quote using`,
+          routeName,
+          quote,
+        );
 
-          if (result.success) {
-            const now = Date.now();
+        const pending = this.pending[key];
 
-            // A valid expiry should be at least 5 seconds in the future
-            // and if not, we should default to 60 seconds.
-            const isValidExpiry =
-              result.expires instanceof Date &&
-              result.expires.getTime() > now + 5_000;
+        for (const { resolve } of pending) {
+          resolve(quote);
+        }
 
-            if (!isValidExpiry) {
-              result.expires = new Date(now + 60_000);
-            }
-          }
+        delete this.pending[key];
 
-          console.debug(`Fetched quote`, routeName, result);
+        if (quote.success) {
+          quote.expires = getQuoteExpiry(quote.expires);
+        }
 
-          this.cache[key] = new QuoteCacheEntry(result);
-        })
-        .catch((err: any) => {
-          console.debug(`Error fetching quote`, routeName, err);
-          const pending = this.pending[key];
-          for (const { reject } of pending) {
-            reject(err);
-          }
-          delete this.pending[key];
+        this.cache[key] = new QuoteMetadataEntry(quote, routeInstance, request);
+      })
+      .catch((err: any) => {
+        console.debug(`\x1b[31mFailed to fetch quote using`, routeName, err);
 
-          // Cache uncaught error
-          this.cache[key] = new QuoteCacheEntry({
+        const pending = this.pending[key];
+
+        for (const { reject } of pending) {
+          reject(err);
+        }
+
+        delete this.pending[key];
+
+        // Cache uncaught error
+        this.cache[key] = new QuoteMetadataEntry(
+          {
             success: false,
             error: err,
-          });
-        });
+          },
+          {} as routes.Route<Network>,
+          {} as routes.RouteTransferRequest<Network>,
+        );
+      });
 
-      return returnPromise;
-    }
+    return new Promise((resolve, reject) => {
+      this.pending[key] = [{ resolve, reject }];
+    });
   }
 
   nextExpiry(routes: string[], params: QuoteParams): Date | undefined {
@@ -359,31 +414,41 @@ interface QuotePromiseHandlers {
   reject: (err: Error) => void;
 }
 
-class QuoteCacheEntry {
-  // Last quote we received (the cached value)
-  result: QuoteResult;
+class QuoteMetadataEntry {
+  // Last quote we received
+  quote: QuoteResult;
   // Last time we fetched a quote
   timestamp: Date;
+  // Optional route used for the quote
+  routeInstance: routes.Route<Network>;
+  // Optional request used for the quote
+  request: routes.RouteTransferRequest<Network>;
 
-  constructor(result: QuoteResult) {
-    this.result = result;
+  constructor(
+    quote: QuoteResult,
+    routeInstance: routes.Route<Network>,
+    request: routes.RouteTransferRequest<Network>,
+  ) {
+    this.quote = quote;
+    this.routeInstance = routeInstance;
+    this.request = request;
     this.timestamp = new Date();
   }
 
   // Number of seconds this quote is still valid for before we should fetch a new one
-  expires(): Date {
-    if (this.result.success) {
-      // For a successful quote, if it specifies an expiry we return that
-      // otherwise we default to a TTL 1 minute
-      return this.result.expires ?? new Date(this.timestamp.valueOf() + 60_000);
+  expires() {
+    if (this.quote.success) {
+      return (
+        this.quote.expires ?? getDefaultQuoteExpiry(this.timestamp.getTime())
+      );
     } else {
-      // We cache errors for 10 seconds
-      return new Date(this.timestamp.valueOf() + 120_000);
+      // We cache errors for 120 seconds
+      return new Date(this.timestamp.getTime() + 120_000);
     }
   }
 
-  // TTL in seconds before quote expires
-  ttl(): number {
-    return (this.expires().valueOf() - Date.now().valueOf()) / 1000;
+  // TTL in ms before quote expires
+  ttl() {
+    return this.expires().getTime() - Date.now();
   }
 }

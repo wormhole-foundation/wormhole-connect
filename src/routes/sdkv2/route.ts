@@ -25,11 +25,12 @@ import {
   getWrappedNativeToken,
   shouldFilterSameChainToken,
 } from 'utils/wrappedNativeTokens';
+import type { QuoteMetadata } from '../types';
 
 type Amount = sdkAmount.Amount;
 
 // =^o^=
-export class SDKv2Route {
+export default class SDKv2Route {
   // TODO: remove this
   IS_TOKEN_BRIDGE_ROUTE = false;
 
@@ -178,14 +179,12 @@ export class SDKv2Route {
     destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
     recipient?: string,
-  ): Promise<
-    [
-      routes.Route<Network>,
-      routes.QuoteResult<routes.Options>,
-      routes.RouteTransferRequest<Network>,
-    ]
-  > {
-    const req = await this.createRequest(
+  ): Promise<QuoteMetadata> {
+    if (!sourceChain || !destChain || !sourceToken || !destToken) {
+      throw new Error('Malformed quote request');
+    }
+
+    const request = await this.createRequest(
       sourceToken,
       destToken,
       sourceChain,
@@ -193,9 +192,9 @@ export class SDKv2Route {
       recipient,
     );
 
-    const wh = await getWormholeContextV2();
-    const route = new this.rc(wh);
-    const validationResult = await route.validate(req, {
+    const routeInstance = await this.createRouteInstance();
+
+    const validationResult = await routeInstance.validate(request, {
       amount: sdkAmount.display(amount),
       options,
     });
@@ -204,9 +203,16 @@ export class SDKv2Route {
       throw validationResult.error;
     }
 
-    const quote = await route.quote(req, validationResult.params);
+    const quote = await routeInstance.quote(request, validationResult.params);
 
-    return [route, quote, req];
+    return { routeInstance, quote, request };
+  }
+
+  async createRouteInstance() {
+    const wh = await getWormholeContextV2();
+    const routeInstance = new this.rc(wh);
+
+    return routeInstance;
   }
 
   async createRequest(
@@ -218,8 +224,8 @@ export class SDKv2Route {
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
     const destContext = (await this.getV2ChainContext(destChain)).context;
-
     const wh = await getWormholeContextV2();
+
     const req = await routes.RouteTransferRequest.create(
       wh,
       /* @ts-ignore */
@@ -233,65 +239,24 @@ export class SDKv2Route {
       sourceContext,
       destContext,
     );
+
     return req;
   }
 
-  async computeQuote(
-    amountIn: Amount,
-    sourceToken: Token,
-    destToken: Token,
-    fromChain: Chain,
-    toChain: Chain,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
-    recipient?: string,
-  ): Promise<routes.QuoteResult<routes.Options>> {
-    if (!fromChain || !toChain) {
-      throw new Error('Need both chains to get a quote from SDKv2');
-    }
-
-    const [, quote] = await this.getQuote(
-      amountIn,
-      sourceToken,
-      destToken,
-      fromChain,
-      toChain,
-      options,
-      recipient,
-    );
-
-    if (!quote.success) {
-      throw quote.error;
-    }
-
-    return quote;
-  }
-
   async send(
-    sourceToken: Token,
-    amount: Amount,
-    fromChain: Chain,
+    quoteMetadata: QuoteMetadata,
     signer: Signer,
     toChain: Chain,
     recipientAddress: string,
-    destToken: Token,
-    options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<[routes.Route<Network>, routes.Receipt]> {
-    const [route, quote, req] = await this.getQuote(
-      amount,
-      sourceToken,
-      destToken,
-      fromChain,
-      toChain,
-      options,
-      recipientAddress,
-    );
+    const { quote, routeInstance, request } = quoteMetadata;
 
     if (!quote.success) {
       throw quote.error;
     }
 
-    let receipt = await route.initiate(
-      req,
+    let receipt = await routeInstance.initiate(
+      request,
       signer,
       quote,
       Wormhole.chainAddress(toChain, recipientAddress),
@@ -303,7 +268,7 @@ export class SDKv2Route {
       receipt.state === TransferState.SourceInitiated ||
       receipt.state === TransferState.SourceFinalized
     ) {
-      return [route, receipt];
+      return [routeInstance, receipt];
     }
 
     // Otherwise track the transfer until it reaches a final state,
@@ -314,9 +279,9 @@ export class SDKv2Route {
 
     while (retries < maxRetries) {
       try {
-        for await (receipt of route.track(receipt, 120 * 1000)) {
+        for await (receipt of routeInstance.track(receipt, 120 * 1000)) {
           if (receipt.state >= TransferState.SourceInitiated) {
-            return [route, receipt];
+            return [routeInstance, receipt];
           }
         }
       } catch (e) {
