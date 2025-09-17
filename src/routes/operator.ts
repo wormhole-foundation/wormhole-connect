@@ -237,6 +237,7 @@ export default class RouteOperator {
     sourceChain: Chain,
     signer: Signer,
     destChain: Chain,
+    senderAddress: string,
     recipientAddress: string,
     destToken: Token,
     options: routes.AutomaticTokenBridgeRoute.Options,
@@ -250,6 +251,7 @@ export default class RouteOperator {
       destChain,
       destToken,
       nativeGas: options.nativeGas,
+      sender: senderAddress,
       recipient: recipientAddress,
     };
 
@@ -263,6 +265,7 @@ export default class RouteOperator {
         sourceChain,
         destChain,
         options,
+        senderAddress,
         recipientAddress,
       );
     }
