@@ -142,10 +142,7 @@ export class Token extends TokenIdLazy {
   }
 
   get isTokenBridgeWrappedToken() {
-    return (
-      !!this.tokenBridgeOriginalTokenId ||
-      Boolean(getWrappedNativeToken(config.network, this.chain))
-    );
+    return !!this.tokenBridgeOriginalTokenId;
   }
 
   get nativeChain() {
@@ -433,6 +430,7 @@ export class TokenCache extends TokenMapping<Token> {
     }
 
     if (matching.length === 1) {
+      console.log(`Found token by symbol: ${symbol} -> ${matching[0]}`);
       return matching[0];
     } else if (matching.length > 1) {
       // This means there's more than one native token (not wrapped) with this symbol
