@@ -190,7 +190,7 @@ export const validateDefaults = (
     );
     if (!token) {
       error(
-        `Invalid token "${defaults.source?.token}" specified for defaultInputs.fromToken`,
+        `Invalid token "${defaults.source?.token}" specified for defaultInputs.source.token`,
       );
       delete defaults.source.token;
     }
@@ -203,7 +203,7 @@ export const validateDefaults = (
     );
     if (!token) {
       error(
-        `Invalid token "${defaults.destination?.token}" specified for defaultInputs.toToken`,
+        `Invalid token "${defaults.destination?.token}" specified for defaultInputs.destination.token`,
       );
       delete defaults.destination.token;
     }
