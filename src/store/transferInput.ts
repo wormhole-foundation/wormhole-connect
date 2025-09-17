@@ -121,13 +121,10 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     const destToken = config.tokens.get(state.destToken);
     if (destToken && toChain) {
       if (destToken.chain !== toChain && destToken.symbol) {
-        const withSameSymbol = config.tokens.findBySymbol(
-          toChain,
-          destToken.symbol,
-        );
+        const withSameSymbol = getTokenDisplaySymbolByTokenAddress(destToken);
 
         if (withSameSymbol) {
-          state.destToken = withSameSymbol.tuple;
+          state.destToken = [destToken.chain, withSameSymbol];
         }
       }
     }
