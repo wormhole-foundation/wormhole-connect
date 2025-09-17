@@ -1,4 +1,9 @@
-import type { Chain, TokenId, TokenAddress } from '@wormhole-foundation/sdk';
+import type {
+  Chain,
+  TokenId,
+  TokenAddress,
+  Network,
+} from '@wormhole-foundation/sdk';
 import {
   canonicalAddress,
   isTokenId,
@@ -8,10 +13,17 @@ import {
   chainToPlatform,
   UniversalAddress,
 } from '@wormhole-foundation/sdk';
-import type { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
+import type {
+  TokenIcon,
+  TokenConfig,
+  WrappedTokenAddresses,
+  WormholeConnectConfig,
+} from './types';
 import config, { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 import { fetchTokenMetadata } from 'utils/coingecko';
+import { getWrappedNativeToken } from 'utils/wrappedNativeTokens';
+import { capitalize } from './utils';
 
 const TOKEN_CACHE_VERSION = 1;
 
@@ -45,6 +57,16 @@ class TokenIdLazy<C extends Chain = Chain> implements TokenId<C> {
     return new TokenIdLazy(tuple[0], tuple[1]);
   }
 }
+type TokenConstructorProps = {
+  chain: Chain;
+  address: string;
+  decimals: number;
+  symbol: string;
+  name?: string;
+  icon?: TokenIcon | string;
+  tokenBridgeOriginalTokenId?: TokenId;
+  coingeckoId?: string;
+};
 
 export class Token extends TokenIdLazy {
   decimals: number;
@@ -66,16 +88,16 @@ export class Token extends TokenIdLazy {
   // Used when filtering out unknown/unverified tokens
   isBuiltin?: boolean;
 
-  constructor(
-    chain: Chain,
-    address: string,
-    decimals: number,
-    symbol: string,
-    name?: string,
-    icon?: TokenIcon | string,
-    tokenBridgeOriginalTokenId?: TokenId,
-    coingeckoId?: string,
-  ) {
+  constructor({
+    chain,
+    address,
+    decimals,
+    symbol,
+    name,
+    icon,
+    tokenBridgeOriginalTokenId,
+    coingeckoId,
+  }: TokenConstructorProps) {
     super(chain, address);
     this.decimals = decimals;
     this.symbol = symbol;
@@ -120,7 +142,10 @@ export class Token extends TokenIdLazy {
   }
 
   get isTokenBridgeWrappedToken() {
-    return !!this.tokenBridgeOriginalTokenId;
+    return (
+      !!this.tokenBridgeOriginalTokenId ||
+      Boolean(getWrappedNativeToken(config.network, this.chain))
+    );
   }
 
   get nativeChain() {
@@ -157,18 +182,18 @@ export class Token extends TokenIdLazy {
     tokenBridgeOriginalTokenId,
     coingeckoWebId,
   }: TokenJson) {
-    return new Token(
-      chain as Chain,
+    return new Token({
+      chain: chain as Chain,
       address,
       decimals,
       symbol,
       name,
-      icon === '' ? undefined : icon,
-      tokenBridgeOriginalTokenId
+      icon: icon === '' ? undefined : icon,
+      tokenBridgeOriginalTokenId: tokenBridgeOriginalTokenId
         ? tokenIdFromTuple(tokenBridgeOriginalTokenId)
         : undefined,
-      coingeckoWebId,
-    );
+      coingeckoId: coingeckoWebId,
+    });
   }
 }
 
@@ -396,12 +421,15 @@ export class TokenCache extends TokenMapping<Token> {
       const overrideMatch =
         lowerCaseSymbol ===
         chainOverrides?.[t.address.toString()]?.toLowerCase();
+
       return symbolMatch || overrideMatch;
     });
 
     if (matching.length > 1) {
       // Exclude wrapped tokens if there's multiple matches
-      matching = matching.filter((t) => !t.isTokenBridgeWrappedToken);
+      matching = matching.filter((t) => {
+        return !t.isTokenBridgeWrappedToken;
+      });
     }
 
     if (matching.length === 1) {
@@ -477,16 +505,16 @@ export class TokenCache extends TokenMapping<Token> {
       }
     }
 
-    const t = new Token(
-      tokenId.chain,
-      canonicalAddress(tokenId),
+    const t = new Token({
+      chain: tokenId.chain,
+      address: canonicalAddress(tokenId),
       decimals,
       symbol,
       name,
-      image,
+      icon: image || undefined,
       tokenBridgeOriginalTokenId,
       coingeckoId,
-    );
+    });
 
     this.add(t);
 
@@ -542,18 +570,33 @@ export function buildTokenCache(
   tokens: TokenConfig[],
   wrappedTokens: WrappedTokenAddresses,
   cacheKey: string,
+  customConfig: WormholeConnectConfig = {},
 ): TokenCache {
   const cache = TokenCache.load(cacheKey);
-
+  const network = capitalize(
+    customConfig.network ||
+      import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
+      'Mainnet',
+  ) as Network;
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
-    const token = new Token(
-      tokenId.chain,
-      tokenId.address.toString(),
+    const wrappedToken = getWrappedNativeToken(network, tokenId.chain);
+    const isWrappedToken =
+      wrappedToken &&
+      tokenId.address.toLowerCase() === wrappedToken.toLowerCase();
+    const token = new Token({
+      chain: tokenId.chain,
+      address: tokenId.address.toString(),
       decimals,
       symbol,
       name,
       icon,
-    );
+      tokenBridgeOriginalTokenId: isWrappedToken
+        ? {
+            chain: tokenId.chain,
+            address: tokenId.address as TokenAddress<typeof tokenId.chain>,
+          }
+        : undefined,
+    });
     token.isBuiltin = true;
     cache.add(token);
   }
@@ -573,16 +616,18 @@ export function buildTokenCache(
             chainToPlatform(otherChain as Chain) === 'Evm' ? 18 : 8;
 
           decimals = Math.min(decimals, originalToken.decimals);
-
-          const wrappedToken = new Token(
-            otherChain as Chain,
-            wrappedAddr,
+          const wrappedToken = new Token({
+            chain: otherChain as Chain,
+            address: wrappedAddr,
             decimals,
-            originalToken.symbol,
-            originalToken.name,
-            originalToken.icon,
-            originalToken,
-          );
+            symbol: originalToken.symbol,
+            name: originalToken.name,
+            icon: originalToken.icon,
+            tokenBridgeOriginalTokenId: {
+              chain: originalToken.chain,
+              address: originalToken.address,
+            },
+          });
           wrappedToken.isBuiltin = true;
 
           cache.add(wrappedToken);
