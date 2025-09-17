@@ -9,9 +9,8 @@ import {
   UniversalAddress,
 } from '@wormhole-foundation/sdk';
 import type { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
-import { getWormholeContextV2 } from './index';
+import config, { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
-
 import { fetchTokenMetadata } from 'utils/coingecko';
 
 const TOKEN_CACHE_VERSION = 1;
@@ -389,9 +388,16 @@ export class TokenCache extends TokenMapping<Token> {
   // This should be used sparingly/never... use addresses instead.
   // Excludes wrapped tokens
   findBySymbol(chain: Chain, symbol: string): Token | undefined {
-    let matching = this.getAllForChain(chain).filter(
-      (t) => t.symbol.toLowerCase() === symbol.toLowerCase(),
-    );
+    const chainOverrides = config.ui?.tokenNameOverrides?.[chain];
+    const lowerCaseSymbol = symbol.toLowerCase();
+
+    let matching = this.getAllForChain(chain).filter((t) => {
+      const symbolMatch = lowerCaseSymbol === t.symbol.toLowerCase();
+      const overrideMatch =
+        lowerCaseSymbol ===
+        chainOverrides?.[t.address.toString()]?.toLowerCase();
+      return symbolMatch || overrideMatch;
+    });
 
     if (matching.length > 1) {
       // Exclude wrapped tokens if there's multiple matches
