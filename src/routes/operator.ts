@@ -294,7 +294,7 @@ class QuoteMetadataCache {
       params.destChain
     }:${params.destToken.address.toString()}:${sdkAmount.units(
       params.amount,
-    )}:${params.nativeGas}:${params.recipient}`;
+    )}:${params.nativeGas}:${params.recipient}:${params.sender}`;
   }
 
   get(routeName: string, params: QuoteParams): QuoteMetadata | null {
