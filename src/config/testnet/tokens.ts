@@ -96,7 +96,7 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     tokenId: { chain: 'Solana', address: 'native' },
   },
   {
-    symbol: 'WSOL',
+    symbol: 'SOL',
     tokenId: {
       chain: 'Solana',
       address: 'So11111111111111111111111111111111111111112',
