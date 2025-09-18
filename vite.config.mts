@@ -7,7 +7,7 @@ import {
   ConfigEnv,
   BuildEnvironmentOptions,
 } from 'vite';
-import type { PreRenderedAsset } from 'rollup';
+import type { InputOption, PreRenderedAsset } from 'rollup';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -18,6 +18,7 @@ import packageJson from './package.json';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { version } = packageJson;
+const isAnalyze = process.env.ANALYZE === 'true';
 
 let gitHash = 'unknown';
 
@@ -133,69 +134,87 @@ const hostedBuild: BuildEnvironmentOptions = {
   },
 };
 
-// Production build, for direct import
+const libEntry: InputOption = [
+  path.resolve(__dirname, 'src/exports/index.ts'),
+  path.resolve(__dirname, 'src/exports/mayan.ts'),
+  path.resolve(__dirname, 'src/exports/ntt.ts'),
+  path.resolve(__dirname, 'src/exports/hosted.ts'),
+  path.resolve(__dirname, 'src/exports/executor.ts'),
+];
+
+const rollupInput: InputOption = {
+  index: 'src/exports/index.ts',
+  mayan: 'src/exports/mayan.ts',
+  ntt: 'src/exports/ntt.ts',
+  hosted: 'src/exports/hosted.ts',
+  executor: 'src/exports/executor.ts',
+};
+
+const external = [
+  'react',
+  'react/jsx-runtime',
+  '@emotion/react',
+  '@emotion/styled',
+  '@mui/material',
+  '@mui/icons-material',
+  '@mui/styled-engine',
+  '@mui/system',
+];
+
+// Production build, for npm import
 const libBuild: BuildEnvironmentOptions = {
   outDir: './lib',
   lib: {
-    entry: [
-      path.resolve(__dirname, 'src/exports/index.ts'),
-      path.resolve(__dirname, 'src/exports/mayan.ts'),
-      path.resolve(__dirname, 'src/exports/ntt.ts'),
-      path.resolve(__dirname, 'src/exports/hosted.ts'),
-      path.resolve(__dirname, 'src/exports/executor.ts'),
-    ],
-    formats: ['es'],
-    // fileName: (_, entryname) => {
-    //   const n = entryname.split('/').pop()!;
-    //   return `${n.split('.')[0]}.mjs`;
-    // },
+    entry: libEntry,
+    formats: isAnalyze ? ['es'] : ['es', 'cjs'],
+    fileName: (format, entryname) => {
+      const n = entryname.split('/').pop()!;
+      return `${n.split('.')[0]}.${format === 'es' ? 'mjs' : 'js'}`;
+    },
   },
   rollupOptions: {
-    input: {
-      index: 'src/exports/index.ts',
-      mayan: 'src/exports/mayan.ts',
-      ntt: 'src/exports/ntt.ts',
-      hosted: 'src/exports/hosted.ts',
-      executor: 'src/exports/executor.ts',
-    },
+    input: rollupInput,
     output: {
-      // entryFileNames: '[name].mjs',
+      assetFileNames,
+      inlineDynamicImports: false,
+      exports: 'named' as const,
+    },
+    external,
+  },
+};
+
+// Minimal build, for submodule import
+const minimalBuild: BuildEnvironmentOptions = {
+  sourcemap: true,
+  minify: false,
+  outDir: './lib',
+  lib: {
+    entry: libEntry,
+    formats: ['es'],
+  },
+  rollupOptions: {
+    input: rollupInput,
+    output: {
+      entryFileNames: '[name].mjs',
       chunkFileNames: '[name].mjs',
       assetFileNames: '[name].[ext]',
       inlineDynamicImports: false,
       preserveModules: true,
       preserveModulesRoot: 'src',
-      entryFileNames(chunkInfo) {
-        if (chunkInfo.name.includes('node_modules')) {
-          return chunkInfo.name.replace('node_modules', 'external') + '.mjs';
-        }
-
-        return '[name].mjs';
-      },
     },
-    external: [
-      'react',
-      'react/jsx-runtime',
-      '@emotion/react',
-      '@emotion/styled',
-      '@mui/material',
-      '@mui/icons-material',
-      '@mui/styled-engine',
-      '@mui/system',
-    ],
+    external,
   },
-  minify: false,
   terserOptions: {
     mangle: false,
     compress: false,
   },
-  sourcemap: true,
 };
 
 export default defineConfig(({ command, mode }: ConfigEnv) => {
   const env = loadEnv(mode, process.cwd(), '');
   const isHosted = !!env.VITE_BUILD_HOSTED;
   const isNetlify = !!env.VITE_BUILD_NETLIFY;
+  const isMinimal = !!env.VITE_BUILD_MINIMAL;
   const isSampleApp = command === 'serve' || (command === 'build' && isNetlify);
 
   let build: BuildEnvironmentOptions | undefined = undefined;
@@ -205,6 +224,8 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
   } else if (command === 'build') {
     if (isHosted) {
       build = hostedBuild;
+    } else if (isMinimal) {
+      build = minimalBuild;
     } else {
       build = libBuild;
     }
