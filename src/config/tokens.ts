@@ -596,10 +596,7 @@ export function buildTokenCache(
             symbol: originalToken.symbol,
             name: originalToken.name,
             icon: originalToken.icon,
-            tokenBridgeOriginalTokenId: {
-              chain: originalToken.chain,
-              address: originalToken.address,
-            },
+            tokenBridgeOriginalTokenId: originalToken,
           });
           wrappedToken.isBuiltin = true;
 
