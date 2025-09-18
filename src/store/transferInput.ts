@@ -14,7 +14,6 @@ import {
 } from './helpers';
 import type { Chain } from '@wormhole-foundation/sdk';
 import { amount } from '@wormhole-foundation/sdk';
-import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 
 export type ValidationErr = string;
 
