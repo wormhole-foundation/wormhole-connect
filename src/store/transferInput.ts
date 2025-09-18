@@ -104,10 +104,13 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
     const token = config.tokens.get(state.token);
     if (token && fromChain) {
       if (token.chain !== fromChain && token.symbol) {
-        const withSameSymbol = getTokenDisplaySymbolByTokenAddress(token);
+        const withSameSymbol = config.tokens.findBySymbol(
+          fromChain,
+          token.symbol,
+        );
 
         if (withSameSymbol) {
-          state.token = [token.chain, withSameSymbol];
+          state.token = withSameSymbol.tuple;
         }
       }
     }
@@ -121,10 +124,13 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     const destToken = config.tokens.get(state.destToken);
     if (destToken && toChain) {
       if (destToken.chain !== toChain && destToken.symbol) {
-        const withSameSymbol = getTokenDisplaySymbolByTokenAddress(destToken);
+        const withSameSymbol = config.tokens.findBySymbol(
+          toChain,
+          destToken.symbol,
+        );
 
         if (withSameSymbol) {
-          state.destToken = [destToken.chain, withSameSymbol];
+          state.token = withSameSymbol.tuple;
         }
       }
     }

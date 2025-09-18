@@ -496,7 +496,7 @@ export class TokenCache extends TokenMapping<Token> {
       decimals,
       symbol,
       name,
-      icon: image || undefined,
+      icon: image,
       tokenBridgeOriginalTokenId,
       coingeckoId,
     });
