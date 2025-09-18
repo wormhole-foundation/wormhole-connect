@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import type { routes } from '@wormhole-foundation/sdk';
 import { amount } from '@wormhole-foundation/sdk';
-import { getTokenSymbol } from 'utils';
+import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 
 import config from 'config';
 import { useGasSlider } from 'hooks/useGasSlider';
@@ -383,7 +383,7 @@ const SingleRoute = (props: Props) => {
         component="div"
         marginBottom="6px"
       >
-        {receiveAmountTrunc} {getTokenSymbol(destToken)}
+        {receiveAmountTrunc} {getTokenDisplaySymbolByTokenAddress(destToken)}
       </Typography>
     );
   }, [

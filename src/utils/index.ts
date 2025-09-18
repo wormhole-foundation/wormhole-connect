@@ -69,7 +69,7 @@ export function getGasToken(chain: Chain): Token {
   return gasToken;
 }
 
-export function getTokenSymbol(token: Token): string {
+export function getTokenDisplaySymbolByTokenAddress(token: Token): string {
   const chainOverrides = config.ui?.tokenNameOverrides?.[token.chain];
 
   if (!chainOverrides) {

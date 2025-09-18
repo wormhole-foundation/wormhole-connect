@@ -16,7 +16,7 @@ import {
   getUSDFormat,
   millisToRelativeTime,
   trimTxHash,
-  getTokenSymbol,
+  getTokenDisplaySymbolByTokenAddress,
 } from 'utils';
 
 import type { Transaction } from 'config/types';
@@ -78,7 +78,8 @@ const TxHistoryItem = (props: Props) => {
         <AssetBadge chainConfig={sourceChainConfig} token={fromToken} />
         <Stack direction="column" marginLeft="12px">
           <Typography fontSize={16}>
-            {amount} {fromToken ? getTokenSymbol(fromToken) : ''}
+            {amount}{' '}
+            {fromToken ? getTokenDisplaySymbolByTokenAddress(fromToken) : ''}
           </Typography>
           <Typography color={theme.palette.text.secondary} fontSize={14}>
             {amountUsd ? (
@@ -122,7 +123,7 @@ const TxHistoryItem = (props: Props) => {
     ) : null;
 
     const destTokenSymbol = destTokenConfig
-      ? getTokenSymbol(destTokenConfig)
+      ? getTokenDisplaySymbolByTokenAddress(destTokenConfig)
       : '';
 
     return (

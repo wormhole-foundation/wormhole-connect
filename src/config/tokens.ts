@@ -9,9 +9,8 @@ import {
   UniversalAddress,
 } from '@wormhole-foundation/sdk';
 import type { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
-import { getWormholeContextV2 } from './index';
+import config, { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
-
 import { fetchTokenMetadata } from 'utils/coingecko';
 
 const TOKEN_CACHE_VERSION = 1;
@@ -46,6 +45,16 @@ class TokenIdLazy<C extends Chain = Chain> implements TokenId<C> {
     return new TokenIdLazy(tuple[0], tuple[1]);
   }
 }
+type TokenConstructorProps = {
+  chain: Chain;
+  address: string;
+  decimals: number;
+  symbol: string;
+  name?: string;
+  icon?: TokenIcon | string;
+  tokenBridgeOriginalTokenId?: TokenId;
+  coingeckoId?: string;
+};
 
 export class Token extends TokenIdLazy {
   decimals: number;
@@ -67,16 +76,16 @@ export class Token extends TokenIdLazy {
   // Used when filtering out unknown/unverified tokens
   isBuiltin?: boolean;
 
-  constructor(
-    chain: Chain,
-    address: string,
-    decimals: number,
-    symbol: string,
-    name?: string,
-    icon?: TokenIcon | string,
-    tokenBridgeOriginalTokenId?: TokenId,
-    coingeckoId?: string,
-  ) {
+  constructor({
+    chain,
+    address,
+    decimals,
+    symbol,
+    name,
+    icon,
+    tokenBridgeOriginalTokenId,
+    coingeckoId,
+  }: TokenConstructorProps) {
     super(chain, address);
     this.decimals = decimals;
     this.symbol = symbol;
@@ -158,18 +167,18 @@ export class Token extends TokenIdLazy {
     tokenBridgeOriginalTokenId,
     coingeckoWebId,
   }: TokenJson) {
-    return new Token(
-      chain as Chain,
+    return new Token({
+      chain: chain as Chain,
       address,
       decimals,
       symbol,
       name,
-      icon === '' ? undefined : icon,
-      tokenBridgeOriginalTokenId
+      icon: icon === '' ? undefined : icon,
+      tokenBridgeOriginalTokenId: tokenBridgeOriginalTokenId
         ? tokenIdFromTuple(tokenBridgeOriginalTokenId)
         : undefined,
-      coingeckoWebId,
-    );
+      coingeckoId: coingeckoWebId,
+    });
   }
 }
 
@@ -389,19 +398,33 @@ export class TokenCache extends TokenMapping<Token> {
   // This should be used sparingly/never... use addresses instead.
   // Excludes wrapped tokens
   findBySymbol(chain: Chain, symbol: string): Token | undefined {
-    let matching = this.getAllForChain(chain).filter(
-      (t) => t.symbol.toLowerCase() === symbol.toLowerCase(),
-    );
+    const chainOverrides = config.ui?.tokenNameOverrides?.[chain];
+    const lowerCaseSymbol = symbol.toLowerCase();
+
+    let matching = this.getAllForChain(chain).filter((t) => {
+      const symbolMatch = lowerCaseSymbol === t.symbol.toLowerCase();
+      const overrideMatch =
+        lowerCaseSymbol ===
+        chainOverrides?.[t.address.toString()]?.toLowerCase();
+
+      return symbolMatch || overrideMatch;
+    });
 
     if (matching.length > 1) {
       // Exclude wrapped tokens if there's multiple matches
-      matching = matching.filter((t) => !t.isTokenBridgeWrappedToken);
+      matching = matching.filter((t) => {
+        return !t.isTokenBridgeWrappedToken;
+      });
     }
 
     if (matching.length === 1) {
       return matching[0];
     } else if (matching.length > 1) {
-      // This means there's more than one native token (not wrapped) with this symbol
+      const gasToken = matching.find((t) => t.address === 'native');
+      // This means there's more than one native token (not wrapped) with this symbol.
+      // prefer the gas token if there are multiple tokens with the same symbol.
+      if (gasToken) return gasToken;
+
       console.error(`Ambiguous token symbol: ${symbol}`);
     }
 
@@ -471,16 +494,16 @@ export class TokenCache extends TokenMapping<Token> {
       }
     }
 
-    const t = new Token(
-      tokenId.chain,
-      canonicalAddress(tokenId),
+    const t = new Token({
+      chain: tokenId.chain,
+      address: canonicalAddress(tokenId),
       decimals,
       symbol,
       name,
-      image,
+      icon: image,
       tokenBridgeOriginalTokenId,
       coingeckoId,
-    );
+    });
 
     this.add(t);
 
@@ -538,16 +561,15 @@ export function buildTokenCache(
   cacheKey: string,
 ): TokenCache {
   const cache = TokenCache.load(cacheKey);
-
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
-    const token = new Token(
-      tokenId.chain,
-      tokenId.address.toString(),
+    const token = new Token({
+      chain: tokenId.chain,
+      address: tokenId.address.toString(),
       decimals,
       symbol,
       name,
       icon,
-    );
+    });
     token.isBuiltin = true;
     cache.add(token);
   }
@@ -567,16 +589,15 @@ export function buildTokenCache(
             chainToPlatform(otherChain as Chain) === 'Evm' ? 18 : 8;
 
           decimals = Math.min(decimals, originalToken.decimals);
-
-          const wrappedToken = new Token(
-            otherChain as Chain,
-            wrappedAddr,
+          const wrappedToken = new Token({
+            chain: otherChain as Chain,
+            address: wrappedAddr,
             decimals,
-            originalToken.symbol,
-            originalToken.name,
-            originalToken.icon,
-            originalToken,
-          );
+            symbol: originalToken.symbol,
+            name: originalToken.name,
+            icon: originalToken.icon,
+            tokenBridgeOriginalTokenId: originalToken,
+          });
           wrappedToken.isBuiltin = true;
 
           cache.add(wrappedToken);
