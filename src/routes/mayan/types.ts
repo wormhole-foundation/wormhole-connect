@@ -2,13 +2,14 @@ import type { Chain, Network } from '@wormhole-foundation/sdk-base';
 import type { routes } from '@wormhole-foundation/sdk-connect';
 import type { Quote as MayanQuote } from '@mayanfinance/swap-sdk';
 
-export type MayanProtocol =
-  | 'WH'
-  | 'MCTP'
-  | 'SWIFT'
-  | 'FAST_MCTP'
-  | 'SHUTTLE'
-  | 'MONO_CHAIN';
+export enum MayanProtocol {
+  WH = 'WH',
+  MCTP = 'MCTP',
+  SWIFT = 'SWIFT',
+  FAST_MCTP = 'FAST_MCTP',
+  SHUTTLE = 'SHUTTLE',
+  MONO_CHAIN = 'MONO_CHAIN',
+}
 
 export type ReferrerParams<N extends Network> = {
   getReferrerBps?: (request: routes.RouteTransferRequest<N>) => number;
@@ -42,6 +43,11 @@ export type Receipt = routes.Receipt;
 export type TransferParams = routes.TransferParams<Options>;
 export type ValidationResult = routes.ValidationResult<Options>;
 
+interface MayanTx {
+  txHash: string;
+  goals: MayanTransactionGoal[];
+  scannerUrl: string;
+}
 export interface TransactionStatus {
   id: string;
   trader: string;
@@ -136,7 +142,7 @@ export interface TransactionStatus {
   fromTokenScannerUrl: string;
   toTokenScannerUrl: string;
 
-  txs: Tx[];
+  txs: MayanTx[];
 
   clientStatus: MayanClientStatus;
 }
@@ -159,10 +165,4 @@ export enum MayanTransactionGoal {
   Register = 'REGISTER',
   // settle on destination
   Settle = 'SETTLE',
-}
-
-export interface Tx {
-  txHash: string;
-  goals: MayanTransactionGoal[];
-  scannerUrl: string;
 }

@@ -82,16 +82,16 @@ import {
   toMayanChainName,
   txStatusToReceipt,
 } from './utils';
-import type {
+import {
   MayanProtocol,
-  Options,
-  Quote,
-  QuoteResult,
-  Receipt,
-  ReferrerParams,
-  TransferParams,
-  ValidatedParams,
-  ValidationResult,
+  type Options,
+  type Quote,
+  type QuoteResult,
+  type Receipt,
+  type ReferrerParams,
+  type TransferParams,
+  type ValidatedParams,
+  type ValidationResult,
 } from './types';
 
 export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
@@ -106,11 +106,11 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   static override IS_AUTOMATIC = true;
 
   protocols: MayanProtocol[] = [
-    'WH',
-    'MCTP',
-    'FAST_MCTP',
-    'SWIFT',
-    'MONO_CHAIN',
+    MayanProtocol.WH,
+    MayanProtocol.MCTP,
+    MayanProtocol.FAST_MCTP,
+    MayanProtocol.SWIFT,
+    MayanProtocol.MONO_CHAIN,
   ];
 
   protected isTestnetRequest(request: routes.RouteTransferRequest<N>): boolean {
@@ -415,10 +415,10 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     };
 
     const quoteOpts: QuoteOptions = {
-      swift: this.protocols.includes('SWIFT'),
-      mctp: this.protocols.includes('MCTP'),
-      fastMctp: this.protocols.includes('FAST_MCTP'),
-      monoChain: this.protocols.includes('MONO_CHAIN'),
+      swift: this.protocols.includes(MayanProtocol.SWIFT),
+      mctp: this.protocols.includes(MayanProtocol.MCTP),
+      fastMctp: this.protocols.includes(MayanProtocol.FAST_MCTP),
+      monoChain: this.protocols.includes(MayanProtocol.MONO_CHAIN),
     };
 
     const fetchQuoteUrl = new URL(
@@ -450,7 +450,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     }
 
     const quotes = res.data?.quotes?.filter((quote: MayanQuote) =>
-      this.protocols.includes(quote.type),
+      this.protocols.includes(quote.type as MayanProtocol),
     );
 
     if (!quotes || quotes.length === 0) return undefined;
