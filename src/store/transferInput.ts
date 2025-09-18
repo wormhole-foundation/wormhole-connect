@@ -129,7 +129,7 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
         );
 
         if (withSameSymbol) {
-          state.token = withSameSymbol.tuple;
+          state.destToken = withSameSymbol.tuple;
         }
       }
     }
