@@ -413,14 +413,18 @@ export class TokenCache extends TokenMapping<Token> {
     if (matching.length > 1) {
       // Exclude wrapped tokens if there's multiple matches
       matching = matching.filter((t) => {
-        return !t.isTokenBridgeWrappedToken && t.address !== 'native';
+        return !t.isTokenBridgeWrappedToken;
       });
     }
 
     if (matching.length === 1) {
       return matching[0];
     } else if (matching.length > 1) {
-      // This means there's more than one native token (not wrapped) with this symbol
+      const gasToken = matching.find((t) => t.address === 'native');
+      // This means there's more than one native token (not wrapped) with this symbol.
+      // prefer the gas token if there are multiple tokens with the same symbol.
+      if (gasToken) return gasToken;
+
       console.error(`Ambiguous token symbol: ${symbol}`);
     }
 
