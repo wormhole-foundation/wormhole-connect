@@ -68,7 +68,6 @@ export function buildConfig(
     ],
     wrappedTokens,
     cacheKey(`token-cache:${network}`),
-    customConfig,
   );
 
   const sdkConfig = LEGACY_CONFIG[network.toUpperCase()];

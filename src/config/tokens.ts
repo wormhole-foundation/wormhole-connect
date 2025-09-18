@@ -1,9 +1,4 @@
-import type {
-  Chain,
-  TokenId,
-  TokenAddress,
-  Network,
-} from '@wormhole-foundation/sdk';
+import type { Chain, TokenId, TokenAddress } from '@wormhole-foundation/sdk';
 import {
   canonicalAddress,
   isTokenId,
@@ -13,17 +8,10 @@ import {
   chainToPlatform,
   UniversalAddress,
 } from '@wormhole-foundation/sdk';
-import type {
-  TokenIcon,
-  TokenConfig,
-  WrappedTokenAddresses,
-  WormholeConnectConfig,
-} from './types';
+import type { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
 import config, { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 import { fetchTokenMetadata } from 'utils/coingecko';
-import { getWrappedNativeToken } from 'utils/wrappedNativeTokens';
-import { capitalize } from './utils';
 
 const TOKEN_CACHE_VERSION = 1;
 
@@ -425,12 +413,11 @@ export class TokenCache extends TokenMapping<Token> {
     if (matching.length > 1) {
       // Exclude wrapped tokens if there's multiple matches
       matching = matching.filter((t) => {
-        return !t.isTokenBridgeWrappedToken;
+        return !t.isTokenBridgeWrappedToken && t.address !== 'native';
       });
     }
 
     if (matching.length === 1) {
-      console.log(`Found token by symbol: ${symbol} -> ${matching[0]}`);
       return matching[0];
     } else if (matching.length > 1) {
       // This means there's more than one native token (not wrapped) with this symbol
@@ -568,19 +555,9 @@ export function buildTokenCache(
   tokens: TokenConfig[],
   wrappedTokens: WrappedTokenAddresses,
   cacheKey: string,
-  customConfig: WormholeConnectConfig = {},
 ): TokenCache {
   const cache = TokenCache.load(cacheKey);
-  const network = capitalize(
-    customConfig.network ||
-      import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
-      'Mainnet',
-  ) as Network;
   for (const { tokenId, symbol, name, icon, decimals } of tokens) {
-    const wrappedToken = getWrappedNativeToken(network, tokenId.chain);
-    const isWrappedToken =
-      wrappedToken &&
-      tokenId.address.toLowerCase() === wrappedToken.toLowerCase();
     const token = new Token({
       chain: tokenId.chain,
       address: tokenId.address.toString(),
@@ -588,12 +565,6 @@ export function buildTokenCache(
       symbol,
       name,
       icon,
-      tokenBridgeOriginalTokenId: isWrappedToken
-        ? {
-            chain: tokenId.chain,
-            address: tokenId.address as TokenAddress<typeof tokenId.chain>,
-          }
-        : undefined,
     });
     token.isBuiltin = true;
     cache.add(token);
