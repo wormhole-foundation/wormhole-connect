@@ -66,7 +66,7 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         sx={{ ...styles.searchList, ...scrollbarStyles }}
         data-testid={props.dataTestId}
       >
-        <Box sx={{ padding: '0 16px' }}>{props.listTitle}</Box>
+        <Box sx={{ padding: '16px' }}>{props.listTitle}</Box>
         {props.loading || filteredList.map(props.renderFn)}
       </List>
     </Box>

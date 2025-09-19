@@ -82,6 +82,7 @@ function AssetPickerPopover({
             background: theme.palette.input.background,
             backdropFilter: 'blur(4px)',
             WebkitBackdropFilter: 'blur(4px)', // Safari support
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.24)',
           },
         },
         root: {
