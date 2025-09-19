@@ -92,10 +92,11 @@
     "use-debounce": "10.0.6"
   },
   "scripts": {
-    "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host",
-    "start:mainnet": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Mainnet vite --host",
+    "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host --force",
+    "start:mainnet": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Mainnet vite --host --force",
     "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
     "build:lib": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
+    "build:minimal": "VITE_BUILD_MINIMAL=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "build:netlify": "VITE_BUILD_NETLIFY=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "lint": "scripts/lint.sh",
