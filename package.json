@@ -248,12 +248,6 @@
       "@wormhole-foundation/sdk-sui": "3.5.0",
       "@wormhole-foundation/sdk-sui-cctp": "3.5.0"
     },
-    "@wormhole-labs/lifi-route": {
-      "@wormhole-foundation/sdk-connect": "3.5.0",
-      "@wormhole-foundation/sdk-evm": "3.5.0",
-      "@wormhole-foundation/sdk-solana": "3.5.0",
-      "@wormhole-foundation/sdk-sui": "3.5.0"
-    },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"
     },
