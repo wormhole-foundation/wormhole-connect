@@ -49,9 +49,13 @@ const TokenList = (props: Props) => {
     let message = '';
 
     if (props.isSource) {
-      message = props.wallet?.address
-        ? 'No supported tokens found in wallet'
-        : '';
+      if (props.searchQuery) {
+        message = 'No tokens found matching your search';
+      } else {
+        message = props.wallet?.address
+          ? 'No supported tokens found in wallet'
+          : '';
+      }
     } else {
       message = 'No supported destination tokens for this route';
     }
@@ -61,7 +65,12 @@ const TokenList = (props: Props) => {
         {message}
       </Typography>
     );
-  }, [props.wallet?.address, props.isSource, theme.palette.grey.A400]);
+  }, [
+    props.wallet?.address,
+    props.isSource,
+    props.searchQuery,
+    theme.palette.grey.A400,
+  ]);
 
   const placeholder = `Search for a token${
     tokenPastingIsEnabled ? ' or paste an address' : ''
