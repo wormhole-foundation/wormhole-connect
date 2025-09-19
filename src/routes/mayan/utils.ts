@@ -1,11 +1,7 @@
-import type {
-  ChainName as MayanChainName,
-  SolanaTransactionSigner,
-} from '@mayanfinance/swap-sdk';
+import type { ChainName as MayanChainName } from '@mayanfinance/swap-sdk';
 import type { ChainName as MayanTestnetChainName } from '@testnet-mayan/swap-sdk';
 
 // Testnet chain names supported by @testnet-mayan/swap-sdk
-import { Transaction, VersionedTransaction } from '@solana/web3.js';
 import type {
   AttestationReceipt,
   Chain,
@@ -13,8 +9,6 @@ import type {
   RedeemedTransferReceipt,
   RefundedTransferReceipt,
   SourceInitiatedTransferReceipt,
-  Signer,
-  TokenId,
   TransactionId,
   routes,
   Network,
@@ -23,15 +17,11 @@ import {
   TransferState,
   deserialize,
   encoding,
-  isSignOnlySigner,
   toChain,
-  circle,
-  Wormhole,
 } from '@wormhole-foundation/sdk-connect';
-import { isEvmNativeSigner } from '@wormhole-foundation/sdk-evm';
-import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import axios from 'axios';
-import type { ethers } from 'ethers';
+import type { TransactionStatus } from './types';
+import { MayanClientStatus, MayanTransactionGoal } from './types';
 
 export function getNativeContractAddress(chain: Chain): string {
   if (chain === 'Sui') return '0x2::sui::SUI';
@@ -75,6 +65,7 @@ const chainNameMap = {
   Unichain: 'unichain',
   Sui: 'sui',
   HyperEVM: 'hyperevm',
+  Linea: 'linea',
 } as Record<Chain, MayanChainName>;
 
 // Mapping of Wormhole chains to testnet Mayan chain names
@@ -128,56 +119,6 @@ export function supportedChains(network?: Network): Chain[] {
   return Object.keys(chainNameMap) as Chain[];
 }
 
-// https://solana-labs.github.io/solana-web3.js/classes/Transaction.html
-function isTransaction(tx: any): tx is Transaction {
-  return typeof (<Transaction>tx).verifySignatures === 'function';
-}
-
-export function mayanSolanaSigner(signer: Signer): SolanaTransactionSigner {
-  if (!isSignOnlySigner(signer))
-    throw new Error('Signer must be a SignOnlySigner');
-
-  return async <T extends Transaction | VersionedTransaction>(
-    tx: T,
-  ): Promise<T> => {
-    const ust: SolanaUnsignedTransaction<'Mainnet'> = {
-      transaction: { transaction: tx },
-      description: 'Mayan.InitiateSwap',
-      network: 'Mainnet',
-      chain: 'Solana',
-      parallelizable: false,
-    };
-    const signed = (await signer.sign([ust])) as Buffer[];
-    if (isTransaction(tx)) return Transaction.from(signed[0]!) as T;
-    else return VersionedTransaction.deserialize(signed[0]!) as T;
-  };
-}
-
-export function mayanEvmSigner(signer: Signer): ethers.Signer {
-  if (isEvmNativeSigner(signer))
-    return signer.unwrap() as unknown as ethers.Signer;
-
-  throw new Error('Signer must be an EvmNativeSigner');
-}
-
-export function mayanEvmProvider(signer: ethers.Signer) {
-  return {
-    getBlock: async function (): Promise<{ timestamp: number }> {
-      const block = await signer.provider!.getBlock('latest');
-      if (block === null)
-        throw new Error('Failed to get latest Ethereum block');
-      return block;
-    },
-  };
-}
-
-export enum MayanClientStatus {
-  INPROGRESS = 'INPROGRESS',
-  COMPLETED = 'COMPLETED',
-  REFUNDED = 'REFUNDED',
-  CANCELED = 'CANCELED',
-}
-
 const possibleVaaTypes = [
   // Bridge to swap chain (solana)
   'transfer',
@@ -188,124 +129,6 @@ const possibleVaaTypes = [
   // Unsuccessful auction, refund back to source chain (evm)
   'refund',
 ];
-
-export enum MayanTransactionGoal {
-  // send from evm to solana
-  Send = 'SEND',
-  // bridge to destination chain
-  Bridge = 'BRIDGE',
-  // perform the swap
-  Swap = 'SWAP',
-  // register for auction
-  Register = 'REGISTER',
-  // settle on destination
-  Settle = 'SETTLE',
-}
-
-export interface TransactionStatus {
-  id: string;
-  trader: string;
-
-  sourceChain: string;
-  sourceTxHash: string;
-  sourceTxBlockNo: number;
-
-  transferSequence: string;
-  swapSequence: string;
-  redeemSequence: string;
-  refundSequence: string;
-  fulfillSequence: string;
-
-  deadline: string;
-
-  swapChain: string;
-  refundChain: string;
-
-  destChain: string;
-  destAddress: string;
-
-  fromTokenAddress: string;
-  fromTokenChain: string;
-  fromTokenSymbol: string;
-  fromAmount: string;
-  fromAmount64: any;
-
-  toTokenAddress: string;
-  toTokenChain: string;
-  toTokenSymbol: string;
-
-  stateAddr: string;
-  stateNonce: string;
-
-  toAmount: any;
-
-  transferSignedVaa: string;
-  swapSignedVaa: string;
-  redeemSignedVaa: string;
-  refundSignedVaa: string;
-  fulfillSignedVaa: string;
-
-  savedAt: string;
-  initiatedAt: string;
-  completedAt: string;
-  insufficientFees: boolean;
-  retries: number;
-
-  swapRelayerFee: string;
-  redeemRelayerFee: string;
-  refundRelayerFee: string;
-  bridgeFee: string;
-
-  statusUpdatedAt: string;
-
-  redeemTxHash: string;
-  refundTxHash: string;
-  fulfillTxHash: string;
-
-  unwrapRedeem: boolean;
-  unwrapRefund: boolean;
-
-  auctionAddress: string;
-  driverAddress: string;
-  mayanAddress: string;
-  referrerAddress: string;
-  auctionStateAddr: any;
-
-  auctionStateNonce: any;
-
-  gasDrop: string;
-  gasDrop64: any;
-
-  payloadId: number;
-  orderHash: string;
-
-  minAmountOut: any;
-  minAmountOut64: any;
-
-  service: string;
-
-  refundAmount: string;
-
-  posAddress: string;
-
-  unlockRecipient: any;
-
-  fromTokenLogoUri: string;
-  toTokenLogoUri: string;
-
-  fromTokenScannerUrl: string;
-  toTokenScannerUrl: string;
-
-  txs: Tx[];
-
-  clientStatus: MayanClientStatus;
-}
-
-export interface Tx {
-  txHash: string;
-  goals: MayanTransactionGoal[];
-  scannerUrl: string;
-}
 
 export function txStatusToReceipt(txStatus: TransactionStatus): routes.Receipt {
   const srcChain = toWormholeChainName(txStatus.sourceChain);
@@ -448,16 +271,4 @@ export async function getTransactionStatus(
     throw error;
   }
   return null;
-}
-
-export function getUSDCTokenId(
-  chain: Chain,
-  network: Network,
-): TokenId | undefined {
-  const usdcContract = circle.usdcContract.get(network, chain);
-  if (!usdcContract) {
-    return undefined;
-  }
-
-  return Wormhole.tokenId(chain, usdcContract);
 }

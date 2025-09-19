@@ -2,7 +2,8 @@ export {
   MayanRoute,
   MayanRouteWH,
   MayanRouteMCTP,
+  MayanRouteFastMCTP,
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
-  createMayanRouteWithReferrerFee,
+  type ReferrerParams,
 } from '../routes/mayan';

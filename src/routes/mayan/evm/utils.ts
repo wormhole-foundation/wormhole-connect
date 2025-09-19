@@ -61,12 +61,12 @@ function createMayanForwarderShim() {
   return { encodeFunctionData, getMsgValue };
 }
 
-function useMayanForwarderShim(
+function isMayanForwarderShimEnabled(
   network: Network,
   feeUnits: bigint,
-  isNewEvmReferralEnabled?: boolean,
+  referrer?: string,
 ) {
-  if (feeUnits <= 0n || !isNewEvmReferralEnabled || network !== 'Mainnet') {
+  if (feeUnits <= 0n || !referrer || network !== 'Mainnet') {
     return false;
   }
 
@@ -76,11 +76,9 @@ function useMayanForwarderShim(
 function getEvmContractAddress(
   network: Network,
   feeUnits: bigint,
-  isNewEvmReferralEnabled?: boolean,
+  referrer?: string,
 ) {
-  // TODO: Refactor, hooks shouldn't be called with in functions
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  if (useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)) {
+  if (isMayanForwarderShimEnabled(network, feeUnits, referrer)) {
     return MayanForwarderShimContractAddress;
   }
 
@@ -93,16 +91,13 @@ function createTransactionRequest(
   amountUnits: bigint,
   feeUnits: bigint,
   sender: string,
-  referrer: string,
   tokenAddress: string,
   isNativeToken: boolean,
-  isNewEvmReferralEnabled?: boolean,
+  referrer?: string,
 ): TransactionRequest {
   if (
     !mayanTxRequest.data ||
-    // TODO: Refactor, hooks shouldn't be called with in functions
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    !useMayanForwarderShim(network, feeUnits, isNewEvmReferralEnabled)
+    !isMayanForwarderShimEnabled(network, feeUnits, referrer)
   ) {
     return mayanTxRequest;
   }
@@ -111,7 +106,7 @@ function createTransactionRequest(
 
   const data = mayanForwarder.encodeFunctionData(
     mayanTxRequest.data,
-    referrer,
+    referrer!,
     feeUnits,
     tokenAddress,
     amountUnits,
