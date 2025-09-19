@@ -36,46 +36,67 @@ const getWalletName = (wallet: Wallet) =>
 
 export function fetchOptions(chain: Chain) {
   if (chain === 'Solana') {
-    const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
-    const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
-
-    return {
-      ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-        acc[getWalletName(w)] = w;
-        return acc;
-      }, {} as Record<string, Wallet>),
-      bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
-      clover: new SolanaWallet(new CloverWalletAdapter(), connection),
-      coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
-      solong: new SolanaWallet(new SolongWalletAdapter(), connection),
-      torus: new SolanaWallet(new TorusWalletAdapter(), connection),
-      nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-      ...(config.ui.walletConnectProjectId
-        ? {
-            walletConnect: new SolanaWallet(
-              new WalletConnectWalletAdapter({
-                network: config.isMainnet
-                  ? SolanaNetwork.Mainnet
-                  : SolanaNetwork.Devnet,
-                options: {
-                  projectId: config.ui.walletConnectProjectId,
-                  customStoragePrefix: 'wh-connect-solana-adapter',
-                },
-              }),
-              connection,
-            ),
-          }
-        : {}),
-    };
+    return fetchSolanaOptions();
   } else if (chain === 'Fogo') {
-    if (!config.rpcs.Fogo) throw new Error('Fogo RPC not found');
-    const connection = new Connection(config.rpcs.Fogo);
-    return {
-      nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-    };
+    return fetchFogoOptions();
   }
 
   throw new Error(`Unsupported chain: ${chain}`);
+}
+
+export function fetchSolanaOptions() {
+  const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
+  const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
+
+  return {
+    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
+      acc[getWalletName(w)] = w;
+      return acc;
+    }, {} as Record<string, Wallet>),
+    bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
+    clover: new SolanaWallet(new CloverWalletAdapter(), connection),
+    coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
+    solong: new SolanaWallet(new SolongWalletAdapter(), connection),
+    torus: new SolanaWallet(new TorusWalletAdapter(), connection),
+    nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
+    ...(config.ui.walletConnectProjectId
+      ? {
+          walletConnect: new SolanaWallet(
+            new WalletConnectWalletAdapter({
+              network: config.isMainnet
+                ? SolanaNetwork.Mainnet
+                : SolanaNetwork.Devnet,
+              options: {
+                projectId: config.ui.walletConnectProjectId,
+                customStoragePrefix: 'wh-connect-solana-adapter',
+              },
+            }),
+            connection,
+          ),
+        }
+      : {}),
+  };
+}
+
+export function fetchFogoOptions() {
+  if (!config.rpcs.Fogo) throw new Error('Fogo RPC not found');
+
+  const connection = new Connection(config.rpcs.Fogo);
+
+  // Only Nightly and Leap support Fogo natively currently
+
+  const wallets = getSolanaStandardWallets(connection).reduce((acc, w) => {
+    const name = getWalletName(w).toLowerCase();
+    if (name === 'leap') {
+      acc.leap = w;
+    }
+    return acc;
+  }, {} as Record<string, Wallet>);
+
+  return {
+    nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
+    ...wallets,
+  };
 }
 
 // This function signs and sends the transaction while constantly checking for confirmation
