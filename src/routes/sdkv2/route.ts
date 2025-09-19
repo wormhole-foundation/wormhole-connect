@@ -90,12 +90,6 @@ export default class SDKv2Route {
       return false;
     }
 
-    // LiFi can handle any input and output token that has liquidity on a DeX
-    // No need to further check for destination tokens.
-    if (this.rc.meta.name === 'LiFi') {
-      return true;
-    }
-
     try {
       const supportedDestinationTokens = await this.supportedDestTokens(
         sourceToken,

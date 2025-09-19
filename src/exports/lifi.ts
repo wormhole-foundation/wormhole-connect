@@ -1,1 +1,1 @@
-export { LiFiRoute } from '@wormhole-labs/lifi-route';
+export { LiFiRoute } from '../routes/lifi';

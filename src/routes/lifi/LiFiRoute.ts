@@ -1,0 +1,399 @@
+import type { QuoteRequest, LiFiStep } from '@lifi/sdk';
+import { getQuote, convertQuoteToRoute } from '@lifi/sdk';
+
+import type {
+  Chain,
+  ChainAddress,
+  ChainContext,
+  Network,
+  Signer,
+  TokenId,
+  TransactionId,
+  AttestationReceipt,
+  CompletedTransferReceipt,
+  RefundedTransferReceipt,
+} from '@wormhole-foundation/sdk-connect';
+import {
+  TransferState,
+  canonicalAddress,
+  isAttested,
+  isCompleted,
+  isRedeemed,
+  isRefunded,
+  isSourceFinalized,
+  isSourceInitiated,
+  routes,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk-connect';
+import axios from 'axios';
+import {
+  getTransactionStatus,
+  supportedChains,
+  toLifiChainId,
+  toLifiTokenAddress,
+  generateThrowawayAddress,
+  getNativeChainId,
+  executeSolanaSteps,
+  executeSuiSteps,
+  executeEvmSteps,
+} from './utils';
+import {
+  DEFAULT_SLIPPAGE,
+  DEFAULT_MAX_PRICE_IMPACT,
+  DEFAULT_ETA_SECONDS,
+  DEFAULT_TIMEOUT,
+  DEFAULT_BRIDGES,
+  DEFAULT_EXCHANGES,
+  MILLISECONDS_PER_SECOND,
+  POLLING_INTERVAL_MS,
+} from './consts';
+import type {
+  Options,
+  PlatformContext,
+  Quote,
+  QuoteResult,
+  Receipt,
+  TransferParams,
+  ValidatedParams,
+  ValidationResult,
+} from './types';
+import { getAllTokenIdsForChain } from 'utils/tokenHelpers';
+
+export class LiFiRoute<N extends Network>
+  extends routes.AutomaticRoute<N, Options, ValidatedParams, Receipt>
+  implements routes.StaticRouteMethods<typeof LiFiRoute>
+{
+  static meta = {
+    name: 'LiFi',
+    provider: 'LiFi',
+  };
+
+  static NATIVE_GAS_DROPOFF_SUPPORTED = false;
+  static override IS_AUTOMATIC = true;
+
+  getDefaultOptions(): Options {
+    return {
+      slippage: DEFAULT_SLIPPAGE,
+      maxPriceImpact: DEFAULT_MAX_PRICE_IMPACT,
+      allowDestinationCall: false,
+      // TODO: make this configurable
+      integrator: 'wormhole-sdk',
+    };
+  }
+
+  static supportedNetworks(): Network[] {
+    return ['Mainnet'];
+  }
+
+  static supportedChains(network: Network): Chain[] {
+    return supportedChains(network);
+  }
+
+  // LiFi can handle any token that has liquidity
+  static async supportedSourceTokens(
+    _fromChain: ChainContext<Network>,
+  ): Promise<TokenId[]> {
+    return [];
+  }
+
+  static isProtocolSupported<N extends Network>(
+    chain: ChainContext<N>,
+  ): boolean {
+    return supportedChains(chain.network).includes(chain.chain);
+  }
+
+  // LiFi can handle any input and output token that has liquidity on a DeX
+  static async supportedDestinationTokens<N extends Network>(
+    _token: TokenId,
+    _fromChain: ChainContext<N>,
+    toChain: ChainContext<N>,
+  ): Promise<TokenId[]> {
+    return getAllTokenIdsForChain(toChain.chain);
+  }
+
+  async isAvailable(): Promise<boolean> {
+    return true;
+  }
+
+  async validate(
+    request: routes.RouteTransferRequest<N>,
+    params: TransferParams,
+  ): Promise<ValidationResult> {
+    const isSameChainSwap = request.fromChain.chain === request.toChain.chain;
+    if (isSameChainSwap) {
+      return {
+        valid: false,
+        params,
+        error: new Error('Same chain swaps are disabled'),
+      };
+    }
+
+    const slippage = params.options?.slippage ?? DEFAULT_SLIPPAGE;
+    const isSlippageInvalid = slippage < 0 || slippage > 1;
+    if (isSlippageInvalid) {
+      return {
+        valid: false,
+        params,
+        error: new Error('Invalid slippage value'),
+      };
+    }
+
+    const maxPriceImpact =
+      params.options?.maxPriceImpact ?? DEFAULT_MAX_PRICE_IMPACT;
+    const isMaxPriceImpactInvalid = maxPriceImpact < 0 || maxPriceImpact > 1;
+    if (isMaxPriceImpactInvalid) {
+      return {
+        valid: false,
+        params,
+        error: new Error('Invalid maxPriceImpact value'),
+      };
+    }
+
+    const bridges = params.options?.bridges ?? DEFAULT_BRIDGES;
+    const exchanges = params.options?.exchanges ?? DEFAULT_EXCHANGES;
+
+    return {
+      valid: true,
+      params: {
+        ...params,
+        normalizedParams: {
+          slippage,
+          maxPriceImpact,
+          bridges,
+          exchanges,
+        },
+      },
+    } as ValidationResult;
+  }
+
+  protected async fetchQuote(
+    request: routes.RouteTransferRequest<N>,
+    params: ValidatedParams,
+  ): Promise<LiFiStep> {
+    const { fromChain, toChain } = request;
+    const { normalizedParams } = params;
+
+    const fromChainId = toLifiChainId(fromChain.chain);
+    const toChainId = toLifiChainId(toChain.chain);
+
+    // Generate throwaway addresses if sender/recipient not provided
+    const fromAddress = request.sender
+      ? canonicalAddress(request.sender)
+      : generateThrowawayAddress(fromChain.chain);
+    const toAddress = request.recipient
+      ? canonicalAddress(request.recipient)
+      : generateThrowawayAddress(toChain.chain);
+
+    const quoteRequest: QuoteRequest = {
+      fromChain: fromChainId,
+      toChain: toChainId,
+      fromToken: toLifiTokenAddress(request.source.id),
+      toToken: toLifiTokenAddress(request.destination.id),
+      fromAmount: sdkAmount
+        .units(request.parseAmount(params.amount))
+        .toString(),
+      fromAddress,
+      toAddress,
+      slippage: params.normalizedParams.slippage,
+      maxPriceImpact: params.normalizedParams.maxPriceImpact,
+      integrator: params.options.integrator,
+      referrer: params.options.referrer,
+      fee: params.options.fee,
+    };
+
+    // Lifi SDK has a AllowDenyPrefer type but then it's converted into a different format for quote requests...
+    if (normalizedParams.bridges?.allow)
+      quoteRequest.allowBridges = normalizedParams.bridges.allow;
+    if (normalizedParams.bridges?.deny)
+      quoteRequest.denyBridges = normalizedParams.bridges.deny;
+    if (normalizedParams.bridges?.prefer)
+      quoteRequest.preferBridges = normalizedParams.bridges.prefer;
+    if (normalizedParams.exchanges?.allow)
+      quoteRequest.allowExchanges = normalizedParams.exchanges.allow;
+    if (normalizedParams.exchanges?.deny)
+      quoteRequest.denyExchanges = normalizedParams.exchanges.deny;
+    if (normalizedParams.exchanges?.prefer)
+      quoteRequest.preferExchanges = normalizedParams.exchanges.prefer;
+
+    try {
+      return await getQuote(quoteRequest);
+    } catch (error) {
+      throw new Error(
+        `Failed to fetch LiFi quote: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
+    }
+  }
+
+  async quote(
+    request: routes.RouteTransferRequest<N>,
+    params: ValidatedParams,
+  ): Promise<QuoteResult> {
+    try {
+      const quote = await this.fetchQuote(request, params);
+
+      const fullQuote: Quote = {
+        success: true,
+        params,
+        sourceToken: {
+          token: request.source.id,
+          amount: sdkAmount.fromBaseUnits(
+            BigInt(quote.estimate?.fromAmount.toString()),
+            request.source.decimals,
+          ),
+        },
+        destinationToken: {
+          token: request.destination.id,
+          amount: sdkAmount.fromBaseUnits(
+            BigInt(quote.estimate?.toAmount.toString()),
+            request.destination.decimals,
+          ),
+        },
+        eta:
+          (quote.estimate?.executionDuration || DEFAULT_ETA_SECONDS) *
+          MILLISECONDS_PER_SECOND,
+        details: quote,
+        provider: quote.toolDetails.name,
+      };
+
+      return fullQuote;
+    } catch (e: any) {
+      if (axios.isAxiosError(e)) {
+        const data = e?.response?.data;
+
+        if (data?.message) {
+          return {
+            success: false,
+            error: Error(data.message, { cause: data }),
+          };
+        }
+      }
+
+      return {
+        success: false,
+        error: e as Error,
+      };
+    }
+  }
+
+  async initiate(
+    request: routes.RouteTransferRequest<N>,
+    signer: Signer<N>,
+    quote: Quote,
+    to: ChainAddress,
+  ) {
+    const originAddress = signer.address();
+    const destinationAddress = canonicalAddress(to);
+
+    const rpc = await request.fromChain.getRpc();
+    const txs: TransactionId[] = [];
+
+    // Update quote with actual addresses
+    const updatedQuote = {
+      ...quote.details!,
+      fromAddress: originAddress,
+      toAddress: destinationAddress,
+    };
+
+    // Convert quote to route
+    const route = convertQuoteToRoute(updatedQuote);
+    const context: PlatformContext<N> = { request, signer, rpc, txs };
+
+    if (request.fromChain.chain === 'Solana') {
+      await executeSolanaSteps(route, context);
+    } else if (request.fromChain.chain === 'Sui') {
+      await executeSuiSteps(route, context);
+    } else {
+      const nativeChainId = await getNativeChainId(request.fromChain);
+      await executeEvmSteps(
+        route,
+        context,
+        quote,
+        nativeChainId,
+        toLifiTokenAddress,
+      );
+    }
+
+    const receipt = {
+      from: request.fromChain.chain,
+      to: request.toChain.chain,
+      state: TransferState.SourceInitiated,
+      originTxs: txs,
+      // TODO: The LiFi API status method has a known issue where it sometimes can't track
+      // transfers when no bridge param is specified.
+      // Set it here on the receipt for the track() method below.
+      // Can remove this when the LiFi API is fixed.
+      tool: quote.details!.tool,
+    } satisfies Receipt;
+
+    return Object.assign(receipt, { tool: quote.details?.tool as string });
+  }
+
+  public override async *track(
+    receipt: Receipt,
+    timeout: number = DEFAULT_TIMEOUT,
+  ) {
+    if (isCompleted(receipt) || isRedeemed(receipt) || isRefunded(receipt))
+      return receipt;
+
+    let leftover = timeout;
+    while (leftover > 0) {
+      const start = Date.now();
+
+      if (
+        isSourceInitiated(receipt) ||
+        isSourceFinalized(receipt) ||
+        isAttested(receipt)
+      ) {
+        const txStatus = await getTransactionStatus(
+          this.wh.network,
+          receipt.originTxs[receipt.originTxs.length - 1]!,
+          toLifiChainId(receipt.from).toString(),
+          toLifiChainId(receipt.to).toString(),
+          receipt.tool,
+        );
+
+        if (txStatus) {
+          if (txStatus.status === 'DONE') {
+            const completedReceipt = {
+              ...receipt,
+              originTxs: [
+                { chain: receipt.from, txid: txStatus.sending.txHash },
+              ],
+              attestation: {} as AttestationReceipt<'WormholeCore'>,
+              state: TransferState.DestinationFinalized,
+            } satisfies CompletedTransferReceipt<any>;
+            yield completedReceipt;
+            return completedReceipt;
+          } else if (txStatus.status === 'FAILED') {
+            const failedReceipt = {
+              ...receipt,
+              originTxs: [
+                { chain: receipt.from, txid: txStatus.sending.txHash },
+              ],
+              refundTxs: [],
+              state: TransferState.Refunded,
+              attestation: {} as AttestationReceipt<'WormholeCore'>,
+            } satisfies RefundedTransferReceipt<
+              AttestationReceipt<'WormholeCore'>
+            >;
+            yield failedReceipt;
+            return failedReceipt;
+          }
+        }
+      } else {
+        throw new Error('Transfer must have been initiated');
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL_MS));
+      leftover -= Date.now() - start;
+    }
+
+    return receipt;
+  }
+
+  override transferUrl(txid: string): string {
+    return `https://scan.li.fi/tx/${txid}`;
+  }
+}
