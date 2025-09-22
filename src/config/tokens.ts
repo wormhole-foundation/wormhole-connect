@@ -12,11 +12,13 @@ import {
   isNative,
   chainToPlatform,
   UniversalAddress,
+  isUnattestedTokenId,
 } from '@wormhole-foundation/sdk';
 import type { TokenIcon, TokenConfig, WrappedTokenAddresses } from './types';
 import config, { getWormholeContextV2 } from './index';
 import { isValidSuiType } from '@wormhole-foundation/sdk-sui';
 import { fetchTokenMetadata } from 'utils/coingecko';
+import { MultiTokenNttExecutorRoute } from '@wormhole-foundation/sdk-route-ntt';
 
 const TOKEN_CACHE_VERSION = 1;
 
@@ -59,6 +61,7 @@ type TokenConstructorProps = {
   icon?: TokenIcon | string;
   tokenBridgeOriginalTokenId?: TokenId;
   coingeckoId?: string;
+  isUnattested?: boolean;
 };
 
 export class Token extends TokenIdLazy {
@@ -81,6 +84,10 @@ export class Token extends TokenIdLazy {
   // Used when filtering out unknown/unverified tokens
   isBuiltin?: boolean;
 
+  // If this is an unattested token (i.e. a token that has not yet been created),
+  // isUnattested will be true. Unattested tokens do not get persisted to local storage.
+  isUnattested?: boolean;
+
   constructor({
     chain,
     address,
@@ -90,6 +97,7 @@ export class Token extends TokenIdLazy {
     icon,
     tokenBridgeOriginalTokenId,
     coingeckoId,
+    isUnattested,
   }: TokenConstructorProps) {
     super(chain, address);
     this.decimals = decimals;
@@ -98,6 +106,7 @@ export class Token extends TokenIdLazy {
     this.icon = icon;
     this.tokenBridgeOriginalTokenId = tokenBridgeOriginalTokenId;
     this.coingeckoWebId = coingeckoId;
+    this.isUnattested = isUnattested;
   }
 
   get display(): string {
@@ -450,11 +459,38 @@ export class TokenCache extends TokenMapping<Token> {
       );
     }
 
+    if (isUnattestedTokenId(tokenId)) {
+      const original = this.get(tokenId.originalTokenId);
+      console.debug(`Token ${tokenId} is unattested`);
+
+      // An unattested token does not yet exist on-chain,
+      // so we use the original token's metadata
+      const t = new Token({
+        chain: tokenId.chain,
+        address: canonicalAddress(tokenId),
+        decimals: tokenId.decimals,
+        symbol: original?.symbol || '',
+        name: original?.name,
+        icon: original?.icon,
+        isUnattested: true,
+      });
+
+      this.add(t);
+
+      return t;
+    }
+
     const wh = await getWormholeContextV2();
     const chain = wh.getChain(tokenId.chain);
     const decimals = await chain.getDecimals(tokenId.address);
 
-    const metadata = await fetchTokenMetadata(tokenId);
+    let metadata: any = {};
+    try {
+      const fetchedMetadata = await fetchTokenMetadata(tokenId);
+      metadata = fetchedMetadata || {};
+    } catch (error) {
+      console.error('Error fetching token metadata:', error);
+    }
 
     let symbol = metadata?.symbol?.toUpperCase() || '';
     let name = metadata?.name || '';
@@ -507,6 +543,31 @@ export class TokenCache extends TokenMapping<Token> {
       }
     }
 
+    // TODO: as a future improvement, we could add a isWrappedTokenRoute or similar to the route interface
+    // and check all routes to see if any of them recognize this token as a wrapped token.
+
+    if (!tokenBridgeOriginalTokenId && (!symbol || !image)) {
+      // Check if this is a Monad Bridge wrapped token
+      try {
+        const monadRoute = config.routes.get('MonadBridgeExecutorRoute');
+        if (monadRoute?.isSupportedChain(tokenId.chain)) {
+          const route = new monadRoute.rc(wh);
+          if (route instanceof MultiTokenNttExecutorRoute) {
+            if (await route.isWrappedToken(tokenId)) {
+              const originalTokenId = await route.getOriginalToken(tokenId);
+              const originalToken = this.get(originalTokenId);
+              if (originalToken) {
+                image = image ?? originalToken.icon;
+                symbol = symbol ?? originalToken.symbol;
+              }
+            }
+          }
+        }
+      } catch {
+        // Ignore errors so we can still add the token to the cache
+      }
+    }
+
     const t = new Token({
       chain: tokenId.chain,
       address: canonicalAddress(tokenId),
@@ -530,7 +591,12 @@ export class TokenCache extends TokenMapping<Token> {
         tokens: {},
       };
       this.forEach((tokenId, token) => {
-        asJson.tokens[tokenKey(tokenId)] = token.toJson();
+        // Skip persisting unattested tokens.
+        // Unattested tokens don't yet exist on-chain, and their metadata should be fetched
+        // directly from on-chain, which serves as the source of truth.
+        if (!token.isUnattested) {
+          asJson.tokens[tokenKey(tokenId)] = token.toJson();
+        }
       });
 
       const jsonString = JSON.stringify(asJson);

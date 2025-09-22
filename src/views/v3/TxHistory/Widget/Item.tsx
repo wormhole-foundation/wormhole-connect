@@ -112,9 +112,12 @@ const WidgetItem = (props: Props) => {
     fromChain,
     toChain,
     token: tokenTuple,
+    receivedToken: receivedTokenTuple,
   } = txDetails || {};
 
   const token = config.tokens.get(tokenTuple);
+
+  const receivedToken = config.tokens.get(receivedTokenTuple);
 
   // Initialize the countdown
   const { seconds, minutes, totalSeconds, isRunning, restart } = useTimer({
@@ -139,6 +142,7 @@ const WidgetItem = (props: Props) => {
     eta: etaDate,
     receipt: initialReceipt,
     route,
+    receivedTokenId: receivedToken,
   });
 
   useEffect(() => {

@@ -35,4 +35,11 @@ const nttRoutes = (
   ];
 };
 
-export { nttAutomaticRoute, nttExecutorRoute, nttManualRoute, nttRoutes };
+export {
+  nttAutomaticRoute,
+  nttExecutorRoute,
+  nttManualRoute,
+  nttRoutes,
+  NttRoute,
+  NttExecutorRoute,
+};

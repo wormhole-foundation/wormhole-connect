@@ -5,9 +5,14 @@ import { clearCache as clearBalanceCache } from 'utils/balanceCache';
 import config, { getWormholeContextV2 } from 'config';
 import { sleep } from 'utils';
 
-import type { AttestationReceipt, routes } from '@wormhole-foundation/sdk';
+import type {
+  AttestationReceipt,
+  routes,
+  TokenId,
+} from '@wormhole-foundation/sdk';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'store';
+import { useTokens } from 'contexts/TokensContext';
 
 // We don't start trying to fetch transfer updates until 1 minute from ETA
 const MINIMUM_ETA = 60 * 1000;
@@ -19,6 +24,7 @@ type Props = {
   receipt: routes.Receipt<AttestationReceipt> | null;
   // Timestamp the transfer was estimated to be finished
   eta?: Date;
+  receivedTokenId?: TokenId;
 };
 
 type ReturnProps = {
@@ -32,7 +38,9 @@ const useTrackTransfer = (props: Props): ReturnProps => {
   const [readyToClaim, setReadyToClaim] = useState(false);
   const [receipt, setReceipt] = useState<routes.Receipt<AttestationReceipt>>();
 
-  const { eta, route: routeName } = props;
+  const { getOrFetchToken } = useTokens();
+
+  const { eta, route: routeName, receivedTokenId } = props;
 
   const wallet = useSelector((state: RootState) => state.wallet);
   const { receiving: receivingWallet } = wallet;
@@ -95,6 +103,12 @@ const useTrackTransfer = (props: Props): ReturnProps => {
 
               if (isCompleted(currentReceipt)) {
                 setCompleted(true);
+                if (receivedTokenId) {
+                  // Attempt to add the received token to the cache, forcing unattested tokens to be fetched
+                  getOrFetchToken(receivedTokenId).catch((e) =>
+                    console.error('Error fetching token:', e),
+                  );
+                }
 
                 // Clear cached balances on receiving chain
                 clearBalanceCache(receivingWallet, receipt.to);
@@ -134,7 +148,14 @@ const useTrackTransfer = (props: Props): ReturnProps => {
     return () => {
       isActive = false;
     };
-  }, [eta, receipt, routeName, receivingWallet]);
+  }, [
+    eta,
+    receipt,
+    routeName,
+    receivingWallet,
+    receivedTokenId,
+    getOrFetchToken,
+  ]);
 
   return {
     isCompleted: completed,

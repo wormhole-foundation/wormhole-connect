@@ -21,6 +21,11 @@
       "require": "./lib/lifi.js",
       "import": "./lib/lifi.mjs"
     },
+    "./monad": {
+      "types": "./lib/monad.d.ts",
+      "require": "./lib/monad.js",
+      "import": "./lib/monad.mjs"
+    },
     "./ntt": {
       "types": "./lib/ntt.d.ts",
       "require": "./lib/ntt.js",

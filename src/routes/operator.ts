@@ -12,7 +12,11 @@ import type {
   Network,
   Signer,
 } from '@wormhole-foundation/sdk';
-import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import {
+  isUnattestedTokenId,
+  routes,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 
 import SDKv2Route from './sdkv2/route';
 import type { QuoteMetadata } from './types';
@@ -154,7 +158,7 @@ export default class RouteOperator {
     sourceChain: Chain,
     destChain: Chain,
   ): Promise<TokenId[]> {
-    const supported: Set<string> = new Set();
+    const supported: Map<string, TokenId> = new Map();
 
     await this.forEach(async (_, route) => {
       try {
@@ -165,14 +169,23 @@ export default class RouteOperator {
         );
 
         for (const token of destTokenIds) {
-          supported.add(tokenKey(token));
+          const key = tokenKey(token);
+          if (isUnattestedTokenId(token)) {
+            // we are not calling parseTokenKey here to preserve
+            // the unattested token info which would be lost
+            // when converting to a TokenIdLazy
+            supported.set(key, token);
+          } else {
+            // Keep attested tokens as TokenIdLazy for optimization purposes
+            supported.set(key, parseTokenKey(key));
+          }
         }
       } catch (e) {
         maybeLogSdkError(e);
       }
     });
 
-    return Array.from(supported).map(parseTokenKey);
+    return [...supported.values()];
   }
 
   async getQuotes(

@@ -129,6 +129,14 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'MNT',
     sdkName: 'Mantle',
   },
+  Monad: {
+    displayName: 'Monad',
+    explorerUrl: 'https://testnet.monadexplorer.com/',
+    explorerName: 'Monad Explorer',
+    icon: 'Monad',
+    symbol: 'MON',
+    sdkName: 'Monad',
+  },
   Worldchain: {
     displayName: 'World Chain',
     explorerUrl: 'https://worldchain-sepolia.explorer.alchemy.com/',

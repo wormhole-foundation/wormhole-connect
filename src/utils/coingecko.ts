@@ -35,6 +35,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   HyperEVM: 'hyperliquid',
   HyperCore: 'usd-coin',
   CreditCoin: 'wrapped-ctc',
+  Monad: 'monad',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
@@ -52,6 +53,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Plume: 'plume-network',
   Ink: 'ink',
   HyperCore: 'hypercore',
+  Monad: 'monad',
 };
 
 export interface CoingeckoParams {
