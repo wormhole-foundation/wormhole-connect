@@ -182,10 +182,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
           lib: {
             entry: [
               path.resolve(__dirname, 'src/exports/index.ts'),
-              path.resolve(__dirname, 'src/exports/mayan.ts'),
-              path.resolve(__dirname, 'src/exports/ntt.ts'),
               path.resolve(__dirname, 'src/exports/hosted.ts'),
-              path.resolve(__dirname, 'src/exports/executor.ts'),
             ],
             formats: (isAnalyze ? ['es'] : ['es', 'cjs']) as LibraryFormats[],
             fileName: (format, entryname) => {
@@ -196,10 +193,7 @@ export default defineConfig(({ command, mode }: ConfigEnv) => {
           rollupOptions: {
             input: {
               index: 'src/exports/index.ts',
-              mayan: 'src/exports/mayan.ts',
-              ntt: 'src/exports/ntt.ts',
               hosted: 'src/exports/hosted.ts',
-              executor: 'src/exports/executor.ts',
             },
             output,
             external: [

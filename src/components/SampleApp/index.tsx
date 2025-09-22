@@ -31,6 +31,8 @@ import type { WormholeConnectConfig } from 'config/types';
  *
  */
 import { routes } from '@wormhole-foundation/sdk';
+// Mayan routes - these would come from integrator's package.json:
+// npm install @mayanfinance/swap-sdk @testnet-mayan/swap-sdk
 import {
   MayanRoute,
   MayanRouteWH,
@@ -38,14 +40,36 @@ import {
   MayanRouteSWIFT,
   MayanRouteMONOCHAIN,
 } from '../../routes/mayan';
+// Example of how integrators would import routes
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
-import { nttRoutes } from 'exports/ntt';
-import {
-  cctpExecutorRoute,
-  cctpV2StandardExecutorRoute,
-  cctpV2FastExecutorRoute,
-} from 'exports/executor';
+
+// For SampleApp development - these would come from integrator's own package.json:
+// npm install @wormhole-foundation/sdk-route-ntt @wormhole-labs/cctp-executor-route
+
+// Dynamic imports for optional routes (only for SampleApp)
+let nttRoutes: any;
+let cctpExecutorRoute: any;
+let cctpV2StandardExecutorRoute: any;
+let cctpV2FastExecutorRoute: any;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const nttModule = require('@wormhole-foundation/sdk-route-ntt');
+  nttRoutes = nttModule.nttRoutes;
+} catch (e) {
+  console.warn('NTT routes not available in SampleApp');
+}
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const cctpModule = require('@wormhole-labs/cctp-executor-route');
+  cctpExecutorRoute = cctpModule.cctpExecutorRoute;
+  cctpV2StandardExecutorRoute = cctpModule.cctpV2StandardExecutorRoute;
+  cctpV2FastExecutorRoute = cctpModule.cctpV2FastExecutorRoute;
+} catch (e) {
+  console.warn('CCTP executor routes not available in SampleApp');
+}
 import type { WormholeConnectTheme } from 'theme';
 import { getExperiment } from 'utils/experiments';
 
@@ -59,8 +83,6 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.DEFAULT_ROUTES = DEFAULT_ROUTES;
       /* @ts-ignore */
-      window.nttRoutes = nttRoutes;
-      /* @ts-ignore */
       window.AutomaticTokenBridgeRoute = routes.AutomaticTokenBridgeRoute;
       /* @ts-ignore */
       window.AutomaticCCTPRoute = routes.AutomaticCCTPRoute;
@@ -71,6 +93,10 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.TBTCRoute = routes.TBTCRoute;
       /* @ts-ignore */
+      window.executorTokenBridgeRoute = routes.executorTokenBridgeRoute;
+
+      // Mayan routes (still included for now)
+      /* @ts-ignore */
       window.MayanRoute = MayanRoute;
       /* @ts-ignore */
       window.MayanRouteWH = MayanRouteWH;
@@ -80,18 +106,48 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.MayanRouteMONOCHAIN = MayanRouteMONOCHAIN;
       /* @ts-ignore */
       window.MayanRouteSWIFT = MayanRouteSWIFT;
-      /* @ts-ignore */
-      window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
-      /* @ts-ignore */
-      window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
-      /* @ts-ignore */
-      window.cctpExecutorRoute = cctpExecutorRoute;
-      /* @ts-ignore */
-      window.cctpV2StandardExecutorRoute = cctpV2StandardExecutorRoute;
-      /* @ts-ignore */
-      window.cctpV2FastExecutorRoute = cctpV2FastExecutorRoute;
-      /* @ts-ignore */
-      window.executorTokenBridgeRoute = routes.executorTokenBridgeRoute;
+
+      // Optional routes - only available if packages are installed
+      if (nttRoutes) {
+        /* @ts-ignore */
+        window.nttRoutes = nttRoutes;
+        /* @ts-ignore */
+        window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
+        /* @ts-ignore */
+        window.testNttRoutesMainnet = () => nttRoutes(NTT_TEST_CONFIG_MAINNET);
+      } else {
+        /* @ts-ignore */
+        window.nttRoutes = () => {
+          throw new Error(
+            'NTT routes not available. Install @wormhole-foundation/sdk-route-ntt',
+          );
+        };
+        /* @ts-ignore */
+        window.testNttRoutesTestnet = window.nttRoutes;
+        /* @ts-ignore */
+        window.testNttRoutesMainnet = window.nttRoutes;
+      }
+
+      if (cctpExecutorRoute) {
+        /* @ts-ignore */
+        window.cctpExecutorRoute = cctpExecutorRoute;
+        /* @ts-ignore */
+        window.cctpV2StandardExecutorRoute = cctpV2StandardExecutorRoute;
+        /* @ts-ignore */
+        window.cctpV2FastExecutorRoute = cctpV2FastExecutorRoute;
+      } else {
+        const cctpError = () => {
+          throw new Error(
+            'CCTP executor routes not available. Install @wormhole-labs/cctp-executor-route',
+          );
+        };
+        /* @ts-ignore */
+        window.cctpExecutorRoute = cctpError;
+        /* @ts-ignore */
+        window.cctpV2StandardExecutorRoute = cctpError;
+        /* @ts-ignore */
+        window.cctpV2FastExecutorRoute = cctpError;
+      }
 
       return eval(
         `(function() { return ${config} })()`,
