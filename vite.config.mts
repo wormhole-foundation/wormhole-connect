@@ -149,6 +149,7 @@ const rollupInput: InputOption = {
   ntt: 'src/exports/ntt.ts',
   hosted: 'src/exports/hosted.ts',
   executor: 'src/exports/executor.ts',
+  lifi: 'src/exports/lifi.ts',
 };
 
 const external = [
