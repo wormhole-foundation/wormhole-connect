@@ -31,6 +31,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     Sonic: 'https://sonic-rpc.publicnode.com',
     Mezo: 'https://jsonrpc-mezo.boar.network',
     HyperEVM: 'https://rpc.hyperliquid.xyz/evm',
+    HyperCore: 'https://arbitrum-one-rpc.publicnode.com', // via ARB
     XRPLEVM: 'https://rpc.xrplevm.org/',
     Plume: 'https://rpc.plume.org',
     Ink: 'https://ink.drpc.org',
