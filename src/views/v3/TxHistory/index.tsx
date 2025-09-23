@@ -97,20 +97,8 @@ const TxHistory = () => {
     );
   }, [dispatch, mobile, styles.txHistoryHeader, theme.palette.text.primary]);
 
-  const transactionList = useMemo(() => {
-    if (!transactions) {
-      return <></>;
-    } else if (transactions.length === 0) {
-      return (
-        <Typography color={theme.palette.text.secondary} textAlign="center">
-          {`No transactions found for the wallet ${trimAddress(
-            sendingWallet.address,
-          )}`}
-        </Typography>
-      );
-    }
-
-    return (
+  const transactionList = useMemo(
+    () => (
       <Box sx={styles.infiniteScroller}>
         <InfiniteScroll
           hasMore={hasMore}
@@ -119,33 +107,29 @@ const TxHistory = () => {
           style={{ scrollbarWidth: 'thin' }}
         >
           <Box sx={styles.spacer}>
-            {transactions.map((tx, idx) => {
+            {transactions?.map((tx, idx) => {
               return <TxHistoryItem key={idx} data={tx} />;
             })}
           </Box>
         </InfiniteScroll>
       </Box>
-    );
-  }, [
-    hasMore,
-    sendingWallet.address,
-    styles.infiniteScroller,
-    styles.spacer,
-    theme.palette.text.secondary,
-    transactions,
-  ]);
+    ),
+    [hasMore, styles.infiniteScroller, styles.spacer, transactions],
+  );
 
   const containerStyles = useMemo(() => {
     return mobile ? styles.containerMobile : styles.container;
   }, [mobile, styles.container, styles.containerMobile]);
 
-  return (
-    <Box sx={{ ...containerStyles }}>
-      <ConfigurablePageHeader />
-      {txHistoryHeader}
-      {transactions && transactions.length && !isFetching ? (
-        transactionList
-      ) : (
+  const content = useMemo(() => {
+    // Has transactions to display
+    if (transactions?.length) {
+      return transactionList;
+    }
+
+    // Loading state
+    if (isFetching || (transactions && transactions.length === 0)) {
+      return (
         <Box
           sx={{
             display: 'flex',
@@ -160,7 +144,33 @@ const TxHistory = () => {
           <Skeleton variant="rounded" height={48} width="100%" />
           <Skeleton variant="rounded" height={48} width="100%" />
         </Box>
-      )}
+      );
+    }
+
+    // No transactions found (after fetch completed)
+    if (!isFetching && (!transactions || transactions.length === 0)) {
+      return (
+        <Typography color={theme.palette.text.secondary} textAlign="center">
+          {`No transactions found for the wallet ${trimAddress(
+            sendingWallet.address,
+          )}`}
+        </Typography>
+      );
+    }
+  }, [
+    isFetching,
+    transactions,
+    transactionList,
+    mobile,
+    theme.palette.text.secondary,
+    sendingWallet.address,
+  ]);
+
+  return (
+    <Box sx={{ ...containerStyles }}>
+      <ConfigurablePageHeader />
+      {txHistoryHeader}
+      {content}
     </Box>
   );
 };

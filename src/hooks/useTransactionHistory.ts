@@ -71,7 +71,7 @@ const useTransactionHistory = (
   // Updates the index tracker for transactions from WHScan
   const updateWHScanIndex = useCallback(
     (indexValue: number) => {
-      if (whScanTxs && indexValue <= whScanTxs?.length) {
+      if (!whScanTxs || indexValue <= whScanTxs?.length) {
         setWHScanIndex(indexValue);
       }
     },
@@ -81,7 +81,7 @@ const useTransactionHistory = (
   // Updates the index tracker for transactions from Mayan
   const updateMayanIndex = useCallback(
     (indexValue: number) => {
-      if (mayanTxs && indexValue <= mayanTxs?.length) {
+      if (!mayanTxs || indexValue <= mayanTxs?.length) {
         setMayanIndex(indexValue);
       }
     },
@@ -102,9 +102,14 @@ const useTransactionHistory = (
 
   // Side-effect to merge transactions in time-order whenever there is new data
   useEffect(() => {
-    if (!whScanTxs || !mayanTxs) {
+    // Skip only if BOTH sources have no data
+    if (!whScanTxs?.length && !mayanTxs?.length) {
       return;
     }
+
+    // Initialize with empty arrays if one source has no data
+    const whScanTransactions = whScanTxs || [];
+    const mayanTransactions = mayanTxs || [];
 
     const mergedTxs: Array<Transaction> = [];
 
@@ -114,8 +119,8 @@ const useTransactionHistory = (
 
     for (let i = 0; i < pageSize; i++) {
       if (
-        (whScanLocalIdx === whScanTxs.length && hasMoreWHScan) ||
-        (mayanLocalIdx === mayanTxs.length && hasMoreMayan)
+        (whScanLocalIdx === whScanTransactions.length && hasMoreWHScan) ||
+        (mayanLocalIdx === mayanTransactions.length && hasMoreMayan)
       ) {
         // This case happens when we reach the last item of a transactions list
         // where it still has more in the API. Therefore we can't continue
@@ -127,12 +132,13 @@ const useTransactionHistory = (
         updateMayanIndex(mayanLocalIdx);
 
         // Append the merged transactions and exit
-        setTransactions((txs) => appendTxs(txs, mergedTxs));
+        const newTxs = appendTxs(transactions, mergedTxs);
+        setTransactions(newTxs);
         return;
       }
 
-      const whScanItem = whScanTxs[whScanLocalIdx];
-      const mayanItem = mayanTxs[mayanLocalIdx];
+      const whScanItem = whScanTransactions[whScanLocalIdx];
+      const mayanItem = mayanTransactions[mayanLocalIdx];
 
       if (!whScanItem && !mayanItem) {
         // This case happens when we reach to the end of each resources at the same time.
@@ -142,7 +148,8 @@ const useTransactionHistory = (
         updateWHScanIndex(whScanLocalIdx);
         updateMayanIndex(mayanLocalIdx);
         // Append the merged transactions and exit
-        setTransactions((txs) => appendTxs(txs, mergedTxs));
+        const newTxs = appendTxs(transactions, mergedTxs);
+        setTransactions(newTxs);
         return;
       }
 
@@ -189,8 +196,7 @@ const useTransactionHistory = (
       return true;
     });
 
-    // Append the merged transactions and exit
-    setTransactions((txs) => uniqMergedTxs);
+    setTransactions(uniqMergedTxs);
     // We only need to re-run this side-effect when either of the transaction data changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [whScanTxs, mayanTxs]);

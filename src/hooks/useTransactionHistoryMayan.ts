@@ -164,7 +164,6 @@ const useTransactionHistoryMayan = (
         if (res.status !== 200) {
           setTransactions([]);
           setHasMore(false);
-          setIsFetching(false);
         } else {
           const resPayload = await res.json();
 
