@@ -14,8 +14,7 @@ import {
 import type {
   Commitment,
   ConfirmOptions,
-  RpcResponseAndContext,
-  SignatureResult,
+  SendOptions,
   Transaction,
 } from '@solana/web3.js';
 import { clusterApiUrl, Connection } from '@solana/web3.js';
