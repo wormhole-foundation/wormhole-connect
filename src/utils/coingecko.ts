@@ -31,6 +31,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Seievm: 'sei',
   Mezo: 'wrapped-bitcoin',
   HyperEVM: 'hyperliquid',
+  Plume: 'plume',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
@@ -45,6 +46,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Seievm: 'sei-v2',
   Mezo: 'mezo',
   HyperEVM: 'hyperevm',
+  Plume: 'plume-network',
 };
 
 export interface CoingeckoParams {
