@@ -239,6 +239,8 @@ export default class SDKv2Route {
         recipient: recipient
           ? Wormhole.chainAddress(destChain, recipient)
           : undefined,
+        sourceDecimals: sourceToken.decimals,
+        destinationDecimals: destToken.decimals,
       },
       sourceContext,
       destContext,
