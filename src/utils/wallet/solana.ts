@@ -45,36 +45,39 @@ export function fetchOptions(chain: Chain) {
 }
 
 export function fetchSolanaOptions() {
-  const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
+  const tag = config.isMainnet ? SolanaNetwork.Mainnet : SolanaNetwork.Devnet;
   const connection = new Connection(config.rpcs.Solana || clusterApiUrl(tag));
 
+  const wallets = getSolanaStandardWallets(connection).reduce((acc, w) => {
+    acc[getWalletName(w)] = w;
+    return acc;
+  }, {} as Record<string, Wallet>);
+
+  let walletConnect: Record<string, Wallet> = {};
+  if (config.ui.walletConnectProjectId) {
+    walletConnect = {
+      walletConnect: new SolanaWallet(
+        new WalletConnectWalletAdapter({
+          network: tag,
+          options: {
+            projectId: config.ui.walletConnectProjectId,
+            customStoragePrefix: 'wh-connect-solana-adapter',
+          },
+        }),
+        connection,
+      ),
+    };
+  }
+
   return {
-    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-      acc[getWalletName(w)] = w;
-      return acc;
-    }, {} as Record<string, Wallet>),
+    ...wallets,
     bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
     solong: new SolanaWallet(new SolongWalletAdapter(), connection),
     torus: new SolanaWallet(new TorusWalletAdapter(), connection),
     nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-    ...(config.ui.walletConnectProjectId
-      ? {
-          walletConnect: new SolanaWallet(
-            new WalletConnectWalletAdapter({
-              network: config.isMainnet
-                ? SolanaNetwork.Mainnet
-                : SolanaNetwork.Devnet,
-              options: {
-                projectId: config.ui.walletConnectProjectId,
-                customStoragePrefix: 'wh-connect-solana-adapter',
-              },
-            }),
-            connection,
-          ),
-        }
-      : {}),
+    ...walletConnect,
   };
 }
 
