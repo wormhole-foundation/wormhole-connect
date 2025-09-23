@@ -134,7 +134,7 @@ export async function signAndSendTransactionWithRetry(
     sendOptions,
   );
 
-  confirmTransactionWithRetry(
+  const newSignature = await confirmTransactionWithRetry(
     signature,
     { serializedTransaction, sendOptions },
     connection,
@@ -143,7 +143,9 @@ export async function signAndSendTransactionWithRetry(
     commitment,
   );
 
-  return signature;
+  if (!newSignature) throw new Error('Transaction failed');
+
+  return newSignature;
 }
 
 async function confirmTransactionWithRetry(
@@ -167,12 +169,10 @@ async function confirmTransactionWithRetry(
     commitment,
   );
   if (!confirmTransactionPromise.value.err) {
-    return confirmTransactionPromise;
+    return currentSignature;
   }
 
   try {
-    let hasTransactionBeenResent = false;
-    const NO_OF_RETRIES = 5;
     const RETRY_DELAY = 1000;
 
     await retry(
@@ -181,7 +181,7 @@ async function confirmTransactionWithRetry(
           try {
             confirmTransactionPromise = await connection.confirmTransaction(
               {
-                signature,
+                signature: currentSignature,
                 blockhash: blockHash,
                 lastValidBlockHeight,
               },
@@ -192,10 +192,10 @@ async function confirmTransactionWithRetry(
               !confirmTransactionPromise.value.err;
 
             if (isTransactionSuccessful) {
-              return confirmTransactionPromise;
+              return currentSignature;
             }
 
-            if (!isTransactionSuccessful && !hasTransactionBeenResent) {
+            if (!isTransactionSuccessful) {
               console.log(
                 'Transaction confirmation failed, resending transaction...',
               );
@@ -206,7 +206,18 @@ async function confirmTransactionWithRetry(
                   transaction.sendOptions,
                 );
 
-                hasTransactionBeenResent = true;
+                const retriedTx = await connection.confirmTransaction(
+                  {
+                    signature: currentSignature,
+                    blockhash: blockHash,
+                    lastValidBlockHeight,
+                  },
+                  commitment,
+                );
+                if (!retriedTx.value.err) {
+                  return currentSignature;
+                }
+                throw new Error(`Resent tx failed: ${retriedTx.value.err}`);
               } catch (resendError) {
                 console.error('Failed to resend transaction:', resendError);
 
@@ -233,7 +244,7 @@ async function confirmTransactionWithRetry(
         })();
       },
       {
-        retries: NO_OF_RETRIES,
+        retries: Infinity,
         delay: RETRY_DELAY,
       },
     );
