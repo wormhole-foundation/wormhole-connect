@@ -149,7 +149,6 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "@vitest/ui": "^3.2.4",
     "commitizen": "^4.3.1",
-    "cross-env": "^10.0.0",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.7",
     "env-cmd": "^10.1.0",
