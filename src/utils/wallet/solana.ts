@@ -105,12 +105,6 @@ export function fetchFogoOptions() {
 // This function signs and sends the transaction while constantly checking for confirmation
 // and resending the transaction if it hasn't been confirmed after the specified interval
 // See https://docs.triton.one/chains/solana/sending-txs for more information
-
-/*
-
-  This function signs and sends the transaction, no confirmation checking.
-
-*/
 export async function signAndSendTransactionWithRetry(
   request: SolanaUnsignedTransaction<Network>,
   wallet: Wallet | undefined,
@@ -140,7 +134,7 @@ export async function signAndSendTransactionWithRetry(
     sendOptions,
   );
 
-  waitForConfirmation(
+  confirmTransactionWithRetry(
     signature,
     { serializedTransaction, sendOptions },
     connection,
@@ -152,7 +146,7 @@ export async function signAndSendTransactionWithRetry(
   return signature;
 }
 
-async function waitForConfirmation(
+async function confirmTransactionWithRetry(
   signature: string,
   transaction: {
     serializedTransaction: Uint8Array | Buffer | number[];
@@ -244,12 +238,19 @@ async function waitForConfirmation(
       },
     );
   } catch (e: unknown) {
-    checkTransactionLanded(e, connection, signature);
+    const recoveredSignature = await recoverBlockheightExceededTransaction(
+      e,
+      connection,
+      signature,
+    );
+    if (recoveredSignature) {
+      return recoveredSignature;
+    }
     throw e;
   }
 }
 
-async function checkTransactionLanded(
+async function recoverBlockheightExceededTransaction(
   e: unknown,
   connection: Connection,
   signature: string,
