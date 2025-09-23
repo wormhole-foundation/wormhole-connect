@@ -93,6 +93,7 @@ import {
   type ValidatedParams,
   type ValidationResult,
 } from './types';
+import config from 'config';
 
 export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   N,
@@ -144,10 +145,31 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return supportedChains(network);
   }
 
+  static isHyperCore(chain: Chain): boolean {
+    return chain === ('HyperCore' as Chain);
+  }
+
   static isProtocolSupported<N extends Network>(
     chain: ChainContext<N>,
   ): boolean {
     return supportedChains(chain.network).includes(chain.chain);
+  }
+
+  /**
+   * Check if a token on a specific chain is USDC
+   */
+  private static isUSDCToken(chain: Chain, tokenAddress: string): boolean {
+    const token = config.tokens.findByAddressOrSymbol(chain, tokenAddress);
+    return token?.symbol === 'USDC';
+  }
+
+  /**
+   * Filter a list of tokens to only include USDC tokens
+   */
+  private static filterUSDCTokens(chain: Chain, tokens: TokenId[]): TokenId[] {
+    return tokens.filter((tk) =>
+      this.isUSDCToken(chain, tk.address.toString()),
+    );
   }
 
   // Mayan can handle any input and output token that has liquidity on a DeX
@@ -156,8 +178,14 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     _fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
-    // TODO update this function to only allow HyperCore/USDC
-    return getAllTokenIdsForChain(toChain.chain);
+    const tokens = getAllTokenIdsForChain(toChain.chain);
+
+    // For HyperCore, only allow USDC as destination token
+    if (this.isHyperCore(toChain.chain)) {
+      return this.filterUSDCTokens(toChain.chain, tokens);
+    }
+
+    return tokens;
   }
 
   async isAvailable(): Promise<boolean> {
@@ -165,11 +193,70 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return true;
   }
 
+  /**
+   * Validate HyperCore-specific transfer constraints:
+   * - Only USDC can be sent TO HyperCore
+   * - USDC cannot be sent FROM HyperCore (inbound-only)
+   * @returns Validation error if constraints are violated, null otherwise
+   */
+  private validateHyperCoreTransfer(
+    request: routes.RouteTransferRequest<N>,
+    params: TransferParams,
+  ): ValidationResult | null {
+    const { fromChain, toChain, source, destination } = request;
+
+    // Only USDC allowed as destination token for HyperCore
+    if (MayanRouteBase.isHyperCore(toChain.chain)) {
+      const isDestUSDC = MayanRouteBase.isUSDCToken(
+        toChain.chain,
+        destination.id.address.toString(),
+      );
+
+      if (!isDestUSDC) {
+        return {
+          valid: false,
+          params,
+          error: new routes.UnavailableError(
+            new Error('HyperCore only supports USDC as destination token'),
+          ),
+        };
+      }
+    }
+
+    // Prevent USDC transfers from HyperCore (inbound-only support)
+    if (MayanRouteBase.isHyperCore(fromChain.chain)) {
+      const isSourceUSDC = MayanRouteBase.isUSDCToken(
+        fromChain.chain,
+        source.id.address.toString(),
+      );
+
+      if (isSourceUSDC) {
+        return {
+          valid: false,
+          params,
+          error: new routes.UnavailableError(
+            new Error('Cannot transfer USDC from HyperCore'),
+          ),
+        };
+      }
+    }
+
+    return null;
+  }
+
   async validate(
     request: routes.RouteTransferRequest<N>,
     params: TransferParams,
   ): Promise<ValidationResult> {
     try {
+      const hyperCoreValidation = this.validateHyperCoreTransfer(
+        request,
+        params,
+      );
+      if (hyperCoreValidation) {
+        return hyperCoreValidation;
+      }
+
       params.options = params.options ?? this.getDefaultOptions();
 
       return {

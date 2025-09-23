@@ -65,6 +65,7 @@ const chainNameMap = {
   Unichain: 'unichain',
   Sui: 'sui',
   HyperEVM: 'hyperevm',
+  HyperCore: 'hypercore',
   Linea: 'linea',
 } as Record<Chain, MayanChainName>;
 
