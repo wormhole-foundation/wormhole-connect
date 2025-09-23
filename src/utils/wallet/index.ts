@@ -65,7 +65,7 @@ export const signAndSendTransaction = async (
     return tx;
   } else if (platform === 'Solana') {
     const solana = await import('utils/wallet/solana');
-    const signature = await solana.signAndSendTransaction(
+    const signature = await solana.signAndSendTransactionWithRetry(
       request as SolanaUnsignedTransaction<Network>,
       wallet,
       options,
