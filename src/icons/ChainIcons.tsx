@@ -26,6 +26,7 @@ import UNI from './Chains/UNI';
 import BERA from './Chains/BERA';
 import MEZO from './Chains/MEZO';
 import LINEA from './Chains/LINEA';
+import HYPERCORE from './Chains/HYPERCORE';
 import SONIC from './Chains/SONIC';
 import SEIEVM from './Chains/SEIEVM';
 import PLUME from './Chains/PLUME';
@@ -63,6 +64,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Plume: PLUME(),
   Fogo: FOGO(),
   HyperEVM: HyperEVM(),
+  HyperCore: HYPERCORE(),
   XRPLEVM: XRPLEVM(),
 };
 

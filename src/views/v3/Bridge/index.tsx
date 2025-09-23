@@ -253,7 +253,10 @@ function Bridge(props: BridgeProps) {
 
   const sourceTokens = useMemo(() => {
     if (sourceChain) {
-      return config.tokens.getAllForChain(sourceChain);
+      // Filter out HyperCore tokens from source list since it's destination-only
+      return config.tokens
+        .getAllForChain(sourceChain)
+        .filter((token) => token.nativeChain !== 'HyperCore');
     } else {
       return [];
     }
