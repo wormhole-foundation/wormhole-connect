@@ -706,6 +706,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDC,
   },
   {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Plume',
+      address: '0x222365EF19F7947e5484218551B56bb3965Aa7aF',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
     symbol: 'PLUME',
     tokenId: {
       chain: 'Plume',
