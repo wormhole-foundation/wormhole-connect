@@ -140,7 +140,7 @@ export async function signAndSendTransactionWithResends(
     commitment,
   );
 
-  const confirmationPromiseTimer = 1_000; // How long to wait for confirmation before resending
+  const confirmationPromiseTimer = 3_000; // How long to wait for confirmation before resending
 
   const signature = await signAndConfirmTransactionWhilstResending(
     { serializedTransaction, sendOptions },
