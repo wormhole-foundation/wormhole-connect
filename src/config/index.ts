@@ -105,6 +105,7 @@ export function buildConfig(
     rpcs,
     evmIndexers: customConfig.evmIndexers,
     mayanApi: 'https://explorer-api.mayan.finance',
+    lifiApi: 'https://li.quest',
     wormholeApi: {
       Mainnet: 'https://api.wormholescan.io/',
       Testnet: 'https://api.testnet.wormholescan.io/',

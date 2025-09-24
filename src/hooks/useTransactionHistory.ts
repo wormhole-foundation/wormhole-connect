@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 
 import useTransactionHistoryWHScan from 'hooks/useTransactionHistoryWHScan';
 import useTransactionHistoryMayan from 'hooks/useTransactionHistoryMayan';
+import useTransactionHistoryLiFi from 'hooks/useTransactionHistoryLiFi';
 
 import type { Transaction } from 'config/types';
 import type { RootState } from 'store';
@@ -25,11 +26,13 @@ const useTransactionHistory = (
   // Keeping separate indexes to track the last rendered item in respective transaction sets
   const [mayanIndex, setMayanIndex] = useState(0);
   const [whScanIndex, setWHScanIndex] = useState(0);
+  const [lifiIndex, setLiFiIndex] = useState(0);
 
   // We need to keep the last fetched pages from each APIs
   // as the number of items in a page from each API can be different when sorted by time.
   const [mayanPage, setMayanPage] = useState(page);
   const [whScanPage, setWHScanPage] = useState(page);
+  const [lifiPage, setLiFiPage] = useState(page);
 
   const [transactions, setTransactions] = useState<Array<Transaction>>();
 
@@ -54,6 +57,17 @@ const useTransactionHistory = (
   } = useTransactionHistoryMayan({
     address,
     page: mayanPage,
+    pageSize,
+  });
+
+  const {
+    transactions: lifiTxs,
+    isFetching: isFetchingLiFi,
+    hasMore: hasMoreLiFi,
+    error: errorLiFi,
+  } = useTransactionHistoryLiFi({
+    address,
+    page: lifiPage,
     pageSize,
   });
 
@@ -88,6 +102,16 @@ const useTransactionHistory = (
     [mayanTxs],
   );
 
+  // Updates the index tracker for transactions from LiFi
+  const updateLiFiIndex = useCallback(
+    (indexValue: number) => {
+      if (!lifiTxs || indexValue <= lifiTxs?.length) {
+        setLiFiIndex(indexValue);
+      }
+    },
+    [lifiTxs],
+  );
+
   // Sets the page for each API hook,
   // only when there are more items in the respective data sources.
   useEffect(() => {
@@ -98,29 +122,44 @@ const useTransactionHistory = (
     if (hasMoreWHScan && whScanPage !== page) {
       setWHScanPage(page);
     }
-  }, [hasMoreMayan, hasMoreWHScan, mayanPage, page, whScanPage]);
+
+    if (hasMoreLiFi && lifiPage !== page) {
+      setLiFiPage(page);
+    }
+  }, [
+    hasMoreMayan,
+    hasMoreWHScan,
+    hasMoreLiFi,
+    mayanPage,
+    page,
+    whScanPage,
+    lifiPage,
+  ]);
 
   // Side-effect to merge transactions in time-order whenever there is new data
   useEffect(() => {
-    // Skip only if BOTH sources have no data
-    if (!whScanTxs?.length && !mayanTxs?.length) {
+    // Skip only if ALL sources have no data
+    if (!whScanTxs?.length && !mayanTxs?.length && !lifiTxs?.length) {
       return;
     }
 
-    // Initialize with empty arrays if one source has no data
+    // Initialize with empty arrays if a source has no data
     const whScanTransactions = whScanTxs || [];
     const mayanTransactions = mayanTxs || [];
+    const lifiTransactions = lifiTxs || [];
 
     const mergedTxs: Array<Transaction> = [];
 
     // We need to update the indexes locally until the merge is completed
     let whScanLocalIdx = whScanIndex;
     let mayanLocalIdx = mayanIndex;
+    let lifiLocalIdx = lifiIndex;
 
     for (let i = 0; i < pageSize; i++) {
       if (
         (whScanLocalIdx === whScanTransactions.length && hasMoreWHScan) ||
-        (mayanLocalIdx === mayanTransactions.length && hasMoreMayan)
+        (mayanLocalIdx === mayanTransactions.length && hasMoreMayan) ||
+        (lifiLocalIdx === lifiTransactions.length && hasMoreLiFi)
       ) {
         // This case happens when we reach the last item of a transactions list
         // where it still has more in the API. Therefore we can't continue
@@ -130,6 +169,7 @@ const useTransactionHistory = (
         // Update the indexes to the next item in respective data sources
         updateWHScanIndex(whScanLocalIdx);
         updateMayanIndex(mayanLocalIdx);
+        updateLiFiIndex(lifiLocalIdx);
 
         // Append the merged transactions and exit
         const newTxs = appendTxs(transactions, mergedTxs);
@@ -139,41 +179,61 @@ const useTransactionHistory = (
 
       const whScanItem = whScanTransactions[whScanLocalIdx];
       const mayanItem = mayanTransactions[mayanLocalIdx];
+      const lifiItem = lifiTransactions[lifiLocalIdx];
 
-      if (!whScanItem && !mayanItem) {
-        // This case happens when we reach to the end of each resources at the same time.
+      if (!whScanItem && !mayanItem && !lifiItem) {
+        // This case happens when we reach to the end of all resources at the same time.
         // We'll finish merging and wait for user to request the next page.
 
         // Update the indexes to the next item in respective data sources
         updateWHScanIndex(whScanLocalIdx);
         updateMayanIndex(mayanLocalIdx);
+        updateLiFiIndex(lifiLocalIdx);
         // Append the merged transactions and exit
         const newTxs = appendTxs(transactions, mergedTxs);
         setTransactions(newTxs);
         return;
       }
 
-      if (!mayanItem) {
-        // No item left in Mayan transactions
-        mergedTxs.push(whScanItem);
-        whScanLocalIdx += 1;
-      } else if (!whScanItem) {
-        // No item left in WHScan transactions
-        mergedTxs.push(mayanItem);
-        mayanLocalIdx += 1;
-      } else {
-        // We have both WHScan and Mayan transactions
-        // This is the main scenario where we compare the timestamps and push the most recent
-        const whScanTime = new Date(whScanItem.senderTimestamp);
-        const mayanTime = new Date(mayanItem.senderTimestamp);
+      // Find the most recent transaction among the three sources
+      const items = [
+        {
+          item: whScanItem,
+          idx: 'whscan',
+          time: whScanItem ? new Date(whScanItem.senderTimestamp) : null,
+        },
+        {
+          item: mayanItem,
+          idx: 'mayan',
+          time: mayanItem ? new Date(mayanItem.senderTimestamp) : null,
+        },
+        {
+          item: lifiItem,
+          idx: 'lifi',
+          time: lifiItem ? new Date(lifiItem.senderTimestamp) : null,
+        },
+      ].filter((i) => i.item !== undefined);
 
-        if (whScanTime > mayanTime) {
-          mergedTxs.push(whScanItem);
-          whScanLocalIdx += 1;
-        } else {
-          mergedTxs.push(mayanItem);
-          mayanLocalIdx += 1;
-        }
+      // Sort by timestamp (most recent first)
+      items.sort((a, b) => {
+        if (!a.time) return 1;
+        if (!b.time) return -1;
+        return b.time.getTime() - a.time.getTime();
+      });
+
+      // Push the most recent transaction
+      const mostRecent = items[0];
+      if (mostRecent.item) {
+        mergedTxs.push(mostRecent.item);
+      }
+
+      // Update the appropriate index
+      if (mostRecent.idx === 'whscan') {
+        whScanLocalIdx += 1;
+      } else if (mostRecent.idx === 'mayan') {
+        mayanLocalIdx += 1;
+      } else if (mostRecent.idx === 'lifi') {
+        lifiLocalIdx += 1;
       }
     }
 
@@ -185,6 +245,7 @@ const useTransactionHistory = (
     // Update the indexes to the next item in respective data sources
     updateWHScanIndex(whScanLocalIdx);
     updateMayanIndex(mayanLocalIdx);
+    updateLiFiIndex(lifiLocalIdx);
 
     // Check duplicates in merged transactions
     const mergedTxsSet = new Set<string>();
@@ -197,15 +258,15 @@ const useTransactionHistory = (
     });
 
     setTransactions(uniqMergedTxs);
-    // We only need to re-run this side-effect when either of the transaction data changes
+    // We only need to re-run this side-effect when any of the transaction data changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whScanTxs, mayanTxs]);
+  }, [whScanTxs, mayanTxs, lifiTxs]);
 
   return {
     transactions,
-    error: [errorWHScan, errorMayan],
-    isFetching: isFetchingWHScan || isFetchingMayan,
-    hasMore: hasMoreWHScan || hasMoreMayan,
+    error: [errorWHScan, errorMayan, errorLiFi],
+    isFetching: isFetchingWHScan || isFetchingMayan || isFetchingLiFi,
+    hasMore: hasMoreWHScan || hasMoreMayan || hasMoreLiFi,
   };
 };
 
