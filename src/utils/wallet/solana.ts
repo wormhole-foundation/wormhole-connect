@@ -14,7 +14,9 @@ import {
 import type {
   Commitment,
   ConfirmOptions,
+  RpcResponseAndContext,
   SendOptions,
+  SignatureResult,
   Transaction,
 } from '@solana/web3.js';
 import { clusterApiUrl, Connection } from '@solana/web3.js';
@@ -105,7 +107,7 @@ export function fetchFogoOptions() {
 // This function signs and sends the transaction while constantly checking for confirmation
 // and resending the transaction if it hasn't been confirmed after the specified interval
 // See https://docs.triton.one/chains/solana/sending-txs for more information
-export async function signAndSendTransactionWithRetry(
+export async function signAndSendTransactionWithResends(
   request: SolanaUnsignedTransaction<Network>,
   wallet: Wallet | undefined,
   options?: ConfirmOptions,
@@ -114,12 +116,13 @@ export async function signAndSendTransactionWithRetry(
   const rpc = config.rpcs[request.chain];
   if (!rpc) throw new Error(`${request.chain} RPC not found`);
 
-  const commitment = options?.commitment ?? 'finalized';
+  const commitment = options?.commitment ?? 'confirmed';
   const connection = new Connection(rpc);
 
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);
 
+  // Create tx
   const { serializedTransaction, sendOptions } = await createSolanaTransaction(
     request,
     wallet,
@@ -129,13 +132,7 @@ export async function signAndSendTransactionWithRetry(
     commitment,
   );
 
-  const signature = await connection.sendRawTransaction(
-    serializedTransaction,
-    sendOptions,
-  );
-
-  const newSignature = await confirmTransactionWithRetry(
-    signature,
+  const signature = await signAndConfirmTransactionWhilstResending(
     { serializedTransaction, sendOptions },
     connection,
     blockhash,
@@ -143,13 +140,10 @@ export async function signAndSendTransactionWithRetry(
     commitment,
   );
 
-  if (!newSignature) throw new Error('Transaction failed');
-
-  return newSignature;
+  return signature;
 }
 
-async function confirmTransactionWithRetry(
-  signature: string,
+async function signAndConfirmTransactionWhilstResending(
   transaction: {
     serializedTransaction: Uint8Array | Buffer | number[];
     sendOptions?: SendOptions;
@@ -157,108 +151,116 @@ async function confirmTransactionWithRetry(
   connection: Connection,
   blockHash: string,
   lastValidBlockHeight: number,
-  commitment?: Commitment,
-) {
-  let currentSignature = signature;
-  let confirmTransactionPromise = await connection.confirmTransaction(
+  commitment: Commitment,
+  {
+    initialDelay = 1000, // 1 second
+  }: { retries?: number; initialDelay?: number; maxDelay?: number } = {},
+): Promise<string> {
+  const { signature, confirmPromise } =
+    await sendTransactionAndGetConfirmPromise(
+      transaction,
+      connection,
+      blockHash,
+      lastValidBlockHeight,
+      commitment,
+    );
+
+  await resendTransactionUntilConfirmed(
+    signature,
+    connection,
+    transaction,
+    initialDelay,
+    confirmPromise,
+  );
+
+  return signature;
+}
+
+async function sendTransactionAndGetConfirmPromise(
+  transaction: {
+    serializedTransaction: Uint8Array | Buffer | number[];
+    sendOptions?: SendOptions;
+  },
+  connection: Connection,
+  blockHash: string,
+  lastValidBlockHeight: number,
+  commitment: Commitment,
+): Promise<{
+  signature: string;
+  confirmPromise: Promise<RpcResponseAndContext<SignatureResult>>;
+}> {
+  const signature = await connection.sendRawTransaction(
+    transaction.serializedTransaction,
+    transaction.sendOptions,
+  );
+
+  const confirmPromise = connection.confirmTransaction(
     {
-      signature: currentSignature,
+      signature,
       blockhash: blockHash,
       lastValidBlockHeight,
     },
     commitment,
   );
-  if (!confirmTransactionPromise.value.err) {
-    return currentSignature;
-  }
 
+  return { signature, confirmPromise };
+}
+
+/**
+ * **We race against the confirmation promise to mitigate the risk of the transaction
+ * not being confirmed before the blockhash expires.**
+ *
+ * If the confirmation promise resolves slower than the `txRetryInterval`, we resend.
+ * This is for performance.
+ *
+ * @param signature The transaction signature
+ * @param connection The Solana connection object
+ * @param transaction The transaction to resend
+ */
+
+async function resendTransactionUntilConfirmed(
+  signature: string,
+  connection: Connection,
+  transaction: {
+    serializedTransaction: Uint8Array | Buffer | number[];
+    sendOptions?: SendOptions;
+  },
+  txRetryInterval = 1000,
+  confirmTransactionPromise: Promise<RpcResponseAndContext<SignatureResult>>,
+): Promise<void> {
+  let isTransactionConfirmed: RpcResponseAndContext<SignatureResult> | null =
+    null;
   try {
-    const RETRY_DELAY = 1000;
+    while (!isTransactionConfirmed) {
+      isTransactionConfirmed = await Promise.race([
+        confirmTransactionPromise,
+        new Promise<null>((resolve) =>
+          setTimeout(() => {
+            resolve(null);
+          }, txRetryInterval),
+        ),
+      ]);
+      if (isTransactionConfirmed) {
+        break;
+      }
 
-    await retry(
-      () => {
-        return (async () => {
-          try {
-            confirmTransactionPromise = await connection.confirmTransaction(
-              {
-                signature: currentSignature,
-                blockhash: blockHash,
-                lastValidBlockHeight,
-              },
-              commitment,
-            );
-
-            const isTransactionSuccessful =
-              !confirmTransactionPromise.value.err;
-
-            if (isTransactionSuccessful) {
-              return currentSignature;
-            }
-
-            if (!isTransactionSuccessful) {
-              console.log(
-                'Transaction confirmation failed, resending transaction...',
-              );
-
-              try {
-                currentSignature = await connection.sendRawTransaction(
-                  transaction.serializedTransaction,
-                  transaction.sendOptions,
-                );
-
-                const retriedTx = await connection.confirmTransaction(
-                  {
-                    signature: currentSignature,
-                    blockhash: blockHash,
-                    lastValidBlockHeight,
-                  },
-                  commitment,
-                );
-                if (!retriedTx.value.err) {
-                  return currentSignature;
-                }
-                throw new Error(`Resent tx failed: ${retriedTx.value.err}`);
-              } catch (resendError) {
-                console.error('Failed to resend transaction:', resendError);
-
-                // If resend failed, still throw the original confirmation error
-                let errorMessage = `Transaction failed: ${confirmTransactionPromise.value.err}`;
-                if (typeof confirmTransactionPromise.value.err === 'object') {
-                  try {
-                    errorMessage = `Transaction failed: ${JSON.stringify(
-                      confirmTransactionPromise.value.err,
-                      (_key, value) =>
-                        typeof value === 'bigint' ? value.toString() : value,
-                    )}`;
-                  } catch (e: unknown) {
-                    throw new Error(`Transaction failed: Unknown error`);
-                  }
-                }
-                throw new Error(errorMessage);
-              }
-            }
-          } catch (e) {
-            console.error('Failed to confirm transaction:', e);
-            throw e;
-          }
-        })();
-      },
-      {
-        retries: Infinity,
-        delay: RETRY_DELAY,
-      },
-    );
-  } catch (e: unknown) {
-    const recoveredSignature = await recoverBlockheightExceededTransaction(
-      e,
-      connection,
-      signature,
-    );
-    if (recoveredSignature) {
-      return recoveredSignature;
+      // This is the same signature so don't need response.
+      // Need to await since we are explicilty resending before confirming again
+      await connection.sendRawTransaction(
+        transaction.serializedTransaction,
+        transaction.sendOptions,
+      );
     }
-    throw e;
+  } catch (e) {
+    if (e instanceof Error) {
+      if (e.name === 'TransactionExpiredBlockheightExceededError') {
+        recoverBlockheightExceededTransaction(e, connection, signature);
+      }
+      console.error('Failed to resend transaction:', e);
+    }
   }
+
+  return;
 }
 
 async function recoverBlockheightExceededTransaction(
@@ -267,28 +269,21 @@ async function recoverBlockheightExceededTransaction(
   signature: string,
   { retries = 5, delay = 2000 }: { retries?: number; delay?: number } = {},
 ): Promise<string | null> {
-  if (
-    e instanceof Error &&
-    e.name === 'TransactionExpiredBlockheightExceededError'
-  ) {
-    return retry(
-      async () => {
-        const tx = await connection.getTransaction(signature, {
-          commitment: 'confirmed',
-          maxSupportedTransactionVersion: 0,
-        });
+  return retry(
+    async () => {
+      const tx = await connection.getTransaction(signature, {
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0,
+      });
 
-        if (!tx) {
-          throw new Error('Transaction not yet found on chain');
-        }
+      if (!tx) {
+        throw new Error('Transaction not yet found on chain');
+      }
 
-        return signature;
-      },
-      { retries, delay },
-    ).catch(() => null); // return null if all retries fail
-  }
-
-  return Promise.resolve(null);
+      return signature;
+    },
+    { retries, delay },
+  );
 }
 
 async function createSolanaTransaction(
