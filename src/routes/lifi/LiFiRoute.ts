@@ -25,7 +25,6 @@ import {
   routes,
   amount as sdkAmount,
 } from '@wormhole-foundation/sdk-connect';
-import axios from 'axios';
 import {
   getTransactionStatus,
   supportedChains,
@@ -33,13 +32,10 @@ import {
   toLifiTokenAddress,
   generateThrowawayAddress,
   getNativeChainId,
-  executeSolanaSteps,
-  executeSuiSteps,
-  executeEvmSteps,
 } from './utils';
 import {
-  DEFAULT_SLIPPAGE,
-  DEFAULT_MAX_PRICE_IMPACT,
+  DEFAULT_SLIPPAGE_PERCENT,
+  DEFAULT_MAX_PRICE_IMPACT_PERCENT,
   DEFAULT_ETA_SECONDS,
   DEFAULT_TIMEOUT,
   DEFAULT_BRIDGES,
@@ -58,6 +54,10 @@ import type {
   ValidationResult,
 } from './types';
 import { getAllTokenIdsForChain } from 'utils/tokenHelpers';
+import { sleep } from 'utils';
+import { executeEvmSteps } from './platforms/evm';
+import { executeSuiSteps } from './platforms/sui';
+import { executeSolanaSteps } from './platforms/svm';
 
 export class LiFiRoute<N extends Network>
   extends routes.AutomaticRoute<N, Options, ValidatedParams, Receipt>
@@ -73,8 +73,8 @@ export class LiFiRoute<N extends Network>
 
   getDefaultOptions(): Options {
     return {
-      slippage: DEFAULT_SLIPPAGE,
-      maxPriceImpact: DEFAULT_MAX_PRICE_IMPACT,
+      slippage: DEFAULT_SLIPPAGE_PERCENT,
+      maxPriceImpact: DEFAULT_MAX_PRICE_IMPACT_PERCENT,
       allowDestinationCall: false,
       // TODO: make this configurable
       integrator: 'wormhole-sdk',
@@ -87,13 +87,6 @@ export class LiFiRoute<N extends Network>
 
   static supportedChains(network: Network): Chain[] {
     return supportedChains(network);
-  }
-
-  // LiFi can handle any token that has liquidity
-  static async supportedSourceTokens(
-    _fromChain: ChainContext<Network>,
-  ): Promise<TokenId[]> {
-    return [];
   }
 
   static isProtocolSupported<N extends Network>(
@@ -128,7 +121,7 @@ export class LiFiRoute<N extends Network>
       };
     }
 
-    const slippage = params.options?.slippage ?? DEFAULT_SLIPPAGE;
+    const slippage = params.options?.slippage ?? DEFAULT_SLIPPAGE_PERCENT;
     const isSlippageInvalid = slippage < 0 || slippage > 1;
     if (isSlippageInvalid) {
       return {
@@ -139,7 +132,7 @@ export class LiFiRoute<N extends Network>
     }
 
     const maxPriceImpact =
-      params.options?.maxPriceImpact ?? DEFAULT_MAX_PRICE_IMPACT;
+      params.options?.maxPriceImpact ?? DEFAULT_MAX_PRICE_IMPACT_PERCENT;
     const isMaxPriceImpactInvalid = maxPriceImpact < 0 || maxPriceImpact > 1;
     if (isMaxPriceImpactInvalid) {
       return {
@@ -166,7 +159,7 @@ export class LiFiRoute<N extends Network>
     } as ValidationResult;
   }
 
-  protected async fetchQuote(
+  protected fetchQuote(
     request: routes.RouteTransferRequest<N>,
     params: ValidatedParams,
   ): Promise<LiFiStep> {
@@ -215,15 +208,7 @@ export class LiFiRoute<N extends Network>
     if (normalizedParams.exchanges?.prefer)
       quoteRequest.preferExchanges = normalizedParams.exchanges.prefer;
 
-    try {
-      return await getQuote(quoteRequest);
-    } catch (error) {
-      throw new Error(
-        `Failed to fetch LiFi quote: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-      );
-    }
+    return getQuote(quoteRequest);
   }
 
   async quote(
@@ -259,17 +244,6 @@ export class LiFiRoute<N extends Network>
 
       return fullQuote;
     } catch (e: any) {
-      if (axios.isAxiosError(e)) {
-        const data = e?.response?.data;
-
-        if (data?.message) {
-          return {
-            success: false,
-            error: Error(data.message, { cause: data }),
-          };
-        }
-      }
-
       return {
         success: false,
         error: e as Error,
@@ -354,39 +328,33 @@ export class LiFiRoute<N extends Network>
           receipt.tool,
         );
 
-        if (txStatus) {
-          if (txStatus.status === 'DONE') {
-            const completedReceipt = {
-              ...receipt,
-              originTxs: [
-                { chain: receipt.from, txid: txStatus.sending.txHash },
-              ],
-              attestation: {} as AttestationReceipt<'WormholeCore'>,
-              state: TransferState.DestinationFinalized,
-            } satisfies CompletedTransferReceipt<any>;
-            yield completedReceipt;
-            return completedReceipt;
-          } else if (txStatus.status === 'FAILED') {
-            const failedReceipt = {
-              ...receipt,
-              originTxs: [
-                { chain: receipt.from, txid: txStatus.sending.txHash },
-              ],
-              refundTxs: [],
-              state: TransferState.Refunded,
-              attestation: {} as AttestationReceipt<'WormholeCore'>,
-            } satisfies RefundedTransferReceipt<
-              AttestationReceipt<'WormholeCore'>
-            >;
-            yield failedReceipt;
-            return failedReceipt;
-          }
+        if (!txStatus) {
+          throw new Error('Failed to fetch transfer status');
         }
-      } else {
-        throw new Error('Transfer must have been initiated');
+
+        if (txStatus.status === 'DONE') {
+          const completedReceipt = {
+            ...receipt,
+            originTxs: [{ chain: receipt.from, txid: txStatus.sending.txHash }],
+            attestation: {} as AttestationReceipt<'WormholeCore'>,
+            state: TransferState.DestinationFinalized,
+          } satisfies CompletedTransferReceipt<any>;
+          yield completedReceipt;
+          return completedReceipt;
+        } else if (txStatus.status === 'FAILED') {
+          const failedReceipt = {
+            ...receipt,
+            originTxs: [{ chain: receipt.from, txid: txStatus.sending.txHash }],
+            refundTxs: [],
+            state: TransferState.Refunded,
+            attestation: {} as AttestationReceipt<'WormholeCore'>,
+          } satisfies RefundedTransferReceipt<any>;
+          yield failedReceipt;
+          return failedReceipt;
+        }
       }
 
-      await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL_MS));
+      await sleep(POLLING_INTERVAL_MS);
       leftover -= Date.now() - start;
     }
 

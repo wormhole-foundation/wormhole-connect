@@ -1,9 +1,8 @@
-import type { ChainId, Route } from '@lifi/sdk';
+import type { ChainId } from '@lifi/sdk';
 import {
   getStatus,
   type GetStatusRequest,
   type StatusResponse,
-  getStepTransaction,
 } from '@lifi/sdk';
 import type {
   Chain,
@@ -19,29 +18,11 @@ import {
   isSignAndSendSigner,
   isSignOnlySigner,
   isNative,
-  amount as sdkAmount,
   nativeChainIds,
 } from '@wormhole-foundation/sdk-connect';
-import type { EvmChains } from '@wormhole-foundation/sdk-evm';
-import {
-  EvmPlatform,
-  EvmUnsignedTransaction,
-} from '@wormhole-foundation/sdk-evm';
-import type { SolanaTransaction } from '@wormhole-foundation/sdk-solana';
-import {
-  SolanaPlatform,
-  SolanaUnsignedTransaction,
-} from '@wormhole-foundation/sdk-solana';
-import {
-  SuiPlatform,
-  SuiUnsignedTransaction,
-} from '@wormhole-foundation/sdk-sui';
-import { VersionedTransaction, Keypair } from '@solana/web3.js';
-import { Transaction } from '@mysten/sui/transactions';
-import { fromBase64 } from '@mysten/sui/utils';
-import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { ethers } from 'ethers';
-import axios from 'axios';
+import type { EvmPlatform } from '@wormhole-foundation/sdk-evm';
+import type { SolanaPlatform } from '@wormhole-foundation/sdk-solana';
+import type { SuiPlatform } from '@wormhole-foundation/sdk-sui';
 import {
   LIFI_NATIVE_ADDRESS_EVM,
   LIFI_NATIVE_ADDRESS_SVM,
@@ -49,7 +30,9 @@ import {
   CHAIN_ID_MAP,
   CHAIN_FROM_ID_MAP,
 } from './consts';
-import type { PlatformContext } from './types';
+import { generateThrowawayAddress as generateEvmThrowawayAddress } from './platforms/evm';
+import { generateThrowawayAddress as generateSolanaThrowawayAddress } from './platforms/svm';
+import { generateThrowawayAddress as generateSuiThrowawayAddress } from './platforms/sui';
 
 export function getNativeContractAddress(chain: Chain): string {
   return mapTokenIdToLifiToken({ chain, address: 'native' });
@@ -62,13 +45,15 @@ export function toLifiTokenAddress(tokenId: TokenId): string {
 }
 
 export function generateThrowawayAddress(chain: Chain): string {
-  if (chain === 'Solana') {
-    return Keypair.generate().publicKey.toString();
-  } else if (chain === 'Sui') {
-    return Ed25519Keypair.generate().toSuiAddress();
+  const platform = chainToPlatform(chain);
+  if (platform === 'Solana') {
+    return generateSolanaThrowawayAddress();
+  } else if (platform === 'Sui') {
+    return generateSuiThrowawayAddress();
+  } else if (platform === 'Evm') {
+    return generateEvmThrowawayAddress();
   } else {
-    // For EVM chains
-    return ethers.Wallet.createRandom().address;
+    throw new Error('Unsupported platform');
   }
 }
 
@@ -155,25 +140,21 @@ export async function getTransactionStatus(
   toChain: string,
   bridge?: string,
 ): Promise<StatusResponse | null> {
-  try {
-    const statusRequest: GetStatusRequest = {
-      txHash: tx.txid,
-      fromChain,
-      toChain,
-      bridge,
-    };
+  const statusRequest: GetStatusRequest = {
+    txHash: tx.txid,
+    fromChain,
+    toChain,
+    bridge,
+  };
 
-    const response = await getStatus(statusRequest);
-    return response;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null;
-    }
-    throw error;
+  const response = await getStatus(statusRequest);
+  if (response.status === 'NOT_FOUND') {
+    return null;
   }
+  return response;
 }
 
-async function executeTransaction<N extends Network>(
+export async function executeTransaction<N extends Network>(
   txReq: any,
   signer: Signer<N>,
   rpc: any,
@@ -188,171 +169,5 @@ async function executeTransaction<N extends Network>(
     const signed = await signer.sign([txReq]);
     const txids = await platform.sendWait(chain, rpc, signed);
     txs.push(...txids.map((txid) => ({ chain, txid })));
-  }
-}
-
-export async function executeSolanaSteps<N extends Network>(
-  route: Route,
-  context: PlatformContext<N>,
-): Promise<void> {
-  const { request, signer, rpc, txs } = context;
-
-  for (const step of route.steps) {
-    const populatedStep = await getStepTransaction(step);
-    const txData = populatedStep.transactionRequest?.data;
-
-    if (!txData) {
-      throw new Error('No transaction data in LiFi step');
-    }
-
-    if (!request.sender) {
-      throw new Error('Sender is required');
-    }
-
-    const solanaTx = VersionedTransaction.deserialize(
-      Buffer.from(txData, 'base64'),
-    );
-
-    const txReq = new SolanaUnsignedTransaction(
-      {
-        transaction: solanaTx,
-        signers: undefined,
-      } as SolanaTransaction,
-      request.fromChain.network,
-      'Solana',
-      `LiFi Step: ${step.tool}`,
-    );
-
-    await executeTransaction(
-      txReq,
-      signer,
-      rpc,
-      request.fromChain.chain,
-      SolanaPlatform,
-      txs,
-    );
-  }
-}
-
-export async function executeSuiSteps<N extends Network>(
-  route: Route,
-  context: PlatformContext<N>,
-): Promise<void> {
-  const { request, signer, rpc, txs } = context;
-
-  for (const step of route.steps) {
-    const populatedStep = await getStepTransaction(step);
-    const txData = populatedStep.transactionRequest;
-
-    if (!txData || !txData.data) {
-      throw new Error('No transaction data in LiFi step');
-    }
-
-    const tx = Transaction.from(fromBase64(txData.data));
-
-    const txReq = new SuiUnsignedTransaction(
-      tx,
-      request.fromChain.network,
-      'Sui',
-      `LiFi Step: ${step.tool}`,
-    );
-
-    await executeTransaction(
-      txReq,
-      signer,
-      rpc,
-      request.fromChain.chain,
-      SuiPlatform,
-      txs,
-    );
-  }
-}
-
-export async function executeEvmSteps<N extends Network>(
-  route: Route,
-  context: PlatformContext<N>,
-  quote: any,
-  nativeChainId: bigint,
-  toLifiTokenAddress: (tokenId: TokenId) => string,
-): Promise<void> {
-  const { request, signer, rpc, txs } = context;
-
-  // Handle token approvals if needed
-  if (!isNative(request.source.id.address)) {
-    const tokenContract = EvmPlatform.getTokenImplementation(
-      rpc,
-      toLifiTokenAddress(request.source.id),
-    );
-
-    const firstStep = route.steps[0];
-    const approvalAddress = firstStep?.estimate?.approvalAddress;
-
-    if (approvalAddress) {
-      const allowance = await tokenContract.allowance(
-        signer.address(),
-        approvalAddress,
-      );
-
-      const amt = sdkAmount.units(quote.sourceToken.amount);
-      if (allowance < amt) {
-        const txReq = await tokenContract.approve.populateTransaction(
-          approvalAddress,
-          amt,
-        );
-
-        const approvalTxReq = new EvmUnsignedTransaction(
-          {
-            from: signer.address(),
-            chainId: nativeChainId as bigint,
-            ...txReq,
-          },
-          request.fromChain.network,
-          request.fromChain.chain as EvmChains,
-          'Approve Allowance',
-        );
-
-        await executeTransaction(
-          approvalTxReq,
-          signer,
-          rpc,
-          request.fromChain.chain,
-          EvmPlatform,
-          txs,
-        );
-      }
-    }
-  }
-
-  for (const step of route.steps) {
-    const populatedStep = await getStepTransaction(step);
-    const txData = populatedStep.transactionRequest;
-
-    if (!txData) {
-      throw new Error(`No transaction data in LiFi step: ${step.tool}`);
-    }
-
-    const txReq = new EvmUnsignedTransaction(
-      {
-        from: signer.address(),
-        chainId: nativeChainId,
-        to: txData.to,
-        data: txData.data,
-        value: txData.value || '0x0',
-        gasLimit: txData.gasLimit,
-        gasPrice: txData.gasPrice,
-      },
-      request.fromChain.network,
-      request.fromChain.chain as EvmChains,
-      `LiFi Step: ${step.tool}`,
-    );
-
-    await executeTransaction(
-      txReq,
-      signer,
-      rpc,
-      request.fromChain.chain,
-      EvmPlatform,
-      txs,
-    );
   }
 }

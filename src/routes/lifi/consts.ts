@@ -2,8 +2,8 @@ import { ChainId } from '@lifi/sdk';
 import type { Chain } from '@wormhole-foundation/sdk-connect';
 
 // Constants
-export const DEFAULT_SLIPPAGE = 0.005; // 0.5%
-export const DEFAULT_MAX_PRICE_IMPACT = 0.2; // 20%
+export const DEFAULT_SLIPPAGE_PERCENT = 0.005; // 0.5%
+export const DEFAULT_MAX_PRICE_IMPACT_PERCENT = 0.2; // 20%
 export const DEFAULT_ETA_SECONDS = 60;
 export const DEFAULT_TIMEOUT = 60 * 60 * 1000; // 1 hour
 export const DEFAULT_BRIDGES = {
