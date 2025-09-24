@@ -161,6 +161,14 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Berachain',
     symbol: 'BERA',
   },
+  Ink: {
+    displayName: 'Ink',
+    sdkName: 'Ink',
+    explorerUrl: 'https://explorer.inkonchain.com/',
+    explorerName: 'Ink Explorer',
+    icon: 'Ink',
+    symbol: 'INK',
+  },
   Linea: {
     displayName: 'Linea',
     sdkName: 'Linea',

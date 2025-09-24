@@ -654,6 +654,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
   {
     symbol: 'ETH',
     tokenId: {
+      chain: 'Ink',
+      address: 'native',
+    },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'ETH',
+    tokenId: {
       chain: 'Linea',
       address: 'native',
     },
@@ -764,6 +773,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     tokenId: {
       chain: 'HyperEVM',
       address: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDC,
+  },
+  {
+    symbol: 'USDC',
+    tokenId: {
+      chain: 'Ink',
+      address: '0x2D270e6886d130D724215A266106e6832161EAEd',
     },
     decimals: 6,
     icon: TokenIcon.USDC,
