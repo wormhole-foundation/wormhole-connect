@@ -8,6 +8,7 @@ import {
   createSwapFromSolanaInstructions,
   createSwapFromSuiMoveCalls,
   generateFetchQuoteUrl,
+  getHyperCoreUSDCDepositPermitParams,
   getSwapFromEvmTxPayload,
 } from '@mayanfinance/swap-sdk';
 import type { SuiClient } from '@mysten/sui/client';
@@ -62,6 +63,7 @@ import type { EvmChains } from '@wormhole-foundation/sdk-evm';
 import {
   EvmPlatform,
   EvmUnsignedTransaction,
+  isEvmNativeSigner,
 } from '@wormhole-foundation/sdk-evm';
 import {
   SolanaPlatform,
@@ -71,6 +73,7 @@ import {
   SuiPlatform,
   SuiUnsignedTransaction,
 } from '@wormhole-foundation/sdk-sui';
+import type { JsonRpcProvider } from 'ethers';
 import axios from 'axios';
 import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
 import { getAllTokenIdsForChain } from '../../utils/tokenHelpers';
@@ -242,6 +245,67 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     }
 
     return null;
+  }
+
+  private requiresHyperCorePermit(
+    request: routes.RouteTransferRequest<N>,
+    quote: Quote,
+  ): boolean {
+    return (
+      MayanRouteBase.isHyperCore(request.toChain.chain) &&
+      quote.details?.hyperCoreParams !== undefined
+    );
+  }
+
+  private async maybeGetHyperCorePermitSignature(
+    request: routes.RouteTransferRequest<N>,
+    signer: Signer<N>,
+    quote: Quote,
+    destinationAddress: string,
+  ): Promise<string | undefined> {
+    if (!this.requiresHyperCorePermit(request, quote)) return undefined;
+
+    const quoteDetails = quote.details;
+
+    if (!quoteDetails) {
+      throw new Error('Missing HyperCore quote details required for permit');
+    }
+
+    const arbitrumRpc =
+      ((await request.toChain.getRpc()) as unknown as JsonRpcProvider) ?? null;
+
+    if (!arbitrumRpc) {
+      throw new Error('Could not resolve HyperCore RPC connection');
+    }
+
+    let domain: any;
+    let types: Record<string, any>;
+    let value: Record<string, unknown>;
+
+    try {
+      ({ domain, types, value } = await getHyperCoreUSDCDepositPermitParams(
+        quoteDetails,
+        destinationAddress,
+        arbitrumRpc,
+      ));
+    } catch (e) {
+      throw new Error(
+        `Failed to fetch HyperCore USDC permit params: ${(e as Error).message}`,
+      );
+    }
+
+    if (typeof (signer as any).signTypedData === 'function') {
+      return await (signer as any).signTypedData(domain, types, value);
+    }
+
+    if (isEvmNativeSigner(signer)) {
+      const nativeSigner = signer.unwrap();
+      return await nativeSigner.signTypedData(domain, types, value);
+    }
+
+    throw new Error(
+      'Signer must support EIP-712 typed data signing to bridge USDC to HyperCore',
+    );
   }
 
   async validate(
@@ -710,8 +774,19 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       const txs: TransactionId[] = [];
       const rpc = await request.fromChain.getRpc();
       const feeUnits = this.getFeeInBaseUnits(request, quote.params.amount);
+      const usdcPermitSignature = await this.maybeGetHyperCorePermitSignature(
+        request,
+        signer,
+        quote,
+        destinationAddress,
+      );
 
       if (request.fromChain.chain === 'Solana') {
+        const solanaOptions = {
+          allowSwapperOffCurve: true,
+          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+        };
+
         const { instructions, signers, lookupTables } =
           await (this.isTestnetRequest(request)
             ? createSwapFromSolanaInstructionsTestnet(
@@ -720,7 +795,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 destinationAddress,
                 null,
                 rpc,
-                { allowSwapperOffCurve: true },
+                solanaOptions,
               )
             : createSwapFromSolanaInstructions(
                 quote.details!,
@@ -728,7 +803,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 destinationAddress,
                 null,
                 rpc,
-                { allowSwapperOffCurve: true },
+                solanaOptions,
               ));
 
         const payerKey = new PublicKey(originAddress);
@@ -900,26 +975,38 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
           }
         }
 
+        const quoteDetails = quote.details;
+
+        if (!quoteDetails) {
+          throw new Error('Missing Mayan quote details');
+        }
+
+        const mainnetOptions =
+          usdcPermitSignature !== undefined
+            ? { usdcPermitSignature }
+            : undefined;
+
         const mayanTxRequest = this.isTestnetRequest(request)
           ? getSwapFromEvmTxPayloadTestnet(
-              this.normalizeQuoteForTestnet(quote.details!),
+              this.normalizeQuoteForTestnet(quoteDetails),
               originAddress,
               destinationAddress,
               null,
               originAddress,
               Number(nativeChainId!),
               undefined,
-              undefined, // permit?
+              undefined,
             )
           : getSwapFromEvmTxPayload(
-              quote.details!,
+              quoteDetails,
               originAddress,
               destinationAddress,
               null,
               originAddress,
               Number(nativeChainId!),
               undefined,
-              undefined, // permit?
+              undefined,
+              mainnetOptions,
             );
 
         const txReq = createTransactionRequest(
