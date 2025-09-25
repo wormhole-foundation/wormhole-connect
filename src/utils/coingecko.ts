@@ -30,7 +30,8 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Worldchain: 'ethereum',
   Seievm: 'sei',
   Mezo: 'wrapped-bitcoin',
-  HyperEVM: 'hyperliquid',
+  HyperEVM: 'ethereum',
+  HyperCore: 'ethereum', // USDC price from ARB
   Plume: 'plume',
 };
 
@@ -46,6 +47,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   Seievm: 'sei-v2',
   Mezo: 'mezo',
   HyperEVM: 'hyperevm',
+  HyperCore: 'hypercore',
   Plume: 'plume-network',
 };
 

@@ -209,6 +209,14 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'HyperEVM',
     symbol: 'HYPE',
   },
+  HyperCore: {
+    displayName: 'HyperCore',
+    sdkName: 'HyperCore',
+    explorerUrl: 'https://arbiscan.io/', // Uses Arb USDC
+    explorerName: 'Arbitrum Explorer', // Uses Arb USDC
+    icon: 'HyperCore',
+    symbol: 'HyperCore',
+  },
   XRPLEVM: {
     displayName: 'XRPL EVM',
     sdkName: 'XRPLEVM',

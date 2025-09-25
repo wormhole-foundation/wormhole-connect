@@ -31,6 +31,7 @@ import SEIEVM from './Chains/SEIEVM';
 import PLUME from './Chains/PLUME';
 import FOGO from './Chains/FOGO';
 import HyperEVM from './Chains/HYPEREVM';
+import HYPERCORE from './Chains/HYPERCORE';
 import XRPLEVM from './Chains/XRPLEVM';
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
@@ -61,6 +62,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Plume: PLUME(),
   Fogo: FOGO(),
   HyperEVM: HyperEVM(),
+  HyperCore: HYPERCORE(),
   XRPLEVM: XRPLEVM(),
 };
 

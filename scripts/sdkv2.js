@@ -5,7 +5,6 @@ const os = require('os');
 const WORK_ROOT = process.env['WORK_ROOT'] || os.homedir();
 
 const thirdPartyPkgs = {
-  '@mayanfinance/wormhole-sdk-route': 'wormhole-sdk-route',
   '@wormhole-foundation/sdk-definitions-ntt':
     'native-token-transfers/sdk/definitions',
   '@wormhole-foundation/sdk-route-ntt': 'native-token-transfers/sdk/route',

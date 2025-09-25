@@ -55,7 +55,7 @@ export const signAndSendTransaction = async (
 
   const platform = chainToPlatform(chainConfig.sdkName);
 
-  if (platform === 'Evm') {
+  if (platform === 'Evm' || platform === 'Hyperliquid') {
     const evm = await import('utils/wallet/evm');
     const tx = await evm.signAndSendTransaction(
       request as EvmUnsignedTransaction<Network, EvmChains>,
@@ -139,7 +139,7 @@ export const getWalletOptions = async (
     return [];
   }
   const platform = chainToPlatform(chain.sdkName);
-  if (platform === 'Evm') {
+  if (platform === 'Evm' || platform === 'Hyperliquid') {
     const evm = await import('utils/wallet/evm');
     let wallets = Object.values(mapWallets(evm.getWallets(), platform));
     // Filter out 'Injected Wallet' if Nightly is the active injected provider
