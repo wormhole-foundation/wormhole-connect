@@ -41,6 +41,7 @@ export interface QuoteParams {
   destToken: Token;
   amount: sdkAmount.Amount;
   nativeGas: number;
+  sender?: string; // wallet may be undefined when not connected
   recipient?: string; // wallet may be undefined when not connected
 }
 
@@ -236,6 +237,7 @@ export default class RouteOperator {
     sourceChain: Chain,
     signer: Signer,
     destChain: Chain,
+    senderAddress: string,
     recipientAddress: string,
     destToken: Token,
     options: routes.AutomaticTokenBridgeRoute.Options,
@@ -249,6 +251,7 @@ export default class RouteOperator {
       destChain,
       destToken,
       nativeGas: options.nativeGas,
+      sender: senderAddress,
       recipient: recipientAddress,
     };
 
@@ -262,6 +265,7 @@ export default class RouteOperator {
         sourceChain,
         destChain,
         options,
+        senderAddress,
         recipientAddress,
       );
     }
@@ -293,7 +297,7 @@ class QuoteMetadataCache {
       params.destChain
     }:${params.destToken.address.toString()}:${sdkAmount.units(
       params.amount,
-    )}:${params.nativeGas}:${params.recipient}`;
+    )}:${params.nativeGas}:${params.recipient}:${params.sender}`;
   }
 
   get(routeName: string, params: QuoteParams): QuoteMetadata | null {
@@ -340,6 +344,7 @@ class QuoteMetadataCache {
         params.sourceChain,
         params.destChain,
         { nativeGas: params.nativeGas },
+        params.sender,
         params.recipient,
       )
       .then(({ routeInstance, quote, request }: QuoteMetadata) => {

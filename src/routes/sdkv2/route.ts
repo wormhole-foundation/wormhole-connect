@@ -178,6 +178,7 @@ export default class SDKv2Route {
     sourceChain: Chain,
     destChain: Chain,
     options?: routes.AutomaticTokenBridgeRoute.Options,
+    sender?: string,
     recipient?: string,
   ): Promise<QuoteMetadata> {
     if (!sourceChain || !destChain || !sourceToken || !destToken) {
@@ -189,6 +190,7 @@ export default class SDKv2Route {
       destToken,
       sourceChain,
       destChain,
+      sender,
       recipient,
     );
 
@@ -220,6 +222,7 @@ export default class SDKv2Route {
     destToken: Token,
     sourceChain: Chain,
     destChain: Chain,
+    sender?: string,
     recipient?: string,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceContext = (await this.getV2ChainContext(sourceChain)).context;
@@ -232,6 +235,7 @@ export default class SDKv2Route {
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
+        sender: sender ? Wormhole.chainAddress(sourceChain, sender) : undefined,
         recipient: recipient
           ? Wormhole.chainAddress(destChain, recipient)
           : undefined,

@@ -416,6 +416,7 @@ const SingleRoute = (props: Props) => {
       >
         <ProviderWithAmount
           destChain={destChain}
+          provider={quote?.provider}
           route={props.route}
           sourceChain={sourceChain}
           sourceTokenSymbol={sourceToken?.symbol}

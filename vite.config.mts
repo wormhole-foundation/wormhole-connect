@@ -140,6 +140,7 @@ const libEntry: InputOption = [
   path.resolve(__dirname, 'src/exports/ntt.ts'),
   path.resolve(__dirname, 'src/exports/hosted.ts'),
   path.resolve(__dirname, 'src/exports/executor.ts'),
+  path.resolve(__dirname, 'src/exports/lifi.ts'),
 ];
 
 const rollupInput: InputOption = {
@@ -148,6 +149,7 @@ const rollupInput: InputOption = {
   ntt: 'src/exports/ntt.ts',
   hosted: 'src/exports/hosted.ts',
   executor: 'src/exports/executor.ts',
+  lifi: 'src/exports/lifi.ts',
 };
 
 const external = [

@@ -47,6 +47,7 @@ import {
   cctpV2StandardExecutorRoute,
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
+import { LiFiRoute } from 'exports/lifi';
 import type { WormholeConnectTheme } from 'theme';
 import { getExperiment } from 'utils/experiments';
 
@@ -83,6 +84,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.MayanRouteMONOCHAIN = MayanRouteMONOCHAIN;
       /* @ts-ignore */
       window.MayanRouteSWIFT = MayanRouteSWIFT;
+      /* @ts-ignore */
+      window.LiFiRoute = LiFiRoute;
       /* @ts-ignore */
       window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
       /* @ts-ignore */
@@ -294,6 +297,10 @@ function SampleApp() {
                   </li>
                   <li>
                     <pre>MayanRouteMONOCHAIN</pre>
+                    <i>{'RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>LiFiRoute</pre>
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>

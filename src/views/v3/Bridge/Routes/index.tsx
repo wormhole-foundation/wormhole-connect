@@ -306,6 +306,7 @@ function Routes({
             >
               <RoutesLink
                 destChain={destChain}
+                provider={selectedQuote?.provider}
                 route={selectedRoute}
                 sourceChain={sourceChain}
                 onClick={handleToggleRoutes}

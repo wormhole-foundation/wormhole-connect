@@ -89,6 +89,11 @@ export function getExplorerInfo(
       url: `https://explorer.mayan.finance/swap/${txHash}`,
       name: 'Mayan Explorer',
     };
+  } else if (routeName === 'LiFi') {
+    return {
+      url: `https://scan.li.fi/tx/${txHash}`,
+      name: 'Li.Fi SCAN',
+    };
   } else if (
     isExecutorRoute(routeName) &&
     (rangeExplorerChains.includes(fromChain) ||

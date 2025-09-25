@@ -9,6 +9,7 @@ import ProviderLabel from './ProviderLabel';
 interface RoutesLinkProps {
   destChain?: string;
   onClick: () => void;
+  provider?: string;
   route?: string;
   sourceChain?: string;
   sourceTokenSymbol?: string;
@@ -17,6 +18,7 @@ interface RoutesLinkProps {
 function RoutesLink({
   destChain,
   onClick,
+  provider,
   route,
   sourceChain,
   sourceTokenSymbol,
@@ -44,6 +46,7 @@ function RoutesLink({
       >
         <ProviderLabel
           destChain={destChain}
+          provider={provider}
           route={route}
           sourceChain={sourceChain}
           sourceTokenSymbol={sourceTokenSymbol}

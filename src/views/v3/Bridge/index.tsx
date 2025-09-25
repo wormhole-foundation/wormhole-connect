@@ -180,6 +180,7 @@ function Bridge(props: BridgeProps) {
     sourceToken,
     destToken,
     toNativeToken,
+    sendingWallet,
     receivingWallet,
   });
 
