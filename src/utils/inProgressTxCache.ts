@@ -1,6 +1,6 @@
 import config from 'config';
 import type { TransactionLocal } from 'config/types';
-import { isEmptyObject, JSONReplacer } from 'utils';
+import { isEmptyObject, stringifyWithBigInt } from 'utils';
 
 const LOCAL_STORAGE_KEY = 'transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
@@ -169,7 +169,10 @@ export const addTxToLocalStorage = (
 
   // Update the list
   try {
-    ls.setItem(config.cacheKey(LOCAL_STORAGE_KEY), JSONReplacer(newList));
+    ls.setItem(
+      config.cacheKey(LOCAL_STORAGE_KEY),
+      stringifyWithBigInt(newList),
+    );
   } catch (e: any) {
     // We can get two different errors:
     // 1- TypeError from JSON.stringify
@@ -193,7 +196,10 @@ export const removeTxFromLocalStorage = (txHash: string) => {
       // remove the item and update localStorage
       items.splice(removeIndex, 1);
       try {
-        ls.setItem(config.cacheKey(LOCAL_STORAGE_KEY), JSONReplacer(items));
+        ls.setItem(
+          config.cacheKey(LOCAL_STORAGE_KEY),
+          stringifyWithBigInt(items),
+        );
       } catch (e: any) {
         // We can get two different errors:
         // 1- TypeError from JSON.stringify
@@ -223,7 +229,10 @@ export const updateTxInLocalStorage = (
       // Update item property and put back in local storage
       items[idx][key] = value;
       try {
-        ls.setItem(config.cacheKey(LOCAL_STORAGE_KEY), JSONReplacer(items));
+        ls.setItem(
+          config.cacheKey(LOCAL_STORAGE_KEY),
+          stringifyWithBigInt(items),
+        );
       } catch (e: any) {
         // We can get two different errors:
         // 1- TypeError from JSON.stringify

@@ -35,7 +35,7 @@ import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana'
 import type { Chain, Network } from '@wormhole-foundation/sdk';
 import { setPriorityFeeInstructions } from 'utils/solana';
 import { retry } from 'es-toolkit';
-import { JSONReplacer } from 'utils';
+import { stringifyWithBigInt } from 'utils';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -186,13 +186,13 @@ async function resendTransactionUntilConfirmed(
     transaction.sendOptions,
   );
 
+  const confirmPromise = connection.confirmTransaction(
+    { signature, blockhash, lastValidBlockHeight },
+    commitment,
+  );
+
   try {
     while (!isTransactionConfirmed) {
-      const confirmPromise = connection.confirmTransaction(
-        { signature, blockhash, lastValidBlockHeight },
-        commitment,
-      );
-
       isTransactionConfirmed = await Promise.race([
         confirmPromise,
         new Promise<null>((resolve) =>
@@ -291,7 +291,7 @@ function formatConfirmationError(err: TransactionError): string {
 
   if (typeof err === 'object') {
     try {
-      return JSONReplacer(err);
+      return stringifyWithBigInt(err);
     } catch {
       return 'Unstringifiable error object';
     }

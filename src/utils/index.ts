@@ -425,7 +425,7 @@ export const isExecutorRoute = (route: string | undefined) => {
   return route.endsWith('ExecutorRoute');
 };
 
-export const JSONReplacer = (json: any) => {
+export const stringifyWithBigInt = (json: any) => {
   return JSON.stringify(json, (_key, value) =>
     typeof value === 'bigint' ? value.toString() : value,
   );
