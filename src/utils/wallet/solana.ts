@@ -211,12 +211,14 @@ async function resendTransactionUntilConfirmed(
       );
     }
   } catch (e) {
-    if (e instanceof Error) {
-      if (e.name === 'TransactionExpiredBlockheightExceededError') {
-        await recoverBlockheightExceededTransaction(connection, signature);
-      }
-      console.error('Failed to resend transaction:', e);
+    if (
+      e instanceof Error &&
+      e.name === 'TransactionExpiredBlockheightExceededError'
+    ) {
+      await recoverBlockheightExceededTransaction(connection, signature);
+      return signature;
     }
+    throw e;
   }
 
   if (isTransactionConfirmed?.value.err) {
@@ -245,14 +247,16 @@ async function recoverBlockheightExceededTransaction(
   { retries = 5, delay = 2000 }: { retries?: number; delay?: number } = {},
 ) {
   const findTransaction = async () => {
-    const tx = await connection.getTransaction(signature, {
-      commitment: 'confirmed',
-      maxSupportedTransactionVersion: 0,
-    });
+    try {
+      const tx = await connection.getTransaction(signature, {
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0,
+      });
 
-    if (tx) return;
-
-    throw new Error('Transaction not yet found on chain');
+      if (tx) return;
+    } catch {
+      // Ignore errors
+    }
   };
 
   retry(findTransaction, { retries, delay });
