@@ -782,10 +782,11 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       );
 
       if (request.fromChain.chain === 'Solana') {
-        const solanaOptions = {
-          allowSwapperOffCurve: true,
-          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
-        };
+        // Uncomment and use this when we want to support HyperCore USDC deposits on SOL
+        // const solanaOptions = {
+        //   allowSwapperOffCurve: true,
+        //   ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+        // };
 
         const { instructions, signers, lookupTables } =
           await (this.isTestnetRequest(request)
@@ -795,7 +796,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 destinationAddress,
                 null,
                 rpc,
-                solanaOptions,
+                { allowSwapperOffCurve: true },
               )
             : createSwapFromSolanaInstructions(
                 quote.details!,
@@ -803,7 +804,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 destinationAddress,
                 null,
                 rpc,
-                solanaOptions,
+                { allowSwapperOffCurve: true },
               ));
 
         const payerKey = new PublicKey(originAddress);
