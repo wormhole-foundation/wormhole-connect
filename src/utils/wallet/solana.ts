@@ -29,10 +29,13 @@ import {
 
 import config from 'config';
 
+const CONFIRMATION_PROMISE_TIMER = 3_000; // How long to wait for confirmation before resending
+
 import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import type { Chain, Network } from '@wormhole-foundation/sdk';
 import { setPriorityFeeInstructions } from 'utils/solana';
 import { retry } from 'es-toolkit';
+import { JSONReplacer } from 'utils';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -140,79 +143,17 @@ export async function signAndSendTransactionWithResends(
     commitment,
   );
 
-  const confirmationPromiseTimer = 3_000; // How long to wait for confirmation before resending
+  const transaction = { serializedTransaction, sendOptions };
 
-  const signature = await signAndConfirmTransactionWhilstResending(
-    { serializedTransaction, sendOptions },
+  const signature = await resendTransactionUntilConfirmed(
     connection,
+    transaction,
     blockhash,
     lastValidBlockHeight,
     commitment,
-    confirmationPromiseTimer,
   );
 
   return signature;
-}
-
-async function signAndConfirmTransactionWhilstResending(
-  transaction: {
-    serializedTransaction: Uint8Array | Buffer | number[];
-    sendOptions?: SendOptions;
-  },
-  connection: Connection,
-  blockHash: string,
-  lastValidBlockHeight: number,
-  commitment: Commitment,
-  confirmationPromiseTimer: number,
-): Promise<string> {
-  const { signature, confirmPromise } =
-    await sendTransactionAndGetConfirmPromise(
-      transaction,
-      connection,
-      blockHash,
-      lastValidBlockHeight,
-      commitment,
-    );
-
-  await resendTransactionUntilConfirmed(
-    signature,
-    connection,
-    transaction,
-    confirmationPromiseTimer,
-    confirmPromise,
-  );
-
-  return signature;
-}
-
-async function sendTransactionAndGetConfirmPromise(
-  transaction: {
-    serializedTransaction: Uint8Array | Buffer | number[];
-    sendOptions?: SendOptions;
-  },
-  connection: Connection,
-  blockHash: string,
-  lastValidBlockHeight: number,
-  commitment: Commitment,
-): Promise<{
-  signature: string;
-  confirmPromise: Promise<RpcResponseAndContext<SignatureResult>>;
-}> {
-  const signature = await connection.sendRawTransaction(
-    transaction.serializedTransaction,
-    transaction.sendOptions,
-  );
-
-  const confirmPromise = connection.confirmTransaction(
-    {
-      signature,
-      blockhash: blockHash,
-      lastValidBlockHeight,
-    },
-    commitment,
-  );
-
-  return { signature, confirmPromise };
 }
 
 /**
@@ -228,33 +169,42 @@ async function sendTransactionAndGetConfirmPromise(
  */
 
 async function resendTransactionUntilConfirmed(
-  signature: string,
   connection: Connection,
   transaction: {
     serializedTransaction: Uint8Array | Buffer | number[];
     sendOptions?: SendOptions;
   },
-  confirmationPromiseTimer: number,
-  confirmTransactionPromise: Promise<RpcResponseAndContext<SignatureResult>>,
-) {
+  blockhash: string,
+  lastValidBlockHeight: number,
+  commitment: Commitment,
+): Promise<string> {
   let isTransactionConfirmed: RpcResponseAndContext<SignatureResult> | null =
     null;
+
+  const signature = await connection.sendRawTransaction(
+    transaction.serializedTransaction,
+    transaction.sendOptions,
+  );
+
   try {
     while (!isTransactionConfirmed) {
+      const confirmPromise = connection.confirmTransaction(
+        { signature, blockhash, lastValidBlockHeight },
+        commitment,
+      );
+
       isTransactionConfirmed = await Promise.race([
-        confirmTransactionPromise,
+        confirmPromise,
         new Promise<null>((resolve) =>
-          setTimeout(() => {
-            resolve(null);
-          }, confirmationPromiseTimer),
+          setTimeout(() => resolve(null), CONFIRMATION_PROMISE_TIMER),
         ),
       ]);
+
       if (isTransactionConfirmed) {
         break;
       }
 
-      // This is the same signature so don't need response.
-      // Need to await since we are explicilty resending before confirming again
+      // Resend transaction as it's not yet confirmed
       await connection.sendRawTransaction(
         transaction.serializedTransaction,
         transaction.sendOptions,
@@ -263,18 +213,20 @@ async function resendTransactionUntilConfirmed(
   } catch (e) {
     if (e instanceof Error) {
       if (e.name === 'TransactionExpiredBlockheightExceededError') {
-        recoverBlockheightExceededTransaction(e, connection, signature);
+        await recoverBlockheightExceededTransaction(connection, signature);
       }
       console.error('Failed to resend transaction:', e);
     }
   }
 
-  if (isTransactionConfirmed && isTransactionConfirmed.value.err) {
+  if (isTransactionConfirmed?.value.err) {
     const errorMessage = formatConfirmationError(
       isTransactionConfirmed.value.err,
     );
     throw new Error(`Transaction failed: ${errorMessage}`);
   }
+
+  return signature;
 }
 
 /**
@@ -288,23 +240,22 @@ async function resendTransactionUntilConfirmed(
  * @returns The signature once found, or throws if retries are exhausted
  */
 async function recoverBlockheightExceededTransaction(
-  e: unknown,
   connection: Connection,
   signature: string,
   { retries = 5, delay = 2000 }: { retries?: number; delay?: number } = {},
-): Promise<string | null> {
-  const findTransaction = async (): Promise<string> => {
+) {
+  const findTransaction = async () => {
     const tx = await connection.getTransaction(signature, {
       commitment: 'confirmed',
       maxSupportedTransactionVersion: 0,
     });
 
-    if (tx) return signature;
+    if (tx) return;
 
     throw new Error('Transaction not yet found on chain');
   };
 
-  return retry(findTransaction, { retries, delay });
+  retry(findTransaction, { retries, delay });
 }
 
 async function createSolanaTransaction(
@@ -340,9 +291,7 @@ function formatConfirmationError(err: TransactionError): string {
 
   if (typeof err === 'object') {
     try {
-      return JSON.stringify(err, (_key, value) =>
-        typeof value === 'bigint' ? value.toString() : value,
-      );
+      return JSONReplacer(err);
     } catch {
       return 'Unstringifiable error object';
     }

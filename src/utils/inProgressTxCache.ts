@@ -1,6 +1,6 @@
 import config from 'config';
 import type { TransactionLocal } from 'config/types';
-import { isEmptyObject } from 'utils';
+import { isEmptyObject, JSONReplacer } from 'utils';
 
 const LOCAL_STORAGE_KEY = 'transactions:inprogress';
 const LOCAL_STORAGE_MAX = 3;
@@ -8,8 +8,6 @@ const LOCAL_STORAGE_MAX = 3;
 // Bigint types cannot be serialized to a string
 // That's why we need to provide a replacer function to handle it separately
 // Please see for details: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/BigInt_not_serializable
-const JSONReplacer = (_, value: any) =>
-  typeof value === 'bigint' ? value.toString() : value;
 
 // Checks the existance of the props with the given types in a parent object
 const validateChildPropTypes = (
@@ -171,10 +169,7 @@ export const addTxToLocalStorage = (
 
   // Update the list
   try {
-    ls.setItem(
-      config.cacheKey(LOCAL_STORAGE_KEY),
-      JSON.stringify(newList, JSONReplacer),
-    );
+    ls.setItem(config.cacheKey(LOCAL_STORAGE_KEY), JSONReplacer(newList));
   } catch (e: any) {
     // We can get two different errors:
     // 1- TypeError from JSON.stringify
@@ -198,10 +193,7 @@ export const removeTxFromLocalStorage = (txHash: string) => {
       // remove the item and update localStorage
       items.splice(removeIndex, 1);
       try {
-        ls.setItem(
-          config.cacheKey(LOCAL_STORAGE_KEY),
-          JSON.stringify(items, JSONReplacer),
-        );
+        ls.setItem(config.cacheKey(LOCAL_STORAGE_KEY), JSONReplacer(items));
       } catch (e: any) {
         // We can get two different errors:
         // 1- TypeError from JSON.stringify
@@ -231,10 +223,7 @@ export const updateTxInLocalStorage = (
       // Update item property and put back in local storage
       items[idx][key] = value;
       try {
-        ls.setItem(
-          config.cacheKey(LOCAL_STORAGE_KEY),
-          JSON.stringify(items, JSONReplacer),
-        );
+        ls.setItem(config.cacheKey(LOCAL_STORAGE_KEY), JSONReplacer(items));
       } catch (e: any) {
         // We can get two different errors:
         // 1- TypeError from JSON.stringify
