@@ -9,7 +9,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { fromBase64 } from '@mysten/sui/utils';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import type { PlatformContext } from '../types';
-import { executeTransaction } from '../utils';
+import { executeTransaction } from './common';
 
 export function generateThrowawayAddress(): string {
   return Ed25519Keypair.generate().toSuiAddress();

@@ -12,7 +12,7 @@ import {
 } from '@wormhole-foundation/sdk-evm';
 import { ethers } from 'ethers';
 import type { PlatformContext } from '../types';
-import { executeTransaction } from '../utils';
+import { executeTransaction } from './common';
 
 export function generateThrowawayAddress(): string {
   return ethers.Wallet.createRandom().address;

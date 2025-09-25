@@ -8,7 +8,7 @@ import {
 } from '@wormhole-foundation/sdk-solana';
 import { VersionedTransaction, Keypair } from '@solana/web3.js';
 import type { PlatformContext } from '../types';
-import { executeTransaction } from '../utils';
+import { executeTransaction } from './common';
 
 export function generateThrowawayAddress(): string {
   return Keypair.generate().publicKey.toString();
