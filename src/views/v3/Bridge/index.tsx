@@ -267,7 +267,10 @@ function Bridge(props: BridgeProps) {
 
   // Supported chains for the source network
   const supportedSourceChains = useMemo(() => {
-    return getFilteredChains(supportedChains, destChain);
+    // Prevent HyperCore from appearing as a source since it's destination-only
+    return getFilteredChains(supportedChains, destChain).filter(
+      (chain) => chain.sdkName !== 'HyperCore',
+    );
   }, [destChain, supportedChains]);
 
   // Supported chains for the destination network

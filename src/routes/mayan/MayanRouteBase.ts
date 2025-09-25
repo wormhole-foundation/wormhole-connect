@@ -1,9 +1,6 @@
 import type {
   ComposableSuiMoveCallsOptions,
   Quote as MayanQuote,
-  PermitDomain,
-  PermitTypes,
-  PermitValue,
   QuoteOptions,
   QuoteParams,
 } from '@mayanfinance/swap-sdk';
@@ -11,7 +8,6 @@ import {
   createSwapFromSolanaInstructions,
   createSwapFromSuiMoveCalls,
   generateFetchQuoteUrl,
-  getHyperCoreUSDCDepositPermitParams,
   getSwapFromEvmTxPayload,
 } from '@mayanfinance/swap-sdk';
 import type { SuiClient } from '@mysten/sui/client';
@@ -66,7 +62,6 @@ import type { EvmChains } from '@wormhole-foundation/sdk-evm';
 import {
   EvmPlatform,
   EvmUnsignedTransaction,
-  isEvmNativeSigner,
 } from '@wormhole-foundation/sdk-evm';
 import {
   SolanaPlatform,
@@ -76,10 +71,14 @@ import {
   SuiPlatform,
   SuiUnsignedTransaction,
 } from '@wormhole-foundation/sdk-sui';
-import type { JsonRpcProvider } from 'ethers';
 import axios from 'axios';
 import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
 import { getAllTokenIdsForChain } from '../../utils/tokenHelpers';
+import {
+  isHyperCoreChain,
+  maybeGetHyperCorePermitSignature,
+  validateHyperCoreTransfer,
+} from '../../utils/hypercore';
 import {
   getNativeContractAddress,
   getTransactionStatus,
@@ -147,14 +146,6 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return ['Mainnet', 'Testnet'];
   }
 
-  static supportedChains(network: Network): Chain[] {
-    return supportedChains(network);
-  }
-
-  static isHyperCore(chain: Chain): boolean {
-    return chain === 'HyperCore';
-  }
-
   static isEvmChain(chain: Chain): boolean {
     try {
       return chainToPlatform(chain) === 'Evm';
@@ -195,7 +186,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     const tokens = getAllTokenIdsForChain(toChain.chain);
 
     // For HyperCore, only allow USDC as destination token
-    if (this.isHyperCore(toChain.chain)) {
+    if (isHyperCoreChain(toChain.chain)) {
       if (!this.isEvmChain(fromChain.chain)) {
         return [];
       }
@@ -210,136 +201,16 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return true;
   }
 
-  /**
-   * Validate HyperCore-specific transfer constraints:
-   * - Only USDC can be sent TO HyperCore
-   * - USDC cannot be sent FROM HyperCore (inbound-only)
-   * @returns Validation error if constraints are violated, null otherwise
-   */
-  private validateHyperCoreTransfer(
-    request: routes.RouteTransferRequest<N>,
-    params: TransferParams,
-  ): ValidationResult | null {
-    const { fromChain, toChain, source, destination } = request;
-
-    // Only USDC allowed as destination token for HyperCore
-    if (MayanRouteBase.isHyperCore(toChain.chain)) {
-      if (!MayanRouteBase.isEvmChain(fromChain.chain)) {
-        return {
-          valid: false,
-          params,
-          error: new routes.UnavailableError(
-            new Error('HyperCore only supports EVM source chains'),
-          ),
-        };
-      }
-
-      const isDestUSDC = MayanRouteBase.isUSDCToken(
-        toChain.chain,
-        destination.id.address.toString(),
-      );
-
-      if (!isDestUSDC) {
-        return {
-          valid: false,
-          params,
-          error: new routes.UnavailableError(
-            new Error('HyperCore only supports USDC as destination token'),
-          ),
-        };
-      }
-    }
-
-    // Prevent USDC transfers from HyperCore (inbound-only support)
-    if (MayanRouteBase.isHyperCore(fromChain.chain)) {
-      const isSourceUSDC = MayanRouteBase.isUSDCToken(
-        fromChain.chain,
-        source.id.address.toString(),
-      );
-
-      if (isSourceUSDC) {
-        return {
-          valid: false,
-          params,
-          error: new routes.UnavailableError(
-            new Error('Cannot transfer USDC from HyperCore'),
-          ),
-        };
-      }
-    }
-
-    return null;
-  }
-
-  private requiresHyperCorePermit(
-    request: routes.RouteTransferRequest<N>,
-    quote: Quote,
-  ): boolean {
-    return (
-      MayanRouteBase.isHyperCore(request.toChain.chain) &&
-      quote.details?.hyperCoreParams !== undefined
-    );
-  }
-
-  private async maybeGetHyperCorePermitSignature(
-    request: routes.RouteTransferRequest<N>,
-    signer: Signer<N>,
-    quote: Quote,
-    destinationAddress: string,
-  ): Promise<string | undefined> {
-    if (!this.requiresHyperCorePermit(request, quote)) return undefined;
-
-    const quoteDetails = quote.details;
-
-    if (!quoteDetails) {
-      throw new Error('Missing HyperCore quote details required for permit');
-    }
-
-    const arbitrumRpc = (await request.toChain.getRpc()) ?? null;
-
-    if (!arbitrumRpc) {
-      throw new Error('Could not resolve HyperCore RPC connection');
-    }
-
-    let domain: PermitDomain;
-    let types: typeof PermitTypes;
-    let value: PermitValue;
-
-    try {
-      ({ domain, types, value } = await getHyperCoreUSDCDepositPermitParams(
-        quoteDetails,
-        destinationAddress,
-        arbitrumRpc,
-      ));
-    } catch (e) {
-      throw new Error(
-        `Failed to fetch HyperCore USDC permit params: ${(e as Error).message}`,
-      );
-    }
-
-    if (typeof (signer as any).signTypedData === 'function') {
-      return await (signer as any).signTypedData(domain, types, value);
-    }
-
-    if (isEvmNativeSigner(signer)) {
-      const nativeSigner = signer.unwrap();
-      return await nativeSigner.signTypedData(domain, types, value);
-    }
-
-    throw new Error(
-      'Signer must support EIP-712 typed data signing to bridge USDC to HyperCore',
-    );
-  }
-
   async validate(
     request: routes.RouteTransferRequest<N>,
     params: TransferParams,
   ): Promise<ValidationResult> {
     try {
-      const hyperCoreValidation = this.validateHyperCoreTransfer(
-        request,
-        params,
-      );
+      const hyperCoreValidation = validateHyperCoreTransfer(request, params, {
+        isEvmChain: MayanRouteBase.isEvmChain,
+        isUSDCToken: (chain, tokenAddress) =>
+          MayanRouteBase.isUSDCToken(chain, tokenAddress),
+      });
       if (hyperCoreValidation) {
         return hyperCoreValidation;
       }
@@ -797,7 +668,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       const txs: TransactionId[] = [];
       const rpc = await request.fromChain.getRpc();
       const feeUnits = this.getFeeInBaseUnits(request, quote.params.amount);
-      const usdcPermitSignature = await this.maybeGetHyperCorePermitSignature(
+      const usdcPermitSignature = await maybeGetHyperCorePermitSignature(
         request,
         signer,
         quote,
