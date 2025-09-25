@@ -30,7 +30,7 @@ import SONIC from './Chains/SONIC';
 import SEIEVM from './Chains/SEIEVM';
 import PLUME from './Chains/PLUME';
 import FOGO from './Chains/FOGO';
-import INK from './Chains/Ink';
+import INK from './Chains/INK';
 import HyperEVM from './Chains/HYPEREVM';
 import XRPLEVM from './Chains/XRPLEVM';
 
