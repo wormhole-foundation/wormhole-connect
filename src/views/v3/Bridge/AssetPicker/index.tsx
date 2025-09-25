@@ -292,15 +292,31 @@ function AssetPicker(props: Props) {
       </Typography>
     ) : null;
 
-  const handleAmountChange = useCallback((newValue: string): void => {
-    setAmountInput(newValue);
-    setSelectedPercentButton(0); // Reset selected percent button when amount changes
-  }, []);
+  const handleAmountChange = useCallback(
+    (newValue: string): void => {
+      setAmountInput(newValue);
+      setSelectedPercentButton(0); // Reset selected percent button when amount changes
+
+      if (!newValue) {
+        // If the input is cleared, we need to clear the amount in handleAmountChange instead of handleDebouncedAmountChange.
+        // This case is important when user switches the token selection, which results in clearing the amount.
+        // If we do this in handleDebouncedAmountChange, it will get a new quote for the previous amount before clearing it
+        // and may cause the received amount to set to that quoted amount after user clears the input.
+        dispatch(setAmount(newValue));
+      }
+    },
+    [dispatch],
+  );
 
   const handleDebouncedAmountChange = useCallback(
     (newValue: string): void => {
-      dispatch(setAmount(newValue));
       setDebouncedAmountInput(newValue);
+      if (newValue) {
+        // Only update the amount in the store if the input is not empty
+        // When the amount is cleared, it is handled in handleAmountChange
+        // Please see the comments in handleAmountChange for more details.
+        dispatch(setAmount(newValue));
+      }
     },
     [dispatch],
   );
