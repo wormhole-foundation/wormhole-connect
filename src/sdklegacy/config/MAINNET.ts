@@ -32,6 +32,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     Mezo: 'https://jsonrpc-mezo.boar.network',
     HyperEVM: 'https://rpc.hyperliquid.xyz/evm',
     XRPLEVM: 'https://rpc.xrplevm.org/',
+    Plume: 'https://rpc.plume.org',
+    Ink: 'https://ink.drpc.org',
   },
 };
 

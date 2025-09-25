@@ -61,6 +61,7 @@ export enum TokenIcon {
   'MANTLE',
   'WORLDCHAIN',
   'BERA',
+  'INK',
   'BTC',
   'SONIC',
   'PLUME',

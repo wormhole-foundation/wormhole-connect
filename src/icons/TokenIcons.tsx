@@ -38,6 +38,7 @@ import NTT from './Tokens/NTT';
 import SCROLL from './Tokens/SCROLL';
 import WORLD from './Tokens/WORLD';
 import BERA from './Tokens/BERA';
+import INK from './Tokens/INK';
 import BTC from './Tokens/BTC';
 import SONIC from './Chains/SONIC'; // TODO: Create a token icon for S
 import PLUME from './Tokens/PLUME';
@@ -91,6 +92,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   ),
   [TokenIcon.WORLDCHAIN]: WORLD(),
   [TokenIcon.BERA]: BERA(),
+  [TokenIcon.INK]: INK(),
   [TokenIcon.BTC]: BTC(),
   [TokenIcon.SONIC]: SONIC(),
   [TokenIcon.PLUME]: PLUME(),

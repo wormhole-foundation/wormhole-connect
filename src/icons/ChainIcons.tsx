@@ -30,6 +30,7 @@ import SONIC from './Chains/SONIC';
 import SEIEVM from './Chains/SEIEVM';
 import PLUME from './Chains/PLUME';
 import FOGO from './Chains/FOGO';
+import INK from './Chains/INK';
 import HyperEVM from './Chains/HYPEREVM';
 import XRPLEVM from './Chains/XRPLEVM';
 
@@ -54,6 +55,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Worldchain: WORLD(),
   Unichain: UNI(),
   Berachain: BERA(),
+  Ink: INK(),
   Mezo: MEZO(),
   Linea: LINEA(),
   Sonic: SONIC(),
