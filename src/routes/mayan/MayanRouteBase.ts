@@ -34,7 +34,7 @@ import {
   generateFetchQuoteUrl as generateFetchQuoteUrlTestnet,
   getSwapFromEvmTxPayload as getSwapFromEvmTxPayloadTestnet,
 } from '@testnet-mayan/swap-sdk';
-import { circle } from '@wormhole-foundation/sdk-base';
+import { circle, chainToPlatform } from '@wormhole-foundation/sdk-base';
 import type {
   Chain,
   ChainAddress,
@@ -76,7 +76,6 @@ import {
   SuiPlatform,
   SuiUnsignedTransaction,
 } from '@wormhole-foundation/sdk-sui';
-import type { JsonRpcProvider } from 'ethers';
 import axios from 'axios';
 import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
 import { getAllTokenIdsForChain } from '../../utils/tokenHelpers';
@@ -152,7 +151,15 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   }
 
   static isHyperCore(chain: Chain): boolean {
-    return chain === ('HyperCore' as Chain);
+    return chain === 'HyperCore';
+  }
+
+  static isEvmChain(chain: Chain): boolean {
+    try {
+      return chainToPlatform(chain) === 'Evm';
+    } catch {
+      return false;
+    }
   }
 
   static isProtocolSupported<N extends Network>(
@@ -181,13 +188,16 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   // Mayan can handle any input and output token that has liquidity on a DeX
   static async supportedDestinationTokens<N extends Network>(
     _token: TokenId,
-    _fromChain: ChainContext<N>,
+    fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
     const tokens = getAllTokenIdsForChain(toChain.chain);
 
     // For HyperCore, only allow USDC as destination token
     if (this.isHyperCore(toChain.chain)) {
+      if (!this.isEvmChain(fromChain.chain)) {
+        return [];
+      }
       return this.filterUSDCTokens(toChain.chain, tokens);
     }
 
@@ -213,6 +223,16 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
 
     // Only USDC allowed as destination token for HyperCore
     if (MayanRouteBase.isHyperCore(toChain.chain)) {
+      if (!MayanRouteBase.isEvmChain(fromChain.chain)) {
+        return {
+          valid: false,
+          params,
+          error: new routes.UnavailableError(
+            new Error('HyperCore only supports EVM source chains'),
+          ),
+        };
+      }
+
       const isDestUSDC = MayanRouteBase.isUSDCToken(
         toChain.chain,
         destination.id.address.toString(),
