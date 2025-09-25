@@ -247,16 +247,12 @@ async function recoverBlockheightExceededTransaction(
   { retries = 5, delay = 2000 }: { retries?: number; delay?: number } = {},
 ) {
   const findTransaction = async () => {
-    try {
-      const tx = await connection.getTransaction(signature, {
-        commitment: 'confirmed',
-        maxSupportedTransactionVersion: 0,
-      });
+    const tx = await connection.getTransaction(signature, {
+      commitment: 'confirmed',
+      maxSupportedTransactionVersion: 0,
+    });
 
-      if (tx) return;
-    } catch {
-      // Ignore errors
-    }
+    if (tx) return;
   };
 
   retry(findTransaction, { retries, delay });
