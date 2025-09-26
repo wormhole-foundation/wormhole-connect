@@ -1,4 +1,8 @@
-import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type {
+  Chain,
+  routes,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 import type { WormholeConnectConfig } from 'config/types';
 import type { Token } from 'config/tokens';
 import type { TransferWallet } from 'utils/wallet';
