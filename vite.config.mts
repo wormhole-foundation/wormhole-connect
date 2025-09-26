@@ -164,6 +164,7 @@ const external = [
 // Production build, for npm import
 const libBuild: BuildEnvironmentOptions = {
   outDir: './lib',
+  sourcemap: process.env.NODE_ENV === 'development',
   lib: {
     entry: libEntry,
     formats: isAnalyze ? ['es'] : ['es', 'cjs'],
