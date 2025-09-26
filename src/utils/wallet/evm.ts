@@ -14,11 +14,15 @@ import type {
   EvmUnsignedTransaction,
   EvmChains,
 } from '@wormhole-foundation/sdk-evm';
-import type { Network } from '@wormhole-foundation/sdk';
+import type { Chain, Network } from '@wormhole-foundation/sdk';
+import { chainToPlatform } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import * as ethers from 'ethers';
 import { sleep } from 'utils';
+
+export const isEvmChain = (chain: Chain): boolean =>
+  chainToPlatform.has(chain) && chainToPlatform.get(chain) === 'Evm';
 
 type ChainRpcUrls = (typeof DEFAULT_CHAINS)[0]['rpcUrls']['default'];
 

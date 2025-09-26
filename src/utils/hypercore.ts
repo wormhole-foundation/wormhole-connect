@@ -15,7 +15,7 @@ import type {
 
 export type HyperCoreValidators = {
   isEvmChain: (chain: Chain) => boolean;
-  isUSDCToken: (chain: Chain, tokenAddress: string) => boolean;
+  isCanonicalUSDCToken: (chain: Chain, tokenAddress: string) => boolean;
 };
 
 export function isHyperCoreChain(chain: Chain): boolean {
@@ -32,7 +32,7 @@ export function validateHyperCoreTransfer<N extends Network>(
   validators: HyperCoreValidators,
 ): ValidationResult | null {
   const { fromChain, toChain, source, destination } = request;
-  const { isEvmChain, isUSDCToken } = validators;
+  const { isEvmChain, isCanonicalUSDCToken } = validators;
 
   if (isHyperCoreChain(toChain.chain)) {
     if (!isEvmChain(fromChain.chain)) {
@@ -45,7 +45,7 @@ export function validateHyperCoreTransfer<N extends Network>(
       };
     }
 
-    const isDestUSDC = isUSDCToken(
+    const isDestUSDC = isCanonicalUSDCToken(
       toChain.chain,
       destination.id.address.toString(),
     );
@@ -62,7 +62,7 @@ export function validateHyperCoreTransfer<N extends Network>(
   }
 
   if (isHyperCoreChain(fromChain.chain)) {
-    const isSourceUSDC = isUSDCToken(
+    const isSourceUSDC = isCanonicalUSDCToken(
       fromChain.chain,
       source.id.address.toString(),
     );

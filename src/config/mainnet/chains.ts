@@ -220,8 +220,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
   HyperCore: {
     displayName: 'HyperCore',
     sdkName: 'HyperCore',
-    explorerUrl: 'https://arbiscan.io/', // Uses Arb USDC
-    explorerName: 'Arbitrum Explorer', // Uses Arb USDC
+    explorerUrl: 'https://app.hyperliquid.xyz/explorer/',
+    explorerName: 'HyperLiquid Explorer',
     icon: 'HyperCore',
     symbol: 'HyperCore',
   },
