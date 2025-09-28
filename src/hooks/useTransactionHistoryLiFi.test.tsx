@@ -162,7 +162,7 @@ describe('useTransactionHistoryLiFi', () => {
     expect(tx?.inProgress).toBe(false);
   });
 
-  it('should handle pending transactions correctly', async () => {
+  it('should skip pending transactions without receiving data', async () => {
     const pendingTx = {
       ...mockLiFiTransaction,
       status: 'PENDING' as const,
@@ -185,9 +185,8 @@ describe('useTransactionHistoryLiFi', () => {
       expect(result.current.isFetching).toBe(false);
     });
 
-    const tx = result.current.transactions?.[0];
-    expect(tx?.inProgress).toBe(true);
-    expect(tx?.receiveAmount).toBeUndefined();
+    // Pending transactions without receiving data should be skipped
+    expect(result.current.transactions).toHaveLength(0);
   });
 
   it('should skip transactions with unsupported chains', async () => {

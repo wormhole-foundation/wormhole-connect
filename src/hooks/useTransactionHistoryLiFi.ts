@@ -93,7 +93,7 @@ const useTransactionHistoryLiFi = (
         ? lifiChainIdToChain(receiving.chainId as LifiChainId)
         : undefined;
 
-      if (!fromChain) {
+      if (!fromChain || !toChain) {
         return undefined;
       }
 
@@ -120,9 +120,9 @@ const useTransactionHistoryLiFi = (
         toToken = config.tokens.findBySymbol(toChain, receiving.token.symbol);
       }
 
-      // Skip if we can't identify the from token (to token can be missing for pending transactions)
-      if (!fromToken) {
-        // Skip transactions with unrecognized from token
+      // Skip if we can't identify the tokens
+      if (!fromToken || !toToken) {
+        // Skip transactions with unrecognized tokens
         return undefined;
       }
 
