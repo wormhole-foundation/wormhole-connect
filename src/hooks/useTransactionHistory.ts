@@ -199,17 +199,17 @@ const useTransactionHistory = (
       const items = [
         {
           item: whScanItem,
-          idx: 'whscan',
+          source: 'whscan',
           time: whScanItem ? new Date(whScanItem.senderTimestamp) : null,
         },
         {
           item: mayanItem,
-          idx: 'mayan',
+          source: 'mayan',
           time: mayanItem ? new Date(mayanItem.senderTimestamp) : null,
         },
         {
           item: lifiItem,
-          idx: 'lifi',
+          source: 'lifi',
           time: lifiItem ? new Date(lifiItem.senderTimestamp) : null,
         },
       ].filter((i) => i.item !== undefined);
@@ -228,11 +228,11 @@ const useTransactionHistory = (
       }
 
       // Update the appropriate index
-      if (mostRecent.idx === 'whscan') {
+      if (mostRecent.source === 'whscan') {
         whScanLocalIdx += 1;
-      } else if (mostRecent.idx === 'mayan') {
+      } else if (mostRecent.source === 'mayan') {
         mayanLocalIdx += 1;
-      } else if (mostRecent.idx === 'lifi') {
+      } else if (mostRecent.source === 'lifi') {
         lifiLocalIdx += 1;
       }
     }
