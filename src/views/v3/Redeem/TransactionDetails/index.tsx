@@ -6,7 +6,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
-import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 
@@ -275,20 +274,10 @@ const TransactionDetails = () => {
     }
 
     return (
-      <Stack alignItems="center" padding="24px 12px">
-        <Link
-          display="flex"
-          gap="8px"
-          href={url}
-          rel="noreferrer"
-          target="_blank"
-          underline="none"
-        >
-          <Typography
-            color={theme.palette.text.primary}
-            fontSize={14}
-          >{`View on ${name}`}</Typography>
-        </Link>
+      <Stack direction="row" justifyContent="space-between" padding="12px 16px">
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
+          <ExplorerLink url={url} text={`View on ${name}`} />
+        </Typography>
       </Stack>
     );
   }, [

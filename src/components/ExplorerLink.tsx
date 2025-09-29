@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import Link from '@mui/material/Link';
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useTheme } from '@mui/material/styles';
 
 interface ExplorerLinkProps {
@@ -34,13 +33,6 @@ const ExplorerLink: React.FC<ExplorerLinkProps> = ({ url, text }) => {
       target="_blank"
     >
       {text}
-      <ArrowOutwardIcon
-        sx={{
-          height: '10px',
-          width: '10px',
-          marginLeft: '2px',
-        }}
-      />
     </Link>
   );
 };
