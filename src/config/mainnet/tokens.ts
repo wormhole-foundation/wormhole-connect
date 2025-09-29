@@ -790,7 +790,7 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     symbol: 'USDC',
     tokenId: {
       chain: 'HyperCore',
-      address: 'native',
+      address: 'native', // uses Arbitrum USDC under the hood
     },
     decimals: 6,
     icon: TokenIcon.USDC,

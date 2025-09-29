@@ -26,7 +26,7 @@ import { MayanClientStatus, MayanTransactionGoal } from './types';
 export function getNativeContractAddress(chain: Chain): string {
   if (chain === 'Sui') return '0x2::sui::SUI';
   if (chain === 'HyperCore')
-    return '0xaf88d065e77c8cC2239327C5EDb3A432268e5831';
+    return '0xaf88d065e77c8cC2239327C5EDb3A432268e5831'; // Arbitrum USDC
   return '0x0000000000000000000000000000000000000000';
 }
 
