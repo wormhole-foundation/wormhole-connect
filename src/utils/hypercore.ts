@@ -15,7 +15,6 @@ import type {
 import { TransferWallet } from 'utils/wallet';
 import type { WormholeConnectWalletProvider } from 'utils/wallet/types';
 import { isEvmChain } from './evm';
-import { isUSDCToken } from './usdc';
 
 type SignerWithProvider<N extends Network> = Signer<N> & {
   provider?: () => WormholeConnectWalletProvider;
@@ -33,7 +32,7 @@ export function validateHyperCoreTransfer<N extends Network>(
   request: routes.RouteTransferRequest<N>,
   params: TransferParams,
 ): ValidationResult | null {
-  const { fromChain, toChain, destination } = request;
+  const { fromChain, toChain } = request;
 
   if (isHyperCoreChain(fromChain.chain)) {
     return {
@@ -66,22 +65,6 @@ export function validateHyperCoreTransfer<N extends Network>(
       params,
       error: new routes.UnavailableError(
         new Error('HyperCore only supports EVM source chains'),
-      ),
-    };
-  }
-
-  const isDestUSDC = isUSDCToken(
-    toChain.chain,
-    toChain.network,
-    destination.id.address.toString(),
-  );
-
-  if (!isDestUSDC) {
-    return {
-      valid: false,
-      params,
-      error: new routes.UnavailableError(
-        new Error('HyperCore only supports USDC as destination token'),
       ),
     };
   }
