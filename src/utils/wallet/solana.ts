@@ -12,10 +12,13 @@ import {
 } from '@solana/wallet-adapter-wallets';
 
 import type {
+  Commitment,
   ConfirmOptions,
   RpcResponseAndContext,
+  SendOptions,
   SignatureResult,
   Transaction,
+  TransactionError,
 } from '@solana/web3.js';
 import { clusterApiUrl, Connection } from '@solana/web3.js';
 
@@ -26,10 +29,13 @@ import {
 
 import config from 'config';
 
+const CONFIRMATION_PROMISE_TIMER = 3_000; // How long to wait for confirmation before resending
+
 import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 import type { Chain, Network } from '@wormhole-foundation/sdk';
 import { setPriorityFeeInstructions } from 'utils/solana';
-import { sleep } from 'utils';
+import { retry } from 'es-toolkit';
+import { stringifyWithBigInt } from 'utils';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -102,125 +108,194 @@ export function fetchFogoOptions() {
   };
 }
 
-// This function signs and sends the transaction while constantly checking for confirmation
-// and resending the transaction if it hasn't been confirmed after the specified interval
-// See https://docs.triton.one/chains/solana/sending-txs for more information
-export async function signAndSendTransaction(
+/**
+ * This function signs and sends the transaction while constantly checking for confirmation
+ * and resending the transaction if it hasn't been confirmed after the specified interval
+ * See https://docs.triton.one/chains/solana/sending-txs for more information.
+ *
+ * @param request The unsigned transaction to sign and send
+ * @param wallet The wallet to use for signing and sending the transaction
+ * @param options Optional confirmation options
+ * @returns The transaction signature
+ */
+export async function signAndSendTransactionWithResends(
   request: SolanaUnsignedTransaction<Network>,
   wallet: Wallet | undefined,
   options?: ConfirmOptions,
-) {
+): Promise<string> {
   if (!wallet) throw new Error('Wallet not found');
   const rpc = config.rpcs[request.chain];
   if (!rpc) throw new Error(`${request.chain} RPC not found`);
 
-  const commitment = options?.commitment ?? 'finalized';
+  const commitment = options?.commitment ?? 'confirmed';
   const connection = new Connection(rpc);
+
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);
 
-  const unsignedTx = await setPriorityFeeInstructions(
+  // Create tx
+  const { serializedTransaction, sendOptions } = await createSolanaTransaction(
+    request,
+    wallet,
     connection,
     blockhash,
     lastValidBlockHeight,
-    request,
+    commitment,
   );
 
-  let confirmTransactionPromise: Promise<
-    RpcResponseAndContext<SignatureResult>
-  > | null = null;
-  let confirmedTx: RpcResponseAndContext<SignatureResult> | null = null;
-  let txSendAttempts = 1;
-  let signature = '';
+  const transaction = { serializedTransaction, sendOptions };
+
+  const signature = await resendTransactionUntilConfirmed(
+    connection,
+    transaction,
+    blockhash,
+    lastValidBlockHeight,
+    commitment,
+  );
+
+  return signature;
+}
+
+/**
+ * **We race against the confirmation promise to mitigate the risk of the transaction
+ * not being confirmed before the blockhash expires.**
+ *
+ * If the confirmation promise resolves slower than the `txRetryInterval`, we resend.
+ * This is for performance.
+ *
+ * @param signature The transaction signature
+ * @param connection The Solana connection object
+ * @param transaction The transaction to resend
+ */
+
+async function resendTransactionUntilConfirmed(
+  connection: Connection,
+  transaction: {
+    serializedTransaction: Uint8Array | Buffer | number[];
+    sendOptions?: SendOptions;
+  },
+  blockhash: string,
+  lastValidBlockHeight: number,
+  commitment: Commitment,
+): Promise<string> {
+  let isTransactionConfirmed: RpcResponseAndContext<SignatureResult> | null =
+    null;
+
+  const signature = await connection.sendRawTransaction(
+    transaction.serializedTransaction,
+    transaction.sendOptions,
+  );
+
+  const confirmPromise = connection.confirmTransaction(
+    { signature, blockhash, lastValidBlockHeight },
+    commitment,
+  );
+
+  try {
+    while (!isTransactionConfirmed) {
+      isTransactionConfirmed = await Promise.race([
+        confirmPromise,
+        new Promise<null>((resolve) =>
+          setTimeout(() => resolve(null), CONFIRMATION_PROMISE_TIMER),
+        ),
+      ]);
+
+      if (isTransactionConfirmed) {
+        break;
+      }
+
+      // Resend transaction as it's not yet confirmed
+      await connection.sendRawTransaction(
+        transaction.serializedTransaction,
+        transaction.sendOptions,
+      );
+    }
+  } catch (e) {
+    if (
+      e instanceof Error &&
+      e.name === 'TransactionExpiredBlockheightExceededError'
+    ) {
+      await recoverBlockheightExceededTransaction(connection, signature);
+      return signature;
+    }
+    throw e;
+  }
+
+  if (isTransactionConfirmed?.value.err) {
+    const errorMessage = formatConfirmationError(
+      isTransactionConfirmed.value.err,
+    );
+    throw new Error(`Transaction failed: ${errorMessage}`);
+  }
+
+  return signature;
+}
+
+/**
+ * Attempt to recover a transaction that exceeded its blockheight,
+ * by polling until it appears on chain.
+ *
+ * @param connection Solana RPC connection
+ * @param signature The transaction signature to look up
+ * @param retries Number of retries (default: 5)
+ * @param delay Delay between retries in ms (default: 2000)
+ * @returns The signature once found, or throws if retries are exhausted
+ */
+async function recoverBlockheightExceededTransaction(
+  connection: Connection,
+  signature: string,
+  { retries = 5, delay = 2000 }: { retries?: number; delay?: number } = {},
+) {
+  const findTransaction = async () => {
+    const tx = await connection.getTransaction(signature, {
+      commitment: 'confirmed',
+      maxSupportedTransactionVersion: 0,
+    });
+
+    if (tx) return;
+  };
+
+  retry(findTransaction, { retries, delay });
+}
+
+async function createSolanaTransaction(
+  request: SolanaUnsignedTransaction<Network>,
+  wallet: Wallet,
+  connection: Connection,
+  blockHash: string,
+  lastValidBlockHeight: number,
+  commitment?: Commitment,
+): Promise<{
+  serializedTransaction: Uint8Array | Buffer | number[];
+  sendOptions?: SendOptions;
+}> {
+  const txToSign = await setPriorityFeeInstructions(
+    connection,
+    blockHash,
+    lastValidBlockHeight,
+    request,
+  );
   // TODO: VersionedTransaction is supported, but the interface needs to be updated
-  const tx = await wallet.signTransaction(unsignedTx as Transaction);
+  const tx = await wallet.signTransaction(txToSign as Transaction);
   const serializedTx = tx.serialize();
   const sendOptions = {
     skipPreflight: true,
     maxRetries: 0,
     preFlightCommitment: commitment, // See PR and linked issue for why setting this matters: https://github.com/anza-xyz/agave/pull/483
   };
-  signature = await connection.sendRawTransaction(serializedTx, sendOptions);
-  confirmTransactionPromise = connection.confirmTransaction(
-    {
-      signature,
-      blockhash,
-      lastValidBlockHeight,
-    },
-    commitment,
-  );
+  return { serializedTransaction: serializedTx, sendOptions };
+}
 
-  try {
-    // This loop will break once the transaction has been confirmed or the block height is exceeded.
-    // An exception will be thrown if the block height is exceeded by the confirmTransactionPromise.
-    // The transaction will be resent if it hasn't been confirmed after the interval.
-    const txRetryInterval = 5000;
-    while (!confirmedTx) {
-      confirmedTx = await Promise.race([
-        confirmTransactionPromise,
-        new Promise<null>((resolve) =>
-          setTimeout(() => {
-            resolve(null);
-          }, txRetryInterval),
-        ),
-      ]);
-      if (confirmedTx) {
-        break;
-      }
-      console.log(
-        `Tx not confirmed after ${
-          txRetryInterval * txSendAttempts++
-        }ms, resending`,
-      );
-      try {
-        await connection.sendRawTransaction(serializedTx, sendOptions);
-      } catch (e) {
-        console.error('Failed to resend transaction:', e);
-      }
+function formatConfirmationError(err: TransactionError): string {
+  if (!err) return 'Unknown error';
+
+  if (typeof err === 'object') {
+    try {
+      return stringifyWithBigInt(err);
+    } catch {
+      return 'Unstringifiable error object';
     }
-  } catch (e: unknown) {
-    if (
-      e instanceof Error &&
-      e.name === 'TransactionExpiredBlockheightExceededError'
-    ) {
-      // Sometimes the transaction actually landed,
-      // so spend some additional time to check for it
-      const maxRetries = 5;
-      const retryDelay = 2000;
-      for (let i = 0; i < maxRetries; ++i) {
-        try {
-          const tx = await connection.getTransaction(signature, {
-            commitment: 'confirmed',
-            maxSupportedTransactionVersion: 0,
-          });
-          if (tx) return signature; // Transaction actually landed
-        } catch {
-          // Ignore errors, we will retry
-        }
-        await sleep(retryDelay);
-      }
-    }
-    throw e;
   }
 
-  if (confirmedTx.value.err) {
-    let errorMessage = `Transaction failed: ${confirmedTx.value.err}`;
-    if (typeof confirmedTx.value.err === 'object') {
-      try {
-        errorMessage = `Transaction failed: ${JSON.stringify(
-          confirmedTx.value.err,
-          (_key, value) =>
-            typeof value === 'bigint' ? value.toString() : value, // Handle bigint props
-        )}`;
-      } catch (e: unknown) {
-        // Most likely a circular reference error, we can't stringify this error object.
-        // See for more details:
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#exceptions
-        errorMessage = `Transaction failed: Unknown error`;
-      }
-    }
-    throw new Error(`Transaction failed: ${errorMessage}`);
-  }
-
-  return signature;
+  return String(err);
 }
