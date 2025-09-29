@@ -1,11 +1,20 @@
 import type { Chain, Network, TokenId } from '@wormhole-foundation/sdk';
 import { Wormhole, canonicalAddress } from '@wormhole-foundation/sdk';
 import { circle } from '@wormhole-foundation/sdk-base';
+import { isHyperCoreChain } from './hypercore';
 
 export function getUSDCTokenId(
   chain: Chain,
   network: Network,
 ): TokenId | undefined {
+  if (isHyperCoreChain(chain)) {
+    try {
+      return Wormhole.tokenId(chain, 'native');
+    } catch {
+      return undefined;
+    }
+  }
+
   const usdcContract = circle.usdcContract.get(network, chain);
 
   if (!usdcContract) {
