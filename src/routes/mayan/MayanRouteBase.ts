@@ -160,7 +160,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   // Mayan can handle any input and output token that has liquidity on a DeX
   static async supportedDestinationTokens<N extends Network>(
     _token: TokenId,
-    fromChain: ChainContext<N>,
+    _fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
     const tokens = getAllTokenIdsForChain(toChain.chain);
