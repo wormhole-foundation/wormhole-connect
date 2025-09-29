@@ -21,6 +21,8 @@ import {
 import ChainIcon from 'icons/ChainIcons';
 import Color from 'color';
 import TokenBalance from 'components/TokenBalance';
+import { isUSDCToken } from 'utils/usdc';
+import { isHyperCoreChain } from 'utils/hypercore';
 
 type TokenItemProps = {
   token: Token;
@@ -78,6 +80,13 @@ function TokenItem(props: TokenItemProps) {
   const addressDisplay = `${token.shortAddress}`;
 
   const displaySymbol = getTokenDisplaySymbolByTokenAddress(token);
+
+  // Hide balance and price for HyperCore USDC because it is not a wallet address/asset
+  const isHyperCoreUSDC =
+    chain &&
+    address &&
+    isHyperCoreChain(chain) &&
+    isUSDCToken(chain, 'Mainnet', address);
 
   return (
     <ListItemButton
@@ -157,11 +166,13 @@ function TokenItem(props: TokenItemProps) {
           </Box>
         </div>
       </Box>
-      <TokenBalance
-        balance={props.balance}
-        price={props.price}
-        isFetching={props.isFetchingBalance}
-      />
+      {!isHyperCoreUSDC && (
+        <TokenBalance
+          balance={props.balance}
+          price={props.price}
+          isFetching={props.isFetchingBalance}
+        />
+      )}
     </ListItemButton>
   );
 }
