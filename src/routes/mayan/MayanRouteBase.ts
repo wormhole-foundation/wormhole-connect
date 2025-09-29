@@ -205,9 +205,9 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   }
 
   protected toMayanAddress(tokenId: TokenId): string {
-    return !isNative(tokenId.address)
-      ? canonicalAddress(tokenId)
-      : getNativeContractAddress(tokenId.chain);
+    return isNative(tokenId.address)
+      ? getNativeContractAddress(tokenId.chain)
+      : canonicalAddress(tokenId);
   }
 
   getFeeInBaseUnits(

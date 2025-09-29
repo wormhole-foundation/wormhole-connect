@@ -33,7 +33,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Plume: 'plume',
   Ink: 'ethereum',
   HyperEVM: 'ethereum',
-  HyperCore: 'ethereum', // USDC price from ARB
+  HyperCore: 'usd-coin',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
