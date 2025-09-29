@@ -6,7 +6,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { isNative } from '@wormhole-foundation/sdk';
-
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import TokenIcon from 'icons/TokenIcons';
 
@@ -21,6 +20,7 @@ import {
 import ChainIcon from 'icons/ChainIcons';
 import Color from 'color';
 import TokenBalance from 'components/TokenBalance';
+import { isHyperCoreChain } from 'utils/hypercore';
 
 type TokenItemProps = {
   token: Token;
@@ -78,6 +78,9 @@ function TokenItem(props: TokenItemProps) {
   const addressDisplay = `${token.shortAddress}`;
 
   const displaySymbol = getTokenDisplaySymbolByTokenAddress(token);
+
+  // Hide balance and price for HyperCore USDC because it is not a wallet address/asset
+  const isHyperCoreUSDC = isHyperCoreChain(chain) && isNative(address);
 
   return (
     <ListItemButton
@@ -157,11 +160,13 @@ function TokenItem(props: TokenItemProps) {
           </Box>
         </div>
       </Box>
-      <TokenBalance
-        balance={props.balance}
-        price={props.price}
-        isFetching={props.isFetchingBalance}
-      />
+      {!isHyperCoreUSDC && (
+        <TokenBalance
+          balance={props.balance}
+          price={props.price}
+          isFetching={props.isFetchingBalance}
+        />
+      )}
     </ListItemButton>
   );
 }
