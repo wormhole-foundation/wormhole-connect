@@ -60,6 +60,7 @@ export function validateHyperCoreTransfer<N extends Network>(
     };
   }
 
+  // Temporary restriction to EVM for now; SOL and SUI are coming soon
   if (!isEvmChain(fromChain.chain)) {
     return {
       valid: false,
@@ -115,7 +116,9 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
   const arbitrumRpc = (await request.toChain.getRpc()) ?? null;
 
   if (!arbitrumRpc) {
-    throw new Error('Could not resolve HyperCore RPC connection');
+    throw new Error(
+      'Could not resolve Arbitrum RPC connection needed for HyperCore',
+    );
   }
 
   let domain: PermitDomain;

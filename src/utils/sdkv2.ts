@@ -604,11 +604,16 @@ export function getFilteredChains(
     : false;
 
   return config.chainsArr.filter((chain) => {
-    if (!supportedChains.includes(chain.sdkName)) {
+    /*
+      If we see more exceptions being added like this, a better solution would be to update the route
+      interface in the sdk to have explicit `supportedSourceChains()` and `supportedDestinationChains()`
+      function where routes can specify it directly. Current `supportedChains()` doesn't suffice.
+    */
+    if (isSource && isHyperCoreChain(chain.sdkName)) {
       return false;
     }
 
-    if (isSource && isHyperCoreChain(chain.sdkName)) {
+    if (!supportedChains.includes(chain.sdkName)) {
       return false;
     }
 
