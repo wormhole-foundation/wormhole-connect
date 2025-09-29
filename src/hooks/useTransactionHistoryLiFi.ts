@@ -82,108 +82,107 @@ const useTransactionHistoryLiFi = (
 
   const { address, page = 0, pageSize = 30 } = props;
 
-  const parseSingleTx = useCallback(
-    (tx: LiFiTransaction): Transaction | undefined => {
-      const { sending, receiving, fromAddress, toAddress, status } = tx;
+  const resetTransactions = () => {
+    setTransactions((current) => (current?.length === 0 ? current : []));
+  };
 
-      const fromChain = lifiChainIdToChain(sending.chainId as LifiChainId);
-      const toChain = receiving
-        ? lifiChainIdToChain(receiving.chainId as LifiChainId)
+  const parseSingleTx = (tx: LiFiTransaction): Transaction | undefined => {
+    const { sending, receiving, fromAddress, toAddress, status } = tx;
+
+    const fromChain = lifiChainIdToChain(sending.chainId as LifiChainId);
+    const toChain = receiving
+      ? lifiChainIdToChain(receiving.chainId as LifiChainId)
+      : undefined;
+
+    if (!fromChain || !toChain) {
+      return undefined;
+    }
+
+    let fromToken: Token | undefined;
+    let toToken: Token | undefined;
+
+    try {
+      // Try by address first
+      fromToken = config.tokens.get(fromChain, sending.token.address);
+
+      if (receiving && toChain) {
+        toToken = config.tokens.get(toChain, receiving.token.address);
+      }
+    } catch (_e) {
+      // Token not found by address - silently continue to try by symbol
+    }
+
+    // Fallback to symbol if not found by address
+    if (!fromToken) {
+      fromToken = config.tokens.findBySymbol(fromChain, sending.token.symbol);
+    }
+
+    if (!toToken && receiving && toChain) {
+      toToken = config.tokens.findBySymbol(toChain, receiving.token.symbol);
+    }
+
+    // Skip if we can't identify the tokens
+    if (!fromToken || !toToken) {
+      return undefined;
+    }
+
+    // Parse amounts
+    let sentAmount: sdkAmount.Amount;
+    let receivedAmount: sdkAmount.Amount | undefined;
+
+    try {
+      sentAmount = sdkAmount.fromBaseUnits(
+        BigInt(sending.amount),
+        fromToken.decimals,
+      );
+      receivedAmount = receiving?.amount
+        ? sdkAmount.fromBaseUnits(BigInt(receiving.amount), toToken.decimals)
+        : undefined;
+    } catch (_e) {
+      // Skip transaction if amounts cannot be parsed
+      return undefined;
+    }
+
+    // Parse timestamps
+    const sendingTs = parseInt(sending.timestamp, 10);
+    const senderTime = isNaN(sendingTs)
+      ? new Date()
+      : new Date(sendingTs * 1000);
+
+    const receivingTs = receiving?.timestamp
+      ? parseInt(receiving.timestamp, 10)
+      : undefined;
+    const receiverTime =
+      receivingTs && !isNaN(receivingTs)
+        ? new Date(receivingTs * 1000)
         : undefined;
 
-      if (!fromChain || !toChain) {
-        return undefined;
-      }
+    const txData: Transaction = {
+      txHash: sending.txHash,
+      sender: fromAddress,
+      recipient: toAddress,
+      amount: sdkAmount.display(sentAmount),
+      amountUsd: sending.amountUSD ? parseFloat(sending.amountUSD) : undefined,
+      receiveAmount: receivedAmount
+        ? sdkAmount.display(receivedAmount)
+        : undefined,
+      fromChain,
+      fromToken,
+      toChain,
+      toToken,
+      senderTimestamp: senderTime.toISOString(),
+      receiverTimestamp: receiverTime?.toISOString(),
+      explorerLink: sending.txLink,
+      inProgress: status === 'PENDING',
+    };
 
-      let fromToken: Token | undefined;
-      let toToken: Token | undefined;
-
-      try {
-        // Try by address first
-        fromToken = config.tokens.get(fromChain, sending.token.address);
-
-        if (receiving && toChain) {
-          toToken = config.tokens.get(toChain, receiving.token.address);
-        }
-      } catch (_e) {
-        // Token not found by address - silently continue to try by symbol
-      }
-
-      // Fallback to symbol if not found by address
-      if (!fromToken) {
-        fromToken = config.tokens.findBySymbol(fromChain, sending.token.symbol);
-      }
-
-      if (!toToken && receiving && toChain) {
-        toToken = config.tokens.findBySymbol(toChain, receiving.token.symbol);
-      }
-
-      // Skip if we can't identify the tokens
-      if (!fromToken || !toToken) {
-        return undefined;
-      }
-
-      // Parse amounts
-      let sentAmount: sdkAmount.Amount;
-      let receivedAmount: sdkAmount.Amount | undefined;
-
-      try {
-        sentAmount = sdkAmount.fromBaseUnits(
-          BigInt(sending.amount),
-          fromToken.decimals,
-        );
-        receivedAmount = receiving?.amount
-          ? sdkAmount.fromBaseUnits(BigInt(receiving.amount), toToken.decimals)
-          : undefined;
-      } catch (_e) {
-        // Skip transaction if amounts cannot be parsed
-        return undefined;
-      }
-
-      // Parse timestamps
-      const sendingTs = parseInt(sending.timestamp, 10);
-      const senderTime = isNaN(sendingTs)
-        ? new Date()
-        : new Date(sendingTs * 1000);
-
-      const receivingTs = receiving?.timestamp
-        ? parseInt(receiving.timestamp, 10)
-        : undefined;
-      const receiverTime =
-        receivingTs && !isNaN(receivingTs)
-          ? new Date(receivingTs * 1000)
-          : undefined;
-
-      const txData: Transaction = {
-        txHash: sending.txHash,
-        sender: fromAddress,
-        recipient: toAddress,
-        amount: sdkAmount.display(sentAmount),
-        amountUsd: sending.amountUSD
-          ? parseFloat(sending.amountUSD)
-          : undefined,
-        receiveAmount: receivedAmount
-          ? sdkAmount.display(receivedAmount)
-          : undefined,
-        fromChain,
-        fromToken,
-        toChain,
-        toToken,
-        senderTimestamp: senderTime.toISOString(),
-        receiverTimestamp: receiverTime?.toISOString(),
-        explorerLink: sending.txLink,
-        inProgress: status === 'PENDING',
-      };
-
-      return txData;
-    },
-    [],
-  );
+    return txData;
+  };
 
   const parseTransactions = useCallback(
     (allTxs: Array<LiFiTransaction>) =>
       allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx), // Filter out unsupported transactions
-    [parseSingleTx],
+    [],
   );
 
   useEffect(() => {
@@ -236,7 +235,7 @@ const useTransactionHistoryLiFi = (
             setError('Failed to fetch LiFi transactions.');
           }
 
-          setTransactions([]);
+          resetTransactions();
           setHasMore(false);
           return;
         }
@@ -246,7 +245,7 @@ const useTransactionHistoryLiFi = (
           resPayload = await res.json();
         } catch (_e) {
           setError('Invalid response from LiFi service');
-          setTransactions([]);
+          resetTransactions();
           setHasMore(false);
           return;
         }
@@ -282,7 +281,7 @@ const useTransactionHistoryLiFi = (
               setHasMore(false);
             }
           } else {
-            setTransactions([]);
+            resetTransactions();
             setHasMore(false);
           }
         }

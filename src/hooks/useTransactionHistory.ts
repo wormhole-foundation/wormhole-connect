@@ -7,6 +7,7 @@ import useTransactionHistoryLiFi from 'hooks/useTransactionHistoryLiFi';
 
 import type { Transaction } from 'config/types';
 import type { RootState } from 'store';
+import { sortByTime } from 'utils/sort';
 
 type Props = {
   page?: number;
@@ -196,33 +197,39 @@ const useTransactionHistory = (
       }
 
       // Find the most recent transaction among the three sources
-      const items = [
-        {
+      const items: Array<{
+        item: Transaction;
+        source: 'whscan' | 'mayan' | 'lifi';
+        time: Date;
+      }> = [];
+
+      if (whScanItem) {
+        items.push({
           item: whScanItem,
           source: 'whscan',
-          time: whScanItem ? new Date(whScanItem.senderTimestamp) : null,
-        },
-        {
+          time: new Date(whScanItem.senderTimestamp),
+        });
+      }
+      if (mayanItem) {
+        items.push({
           item: mayanItem,
           source: 'mayan',
-          time: mayanItem ? new Date(mayanItem.senderTimestamp) : null,
-        },
-        {
+          time: new Date(mayanItem.senderTimestamp),
+        });
+      }
+      if (lifiItem) {
+        items.push({
           item: lifiItem,
           source: 'lifi',
-          time: lifiItem ? new Date(lifiItem.senderTimestamp) : null,
-        },
-      ].filter((i) => i.item !== undefined);
+          time: new Date(lifiItem.senderTimestamp),
+        });
+      }
 
-      // Sort by timestamp (most recent first)
-      items.sort((a, b) => {
-        if (!a.time) return 1;
-        if (!b.time) return -1;
-        return b.time.getTime() - a.time.getTime();
-      });
+      // Sort by time (most recent first)
+      const sortedItems = sortByTime(items);
 
       // Push the most recent transaction
-      const mostRecent = items[0];
+      const mostRecent = sortedItems[0];
       if (mostRecent.item) {
         mergedTxs.push(mostRecent.item);
       }

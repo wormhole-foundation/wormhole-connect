@@ -128,7 +128,7 @@ const TxHistory = () => {
     }
 
     // Loading state
-    if (isFetching || (transactions && transactions.length === 0)) {
+    if (isFetching || transactions?.length === 0) {
       return (
         <Box
           sx={{
@@ -151,9 +151,8 @@ const TxHistory = () => {
     if (!isFetching && (!transactions || transactions.length === 0)) {
       return (
         <Typography color={theme.palette.text.secondary} textAlign="center">
-          {`No transactions found for the wallet ${trimAddress(
-            sendingWallet.address,
-          )}`}
+          No transactions found for the wallet&nbsp;
+          {trimAddress(sendingWallet.address)}
         </Typography>
       );
     }
