@@ -98,7 +98,6 @@ import {
   maybeGetHyperCorePermitSignature,
   validateHyperCoreTransfer,
 } from 'utils/hypercore';
-import { getUSDCTokenId } from 'utils/usdc';
 
 export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   N,
@@ -167,7 +166,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
 
     // For HyperCore, only allow USDC as destination token
     if (isHyperCoreChain(toChain.chain)) {
-      const usdc = getUSDCTokenId(toChain.chain, toChain.network);
+      const usdc = Wormhole.tokenId(toChain.chain, 'native');
       return usdc ? [usdc] : [];
     }
 
