@@ -1,4 +1,9 @@
-import type { Chain, TokenId, TokenAddress } from '@wormhole-foundation/sdk';
+import type {
+  Chain,
+  TokenId,
+  TokenAddress,
+  TokenBridge,
+} from '@wormhole-foundation/sdk';
 import {
   canonicalAddress,
   isTokenId,
@@ -470,8 +475,16 @@ export class TokenCache extends TokenMapping<Token> {
 
     // Check if this is a Token Bridge wrapped token
     let tokenBridgeOriginalTokenId: TokenId | undefined = undefined;
-    const tb = await chain.getTokenBridge();
-    if (await tb.isWrappedAsset(tokenId.address)) {
+    let tb: TokenBridge | undefined = undefined;
+
+    try {
+      tb = await chain.getTokenBridge();
+    } catch {
+      // noop
+      // Not all chains have token bridge assets. eg: HyperEVM
+    }
+
+    if (tb && (await tb.isWrappedAsset(tokenId.address))) {
       tokenBridgeOriginalTokenId = await tb.getOriginalAsset(tokenId.address);
 
       if (UniversalAddress.instanceof(tokenBridgeOriginalTokenId.address)) {
