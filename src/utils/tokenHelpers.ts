@@ -1,5 +1,4 @@
 import type { Chain, TokenId } from '@wormhole-foundation/sdk';
-import { circle } from '@wormhole-foundation/sdk-base';
 import config from 'config';
 import memoize from 'fast-memoize';
 
@@ -17,23 +16,3 @@ export const getAllTokenIdsForChain = memoize(
       `${String(args[0])}|${config.tokens.lastUpdate.getTime()}`,
   },
 );
-
-const normalizeAddress = (value: string): string => {
-  return value.startsWith('0x') ? value.toLowerCase() : value;
-};
-
-export const isCanonicalUSDCToken = (
-  chain: Chain,
-  tokenAddress: string,
-): boolean => {
-  if (!circle.usdcContract.has(config.network, chain)) {
-    return false;
-  }
-
-  const canonicalAddress = circle.usdcContract(config.network, chain);
-  if (!canonicalAddress) {
-    return false;
-  }
-
-  return normalizeAddress(tokenAddress) === normalizeAddress(canonicalAddress);
-};

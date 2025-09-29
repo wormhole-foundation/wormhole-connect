@@ -7,15 +7,19 @@ import type {
 } from '@mayanfinance/swap-sdk';
 import { getHyperCoreUSDCDepositPermitParams } from '@mayanfinance/swap-sdk';
 import { isEvmNativeSigner } from '@wormhole-foundation/sdk-evm';
+import type { Eip6963Wallet } from '@wormhole-labs/wallet-aggregator-evm';
 import type {
   Quote,
   TransferParams,
   ValidationResult,
 } from '../routes/mayan/types';
+import { TransferWallet } from 'utils/wallet';
+import type { WormholeConnectWalletProvider } from 'utils/wallet/types';
+import { isEvmChain } from './evm';
+import { isUSDCToken } from './usdc';
 
-export type HyperCoreValidators = {
-  isEvmChain: (chain: Chain) => boolean;
-  isCanonicalUSDCToken: (chain: Chain, tokenAddress: string) => boolean;
+type SignerWithProvider<N extends Network> = Signer<N> & {
+  provider?: () => WormholeConnectWalletProvider;
 };
 
 export function isHyperCoreChain(chain: Chain): boolean {
@@ -29,53 +33,57 @@ export function isHyperCoreChain(chain: Chain): boolean {
 export function validateHyperCoreTransfer<N extends Network>(
   request: routes.RouteTransferRequest<N>,
   params: TransferParams,
-  validators: HyperCoreValidators,
 ): ValidationResult | null {
-  const { fromChain, toChain, source, destination } = request;
-  const { isEvmChain, isCanonicalUSDCToken } = validators;
-
-  if (isHyperCoreChain(toChain.chain)) {
-    if (!isEvmChain(fromChain.chain)) {
-      return {
-        valid: false,
-        params,
-        error: new routes.UnavailableError(
-          new Error('HyperCore only supports EVM source chains'),
-        ),
-      };
-    }
-
-    const isDestUSDC = isCanonicalUSDCToken(
-      toChain.chain,
-      destination.id.address.toString(),
-    );
-
-    if (!isDestUSDC) {
-      return {
-        valid: false,
-        params,
-        error: new routes.UnavailableError(
-          new Error('HyperCore only supports USDC as destination token'),
-        ),
-      };
-    }
-  }
+  const { fromChain, toChain, destination } = request;
 
   if (isHyperCoreChain(fromChain.chain)) {
-    const isSourceUSDC = isCanonicalUSDCToken(
-      fromChain.chain,
-      source.id.address.toString(),
-    );
+    return {
+      valid: false,
+      params,
+      error: new routes.UnavailableError(
+        new Error('HyperCore cannot be used as a source chain'),
+      ),
+    };
+  }
 
-    if (isSourceUSDC) {
-      return {
-        valid: false,
-        params,
-        error: new routes.UnavailableError(
-          new Error('Cannot transfer USDC from HyperCore'),
-        ),
-      };
-    }
+  if (!isHyperCoreChain(toChain.chain)) {
+    return null;
+  }
+
+  if (toChain.network !== 'Mainnet') {
+    return {
+      valid: false,
+      params,
+      error: new routes.UnavailableError(
+        new Error('HyperCore is only available on Mainnet'),
+      ),
+    };
+  }
+
+  if (!isEvmChain(fromChain.chain)) {
+    return {
+      valid: false,
+      params,
+      error: new routes.UnavailableError(
+        new Error('HyperCore only supports EVM source chains'),
+      ),
+    };
+  }
+
+  const isDestUSDC = isUSDCToken(
+    toChain.chain,
+    toChain.network,
+    destination.id.address.toString(),
+  );
+
+  if (!isDestUSDC) {
+    return {
+      valid: false,
+      params,
+      error: new routes.UnavailableError(
+        new Error('HyperCore only supports USDC as destination token'),
+      ),
+    };
   }
 
   return null;
@@ -124,6 +132,44 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
     throw new Error(
       `Failed to fetch HyperCore USDC permit params: ${(e as Error).message}`,
     );
+  }
+
+  const signerWithProvider = signer as SignerWithProvider<N>;
+
+  if (typeof signerWithProvider.provider === 'function') {
+    const walletProvider = signerWithProvider.provider();
+
+    if (!walletProvider) {
+      throw new Error('No wallet provider available for HyperCore permit');
+    }
+
+    const wallet = walletProvider.getWallet(
+      'Arbitrum',
+      TransferWallet.SENDING,
+    ) as Eip6963Wallet | undefined;
+
+    if (!wallet) {
+      throw new Error(
+        'An Arbitrum wallet connection is required to sign the HyperCore permit',
+      );
+    }
+
+    try {
+      await wallet.switchChain(42161);
+    } catch (e) {
+      const reason = e instanceof Error ? `: ${e.message}` : '';
+      throw new Error(
+        `Unable to switch the connected wallet to Arbitrum (chainId 42161) for the HyperCore permit${reason}`,
+      );
+    }
+
+    const nativeSigner = await wallet.getSigner();
+
+    if (!nativeSigner) {
+      throw new Error('Failed to access signer for HyperCore permit');
+    }
+
+    return nativeSigner.signTypedData(domain, types, value);
   }
 
   if (typeof (signer as any).signTypedData === 'function') {

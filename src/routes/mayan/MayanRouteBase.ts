@@ -73,11 +73,8 @@ import {
 } from '@wormhole-foundation/sdk-sui';
 import axios from 'axios';
 import { createTransactionRequest, getEvmContractAddress } from './evm/utils';
-import { isEvmChain } from '../../utils/wallet/evm';
-import {
-  getAllTokenIdsForChain,
-  isCanonicalUSDCToken,
-} from '../../utils/tokenHelpers';
+import { getAllTokenIdsForChain } from '../../utils/tokenHelpers';
+import { getUSDCTokenId } from '../../utils/usdc';
 import {
   isHyperCoreChain,
   maybeGetHyperCorePermitSignature,
@@ -102,7 +99,6 @@ import {
   type ValidatedParams,
   type ValidationResult,
 } from './types';
-import config from 'config';
 
 export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   N,
@@ -134,7 +130,8 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   // Helper function to normalize quote for testnet compatibility
   protected normalizeQuoteForTestnet(quote: MayanQuote): any {
     // Remove properties that don't exist in testnet SDK
-    const { hyperCoreParams, ...testnetCompatibleQuote } = quote;
+    const { hyperCoreParams: _hyperCoreParams, ...testnetCompatibleQuote } =
+      quote;
     return testnetCompatibleQuote;
   }
 
@@ -156,15 +153,6 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return supportedChains(chain.network).includes(chain.chain);
   }
 
-  /**
-   * Filter a list of tokens to only include USDC tokens
-   */
-  private static filterUSDCTokens(chain: Chain, tokens: TokenId[]): TokenId[] {
-    return tokens.filter((tk) =>
-      isCanonicalUSDCToken(chain, tk.address.toString()),
-    );
-  }
-
   // Mayan can handle any input and output token that has liquidity on a DeX
   static async supportedDestinationTokens<N extends Network>(
     _token: TokenId,
@@ -175,10 +163,8 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
 
     // For HyperCore, only allow USDC as destination token
     if (isHyperCoreChain(toChain.chain)) {
-      if (!isEvmChain(fromChain.chain)) {
-        return [];
-      }
-      return this.filterUSDCTokens(toChain.chain, tokens);
+      const usdc = getUSDCTokenId(toChain.chain, toChain.network);
+      return usdc ? [usdc] : [];
     }
 
     return tokens;
@@ -194,10 +180,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     params: TransferParams,
   ): Promise<ValidationResult> {
     try {
-      const hyperCoreValidation = validateHyperCoreTransfer(request, params, {
-        isEvmChain,
-        isCanonicalUSDCToken,
-      });
+      const hyperCoreValidation = validateHyperCoreTransfer(request, params);
       if (hyperCoreValidation) {
         return hyperCoreValidation;
       }

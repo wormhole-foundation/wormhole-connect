@@ -596,6 +596,7 @@ const getTokenBridgeToken = async (
 export function getFilteredChains(
   supportedChains: Array<Chain>,
   chainToOmit: Chain | undefined,
+  isSource = false,
 ) {
   const shouldOmit = chainToOmit
     ? !config.routes.isSameChainSwapSupported(chainToOmit)
@@ -603,6 +604,10 @@ export function getFilteredChains(
 
   return config.chainsArr.filter((chain) => {
     if (!supportedChains.includes(chain.sdkName)) {
+      return false;
+    }
+
+    if (isSource && chain.sdkName === 'HyperCore') {
       return false;
     }
 
