@@ -31,6 +31,7 @@ import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import type { TokenTuple } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
+import { isHyperCoreChain } from './hypercore';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -596,6 +597,7 @@ const getTokenBridgeToken = async (
 export function getFilteredChains(
   supportedChains: Array<Chain>,
   chainToOmit: Chain | undefined,
+  isSource = false,
 ) {
   const shouldOmit = chainToOmit
     ? !config.routes.isSameChainSwapSupported(chainToOmit)
@@ -603,6 +605,10 @@ export function getFilteredChains(
 
   return config.chainsArr.filter((chain) => {
     if (!supportedChains.includes(chain.sdkName)) {
+      return false;
+    }
+
+    if (isSource && isHyperCoreChain(chain.sdkName)) {
       return false;
     }
 
