@@ -109,6 +109,11 @@ export function fromMayanChainName(mayanChain: MayanChainName): Chain {
 }
 
 export function toWormholeChainName(chainIdStr: string): Chain {
+  // Special handling for Hypercore which uses chain ID 65000
+  // required for the "Wrapping Up..." to complete
+  if (chainIdStr === '65000') {
+    return 'HyperCore';
+  }
   return toChain(Number(chainIdStr));
 }
 
