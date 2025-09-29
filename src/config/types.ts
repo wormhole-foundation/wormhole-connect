@@ -169,7 +169,7 @@ export interface InternalConfig<N extends Network> {
   };
 
   mayanApi: string;
-  lifiApi: string;
+  lifiExplorerUrl: string;
   wormholeApi: string;
   wormholeRpcHosts: string[];
   coingecko?: {

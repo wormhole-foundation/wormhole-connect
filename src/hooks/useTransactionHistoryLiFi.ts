@@ -86,8 +86,6 @@ const useTransactionHistoryLiFi = (
     (tx: LiFiTransaction): Transaction | undefined => {
       const { sending, receiving, fromAddress, toAddress, status } = tx;
 
-      // Use LiFi chain IDs directly (they use standard EVM chain IDs)
-
       const fromChain = lifiChainIdToChain(sending.chainId as LifiChainId);
       const toChain = receiving
         ? lifiChainIdToChain(receiving.chainId as LifiChainId)
@@ -122,13 +120,12 @@ const useTransactionHistoryLiFi = (
 
       // Skip if we can't identify the tokens
       if (!fromToken || !toToken) {
-        // Skip transactions with unrecognized tokens
         return undefined;
       }
 
       // Parse amounts
-      let sentAmount;
-      let receivedAmount;
+      let sentAmount: sdkAmount.Amount;
+      let receivedAmount: sdkAmount.Amount | undefined;
 
       try {
         sentAmount = sdkAmount.fromBaseUnits(
@@ -224,7 +221,7 @@ const useTransactionHistoryLiFi = (
         });
 
         const res = await fetch(
-          `${config.lifiApi}/v1/analytics/transfers?${params}`,
+          `${config.lifiExplorerUrl}/v1/analytics/transfers?${params}`,
         );
 
         // Check for various HTTP error conditions

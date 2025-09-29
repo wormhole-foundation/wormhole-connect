@@ -13,7 +13,7 @@ const mockToken = {
 // Mock dependencies
 vi.mock('config', () => ({
   default: {
-    lifiApi: 'https://li.quest',
+    lifiExplorerUrl: 'https://li.quest',
     tokens: {
       get: vi.fn(() => mockToken),
       findBySymbol: vi.fn(() => mockToken),
