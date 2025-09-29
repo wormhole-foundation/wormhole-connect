@@ -6,7 +6,6 @@ import type {
   PermitTypes,
 } from '@mayanfinance/swap-sdk';
 import { getHyperCoreUSDCDepositPermitParams } from '@mayanfinance/swap-sdk';
-import { isEvmNativeSigner } from '@wormhole-foundation/sdk-evm';
 import type { Eip6963Wallet } from '@wormhole-labs/wallet-aggregator-evm';
 import type {
   Quote,
@@ -139,52 +138,37 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
 
   const signerWithProvider = signer as SignerWithProvider<N>;
 
-  if (typeof signerWithProvider.provider === 'function') {
-    const walletProvider = signerWithProvider.provider();
+  const walletProvider = signerWithProvider?.provider?.();
 
-    if (!walletProvider) {
-      throw new Error('No wallet provider available for HyperCore permit');
-    }
-
-    const wallet = walletProvider.getWallet(
-      'Arbitrum',
-      TransferWallet.SENDING,
-    ) as Eip6963Wallet | undefined;
-
-    if (!wallet) {
-      throw new Error(
-        'An Arbitrum wallet connection is required to sign the HyperCore permit',
-      );
-    }
-
-    try {
-      await wallet.switchChain(42161);
-    } catch (e) {
-      const reason = e instanceof Error ? `: ${e.message}` : '';
-      throw new Error(
-        `Unable to switch the connected wallet to Arbitrum (chainId 42161) for the HyperCore permit${reason}`,
-      );
-    }
-
-    const nativeSigner = await wallet.getSigner();
-
-    if (!nativeSigner) {
-      throw new Error('Failed to access signer for HyperCore permit');
-    }
-
-    return nativeSigner.signTypedData(domain, types, value);
+  if (!walletProvider) {
+    throw new Error('No wallet provider available for HyperCore permit');
   }
 
-  if (typeof (signer as any).signTypedData === 'function') {
-    return await (signer as any).signTypedData(domain, types, value);
+  const wallet = walletProvider.getWallet(
+    'Arbitrum',
+    TransferWallet.SENDING,
+  ) as Eip6963Wallet | undefined;
+
+  if (!wallet) {
+    throw new Error(
+      'An Arbitrum wallet connection is required to sign the HyperCore permit',
+    );
   }
 
-  if (isEvmNativeSigner(signer)) {
-    const nativeSigner = signer.unwrap();
-    return await nativeSigner.signTypedData(domain, types, value);
+  try {
+    await wallet.switchChain(42161);
+  } catch (e) {
+    const reason = e instanceof Error ? `: ${e.message}` : '';
+    throw new Error(
+      `Unable to switch the connected wallet to Arbitrum (chainId 42161) for the HyperCore permit${reason}`,
+    );
   }
 
-  throw new Error(
-    'Signer must support EIP-712 typed data signing to bridge USDC to HyperCore',
-  );
+  const nativeSigner = await wallet.getSigner();
+
+  if (!nativeSigner) {
+    throw new Error('Failed to access signer for HyperCore permit');
+  }
+
+  return nativeSigner.signTypedData(domain, types, value);
 }
