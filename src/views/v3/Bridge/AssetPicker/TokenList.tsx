@@ -157,7 +157,7 @@ const TokenList = (props: Props) => {
                 {headerLabel && <TokenSectionHeader label={headerLabel} />}
                 <TokenItem
                   token={token}
-                  chain={props.selectedChainConfig.sdkName}
+                  chain={token.chain}
                   onClick={() => props.onSelectToken(token)}
                   isSource={props.isSource}
                   balance={balance}

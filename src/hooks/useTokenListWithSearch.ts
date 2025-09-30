@@ -117,6 +117,10 @@ export const useTokenListWithSearch = ({
       ? unionBy(baseTokenList, searchedTokens, (t) => t.key)
       : baseTokenList;
 
+    if (chain) {
+      tokens = tokens.filter((token) => token.chain === chain);
+    }
+
     if (deferredSearch) {
       tokens = tokens.filter((token) => {
         const overrideName =
@@ -165,6 +169,7 @@ export const useTokenListWithSearch = ({
     isSameChainSwap,
     isSource,
     wrappedNativeAddr,
+    chain,
   ]);
 
   const tokenPrices = useMemo(
