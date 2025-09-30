@@ -156,6 +156,12 @@ const useGetTokenBalances = ({
       tokens: Token[],
     ): Promise<Balances> => {
       const chainConfig = config.chains[chain];
+
+      // HyperCore is a destination-only chain, skip balance fetching
+      if (chain === 'HyperCore') {
+        return {};
+      }
+
       if (
         !chainConfig ||
         chainToPlatform(chainConfig.sdkName) !== wallet.type
