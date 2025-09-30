@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import React, { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -41,6 +41,14 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
 
   const { items, filterFn, searchQuery } = props;
 
+  const listTitle = useMemo(() => {
+    if (!props.listTitle) {
+      // We have 16px top space in the default case when no title override is given
+      return <div style={{ paddingTop: '16px' }} />;
+    }
+    return <Box sx={{ padding: '16px' }}>{props.listTitle}</Box>;
+  }, [props.listTitle]);
+
   const filteredList = useMemo(() => {
     if (!filterFn) {
       return items;
@@ -66,11 +74,11 @@ function SearchableList<T>(props: SearchableListProps<T>): ReactNode {
         sx={{ ...styles.searchList, ...scrollbarStyles }}
         data-testid={props.dataTestId}
       >
-        <Box sx={{ padding: '16px' }}>{props.listTitle}</Box>
+        {listTitle}
         {props.loading || filteredList.map(props.renderFn)}
       </List>
     </Box>
   );
 }
 
-export default memo(SearchableList) as typeof SearchableList;
+export default React.memo(SearchableList) as typeof SearchableList;

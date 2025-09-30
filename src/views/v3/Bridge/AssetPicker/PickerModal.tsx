@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useTheme } from '@mui/material';
 import Popover from '@mui/material/Popover';
 import { bindPopover } from 'material-ui-popup-state/hooks';
@@ -11,6 +11,7 @@ import type { Token } from 'config/tokens';
 import type { Balances } from 'utils/wallet/types';
 import ChainList from 'views/v3/Bridge/AssetPicker/ChainList';
 import TokenList from 'views/v3/Bridge/AssetPicker/TokenList';
+import PickerHeader from './PickerHeader';
 
 interface AssetPickerPopoverProps {
   popupState: PopupState;
@@ -77,7 +78,7 @@ function AssetPickerPopover({
         paper: {
           sx: {
             width: '100%',
-            maxWidth: '420px',
+            maxWidth: '452px',
             borderRadius: '8px',
             background: theme.palette.input.background,
             backdropFilter: 'blur(4px)',
@@ -93,6 +94,11 @@ function AssetPickerPopover({
         },
       }}
     >
+      <PickerHeader
+        onClose={() => popupState.close()}
+        showSearch={showChainSearch}
+        onBack={() => setShowChainSearch(false)}
+      />
       <ChainList
         chainList={chainList}
         selectedChainConfig={chainConfig}
@@ -123,4 +129,4 @@ function AssetPickerPopover({
   );
 }
 
-export default memo(AssetPickerPopover);
+export default React.memo(AssetPickerPopover);

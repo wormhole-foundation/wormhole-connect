@@ -76,7 +76,7 @@ function PageHeader({
           {back && (
             <DownIcon sx={styles.arrowBack} fontSize="large" onClick={goBack} />
           )}
-          <Header text={title} align={align} testId={testId} />
+          <Header text={title} align={align} />
         </Box>
       </Box>
       {description && <Box sx={styles.description}>{description}</Box>}
