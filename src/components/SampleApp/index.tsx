@@ -49,7 +49,6 @@ import {
 } from 'exports/executor';
 import { LiFiRoute } from 'exports/lifi';
 import type { WormholeConnectTheme } from 'theme';
-import { getExperiment } from 'utils/experiments';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
@@ -410,12 +409,10 @@ function SampleApp() {
                       <pre>input</pre>
                       <i>string;</i>
                     </li>
-                    {getExperiment('enableUIRefreshV3', true) && (
-                      <li>
-                        <pre>inputFillTreatment</pre>
-                        <i>boolean;</i>
-                      </li>
-                    )}
+                    <li>
+                      <pre>inputFillTreatment</pre>
+                      <i>boolean;</i>
+                    </li>
                     <li>
                       <pre>primary</pre>
                       <i>string;</i>

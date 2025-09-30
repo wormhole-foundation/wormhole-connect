@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
@@ -13,7 +7,6 @@ import type { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
 import { isEmptyObject, usePrevious } from './utils';
-import { getExperiment } from './utils/experiments';
 import type { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
@@ -24,10 +17,6 @@ import { setRoute } from './store/router';
 import { clearWallets } from './store/wallet';
 import { useExternalSearch } from 'hooks/useExternalSearch';
 
-import BridgeV2 from 'views/v2/Bridge';
-import RedeemV2 from 'views/v2/Redeem';
-import TxHistoryV2 from 'views/v2/TxHistory';
-import type { BridgeProps } from 'views/v3/Bridge';
 import BridgeV3 from 'views/v3/Bridge';
 import RedeemV3 from 'views/v3/Redeem';
 import { RouteContext } from 'contexts/RouteContext';
@@ -42,8 +31,6 @@ const AppRouterContent = () => {
 
   const prevRoute = usePrevious(route);
   const { hasExternalSearch } = useExternalSearch();
-
-  const UIRefreshV3Enabled = getExperiment('enableUIRefreshV3', true);
 
   useEffect(() => {
     const redeemRoute = 'redeem';
@@ -68,28 +55,6 @@ const AppRouterContent = () => {
     }
   }, [hasExternalSearch, dispatch]);
 
-  // TODO: Deprecate with UI refresh v3
-  const getBridgeView = useCallback(
-    (props: BridgeProps) => {
-      return UIRefreshV3Enabled ? <BridgeV3 {...props} /> : <BridgeV2 />;
-    },
-    [UIRefreshV3Enabled],
-  );
-
-  // TODO: Deprecate with UI refresh v3
-  const redeemView = useMemo(() => {
-    return UIRefreshV3Enabled ? <RedeemV3 /> : <RedeemV2 />;
-  }, [UIRefreshV3Enabled]);
-
-  // TODO: Deprecate with UI refresh v3
-  const txHistoryView = useMemo(() => {
-    return UIRefreshV3Enabled ? (
-      getBridgeView({ showHistory: true })
-    ) : (
-      <TxHistoryV2 />
-    );
-  }, [UIRefreshV3Enabled, getBridgeView]);
-
   return (
     <Box
       sx={{
@@ -106,9 +71,9 @@ const AppRouterContent = () => {
       }}
     >
       <SvgDefs />
-      {route === 'bridge' && getBridgeView({ showHistory: false })}
-      {route === 'redeem' && redeemView}
-      {route === 'history' && txHistoryView}
+      {route === 'bridge' && <BridgeV3 showHistory={false} />}
+      {route === 'redeem' && <RedeemV3 />}
+      {route === 'history' && <BridgeV3 showHistory />}
       {route === 'search' && <TxSearch />}
       {route === 'terms' && <Terms />}
     </Box>
