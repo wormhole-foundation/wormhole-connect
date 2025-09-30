@@ -18,6 +18,14 @@ export function getWrappedNativeToken(
     return WSOL_ADDRESS;
   }
 
+  if (platform === 'Aptos') {
+    return '0x1::aptos_coin::AptosCoin';
+  }
+
+  if (platform === 'Sui') {
+    return '0x2::sui::SUI';
+  }
+
   return undefined;
 }
 
