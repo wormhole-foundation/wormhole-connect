@@ -4,8 +4,8 @@ import type { ChainId as LifiChainId } from '@lifi/sdk';
 
 import config from 'config';
 import type { Transaction } from 'config/types';
-import type { Token } from 'config/tokens';
 import { lifiChainIdToChain } from 'routes/lifi/utils';
+import { findToken } from 'utils/tokens';
 
 interface LiFiToken {
   address: string;
@@ -98,28 +98,15 @@ const useTransactionHistoryLiFi = (
       return undefined;
     }
 
-    let fromToken: Token | undefined;
-    let toToken: Token | undefined;
+    const fromToken = findToken(
+      fromChain,
+      sending.token.address,
+      sending.token.symbol,
+    );
 
-    try {
-      // Try by address first
-      fromToken = config.tokens.get(fromChain, sending.token.address);
-
-      if (receiving && toChain) {
-        toToken = config.tokens.get(toChain, receiving.token.address);
-      }
-    } catch (_e) {
-      // Token not found by address - silently continue to try by symbol
-    }
-
-    // Fallback to symbol if not found by address
-    if (!fromToken) {
-      fromToken = config.tokens.findBySymbol(fromChain, sending.token.symbol);
-    }
-
-    if (!toToken && receiving && toChain) {
-      toToken = config.tokens.findBySymbol(toChain, receiving.token.symbol);
-    }
+    const toToken = receiving
+      ? findToken(toChain, receiving.token.address, receiving.token.symbol)
+      : undefined;
 
     // Skip if we can't identify the tokens
     if (!fromToken || !toToken) {
