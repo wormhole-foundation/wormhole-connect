@@ -28,6 +28,7 @@ const {
   REACT_APP_PLUME_RPC,
   REACT_APP_HYPEREVM_RPC,
   REACT_APP_XRPL_RPC,
+  REACT_APP_HYPERCORE_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -59,4 +60,5 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('Plume', REACT_APP_PLUME_RPC),
   ...populateRpcField('HyperEVM', REACT_APP_HYPEREVM_RPC),
   ...populateRpcField('XRPLEVM', REACT_APP_XRPL_RPC),
+  ...populateRpcField('HyperCore', REACT_APP_HYPERCORE_RPC),
 };

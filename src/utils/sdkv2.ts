@@ -31,6 +31,7 @@ import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import type { TokenTuple } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
+import { isHyperCoreChain } from './hypercore';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -596,12 +597,22 @@ const getTokenBridgeToken = async (
 export function getFilteredChains(
   supportedChains: Array<Chain>,
   chainToOmit: Chain | undefined,
+  isSource = false,
 ) {
   const shouldOmit = chainToOmit
     ? !config.routes.isSameChainSwapSupported(chainToOmit)
     : false;
 
   return config.chainsArr.filter((chain) => {
+    /*
+      If we see more exceptions being added like this, a better solution would be to update the route
+      interface in the sdk to have explicit `supportedSourceChains()` and `supportedDestinationChains()`
+      function where routes can specify it directly. Current `supportedChains()` doesn't suffice.
+    */
+    if (isSource && isHyperCoreChain(chain.sdkName)) {
+      return false;
+    }
+
     if (!supportedChains.includes(chain.sdkName)) {
       return false;
     }

@@ -93,6 +93,11 @@ import {
   type ValidatedParams,
   type ValidationResult,
 } from './types';
+import {
+  isHyperCoreChain,
+  maybeGetHyperCorePermitSignature,
+  validateHyperCoreTransfer,
+} from 'utils/hypercore';
 
 export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   N,
@@ -124,7 +129,8 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   // Helper function to normalize quote for testnet compatibility
   protected normalizeQuoteForTestnet(quote: MayanQuote): any {
     // Remove properties that don't exist in testnet SDK
-    const { hyperCoreParams, ...testnetCompatibleQuote } = quote;
+    const { hyperCoreParams: _hyperCoreParams, ...testnetCompatibleQuote } =
+      quote;
     return testnetCompatibleQuote;
   }
 
@@ -156,8 +162,15 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     _fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
-    // TODO update this function to only allow HyperCore/USDC
-    return getAllTokenIdsForChain(toChain.chain);
+    // For HyperCore, only allow USDC as destination token
+    if (isHyperCoreChain(toChain.chain)) {
+      const usdc = Wormhole.tokenId(toChain.chain, 'native');
+      return usdc ? [usdc] : [];
+    }
+
+    const tokens = getAllTokenIdsForChain(toChain.chain);
+
+    return tokens;
   }
 
   async isAvailable(): Promise<boolean> {
@@ -170,6 +183,11 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     params: TransferParams,
   ): Promise<ValidationResult> {
     try {
+      const hyperCoreValidation = validateHyperCoreTransfer(request, params);
+      if (hyperCoreValidation) {
+        return hyperCoreValidation;
+      }
+
       params.options = params.options ?? this.getDefaultOptions();
 
       return {
@@ -187,9 +205,9 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   }
 
   protected toMayanAddress(tokenId: TokenId): string {
-    return !isNative(tokenId.address)
-      ? canonicalAddress(tokenId)
-      : getNativeContractAddress(tokenId.chain);
+    return isNative(tokenId.address)
+      ? getNativeContractAddress(tokenId.chain)
+      : canonicalAddress(tokenId);
   }
 
   getFeeInBaseUnits(
@@ -623,8 +641,20 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       const txs: TransactionId[] = [];
       const rpc = await request.fromChain.getRpc();
       const feeUnits = this.getFeeInBaseUnits(request, quote.params.amount);
+      const usdcPermitSignature = await maybeGetHyperCorePermitSignature(
+        request,
+        signer,
+        quote,
+        destinationAddress,
+      );
 
       if (request.fromChain.chain === 'Solana') {
+        // Uncomment and use this when we want to support HyperCore USDC deposits on SOL
+        // const solanaOptions = {
+        //   allowSwapperOffCurve: true,
+        //   ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+        // };
+
         const { instructions, signers, lookupTables } =
           await (this.isTestnetRequest(request)
             ? createSwapFromSolanaInstructionsTestnet(
@@ -813,26 +843,38 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
           }
         }
 
+        const quoteDetails = quote.details;
+
+        if (!quoteDetails) {
+          throw new Error('Missing Mayan quote details');
+        }
+
+        const mainnetOptions =
+          usdcPermitSignature !== undefined
+            ? { usdcPermitSignature }
+            : undefined;
+
         const mayanTxRequest = this.isTestnetRequest(request)
           ? getSwapFromEvmTxPayloadTestnet(
-              this.normalizeQuoteForTestnet(quote.details!),
+              this.normalizeQuoteForTestnet(quoteDetails),
               originAddress,
               destinationAddress,
               null,
               originAddress,
               Number(nativeChainId!),
               undefined,
-              undefined, // permit?
+              undefined,
             )
           : getSwapFromEvmTxPayload(
-              quote.details!,
+              quoteDetails,
               originAddress,
               destinationAddress,
               null,
               originAddress,
               Number(nativeChainId!),
               undefined,
-              undefined, // permit?
+              undefined,
+              mainnetOptions,
             );
 
         const txReq = createTransactionRequest(

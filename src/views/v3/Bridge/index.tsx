@@ -264,7 +264,7 @@ function Bridge(props: BridgeProps) {
 
   // Supported chains for the source network
   const supportedSourceChains = useMemo(() => {
-    return getFilteredChains(supportedChains, destChain);
+    return getFilteredChains(supportedChains, destChain, true);
   }, [destChain, supportedChains]);
 
   // Supported chains for the destination network

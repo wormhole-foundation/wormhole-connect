@@ -6,7 +6,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { isNative } from '@wormhole-foundation/sdk';
-
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import TokenIcon from 'icons/TokenIcons';
 

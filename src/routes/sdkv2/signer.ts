@@ -146,4 +146,8 @@ export class SDKv2Signer<N extends Network, C extends Chain>
   address() {
     return this._address;
   }
+
+  provider(): WormholeConnectWalletProvider {
+    return this._walletProvider;
+  }
 }

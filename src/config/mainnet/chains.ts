@@ -217,6 +217,14 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'HyperEVM',
     symbol: 'HYPE',
   },
+  HyperCore: {
+    displayName: 'HyperCore',
+    sdkName: 'HyperCore',
+    explorerUrl: 'https://app.hyperliquid.xyz/explorer/',
+    explorerName: 'Hyperliquid Explorer',
+    icon: 'HyperCore',
+    symbol: 'HyperCore',
+  },
   XRPLEVM: {
     displayName: 'XRPL EVM',
     sdkName: 'XRPLEVM',
