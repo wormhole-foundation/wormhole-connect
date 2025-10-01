@@ -162,13 +162,13 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     _fromChain: ChainContext<N>,
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
-    const tokens = getAllTokenIdsForChain(toChain.chain);
-
     // For HyperCore, only allow USDC as destination token
     if (isHyperCoreChain(toChain.chain)) {
       const usdc = Wormhole.tokenId(toChain.chain, 'native');
       return usdc ? [usdc] : [];
     }
+
+    const tokens = getAllTokenIdsForChain(toChain.chain);
 
     return tokens;
   }
