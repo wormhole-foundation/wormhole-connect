@@ -1,5 +1,5 @@
 import type { Chain, Network, Signer } from '@wormhole-foundation/sdk-connect';
-import { routes } from '@wormhole-foundation/sdk-connect';
+import { chainToPlatform, routes } from '@wormhole-foundation/sdk-connect';
 import type {
   PermitDomain,
   PermitValue,
@@ -15,6 +15,7 @@ import type {
 import { TransferWallet } from 'utils/wallet';
 import type { WormholeConnectWalletProvider } from 'utils/wallet/types';
 import { isEvmChain } from './evm';
+import { getWormholeContextV2 } from 'config';
 
 // Note: Hyperliquid bridge = Arbitrum bridge + custom payload for USDC deposit to Hyperliquid
 
@@ -97,9 +98,11 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
     throw new Error('Missing HyperCore quote details required for permit');
   }
 
-  const arbitrumRpc = (await request.toChain.getRpc()) ?? null;
+  const wh = await getWormholeContextV2();
+  const platform = wh.getPlatform(chainToPlatform('Arbitrum'));
+  const rpc = platform.getRpc('Arbitrum');
 
-  if (!arbitrumRpc) {
+  if (!rpc) {
     throw new Error(
       'Could not resolve Arbitrum RPC connection needed for HyperCore',
     );
@@ -113,7 +116,7 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
     ({ domain, types, value } = await getHyperCoreUSDCDepositPermitParams(
       quoteDetails,
       destinationAddress,
-      arbitrumRpc,
+      rpc,
     ));
   } catch (e) {
     throw new Error(
