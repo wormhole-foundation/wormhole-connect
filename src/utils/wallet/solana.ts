@@ -127,8 +127,18 @@ export async function signAndSendTransactionWithResends(
   const rpc = config.rpcs[request.chain];
   if (!rpc) throw new Error(`${request.chain} RPC not found`);
 
-  const commitment = options?.commitment ?? 'confirmed';
+  let commitment = options?.commitment ?? 'confirmed';
   const connection = new Connection(rpc);
+
+  // HACK: For certain transactions we need to use 'finalized' commitment, such as when posting a VAA.
+  // If you use 'confirmed' here, the Core.PostVaa transaction will fail with "Unexpected length of input"
+  // and it's not clear why.
+  if (
+    request.description === 'Core.VerifySignature' ||
+    request.description === 'Core.PostVAA'
+  ) {
+    commitment = 'finalized';
+  }
 
   const { blockhash, lastValidBlockHeight } =
     await connection.getLatestBlockhash(commitment);

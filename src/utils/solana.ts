@@ -98,7 +98,7 @@ export async function setPriorityFeeInstructions(
 async function createPriorityFeeInstructions(
   connection: Connection,
   transaction: Transaction | VersionedTransaction,
-  commitment?: Commitment,
+  commitment: Commitment = 'confirmed',
 ) {
   let unitsUsed = 200_000;
   let simulationAttempts = 0;
