@@ -177,7 +177,7 @@ export class BridgeView {
   async verifyRouteSelection(routeName: string) {
     // Click the link to open Routes modal
     const routeToggle = this.page.getByRole('button', {
-      name: 'View other routes',
+      name: 'View all routes',
     });
     await routeToggle.waitFor({ state: 'visible' });
     await routeToggle.click();
