@@ -30,9 +30,7 @@ function ProviderLabel({
   }
 
   return (
-    <span style={{ fontWeight: 600 }}>
-      Routing <span style={{ fontWeight: 400 }}>via {via}</span>
-    </span>
+    <div style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>Routing via {via}</div>
   );
 }
 
