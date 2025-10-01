@@ -263,6 +263,7 @@ function Routes({
 
     return null;
   }, [
+    theme,
     fastestRoute.name,
     cheapestRoute.name,
     selectedRouteBadge,
