@@ -19,6 +19,8 @@ import { getWormholeContextV2 } from 'config';
 
 // Note: Hyperliquid bridge = Arbitrum bridge + custom payload for USDC deposit to Hyperliquid
 
+const ARBITRUM = 'Arbitrum';
+
 type SignerWithProvider<N extends Network> = Signer<N> & {
   provider?: () => WormholeConnectWalletProvider;
 };
@@ -99,12 +101,12 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
   }
 
   const wh = await getWormholeContextV2();
-  const platform = wh.getPlatform(chainToPlatform('Arbitrum'));
-  const rpc = platform.getRpc('Arbitrum');
+  const platform = wh.getPlatform(chainToPlatform(ARBITRUM));
+  const rpc = platform.getRpc(ARBITRUM);
 
   if (!rpc) {
     throw new Error(
-      'Could not resolve Arbitrum RPC connection needed for HyperCore',
+      `Could not resolve ${ARBITRUM} RPC connection needed for HyperCore`,
     );
   }
 
@@ -132,14 +134,13 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
     throw new Error('No wallet provider available for HyperCore permit');
   }
 
-  const wallet = walletProvider.getWallet(
-    'Arbitrum',
-    TransferWallet.SENDING,
-  ) as Eip6963Wallet | undefined;
+  const wallet = walletProvider.getWallet(ARBITRUM, TransferWallet.SENDING) as
+    | Eip6963Wallet
+    | undefined;
 
   if (!wallet) {
     throw new Error(
-      'An Arbitrum wallet connection is required to sign the HyperCore permit',
+      `An ${ARBITRUM} wallet connection is required to sign the HyperCore permit`,
     );
   }
 
@@ -148,7 +149,7 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
   } catch (e) {
     const reason = e instanceof Error ? `: ${e.message}` : '';
     throw new Error(
-      `Unable to switch the connected wallet to Arbitrum (chainId 42161) for the HyperCore permit${reason}`,
+      `Unable to switch the connected wallet to ${ARBITRUM} (chainId 42161) for the HyperCore permit${reason}`,
     );
   }
 
