@@ -32,7 +32,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Mezo: 'wrapped-bitcoin',
   Plume: 'plume',
   Ink: 'ethereum',
-  HyperEVM: 'ethereum',
+  HyperEVM: 'hyperliquid',
   HyperCore: 'usd-coin',
 };
 
