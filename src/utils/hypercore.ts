@@ -16,6 +16,8 @@ import { TransferWallet } from 'utils/wallet';
 import type { WormholeConnectWalletProvider } from 'utils/wallet/types';
 import { isEvmChain } from './evm';
 
+// Note: Hyperliquid bridge = Arbitrum bridge + custom payload for USDC deposit to Hyperliquid
+
 type SignerWithProvider<N extends Network> = Signer<N> & {
   provider?: () => WormholeConnectWalletProvider;
 };
