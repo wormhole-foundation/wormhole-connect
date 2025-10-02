@@ -5,6 +5,8 @@ import FooterNavBar from 'components/FooterNavBar';
 import config from 'config';
 
 function Terms() {
+  const termsUrl = config.ui.termsOfServiceUrl || 'https://portalbridge.com';
+
   const styles = {
     terms: {
       width: '100%',
@@ -37,12 +39,12 @@ function Terms() {
           Maha Labs, LLC (the "Company," "we," "us," or "our"). The "Services"
           shall include, but not limited to, the website located at{' '}
           <a
-            href="https://portalbridge.com"
+            href={termsUrl}
             target="_blank"
             style={{ whiteSpace: 'nowrap' }}
             rel="noreferrer"
           >
-            https://portalbridge.com
+            {termsUrl}
           </a>{' '}
           (the "Interface"), and any app, content, functionality, and services
           offered on or through the Interface, and all technologies made
@@ -116,13 +118,13 @@ function Terms() {
                 sole discretion, to modify this Agreement from time to time. If
                 we make any material modifications, we will notify you by
                 updating the date at the top of the Agreement and by maintaining
-                a current version of the Agreement at
-                https://portalbridge.com/terms-of-use. All modifications will be
-                effective when they are posted, and your continued accessing or
-                use of any of the Services will serve as confirmation of your
-                acceptance of those modifications. If you do not agree with any
-                modifications to this Agreement, you must immediately stop
-                accessing and using all of our Services.
+                a current version of the Agreement at ${termsUrl}/terms-of-use.
+                All modifications will be effective when they are posted, and
+                your continued accessing or use of any of the Services will
+                serve as confirmation of your acceptance of those modifications.
+                If you do not agree with any modifications to this Agreement,
+                you must immediately stop accessing and using all of our
+                Services.
               </li>
               <li>
                 Modifications of our Services. We reserve the following rights,
