@@ -62,25 +62,25 @@
     "@solana/spl-token": "0.4.0",
     "@solana/wallet-adapter-wallets": "0.19.32",
     "@testnet-mayan/swap-sdk": "1.2.0",
-    "@wormhole-foundation/sdk": "3.7.1",
-    "@wormhole-foundation/sdk-aptos": "3.7.1",
-    "@wormhole-foundation/sdk-aptos-core": "3.7.1",
-    "@wormhole-foundation/sdk-base": "3.7.1",
-    "@wormhole-foundation/sdk-connect": "3.7.1",
-    "@wormhole-foundation/sdk-definitions": "3.7.1",
+    "@wormhole-foundation/sdk": "3.8.5",
+    "@wormhole-foundation/sdk-aptos": "3.8.5",
+    "@wormhole-foundation/sdk-aptos-core": "3.8.5",
+    "@wormhole-foundation/sdk-base": "3.8.5",
+    "@wormhole-foundation/sdk-connect": "3.8.5",
+    "@wormhole-foundation/sdk-definitions": "3.8.5",
     "@wormhole-foundation/sdk-definitions-ntt": "3.0.1",
-    "@wormhole-foundation/sdk-evm": "3.7.1",
-    "@wormhole-foundation/sdk-evm-core": "3.7.1",
+    "@wormhole-foundation/sdk-evm": "3.8.5",
+    "@wormhole-foundation/sdk-evm-core": "3.8.5",
     "@wormhole-foundation/sdk-evm-ntt": "3.0.1",
-    "@wormhole-foundation/sdk-icons": "3.7.1",
+    "@wormhole-foundation/sdk-icons": "3.8.5",
     "@wormhole-foundation/sdk-route-ntt": "3.0.1",
-    "@wormhole-foundation/sdk-solana": "3.7.1",
-    "@wormhole-foundation/sdk-solana-cctp": "3.7.1",
-    "@wormhole-foundation/sdk-solana-core": "3.7.1",
+    "@wormhole-foundation/sdk-solana": "3.8.5",
+    "@wormhole-foundation/sdk-solana-cctp": "3.8.5",
+    "@wormhole-foundation/sdk-solana-core": "3.8.5",
     "@wormhole-foundation/sdk-solana-ntt": "3.0.1",
-    "@wormhole-foundation/sdk-sui": "3.7.1",
-    "@wormhole-foundation/sdk-sui-cctp": "3.7.1",
-    "@wormhole-foundation/sdk-sui-core": "3.7.1",
+    "@wormhole-foundation/sdk-sui": "3.8.5",
+    "@wormhole-foundation/sdk-sui-cctp": "3.8.5",
+    "@wormhole-foundation/sdk-sui-core": "3.8.5",
     "@wormhole-foundation/sdk-sui-ntt": "3.0.1",
     "@wormhole-labs/cctp-executor-route": "0.18.0",
     "@wormhole-labs/wallet-aggregator-aptos": "1.3.0",
@@ -98,7 +98,7 @@
     "react-redux": "9.2.0",
     "react-timer-hook": "4.0.5",
     "use-debounce": "10.0.6",
-    "usehooks-ts": "^3.1.1"
+    "usehooks-ts": "3.1.1"
   },
   "scripts": {
     "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host --force",
@@ -123,6 +123,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:with-wallet": "playwright test --grep-invert @noWallet",
     "test:e2e:without-wallet": "playwright test --grep @noWallet",
+    "sdk:update": "scripts/update-sdk.sh",
     "commit": "cz",
     "prepare": "husky install"
   },
@@ -183,12 +184,12 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^6.4.11",
-    "@mui/material": "^6.4.11",
-    "@mui/styled-engine": "^6.4.11",
-    "@mui/system": "^6.4.11",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "@mui/styled-engine": "^7.3.2",
+    "@mui/system": "^7.3.2",
     "@types/react": ">=18.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
@@ -218,38 +219,40 @@
       "@ledgerhq/devices": "6.27.1"
     },
     "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "3.7.1",
-      "@wormhole-foundation/sdk-definitions": "3.7.1"
+      "@wormhole-foundation/sdk-base": "3.8.5",
+      "@wormhole-foundation/sdk-definitions": "3.8.5"
     },
     "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "3.7.1",
-      "@wormhole-foundation/sdk-definitions": "3.7.1",
-      "@wormhole-foundation/sdk-evm": "3.7.1",
-      "@wormhole-foundation/sdk-evm-core": "3.7.1"
+      "@wormhole-foundation/sdk-base": "3.8.5",
+      "@wormhole-foundation/sdk-definitions": "3.8.5",
+      "@wormhole-foundation/sdk-evm": "3.8.5",
+      "@wormhole-foundation/sdk-evm-core": "3.8.5"
     },
     "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "3.7.1"
+      "@wormhole-foundation/sdk-connect": "3.8.5"
     },
     "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "3.7.1",
-      "@wormhole-foundation/sdk-definitions": "3.7.1",
-      "@wormhole-foundation/sdk-solana": "3.7.1",
-      "@wormhole-foundation/sdk-solana-core": "3.7.1"
+      "@wormhole-foundation/sdk-base": "3.8.5",
+      "@wormhole-foundation/sdk-definitions": "3.8.5",
+      "@wormhole-foundation/sdk-solana": "3.8.5",
+      "@wormhole-foundation/sdk-solana-core": "3.8.5"
     },
     "@wormhole-foundation/sdk-sui-ntt": {
-      "@wormhole-foundation/sdk-base": "3.7.1",
-      "@wormhole-foundation/sdk-definitions": "3.7.1",
-      "@wormhole-foundation/sdk-sui": "3.7.1",
-      "@wormhole-foundation/sdk-sui-core": "3.7.1"
+      "@wormhole-foundation/sdk-base": "3.8.5",
+      "@wormhole-foundation/sdk-definitions": "3.8.5",
+      "@wormhole-foundation/sdk-sui": "3.8.5",
+      "@wormhole-foundation/sdk-sui-core": "3.8.5"
     },
     "@wormhole-labs/cctp-executor-route": {
-      "@wormhole-foundation/sdk-aptos": "3.7.1",
-      "@wormhole-foundation/sdk-connect": "3.7.1",
-      "@wormhole-foundation/sdk-evm": "3.7.1",
-      "@wormhole-foundation/sdk-solana": "3.7.1",
-      "@wormhole-foundation/sdk-solana-cctp": "3.7.1",
-      "@wormhole-foundation/sdk-sui": "3.7.1",
-      "@wormhole-foundation/sdk-sui-cctp": "3.7.1"
+      "@wormhole-foundation/sdk-base": "3.8.5",
+      "@wormhole-foundation/sdk-definitions": "3.8.5",
+      "@wormhole-foundation/sdk-aptos": "3.8.5",
+      "@wormhole-foundation/sdk-connect": "3.8.5",
+      "@wormhole-foundation/sdk-evm": "3.8.5",
+      "@wormhole-foundation/sdk-solana": "3.8.5",
+      "@wormhole-foundation/sdk-solana-cctp": "3.8.5",
+      "@wormhole-foundation/sdk-sui": "3.8.5",
+      "@wormhole-foundation/sdk-sui-cctp": "3.8.5"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.2"
