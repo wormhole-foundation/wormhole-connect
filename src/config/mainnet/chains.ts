@@ -233,4 +233,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'XRPLEVM',
     symbol: 'XRP',
   },
+  CreditCoin: {
+    displayName: 'Creditcoin',
+    sdkName: 'CreditCoin',
+    explorerUrl: 'https://creditcoin.blockscout.com',
+    explorerName: 'Blockscout',
+    icon: 'CreditCoin',
+    symbol: 'CTC',
+  },
 };

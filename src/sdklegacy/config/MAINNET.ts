@@ -35,6 +35,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     XRPLEVM: 'https://rpc.xrplevm.org/',
     Plume: 'https://rpc.plume.org',
     Ink: 'https://ink.drpc.org',
+    CreditCoin: 'https://mainnet3.creditcoin.network',
   },
 };
 
