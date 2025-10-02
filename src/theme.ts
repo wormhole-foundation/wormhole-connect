@@ -1,8 +1,8 @@
 import { createTheme } from '@mui/material/styles';
-import grey from '@mui/material/colors/grey';
 import type { PaletteMode, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
 import Color from 'color';
+import { grey } from '@mui/material/colors';
 
 export type WormholeConnectTheme = {
   // "dark" or "light"
