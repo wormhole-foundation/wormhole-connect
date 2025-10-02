@@ -307,7 +307,7 @@ function Routes({
               handleToggleRoutes={handleToggleRoutes}
               quoteSlippageBps={getSlippageFromQuote(selectedQuote)}
               minReceived={getMinReceivedFromQuote(selectedQuote)}
-              outputToken={selectedQuote?.details?.toToken.name}
+              outputToken={selectedQuote?.details?.toToken?.name}
             />
           </Stack>
         </>
