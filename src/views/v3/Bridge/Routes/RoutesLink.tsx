@@ -16,7 +16,7 @@ function RoutesLink({ onClick }: RoutesLinkProps) {
         component="span"
         data-testid="other-routes-toggle"
         role="button"
-        aria-label="View other routes"
+        aria-label="View all routes"
         underline="none"
         sx={{
           display: 'flex',

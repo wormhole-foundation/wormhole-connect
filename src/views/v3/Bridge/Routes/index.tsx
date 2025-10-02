@@ -14,7 +14,11 @@ import { setToNativeToken } from 'store/relay';
 import RoutesMobile from './RoutesBottomSheet';
 import RoutesDesktop from './RoutesModal';
 import RoutesLoader from './RoutesLoader';
-import RouteDetails from './RouteDetails';
+import RouteDetails from './details/RouteDetails';
+import {
+  getMinReceivedFromQuote,
+  getSlippageFromQuote,
+} from 'utils/quoteUtils';
 
 type Props = {
   routes: string[];
@@ -274,21 +278,6 @@ function Routes({
 
   const selectButtonDisabled =
     !!selectedRoute && selectedRoute === highlightedRoute;
-  const quoteSlippageBps =
-    selectedRoute && quotes && quotes[selectedRoute]?.success
-      ? quotes[selectedRoute]?.details?.slippageBps
-      : undefined;
-  const minReceived =
-    selectedRoute && quotes && quotes[selectedRoute]?.success
-      ? quotes[selectedRoute]?.details?.minReceived
-      : undefined;
-  if (selectedRoute) {
-    console.log(quotes[selectedRoute]);
-    const currentQuote = quotes[selectedRoute];
-    if (currentQuote?.success) {
-      console.log(`Quote details`, currentQuote.details);
-    }
-  }
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
   if (!isLoading && routesList.length === 0) {
@@ -316,8 +305,8 @@ function Routes({
               selectedRoute={selectedRoute}
               sourceChain={sourceChain}
               handleToggleRoutes={handleToggleRoutes}
-              quoteSlippageBps={quoteSlippageBps}
-              minReceived={minReceived}
+              quoteSlippageBps={getSlippageFromQuote(selectedQuote)}
+              minReceived={getMinReceivedFromQuote(selectedQuote)}
               outputToken={selectedQuote?.details?.toToken.name}
             />
           </Stack>

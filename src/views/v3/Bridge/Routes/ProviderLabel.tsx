@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { getRouteProvider } from './utils';
+import Typography from '@mui/material/Typography';
 
 interface ProviderLabelProps {
   destChain?: string;
@@ -30,7 +31,12 @@ function ProviderLabel({
   }
 
   return (
-    <div style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>Routing via {via}</div>
+    <div style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
+      <Typography variant={'body2'} fontWeight={500}>
+        {' '}
+        Routing via {via}{' '}
+      </Typography>
+    </div>
   );
 }
 
