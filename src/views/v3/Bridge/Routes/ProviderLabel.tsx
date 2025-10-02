@@ -32,7 +32,7 @@ function ProviderLabel({
 
   return (
     <Stack direction="row" style={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
-      <Typography variant={'body2'} fontWeight={500}>
+      <Typography variant="body2" fontWeight={500}>
         Routing via {via}
       </Typography>
     </Stack>
