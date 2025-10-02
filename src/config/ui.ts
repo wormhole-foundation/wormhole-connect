@@ -39,6 +39,9 @@ export type UiConfig = {
 
   // Override token names for specific chains and addresses (ex: display "SOL" instead of "WSOL")
   tokenNameOverrides?: { [chain in Chain]?: { [address: string]: string } };
+
+  // URL for terms of service
+  termsOfServiceUrl?: string;
 };
 
 export type TestOptions = {
