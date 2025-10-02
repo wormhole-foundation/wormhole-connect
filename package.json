@@ -97,7 +97,8 @@
     "react-infinite-scroller": "1.2.6",
     "react-redux": "9.2.0",
     "react-timer-hook": "4.0.5",
-    "use-debounce": "10.0.6"
+    "use-debounce": "10.0.6",
+    "usehooks-ts": "^3.1.1"
   },
   "scripts": {
     "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host --force",

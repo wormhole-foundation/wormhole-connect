@@ -15,5 +15,5 @@ export const getMinReceivedFromQuote = (
   if (!quote || !quote.success) {
     return undefined;
   }
-  return quote?.details?.minReceived;
+  return quote.details?.minReceived;
 };

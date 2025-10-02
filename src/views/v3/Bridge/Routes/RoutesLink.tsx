@@ -16,7 +16,6 @@ function RoutesLink({ onClick }: RoutesLinkProps) {
         component="span"
         data-testid="other-routes-toggle"
         role="button"
-        aria-label="View all routes"
         underline="none"
         sx={{
           display: 'flex',
@@ -25,6 +24,10 @@ function RoutesLink({ onClick }: RoutesLinkProps) {
           cursor: 'pointer',
           fontSize: '14px',
           fontWeight: 700,
+          transition: '0.2s',
+          '&:hover': {
+            color: theme.palette.text.secondary,
+          },
         }}
         onClick={onClick}
       >

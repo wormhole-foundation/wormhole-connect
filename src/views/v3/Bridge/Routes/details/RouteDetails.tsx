@@ -4,11 +4,12 @@ import Eta from '../Eta';
 import RoutesLink from '../RoutesLink';
 import { useTheme } from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
-import React, { useCallback, useState } from 'react';
+import React, { useMemo } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import MaxSlippage from './MaxSlippage';
 import MinOutput from './MinOutput';
+import { useToggle } from 'usehooks-ts';
 
 export interface RouteDetailsProps {
   destChain?: string;
@@ -17,8 +18,8 @@ export interface RouteDetailsProps {
   selectedRoute?: string;
   sourceChain?: string;
   handleToggleRoutes: () => void;
-  quoteSlippageBps: number;
-  minReceived: number;
+  quoteSlippageBps?: number;
+  minReceived?: number;
   outputToken?: string;
 }
 
@@ -34,10 +35,10 @@ export default function RouteDetails({
   outputToken,
 }: RouteDetailsProps) {
   const theme = useTheme();
-  const [isShowingDetails, setShowingDetails] = useState(false);
-  const handleChevronClick = useCallback(() => {
-    setShowingDetails((prev) => !prev);
-  }, [setShowingDetails]);
+  const [isShowingDetails, handleChevronClick] = useToggle(false);
+  const hasAnyDetails = useMemo(() => {
+    return minReceived || quoteSlippageBps;
+  }, [minReceived, quoteSlippageBps]);
   return (
     <Stack direction={'column'} spacing={0.5} useFlexGap sx={{ width: '100%' }}>
       <Stack
@@ -75,10 +76,12 @@ export default function RouteDetails({
           />
         )}
       </Stack>
-      <Collapse in={isShowingDetails} timeout={500}>
-        <MaxSlippage slippage={quoteSlippageBps} />
-        <MinOutput minOutput={minReceived} outputToken={outputToken} />
-      </Collapse>
+      {hasAnyDetails && (
+        <Collapse in={isShowingDetails} timeout={500}>
+          <MaxSlippage slippage={quoteSlippageBps} />
+          <MinOutput minOutput={minReceived} outputToken={outputToken} />
+        </Collapse>
+      )}
       <Stack
         direction={'row'}
         justifyContent={'end'}
