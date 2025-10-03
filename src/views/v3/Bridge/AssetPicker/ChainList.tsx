@@ -1,22 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import ChainIcon from 'icons/ChainIcons';
 import PlusIcon from 'icons/Plus';
-
-import type { ChainConfig } from 'config/types';
-import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v3/Bridge/AssetPicker/SearchableList';
 
 import type { Chain } from '@wormhole-foundation/sdk';
+import type { ChainConfig } from 'config/types';
+import type { WalletData } from 'store/wallet';
+import { OPACITY } from 'utils/style';
 
 type Props = {
   chainList?: ChainConfig[];
@@ -27,7 +25,7 @@ type Props = {
   onChainSelect: (chain: Chain) => void;
 };
 
-const SHORT_LIST_SIZE = 5;
+const SHORT_LIST_SIZE = 10; // including "other" button
 
 function ChainList(props: Props) {
   const theme = useTheme();
@@ -37,7 +35,7 @@ function ChainList(props: Props) {
     () => ({
       card: {
         background: theme.palette.input.background,
-        maxWidth: '420px',
+        maxWidth: '452px',
         [theme.breakpoints.down('sm')]: {
           width: '100vw',
         },
@@ -52,31 +50,66 @@ function ChainList(props: Props) {
         },
       },
       title: {
-        fontSize: '14px',
+        fontSize: '24px',
+        fontWeight: 600,
+        lineHeight: '32px',
         marginBottom: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       },
-      chainSearch: {
+      chainSearchList: {
         maxHeight: '480px',
         [theme.breakpoints.down('sm')]: {
           maxHeight: '640px',
         },
       },
-      chainButton: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        padding: '8px',
-        border: '1px solid transparent',
-        borderRadius: '8px',
-        '&.Mui-selected': {
-          border: '1px solid',
-          borderColor: theme.palette.primary.main,
-        },
-      },
-      chainItem: {
+      chainSearchItem: {
         display: 'flex',
         flexDirection: 'row' as const,
         padding: '8px',
         borderRadius: '8px',
+      },
+      chainButton: {
+        display: 'flex',
+        flexDirection: 'column' as const,
+        padding: '8px',
+        backgroundColor: theme.palette.primary.main + OPACITY[10],
+        border: '1px solid transparent',
+        borderRadius: '8px',
+        width: '71px',
+        maxWidth: '71px',
+        position: 'relative',
+        overflow: 'hidden',
+        '&.Mui-selected': {
+          border: '1px solid',
+          borderColor: theme.palette.primary.main,
+        },
+        '& svg': {
+          pointerEvents: 'none',
+        },
+        '&:hover': {
+          backgroundColor: theme.palette.primary.main + OPACITY[10],
+          border: '1px solid',
+          borderColor: theme.palette.primary.main,
+        },
+      },
+      chainTileLabel: {
+        color: theme.palette.text.secondary,
+        fontSize: '9px',
+        fontFamily: 'IBM Plex Mono',
+        fontWeight: 400,
+        lineHeight: '12px',
+        marginTop: '8px',
+        whiteSpace: 'nowrap',
+      },
+      chainIcon: {
+        border: '1px solid transparent',
+        borderRadius: '100%',
+        width: '24px',
+        height: '24px',
+        overflow: 'hidden',
+        pointerEvents: 'none',
       },
     }),
     [theme],
@@ -102,39 +135,39 @@ function ChainList(props: Props) {
     if (
       selectedChainConfig &&
       selectedChainIndex &&
-      selectedChainIndex >= SHORT_LIST_SIZE
+      selectedChainIndex >= SHORT_LIST_SIZE - 1 // Subtract 1 to account for "other" button
     ) {
-      return [selectedChainConfig, ...allChains.slice(0, SHORT_LIST_SIZE - 1)];
+      return [selectedChainConfig, ...allChains.slice(0, SHORT_LIST_SIZE - 2)];
     }
 
-    return allChains.slice(0, SHORT_LIST_SIZE);
+    return allChains.slice(0, SHORT_LIST_SIZE - 1); // Leave room for "other" button
   }, [chainList, selectedChainConfig]);
 
-  const showMoreButton = (chainList?.length ?? 0) > SHORT_LIST_SIZE;
+  const showMoreButton = (chainList?.length ?? 0) > SHORT_LIST_SIZE - 1;
 
   const shortList = useMemo(() => {
     return (
-      <List component={Stack} direction="row" data-testid="chain-short-list">
+      <Box
+        display="flex"
+        flexDirection="row"
+        flexWrap="wrap"
+        gap="16px"
+        sx={{ maxWidth: '420px' }}
+      >
         {topChains.map((chain: ChainConfig) => (
-          <Tooltip key={chain.sdkName} title={chain.displayName}>
-            <ListItemButton
-              selected={selectedChainConfig?.sdkName === chain.sdkName}
-              sx={styles.chainButton}
-              data-testid={`chain-button-${chain.sdkName.toLowerCase()}`}
-              aria-label={`Select ${chain.displayName}`}
-              onClick={() => onChainSelect(chain.sdkName)}
-            >
-              <ChainIcon icon={chain.icon} />
-              <Typography
-                fontSize="12px"
-                lineHeight="12px"
-                marginTop="8px"
-                whiteSpace="nowrap"
-              >
-                {chain.symbol}
-              </Typography>
-            </ListItemButton>
-          </Tooltip>
+          <ListItemButton
+            key={chain.sdkName}
+            selected={selectedChainConfig?.sdkName === chain.sdkName}
+            sx={styles.chainButton}
+            data-testid={`chain-button-${chain.sdkName.toLowerCase()}`}
+            aria-label={`Select ${chain.displayName}`}
+            onClick={() => onChainSelect(chain.sdkName)}
+          >
+            <Box sx={styles.chainIcon}>
+              <ChainIcon icon={chain.icon} height={24} />
+            </Box>
+            <Typography sx={styles.chainTileLabel}>{chain.sdkName}</Typography>
+          </ListItemButton>
         ))}
 
         {showMoreButton ? (
@@ -144,33 +177,30 @@ function ChainList(props: Props) {
               setShowSearch(true);
             }}
           >
-            <PlusIcon sx={{ height: '36px', width: '36px' }} />
-            <Typography
-              fontSize="12px"
-              lineHeight="12px"
-              marginTop="8px"
-              whiteSpace="nowrap"
-            >
-              other
-            </Typography>
+            <Box sx={styles.chainIcon}>
+              <PlusIcon sx={{ height: '24px', width: '24px' }} />
+            </Box>
+            <Typography sx={styles.chainTileLabel}>other</Typography>
           </ListItemButton>
         ) : null}
-      </List>
+      </Box>
     );
   }, [
-    styles.chainButton,
-    onChainSelect,
-    selectedChainConfig?.sdkName,
-    setShowSearch,
-    showMoreButton,
     topChains,
+    showMoreButton,
+    styles.chainButton,
+    styles.chainIcon,
+    styles.chainTileLabel,
+    selectedChainConfig?.sdkName,
+    onChainSelect,
+    setShowSearch,
   ]);
 
   const searchList = useMemo(
     () => (
       <SearchableList<ChainConfig>
         searchPlaceholder="Search for a chain"
-        sx={styles.chainSearch}
+        sx={styles.chainSearchList}
         items={chainList ?? []}
         searchQuery={chainSearchQuery}
         onQueryChange={setChainSearchQuery}
@@ -182,14 +212,16 @@ function ChainList(props: Props) {
           <ListItemButton
             key={chain.sdkName}
             dense
-            sx={styles.chainItem}
+            sx={styles.chainSearchItem}
             onClick={() => {
               onChainSelect(chain.sdkName);
               setShowSearch(false);
             }}
           >
             <ListItemIcon sx={{ minWidth: '50px' }}>
-              <ChainIcon icon={chain.icon} height={36} />
+              <Box sx={styles.chainIcon}>
+                <ChainIcon icon={chain.icon} height={24} />
+              </Box>
             </ListItemIcon>
             <Typography fontSize="16px" fontWeight={500}>
               {chain.displayName}
@@ -199,10 +231,11 @@ function ChainList(props: Props) {
       />
     ),
     [
+      styles.chainSearchList,
+      styles.chainSearchItem,
+      styles.chainIcon,
       chainList,
       chainSearchQuery,
-      styles.chainItem,
-      styles.chainSearch,
       onChainSelect,
       setShowSearch,
     ],
@@ -215,8 +248,14 @@ function ChainList(props: Props) {
   return (
     <Card sx={styles.card} variant="elevation">
       <CardContent sx={styles.cardContent}>
-        <Typography sx={styles.title} fontSize="16px" fontWeight={500}>
-          Select a network
+        <Typography
+          fontSize="14px"
+          fontWeight={500}
+          paddingBottom="16px"
+          role="heading"
+          aria-level={3}
+        >
+          Choose network
         </Typography>
         {showSearch ? searchList : shortList}
       </CardContent>

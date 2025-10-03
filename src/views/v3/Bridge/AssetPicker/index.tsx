@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, Tooltip, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -188,7 +188,7 @@ function AssetPicker(props: Props) {
   const styles = useMemo(
     () => ({
       root: {
-        maxWidth: '420px',
+        maxWidth: '452px',
         background: theme.palette.input.background,
         borderRadius: '8px',
         padding: '16px',
@@ -634,4 +634,4 @@ function AssetPicker(props: Props) {
   );
 }
 
-export default memo(AssetPicker);
+export default React.memo(AssetPicker);

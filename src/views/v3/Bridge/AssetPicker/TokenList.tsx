@@ -80,7 +80,7 @@ const TokenList = (props: Props) => {
     () => ({
       card: {
         background: theme.palette.input.background,
-        maxWidth: '420px',
+        maxWidth: '452px',
       },
       tokenListContainer: {
         padding: '16px 0 0 0 !important',

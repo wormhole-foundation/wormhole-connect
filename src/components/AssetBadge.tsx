@@ -48,7 +48,8 @@ function AssetBadge(props: Props) {
     >
       <TokenIcon
         icon={token?.icon}
-        style={{ width: '36px', height: '36px', padding: '2px' }}
+        style={{ width: '36px', height: '36px' }}
+        containerStyle={{ width: '38px', height: '38px' }}
       />
     </Badge>
   );
