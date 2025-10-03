@@ -2,10 +2,14 @@ import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 import React from 'react';
+import { toFixedDecimals } from 'utils/balance';
+
 export interface MinOutputProps {
   minOutput?: number;
   outputToken?: string;
 }
+
+const MIN_OUTPUT_DISPLAY_DECIMALS = 4;
 export default function MinOutput({ minOutput, outputToken }: MinOutputProps) {
   const theme = useTheme();
   if (!minOutput || !outputToken) {
@@ -27,7 +31,7 @@ export default function MinOutput({ minOutput, outputToken }: MinOutputProps) {
         fontSize={12}
         fontWeight={500}
         color={theme.palette.text.primary}
-        sx={{ display: 'block' }}
+        sx={{ display: 'block', opacity: 0.5 }}
       >
         Minimum output
       </Typography>
@@ -36,9 +40,10 @@ export default function MinOutput({ minOutput, outputToken }: MinOutputProps) {
         fontSize={12}
         fontWeight={600}
         color={theme.palette.text.primary}
-        sx={{ display: 'block' }}
+        sx={{ display: 'block', opacity: 0.5 }}
       >
-        {minOutput} {outputToken}
+        {toFixedDecimals(minOutput.toString(), MIN_OUTPUT_DISPLAY_DECIMALS)}{' '}
+        {outputToken}
       </Typography>
     </Box>
   );

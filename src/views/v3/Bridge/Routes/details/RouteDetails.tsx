@@ -66,12 +66,12 @@ export default function RouteDetails({
         </Stack>
         {isShowingDetails ? (
           <ExpandLessIcon
-            sx={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', opacity: 0.5 }}
             onClick={handleChevronClick}
           />
         ) : (
           <ExpandMoreIcon
-            sx={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', opacity: 0.5 }}
             onClick={handleChevronClick}
           />
         )}

@@ -283,6 +283,7 @@ function Routes({
   if (!isLoading && routesList.length === 0) {
     return <></>;
   }
+  console.log(selectedQuote);
 
   return (
     <>
@@ -307,7 +308,7 @@ function Routes({
               handleToggleRoutes={handleToggleRoutes}
               quoteSlippageBps={getSlippageFromQuote(selectedQuote)}
               minReceived={getMinReceivedFromQuote(selectedQuote)}
-              outputToken={selectedQuote?.details?.toToken?.name}
+              outputToken={selectedQuote?.details?.toToken?.symbol}
             />
           </Stack>
         </>

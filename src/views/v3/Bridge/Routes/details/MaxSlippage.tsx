@@ -27,7 +27,7 @@ export default function MaxSlippage({ slippage }: MaxSlippageProps) {
         fontWeight={500}
         fontSize={12}
         color={theme.palette.text.primary}
-        sx={{ display: 'block' }}
+        sx={{ display: 'block', opacity: 0.5 }}
       >
         Max slippage
       </Typography>
@@ -36,7 +36,7 @@ export default function MaxSlippage({ slippage }: MaxSlippageProps) {
         fontSize={12}
         fontWeight={600}
         color={theme.palette.text.primary}
-        sx={{ display: 'block' }}
+        sx={{ display: 'block', opacity: 0.5 }}
       >
         {/* Convert bps to percentage */}
         {slippage ? `${slippage / 100}%` : null}
