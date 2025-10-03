@@ -66,12 +66,12 @@ export default function RouteDetails({
         </Stack>
         {isShowingDetails ? (
           <ExpandLessIcon
-            sx={{ cursor: 'pointer', opacity: 0.5 }}
+            sx={{ cursor: 'pointer', width: 18, height: 18, marginLeft: '4px' }}
             onClick={handleChevronClick}
           />
         ) : (
           <ExpandMoreIcon
-            sx={{ cursor: 'pointer', opacity: 0.5 }}
+            sx={{ cursor: 'pointer', width: 18, height: 18, marginLeft: '4px' }}
             onClick={handleChevronClick}
           />
         )}
@@ -90,7 +90,6 @@ export default function RouteDetails({
           padding: '0 8px',
           paddingRight: theme.spacing(3),
           marginTop: theme.spacing(2),
-          marginBottom: theme.spacing(4),
         }}
       >
         <RoutesLink onClick={handleToggleRoutes} />

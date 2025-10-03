@@ -25,7 +25,6 @@ function RoutesLink({ onClick }: RoutesLinkProps) {
           fontSize: '14px',
           fontWeight: 700,
           transition: '0.2s',
-          opacity: 0.5,
           '&:hover': {
             color: theme.palette.text.secondary,
           },

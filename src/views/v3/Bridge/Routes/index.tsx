@@ -283,7 +283,6 @@ function Routes({
   if (!isLoading && routesList.length === 0) {
     return <></>;
   }
-  console.log(selectedQuote);
 
   return (
     <>

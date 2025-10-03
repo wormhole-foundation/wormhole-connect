@@ -633,9 +633,7 @@ function Bridge(props: BridgeProps) {
         }
       >
         {showHistory ? <TxHistory /> : bridgeContent}
-      </Box>
-      {hasEnteredAmount && !showHistory && (
-        <Box sx={{ marginTop: '12px', width: '100%' }}>
+        {hasEnteredAmount && !showHistory && (
           <Routes
             routes={sortedRoutes}
             selectedRoute={route}
@@ -643,8 +641,9 @@ function Bridge(props: BridgeProps) {
             quotes={quotes}
             isLoading={isFetchingQuotes}
           />
-        </Box>
-      )}
+        )}
+      </Box>
+
       {config.ui.showFooter && (
         <>
           <PoweredByIcon color={theme.palette.text.primary} />
