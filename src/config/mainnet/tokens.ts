@@ -63,7 +63,7 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    symbol: 'wCTC',
+    symbol: 'WCTC',
     decimals: 18,
     icon: TokenIcon.CTC,
     tokenId: {
