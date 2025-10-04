@@ -17,7 +17,6 @@ export type Options = {
   slippage?: number;
   maxPriceImpact?: number;
   allowDestinationCall?: boolean;
-  integrator?: string;
   referrer?: string;
   fee?: number;
   bridges?: AllowDenyPrefer;
@@ -42,3 +41,8 @@ export type Receipt = routes.Receipt & { tool: string };
 
 export type TransferParams = routes.TransferParams<Options>;
 export type ValidationResult = routes.ValidationResult<Options>;
+
+export interface LiFiConfig<N extends Network> {
+  apiUrl?: string;
+  getIntegrator?: (request: routes.RouteTransferRequest<N>) => string;
+}

@@ -47,7 +47,7 @@ import {
   cctpV2StandardExecutorRoute,
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
-import { LiFiRoute } from 'exports/lifi';
+import { createLiFiRouteWithConfig } from 'exports/lifi';
 import type { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -84,7 +84,7 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.MayanRouteSWIFT = MayanRouteSWIFT;
       /* @ts-ignore */
-      window.LiFiRoute = LiFiRoute;
+      window.createLiFiRouteWithConfig = createLiFiRouteWithConfig;
       /* @ts-ignore */
       window.testNttRoutesTestnet = () => nttRoutes(NTT_TEST_CONFIG_TESTNET);
       /* @ts-ignore */
@@ -299,8 +299,8 @@ function SampleApp() {
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>
-                    <pre>LiFiRoute</pre>
-                    <i>{'RouteConstructor'}</i>
+                    <pre>createLiFiRouteWithConfig</pre>
+                    <i>{'(LiFiRoute.Config) -> RouteConstructor'}</i>
                   </li>
                   <li>
                     <pre>nttRoutes</pre>{' '}

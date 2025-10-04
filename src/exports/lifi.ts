@@ -1,1 +1,5 @@
-export { LiFiRoute } from '../routes/lifi';
+export {
+  LiFiRoute,
+  createLiFiRouteWithConfig,
+  type LiFiConfig,
+} from '../routes/lifi';

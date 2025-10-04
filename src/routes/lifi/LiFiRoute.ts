@@ -1,5 +1,9 @@
 import type { QuoteRequest, LiFiStep } from '@lifi/sdk';
-import { getQuote, convertQuoteToRoute } from '@lifi/sdk';
+import {
+  getQuote,
+  convertQuoteToRoute,
+  config as lifiSdkConfig,
+} from '@lifi/sdk';
 
 import type {
   Chain,
@@ -42,6 +46,8 @@ import {
   DEFAULT_EXCHANGES,
   MILLISECONDS_PER_SECOND,
   POLLING_INTERVAL_MS,
+  DEFAULT_INTEGRATOR,
+  DEFAULT_API_URL,
 } from './consts';
 import type {
   Options,
@@ -52,6 +58,7 @@ import type {
   TransferParams,
   ValidatedParams,
   ValidationResult,
+  LiFiConfig,
 } from './types';
 import { getAllTokenIdsForChain } from 'utils/tokenHelpers';
 import { sleep } from 'utils';
@@ -71,13 +78,13 @@ export class LiFiRoute<N extends Network>
   static NATIVE_GAS_DROPOFF_SUPPORTED = false;
   static override IS_AUTOMATIC = true;
 
+  config?: LiFiConfig<Network>;
+
   getDefaultOptions(): Options {
     return {
       slippage: DEFAULT_SLIPPAGE_PERCENT,
       maxPriceImpact: DEFAULT_MAX_PRICE_IMPACT_PERCENT,
       allowDestinationCall: false,
-      // TODO: make this configurable
-      integrator: 'wormhole-sdk',
     };
   }
 
@@ -102,10 +109,6 @@ export class LiFiRoute<N extends Network>
     toChain: ChainContext<N>,
   ): Promise<TokenId[]> {
     return getAllTokenIdsForChain(toChain.chain);
-  }
-
-  async isAvailable(): Promise<boolean> {
-    return true;
   }
 
   async validate(
@@ -159,7 +162,7 @@ export class LiFiRoute<N extends Network>
     } as ValidationResult;
   }
 
-  protected fetchQuote(
+  fetchQuote(
     request: routes.RouteTransferRequest<N>,
     params: ValidatedParams,
   ): Promise<LiFiStep> {
@@ -177,6 +180,8 @@ export class LiFiRoute<N extends Network>
       ? canonicalAddress(request.recipient)
       : generateThrowawayAddress(toChain.chain);
 
+    const integrator = this.getIntegrator(request);
+
     const quoteRequest: QuoteRequest = {
       fromChain: fromChainId,
       toChain: toChainId,
@@ -189,7 +194,7 @@ export class LiFiRoute<N extends Network>
       toAddress,
       slippage: params.normalizedParams.slippage,
       maxPriceImpact: params.normalizedParams.maxPriceImpact,
-      integrator: params.options.integrator,
+      integrator,
       referrer: params.options.referrer,
       fee: params.options.fee,
     };
@@ -209,6 +214,14 @@ export class LiFiRoute<N extends Network>
       quoteRequest.preferExchanges = normalizedParams.exchanges.prefer;
 
     return getQuote(quoteRequest);
+  }
+
+  getIntegrator(request: routes.RouteTransferRequest<N>): string {
+    if (!this.config?.getIntegrator) {
+      return DEFAULT_INTEGRATOR;
+    }
+
+    return this.config.getIntegrator(request);
   }
 
   async quote(
@@ -364,4 +377,21 @@ export class LiFiRoute<N extends Network>
   override transferUrl(txid: string): string {
     return `https://scan.li.fi/tx/${txid}`;
   }
+}
+
+export function createLiFiRouteWithConfig<N extends Network>(
+  config: LiFiConfig<N>,
+) {
+  // We are calling this instead of `createConfig` from the LiFi SDK
+  // to avoid extra network calls to fetch chains which we don't need.
+  lifiSdkConfig.set({
+    // The integrator is required here so just set it to the default.
+    // The actual integrator used will be set per-quote in fetchQuote()
+    integrator: DEFAULT_INTEGRATOR,
+    apiUrl: config.apiUrl ?? DEFAULT_API_URL,
+  });
+
+  return class ConfiguredLiFiRoute extends LiFiRoute<N> {
+    override config = config as LiFiConfig<Network>;
+  };
 }

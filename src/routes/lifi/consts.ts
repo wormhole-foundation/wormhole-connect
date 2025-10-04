@@ -51,3 +51,6 @@ export const CHAIN_FROM_ID_MAP: Record<number, Chain> = Object.entries(
   acc[chainId] = chain as Chain;
   return acc;
 }, {} as Record<number, Chain>);
+
+export const DEFAULT_INTEGRATOR = 'lifi-sdk';
+export const DEFAULT_API_URL = 'https://li.quest/v1';
