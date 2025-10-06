@@ -59,6 +59,7 @@ import type {
   ValidatedParams,
   ValidationResult,
   LiFiConfig,
+  LiFiFeeConfig,
 } from './types';
 import { getAllTokenIdsForChain } from 'utils/tokenHelpers';
 import { sleep } from 'utils';
@@ -180,7 +181,7 @@ export class LiFiRoute<N extends Network>
       ? canonicalAddress(request.recipient)
       : generateThrowawayAddress(toChain.chain);
 
-    const integrator = this.getIntegrator(request);
+    const { integrator, feePercent } = this.getFeeConfig(request);
 
     const quoteRequest: QuoteRequest = {
       fromChain: fromChainId,
@@ -196,7 +197,7 @@ export class LiFiRoute<N extends Network>
       maxPriceImpact: params.normalizedParams.maxPriceImpact,
       integrator,
       referrer: params.options.referrer,
-      fee: params.options.fee,
+      fee: feePercent,
     };
 
     // Lifi SDK has a AllowDenyPrefer type but then it's converted into a different format for quote requests...
@@ -216,12 +217,12 @@ export class LiFiRoute<N extends Network>
     return getQuote(quoteRequest);
   }
 
-  getIntegrator(request: routes.RouteTransferRequest<N>): string {
-    if (!this.config?.getIntegrator) {
-      return DEFAULT_INTEGRATOR;
+  getFeeConfig(request: routes.RouteTransferRequest<N>): LiFiFeeConfig {
+    if (!this.config?.getFeeConfig) {
+      return { integrator: DEFAULT_INTEGRATOR, feePercent: 0 };
     }
 
-    return this.config.getIntegrator(request);
+    return this.config.getFeeConfig(request);
   }
 
   async quote(
@@ -386,7 +387,7 @@ export function createLiFiRouteWithConfig<N extends Network>(
   // to avoid extra network calls to fetch chains which we don't need.
   lifiSdkConfig.set({
     // The integrator is required here so just set it to the default.
-    // The actual integrator used will be set per-quote in fetchQuote()
+    // The actual integrator used will be set per-quote in fetchQuote().
     integrator: DEFAULT_INTEGRATOR,
     apiUrl: config.apiUrl ?? DEFAULT_API_URL,
   });
