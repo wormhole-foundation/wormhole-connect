@@ -47,7 +47,7 @@ describe('RouteOperator Chain Support', () => {
     expect(initialChains).toContain('Ethereum');
 
     // Dynamically update NTT configuration to include new chains
-    nttConfig = { HYPE: ['HyperEVM', 'Unichain'] };
+    nttConfig = { HYPE: ['HyperEVM', 'Unichain', 'CreditCoin'] };
 
     // The operator should reflect the new supported chains from the route constructors
     const chainsAfterUpdate = operator.allSupportedChains();
@@ -55,6 +55,7 @@ describe('RouteOperator Chain Support', () => {
     // This should pass with our fix that calls route.rc.supportedChains()
     expect(chainsAfterUpdate).toContain('HyperEVM');
     expect(chainsAfterUpdate).toContain('Unichain');
+    expect(chainsAfterUpdate).toContain('CreditCoin');
   });
 
   it('should support recreating operator with updated route configurations', () => {
@@ -83,7 +84,7 @@ describe('RouteOperator Chain Support', () => {
     expect(initialChains).not.toContain('HyperEVM');
 
     // Configuration updates to include new chains
-    nttConfig = { HYPE: ['HyperEVM', 'Unichain'] };
+    nttConfig = { HYPE: ['HyperEVM', 'Unichain', 'CreditCoin'] };
 
     // Creating a new operator with updated routes should reflect new chains
     const operator2 = new RouteOperator(createRoutes() as any);
@@ -92,6 +93,7 @@ describe('RouteOperator Chain Support', () => {
     // New operator instance should have updated chain support
     expect(updatedChains).toContain('HyperEVM');
     expect(updatedChains).toContain('Unichain');
+    expect(updatedChains).toContain('CreditCoin');
   });
 
   it('should handle dynamic configuration updates in UI components', () => {
