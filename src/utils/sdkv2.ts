@@ -584,10 +584,10 @@ const getTokenBridgeToken = async (
           address: token.address,
         });
 
-  const wrappedNative = getWrappedNativeToken(config.network, chain);
+  const wrappedNative = await tb.getWrappedNative();
 
   const tokenId =
-    wrappedNative && wrappedNative === tokenAddress.toString()
+    wrappedNative && wrappedNative.toString() === tokenAddress.toString()
       ? nativeTokenId(chain)
       : Wormhole.tokenId(chain, tokenAddress.toString());
 
