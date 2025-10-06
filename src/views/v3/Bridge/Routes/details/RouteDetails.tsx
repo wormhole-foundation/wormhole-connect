@@ -43,7 +43,7 @@ export default function RouteDetails({
     <Stack direction={'column'} spacing={0.5} useFlexGap sx={{ width: '100%' }}>
       <Stack
         direction={'row'}
-        sx={{ padding: '0 18px' }}
+        sx={{ paddingLeft: '15px', paddingRight: '12px' }}
         height={18}
         alignItems={'center'}
       >
