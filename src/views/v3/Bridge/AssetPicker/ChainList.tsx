@@ -104,7 +104,6 @@ function ChainList(props: Props) {
         whiteSpace: 'nowrap',
       },
       chainIcon: {
-        border: '1px solid transparent',
         borderRadius: '100%',
         width: '24px',
         height: '24px',

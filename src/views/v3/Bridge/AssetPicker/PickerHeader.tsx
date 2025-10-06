@@ -36,16 +36,13 @@ function AssetPickerHeader({
       justifyContent: 'center',
     },
     iconButton: {
-      padding: 0,
       position: 'absolute',
       backgroundColor: theme.palette.background.form,
       border: '1px solid ' + theme.palette.input.border,
       '&:hover': { backgroundColor: theme.palette.background.form },
-    },
-    icon: {
-      height: '16px',
-      width: '16px',
-      padding: '8px',
+      height: '32px',
+      width: '32px',
+      fontSize: '16px',
     },
   };
 
@@ -62,7 +59,7 @@ function AssetPickerHeader({
             aria-label="Go back"
             data-testid="back-button"
           >
-            <ArrowBackRoundedIcon sx={styles.icon} />
+            <ArrowBackRoundedIcon fontSize="inherit" />
           </IconButton>
         )}
         <Typography sx={styles.title} role="heading" aria-level={2}>
@@ -77,7 +74,7 @@ function AssetPickerHeader({
           aria-label="Close routes"
           data-testid="routes-close-button"
         >
-          <CloseRoundedIcon sx={styles.icon} />
+          <CloseRoundedIcon fontSize="inherit" />
         </IconButton>
       </Box>
     </>
