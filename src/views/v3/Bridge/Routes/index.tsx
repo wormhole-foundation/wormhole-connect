@@ -223,7 +223,7 @@ function Routes({
       return (
         <Box
           sx={{
-            paddingLeft: theme.spacing(2),
+            paddingLeft: theme.spacing(0.5),
             display: 'flex',
             width: '100%',
             justifyContent: 'flex-start',
