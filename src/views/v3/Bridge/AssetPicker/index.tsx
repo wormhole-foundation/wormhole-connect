@@ -34,6 +34,7 @@ import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
 } from 'telemetry/utils';
+import { calculateFeeOffset } from 'utils/fees';
 
 type Props = {
   chain?: Chain | undefined;
@@ -62,7 +63,9 @@ function AssetPicker(props: Props) {
   const theme: any = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { amount } = useSelector((state: RootState) => state.transferInput);
+  const { amount, route: selectedRoute } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const { getTokenPrice } = useTokens();
 
   const [showChainSearch, setShowChainSearch] = useState(false);
@@ -198,7 +201,6 @@ function AssetPicker(props: Props) {
         flexDirection: 'column',
         height: '114px',
         maxWidth: '452px',
-        gap: '16px',
       },
       title: {
         color: theme.palette.text.secondary,
@@ -206,13 +208,15 @@ function AssetPicker(props: Props) {
         height: '12px',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginBottom: '16px',
       },
       selector: {
         cursor: 'pointer',
-        borderRadius: '50px',
+        borderRadius: '48px',
         border: `1px solid ${theme.palette.input.border}`,
         background: Color(theme.palette.input.background).darken(0.2).hex(),
         minWidth: '120px',
+        height: '48px',
         '&:hover': {
           borderColor: theme.palette.primary.main,
         },
@@ -436,6 +440,46 @@ function AssetPicker(props: Props) {
       </Box>
     );
 
+  const feeDisplay = useMemo(() => {
+    if (!props.isSource || !selectedRoute) {
+      return undefined;
+    }
+
+    const feeOffset = calculateFeeOffset(selectedRoute, amount, props.token);
+
+    let feeAmount: string | undefined;
+    if (feeOffset && sdkAmount.units(feeOffset) > 0n) {
+      feeAmount = sdkAmount.display(feeOffset);
+    }
+
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          position: 'relative',
+          bottom: '4px',
+          marginBottom: '2px',
+        }}
+      >
+        <Typography
+          color={theme.palette.text.secondary}
+          fontSize="12px"
+          lineHeight="14px"
+          height={'14px'}
+        >
+          {feeAmount && `+${feeAmount} ${props.token?.symbol}`}
+        </Typography>
+      </Box>
+    );
+  }, [
+    props.isSource,
+    props.token,
+    amount,
+    selectedRoute,
+    theme.palette.text.secondary,
+  ]);
+
   return (
     <Box sx={styles.root}>
       <Box sx={styles.container}>
@@ -465,6 +509,8 @@ function AssetPicker(props: Props) {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: props.isSource ? 0 : '16px',
           }}
         >
           <Card
@@ -527,7 +573,7 @@ function AssetPicker(props: Props) {
                 alignItems: 'center',
                 width: '100%',
                 maxWidth: '250px',
-                height: '50px',
+                height: '38px',
               }}
             >
               <TextField
@@ -559,6 +605,7 @@ function AssetPicker(props: Props) {
             </Box>
           )}
         </Box>
+        {feeDisplay}
         <Box
           sx={{
             height: '22px',

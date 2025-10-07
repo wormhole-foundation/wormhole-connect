@@ -87,7 +87,7 @@ function EmptyIcon(props: { size: number }) {
     const baseStyle = {
       width: size,
       height: size,
-      borderRadius: '3px',
+      borderRadius: '2px',
     };
     if (theme.palette.text && theme.palette.input) {
       return {

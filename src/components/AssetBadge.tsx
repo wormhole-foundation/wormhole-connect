@@ -22,7 +22,7 @@ function AssetBadge(props: Props) {
   const styles = useMemo(
     () => ({
       badgeContent: {
-        border: `1.5px solid ${theme.palette.input.background}`,
+        border: `2px solid ${theme.palette.input.background}`,
         borderRadius: '4px',
       },
     }),
@@ -38,18 +38,18 @@ function AssetBadge(props: Props) {
       }
       sx={{
         zIndex: 0,
-        height: '38px', // Icon height (36px) + the distance from badge's bottom (2px)
+        height: '34px',
         marginRight: '8px',
         '& .MuiBadge-badge': {
-          right: 2,
-          top: 32,
+          right: 0,
+          top: 30,
         },
       }}
     >
       <TokenIcon
         icon={token?.icon}
-        style={{ width: '36px', height: '36px' }}
-        containerStyle={{ width: '38px', height: '38px' }}
+        style={{ width: '34px', height: '34px' }}
+        containerStyle={{ width: '34px', height: '34px' }}
       />
     </Badge>
   );

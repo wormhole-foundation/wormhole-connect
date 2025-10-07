@@ -142,6 +142,8 @@ function AmountInput(props: Props) {
       amountContainer: {
         width: '100%',
         maxWidth: '250px',
+        display: 'flex',
+        alignItems: 'center',
       },
       amountInput: {
         background: theme.palette.input.background,
@@ -151,7 +153,7 @@ function AmountInput(props: Props) {
       amountCardContent: {
         display: 'flex',
         alignItems: 'center',
-        height: '50px',
+        height: '38px',
         padding: 0,
         ':last-child': {
           padding: 0,
