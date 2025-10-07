@@ -18,8 +18,8 @@ export default function MaxSlippage({ slippage }: MaxSlippageProps) {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(4),
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(3),
       }}
     >
       <Typography
