@@ -22,8 +22,8 @@ export default function MinOutput({ minOutput, outputToken }: MinOutputProps) {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        paddingLeft: theme.spacing(3),
-        paddingRight: theme.spacing(5),
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(4),
       }}
     >
       <Typography

@@ -213,12 +213,13 @@ function Routes({
     }
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
+  const isRouteSelectionPillApplicable =
+    !!fastestRoute.name &&
+    !!cheapestRoute.name &&
+    cheapestRoute.name !== fastestRoute.name;
+
   const routeSelectionPills = useMemo(() => {
-    if (
-      fastestRoute.name &&
-      cheapestRoute.name &&
-      cheapestRoute.name !== fastestRoute.name
-    ) {
+    if (isRouteSelectionPillApplicable) {
       return (
         <Box
           sx={{
@@ -267,6 +268,7 @@ function Routes({
 
     return null;
   }, [
+    isRouteSelectionPillApplicable,
     theme,
     fastestRoute.name,
     cheapestRoute.name,
@@ -308,6 +310,7 @@ function Routes({
               quoteSlippageBps={getSlippageFromQuote(selectedQuote)}
               minReceived={getMinReceivedFromQuote(selectedQuote)}
               outputToken={selectedQuote?.details?.toToken?.symbol}
+              enableRouteSelector={!isRouteSelectionPillApplicable}
             />
           </Stack>
         </>
