@@ -53,6 +53,7 @@ import SwapInputs from 'views/v3/Bridge/SwapInputs';
 import BridgeTitle from 'views/v3/Bridge/BridgeTitle';
 import AmountValidationError from './AmountValidationError';
 import TxHistory from '../TxHistory';
+import { setToNativeToken } from 'store/relay';
 
 export type BridgeProps = {
   showHistory?: boolean;
@@ -289,6 +290,7 @@ function Bridge(props: BridgeProps) {
     (value: Chain) => {
       selectFromChain(dispatch, value, sendingWallet);
       dispatch(clearToken());
+      dispatch(setToNativeToken(0));
     },
     [dispatch, sendingWallet],
   );
@@ -296,6 +298,7 @@ function Bridge(props: BridgeProps) {
   const handleSourceTokenChange = useCallback(
     (value: Token) => {
       dispatch(setToken(value.tuple));
+      dispatch(setToNativeToken(0));
     },
     [dispatch],
   );
@@ -305,6 +308,7 @@ function Bridge(props: BridgeProps) {
     (value: Chain) => {
       selectToChain(dispatch, value, receivingWallet);
       dispatch(clearDestToken());
+      dispatch(setToNativeToken(0));
     },
     [dispatch, receivingWallet],
   );
@@ -312,6 +316,7 @@ function Bridge(props: BridgeProps) {
   const handleDestTokenChange = useCallback(
     (value: Token) => {
       dispatch(setDestToken(value.tuple));
+      dispatch(setToNativeToken(0));
     },
     [dispatch],
   );
