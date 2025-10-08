@@ -651,7 +651,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       if (request.fromChain.chain === 'Solana') {
         const solanaOptions = {
           allowSwapperOffCurve: true,
-          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+          usdcPermitSignature,
         };
 
         const { instructions, signers, lookupTables } =
@@ -731,14 +731,18 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
             quote.params.amount,
           );
 
+        const txPartCallsOptions = builtTransaction && {
+          builtTransaction,
+          inputCoin: { result: remainingAmountCoin },
+        };
+
+        const permitPartCallsOptions = usdcPermitSignature && {
+          usdcPermitSignature,
+        };
+
         const options: ComposableSuiMoveCallsOptions = {
-          ...(builtTransaction
-            ? {
-                builtTransaction,
-                inputCoin: { result: remainingAmountCoin },
-              }
-            : {}),
-          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+          ...txPartCallsOptions,
+          ...permitPartCallsOptions,
         };
 
         const tx = await (this.isTestnetRequest(request)
