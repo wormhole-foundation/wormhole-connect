@@ -63,18 +63,6 @@ export function validateHyperCoreTransfer<N extends Network>(
     };
   }
 
-  if (!(isEvmChain(fromChain.chain) || fromChain.chain === 'Sui')) {
-    // Uncomment and use this when we want to support HyperCore USDC deposits on SOL
-    // || fromChain.chain === 'Solana')
-    return {
-      valid: false,
-      params,
-      error: new routes.UnavailableError(
-        new Error('HyperCore only supports EVM or Sui source chains'),
-      ),
-    };
-  }
-
   return null;
 }
 
@@ -150,6 +138,7 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
   }
 
   try {
+    console.log(wallet);
     await wallet.switchChain(42161);
   } catch (e) {
     const reason = e instanceof Error ? `: ${e.message}` : '';
