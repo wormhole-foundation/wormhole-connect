@@ -336,22 +336,24 @@ class QuoteMetadataCache {
       });
     }
 
-    // Calculate fee offset for this route
-    const offset = calculateFeeOffset(
-      route,
-      params.amount,
-      params.sourceToken,
-      params.destChain,
-      params.destToken,
-    );
-
-    // Calculate adjusted amount with offset
+    // Calculate adjusted amount with fee offset if experimental feature is enabled
     let adjustedAmount = params.amount;
-    if (offset && sdkAmount.units(offset) > 0n) {
-      adjustedAmount = sdkAmount.fromBaseUnits(
-        sdkAmount.units(params.amount) + sdkAmount.units(offset),
-        params.amount.decimals,
+
+    if (config.ui?.experimental?.feeOffsetting) {
+      const offset = calculateFeeOffset(
+        route,
+        params.amount,
+        params.sourceToken,
+        params.destChain,
+        params.destToken,
       );
+
+      if (offset && sdkAmount.units(offset) > 0n) {
+        adjustedAmount = sdkAmount.fromBaseUnits(
+          sdkAmount.units(params.amount) + sdkAmount.units(offset),
+          params.amount.decimals,
+        );
+      }
     }
 
     // We don't yet have a pending request for this key, so initiate one
