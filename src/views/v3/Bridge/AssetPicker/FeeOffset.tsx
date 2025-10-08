@@ -51,7 +51,7 @@ function FeeOffset(props: Props) {
       >
         +{sdkAmount.display(feeOffsetAmount)} {props.token?.symbol}
       </Typography>
-      <Tooltip title="This additional amount ensures you receive exactly what you requested after protocol fees are deducted">
+      <Tooltip title="Portal's fee is added on top of your input amount. Slippage may still apply.">
         <InfoOutlineIcon
           sx={{
             height: '14px',
