@@ -138,7 +138,6 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
   }
 
   try {
-    console.log(wallet);
     await wallet.switchChain(42161);
   } catch (e) {
     const reason = e instanceof Error ? `: ${e.message}` : '';
