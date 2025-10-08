@@ -651,7 +651,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       if (request.fromChain.chain === 'Solana') {
         const solanaOptions = {
           allowSwapperOffCurve: true,
-          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+          usdcPermitSignature,
         };
 
         const { instructions, signers, lookupTables } =

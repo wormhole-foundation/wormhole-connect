@@ -63,6 +63,22 @@ export function validateHyperCoreTransfer<N extends Network>(
     };
   }
 
+  if (
+    !(
+      isEvmChain(fromChain.chain) ||
+      fromChain.chain === 'Sui' ||
+      fromChain.chain === 'Solana'
+    )
+  ) {
+    return {
+      valid: false,
+      params,
+      error: new routes.UnavailableError(
+        new Error('HyperCore only supports EVM, Solana or Sui source chains'),
+      ),
+    };
+  }
+
   return null;
 }
 
