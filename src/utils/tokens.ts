@@ -10,9 +10,11 @@ import type {
   TokenId,
   Network,
   NativeAddress,
+  Chain,
 } from '@wormhole-foundation/sdk';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
-import { getWormholeContextV2 } from 'config';
+import config, { getWormholeContextV2 } from 'config';
+import type { Token } from 'config/tokens';
 import { Contract } from 'ethers';
 import type { SuiClient } from '@mysten/sui/client';
 
@@ -116,4 +118,40 @@ export async function getTokenMetadataSui(
     console.error(e);
     return undefined;
   }
+}
+
+/**
+ * Find a token by address or symbol.
+ * First tries to find by address, then falls back to symbol if not found.
+ * @param chain - The chain to search on
+ * @param address - The token address (optional)
+ * @param symbol - The token symbol (optional)
+ * @returns The found token or undefined
+ */
+export function findToken(
+  chain: Chain | undefined,
+  address?: string,
+  symbol?: string,
+): Token | undefined {
+  if (!chain) {
+    return undefined;
+  }
+
+  let token: Token | undefined;
+
+  // Try by address first
+  if (address) {
+    try {
+      token = config.tokens.get(chain, address);
+    } catch (_e) {
+      // Token not found by address - silently continue to try by symbol
+    }
+  }
+
+  // Fallback to symbol if not found by address
+  if (!token && symbol) {
+    token = config.tokens.findBySymbol(chain, symbol);
+  }
+
+  return token;
 }
