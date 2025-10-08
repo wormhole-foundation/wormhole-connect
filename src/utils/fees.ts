@@ -73,7 +73,7 @@ export function applyOffsetFormula(
  * @returns The additional amount to add so that after fee deduction, user receives the desired amount
  */
 export function calculateFeeOffset(
-  route: SDKv2Route | string,
+  route: SDKv2Route | string | undefined,
   amount: sdkAmount.Amount | undefined,
   sourceToken: Token | undefined,
   destChain?: string,
@@ -141,9 +141,8 @@ export function calculateFeeOffset(
   // NTT Executor route uses referrerFee.feeDbps
   else if (routeConfig.referrerFee?.feeDbps !== undefined) {
     // Check for token-specific override in NTT
-    if (config.tokens && sourceToken) {
-      const tokenKey = sourceToken.key;
-      const tokenConfig = config.tokens[tokenKey];
+    if (routeConfig.tokens && sourceToken) {
+      const tokenConfig = routeConfig.tokens[sourceToken.key];
       if (tokenConfig?.referrerFeeDbps !== undefined) {
         feeDbps = tokenConfig.referrerFeeDbps;
       } else {

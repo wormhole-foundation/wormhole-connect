@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
@@ -441,7 +442,7 @@ function AssetPicker(props: Props) {
     );
 
   const feeDisplay = useMemo(() => {
-    if (!props.isSource || !selectedRoute) {
+    if (!props.isSource) {
       return undefined;
     }
 
@@ -458,18 +459,33 @@ function AssetPicker(props: Props) {
           display: 'flex',
           justifyContent: 'flex-end',
           position: 'relative',
+          height: '14px',
           bottom: '4px',
           marginBottom: '2px',
         }}
       >
-        <Typography
-          color={theme.palette.text.secondary}
-          fontSize="12px"
-          lineHeight="14px"
-          height={'14px'}
-        >
-          {feeAmount && `+${feeAmount} ${props.token?.symbol}`}
-        </Typography>
+        {feeAmount && (
+          <>
+            <Typography
+              color={theme.palette.text.secondary}
+              fontSize="12px"
+              lineHeight="14px"
+              height={'14px'}
+            >
+              +{feeAmount} {props.token?.symbol}
+            </Typography>
+            <Tooltip title="This additional amount ensures you receive exactly what you requested after protocol fees are deducted">
+              <InfoOutlineIcon
+                sx={{
+                  height: '14px',
+                  width: '14px',
+                  color: theme.palette.text.secondary,
+                  marginLeft: '4px',
+                }}
+              />
+            </Tooltip>
+          </>
+        )}
       </Box>
     );
   }, [
