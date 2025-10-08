@@ -649,11 +649,10 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       );
 
       if (request.fromChain.chain === 'Solana') {
-        // Uncomment and use this when we want to support HyperCore USDC deposits on SOL
-        // const solanaOptions = {
-        //   allowSwapperOffCurve: true,
-        //   ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
-        // };
+        const solanaOptions = {
+          allowSwapperOffCurve: true,
+          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+        };
 
         const { instructions, signers, lookupTables } =
           await (this.isTestnetRequest(request)
@@ -663,7 +662,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 destinationAddress,
                 null,
                 rpc,
-                { allowSwapperOffCurve: true },
+                solanaOptions,
               )
             : createSwapFromSolanaInstructions(
                 quote.details!,
@@ -671,7 +670,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 destinationAddress,
                 null,
                 rpc,
-                { allowSwapperOffCurve: true },
+                solanaOptions,
               ));
 
         const payerKey = new PublicKey(originAddress);
@@ -732,13 +731,15 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
             quote.params.amount,
           );
 
-        const options: ComposableSuiMoveCallsOptions | undefined =
-          builtTransaction
+        const options: ComposableSuiMoveCallsOptions = {
+          ...(builtTransaction
             ? {
                 builtTransaction,
                 inputCoin: { result: remainingAmountCoin },
               }
-            : undefined;
+            : {}),
+          ...(usdcPermitSignature ? { usdcPermitSignature } : {}),
+        };
 
         const tx = await (this.isTestnetRequest(request)
           ? createSwapFromSuiMoveCallsTestnet(
