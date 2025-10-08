@@ -33,10 +33,6 @@ function ProviderLabel({
 
   const theme = useTheme();
 
-  if (!via) {
-    return 'Route';
-  }
-
   return (
     <Stack
       direction="row"
@@ -55,7 +51,7 @@ function ProviderLabel({
       onClick={enableRouteSelector ? onClick : undefined}
     >
       <Typography variant="body2" fontWeight={500}>
-        Routing via {via}
+        Routing via {via ?? 'route'}
       </Typography>
       {enableRouteSelector && (
         <ChevronRight
