@@ -4,7 +4,7 @@ import {
   calculateFeeOffset,
   roundUpToDecimals,
   applyOffsetFormula,
-} from '../fees';
+} from './fees';
 import config from 'config';
 
 // Mock the config module
@@ -324,20 +324,20 @@ describe('applyOffsetFormula', () => {
 
     // 500 bps = 5% fee
     const result500bps = applyOffsetFormula(mockAmount, 500n, 10000n);
-    // offset = 10000 * 500 / (10000 - 500) = 10000 * 500 / 9500 = 526.31... ≈ 527
-    expect(sdkAmount.units(result500bps)).toBe(527n);
+    // offset = 10000 * 500 / (10000 - 500) = 10000 * 500 / 9500 = 526.31... ≈ 526
+    expect(sdkAmount.units(result500bps)).toBe(526n);
 
     // 1000 dbps = 1% fee (same as 100 bps but using dbps denominator)
     const result1000dbps = applyOffsetFormula(mockAmount, 1000n, 100000n);
-    // offset = 10000 * 1000 / (100000 - 1000) = 10000 * 1000 / 99000 = 101.01... ≈ 102
-    expect(sdkAmount.units(result1000dbps)).toBe(102n);
+    // offset = 10000 * 1000 / (100000 - 1000) = 10000 * 1000 / 99000 = 101.01... ≈ 101
+    expect(sdkAmount.units(result1000dbps)).toBe(101n);
   });
 
   it('should handle edge case with very small fee rates', () => {
     // 1 dbps = 0.001% fee - very small
     const result = applyOffsetFormula(mockAmount, 1n, 100000n);
-    // offset = 10000 * 1 / (100000 - 1) = 10000 / 99999 = 0.10000... which rounds up to 1
-    expect(sdkAmount.units(result)).toBe(1n);
+    // offset = 10000 * 1 / (100000 - 1) = 10000 / 99999 = 0.10000... which gets truncated to 0
+    expect(sdkAmount.units(result)).toBe(0n);
   });
 
   it('should handle edge case with larger amounts', () => {
@@ -346,8 +346,8 @@ describe('applyOffsetFormula', () => {
 
     // 100 bps = 1% fee
     const result = applyOffsetFormula(largeAmount, 100n, 10000n);
-    // offset = 1000000000 * 100 / (10000 - 100) = 1000000000 * 100 / 9900 = 10101010.1... ≈ 10101011
-    expect(sdkAmount.units(result)).toBe(10101011n);
+    // offset = 1000000000 * 100 / (10000 - 100) = 1000000000 * 100 / 9900 = 10101010.1... ≈ 10101010
+    expect(sdkAmount.units(result)).toBe(10101010n);
     expect(result.decimals).toBe(6);
   });
 

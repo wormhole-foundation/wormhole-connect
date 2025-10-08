@@ -7,7 +7,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
@@ -35,7 +34,7 @@ import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
 } from 'telemetry/utils';
-import { calculateFeeOffset } from 'utils/fees';
+import FeeOffset from '../FeeOffset';
 
 type Props = {
   chain?: Chain | undefined;
@@ -64,9 +63,7 @@ function AssetPicker(props: Props) {
   const theme: any = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { amount, route: selectedRoute } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { amount } = useSelector((state: RootState) => state.transferInput);
   const { getTokenPrice } = useTokens();
 
   const [showChainSearch, setShowChainSearch] = useState(false);
@@ -441,61 +438,6 @@ function AssetPicker(props: Props) {
       </Box>
     );
 
-  const feeDisplay = useMemo(() => {
-    if (!props.isSource) {
-      return undefined;
-    }
-
-    const feeOffset = calculateFeeOffset(selectedRoute, amount, props.token);
-
-    let feeAmount: string | undefined;
-    if (feeOffset && sdkAmount.units(feeOffset) > 0n) {
-      feeAmount = sdkAmount.display(feeOffset);
-    }
-
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          position: 'relative',
-          height: '14px',
-          bottom: '4px',
-          marginBottom: '2px',
-        }}
-      >
-        {feeAmount && (
-          <>
-            <Typography
-              color={theme.palette.text.secondary}
-              fontSize="12px"
-              lineHeight="14px"
-              height={'14px'}
-            >
-              +{feeAmount} {props.token?.symbol}
-            </Typography>
-            <Tooltip title="This additional amount ensures you receive exactly what you requested after protocol fees are deducted">
-              <InfoOutlineIcon
-                sx={{
-                  height: '14px',
-                  width: '14px',
-                  color: theme.palette.text.secondary,
-                  marginLeft: '4px',
-                }}
-              />
-            </Tooltip>
-          </>
-        )}
-      </Box>
-    );
-  }, [
-    props.isSource,
-    props.token,
-    amount,
-    selectedRoute,
-    theme.palette.text.secondary,
-  ]);
-
   return (
     <Box sx={styles.root}>
       <Box sx={styles.container}>
@@ -621,7 +563,7 @@ function AssetPicker(props: Props) {
             </Box>
           )}
         </Box>
-        {feeDisplay}
+        {props.isSource && <FeeOffset token={props.token} />}
         <Box
           sx={{
             height: '22px',

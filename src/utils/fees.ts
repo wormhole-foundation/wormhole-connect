@@ -79,7 +79,7 @@ export function calculateFeeOffset(
   destChain?: string,
   destToken?: Token,
 ): sdkAmount.Amount | undefined {
-  if (!amount || !route || sdkAmount.units(amount) === 0n) {
+  if (!sourceToken || !amount || !route || sdkAmount.units(amount) === 0n) {
     return undefined;
   }
 
