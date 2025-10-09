@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import {
   calculateFeeOffset,
-  roundUpToDecimals,
+  roundDownToDecimals,
   applyOffsetFormula,
 } from './fees';
 import config from 'config';
@@ -377,54 +377,54 @@ describe('applyOffsetFormula', () => {
   });
 });
 
-describe('roundUpToDecimals', () => {
+describe('roundDownToDecimals', () => {
   it('should not round when token has maxDecimals or fewer', () => {
     // 6 decimals - no rounding
-    expect(roundUpToDecimals(123456n, 6)).toBe(123456n);
+    expect(roundDownToDecimals(123456n, 6)).toBe(123456n);
 
     // 4 decimals - no rounding
-    expect(roundUpToDecimals(1234n, 4)).toBe(1234n);
+    expect(roundDownToDecimals(1234n, 4)).toBe(1234n);
 
     // 0 decimals - no rounding
-    expect(roundUpToDecimals(100n, 0)).toBe(100n);
+    expect(roundDownToDecimals(100n, 0)).toBe(100n);
   });
 
-  it('should round up when token has more than maxDecimals', () => {
-    // 18 decimals, needs rounding up
-    // 1.234567890123456789 -> 1.234568
+  it('should round down when token has more than maxDecimals', () => {
+    // 18 decimals, needs rounding down
+    // 1.234567890123456789 -> 1.234567
     const value18 = 1234567890123456789n;
-    const expected18 = 1234568000000000000n;
-    expect(roundUpToDecimals(value18, 18)).toBe(expected18);
+    const expected18 = 1234567000000000000n;
+    expect(roundDownToDecimals(value18, 18)).toBe(expected18);
 
-    // 8 decimals, needs rounding up
-    // 1.23456789 -> 1.234568
+    // 8 decimals, needs rounding down
+    // 1.23456789 -> 1.234567
     const value8 = 123456789n;
-    const expected8 = 123456800n;
-    expect(roundUpToDecimals(value8, 8)).toBe(expected8);
+    const expected8 = 123456700n;
+    expect(roundDownToDecimals(value8, 8)).toBe(expected8);
   });
 
   it('should not round when value is already at maxDecimals precision', () => {
     // 18 decimals but value only uses 6 decimal places
     const value = 1234560000000000000n;
-    expect(roundUpToDecimals(value, 18)).toBe(value);
+    expect(roundDownToDecimals(value, 18)).toBe(value);
 
     // 10 decimals but value only uses 6 decimal places
     const value10 = 12345600000n;
-    expect(roundUpToDecimals(value10, 10)).toBe(value10);
+    expect(roundDownToDecimals(value10, 10)).toBe(value10);
   });
 
   it('should handle edge cases correctly', () => {
     // Zero value
-    expect(roundUpToDecimals(0n, 18)).toBe(0n);
+    expect(roundDownToDecimals(0n, 18)).toBe(0n);
 
-    // Very small value that rounds up to smallest 6-decimal unit
+    // Very small value that rounds down to zero
     const tiny = 1n; // 0.000000000000000001 in 18 decimals
-    const expectedTiny = 1000000000000n; // 0.000001 in 18 decimals (smallest 6-decimal unit)
-    expect(roundUpToDecimals(tiny, 18)).toBe(expectedTiny);
+    const expectedTiny = 0n; // Rounds down to 0
+    expect(roundDownToDecimals(tiny, 18)).toBe(expectedTiny);
 
     // Value just below 6 decimal precision
     const almostRounded = 1234567999999999999n; // Just below 1.234568
-    const expectedAlmost = 1234568000000000000n;
-    expect(roundUpToDecimals(almostRounded, 18)).toBe(expectedAlmost);
+    const almostExpected = 1234567000000000000n; // Rounds down to 1.234567
+    expect(roundDownToDecimals(almostRounded, 18)).toBe(almostExpected);
   });
 });

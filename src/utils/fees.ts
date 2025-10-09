@@ -4,12 +4,12 @@ import type { Token } from 'config/tokens';
 import SDKv2Route from 'routes/sdkv2/route';
 
 /**
- * Round up a value to a specific number of decimal places
- * @param value - The value to round up (in base units)
+ * Round down a value to a specific number of decimal places
+ * @param value - The value to round down (in base units)
  * @param decimals - The number of decimal places for the token
  * @param maxDecimals - Maximum decimal places to keep (default 6)
  */
-export function roundUpToDecimals(
+export function roundDownToDecimals(
   value: bigint,
   decimals: number,
   maxDecimals: number = 6,
@@ -22,13 +22,8 @@ export function roundUpToDecimals(
   const factor = BigInt(10 ** (decimals - maxDecimals));
   const remainder = value % factor;
 
-  if (remainder === 0n) {
-    // Already rounded
-    return value;
-  }
-
-  // Round up to the nearest value at maxDecimals precision
-  return value - remainder + factor;
+  // Round down by removing the remainder
+  return value - remainder;
 }
 
 /**
@@ -57,8 +52,8 @@ export function applyOffsetFormula(
   let offsetUnits =
     (sdkAmount.units(amount) * feeRate) / (feeDenominator - feeRate);
 
-  // Round up to 6 decimal places if needed
-  offsetUnits = roundUpToDecimals(offsetUnits, amount.decimals);
+  // Round down to 6 decimal places if needed
+  offsetUnits = roundDownToDecimals(offsetUnits, amount.decimals);
 
   return sdkAmount.fromBaseUnits(offsetUnits, amount.decimals);
 }

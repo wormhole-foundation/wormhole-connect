@@ -34,7 +34,7 @@ import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
 } from 'telemetry/utils';
-import FeeOffset from '../FeeOffset';
+import FeeOffset from './FeeOffset';
 
 type Props = {
   chain?: Chain | undefined;
