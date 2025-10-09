@@ -297,6 +297,7 @@ function Routes({
               width: '100%',
               alignItems: 'center',
               gap: '16px',
+              paddingBottom: theme.spacing(3),
             }}
           >
             {routeSelectionPills}
