@@ -37,6 +37,7 @@ function ChainList(props: Props) {
         maxWidth: '452px',
         [theme.breakpoints.down('sm')]: {
           width: '100vw',
+          minHeight: '194px', // Ensure enough height for 2-row chain grid on mobile
         },
       },
       cardContent: {
