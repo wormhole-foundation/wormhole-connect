@@ -48,7 +48,7 @@ export type TestOptions = {
   enableHeadlessSigner?: boolean;
 };
 
-export type Experiments = '';
+export type Experiments = 'feeOffsetting';
 export type Experimental = {
   [Experiment in Experiments]?: boolean;
 };
