@@ -2,6 +2,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import config from 'config';
 import type { Token } from 'config/tokens';
 import SDKv2Route from 'routes/sdkv2/route';
+import { isExecutorRoute } from 'utils';
 
 /**
  * Round down a value to a specific number of decimal places
@@ -15,11 +16,11 @@ export function roundDownToDecimals(
   maxDecimals: number = 6,
 ): bigint {
   if (decimals <= maxDecimals) {
-    // No rounding needed if token has 6 or fewer decimals
+    // No rounding needed if the token has fewer decimals than the max allowed
     return value;
   }
 
-  const factor = BigInt(10 ** (decimals - maxDecimals));
+  const factor = 10n ** BigInt(decimals - maxDecimals);
   const remainder = value % factor;
 
   // Round down by removing the remainder
@@ -94,7 +95,10 @@ export function calculateFeeOffset(
   if (sdkRoute.rc.meta.name.startsWith('MayanSwap')) {
     const mayanRoute = sdkRoute.rc as any;
     if (mayanRoute.getReferrerBps && sourceToken && destToken) {
-      // Create a RouteTransferRequest object for Mayan's getReferrerBps
+      // Create a mock RouteTransferRequest-like object for Mayan's getReferrerBps
+      // Note: We can't create a real RouteTransferRequest here as it requires Wormhole instance
+      // and chain contexts which aren't available in this utility function.
+      // The getReferrerBps implementation only uses source and destination properties.
       const request = {
         source: {
           id: sourceToken.tokenId || {
@@ -102,6 +106,7 @@ export function calculateFeeOffset(
             address: sourceToken.address,
           },
           symbol: sourceToken.symbol,
+          decimals: sourceToken.decimals,
         },
         destination: {
           id: destToken.tokenId || {
@@ -109,8 +114,9 @@ export function calculateFeeOffset(
             address: destToken.address,
           },
           symbol: destToken.symbol,
+          decimals: destToken.decimals,
         },
-      };
+      } as any;
       const bps = mayanRoute.getReferrerBps(request);
       if (bps > 0) {
         // Mayan uses basis points (1 bps = 0.01% = 1/10000)
@@ -129,27 +135,41 @@ export function calculateFeeOffset(
 
   let feeDbps = 0n;
 
-  // CCTP Executor routes use referrerFeeDbps directly
-  if (routeConfig.referrerFeeDbps !== undefined) {
-    feeDbps = routeConfig.referrerFeeDbps;
-  }
-  // NTT Executor route uses referrerFee.feeDbps
-  else if (routeConfig.referrerFee?.feeDbps !== undefined) {
-    // Check for token-specific override in NTT
-    if (routeConfig.tokens && sourceToken) {
-      const tokenConfig = routeConfig.tokens[sourceToken.key];
-      if (tokenConfig?.referrerFeeDbps !== undefined) {
-        feeDbps = tokenConfig.referrerFeeDbps;
+  // Executor routes (CCTP, Token Bridge, NTT) use different fee structures
+  if (isExecutorRoute(sdkRoute.rc.meta.name)) {
+    // CCTP Executor routes use referrerFeeDbps directly
+    if (routeConfig.referrerFeeDbps !== undefined) {
+      feeDbps = routeConfig.referrerFeeDbps;
+    }
+    // NTT Executor route uses referrerFee.feeDbps
+    else if (routeConfig.referrerFee?.feeDbps !== undefined) {
+      // Check for token-specific override in NTT
+      if (routeConfig.tokens && sourceToken) {
+        const tokenConfig = routeConfig.tokens[sourceToken.key];
+        if (tokenConfig?.referrerFeeDbps !== undefined) {
+          feeDbps = tokenConfig.referrerFeeDbps;
+        } else {
+          feeDbps = routeConfig.referrerFee.feeDbps;
+        }
       } else {
         feeDbps = routeConfig.referrerFee.feeDbps;
       }
-    } else {
-      feeDbps = routeConfig.referrerFee.feeDbps;
     }
-  }
-  // Token Bridge Executor route uses referrerFee.referrerFeeDbps
-  else if (routeConfig.referrerFee?.referrerFeeDbps !== undefined) {
-    feeDbps = routeConfig.referrerFee.referrerFeeDbps;
+    // Token Bridge Executor route uses referrerFee.referrerFeeDbps
+    else if (routeConfig.referrerFee?.referrerFeeDbps !== undefined) {
+      // Check for token-specific override in Token Bridge Executor
+      if (routeConfig.referrerFee.tokenFeeOverrides && sourceToken) {
+        const tokenOverride =
+          routeConfig.referrerFee.tokenFeeOverrides[sourceToken.key];
+        if (tokenOverride?.referrerFeeDbps !== undefined) {
+          feeDbps = tokenOverride.referrerFeeDbps;
+        } else {
+          feeDbps = routeConfig.referrerFee.referrerFeeDbps;
+        }
+      } else {
+        feeDbps = routeConfig.referrerFee.referrerFeeDbps;
+      }
+    }
   }
 
   if (feeDbps === 0n) {
@@ -158,21 +178,4 @@ export function calculateFeeOffset(
 
   // Other routes use deci-basis points (1 dbps = 0.001% = 1/100000)
   return applyOffsetFormula(amount, feeDbps, 100000n);
-}
-
-/**
- * Format fee display text
- */
-export function formatFeeDisplay(
-  fee: sdkAmount.Amount | undefined,
-  token: Token | undefined,
-): string | undefined {
-  if (!fee || !token || sdkAmount.units(fee) === 0n) {
-    return undefined;
-  }
-
-  const feeDisplay = sdkAmount.display(fee);
-  const tokenSymbol = token.symbol;
-
-  return `+${feeDisplay} ${tokenSymbol} fee`;
 }

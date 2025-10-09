@@ -111,10 +111,12 @@ describe('calculateFeeOffset', () => {
         source: {
           id: mockToken.tokenId,
           symbol: mockToken.symbol,
+          decimals: mockToken.decimals,
         },
         destination: {
           id: mockToken.tokenId,
           symbol: mockToken.symbol,
+          decimals: mockToken.decimals,
         },
       });
 
@@ -185,7 +187,7 @@ describe('calculateFeeOffset', () => {
     it('should calculate fee using referrerFeeDbps', () => {
       const mockRoute = {
         rc: {
-          meta: { name: 'CCTPRoute' },
+          meta: { name: 'CCTPExecutorRoute' },
           config: {
             referrerFeeDbps: 10n, // 10 dbps = 0.01%
           },
@@ -194,7 +196,11 @@ describe('calculateFeeOffset', () => {
 
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
-      const result = calculateFeeOffset('CCTPRoute', mockAmount, mockToken);
+      const result = calculateFeeOffset(
+        'CCTPExecutorRoute',
+        mockAmount,
+        mockToken,
+      );
 
       // offset = 10000 * 10 / (100000 - 10) = 1.001... ≈ 1
       expect(sdkAmount.units(result!)).toBe(1n);
@@ -205,7 +211,7 @@ describe('calculateFeeOffset', () => {
     it('should calculate fee using referrerFee.feeDbps', () => {
       const mockRoute = {
         rc: {
-          meta: { name: 'NTTRoute' },
+          meta: { name: 'NTTExecutorRoute' },
           config: {
             referrerFee: {
               feeDbps: 50n, // 50 dbps = 0.05%
@@ -216,7 +222,11 @@ describe('calculateFeeOffset', () => {
 
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
-      const result = calculateFeeOffset('NTTRoute', mockAmount, mockToken);
+      const result = calculateFeeOffset(
+        'NTTExecutorRoute',
+        mockAmount,
+        mockToken,
+      );
 
       // offset = 10000 * 50 / (100000 - 50) = 5.002... ≈ 5
       expect(sdkAmount.units(result!)).toBe(5n);
@@ -225,7 +235,7 @@ describe('calculateFeeOffset', () => {
     it('should use token-specific override for NTT routes', () => {
       const mockRoute = {
         rc: {
-          meta: { name: 'NTTRoute' },
+          meta: { name: 'NTTExecutorRoute' },
           config: {
             referrerFee: {
               feeDbps: 50n,
@@ -241,7 +251,11 @@ describe('calculateFeeOffset', () => {
 
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
-      const result = calculateFeeOffset('NTTRoute', mockAmount, mockToken);
+      const result = calculateFeeOffset(
+        'NTTExecutorRoute',
+        mockAmount,
+        mockToken,
+      );
 
       // offset = 10000 * 20 / (100000 - 20) = 2.0004... ≈ 2
       expect(sdkAmount.units(result!)).toBe(2n);
@@ -252,7 +266,7 @@ describe('calculateFeeOffset', () => {
     it('should calculate fee using referrerFee.referrerFeeDbps', () => {
       const mockRoute = {
         rc: {
-          meta: { name: 'TokenBridgeRoute' },
+          meta: { name: 'TokenBridgeExecutorRoute' },
           config: {
             referrerFee: {
               referrerFeeDbps: 100n, // 100 dbps = 0.1%
@@ -264,13 +278,42 @@ describe('calculateFeeOffset', () => {
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
       const result = calculateFeeOffset(
-        'TokenBridgeRoute',
+        'TokenBridgeExecutorRoute',
         mockAmount,
         mockToken,
       );
 
       // offset = 10000 * 100 / (100000 - 100) = 10.001... ≈ 10
       expect(sdkAmount.units(result!)).toBe(10n);
+    });
+
+    it('should use token-specific override for Token Bridge Executor routes', () => {
+      const mockRoute = {
+        rc: {
+          meta: { name: 'TokenBridgeExecutorRoute' },
+          config: {
+            referrerFee: {
+              referrerFeeDbps: 100n,
+              tokenFeeOverrides: {
+                [mockToken.key]: {
+                  referrerFeeDbps: 30n, // Token-specific override
+                },
+              },
+            },
+          },
+        },
+      };
+
+      vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
+
+      const result = calculateFeeOffset(
+        'TokenBridgeExecutorRoute',
+        mockAmount,
+        mockToken,
+      );
+
+      // offset = 10000 * 30 / (100000 - 30) = 3.0009... ≈ 3
+      expect(sdkAmount.units(result!)).toBe(3n);
     });
   });
 
