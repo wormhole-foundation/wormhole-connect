@@ -18,6 +18,14 @@ vi.mock('utils/fees', () => ({
   calculateFeeOffset: vi.fn(),
 }));
 
+// Mock the useGetTokens hook
+vi.mock('hooks/useGetTokens', () => ({
+  useGetTokens: vi.fn(() => ({
+    sourceToken: undefined,
+    destToken: undefined,
+  })),
+}));
+
 const mockToken = {
   key: 'USDC',
   symbol: 'USDC',
@@ -57,15 +65,21 @@ describe('FeeOffset', () => {
 
   it('renders fee offset with token symbol when valid amount is calculated', async () => {
     const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+    const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+
     const feeOffset = sdkAmount.fromBaseUnits(1000n, 6); // 0.001 USDC
     calculateFeeOffset.mockReturnValue(feeOffset);
+    useGetTokens.mockReturnValue({
+      sourceToken: mockToken,
+      destToken: undefined,
+    } as any);
 
     const store = createMockStore(
       sdkAmount.fromBaseUnits(100000n, 6),
       'TestRoute',
     );
 
-    render(<FeeOffset token={mockToken} />, {
+    render(<FeeOffset />, {
       wrapper: AppWrapper(store),
     });
 
@@ -74,15 +88,21 @@ describe('FeeOffset', () => {
 
   it('displays info icon with tooltip', async () => {
     const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+    const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+
     const feeOffset = sdkAmount.fromBaseUnits(1000n, 6);
     calculateFeeOffset.mockReturnValue(feeOffset);
+    useGetTokens.mockReturnValue({
+      sourceToken: mockToken,
+      destToken: undefined,
+    } as any);
 
     const store = createMockStore(
       sdkAmount.fromBaseUnits(100000n, 6),
       'TestRoute',
     );
 
-    render(<FeeOffset token={mockToken} />, {
+    render(<FeeOffset />, {
       wrapper: AppWrapper(store),
     });
 

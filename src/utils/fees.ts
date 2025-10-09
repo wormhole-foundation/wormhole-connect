@@ -68,7 +68,6 @@ export function applyOffsetFormula(
  * @param amount - The desired output amount (what user wants to receive)
  * @param routeName - The name of the route
  * @param sourceToken - The source token (required for token-specific fees)
- * @param destChain - Optional destination chain (for Mayan routes)
  * @param destToken - Optional destination token (for Mayan routes)
  * @returns The additional amount to add so that after fee deduction, user receives the desired amount
  */
@@ -76,8 +75,7 @@ export function calculateFeeOffset(
   route: SDKv2Route | string | undefined,
   amount: sdkAmount.Amount | undefined,
   sourceToken: Token | undefined,
-  destChain?: string,
-  destToken?: Token,
+  destToken: Token,
 ): sdkAmount.Amount | undefined {
   if (!sourceToken || !amount || !route || sdkAmount.units(amount) === 0n) {
     return undefined;
@@ -114,7 +112,7 @@ export function calculateFeeOffset(
         },
         destination: {
           id: destToken.tokenId || {
-            chain: destChain || destToken.chain,
+            chain: destToken.chain,
             address: destToken.address,
           },
           symbol: destToken.symbol,

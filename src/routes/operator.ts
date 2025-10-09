@@ -344,7 +344,6 @@ class QuoteMetadataCache {
         route,
         params.amount,
         params.sourceToken,
-        params.destChain,
         params.destToken,
       );
 
