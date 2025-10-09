@@ -97,7 +97,7 @@ function ChainList(props: Props) {
       chainTileLabel: {
         color: theme.palette.text.secondary,
         fontSize: '9px',
-        fontFamily: 'IBM Plex Mono',
+        fontFamily: theme.typography.fontFamily,
         fontWeight: 400,
         lineHeight: '12px',
         marginTop: '8px',
