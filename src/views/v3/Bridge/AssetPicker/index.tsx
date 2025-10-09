@@ -563,7 +563,9 @@ function AssetPicker(props: Props) {
             </Box>
           )}
         </Box>
-        {props.isSource && <FeeOffset token={props.token} />}
+        {config.ui?.experimental?.feeOffsetting && props.isSource && (
+          <FeeOffset token={props.token} />
+        )}
         <Box
           sx={{
             height: '22px',

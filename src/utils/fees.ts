@@ -1,4 +1,8 @@
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import {
+  amount as sdkAmount,
+  type routes,
+  type Network,
+} from '@wormhole-foundation/sdk';
 import config from 'config';
 import type { Token } from 'config/tokens';
 import SDKv2Route from 'routes/sdkv2/route';
@@ -116,7 +120,7 @@ export function calculateFeeOffset(
           symbol: destToken.symbol,
           decimals: destToken.decimals,
         },
-      } as any;
+      } as routes.RouteTransferRequest<Network>;
       const bps = mayanRoute.getReferrerBps(request);
       if (bps > 0) {
         // Mayan uses basis points (1 bps = 0.01% = 1/10000)
