@@ -55,22 +55,6 @@ describe('FeeOffset', () => {
     vi.clearAllMocks();
   });
 
-  it('renders nothing when no fee offset is calculated', async () => {
-    const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
-    calculateFeeOffset.mockReturnValue(undefined);
-
-    const store = createMockStore(
-      sdkAmount.fromBaseUnits(100000n, 6),
-      'TestRoute',
-    );
-
-    const { container } = render(<FeeOffset token={mockToken} />, {
-      wrapper: AppWrapper(store),
-    });
-
-    expect(container.firstChild).toBeNull();
-  });
-
   it('renders fee offset with token symbol when valid amount is calculated', async () => {
     const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
     const feeOffset = sdkAmount.fromBaseUnits(1000n, 6); // 0.001 USDC

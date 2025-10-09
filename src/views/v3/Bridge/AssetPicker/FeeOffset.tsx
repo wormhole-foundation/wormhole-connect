@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Tooltip, Typography, useTheme } from '@mui/material';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
@@ -22,15 +22,40 @@ function FeeOffset(props: Props) {
     (state: RootState) => state.transferInput,
   );
 
-  const feeOffsetAmount = calculateFeeOffset(
-    selectedRoute,
-    amount,
-    props.token,
+  // Recalculate only when selectedRoute, amount or token changes
+  const feeOffsetAmount = useMemo(
+    () => calculateFeeOffset(selectedRoute, amount, props.token),
+    [selectedRoute, amount, props.token],
   );
 
-  if (!feeOffsetAmount || sdkAmount.units(feeOffsetAmount) === 0n) {
-    return null;
-  }
+  const feeDisplay = useMemo(() => {
+    if (!feeOffsetAmount || sdkAmount.units(feeOffsetAmount) === 0n) {
+      return null;
+    }
+
+    return (
+      <>
+        <Typography
+          color={theme.palette.text.secondary}
+          fontSize="12px"
+          lineHeight="14px"
+          height={'14px'}
+        >
+          +{sdkAmount.display(feeOffsetAmount)} {props.token?.symbol}
+        </Typography>
+        <Tooltip title="Portal's fee is added on top of your input amount. Slippage may still apply.">
+          <InfoOutlineIcon
+            sx={{
+              height: '14px',
+              width: '14px',
+              color: theme.palette.text.secondary,
+              marginLeft: '4px',
+            }}
+          />
+        </Tooltip>
+      </>
+    );
+  }, [feeOffsetAmount, props.token?.symbol, theme.palette.text.secondary]);
 
   return (
     <Box
@@ -43,24 +68,7 @@ function FeeOffset(props: Props) {
         marginBottom: '2px',
       }}
     >
-      <Typography
-        color={theme.palette.text.secondary}
-        fontSize="12px"
-        lineHeight="14px"
-        height={'14px'}
-      >
-        +{sdkAmount.display(feeOffsetAmount)} {props.token?.symbol}
-      </Typography>
-      <Tooltip title="Portal's fee is added on top of your input amount. Slippage may still apply.">
-        <InfoOutlineIcon
-          sx={{
-            height: '14px',
-            width: '14px',
-            color: theme.palette.text.secondary,
-            marginLeft: '4px',
-          }}
-        />
-      </Tooltip>
+      {feeDisplay}
     </Box>
   );
 }
