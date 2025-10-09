@@ -8,13 +8,12 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 
 import ChainIcon from 'icons/ChainIcons';
-import PlusIcon from 'icons/Plus';
 import SearchableList from 'views/v3/Bridge/AssetPicker/SearchableList';
+import ChainShortList from 'views/v3/Bridge/AssetPicker/ChainShortList';
 
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
-import { OPACITY } from 'utils/style';
 
 type Props = {
   chainList?: ChainConfig[];
@@ -70,39 +69,6 @@ function ChainList(props: Props) {
         padding: '8px',
         borderRadius: '8px',
       },
-      chainButton: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        padding: '8px',
-        backgroundColor: theme.palette.primary.main + OPACITY[10],
-        border: '1px solid transparent',
-        borderRadius: '8px',
-        width: '71px',
-        maxWidth: '71px',
-        position: 'relative',
-        overflow: 'hidden',
-        '&.Mui-selected': {
-          border: '1px solid',
-          borderColor: theme.palette.primary.main,
-        },
-        '& svg': {
-          pointerEvents: 'none',
-        },
-        '&:hover': {
-          backgroundColor: theme.palette.primary.main + OPACITY[10],
-          border: '1px solid',
-          borderColor: theme.palette.primary.main,
-        },
-      },
-      chainTileLabel: {
-        color: theme.palette.text.secondary,
-        fontSize: '9px',
-        fontFamily: 'IBM Plex Mono',
-        fontWeight: 400,
-        lineHeight: '12px',
-        marginTop: '8px',
-        whiteSpace: 'nowrap',
-      },
       chainIcon: {
         borderRadius: '100%',
         width: '24px',
@@ -143,57 +109,6 @@ function ChainList(props: Props) {
   }, [chainList, selectedChainConfig]);
 
   const showMoreButton = (chainList?.length ?? 0) > SHORT_LIST_SIZE - 1;
-
-  const shortList = useMemo(() => {
-    return (
-      <Box
-        display="flex"
-        flexDirection="row"
-        flexWrap="wrap"
-        gap="16px"
-        sx={{ maxWidth: '420px' }}
-      >
-        {topChains.map((chain: ChainConfig) => (
-          <ListItemButton
-            key={chain.sdkName}
-            selected={selectedChainConfig?.sdkName === chain.sdkName}
-            sx={styles.chainButton}
-            data-testid={`chain-button-${chain.sdkName.toLowerCase()}`}
-            aria-label={`Select ${chain.displayName}`}
-            onClick={() => onChainSelect(chain.sdkName)}
-          >
-            <Box sx={styles.chainIcon}>
-              <ChainIcon icon={chain.icon} height={24} />
-            </Box>
-            <Typography sx={styles.chainTileLabel}>{chain.sdkName}</Typography>
-          </ListItemButton>
-        ))}
-
-        {showMoreButton ? (
-          <ListItemButton
-            sx={styles.chainButton}
-            onClick={() => {
-              setShowSearch(true);
-            }}
-          >
-            <Box sx={styles.chainIcon}>
-              <PlusIcon sx={{ height: '24px', width: '24px' }} />
-            </Box>
-            <Typography sx={styles.chainTileLabel}>other</Typography>
-          </ListItemButton>
-        ) : null}
-      </Box>
-    );
-  }, [
-    topChains,
-    showMoreButton,
-    styles.chainButton,
-    styles.chainIcon,
-    styles.chainTileLabel,
-    selectedChainConfig?.sdkName,
-    onChainSelect,
-    setShowSearch,
-  ]);
 
   const searchList = useMemo(
     () => (
@@ -256,7 +171,17 @@ function ChainList(props: Props) {
         >
           Choose network
         </Typography>
-        {showSearch ? searchList : shortList}
+        {showSearch ? (
+          searchList
+        ) : (
+          <ChainShortList
+            chains={topChains}
+            selectedChain={selectedChainConfig}
+            showOtherButton={showMoreButton}
+            onChainSelect={onChainSelect}
+            onShowMore={() => setShowSearch(true)}
+          />
+        )}
       </CardContent>
     </Card>
   );
