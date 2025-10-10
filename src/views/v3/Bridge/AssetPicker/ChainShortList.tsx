@@ -15,7 +15,7 @@ import { OPACITY } from 'utils/style';
 type ChainShortListProps = {
   chains: ChainConfig[];
   selectedChain?: ChainConfig;
-  showOtherButton: boolean;
+  showMoreButton: boolean;
   onChainSelect: (chain: Chain) => void;
   onShowMore: () => void;
 };
@@ -23,7 +23,7 @@ type ChainShortListProps = {
 function ChainShortList({
   chains,
   selectedChain,
-  showOtherButton,
+  showMoreButton,
   onChainSelect,
   onShowMore,
 }: ChainShortListProps) {
@@ -59,7 +59,7 @@ function ChainShortList({
       },
       chainTileLabel: {
         color: theme.palette.text.secondary,
-        fontSize: '9px',
+        fontSize: '10px',
         fontFamily: theme.typography.fontFamily,
         fontWeight: 400,
         lineHeight: '12px',
@@ -114,13 +114,17 @@ function ChainShortList({
     ],
   );
 
-  const otherButton = useMemo(
+  const moreButton = useMemo(
     () => (
-      <ListItemButton key="other" sx={styles.chainButton} onClick={onShowMore}>
+      <ListItemButton
+        key="moreButton"
+        sx={styles.chainButton}
+        onClick={onShowMore}
+      >
         <Box sx={styles.chainIcon}>
           <PlusIcon sx={{ height: '24px', width: '24px' }} />
         </Box>
-        <Typography sx={styles.chainTileLabel}>other</Typography>
+        <Typography sx={styles.chainTileLabel}>More</Typography>
       </ListItemButton>
     ),
     [onShowMore, styles.chainButton, styles.chainIcon, styles.chainTileLabel],
@@ -136,7 +140,7 @@ function ChainShortList({
       {chainRows.secondRowChains.length > 0 && (
         <Box display="flex" flexDirection="row" gap="16px">
           {chainRows.secondRowChains.map((chain) => renderChainButton(chain))}
-          {showOtherButton && otherButton}
+          {showMoreButton && moreButton}
         </Box>
       )}
     </Box>

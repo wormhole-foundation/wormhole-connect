@@ -10,7 +10,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'ETH',
   },
   Bsc: {
-    displayName: 'BSC',
+    displayName: 'BNB',
     sdkName: 'Bsc',
     explorerUrl: 'https://bscscan.com/',
     explorerName: 'BscScan',

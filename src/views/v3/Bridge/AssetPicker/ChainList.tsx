@@ -178,7 +178,7 @@ function ChainList(props: Props) {
           <ChainShortList
             chains={topChains}
             selectedChain={selectedChainConfig}
-            showOtherButton={showMoreButton}
+            showMoreButton={showMoreButton}
             onChainSelect={onChainSelect}
             onShowMore={() => setShowSearch(true)}
           />

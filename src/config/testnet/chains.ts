@@ -2,7 +2,7 @@ import type { ChainsConfig } from '../types';
 
 export const TESTNET_CHAINS: ChainsConfig = {
   Bsc: {
-    displayName: 'BSC',
+    displayName: 'BNB',
     explorerUrl: 'https://testnet.bscscan.com/',
     explorerName: 'BscScan',
     icon: 'Bsc',

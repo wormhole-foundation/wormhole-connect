@@ -98,7 +98,7 @@ const mockSelectedChain = {
 const defaultProps = {
   chains: mockChainConfigs,
   selectedChain: undefined,
-  showOtherButton: false,
+  showMoreButton: false,
   onChainSelect: vi.fn(),
   onShowMore: vi.fn(),
 };
@@ -143,25 +143,25 @@ describe('ChainShortList', () => {
     expect(ethereumButton).toHaveClass('Mui-selected');
   });
 
-  it('shows other button when showOtherButton is true', () => {
-    const props = { ...defaultProps, showOtherButton: true };
+  it('shows More button when showMoreButton is true', () => {
+    const props = { ...defaultProps, showMoreButton: true };
     render(<ChainShortList {...props} />, { wrapper: AppWrapper });
 
-    expect(screen.getByText('other')).toBeInTheDocument();
+    expect(screen.getByText('More')).toBeInTheDocument();
   });
 
-  it('does not show other button when showOtherButton is false', () => {
+  it('does not show More button when showMoreButton is false', () => {
     render(<ChainShortList {...defaultProps} />, { wrapper: AppWrapper });
 
-    expect(screen.queryByText('other')).not.toBeInTheDocument();
+    expect(screen.queryByText('More')).not.toBeInTheDocument();
   });
 
-  it('calls onShowMore when other button is clicked', () => {
-    const props = { ...defaultProps, showOtherButton: true };
+  it('calls onShowMore when More button is clicked', () => {
+    const props = { ...defaultProps, showMoreButton: true };
     render(<ChainShortList {...props} />, { wrapper: AppWrapper });
 
-    const otherButton = screen.getByRole('button', { name: /other/i });
-    fireEvent.click(otherButton);
+    const moreButton = screen.getByRole('button', { name: /More/ });
+    fireEvent.click(moreButton);
 
     expect(defaultProps.onShowMore).toHaveBeenCalledTimes(1);
   });
