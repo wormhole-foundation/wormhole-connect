@@ -75,7 +75,7 @@ export function calculateFeeOffset(
   route: SDKv2Route | string | undefined,
   amount: sdkAmount.Amount | undefined,
   sourceToken: Token | undefined,
-  destToken: Token,
+  destToken?: Token,
 ): sdkAmount.Amount | undefined {
   if (!sourceToken || !amount || !route || sdkAmount.units(amount) === 0n) {
     return undefined;
