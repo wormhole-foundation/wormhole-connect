@@ -290,7 +290,7 @@ function Routes({
             sx={{
               width: '100%',
               alignItems: 'center',
-              gap: '16px',
+              gap: '8px',
             }}
           >
             {routeSelectionPills}

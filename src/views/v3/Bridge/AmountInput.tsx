@@ -184,6 +184,7 @@ function AmountInput(props: Props) {
         <CardContent sx={styles.amountCardContent}>
           <DebouncedTextField
             fullWidth
+            autoComplete="off"
             disabled={isInputDisabled}
             placeholder="0"
             slotProps={{

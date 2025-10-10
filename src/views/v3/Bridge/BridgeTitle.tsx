@@ -39,7 +39,6 @@ const BridgeTitle: React.FC<BridgeTitleProps> = ({
         minHeight: '28px',
         display: 'flex',
         alignItems: 'center',
-        padding: '20px 0',
       },
     }),
     [mobile],

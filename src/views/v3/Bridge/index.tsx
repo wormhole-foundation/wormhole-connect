@@ -480,6 +480,9 @@ function Bridge(props: BridgeProps) {
     onConfirm,
   ]);
 
+  // Show routes only when we have source and destination assets and an amount
+  const showRoutes = hasEnteredAmount && sourceToken && destToken;
+
   const confirmButtonTooltip =
     !sourceChain || !sourceToken
       ? 'Please select a source asset'
@@ -566,17 +569,6 @@ function Bridge(props: BridgeProps) {
           </Box>
           {transactionError}
           <AmountValidationError validation={amountValidation} />
-          {hasEnteredAmount && (
-            <Box sx={{ marginTop: '12px', width: '100%' }}>
-              <Routes
-                routes={sortedRoutes}
-                selectedRoute={route}
-                onRouteChange={handleRouteChange}
-                quotes={quotes}
-                isLoading={isFetchingQuotes}
-              />
-            </Box>
-          )}
         </>
       )}
     </>
@@ -590,6 +582,17 @@ function Bridge(props: BridgeProps) {
         }
       >
         {bridgeContent}
+      </Box>
+      <Box sx={{ marginTop: '12px', width: '100%' }}>
+        {showRoutes && (
+          <Routes
+            routes={sortedRoutes}
+            selectedRoute={route}
+            onRouteChange={handleRouteChange}
+            quotes={quotes}
+            isLoading={isFetchingQuotes}
+          />
+        )}
       </Box>
       {config.ui.showFooter && (
         <>
