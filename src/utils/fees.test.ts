@@ -103,7 +103,6 @@ describe('calculateFeeOffset', () => {
         'MayanSwapRoute',
         mockAmount,
         mockToken,
-        'Solana',
         mockToken,
       );
 
@@ -138,7 +137,6 @@ describe('calculateFeeOffset', () => {
         'MayanSwapRoute',
         mockAmount,
         mockToken,
-        'Solana',
         mockToken,
       );
       expect(result).toBeUndefined();
@@ -157,7 +155,6 @@ describe('calculateFeeOffset', () => {
         'MayanSwapRoute',
         mockAmount,
         mockToken,
-        'Solana',
         mockToken,
       );
       expect(result).toBeUndefined();
