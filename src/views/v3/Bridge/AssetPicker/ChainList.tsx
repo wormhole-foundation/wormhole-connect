@@ -59,7 +59,7 @@ function ChainList(props: Props) {
         justifyContent: 'center',
       },
       chainSearchList: {
-        maxHeight: '480px',
+        maxHeight: '516px',
         [theme.breakpoints.down('sm')]: {
           maxHeight: '640px',
         },
