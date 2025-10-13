@@ -81,6 +81,12 @@ export function calculateFeeOffset(
     return undefined;
   }
 
+  // No fee-offsetting for same-chain swaps
+  const isSameChainSwap = sourceToken.chain === destToken?.chain;
+  if (isSameChainSwap) {
+    return undefined;
+  }
+
   let sdkRoute: SDKv2Route | undefined;
   if (typeof route === 'string') {
     sdkRoute = config.routes.get(route);
