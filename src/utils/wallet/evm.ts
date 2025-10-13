@@ -143,6 +143,16 @@ export async function signAndSendTransaction(
     }
   }
 
+  if (request.chain === 'CreditCoin') {
+    // CreditCoin transactions often fail due to insufficient gas limit estimation
+    // due to it being a custom network and MetaMask (and possibly other wallets) not
+    // estimating gas limits correctly.
+    if (!request.transaction.gasLimit) {
+      const estimatedGas = await signer.estimateGas(request.transaction);
+      request.transaction.gasLimit = (estimatedGas * 30n) / 100n; // add 30% buffer
+    }
+  }
+
   const tx = await signer.sendTransaction(request.transaction);
   const result = await tx.wait();
 
