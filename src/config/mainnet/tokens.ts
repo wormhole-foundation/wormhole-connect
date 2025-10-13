@@ -63,15 +63,6 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    symbol: 'WCTC',
-    decimals: 18,
-    icon: TokenIcon.CTC,
-    tokenId: {
-      chain: 'Ethereum',
-      address: '0xaafec8e08d524d534327fa13fb306f440b5f88eb',
-    },
-  },
-  {
     symbol: 'POL',
     decimals: 18,
     icon: TokenIcon.POLYGON,
