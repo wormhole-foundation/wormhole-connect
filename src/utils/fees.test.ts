@@ -22,6 +22,7 @@ describe('calculateFeeOffset', () => {
     key: 'Ethereum:0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
     chain: 'Ethereum',
     address: '0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
+    addressString: '0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
     symbol: 'USDC',
     name: 'USD Coin',
     decimals: 6,
@@ -236,10 +237,10 @@ describe('calculateFeeOffset', () => {
           config: {
             referrerFee: {
               feeDbps: 50n,
-            },
-            tokens: {
-              [mockToken.key]: {
-                referrerFeeDbps: 20n, // Token-specific override
+              perTokenOverrides: {
+                [mockToken.addressString]: {
+                  referrerFeeDbps: 20n, // Token-specific override
+                },
               },
             },
           },
@@ -292,7 +293,7 @@ describe('calculateFeeOffset', () => {
             referrerFee: {
               referrerFeeDbps: 100n,
               tokenFeeOverrides: {
-                [mockToken.key]: {
+                [mockToken.addressString]: {
                   referrerFeeDbps: 30n, // Token-specific override
                 },
               },

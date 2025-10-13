@@ -78,7 +78,11 @@ function ChainShortList({
   );
 
   const chainRows = useMemo(() => {
-    const chainsPerRow = Math.ceil(chains.length / 2);
+    // Only use 2 rows if we have 6 or more chains
+    const shouldUseTwoRows = chains.length >= 6;
+    const chainsPerRow = shouldUseTwoRows
+      ? Math.ceil(chains.length / 2)
+      : chains.length;
 
     const firstRowChains = chains.slice(0, chainsPerRow);
     const secondRowChains = chains.slice(chainsPerRow);
@@ -133,7 +137,12 @@ function ChainShortList({
   return (
     <Box sx={{ maxWidth: '420px' }}>
       {/* First row */}
-      <Box display="flex" flexDirection="row" gap="16px" marginBottom="16px">
+      <Box
+        display="flex"
+        flexDirection="row"
+        gap="16px"
+        marginBottom={chainRows.secondRowChains.length > 0 ? '16px' : '0'}
+      >
         {chainRows.firstRowChains.map((chain) => renderChainButton(chain))}
       </Box>
       {/* Second row */}

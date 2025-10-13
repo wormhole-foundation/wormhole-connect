@@ -146,10 +146,14 @@ export function calculateFeeOffset(
     // NTT Executor route uses referrerFee.feeDbps
     else if (routeConfig.referrerFee?.feeDbps !== undefined) {
       // Check for token-specific override in NTT
-      if (routeConfig.tokens && sourceToken) {
-        const tokenConfig = routeConfig.tokens[sourceToken.key];
-        if (tokenConfig?.referrerFeeDbps !== undefined) {
-          feeDbps = tokenConfig.referrerFeeDbps;
+      if (
+        routeConfig.referrerFee.perTokenOverrides !== undefined &&
+        sourceToken
+      ) {
+        const override =
+          routeConfig.referrerFee.perTokenOverrides[sourceToken.addressString];
+        if (override?.referrerFeeDbps !== undefined) {
+          feeDbps = override.referrerFeeDbps;
         } else {
           feeDbps = routeConfig.referrerFee.feeDbps;
         }
@@ -162,7 +166,7 @@ export function calculateFeeOffset(
       // Check for token-specific override in Token Bridge Executor
       if (routeConfig.referrerFee.tokenFeeOverrides && sourceToken) {
         const tokenOverride =
-          routeConfig.referrerFee.tokenFeeOverrides[sourceToken.key];
+          routeConfig.referrerFee.tokenFeeOverrides[sourceToken.addressString];
         if (tokenOverride?.referrerFeeDbps !== undefined) {
           feeDbps = tokenOverride.referrerFeeDbps;
         } else {
