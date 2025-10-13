@@ -8,20 +8,17 @@ import React, {
 import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 
-import FooterNavBar from 'components/FooterNavBar';
-import Header from 'components/Header';
 import AlertBannerV3 from 'components/v3/AlertBanner';
 import Button from 'components/v3/Button';
+import FooterNavBar from 'components/FooterNavBar';
 import config from 'config';
 import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
@@ -32,7 +29,7 @@ import useConfirmTransaction from 'hooks/useConfirmTransaction';
 import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
-import HistoryIcon from 'icons/History';
+import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import {
@@ -46,18 +43,17 @@ import {
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
 import { OPACITY } from 'utils/style';
-import ConfigurablePageHeader from 'components/ConfigurablePageHeader';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet } from 'utils/wallet';
-import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
+import { getFilteredChains } from 'utils/sdkv2';
 import WalletConnector from 'views/v3/Bridge/WalletConnector';
 import AssetPicker from 'views/v3/Bridge/AssetPicker';
 import Routes from 'views/v3/Bridge/Routes';
 import SwapInputs from 'views/v3/Bridge/SwapInputs';
-import TxHistoryWidget from 'views/v3/TxHistory/Widget';
-import TxHistory from '../TxHistory';
+import BridgeTitle from 'views/v3/Bridge/BridgeTitle';
 import AmountValidationError from './AmountValidationError';
-import { getFilteredChains } from 'utils/sdkv2';
+import TxHistory from '../TxHistory';
+import { setToNativeToken } from 'store/relay';
 
 export type BridgeProps = {
   showHistory?: boolean;
@@ -78,23 +74,9 @@ function Bridge(props: BridgeProps) {
 
   const styles = useMemo(
     () => ({
-      assetPickerTitle: {
-        color: theme.palette.text.secondary,
-        display: 'flex',
-        minHeight: '40px',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      },
       bridgeContent: {
         margin: 'auto',
         maxWidth: '452px',
-      },
-      bridgeHeader: {
-        width: '100%',
-        minHeight: '28px',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '20px 0',
       },
       doneIcon: {
         fontSize: '14px',
@@ -129,19 +111,10 @@ function Bridge(props: BridgeProps) {
         flexDirection: 'column',
         gap: '16px',
       },
-      titleContent: {
-        maxWidth: mobile ? '420px' : '452px',
-      },
     }),
-    [
-      mobile,
-      theme.palette.background.form,
-      theme.palette.success.main,
-      theme.palette.text.secondary,
-    ],
+    [theme.palette.background.form, theme.palette.success.main],
   );
 
-  // --- pipeline state gathering ---
   // Connected wallets, if any
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -164,7 +137,6 @@ function Bridge(props: BridgeProps) {
   const { sourceToken, destToken } = useGetTokens();
   const isSameChainSwap = sourceChain === destChain;
 
-  // --- pipeline usage ---
   const {
     allSupportedRoutes,
     sortedRoutes,
@@ -318,6 +290,7 @@ function Bridge(props: BridgeProps) {
     (value: Chain) => {
       selectFromChain(dispatch, value, sendingWallet);
       dispatch(clearToken());
+      dispatch(setToNativeToken(0));
     },
     [dispatch, sendingWallet],
   );
@@ -325,6 +298,7 @@ function Bridge(props: BridgeProps) {
   const handleSourceTokenChange = useCallback(
     (value: Token) => {
       dispatch(setToken(value.tuple));
+      dispatch(setToNativeToken(0));
     },
     [dispatch],
   );
@@ -334,6 +308,7 @@ function Bridge(props: BridgeProps) {
     (value: Chain) => {
       selectToChain(dispatch, value, receivingWallet);
       dispatch(clearDestToken());
+      dispatch(setToNativeToken(0));
     },
     [dispatch, receivingWallet],
   );
@@ -341,6 +316,7 @@ function Bridge(props: BridgeProps) {
   const handleDestTokenChange = useCallback(
     (value: Token) => {
       dispatch(setDestToken(value.tuple));
+      dispatch(setToNativeToken(0));
     },
     [dispatch],
   );
@@ -350,18 +326,19 @@ function Bridge(props: BridgeProps) {
 
   // Handler for history toggle
   const handleHistoryToggle = useCallback(() => {
-    setShowHistory((value) => !value);
-    config.triggerEvent({
-      type: 'history.load',
-      details: {
-        wallet: sendingWallet?.address,
-      },
+    setShowHistory((value) => {
+      // Log event when opening history
+      if (!value) {
+        config.triggerEvent({
+          type: 'history.load',
+          details: {
+            wallet: sendingWallet?.address,
+          },
+        });
+      }
+      return !value;
     });
   }, [sendingWallet?.address]);
-
-  const isTxHistoryDisabled =
-    !sendingWallet?.address || isTransactionInProgress;
-
   // Handler for route change
   const handleRouteChange = useCallback(
     (r: string) => {
@@ -442,7 +419,6 @@ function Bridge(props: BridgeProps) {
   }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
-
   const hasConnectedWallets = sendingWallet.address && receivingWallet.address;
 
   const confirmTransactionDisabled =
@@ -504,6 +480,9 @@ function Bridge(props: BridgeProps) {
     onConfirm,
   ]);
 
+  // Show routes only when we have source and destination assets and an amount
+  const showRoutes = hasEnteredAmount && sourceToken && destToken;
+
   const confirmButtonTooltip =
     !sourceChain || !sourceToken
       ? 'Please select a source asset'
@@ -519,123 +498,93 @@ function Bridge(props: BridgeProps) {
 
   const bridgeContent = (
     <>
-      <Stack sx={{ gap: '4px', position: 'relative' }}>
-        {/* Source asset picker */}
-        <Box ref={popoverAnchorRef}>
-          <AssetPicker
-            chain={sourceChain}
-            chainList={supportedSourceChains}
-            token={sourceToken}
-            tokenList={sourceTokens}
-            setChain={handleSourceChainChange}
-            setToken={handleSourceTokenChange}
-            wallet={sendingWallet}
-            isSameChainSwap={isSameChainSwap}
-            isSource={true}
-            isTransactionInProgress={isTransactionInProgress}
-            dataTestId="source-asset-picker"
-            isConnectingWallet={isConnectingWallet}
-            balances={balances.source.balances}
-            isFetchingBalances={balances.isFetching}
-            anchorEl={popoverAnchorRef.current}
-            amountValidation={amountValidation}
-          />
-        </Box>
-        {/* Swap source/destination assets button */}
-        <SwapInputs />
-        {/* Destination asset picker */}
-        <AssetPicker
-          chain={destChain}
-          chainList={supportedDestChains}
-          token={destToken}
-          sourceToken={sourceToken}
-          tokenList={supportedDestTokens}
-          isFetchingQuotes={isFetchingQuotes}
-          isFetchingTokens={
-            supportedDestTokens.length === 0 && isFetchingSupportedDestTokens
-          }
-          setChain={handleDestChainChange}
-          setToken={handleDestTokenChange}
-          wallet={receivingWallet}
-          isSameChainSwap={isSameChainSwap}
-          isSource={false}
-          isTransactionInProgress={isTransactionInProgress}
-          dataTestId="dest-asset-picker"
-          isConnectingWallet={isConnectingWallet}
-          balances={balances.destination.balances}
-          isFetchingBalances={balances.isFetching}
-          quote={destQuoteResult?.success ? destQuoteResult : undefined}
-          anchorEl={popoverAnchorRef.current}
-        />
-      </Stack>
-      <Box component="span" sx={styles.ctaContainer}>
-        {hasConnectedWallets ? (
-          <Tooltip title={confirmButtonTooltip}>
-            <span>{confirmTransactionButton}</span>
-          </Tooltip>
-        ) : walletConnectorProps ? (
-          <WalletConnector {...walletConnectorProps} />
-        ) : null}
-      </Box>
-      {transactionError}
-      <AmountValidationError validation={amountValidation} />
+      <BridgeTitle
+        showHistory={showHistory}
+        onToggleHistory={handleHistoryToggle}
+        isTransactionInProgress={isTransactionInProgress}
+        isWalletConnected={!!sendingWallet?.address}
+      />
+      {showHistory ? (
+        <TxHistory />
+      ) : (
+        <>
+          <Stack sx={{ gap: '4px', position: 'relative' }}>
+            {/* Source asset picker */}
+            <Box ref={popoverAnchorRef}>
+              <AssetPicker
+                chain={sourceChain}
+                chainList={supportedSourceChains}
+                token={sourceToken}
+                tokenList={sourceTokens}
+                setChain={handleSourceChainChange}
+                setToken={handleSourceTokenChange}
+                wallet={sendingWallet}
+                isSameChainSwap={isSameChainSwap}
+                isSource={true}
+                isTransactionInProgress={isTransactionInProgress}
+                dataTestId="source-asset-picker"
+                isConnectingWallet={isConnectingWallet}
+                balances={balances.source.balances}
+                isFetchingBalances={balances.isFetching}
+                anchorEl={popoverAnchorRef.current}
+                amountValidation={amountValidation}
+              />
+            </Box>
+            {/* Swap source/destination assets button */}
+            <SwapInputs />
+            {/* Destination asset picker */}
+            <AssetPicker
+              chain={destChain}
+              chainList={supportedDestChains}
+              token={destToken}
+              sourceToken={sourceToken}
+              tokenList={supportedDestTokens}
+              isFetchingQuotes={isFetchingQuotes}
+              isFetchingTokens={
+                supportedDestTokens.length === 0 &&
+                isFetchingSupportedDestTokens
+              }
+              setChain={handleDestChainChange}
+              setToken={handleDestTokenChange}
+              wallet={receivingWallet}
+              isSameChainSwap={isSameChainSwap}
+              isSource={false}
+              isTransactionInProgress={isTransactionInProgress}
+              dataTestId="dest-asset-picker"
+              isConnectingWallet={isConnectingWallet}
+              balances={balances.destination.balances}
+              isFetchingBalances={balances.isFetching}
+              quote={destQuoteResult?.success ? destQuoteResult : undefined}
+              anchorEl={popoverAnchorRef.current}
+            />
+          </Stack>
+          <Box component="span" sx={styles.ctaContainer}>
+            {hasConnectedWallets ? (
+              <Tooltip title={confirmButtonTooltip}>
+                <span>{confirmTransactionButton}</span>
+              </Tooltip>
+            ) : walletConnectorProps ? (
+              <WalletConnector {...walletConnectorProps} />
+            ) : null}
+          </Box>
+          {transactionError}
+          <AmountValidationError validation={amountValidation} />
+        </>
+      )}
     </>
   );
 
-  const iconTooltip =
-    (!sendingWallet?.address && 'No connected wallets found') ||
-    (showHistory ? 'Show bridge' : 'Show history');
-
   return (
-    <Box sx={{ ...styles.bridgeContent }} data-testid="bridge-view">
-      <Box sx={styles.titleContent}>
-        <ConfigurablePageHeader />
-        {config.ui.showInProgressWidget && (
-          <TxHistoryWidget disabled={isTransactionInProgress} />
-        )}
-        <Box sx={styles.bridgeHeader}>
-          <Header
-            align="left"
-            text={config.ui.title ?? 'Wormhole Connect'}
-            size={18}
-            testId="bridge-view-header"
-          />
-          <Tooltip title={iconTooltip}>
-            <span>
-              <IconButton
-                data-testid="history-button"
-                aria-label={showHistory ? 'Show bridge' : 'Show history'}
-                sx={{
-                  backgroundColor: theme.palette.background.form + OPACITY[20],
-                  padding: '12px',
-                  width: '40px',
-                  height: '40px',
-                  border: `1px solid ${theme.palette.input.border}`,
-                  borderRadius: '40px',
-                }}
-                disabled={isTxHistoryDisabled}
-                onClick={handleHistoryToggle}
-              >
-                {showHistory ? (
-                  <SwapHorizIcon sx={{ fontSize: '16px' }} />
-                ) : (
-                  <HistoryIcon sx={{ fontSize: '16px' }} />
-                )}
-              </IconButton>
-            </span>
-          </Tooltip>
-        </Box>
-      </Box>
-
+    <Box sx={{ ...styles.bridgeContent }}>
       <Box
         sx={
           mobile ? { ...styles.formContentMobile } : { ...styles.formContent }
         }
       >
-        {showHistory ? <TxHistory /> : bridgeContent}
+        {bridgeContent}
       </Box>
-      {hasEnteredAmount && !showHistory && (
-        <Box sx={{ marginTop: '12px', width: '100%' }}>
+      <Box sx={{ marginTop: '12px', width: '100%' }}>
+        {showRoutes && (
           <Routes
             routes={sortedRoutes}
             selectedRoute={route}
@@ -643,8 +592,8 @@ function Bridge(props: BridgeProps) {
             quotes={quotes}
             isLoading={isFetchingQuotes}
           />
-        </Box>
-      )}
+        )}
+      </Box>
       {config.ui.showFooter && (
         <>
           <PoweredByIcon color={theme.palette.text.primary} />

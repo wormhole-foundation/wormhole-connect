@@ -7,7 +7,7 @@ type Props = {
   text: string;
   align?: Alignment;
   size?: number;
-  testId?: string;
+  weight?: number;
 };
 
 function Header(props: Props) {
@@ -19,18 +19,15 @@ function Header(props: Props) {
       width: '100%',
       textAlign: props.align || 'center',
       fontFamily: theme.typography.fontFamily,
+      fontWeight: props.weight || 400,
       [theme.breakpoints.down('sm')]: {
         fontSize: '24px',
       },
     }),
-    [theme, props.align, props.size],
+    [theme, props.align, props.size, props.weight],
   );
 
-  return (
-    <Box sx={titleStyle} data-testid={props.testId}>
-      {props.text}
-    </Box>
-  );
+  return <Box sx={titleStyle}>{props.text}</Box>;
 }
 
 export default Header;

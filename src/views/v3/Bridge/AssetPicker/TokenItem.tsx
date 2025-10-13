@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Box, Tooltip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -165,4 +165,4 @@ function TokenItem(props: TokenItemProps) {
   );
 }
 
-export default memo(TokenItem);
+export default React.memo(TokenItem);

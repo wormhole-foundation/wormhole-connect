@@ -8,6 +8,7 @@ import SwapVerticalIcon from 'icons/SwapVertical';
 import type { RootState } from 'store';
 import useWalletProvider from 'hooks/useWalletProvider';
 import { setAmount, swapInputs } from 'store/transferInput';
+import { setToNativeToken } from 'store/relay';
 
 function SwapInputs() {
   const dispatch = useDispatch();
@@ -77,6 +78,7 @@ function SwapInputs() {
     setRotateAnimation((val) =>
       val === 'spinRight' ? 'spinLeft' : 'spinRight',
     );
+    dispatch(setToNativeToken(0));
 
     swapWallets();
 

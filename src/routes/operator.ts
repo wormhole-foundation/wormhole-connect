@@ -3,6 +3,7 @@ import type { Token } from 'config/tokens';
 import { parseTokenKey, tokenKey } from 'config/tokens';
 import { maybeLogSdkError } from 'utils/errors';
 import memoize from 'fast-memoize';
+import { calculateFeeOffset } from 'utils/fees';
 
 import type {
   Chain,
@@ -335,10 +336,29 @@ class QuoteMetadataCache {
       });
     }
 
+    // Calculate adjusted amount with fee offset if experimental feature is enabled
+    let adjustedAmount = params.amount;
+
+    if (config.ui?.experimental?.feeOffsetting) {
+      const offset = calculateFeeOffset(
+        route,
+        params.amount,
+        params.sourceToken,
+        params.destToken,
+      );
+
+      if (offset && sdkAmount.units(offset) > 0n) {
+        adjustedAmount = sdkAmount.fromBaseUnits(
+          sdkAmount.units(params.amount) + sdkAmount.units(offset),
+          params.amount.decimals,
+        );
+      }
+    }
+
     // We don't yet have a pending request for this key, so initiate one
     route
       .getQuote(
-        params.amount,
+        adjustedAmount,
         params.sourceToken,
         params.destToken,
         params.sourceChain,

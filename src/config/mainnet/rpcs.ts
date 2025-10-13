@@ -29,6 +29,7 @@ const {
   REACT_APP_HYPEREVM_RPC,
   REACT_APP_XRPL_RPC,
   REACT_APP_HYPERCORE_RPC,
+  REACT_APP_CREDITCOIN_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -61,4 +62,5 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('HyperEVM', REACT_APP_HYPEREVM_RPC),
   ...populateRpcField('XRPLEVM', REACT_APP_XRPL_RPC),
   ...populateRpcField('HyperCore', REACT_APP_HYPERCORE_RPC),
+  ...populateRpcField('CreditCoin', REACT_APP_CREDITCOIN_RPC),
 };

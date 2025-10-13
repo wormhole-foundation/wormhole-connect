@@ -66,6 +66,7 @@ describe('[Integration] Bridge component config updates', () => {
           'Solana',
           'HyperEVM',
           'Unichain',
+          'CreditCoin',
         ]),
       };
       mockConfig.routes = newRoutes;
@@ -99,6 +100,7 @@ describe('[Integration] Bridge component config updates', () => {
           'Solana',
           'HyperEVM',
           'Unichain',
+          'CreditCoin',
         ]),
       };
       mockConfig.routes = newRoutes;
@@ -113,6 +115,7 @@ describe('[Integration] Bridge component config updates', () => {
       'Solana',
       'HyperEVM',
       'Unichain',
+      'CreditCoin',
     ]);
   });
 
@@ -148,6 +151,7 @@ describe('[Integration] Bridge component config updates', () => {
           'Solana',
           'HyperEVM',
           'Unichain',
+          'CreditCoin',
         ]),
       };
       mockConfig.routes = newRoutes;
@@ -164,6 +168,7 @@ describe('[Integration] Bridge component config updates', () => {
       'Solana',
       'HyperEVM',
       'Unichain',
+      'CreditCoin',
     ]);
   });
 });

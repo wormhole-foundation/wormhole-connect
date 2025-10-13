@@ -68,6 +68,7 @@ export enum TokenIcon {
   'FOGO',
   'HYPE',
   'XRP',
+  'CTC',
 }
 
 // Used in bridging components
@@ -169,6 +170,7 @@ export interface InternalConfig<N extends Network> {
   };
 
   mayanApi: string;
+  lifiExplorerUrl: string;
   wormholeApi: string;
   wormholeRpcHosts: string[];
   coingecko?: {

@@ -36,7 +36,7 @@ function Eta({ eta }: EtaProps) {
       >
         <ClockIcon
           sx={{
-            color: '#7A8390',
+            color: theme.palette.text.secondary,
             width: '12px',
             height: '12px',
           }}

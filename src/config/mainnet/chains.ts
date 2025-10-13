@@ -10,7 +10,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'ETH',
   },
   Bsc: {
-    displayName: 'BSC',
+    displayName: 'BNB',
     sdkName: 'Bsc',
     explorerUrl: 'https://bscscan.com/',
     explorerName: 'BscScan',
@@ -232,5 +232,13 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'XRPL EVM Explorer',
     icon: 'XRPLEVM',
     symbol: 'XRP',
+  },
+  CreditCoin: {
+    displayName: 'Creditcoin',
+    sdkName: 'CreditCoin',
+    explorerUrl: 'https://creditcoin.blockscout.com',
+    explorerName: 'Blockscout',
+    icon: 'CreditCoin',
+    symbol: 'CTC',
   },
 };

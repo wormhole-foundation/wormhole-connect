@@ -157,7 +157,7 @@ const useTransactionHistoryWHScan = (
         token = await getOrFetchToken(
           Wormhole.tokenId(tokenChain, standarizedProperties.tokenAddress),
         );
-      } catch (e) {
+      } catch (_e) {
         // This is ok
       }
 
@@ -448,7 +448,6 @@ const useTransactionHistoryWHScan = (
         if (res.status !== 200) {
           setTransactions([]);
           setHasMore(false);
-          setIsFetching(false);
         } else {
           const resPayload = await res.json();
 

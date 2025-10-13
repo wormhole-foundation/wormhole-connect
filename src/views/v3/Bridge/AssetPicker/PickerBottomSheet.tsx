@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -11,6 +11,7 @@ import type { Token } from 'config/tokens';
 import type { Balances } from 'utils/wallet/types';
 import ChainList from 'views/v3/Bridge/AssetPicker/ChainList';
 import TokenList from 'views/v3/Bridge/AssetPicker/TokenList';
+import PickerHeader from './PickerHeader';
 
 interface AssetPickerDrawerProps {
   isDrawerOpen: boolean;
@@ -92,6 +93,11 @@ function AssetPickerDrawer({
       onClose={() => setIsDrawerOpen(false)}
     >
       {drawerHandle}
+      <PickerHeader
+        onClose={() => setIsDrawerOpen(false)}
+        showSearch={showChainSearch}
+        onBack={() => setShowChainSearch(false)}
+      />
       <ChainList
         chainList={chainList}
         selectedChainConfig={chainConfig}
@@ -122,4 +128,4 @@ function AssetPickerDrawer({
   );
 }
 
-export default memo(AssetPickerDrawer);
+export default React.memo(AssetPickerDrawer);
