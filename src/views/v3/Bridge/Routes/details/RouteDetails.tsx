@@ -42,15 +42,16 @@ export default function RouteDetails({
   }, [minReceived, quoteSlippageBps]);
   const hasIndicators = !!eta; // Add Fee component here when ready.
   return (
-    <Stack direction={'column'} spacing={0.5} useFlexGap sx={{ width: '100%' }}>
+    <Stack direction="column" spacing={0.5} useFlexGap sx={{ width: '100%' }}>
       <Stack
-        direction={'row'}
+        direction="row"
         sx={{
           paddingLeft: theme.spacing(0.5),
           paddingRight: theme.spacing(0.5),
         }}
         height={18}
-        alignItems={'center'}
+        alignItems="center"
+        justifyContent="space-between"
       >
         <ProviderLabel
           destChain={destChain}
@@ -61,10 +62,10 @@ export default function RouteDetails({
           enableRouteSelector={enableRouteSelector ?? false}
         />
         <Stack
-          direction={'row'}
+          direction="row"
           gap={theme.spacing(2)}
           height={18}
-          alignItems={'center'}
+          alignItems="center"
           sx={{
             paddingLeft: '8px',
             '&:hover': {

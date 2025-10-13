@@ -4,6 +4,8 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import { useTheme } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+
 interface ProviderLabelProps {
   destChain?: string;
   provider?: string;
@@ -34,34 +36,44 @@ function ProviderLabel({
   const theme = useTheme();
 
   return (
-    <Stack
-      direction="row"
+    <Button
+      onClick={enableRouteSelector ? onClick : undefined}
+      disableRipple
+      variant="text"
       sx={{
-        flexGrow: 1,
-        whiteSpace: 'nowrap',
-        cursor: enableRouteSelector ? 'pointer' : 'auto',
-        alignItems: 'center',
-        transition: '0.3s',
+        minWidth: 0,
+        padding: 0,
+        justifyContent: 'flex-start',
+        textTransform: 'none',
         color: theme.palette.text.tertiary,
         '&:hover': {
+          backgroundColor: 'transparent',
           color: enableRouteSelector ? theme.palette.text.accent : 'none',
-          opacity: 1,
         },
       }}
-      onClick={enableRouteSelector ? onClick : undefined}
     >
-      <Typography variant="body2" fontWeight={500}>
-        Routing via {via ?? 'route'}
-      </Typography>
-      {enableRouteSelector && (
-        <ChevronRight
-          sx={{
-            width: 16,
-            height: 16,
-          }}
-        />
-      )}
-    </Stack>
+      <Stack
+        direction="row"
+        sx={{
+          flexGrow: 1,
+          whiteSpace: 'nowrap',
+          alignItems: 'center',
+          transition: '0.3s',
+        }}
+      >
+        <Typography variant="body2" fontWeight={500}>
+          Routing via {via ?? 'route'}
+        </Typography>
+        {enableRouteSelector && (
+          <ChevronRight
+            sx={{
+              width: 16,
+              height: 16,
+            }}
+          />
+        )}
+      </Stack>
+    </Button>
   );
 }
 
