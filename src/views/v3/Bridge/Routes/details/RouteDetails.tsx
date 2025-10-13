@@ -4,12 +4,11 @@ import Eta from '../Eta';
 import { useTheme } from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
 import React, { useMemo } from 'react';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import MaxSlippage from './MaxSlippage';
 import MinOutput from './MinOutput';
 import { useToggle } from 'usehooks-ts';
 import Typography from '@mui/material/Typography';
+import { ChevronToggle } from './index';
 
 export interface RouteDetailsProps {
   destChain?: string;
@@ -100,25 +99,10 @@ export default function RouteDetails({
               Details
             </Typography>
           )}
-          {isShowingDetails ? (
-            <ExpandLessIcon
-              sx={{
-                cursor: 'pointer',
-                width: 18,
-                height: 18,
-                marginLeft: '4px',
-              }}
-              onClick={handleChevronClick}
-            />
-          ) : (
-            <ExpandMoreIcon
-              sx={{
-                cursor: 'pointer',
-                width: 18,
-                height: 18,
-                marginLeft: '4px',
-              }}
-              onClick={handleChevronClick}
+          {hasAnyDetails && (
+            <ChevronToggle
+              expanded={isShowingDetails}
+              onToggle={handleChevronClick}
             />
           )}
         </Stack>
