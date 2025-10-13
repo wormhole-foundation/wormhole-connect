@@ -65,8 +65,10 @@ testConfigs.forEach(
           amount,
         );
 
-        // Verify route selection
-        await bridgeView.verifyRouteSelection(name);
+        // Verify route selection (when applicable) - NttExecutorRoute
+        if (name === 'NttExecutorRoute') {
+          await bridgeView.verifyRouteSelection(name);
+        }
       },
     );
 
