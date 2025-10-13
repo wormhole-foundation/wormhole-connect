@@ -35,6 +35,8 @@ import {
   handleTelemetryOnTokenSelect,
 } from 'telemetry/utils';
 import FeeOffset from './FeeOffset';
+import { calculateFeeOffset } from 'utils/fees';
+import { useGetTokens } from 'hooks/useGetTokens';
 
 type Props = {
   chain?: Chain | undefined;
@@ -63,7 +65,10 @@ function AssetPicker(props: Props) {
   const theme: any = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { amount } = useSelector((state: RootState) => state.transferInput);
+  const { amount, route: selectedRoute } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+  const { sourceToken, destToken } = useGetTokens();
   const { getTokenPrice } = useTokens();
 
   const [showChainSearch, setShowChainSearch] = useState(false);
@@ -357,6 +362,56 @@ function AssetPicker(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount]);
 
+  // Adjust amount when route changes if user had clicked Max button previously
+  // This handles both cases:
+  // 1. Switching from non-fee-offset route to fee-offset route: deduct fee offset
+  // 2. Switching from fee-offset route to non-fee-offset route: restore full balance
+  useEffect(() => {
+    if (
+      selectedPercentButton !== 100 || // Only adjust if user had clicked "Max"
+      !props.isSource || // Only adjust for source asset picker
+      !tokenBalance ||
+      !amount ||
+      !selectedRoute ||
+      !sourceToken ||
+      !destToken
+    ) {
+      return;
+    }
+
+    const currentAmountUnits = sdkAmount.units(amount);
+    const maxAmountUnits = sdkAmount.units(tokenBalance);
+
+    // Calculate fee offset for the new route
+    const feeOffset = calculateFeeOffset(
+      config.routes.get(selectedRoute),
+      tokenBalance,
+      sourceToken,
+      destToken,
+    );
+
+    if (feeOffset) {
+      // Case 1: New route has fee offset AND adjusted max amount is smaller than current amount -> deduct it from max amount
+      const adjustedMaxAmount = maxAmountUnits - sdkAmount.units(feeOffset);
+      if (adjustedMaxAmount < currentAmountUnits) {
+        const displayAmount = sdkAmount.display(
+          sdkAmount.fromBaseUnits(adjustedMaxAmount, tokenBalance.decimals),
+        );
+        setAmountInput(displayAmount);
+        setDebouncedAmountInput(displayAmount);
+        dispatch(setAmount(displayAmount));
+      }
+    } else if (currentAmountUnits < maxAmountUnits) {
+      // Case 2: New route has no fee offset AND the amount is smaller than max -> restore full balance
+      const displayAmount = sdkAmount.display(tokenBalance);
+      setAmountInput(displayAmount);
+      setDebouncedAmountInput(displayAmount);
+      dispatch(setAmount(displayAmount));
+    }
+    // Re-run only when selectedRoute changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRoute]);
+
   const renderPercentButton = useCallback(
     (percent: number) => (
       <Button
@@ -369,8 +424,23 @@ function AssetPicker(props: Props) {
         disabled={props.isTransactionInProgress}
         onClick={() => {
           if (tokenBalance) {
-            const balancePercent =
+            let balancePercent =
               (sdkAmount.units(tokenBalance) * BigInt(percent)) / BigInt(100);
+
+            // When user clicks "Max", we need to subtract the fee offset amount from the balance
+            // This is to ensure user doesn't get insufficient funds error when fee offset is applied
+            if (percent === 100 && selectedRoute && sourceToken && destToken) {
+              const feeOffset = calculateFeeOffset(
+                config.routes.get(selectedRoute),
+                tokenBalance,
+                sourceToken,
+                destToken,
+              );
+              if (feeOffset) {
+                balancePercent -= sdkAmount.units(feeOffset);
+              }
+            }
+
             const displayAmount = sdkAmount.display(
               sdkAmount.fromBaseUnits(balancePercent, tokenBalance.decimals),
             );
@@ -391,6 +461,9 @@ function AssetPicker(props: Props) {
       selectedPercentButton,
       props.isTransactionInProgress,
       tokenBalance,
+      selectedRoute,
+      sourceToken,
+      destToken,
       handleAmountChange,
       handleDebouncedAmountChange,
     ],
