@@ -98,13 +98,22 @@ describe('calculateFeeOffset', () => {
         },
       };
 
+      const mockDestToken = {
+        ...mockToken,
+        chain: 'Solana',
+        tokenId: {
+          chain: 'Solana',
+          address: mockToken.address,
+        },
+      };
+
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
       const result = calculateFeeOffset(
         'MayanSwapRoute',
         mockAmount,
         mockToken,
-        mockToken,
+        mockDestToken,
       );
 
       expect(mockRoute.rc.getReferrerBps).toHaveBeenCalledWith({
@@ -114,9 +123,9 @@ describe('calculateFeeOffset', () => {
           decimals: mockToken.decimals,
         },
         destination: {
-          id: mockToken.tokenId,
-          symbol: mockToken.symbol,
-          decimals: mockToken.decimals,
+          id: mockDestToken.tokenId,
+          symbol: mockDestToken.symbol,
+          decimals: mockDestToken.decimals,
         },
       });
 
@@ -132,13 +141,22 @@ describe('calculateFeeOffset', () => {
         },
       };
 
+      const mockDestToken = {
+        ...mockToken,
+        chain: 'Solana',
+        tokenId: {
+          chain: 'Solana',
+          address: mockToken.address,
+        },
+      };
+
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
       const result = calculateFeeOffset(
         'MayanSwapRoute',
         mockAmount,
         mockToken,
-        mockToken,
+        mockDestToken,
       );
       expect(result).toBeUndefined();
     });
@@ -150,13 +168,22 @@ describe('calculateFeeOffset', () => {
         },
       };
 
+      const mockDestToken = {
+        ...mockToken,
+        chain: 'Solana',
+        tokenId: {
+          chain: 'Solana',
+          address: mockToken.address,
+        },
+      };
+
       vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
       const result = calculateFeeOffset(
         'MayanSwapRoute',
         mockAmount,
         mockToken,
-        mockToken,
+        mockDestToken,
       );
       expect(result).toBeUndefined();
     });
