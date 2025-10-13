@@ -12,6 +12,7 @@ import type { Balances } from 'utils/wallet/types';
 import { useTokenListWithSearch } from 'hooks/useTokenListWithSearch';
 import TokenSectionHeader from './TokenSectionHeader';
 import { useTokenListGrouping } from 'hooks/useTokenListGrouping';
+import TokenListSkeleton from './TokenListSkeleton';
 
 type Props = {
   tokenList: Array<Token>;
@@ -132,6 +133,7 @@ const TokenList = (props: Props) => {
           searchQuery={props.searchQuery}
           listTitle={listState === 'empty' ? emptyMessage : ''}
           items={listItems}
+          loading={listState === 'loading' ? <TokenListSkeleton /> : undefined}
           onQueryChange={props.onSearchQueryChange}
           renderFn={(token: Token, index: number) => {
             const balance = props.balances?.[token.key]?.balance;
