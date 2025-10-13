@@ -42,7 +42,7 @@ function FeeOffset() {
         >
           +{sdkAmount.display(feeOffsetAmount)} {sourceToken?.symbol}
         </Typography>
-        <Tooltip title="Portal's fee is added on top of your input amount. Slippage may still apply.">
+        <Tooltip title="Portal's fee is added on top of your input amount.">
           <InfoOutlineIcon
             sx={{
               height: '14px',
