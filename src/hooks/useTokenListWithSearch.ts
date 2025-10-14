@@ -6,16 +6,20 @@ import {
   useDeferredValue,
   startTransition,
 } from 'react';
-import { toNative } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount, toNative } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
 import config from 'config';
 import { useTokens } from 'contexts/TokensContext';
-import { getTokenDisplaySymbolByTokenAddress } from 'utils';
+import {
+  getTokenDisplaySymbolByTokenAddress,
+  isFrankensteinToken,
+} from 'utils';
 import {
   getWrappedNativeToken,
   shouldFilterSameChainToken,
 } from 'utils/wrappedNativeTokens';
+import type { Balances } from 'utils/wallet/types';
 import { unionBy } from 'es-toolkit';
 
 interface UseTokenListWithSearchParams {
@@ -25,6 +29,7 @@ interface UseTokenListWithSearchParams {
   isSource: boolean;
   isSameChainSwap: boolean;
   sourceToken?: Token;
+  balances?: Balances;
   tokenPastingEnabled?: boolean;
 }
 
@@ -47,6 +52,7 @@ export const useTokenListWithSearch = ({
   isSource,
   isSameChainSwap,
   sourceToken,
+  balances,
   tokenPastingEnabled = true,
 }: UseTokenListWithSearchParams): UseTokenListWithSearchReturn => {
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
@@ -155,6 +161,30 @@ export const useTokenListWithSearch = ({
       );
     }
 
+    // Filter frankenstein tokens based on whether it's source or destination
+    if (chain) {
+      tokens = tokens.filter((token) => {
+        if (!isFrankensteinToken(token, chain)) {
+          return true;
+        }
+
+        // For destination tokens: always filter out frankenstein tokens
+        if (!isSource) {
+          return false;
+        }
+
+        // For source tokens: only show frankenstein tokens if they have a balance
+        if (balances) {
+          const balance = balances[token.key]?.balance;
+          const hasBalance = balance && sdkAmount.units(balance) > 0n;
+          return hasBalance;
+        }
+
+        // No balances available - don't show frankenstein tokens
+        return false;
+      });
+    }
+
     return tokens;
   }, [
     baseTokenList,
@@ -165,6 +195,8 @@ export const useTokenListWithSearch = ({
     isSameChainSwap,
     isSource,
     wrappedNativeAddr,
+    chain,
+    balances,
   ]);
 
   const tokenPrices = useMemo(

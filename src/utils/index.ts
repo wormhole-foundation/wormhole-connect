@@ -343,10 +343,11 @@ export const getWalletExplorerUrl = (
     : appendPathToUrl(baseUrl, `address/${path}`);
 };
 
-// Frankenstein tokens are wormhole-wrapped tokens that are not native to the chain
-// and likely have no liquidity.
-// An example of a Frankenstein token is wormhole-wrapped Arbitrum WETH on Solana.
-// However wormhole-wrapped Ethereum WETH on Solana is not a Frankenstein token.
+// Frankenstein tokens are specific token bridge wrapped tokens (WTT) that likely have no liquidity.
+// An example of a Frankenstein token is token bridge wrapped Arbitrum WETH on Solana.
+// However token bridge wrapped Ethereum WETH on Solana is not a Frankenstein token.
+// This is not meant to be a perfect classification, but rather a heuristic to filter out
+// tokens that are likely to have no liquidity on DEXes.
 export const isFrankensteinToken = (token: Token, chain: Chain) => {
   if (!token.isTokenBridgeWrappedToken) {
     return false;
@@ -354,7 +355,7 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
 
   const { nativeChain, symbol } = token;
 
-  if (symbol === 'USDC' && nativeChain === 'Ethereum' && chain === 'Fantom') {
+  if (symbol === 'USDC') {
     return true;
   }
 
@@ -363,7 +364,7 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
   }
 
   return (
-    !(['Ethereum', 'Sepolia'] as Chain[]).includes(nativeChain) &&
+    nativeChain !== 'Ethereum' &&
     ['ETH', 'WETH', 'wstETH', 'USDT', 'USDC', 'USDC.e'].includes(symbol)
   );
 };
