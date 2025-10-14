@@ -15,6 +15,7 @@ import AssetBadge from 'components/AssetBadge';
 import ExplorerLink from 'components/ExplorerLink';
 import {
   calculateUSDPrice,
+  chainDisplayName,
   getTransactionExplorerUrl,
   getWalletExplorerUrl,
   millisToHumanString,
@@ -296,12 +297,10 @@ const TransactionDetails = () => {
 
     etaDisplay = millisToHumanString(eta);
 
-    const destChainConfig = config.chains[toChain];
-
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          {`Time to ${destChainConfig?.displayName || toChain}`}
+          {`Time to ${chainDisplayName(toChain)}`}
         </Typography>
         <Typography fontSize={14}>{etaDisplay}</Typography>
       </Stack>
