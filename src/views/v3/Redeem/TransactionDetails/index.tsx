@@ -15,6 +15,7 @@ import AssetBadge from 'components/AssetBadge';
 import ExplorerLink from 'components/ExplorerLink';
 import {
   calculateUSDPrice,
+  chainDisplayName,
   getTransactionExplorerUrl,
   getWalletExplorerUrl,
   millisToHumanString,
@@ -299,7 +300,7 @@ const TransactionDetails = () => {
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          {`Time to ${toChain}`}
+          {`Time to ${chainDisplayName(toChain)}`}
         </Typography>
         <Typography fontSize={14}>{etaDisplay}</Typography>
       </Stack>

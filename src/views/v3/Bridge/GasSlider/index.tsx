@@ -12,7 +12,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { amount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
-import { calculateUSDPrice } from 'utils';
+import { calculateUSDPrice, chainDisplayName } from 'utils';
 import type { RootState } from 'store';
 import { useTokens } from 'contexts/TokensContext';
 import Color from 'color';
@@ -158,7 +158,9 @@ const GasSlider = (props: {
   return (
     <Box sx={styles.content}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography>{`Need extra ${destGasToken.symbol} on ${destChain}?`}</Typography>
+        <Typography>{`Need extra ${destGasToken.symbol} on ${chainDisplayName(
+          destChain!,
+        )}?`}</Typography>
         <Switch
           sx={{
             padding: '9px 12px',
@@ -209,7 +211,11 @@ const GasSlider = (props: {
                 <Tooltip
                   title={
                     isExecutorRoute
-                      ? `Add a small amount of ${sourceGasToken.symbol} to your transaction to receive ${nativeGasPrice} on ${destChain}.`
+                      ? `Add a small amount of ${
+                          sourceGasToken.symbol
+                        } to your transaction to receive ${nativeGasPrice} on ${chainDisplayName(
+                          destChain!,
+                        )}.`
                       : 'This additional gas is swapped from a percentage of your transfer amount.'
                   }
                 >
