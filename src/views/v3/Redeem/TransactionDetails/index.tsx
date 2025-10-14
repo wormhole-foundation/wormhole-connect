@@ -296,10 +296,12 @@ const TransactionDetails = () => {
 
     etaDisplay = millisToHumanString(eta);
 
+    const destChainConfig = config.chains[toChain];
+
     return (
       <Stack direction="row" justifyContent="space-between">
         <Typography color={theme.palette.text.secondary} fontSize={14}>
-          {`Time to ${toChain}`}
+          {`Time to ${destChainConfig?.displayName || toChain}`}
         </Typography>
         <Typography fontSize={14}>{etaDisplay}</Typography>
       </Stack>

@@ -86,6 +86,7 @@ const GasSlider = (props: {
 
   const destGasToken = config.tokens.getGasToken(destChain!);
   const sourceGasToken = config.tokens.getGasToken(sourceChain!);
+  const destChainConfig = destChain ? config.chains[destChain] : null;
 
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(false);
   const [percentage, setPercentage] = useState(toNativeToken);
@@ -158,7 +159,9 @@ const GasSlider = (props: {
   return (
     <Box sx={styles.content}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography>{`Need extra ${destGasToken.symbol} on ${destChain}?`}</Typography>
+        <Typography>{`Need extra ${destGasToken.symbol} on ${
+          destChainConfig?.displayName || destChain
+        }?`}</Typography>
         <Switch
           sx={{
             padding: '9px 12px',
@@ -209,7 +212,11 @@ const GasSlider = (props: {
                 <Tooltip
                   title={
                     isExecutorRoute
-                      ? `Add a small amount of ${sourceGasToken.symbol} to your transaction to receive ${nativeGasPrice} on ${destChain}.`
+                      ? `Add a small amount of ${
+                          sourceGasToken.symbol
+                        } to your transaction to receive ${nativeGasPrice} on ${
+                          destChainConfig?.displayName || destChain
+                        }.`
                       : 'This additional gas is swapped from a percentage of your transfer amount.'
                   }
                 >
