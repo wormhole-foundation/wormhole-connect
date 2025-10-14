@@ -92,37 +92,41 @@ function AssetPickerDrawer({
       onOpen={() => setIsDrawerOpen(true)}
       onClose={() => setIsDrawerOpen(false)}
     >
-      {drawerHandle}
-      <PickerHeader
-        onClose={() => setIsDrawerOpen(false)}
-        showSearch={showChainSearch}
-        onBack={() => setShowChainSearch(false)}
-      />
-      <ChainList
-        chainList={chainList}
-        selectedChainConfig={chainConfig}
-        showSearch={showChainSearch}
-        setShowSearch={setShowChainSearch}
-        wallet={wallet}
-        onChainSelect={onChainSelect}
-      />
-      {!showChainSearch && chainConfig && (
-        <TokenList
-          tokenList={sortedTokens}
-          balances={balances}
-          isFetchingBalances={isFetchingBalances}
-          isConnectingWallet={isConnectingWallet}
-          isFetching={isFetchingTokens}
-          isSameChainSwap={isSameChainSwap}
-          selectedChainConfig={chainConfig}
-          selectedToken={token}
-          sourceToken={sourceToken}
-          isSource={isSource}
-          wallet={wallet}
-          searchQuery={searchQuery}
-          onSearchQueryChange={setSearchQuery}
-          onSelectToken={onTokenSelect}
-        />
+      {isDrawerOpen && (
+        <>
+          {drawerHandle}
+          <PickerHeader
+            onClose={() => setIsDrawerOpen(false)}
+            showSearch={showChainSearch}
+            onBack={() => setShowChainSearch(false)}
+          />
+          <ChainList
+            chainList={chainList}
+            selectedChainConfig={chainConfig}
+            showSearch={showChainSearch}
+            setShowSearch={setShowChainSearch}
+            wallet={wallet}
+            onChainSelect={onChainSelect}
+          />
+          {!showChainSearch && chainConfig && (
+            <TokenList
+              tokenList={sortedTokens}
+              balances={balances}
+              isFetchingBalances={isFetchingBalances}
+              isConnectingWallet={isConnectingWallet}
+              isFetching={isFetchingTokens}
+              isSameChainSwap={isSameChainSwap}
+              selectedChainConfig={chainConfig}
+              selectedToken={token}
+              sourceToken={sourceToken}
+              isSource={isSource}
+              wallet={wallet}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              onSelectToken={onTokenSelect}
+            />
+          )}
+        </>
       )}
     </SwipeableDrawer>
   );
