@@ -3,7 +3,7 @@ import ProviderLabel from '../ProviderLabel';
 import Eta from '../Eta';
 import { useTheme } from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
-import React, { useMemo } from 'react';
+import React from 'react';
 import MaxSlippage from './MaxSlippage';
 import MinOutput from './MinOutput';
 import { useToggle } from 'usehooks-ts';
@@ -37,9 +37,7 @@ export default function RouteDetails({
 }: RouteDetailsProps) {
   const theme = useTheme();
   const [isShowingDetails, handleChevronClick] = useToggle(false);
-  const hasAnyDetails = useMemo(() => {
-    return minReceived || quoteSlippageBps;
-  }, [minReceived, quoteSlippageBps]);
+  const hasAnyDetails = minReceived || quoteSlippageBps;
   const hasIndicators = !!eta; // Add Fee component here when ready.
   return (
     <Stack direction="column" spacing={0.5} useFlexGap sx={{ width: '100%' }}>
