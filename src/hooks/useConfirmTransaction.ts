@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import config from 'config';
@@ -37,6 +37,7 @@ type ReturnProps = {
   // errorInternal can be a result of custom validation, hence of unknown type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errorInternal: any | undefined;
+  info: string | undefined;
   onConfirm: () => void;
 };
 
@@ -49,6 +50,7 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
   const [errorInternal, setErrorInternal] = useState<any | undefined>(
     undefined,
   );
+  const [info, setInfo] = useState<string | undefined>(undefined);
 
   const routeContext = useContext(RouteContext);
   const { walletProvider } = useWalletProvider();
@@ -76,6 +78,19 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
   const receiveNativeAmount = quote?.destinationNativeGas;
 
   const getUSDAmount = useUSDamountGetter();
+
+  // Clear error and info when any input changes
+  useEffect(() => {
+    if (error) {
+      setError(undefined);
+      setErrorInternal(undefined);
+    }
+    if (info) {
+      setInfo(undefined);
+    }
+    // Only clear when these specific values change, not when error/info changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceChain, sourceToken?.key, destChain, destToken?.key, amount, route]);
 
   const onConfirm = async () => {
     // Clear previous errors
@@ -260,7 +275,8 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
 
       if (transferError.type === ERR_USER_REJECTED) {
         // User intentionally rejected in their wallet. This is not an error in the sense
-        // that something went wrong.
+        // that something went wrong, but we will show it as a warning info to the user.
+        setInfo(uiError);
       } else {
         console.error('Wormhole Connect: error completing transfer', e);
 
@@ -284,6 +300,7 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
     onConfirm,
     error,
     errorInternal,
+    info,
   };
 };
 
