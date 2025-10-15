@@ -89,36 +89,40 @@ function AssetPickerPopover({
         },
       }}
     >
-      <PickerHeader
-        onClose={() => popupState.close()}
-        showSearch={showChainSearch}
-        onBack={() => setShowChainSearch(false)}
-      />
-      <ChainList
-        chainList={chainList}
-        selectedChainConfig={chainConfig}
-        showSearch={showChainSearch}
-        setShowSearch={setShowChainSearch}
-        wallet={wallet}
-        onChainSelect={onChainSelect}
-      />
-      {!showChainSearch && chainConfig && (
-        <TokenList
-          tokenList={sortedTokens}
-          balances={balances}
-          isFetchingBalances={isFetchingBalances}
-          isConnectingWallet={isConnectingWallet}
-          isFetching={isFetchingTokens}
-          selectedChainConfig={chainConfig}
-          selectedToken={token}
-          sourceToken={sourceToken}
-          isSameChainSwap={isSameChainSwap}
-          isSource={isSource}
-          wallet={wallet}
-          searchQuery={searchQuery}
-          onSearchQueryChange={setSearchQuery}
-          onSelectToken={onTokenSelect}
-        />
+      {popupState.isOpen && (
+        <>
+          <PickerHeader
+            onClose={() => popupState.close()}
+            showSearch={showChainSearch}
+            onBack={() => setShowChainSearch(false)}
+          />
+          <ChainList
+            chainList={chainList}
+            selectedChainConfig={chainConfig}
+            showSearch={showChainSearch}
+            setShowSearch={setShowChainSearch}
+            wallet={wallet}
+            onChainSelect={onChainSelect}
+          />
+          {!showChainSearch && chainConfig && (
+            <TokenList
+              tokenList={sortedTokens}
+              balances={balances}
+              isFetchingBalances={isFetchingBalances}
+              isConnectingWallet={isConnectingWallet}
+              isFetching={isFetchingTokens}
+              selectedChainConfig={chainConfig}
+              selectedToken={token}
+              sourceToken={sourceToken}
+              isSameChainSwap={isSameChainSwap}
+              isSource={isSource}
+              wallet={wallet}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              onSelectToken={onTokenSelect}
+            />
+          )}
+        </>
       )}
     </Popover>
   );
