@@ -15,8 +15,9 @@ import type { Transaction } from 'config/types';
 import { toFixedDecimals } from 'utils/balance';
 import { useTokens } from 'contexts/TokensContext';
 import type { Token } from 'config/tokens';
+import { isPortalBridgeAttestationTx } from 'utils/whScanUtils';
 
-interface WormholeScanTransaction {
+export interface WormholeScanTransaction {
   id: string;
   content: {
     payload: {
@@ -189,7 +190,7 @@ const useTransactionHistoryWHScan = (
         sentAmountDisplay = sdkAmount.display(
           {
             amount: standarizedProperties.amount,
-            decimals: standarizedProperties.normalizedDecimals ?? DECIMALS,
+            decimals: DECIMALS,
           },
           0,
         );
@@ -265,6 +266,9 @@ const useTransactionHistoryWHScan = (
   // that we have retrieved from WHScan API
   const parseTokenBridgeTx = useCallback(
     (tx: WormholeScanTransaction) => {
+      if (isPortalBridgeAttestationTx(tx)) {
+        return undefined;
+      }
       return parseSingleTx(tx);
     },
     [parseSingleTx],
@@ -307,7 +311,6 @@ const useTransactionHistoryWHScan = (
     async (tx: WormholeScanTransaction) => {
       const txData = await parseSingleTx(tx);
       if (!txData) return;
-
       const payload = tx.content.payload
         .parsedPayload as unknown as WormholeScanPorticoParsedPayload;
 
