@@ -14,8 +14,8 @@ import type {
 } from '../routes/mayan/types';
 import { TransferWallet } from 'utils/wallet';
 import type { WormholeConnectWalletProvider } from 'utils/wallet/types';
-import { isEvmChain } from './evm';
 import { getWormholeContextV2 } from 'config';
+import { isEvmChain } from './evm';
 
 // Note: Hyperliquid bridge = Arbitrum bridge + custom payload for USDC deposit to Hyperliquid
 
@@ -63,13 +63,14 @@ export function validateHyperCoreTransfer<N extends Network>(
     };
   }
 
-  // Temporary restriction to EVM for now; SOL and SUI are coming soon
-  if (!isEvmChain(fromChain.chain)) {
+  if (!(isEvmChain(fromChain.chain) || fromChain.chain === 'Sui')) {
+    // Uncomment and use this when we want to support HyperCore USDC deposits on SOL
+    // || fromChain.chain === 'Solana')
     return {
       valid: false,
       params,
       error: new routes.UnavailableError(
-        new Error('HyperCore only supports EVM source chains'),
+        new Error('HyperCore only supports EVM or Sui source chains'),
       ),
     };
   }
@@ -134,7 +135,11 @@ export async function maybeGetHyperCorePermitSignature<N extends Network>(
     throw new Error('No wallet provider available for HyperCore permit');
   }
 
-  const wallet = walletProvider.getWallet(ARBITRUM, TransferWallet.SENDING) as
+  const walletToSwitch = isEvmChain(request.fromChain.chain)
+    ? TransferWallet.SENDING
+    : TransferWallet.RECEIVING;
+
+  const wallet = walletProvider.getWallet(ARBITRUM, walletToSwitch) as
     | Eip6963Wallet
     | undefined;
 
