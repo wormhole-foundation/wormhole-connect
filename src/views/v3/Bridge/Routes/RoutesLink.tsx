@@ -2,27 +2,12 @@ import React from 'react';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
-import ProviderLabel from './ProviderLabel';
 
 interface RoutesLinkProps {
-  destChain?: string;
   onClick: () => void;
-  provider?: string;
-  route?: string;
-  sourceChain?: string;
-  sourceTokenSymbol?: string;
 }
 
-function RoutesLink({
-  destChain,
-  onClick,
-  provider,
-  route,
-  sourceChain,
-  sourceTokenSymbol,
-}: RoutesLinkProps) {
+function RoutesLink({ onClick }: RoutesLinkProps) {
   const theme = useTheme();
 
   return (
@@ -31,7 +16,6 @@ function RoutesLink({
         component="span"
         data-testid="other-routes-toggle"
         role="button"
-        aria-label="View other routes"
         underline="none"
         sx={{
           display: 'flex',
@@ -40,18 +24,14 @@ function RoutesLink({
           cursor: 'pointer',
           fontSize: '14px',
           fontWeight: 700,
-          opacity: 0.5,
+          transition: '0.2s',
+          '&:hover': {
+            color: theme.palette.text.secondary,
+          },
         }}
         onClick={onClick}
       >
-        <ProviderLabel
-          destChain={destChain}
-          provider={provider}
-          route={route}
-          sourceChain={sourceChain}
-          sourceTokenSymbol={sourceTokenSymbol}
-        />
-        <ChevronRightIcon fontSize="small" sx={{ marginLeft: '4px' }} />
+        View all routes
       </Link>
     </Box>
   );

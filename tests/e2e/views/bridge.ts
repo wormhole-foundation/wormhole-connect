@@ -176,16 +176,16 @@ export class BridgeView {
 
   async verifyRouteSelection(routeName: string) {
     // Click the link to open Routes modal
-    const routeToggle = this.page.getByRole('button', {
-      name: 'View other routes',
-    });
+    const routeToggle = this.page.getByRole('button', { name: `route` });
     await routeToggle.waitFor({ state: 'visible' });
-    await routeToggle.click();
 
-    // Route should be visible and selected by default
-    await expect(
-      this.page.getByRole('button', { name: `Select ${routeName} route` }),
-    ).toBeVisible();
+    // If the route toggle is enabled - clicking it should show the modal
+    if (await routeToggle.isEnabled()) {
+      await routeToggle.click();
+      await expect(
+        this.page.getByRole('button', { name: `Select ${routeName} route` }),
+      ).toBeVisible();
+    }
 
     // Close the routes modal/drawer
     const closeButton = this.page.getByRole('button', { name: /Close routes/ });

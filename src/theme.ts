@@ -47,6 +47,8 @@ export type InternalTheme = {
   text: {
     primary: string;
     secondary: string;
+    tertiary: string;
+    accent: string;
   };
   error: Color;
   info: Color;
@@ -100,6 +102,8 @@ export const light: InternalTheme = {
   text: {
     primary: grey[900],
     secondary: '#7d7d7d',
+    tertiary: '#78787880',
+    accent: '#9891DA',
   },
   error: { main: '#f44336' },
   info: {
@@ -152,6 +156,8 @@ export const dark: InternalTheme = {
   text: {
     primary: '#ffffff',
     secondary: '#79859e',
+    tertiary: 'rgba(255,255,255,0.5)',
+    accent: '#ffffff',
   },
   info: {
     main: '#304C70',

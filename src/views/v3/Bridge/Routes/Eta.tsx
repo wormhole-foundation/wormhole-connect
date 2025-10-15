@@ -30,7 +30,7 @@ function Eta({ eta }: EtaProps) {
           display: 'flex',
           height: '32px',
           alignItems: 'center',
-          gap: '4px',
+          gap: '6px',
           padding: '4px 0',
         }}
       >

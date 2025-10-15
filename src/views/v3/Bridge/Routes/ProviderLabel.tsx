@@ -1,6 +1,10 @@
 import React from 'react';
-
 import { getRouteProvider } from './utils';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import { useTheme } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 
 interface ProviderLabelProps {
   destChain?: string;
@@ -8,6 +12,8 @@ interface ProviderLabelProps {
   route?: string;
   sourceChain?: string;
   sourceTokenSymbol?: string;
+  onClick?: () => void;
+  enableRouteSelector: boolean;
 }
 
 function ProviderLabel({
@@ -16,6 +22,8 @@ function ProviderLabel({
   route,
   sourceChain,
   sourceTokenSymbol,
+  onClick,
+  enableRouteSelector,
 }: ProviderLabelProps) {
   const via = getRouteProvider(
     destChain,
@@ -25,14 +33,47 @@ function ProviderLabel({
     provider,
   );
 
-  if (!via) {
-    return 'Route';
-  }
+  const theme = useTheme();
 
   return (
-    <span style={{ fontWeight: 600 }}>
-      Routing <span style={{ fontWeight: 400 }}>via {via}</span>
-    </span>
+    <Button
+      onClick={enableRouteSelector ? onClick : undefined}
+      disableRipple
+      variant="text"
+      sx={{
+        minWidth: 0,
+        padding: 0,
+        justifyContent: 'flex-start',
+        textTransform: 'none',
+        color: theme.palette.text.tertiary,
+        '&:hover': {
+          backgroundColor: 'transparent',
+          color: enableRouteSelector ? theme.palette.text.accent : 'none',
+        },
+      }}
+    >
+      <Stack
+        direction="row"
+        sx={{
+          flexGrow: 1,
+          whiteSpace: 'nowrap',
+          alignItems: 'center',
+          transition: '0.3s',
+        }}
+      >
+        <Typography variant="body2" fontWeight={500}>
+          {via ? `Routing via ${via}` : `Route`}
+        </Typography>
+        {enableRouteSelector && (
+          <ChevronRight
+            sx={{
+              width: 16,
+              height: 16,
+            }}
+          />
+        )}
+      </Stack>
+    </Button>
   );
 }
 

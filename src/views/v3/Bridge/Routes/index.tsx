@@ -14,8 +14,11 @@ import { setToNativeToken } from 'store/relay';
 import RoutesMobile from './RoutesBottomSheet';
 import RoutesDesktop from './RoutesModal';
 import RoutesLoader from './RoutesLoader';
-import RoutesLink from './RoutesLink';
-import Eta from './Eta';
+import RouteDetails from './details/RouteDetails';
+import {
+  getMinReceivedFromQuote,
+  getSlippageFromQuote,
+} from 'utils/quoteUtils';
 
 type Props = {
   routes: string[];
@@ -210,15 +213,17 @@ function Routes({
     }
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
+  const isRouteSelectionPillApplicable =
+    !!fastestRoute.name &&
+    !!cheapestRoute.name &&
+    cheapestRoute.name !== fastestRoute.name;
+
   const routeSelectionPills = useMemo(() => {
-    if (
-      fastestRoute.name &&
-      cheapestRoute.name &&
-      cheapestRoute.name !== fastestRoute.name
-    ) {
+    if (isRouteSelectionPillApplicable) {
       return (
         <Box
           sx={{
+            paddingLeft: theme.spacing(0.5),
             display: 'flex',
             width: '100%',
             justifyContent: 'flex-start',
@@ -263,6 +268,8 @@ function Routes({
 
     return null;
   }, [
+    isRouteSelectionPillApplicable,
+    theme,
     fastestRoute.name,
     cheapestRoute.name,
     selectedRouteBadge,
@@ -273,7 +280,6 @@ function Routes({
 
   const selectButtonDisabled =
     !!selectedRoute && selectedRoute === highlightedRoute;
-
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
   if (!isLoading && routesList.length === 0) {
@@ -290,29 +296,25 @@ function Routes({
             sx={{
               width: '100%',
               alignItems: 'center',
-              gap: '8px',
+              gap: '16px',
+              paddingBottom: theme.spacing(3),
             }}
           >
             {routeSelectionPills}
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 8px',
-                width: '100%',
-                height: '18px',
-              }}
-            >
-              <RoutesLink
-                destChain={destChain}
-                provider={selectedQuote?.provider}
-                route={selectedRoute}
-                sourceChain={sourceChain}
-                onClick={handleToggleRoutes}
-              />
-              <Eta eta={selectedQuote?.eta} />
-            </Box>
+            <RouteDetails
+              destChain={destChain}
+              provider={selectedQuote?.provider}
+              eta={selectedQuote?.eta}
+              selectedRoute={selectedRoute}
+              sourceChain={sourceChain}
+              handleToggleRoutes={handleToggleRoutes}
+              quoteSlippageBps={getSlippageFromQuote(selectedQuote)}
+              minReceived={getMinReceivedFromQuote(selectedQuote)}
+              outputToken={selectedQuote?.details?.toToken?.symbol}
+              enableRouteSelector={
+                !isRouteSelectionPillApplicable && routesList.length > 1
+              }
+            />
           </Stack>
         </>
       )}
