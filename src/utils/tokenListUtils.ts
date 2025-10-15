@@ -14,6 +14,7 @@ import {
 import { calculateUSDPriceRaw, isFrankensteinToken } from 'utils';
 import config from 'config';
 import { isNttToken } from './ntt';
+import type { Balances } from './wallet/types';
 
 export const getTokenPreferenceScore = (
   token: Token,
@@ -42,11 +43,11 @@ export const getTokenPreferenceScore = (
 
 export const calculateTokenUSDBalance = (
   token: Token,
-  balances: Record<string, { balance: any }>,
+  balances: Balances,
   getTokenPrice: (token: Token) => number | undefined,
 ): number => {
   const balance = balances[tokenKey(token)];
-  if (!balance || !balance.balance) {
+  if (!balance || !balance.balance || balance.balance.amount === '0') {
     return 0;
   }
   return calculateUSDPriceRaw(getTokenPrice, balance.balance, token) ?? 0;
@@ -87,7 +88,7 @@ export const applyTokenSearch = (
 export const sortTokensByPreference = (
   tokens: Token[],
   selectedToken: Token | undefined,
-  balances: Record<string, { balance: any }>,
+  balances: Balances,
   getTokenPrice: (token: Token) => number | undefined,
 ): Token[] => {
   return tokens.sort((a, b) => {
