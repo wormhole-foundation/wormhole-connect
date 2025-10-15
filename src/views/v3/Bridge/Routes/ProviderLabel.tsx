@@ -62,7 +62,7 @@ function ProviderLabel({
         }}
       >
         <Typography variant="body2" fontWeight={500}>
-          Routing via {via ?? 'route'}
+          {via ? `Routing via ${via}` : `Route`}
         </Typography>
         {enableRouteSelector && (
           <ChevronRight
