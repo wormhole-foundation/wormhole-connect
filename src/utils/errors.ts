@@ -29,7 +29,7 @@ export const INSUFFICIENT_LAMPORTS_REGEX =
 export const SIMULATION_ACCOUNT_NOT_FOUND_REGEX =
   /simulation failed:.*accountnotfound/i;
 export const USER_REJECTED_REGEX = new RegExp(
-  'user rejected|rejected the request|rejected from user|user cancel|aborted by user|plugin closed|denied request signature',
+  'user rejected|rejected the request|rejected from user|user cancel|aborted by user|plugin closed|denied request signature|user denied|action_rejected|ethers-user-denied|approval denied',
   'mi',
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
@@ -62,7 +62,7 @@ export function interpretTransferError(
       uiErrorMessage = INSUFFICIENT_FUNDS_FOR_GAS_ERROR;
       internalErrorCode = ERR_INSUFFICIENT_GAS;
     } else if (USER_REJECTED_REGEX.test(e?.message)) {
-      uiErrorMessage = 'Transfer rejected in wallet, please try again';
+      uiErrorMessage = 'Wallet request declined. Transfer not started.';
       internalErrorCode = ERR_USER_REJECTED;
     } else if (AMOUNT_IN_TOO_SMALL.test(e?.message)) {
       uiErrorMessage = 'Amount is too small for the selected route';

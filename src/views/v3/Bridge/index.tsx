@@ -166,6 +166,7 @@ function Bridge(props: BridgeProps) {
   const {
     error: txError,
     errorInternal: txErrorInternal,
+    info: txInfo,
     onConfirm,
   } = useConfirmTransaction({ quotes });
 
@@ -418,6 +419,14 @@ function Bridge(props: BridgeProps) {
     );
   }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
 
+  const transactionInfo = useMemo(() => {
+    if (!txInfo) {
+      return null;
+    }
+
+    return <AlertBannerV3>{txInfo}</AlertBannerV3>;
+  }, [txInfo]);
+
   const hasEnteredAmount = amount && sdkAmount.whole(amount) > 0;
   const hasConnectedWallets = sendingWallet.address && receivingWallet.address;
 
@@ -568,6 +577,7 @@ function Bridge(props: BridgeProps) {
             ) : null}
           </Box>
           {transactionError}
+          {transactionInfo}
           <AmountValidationError validation={amountValidation} />
         </>
       )}
