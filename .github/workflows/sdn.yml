@@ -1,0 +1,87 @@
+name: Update SDN list
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_title:
+        description: 'Pull request title'
+        required: false
+        default: 'Update SDN list'
+
+jobs:
+  run-script-and-create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create branch
+        run: |
+          BRANCH_NAME="update-sdn-list-$(date +%Y-%m-%d)"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git checkout -b "$BRANCH_NAME"
+
+      - name: Run checksdn script
+        continue-on-error: true
+        run: npm run checksdn
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet src/consts/wallet.ts && git diff --cached --quiet src/consts/wallet.ts; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in src/consts/wallet.ts"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in src/consts/wallet.ts"
+          fi
+
+      - name: Commit changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/consts/wallet.ts
+          git commit -m "chore: update sdn list"
+
+      - name: Push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git push origin "$BRANCH_NAME"
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH_NAME }}
+          base: main
+          title: ${{ github.event.inputs.pr_title || 'Update SDN list' }}
+          labels: |
+            automated
+            npm-script
+          draft: false
+          delete-branch: true
+
+      - name: Output result
+        run: |
+          if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
+            echo "Pull request created successfully"
+            echo "Branch: $BRANCH_NAME"
+          else
+            echo "No changes detected, skipping PR creation"
+          fi
