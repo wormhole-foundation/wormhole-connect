@@ -124,6 +124,7 @@ function AssetPickerDrawer({
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={onTokenSelect}
+              isTokenPickerOpen={isDrawerOpen}
             />
           )}
         </>

@@ -30,6 +30,7 @@ type Props = {
   onSearchQueryChange: (query: string) => void;
   onSelectToken: (key: Token) => void;
   fetchTokensProgress?: null | number;
+  isTokenPickerOpen?: boolean;
 };
 
 const TokenList = (props: Props) => {
@@ -45,6 +46,8 @@ const TokenList = (props: Props) => {
     sourceToken: props.sourceToken,
     balances: props.balances,
     tokenPastingEnabled: tokenPastingIsEnabled,
+    isTokenPickerOpen: props.isTokenPickerOpen,
+    selectedToken: props.selectedToken,
   });
 
   const emptyMessage = useMemo(() => {

@@ -31,12 +31,17 @@ interface UseTokenListWithSearchParams {
   sourceToken?: Token;
   balances?: Balances;
   tokenPastingEnabled?: boolean;
+  isTokenPickerOpen?: boolean;
+  selectedToken?: Token;
 }
 
 interface UseTokenListWithSearchReturn {
   sortedTokens: Token[];
   tokenPrices: Map<string, number | undefined>;
 }
+
+// Maximum number of tokens to fetch prices for initially
+const MAX_INITIAL_PRICE_FETCHES = 10;
 
 /**
  * Combined hook that handles:
@@ -54,6 +59,8 @@ export const useTokenListWithSearch = ({
   sourceToken,
   balances,
   tokenPastingEnabled = true,
+  isTokenPickerOpen,
+  selectedToken,
 }: UseTokenListWithSearchParams): UseTokenListWithSearchReturn => {
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
   const { getOrFetchToken, getTokenPrices } = useTokens();
@@ -199,9 +206,56 @@ export const useTokenListWithSearch = ({
     balances,
   ]);
 
+  // Determine which tokens to fetch prices for based on context
+  const tokensForPriceFetch = useMemo(() => {
+    // If token picker is open or we're searching, fetch prices for all visible tokens
+    if (isTokenPickerOpen || searchQuery) {
+      return sortedTokens;
+    }
+
+    // Otherwise, only fetch prices for:
+    // 1. The currently selected token (if any)
+    // 2. First N tokens that would be visible
+    const priorityTokens: Token[] = [];
+
+    // Add selected token first
+    if (selectedToken) {
+      const selectedInList = sortedTokens.find(
+        (t) => t.key === selectedToken.key,
+      );
+      if (selectedInList) {
+        priorityTokens.push(selectedInList);
+      }
+    }
+
+    // Add tokens with balances first (they're already sorted by balance)
+    const tokensWithBalance = sortedTokens.filter(
+      (token) => balances?.[token.key]?.balance?.amount !== '0',
+    );
+
+    // Then add tokens without balances
+    const tokensWithoutBalance = sortedTokens.filter(
+      (token) =>
+        !balances?.[token.key] || balances[token.key].balance?.amount === '0',
+    );
+
+    // Combine them, prioritizing tokens with balances
+    const combinedTokens = [...tokensWithBalance, ...tokensWithoutBalance];
+
+    // Take only the first N tokens for initial price fetch
+    for (const token of combinedTokens) {
+      if (priorityTokens.length >= MAX_INITIAL_PRICE_FETCHES) break;
+      if (!priorityTokens.find((t) => t.key === token.key)) {
+        priorityTokens.push(token);
+      }
+    }
+
+    return priorityTokens;
+  }, [sortedTokens, isTokenPickerOpen, searchQuery, selectedToken, balances]);
+
   const tokenPrices = useMemo(
-    () => getTokenPrices(sortedTokens),
-    [getTokenPrices, sortedTokens],
+    () => getTokenPrices(tokensForPriceFetch),
+    [getTokenPrices, tokensForPriceFetch],
   );
 
   return {

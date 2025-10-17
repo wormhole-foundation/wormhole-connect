@@ -120,6 +120,7 @@ function AssetPickerPopover({
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               onSelectToken={onTokenSelect}
+              isTokenPickerOpen={popupState.isOpen}
             />
           )}
         </>
