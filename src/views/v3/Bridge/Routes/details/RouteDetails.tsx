@@ -61,49 +61,42 @@ export default function RouteDetails({
         />
         <Stack
           direction="row"
-          gap={theme.spacing(2)}
+          gap={theme.spacing(1)}
           height={18}
           alignItems="center"
-          sx={{
-            paddingLeft: '8px',
-            '&:hover': {
-              opacity: 1,
-            },
-          }}
         >
           <Eta eta={eta} />
-        </Stack>
-
-        <Stack
-          direction="row"
-          sx={{
-            transition: '0.3s',
-            color: !hasIndicators
-              ? theme.palette.text.tertiary
-              : theme.palette.text.primary,
-            '&:hover': {
-              color: theme.palette.text.accent,
-            },
-          }}
-        >
-          {!hasIndicators && (
-            <Typography
-              variant={'body2'}
-              sx={{
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
-              onClick={handleChevronClick}
-            >
-              Details
-            </Typography>
-          )}
-          {hasAnyDetails && (
-            <ChevronToggle
-              expanded={isShowingDetails}
-              onToggle={handleChevronClick}
-            />
-          )}
+          <Stack
+            direction="row"
+            sx={{
+              transition: '0.3s',
+              color: !hasIndicators
+                ? theme.palette.text.tertiary
+                : theme.palette.text.primary,
+              '&:hover': {
+                color: theme.palette.text.accent,
+              },
+            }}
+          >
+            {!hasIndicators && (
+              <Typography
+                variant={'body2'}
+                sx={{
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                }}
+                onClick={handleChevronClick}
+              >
+                Details
+              </Typography>
+            )}
+            {hasAnyDetails && (
+              <ChevronToggle
+                expanded={isShowingDetails}
+                onToggle={handleChevronClick}
+              />
+            )}
+          </Stack>
         </Stack>
       </Stack>
       {hasAnyDetails && (
