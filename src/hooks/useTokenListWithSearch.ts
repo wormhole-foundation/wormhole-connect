@@ -128,12 +128,39 @@ export const useTokenListWithSearch = ({
   ]);
 
   const sortedTokens = useMemo(() => {
-    // Merge base tokens with any fetched tokens only when searching
-    let tokens = deferredSearch
-      ? unionBy(baseTokenList, searchedTokens, (t) => t.key)
-      : baseTokenList;
+    let tokens = baseTokenList;
+
+    // Apply token whitelist filtering if configured
+    const chainConfig = config.chains[chain];
+    if (chainConfig) {
+      tokens = applyTokenWhitelist(tokens, chainConfig);
+    }
+
+    // Apply custom token support handler if configured
+    tokens = applyCustomTokenSupport(tokens, sourceToken);
+
+    // For source list, filter out possible scamcoins when not searching
+    if (isSource && !searchQuery && config.network === 'Mainnet') {
+      tokens = applyShittokenFilter(tokens);
+    }
+
+    // Sort tokens by preference (selected token, balance, etc.)
+    tokens = sortTokensByPreference(
+      tokens,
+      selectedToken,
+      balances || {},
+      getTokenPrice,
+    );
+
+    //// Merge base tokens with any fetched tokens only when searching
+    //tokens = deferredSearch
+    //  ? unionBy(baseTokenList, searchedTokens, (t) => t.key)
+    //  : baseTokenList;
 
     if (deferredSearch) {
+      // Merge base tokens with any fetched tokens only when searching
+      unionBy(tokens, searchedTokens, (t) => t.key);
+
       tokens = tokens.filter((token) => {
         const overrideName =
           getTokenDisplaySymbolByTokenAddress(token)?.toLowerCase();
@@ -192,28 +219,6 @@ export const useTokenListWithSearch = ({
       // No balances available - don't show frankenstein tokens
       return false;
     });
-
-    // Apply token whitelist filtering if configured
-    const chainConfig = config.chains[chain];
-    if (chainConfig) {
-      tokens = applyTokenWhitelist(tokens, chainConfig);
-    }
-
-    // Apply custom token support handler if configured
-    tokens = applyCustomTokenSupport(tokens, sourceToken);
-
-    // For source list, filter out possible scamcoins when not searching
-    if (isSource && !searchQuery && config.network === 'Mainnet') {
-      tokens = applyShittokenFilter(tokens);
-    }
-
-    // Sort tokens by preference (selected token, balance, etc.)
-    tokens = sortTokensByPreference(
-      tokens,
-      selectedToken,
-      balances || {},
-      getTokenPrice,
-    );
 
     return tokens;
     // eslint-disable-next-line react-hooks/exhaustive-deps
