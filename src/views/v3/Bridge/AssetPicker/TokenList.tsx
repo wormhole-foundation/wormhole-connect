@@ -46,8 +46,8 @@ const TokenList = (props: Props) => {
     sourceToken: props.sourceToken,
     balances: props.balances,
     tokenPastingEnabled: tokenPastingIsEnabled,
-    isTokenPickerOpen: props.isTokenPickerOpen,
     selectedToken: props.selectedToken,
+    walletAddress: props.wallet?.address,
   });
 
   const emptyMessage = useMemo(() => {

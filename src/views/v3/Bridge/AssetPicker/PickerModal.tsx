@@ -15,13 +15,12 @@ import PickerHeader from './PickerHeader';
 
 interface AssetPickerPopoverProps {
   popupState: PopupState;
-  anchorEl: HTMLElement | null;
   chainList: Array<ChainConfig>;
   chainConfig?: ChainConfig;
   showChainSearch: boolean;
   setShowChainSearch: (value: boolean) => void;
   wallet: WalletData;
-  sortedTokens: Token[];
+  tokenList: Token[];
   balances: Balances;
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
@@ -38,13 +37,12 @@ interface AssetPickerPopoverProps {
 
 function AssetPickerPopover({
   popupState,
-  anchorEl,
   chainList,
   chainConfig,
   showChainSearch,
   setShowChainSearch,
   wallet,
-  sortedTokens,
+  tokenList: sortedTokens,
   balances,
   isFetchingBalances,
   isConnectingWallet,

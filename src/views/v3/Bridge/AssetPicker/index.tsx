@@ -19,7 +19,6 @@ import type { Balances } from 'utils/wallet/types';
 import AssetBadge from 'components/AssetBadge';
 import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
-import { useTokenList } from 'hooks/useTokenList';
 import { TransferWallet } from 'utils/wallet';
 import WalletController from 'views/v3/Bridge/WalletConnector/Controller';
 import AmountInput from '../AmountInput';
@@ -43,7 +42,7 @@ type Props = {
   chainList: Array<ChainConfig>;
   token?: Token;
   sourceToken?: Token;
-  tokenList?: Array<Token> | undefined;
+  tokenList: Array<Token>;
   isFetchingQuotes?: boolean;
   isFetchingTokens?: boolean;
   setToken: (value: Token) => void;
@@ -81,17 +80,6 @@ function AssetPicker(props: Props) {
     amount ? sdkAmount.display(amount) : '',
   );
   const [selectedPercentButton, setSelectedPercentButton] = useState(0);
-
-  const sortedTokens = useTokenList({
-    tokenList: props.tokenList || [],
-    searchQuery,
-    selectedChainConfig: props.chain ? config.chains[props.chain] : ({} as any),
-    selectedToken: props.token,
-    sourceToken: props.sourceToken,
-    wallet: props.wallet,
-    balances: props.balances,
-    isSourceList: props.isSource, // true for source, false for destination
-  });
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -587,7 +575,7 @@ function AssetPicker(props: Props) {
               value={amountInput}
               debouncedValue={debouncedAmountInput}
               receiveAmount={receiveAmount}
-              supportedSourceTokens={props.tokenList || []}
+              supportedSourceTokens={props.tokenList}
               tokenBalance={
                 props.token ? props.balances[props.token.key]?.balance : null
               }
@@ -664,7 +652,7 @@ function AssetPicker(props: Props) {
           showChainSearch={showChainSearch}
           setShowChainSearch={setShowChainSearch}
           wallet={props.wallet}
-          sortedTokens={sortedTokens}
+          tokenList={props.tokenList}
           balances={props.balances}
           isFetchingBalances={props.isFetchingBalances}
           isConnectingWallet={props.isConnectingWallet}
@@ -684,13 +672,12 @@ function AssetPicker(props: Props) {
       ) : (
         <AssetPickerPopover
           popupState={popupState}
-          anchorEl={props.anchorEl}
           chainList={props.chainList}
           chainConfig={chainConfig}
           showChainSearch={showChainSearch}
           setShowChainSearch={setShowChainSearch}
           wallet={props.wallet}
-          sortedTokens={sortedTokens}
+          tokenList={props.tokenList}
           balances={props.balances}
           isFetchingBalances={props.isFetchingBalances}
           isConnectingWallet={props.isConnectingWallet}

@@ -21,7 +21,7 @@ interface AssetPickerDrawerProps {
   showChainSearch: boolean;
   setShowChainSearch: (value: boolean) => void;
   wallet: WalletData;
-  sortedTokens: Token[];
+  tokenList: Token[];
   balances: Balances;
   isFetchingBalances: boolean;
   isConnectingWallet?: boolean;
@@ -44,7 +44,7 @@ function AssetPickerDrawer({
   showChainSearch,
   setShowChainSearch,
   wallet,
-  sortedTokens,
+  tokenList,
   balances,
   isFetchingBalances,
   isConnectingWallet,
@@ -110,7 +110,7 @@ function AssetPickerDrawer({
           />
           {!showChainSearch && chainConfig && (
             <TokenList
-              tokenList={sortedTokens}
+              tokenList={tokenList}
               balances={balances}
               isFetchingBalances={isFetchingBalances}
               isConnectingWallet={isConnectingWallet}

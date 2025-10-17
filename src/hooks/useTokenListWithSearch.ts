@@ -21,27 +21,30 @@ import {
 } from 'utils/wrappedNativeTokens';
 import type { Balances } from 'utils/wallet/types';
 import { unionBy } from 'es-toolkit';
+import {
+  applyTokenWhitelist,
+  applyCustomTokenSupport,
+  applyShittokenFilter,
+  sortTokensByPreference,
+} from 'utils/tokenListUtils';
 
 interface UseTokenListWithSearchParams {
   baseTokenList: Token[];
   searchQuery: string;
-  chain: Chain | undefined;
+  chain: Chain;
   isSource: boolean;
   isSameChainSwap: boolean;
   sourceToken?: Token;
   balances?: Balances;
   tokenPastingEnabled?: boolean;
-  isTokenPickerOpen?: boolean;
   selectedToken?: Token;
+  walletAddress?: string;
 }
 
 interface UseTokenListWithSearchReturn {
   sortedTokens: Token[];
   tokenPrices: Map<string, number | undefined>;
 }
-
-// Maximum number of tokens to fetch prices for initially
-const MAX_INITIAL_PRICE_FETCHES = 10;
 
 /**
  * Combined hook that handles:
@@ -59,11 +62,11 @@ export const useTokenListWithSearch = ({
   sourceToken,
   balances,
   tokenPastingEnabled = true,
-  isTokenPickerOpen,
   selectedToken,
+  walletAddress,
 }: UseTokenListWithSearchParams): UseTokenListWithSearchReturn => {
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
-  const { getOrFetchToken, getTokenPrices } = useTokens();
+  const { getOrFetchToken, getTokenPrices, getTokenPrice } = useTokens();
   const deferredSearch = useDeferredValue(searchQuery);
   const searchLower = deferredSearch ? deferredSearch.toLowerCase() : '';
 
@@ -74,7 +77,7 @@ export const useTokenListWithSearch = ({
 
   // Get wrapped native address for same-chain swaps (only for destination selection)
   const wrappedNativeAddr = useMemo(() => {
-    if (!isSameChainSwap || !chain || isSource) {
+    if (!isSameChainSwap || isSource) {
       return undefined;
     }
     const wrapped = getWrappedNativeToken(config.network, chain);
@@ -82,7 +85,7 @@ export const useTokenListWithSearch = ({
   }, [isSameChainSwap, chain, isSource]);
 
   useEffect(() => {
-    if (!chain || !tokenPastingEnabled || !deferredSearch) {
+    if (!tokenPastingEnabled || !deferredSearch) {
       setSearchedTokens([]);
       return;
     }
@@ -169,30 +172,51 @@ export const useTokenListWithSearch = ({
     }
 
     // Filter frankenstein tokens based on whether it's source or destination
-    if (chain) {
-      tokens = tokens.filter((token) => {
-        if (!isFrankensteinToken(token, chain)) {
-          return true;
-        }
+    tokens = tokens.filter((token) => {
+      if (!isFrankensteinToken(token, chain)) {
+        return true;
+      }
 
-        // For destination tokens: always filter out frankenstein tokens
-        if (!isSource) {
-          return false;
-        }
-
-        // For source tokens: only show frankenstein tokens if they have a balance
-        if (balances) {
-          const balance = balances[token.key]?.balance;
-          const hasBalance = balance && sdkAmount.units(balance) > 0n;
-          return hasBalance;
-        }
-
-        // No balances available - don't show frankenstein tokens
+      // For destination tokens: always filter out frankenstein tokens
+      if (!isSource) {
         return false;
-      });
+      }
+
+      // For source tokens: only show frankenstein tokens if they have a balance
+      if (balances) {
+        const balance = balances[token.key]?.balance;
+        const hasBalance = balance && sdkAmount.units(balance) > 0n;
+        return hasBalance;
+      }
+
+      // No balances available - don't show frankenstein tokens
+      return false;
+    });
+
+    // Apply token whitelist filtering if configured
+    const chainConfig = config.chains[chain];
+    if (chainConfig) {
+      tokens = applyTokenWhitelist(tokens, chainConfig);
     }
 
+    // Apply custom token support handler if configured
+    tokens = applyCustomTokenSupport(tokens, sourceToken);
+
+    // For source list, filter out possible scamcoins when not searching
+    if (isSource && !searchQuery && config.network === 'Mainnet') {
+      tokens = applyShittokenFilter(tokens);
+    }
+
+    // Sort tokens by preference (selected token, balance, etc.)
+    tokens = sortTokensByPreference(
+      tokens,
+      selectedToken,
+      balances || {},
+      getTokenPrice,
+    );
+
     return tokens;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     baseTokenList,
     searchedTokens,
@@ -204,58 +228,15 @@ export const useTokenListWithSearch = ({
     wrappedNativeAddr,
     chain,
     balances,
+    searchQuery,
+    selectedToken,
+    getTokenPrice,
+    walletAddress,
   ]);
 
-  // Determine which tokens to fetch prices for based on context
-  const tokensForPriceFetch = useMemo(() => {
-    // If token picker is open or we're searching, fetch prices for all visible tokens
-    if (isTokenPickerOpen || searchQuery) {
-      return sortedTokens;
-    }
-
-    // Otherwise, only fetch prices for:
-    // 1. The currently selected token (if any)
-    // 2. First N tokens that would be visible
-    const priorityTokens: Token[] = [];
-
-    // Add selected token first
-    if (selectedToken) {
-      const selectedInList = sortedTokens.find(
-        (t) => t.key === selectedToken.key,
-      );
-      if (selectedInList) {
-        priorityTokens.push(selectedInList);
-      }
-    }
-
-    // Add tokens with balances first (they're already sorted by balance)
-    const tokensWithBalance = sortedTokens.filter(
-      (token) => balances?.[token.key]?.balance?.amount !== '0',
-    );
-
-    // Then add tokens without balances
-    const tokensWithoutBalance = sortedTokens.filter(
-      (token) =>
-        !balances?.[token.key] || balances[token.key].balance?.amount === '0',
-    );
-
-    // Combine them, prioritizing tokens with balances
-    const combinedTokens = [...tokensWithBalance, ...tokensWithoutBalance];
-
-    // Take only the first N tokens for initial price fetch
-    for (const token of combinedTokens) {
-      if (priorityTokens.length >= MAX_INITIAL_PRICE_FETCHES) break;
-      if (!priorityTokens.find((t) => t.key === token.key)) {
-        priorityTokens.push(token);
-      }
-    }
-
-    return priorityTokens;
-  }, [sortedTokens, isTokenPickerOpen, searchQuery, selectedToken, balances]);
-
   const tokenPrices = useMemo(
-    () => getTokenPrices(tokensForPriceFetch),
-    [getTokenPrices, tokensForPriceFetch],
+    () => getTokenPrices(sortedTokens),
+    [getTokenPrices, sortedTokens],
   );
 
   return {
