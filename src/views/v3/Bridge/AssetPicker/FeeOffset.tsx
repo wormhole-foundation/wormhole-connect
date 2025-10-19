@@ -4,6 +4,7 @@ import { Box, Tooltip, Typography, useTheme } from '@mui/material';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
+import config from 'config';
 import type { RootState } from 'store';
 import { calculateFeeOffset } from 'utils/fees';
 import { useGetTokens } from 'hooks/useGetTokens';
@@ -28,7 +29,11 @@ function FeeOffset() {
   );
 
   const feeDisplay = useMemo(() => {
-    if (!feeOffsetAmount || sdkAmount.units(feeOffsetAmount) === 0n) {
+    if (
+      !config.ui?.experimental?.feeOffsetting ||
+      !feeOffsetAmount ||
+      sdkAmount.units(feeOffsetAmount) === 0n
+    ) {
       return null;
     }
 

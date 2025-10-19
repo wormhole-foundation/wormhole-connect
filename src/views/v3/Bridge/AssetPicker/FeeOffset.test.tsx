@@ -8,6 +8,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import FeeOffset from './FeeOffset';
 import { dark } from 'theme';
+import config from 'config';
 
 const theme = createTheme({
   palette: dark as any,
@@ -24,6 +25,17 @@ vi.mock('hooks/useGetTokens', () => ({
     sourceToken: undefined,
     destToken: undefined,
   })),
+}));
+
+// Mock the config module
+vi.mock('config', () => ({
+  default: {
+    ui: {
+      experimental: {
+        feeOffsetting: true,
+      },
+    },
+  },
 }));
 
 const mockToken = {
@@ -108,5 +120,79 @@ describe('FeeOffset', () => {
 
     const infoIcon = screen.getByTestId('InfoOutlineIcon');
     expect(infoIcon).toBeInTheDocument();
+  });
+
+  it('does not render when feeOffsetting is disabled in config', async () => {
+    const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+    const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+
+    const mockedConfig = vi.mocked(config);
+    mockedConfig.ui.experimental!.feeOffsetting = false;
+
+    const feeOffset = sdkAmount.fromBaseUnits(1000n, 6);
+    calculateFeeOffset.mockReturnValue(feeOffset);
+    useGetTokens.mockReturnValue({
+      sourceToken: mockToken,
+      destToken: undefined,
+    } as any);
+
+    const store = createMockStore(
+      sdkAmount.fromBaseUnits(100000n, 6),
+      'TestRoute',
+    );
+
+    render(<FeeOffset />, {
+      wrapper: AppWrapper(store),
+    });
+
+    expect(screen.queryByText(/\+.*USDC/)).not.toBeInTheDocument();
+
+    // Reset config for other tests
+    mockedConfig.ui.experimental!.feeOffsetting = true;
+  });
+
+  it('does not render when feeOffsetAmount is undefined', async () => {
+    const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+    const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+
+    calculateFeeOffset.mockReturnValue(undefined);
+    useGetTokens.mockReturnValue({
+      sourceToken: mockToken,
+      destToken: undefined,
+    } as any);
+
+    const store = createMockStore(
+      sdkAmount.fromBaseUnits(100000n, 6),
+      'TestRoute',
+    );
+
+    render(<FeeOffset />, {
+      wrapper: AppWrapper(store),
+    });
+
+    expect(screen.queryByText(/\+.*USDC/)).not.toBeInTheDocument();
+  });
+
+  it('does not render when feeOffsetAmount is zero', async () => {
+    const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+    const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+
+    const feeOffset = sdkAmount.fromBaseUnits(0n, 6); // Zero amount
+    calculateFeeOffset.mockReturnValue(feeOffset);
+    useGetTokens.mockReturnValue({
+      sourceToken: mockToken,
+      destToken: undefined,
+    } as any);
+
+    const store = createMockStore(
+      sdkAmount.fromBaseUnits(100000n, 6),
+      'TestRoute',
+    );
+
+    render(<FeeOffset />, {
+      wrapper: AppWrapper(store),
+    });
+
+    expect(screen.queryByText(/\+.*USDC/)).not.toBeInTheDocument();
   });
 });
