@@ -28,7 +28,7 @@ export default function MinOutput({ minOutput, outputToken }: MinOutputProps) {
     >
       <Typography
         variant="body2"
-        fontSize="12"
+        fontSize={12}
         fontWeight="500"
         color={theme.palette.text.primary}
         sx={{ display: 'block', opacity: 0.5 }}
@@ -39,7 +39,7 @@ export default function MinOutput({ minOutput, outputToken }: MinOutputProps) {
       <Stack direction="row" spacing={theme.spacing(1)}>
         <Typography
           variant="body2"
-          fontSize="12"
+          fontSize={12}
           fontWeight="600"
           color={theme.palette.text.primary}
           sx={{ display: 'block', opacity: 0.5 }}
