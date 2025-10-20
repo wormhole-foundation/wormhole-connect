@@ -40,7 +40,7 @@ export default function RouteDetails({
   const hasAnyDetails = minReceived || quoteSlippageBps;
   const hasIndicators = !!eta; // Add Fee component here when ready.
   return (
-    <Stack direction="column" spacing={0.5} useFlexGap sx={{ width: '100%' }}>
+    <Stack direction="column" useFlexGap sx={{ width: '100%' }}>
       <Stack
         direction="row"
         sx={{
