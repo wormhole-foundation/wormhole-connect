@@ -46,6 +46,7 @@ function ProviderLabel({
         justifyContent: 'flex-start',
         textTransform: 'none',
         color: theme.palette.text.tertiary,
+        cursor: enableRouteSelector ? 'pointer' : 'default',
         '&:hover': {
           backgroundColor: 'transparent',
           color: enableRouteSelector ? theme.palette.text.accent : 'none',
