@@ -2,7 +2,7 @@
 
 Wormhole Connect is a customizable React widget for cross-chain asset transfers powered by Wormhole.
 
-[![Wormhole Connect running on Portal Bridge](https://i.imgur.com/KDoPxaD.png)](https://portalbridge.com/)
+[![Wormhole Connect running on Portal Bridge](https://i.imgur.com/U7ZB8y5.png)](https://portalbridge.com/)
 
 Connect is powered by the [Wormhole TypeScript SDK](https://github.com/wormhole-foundation/wormhole-sdk-ts). Developers interested in building their
 own interface for Wormhole bridging functionality are encouraged to explore the SDK!
