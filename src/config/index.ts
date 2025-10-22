@@ -218,6 +218,9 @@ export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
 export function setConfig(customConfig: WormholeConnectConfig = {}) {
   const newConfig: InternalConfig<Network> = buildConfig(customConfig);
 
+  // Clear cached WormholeV2 context to force recreation with new config
+  clearWormholeContextV2();
+
   // We overwrite keys in the existing object so the references to the config
   // imported elsewhere point to the new values
   for (const key in newConfig) {
