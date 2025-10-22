@@ -11,18 +11,21 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC authentication with npm
+      contents: read
 
     defaults:
       run:
         working-directory: './'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.tag }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           registry-url: 'https://registry.npmjs.org'
@@ -34,6 +37,3 @@ jobs:
           npm run build:lib
           npm run build:hosted
           npm publish --tag $(echo $([ ${strarr[0]} == "production" ] && echo "latest" || echo ${strarr[0]})) --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
