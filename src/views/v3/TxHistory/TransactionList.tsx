@@ -25,6 +25,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         height: '640px',
         overflow: 'auto',
         width: '100%',
+        scrollbarWidth: 'thin',
       },
       spacer: {
         width: mobile ? '388px' : '420px',
@@ -44,7 +45,6 @@ const TransactionList: React.FC<TransactionListProps> = ({
         hasMore={hasMore}
         loadMore={(p) => setPage(p)}
         useWindow={false}
-        style={{ scrollbarWidth: 'thin' }}
       >
         <Box sx={styles.spacer}>
           {transactions?.map((tx, idx) => {

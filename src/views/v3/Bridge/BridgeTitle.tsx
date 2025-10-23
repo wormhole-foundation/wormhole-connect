@@ -70,7 +70,9 @@ const BridgeTitle: React.FC<BridgeTitleProps> = ({
               data-testid="history-button"
               aria-label={showHistory ? 'Show bridge' : 'Show history'}
               sx={{
-                backgroundColor: theme.palette.background.form + OPACITY[20],
+                backgroundColor:
+                  theme.palette.formContainer.background + OPACITY[20],
+                color: theme.palette.icon.secondary,
                 padding: '12px',
                 width: '40px',
                 height: '40px',

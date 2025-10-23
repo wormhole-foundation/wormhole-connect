@@ -33,7 +33,7 @@ const TxHistoryItem = (props: Props) => {
     () => ({
       container: {
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '412px',
       },
       card: {
         width: '100%',

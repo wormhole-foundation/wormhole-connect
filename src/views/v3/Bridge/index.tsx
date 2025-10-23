@@ -96,7 +96,8 @@ function Bridge(props: BridgeProps) {
         width: '100%',
       },
       formContent: {
-        backgroundColor: theme.palette.background.form + OPACITY[20],
+        backgroundColor: theme.palette.formContainer.background + OPACITY[25],
+        border: `1px solid ${theme.palette.formContainer.border + OPACITY[25]}`,
         borderRadius: '8px',
         padding: '20px 16px',
         display: 'flex',
@@ -112,7 +113,11 @@ function Bridge(props: BridgeProps) {
         gap: '16px',
       },
     }),
-    [theme.palette.background.form, theme.palette.success.main],
+    [
+      theme.palette.formContainer.background,
+      theme.palette.formContainer.border,
+      theme.palette.success.main,
+    ],
   );
 
   // Connected wallets, if any
@@ -593,17 +598,19 @@ function Bridge(props: BridgeProps) {
       >
         {bridgeContent}
       </Box>
-      <Box sx={{ marginTop: '12px', width: '100%' }}>
-        {showRoutes && (
-          <Routes
-            routes={sortedRoutes}
-            selectedRoute={route}
-            onRouteChange={handleRouteChange}
-            quotes={quotes}
-            isLoading={isFetchingQuotes}
-          />
-        )}
-      </Box>
+      {!showHistory && (
+        <Box sx={{ marginTop: '12px', width: '100%' }}>
+          {showRoutes && (
+            <Routes
+              routes={sortedRoutes}
+              selectedRoute={route}
+              onRouteChange={handleRouteChange}
+              quotes={quotes}
+              isLoading={isFetchingQuotes}
+            />
+          )}
+        </Box>
+      )}
       {config.ui.showFooter && (
         <>
           <PoweredByIcon color={theme.palette.text.primary} />

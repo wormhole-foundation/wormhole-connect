@@ -26,7 +26,14 @@ const RoutesList = ({
   onGasChange,
 }: Props) => {
   return (
-    <Stack sx={{ gap: '16px', overflowY: 'auto', maxHeight: '75vh' }}>
+    <Stack
+      sx={{
+        gap: '8px',
+        overflowY: 'auto',
+        maxHeight: '75vh',
+        scrollbarWidth: 'thin',
+      }}
+    >
       {routesWithQuotes.map((name) => {
         const isSelected = name === highlightedRoute;
         const quoteResult = quotes[name];

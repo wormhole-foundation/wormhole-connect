@@ -71,7 +71,7 @@ export default function RouteDetails({
             sx={{
               transition: '0.3s',
               color: !hasIndicators
-                ? theme.palette.text.tertiary
+                ? theme.palette.text.secondary
                 : theme.palette.text.primary,
               '&:hover': {
                 color: theme.palette.text.accent,

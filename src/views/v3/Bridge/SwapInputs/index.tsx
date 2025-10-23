@@ -26,7 +26,7 @@ function SwapInputs() {
         display: 'flex',
         position: 'absolute',
         backgroundColor: theme.palette.input.background,
-        border: `2px solid ${theme.palette.background.form}`,
+        border: `2px solid ${theme.palette.input.border}`,
         borderRadius: '8px',
         left: 'calc(50% - 18px)',
         top: 'calc(50% - 18px)',
@@ -63,8 +63,8 @@ function SwapInputs() {
       },
     }),
     [
-      theme.palette.background.form,
       theme.palette.input.background,
+      theme.palette.input.border,
       theme.palette.mode,
       rotateAnimation,
     ],

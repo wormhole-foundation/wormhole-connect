@@ -5,8 +5,9 @@ import SampleApp from './components/SampleApp';
 
 // This is the sample app used for local development
 
-const container = document.getElementById('root')!;
-const root = ReactDOM.createRoot(container);
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement,
+);
 
 root.render(
   <React.StrictMode>

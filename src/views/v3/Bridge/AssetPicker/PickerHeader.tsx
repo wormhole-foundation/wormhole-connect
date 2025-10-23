@@ -37,9 +37,9 @@ function AssetPickerHeader({
     },
     iconButton: {
       position: 'absolute',
-      backgroundColor: theme.palette.background.form,
+      backgroundColor: theme.palette.formContainer.background,
       border: '1px solid ' + theme.palette.input.border,
-      '&:hover': { backgroundColor: theme.palette.background.form },
+      '&:hover': { backgroundColor: theme.palette.formContainer.background },
       height: '32px',
       width: '32px',
       fontSize: '16px',

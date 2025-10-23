@@ -108,7 +108,7 @@ function RoutesMobile({
     >
       <Box
         sx={{
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.input.background,
           padding: '8px',
           borderRadius: '12px',
           gap: '16px',
