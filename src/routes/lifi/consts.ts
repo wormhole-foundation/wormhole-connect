@@ -42,6 +42,7 @@ export const CHAIN_ID_MAP: Partial<Record<Chain, ChainId>> = {
   Sonic: ChainId.SON,
   HyperEVM: ChainId.HYP,
   Seievm: ChainId.SEI,
+  Monad: ChainId.MON,
 };
 
 // Reverse mapping from LiFi ChainId to Wormhole Chain
