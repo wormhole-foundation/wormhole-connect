@@ -373,14 +373,15 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
 
   // Prevent Monad<->Ethereum transfers of gas token via token bridge
   if (originalToken) {
-    const isMonadEthereumPair =
-      (chain === 'Monad' &&
-        ['Ethereum', 'Sepolia'].includes(originalToken.chain)) ||
-      (['Ethereum', 'Sepolia'].includes(chain) &&
-        originalToken.chain === 'Monad');
+    const ethereumChains: Chain[] = ['Ethereum', 'Sepolia'];
 
-    if (isMonadEthereumPair) {
-      // Check if token is a wrapped native token
+    const isMonadEthereum =
+      (chain === 'Monad' && ethereumChains.includes(originalToken.chain)) ||
+      (ethereumChains.includes(chain) && originalToken.chain === 'Monad');
+
+    if (isMonadEthereum) {
+      if (originalToken.address === 'native') return true;
+
       const wrappedNativeToken = getWrappedNativeToken(
         config.network,
         originalToken.chain,
