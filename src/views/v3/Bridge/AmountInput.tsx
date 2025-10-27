@@ -47,12 +47,11 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = removeCommas(e.target.value);
-
-        if (!isValidDecimalInput(value)) {
+        if (!isValidDecimalInput(e.target.value)) {
           return;
         }
 
+        const value = removeCommas(e.target.value);
         const formattedValue = formatWithCommas(value);
 
         setInnerValue(formattedValue);
