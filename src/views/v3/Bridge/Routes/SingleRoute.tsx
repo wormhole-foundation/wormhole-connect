@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { useTheme, Box } from '@mui/material';
+import { useTheme } from '@mui/material';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
@@ -10,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import type { routes } from '@wormhole-foundation/sdk';
 import { amount } from '@wormhole-foundation/sdk';
-import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 
 import config from 'config';
 import { useGasSlider } from 'hooks/useGasSlider';
@@ -21,6 +21,7 @@ import {
   calculateUSDPrice,
   calculateUSDPriceRaw,
   formatDuration,
+  getTokenDisplaySymbolByTokenAddress,
   isExecutorRoute,
 } from 'utils';
 
@@ -56,12 +57,16 @@ const SingleRoute = (props: Props) => {
         width: '100%',
       },
       card: {
+        border: '2px solid transparent',
         borderRadius: '8px',
         width: '100%',
         maxWidth: '412px',
+        '&:hover': {
+          backgroundColor: theme.palette.input.background,
+        },
       },
       cardSelected: {
-        backgroundColor: theme.palette.card.background,
+        border: '2px solid',
         borderColor: theme.palette.primary.main,
       },
       cardHeader: {
@@ -461,9 +466,7 @@ const SingleRoute = (props: Props) => {
   return (
     <Box
       key={props.route}
-      sx={{
-        ...styles.container,
-      }}
+      sx={styles.container}
       data-testid={`route-${props.route}${isSelected ? '-selected' : ''}`}
     >
       <Card
@@ -471,13 +474,6 @@ const SingleRoute = (props: Props) => {
           ...styles.card,
           ...(isSelected && styles.cardSelected),
           ...(isTransactionInProgress && styles.disabled),
-          ...{
-            border: '1px solid',
-            borderColor: isSelected
-              ? theme.palette.primary.main
-              : 'transparent',
-            opacity: 1,
-          },
         }}
       >
         <CardActionArea
@@ -489,7 +485,7 @@ const SingleRoute = (props: Props) => {
             props.error !== undefined
           }
           disableTouchRipple
-          sx={{ cursor: cursor }}
+          sx={{ cursor }}
           onClick={() => {
             props.onSelect?.(props.route);
           }}

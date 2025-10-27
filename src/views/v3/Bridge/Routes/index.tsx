@@ -8,7 +8,6 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import type { routes } from '@wormhole-foundation/sdk';
 
 import { getBestRoutes } from 'utils/routes';
-import { OPACITY } from 'utils/style';
 import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 import RoutesMobile from './RoutesBottomSheet';
@@ -105,21 +104,25 @@ function Routes({
         maxWidth: '174px',
         gap: '4px',
         padding: '4px',
-        backgroundColor: theme.palette.input.background,
+        backgroundColor: theme.palette.toggle.background,
         borderRadius: '24px',
       },
       toggleButton: {
         border: 'none',
         borderRadius: '24px !important', // We need to force override MUI's default border radius
-        color: theme.palette.text.secondary,
+        color: theme.palette.toggle.text,
         width: '100%',
         padding: '4px 0',
         fontSize: '12px',
         fontWeight: 600,
         textTransform: 'none',
-        '&.Mui-selected': {
-          backgroundColor: theme.palette.primary.main + OPACITY[25],
-          color: theme.palette.text.primary,
+        '&:hover': {
+          backgroundColor: theme.palette.toggle.background,
+          color: theme.palette.toggle.text,
+        },
+        '&.Mui-selected, &.Mui-selected:hover': {
+          backgroundColor: theme.palette.toggle.active,
+          color: theme.palette.toggle.activeText,
         },
       },
       toggleButtonLabel: {

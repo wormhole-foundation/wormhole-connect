@@ -2,7 +2,6 @@ import { createTheme } from '@mui/material/styles';
 import type { PaletteMode, Theme } from '@mui/material';
 import { OPACITY } from './utils/style';
 import Color from 'color';
-import { grey } from '@mui/material/colors';
 
 export type WormholeConnectTheme = {
   // "dark" or "light"
@@ -33,17 +32,12 @@ export type WormholeConnectTheme = {
 
 type Color = { main: string };
 
-type BackgroundType = {
-  default: string;
-  form?: string;
-};
-
 export type InternalTheme = {
   mode: PaletteMode;
   primary: Color;
   secondary: Color;
   divider: string;
-  background: BackgroundType;
+  background: { default: string };
   text: {
     primary: string;
     secondary: string;
@@ -82,6 +76,16 @@ export type InternalTheme = {
     border: string;
     fillTreatment: boolean;
   };
+  icon: {
+    primary: string;
+    secondary: string;
+  };
+  toggle: {
+    background: string;
+    text: string;
+    active: string;
+    activeText: string;
+  };
   formContainer?: {
     background: string;
     border: string;
@@ -92,17 +96,16 @@ export type InternalTheme = {
 
 export const light: InternalTheme = {
   mode: 'light',
-  primary: { main: '#9892e6' },
+  primary: { main: '#A89EFF' },
   secondary: { main: '#cccccc' },
   divider: '#a0a2a9',
   background: {
     default: 'transparent',
-    form: '#ffffff',
   },
   text: {
-    primary: grey[900],
-    secondary: '#7d7d7d',
-    tertiary: '#78787880',
+    primary: '#3F3F46',
+    secondary: '#71717B',
+    tertiary: '#9F9FA9',
     accent: '#9891DA',
   },
   error: { main: '#f44336' },
@@ -112,32 +115,46 @@ export const light: InternalTheme = {
   success: { main: '#4caf50' },
   warning: { main: '#ff9800' },
   button: {
-    primary: '#ffffff',
-    primaryText: grey[900],
-    disabled: '#c8cad1',
-    disabledText: grey[800],
-    action: '#F3A01E',
-    actionText: '#000000',
-    hover: '#b7b9c1',
+    primary: '#A89EFF',
+    primaryText: '#F9F9FB',
+    disabled: '#F3F4F6',
+    disabledText: '#99A1AF',
+    action: '#A89EFF',
+    actionText: '#F9F9FB',
+    hover: '#A89EFF',
   },
   options: {
     hover: '#f9f9fb',
     select: '#F0F0F5',
   },
   card: {
-    background: '#ffffff',
+    background: '#F0F0F5',
     elevation: '10px 10px 30px 15px #CCD2E7',
     secondary: '#F0F0F5',
   },
   popover: {
-    background: '#ffffff',
+    background: '#FFFFFF',
     elevation: '10px 10px 30px 15px #CCD2E7',
     secondary: '#F0F0F5',
   },
   input: {
-    background: '#f9f9f9',
-    border: '#DEE0E3',
+    background: '#F9F9FB',
+    border: '#E8E6F0',
     fillTreatment: true,
+  },
+  icon: {
+    primary: '#101828',
+    secondary: '#99A1AF',
+  },
+  toggle: {
+    background: '#E5E7EB',
+    text: '#71717B',
+    active: '#A89EFF',
+    activeText: '#FFFFFF',
+  },
+  formContainer: {
+    background: '#FBFAF9',
+    border: '#E4E4E7',
   },
   font: '"Inter", sans-serif',
   logo: '#000000',
@@ -151,12 +168,11 @@ export const dark: InternalTheme = {
   divider: '#ffffff' + OPACITY[20],
   background: {
     default: 'transparent',
-    form: '#0E0D12',
   },
   text: {
     primary: '#ffffff',
-    secondary: '#79859e',
-    tertiary: 'rgba(255,255,255,0.5)',
+    secondary: '#71717B',
+    tertiary: '#52525C',
     accent: '#ffffff',
   },
   info: {
@@ -172,13 +188,13 @@ export const dark: InternalTheme = {
     main: '#F79009',
   },
   button: {
-    primary: '#ffffff' + OPACITY[10],
-    primaryText: '#ffffff',
-    disabled: '#ffffff' + OPACITY[7],
-    disabledText: '#ffffff' + OPACITY[40],
-    action: '#ffffff',
-    actionText: '#000000',
-    hover: '#ffffff' + OPACITY[7],
+    primary: '#AFA7F6',
+    primaryText: '#12111A',
+    disabled: '#3F3F46',
+    disabledText: '#71717B',
+    action: '#AFA7F6',
+    actionText: '#12111A',
+    hover: '#9891DA',
   },
   options: {
     hover: '#ffffff' + OPACITY[7],
@@ -195,9 +211,23 @@ export const dark: InternalTheme = {
     elevation: 'none',
   },
   input: {
-    background: '#1B1A21',
-    border: '#2B2A2E',
+    background: '#18181B',
+    border: '#3F3F46',
     fillTreatment: true,
+  },
+  icon: {
+    primary: '#F9FAFB',
+    secondary: '#6A7282',
+  },
+  toggle: {
+    background: '#18181B',
+    text: '#9F9FA9',
+    active: '#3C3A50',
+    activeText: '#F4F4F5',
+  },
+  formContainer: {
+    background: '#0E0D12',
+    border: '#333333',
   },
   font: '"Inter", sans-serif',
   logo: '#ffffff',
@@ -229,6 +259,39 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
       theme.primary = {
         main: customTheme.primary,
       };
+      const buttonPrimary = Color(customTheme.primary || theme.primary.main);
+      let primaryText: string;
+      let disabled: string;
+      let disabledText: string;
+      let action: string;
+      let actionText: string;
+      let hover: string;
+
+      if (buttonPrimary.isDark()) {
+        primaryText = buttonPrimary.lightness(95).hex();
+        disabled = buttonPrimary.alpha(0.5).hexa();
+        disabledText = buttonPrimary.lightness(95).alpha(0.9).hexa();
+        action = buttonPrimary.darken(0.15).hex();
+        actionText = buttonPrimary.lightness(80).hex();
+        hover = buttonPrimary.darken(0.05).hex();
+      } else {
+        primaryText = buttonPrimary.lightness(5).hex();
+        disabled = buttonPrimary.alpha(0.5).hexa();
+        disabledText = buttonPrimary.lightness(5).alpha(0.9).hexa();
+        action = buttonPrimary.lighten(0.05).hex();
+        actionText = buttonPrimary.lightness(0).hex();
+        hover = buttonPrimary.lighten(0.05).hex();
+      }
+
+      theme.button = {
+        primary: buttonPrimary.hex(),
+        primaryText,
+        disabled,
+        disabledText,
+        action,
+        actionText,
+        hover,
+      };
     }
     if (customTheme.secondary) {
       theme.secondary = {
@@ -251,40 +314,6 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
         main: customTheme.success,
       };
     }
-
-    const primary = Color(customTheme.primary || theme.primary.main);
-    let primaryText: string;
-    let disabled: string;
-    let disabledText: string;
-    let action: string;
-    let actionText: string;
-    let hover: string;
-
-    if (primary.isDark()) {
-      primaryText = primary.lightness(95).hex();
-      disabled = primary.alpha(0.5).hexa();
-      disabledText = primary.lightness(95).alpha(0.9).hexa();
-      action = primary.darken(0.15).hex();
-      actionText = primary.lightness(80).hex();
-      hover = primary.darken(0.05).hex();
-    } else {
-      primaryText = primary.lightness(5).hex();
-      disabled = primary.alpha(0.5).hexa();
-      disabledText = primary.lightness(5).alpha(0.9).hexa();
-      action = primary.lighten(0.05).hex();
-      actionText = primary.lightness(0).hex();
-      hover = primary.lighten(0.05).hex();
-    }
-
-    theme.button = {
-      primary: primary.hex(),
-      primaryText,
-      disabled,
-      disabledText,
-      action,
-      actionText,
-      hover,
-    };
   }
 
   return createTheme({

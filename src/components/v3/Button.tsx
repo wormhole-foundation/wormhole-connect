@@ -24,33 +24,33 @@ const BASE_BUTTON_STYLES: SxProps<Theme> = {
 } as const;
 
 const PRIMARY_BUTTON_STYLES: SxProps<Theme> = {
-  backgroundColor: 'button.primary',
-  color: 'button.primaryText',
+  backgroundColor: (theme) => theme.palette.button.primary,
+  color: (theme) => theme.palette.button.primaryText,
   '&.Mui-disabled': {
-    backgroundColor: 'button.disabled',
-    color: 'button.disabledText',
+    backgroundColor: (theme) => theme.palette.button.disabled,
+    color: (theme) => theme.palette.button.disabledText,
   },
   '&:hover': {
     boxShadow: 'none',
-    backgroundColor: 'button.hover',
+    backgroundColor: (theme) => theme.palette.button.hover,
     '&:disabled': {
-      backgroundColor: 'button.disabled',
-      color: 'button.disabledText',
+      backgroundColor: (theme) => theme.palette.button.disabled,
+      color: (theme) => theme.palette.button.disabledText,
     },
   },
   '&:active': {
     boxShadow: 'none',
-    backgroundColor: 'button.action',
-    color: 'button.actionText',
+    backgroundColor: (theme) => theme.palette.button.action,
+    color: (theme) => theme.palette.button.actionText,
   },
 } as const;
 
 const ERROR_BUTTON_STYLES: SxProps<Theme> = {
-  backgroundColor: 'error.main',
-  color: 'error.contrastText',
+  backgroundColor: (theme) => theme.palette.error.main,
+  color: (theme) => theme.palette.error.contrastText,
   '&:disabled': {
-    backgroundColor: 'error.main',
-    color: 'error.contrastText',
+    backgroundColor: (theme) => theme.palette.error.main,
+    color: (theme) => theme.palette.error.contrastText,
     opacity: 0.4,
   },
 } as const;

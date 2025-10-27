@@ -5,7 +5,7 @@ import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -60,7 +60,7 @@ import { isExecutorRoute, getTokenDisplaySymbolByTokenAddress } from 'utils';
 
 function Redeem() {
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   const [claimError, setClaimError] = useState('');
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
@@ -104,9 +104,11 @@ function Redeem() {
         width: '100%',
       },
       backButton: {
-        alignItems: 'start',
+        alignItems: 'center',
+        justifyContent: 'center',
         maxWidth: '420px',
         width: '100%',
+        position: 'relative',
       },
       claimButton: {
         backgroundColor: theme.palette.warning.light,
@@ -358,7 +360,7 @@ function Redeem() {
 
   // Header showing the status of the transaction
   const statusHeader = useMemo(() => {
-    let statusText = 'Transaction submitted';
+    let statusText = 'Transaction in progress';
     if (isTxCompleted) {
       statusText = 'Transaction completed';
     } else if (isTxRefunded) {
@@ -374,11 +376,13 @@ function Redeem() {
     }
 
     return (
-      <Stack>
-        <Typography data-testid="redeem-view-status-header" fontSize={18}>
-          {statusText}
-        </Typography>
-      </Stack>
+      <Typography
+        data-testid="redeem-view-status-header"
+        fontSize="24px"
+        fontWeight={600}
+      >
+        {statusText}
+      </Typography>
     );
   }, [
     isTxCompleted,
@@ -911,13 +915,25 @@ function Redeem() {
       <ConfigurablePageHeader />
       <Stack sx={styles.backButton}>
         <IconButton
-          sx={{ padding: 0 }}
+          sx={{
+            border: '1px solid ' + theme.palette.input.border,
+            color: theme.palette.text.primary,
+            height: '32px',
+            width: '32px',
+            fontSize: '16px',
+            position: 'absolute',
+            left: 0,
+            '&:hover': {
+              backgroundColor: theme.palette.formContainer.background,
+            },
+          }}
           onClick={() => dispatch(setRoute('bridge'))}
         >
-          <ChevronLeft sx={{ fontSize: '32px' }} />
+          <ArrowBackRoundedIcon fontSize="inherit" />
         </IconButton>
+        {statusHeader}
       </Stack>
-      {statusHeader}
+
       <Box
         sx={{
           position: 'relative',

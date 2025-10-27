@@ -25,7 +25,6 @@ import WalletController from 'views/v3/Bridge/WalletConnector/Controller';
 import AmountInput from '../AmountInput';
 import type { AmountValidationResult } from 'hooks/useAmountValidation';
 import { OPACITY } from 'utils/style';
-import Color from 'color';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
 import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
@@ -116,7 +115,7 @@ function AssetPicker(props: Props) {
       <Typography
         component="div"
         sx={{
-          color: theme.palette.text.secondary + OPACITY[50],
+          color: theme.palette.text.tertiary,
           fontSize: '12px',
           fontWeight: 500,
           maxWidth: '240px',
@@ -128,7 +127,7 @@ function AssetPicker(props: Props) {
         {displayValue}
       </Typography>
     );
-  }, [props.token, theme.palette.text.secondary, tokenBalance]);
+  }, [props.token, theme.palette.text.tertiary, tokenBalance]);
 
   // Side-effect to reset chain search visibility.
   // Popover and drawer close has an animation, which requires to wait
@@ -217,7 +216,7 @@ function AssetPicker(props: Props) {
         cursor: 'pointer',
         borderRadius: '48px',
         border: `1px solid ${theme.palette.input.border}`,
-        background: Color(theme.palette.input.background).darken(0.2).hex(),
+        background: theme.palette.input.background,
         minWidth: '120px',
         height: '48px',
         '&:hover': {
@@ -258,7 +257,7 @@ function AssetPicker(props: Props) {
         opacity: 0.7,
       },
       percentButtonSelected: {
-        color: theme.palette.background.form,
+        color: theme.palette.formContainer.background,
         backgroundColor: theme.palette.primary.main,
         opacity: 'unset',
       },
@@ -515,7 +514,12 @@ function AssetPicker(props: Props) {
     <Box sx={styles.root}>
       <Box sx={styles.container}>
         <Box sx={styles.title}>
-          <Typography fontSize={12} fontWeight={500} variant="body2">
+          <Typography
+            color={theme.palette.text.tertiary}
+            fontSize={12}
+            fontWeight={500}
+            variant="body2"
+          >
             {props.isSource ? 'From' : 'To'}
           </Typography>
           <Box

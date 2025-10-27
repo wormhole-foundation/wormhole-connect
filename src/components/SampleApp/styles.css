@@ -8,7 +8,9 @@ body {
 
 main {
   width: 100%;
-  min-height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 aside textarea,
@@ -30,6 +32,7 @@ main a:hover {
 
 article {
   display: flex;
+  flex: 1;
 }
 
 #sample-app {

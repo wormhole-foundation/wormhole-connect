@@ -36,8 +36,8 @@ function ChainShortList({
         display: 'flex',
         flexDirection: 'column' as const,
         padding: '8px',
-        backgroundColor: theme.palette.primary.main + OPACITY[10],
-        border: '1px solid transparent',
+        backgroundColor: theme.palette.input.background,
+        border: `1px solid ${theme.palette.input.border}`,
         borderRadius: '8px',
         width: mobile ? '56px' : '71px',
         minWidth: '56px',
@@ -59,7 +59,7 @@ function ChainShortList({
       },
       chainTileLabel: {
         color: theme.palette.text.secondary,
-        fontSize: '10px',
+        fontSize: '11px',
         fontFamily: theme.typography.fontFamily,
         fontWeight: 400,
         lineHeight: '12px',
@@ -126,12 +126,24 @@ function ChainShortList({
         onClick={onShowMore}
       >
         <Box sx={styles.chainIcon}>
-          <PlusIcon sx={{ height: '24px', width: '24px' }} />
+          <PlusIcon
+            htmlColor={theme.palette.text.tertiary}
+            sx={{
+              height: '24px',
+              width: '24px',
+            }}
+          />
         </Box>
         <Typography sx={styles.chainTileLabel}>More</Typography>
       </ListItemButton>
     ),
-    [onShowMore, styles.chainButton, styles.chainIcon, styles.chainTileLabel],
+    [
+      onShowMore,
+      styles.chainButton,
+      styles.chainIcon,
+      styles.chainTileLabel,
+      theme.palette.text.tertiary,
+    ],
   );
 
   return (

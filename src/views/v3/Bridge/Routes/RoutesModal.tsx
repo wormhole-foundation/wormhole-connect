@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
-import CloseIcon from '@mui/icons-material/Close';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import type { routes } from '@wormhole-foundation/sdk';
 
 import Button from 'components/v3/Button';
@@ -47,20 +47,25 @@ function RoutesDesktop({
       sx={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         width: '100%',
+        position: 'relative',
       }}
     >
-      <Typography component={'span'} fontSize="16px" fontWeight={600}>
+      <Typography
+        color={theme.palette.text.primary}
+        fontSize="24px"
+        fontWeight={600}
+      >
         Routes
       </Typography>
       <IconButton
-        sx={{ opacity: 0.5, padding: 0 }}
+        sx={{ opacity: 0.5, padding: 0, position: 'absolute', right: 0 }}
         onClick={onClose}
         aria-label="Close routes"
         data-testid="routes-close-button"
       >
-        <CloseIcon sx={{ height: '24px', width: '24px' }} />
+        <CloseRoundedIcon sx={{ height: '24px', width: '24px' }} />
       </IconButton>
     </Box>
   );
@@ -106,7 +111,7 @@ function RoutesDesktop({
     >
       <Box
         sx={{
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.input.background,
           padding: '24px',
           borderRadius: '12px',
           gap: '16px',

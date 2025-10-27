@@ -41,7 +41,7 @@ function TokenItem(props: TokenItemProps) {
       tokenListItem: {
         display: 'flex',
         justifyContent: 'space-between',
-        padding: '8px 16px',
+        padding: '8px 32px',
         borderRadius: 0,
         ':hover': {
           backgroundColor: Color(theme.palette.primary.main).alpha(0.07).hexa(),
