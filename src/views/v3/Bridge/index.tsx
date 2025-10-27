@@ -64,6 +64,8 @@ function Bridge(props: BridgeProps) {
   const dispatch = useDispatch();
 
   const [showHistory, setShowHistory] = useState(props.showHistory ?? false);
+  const [hasUserManuallyChangedGas, setHasUserManuallyChangedGas] =
+    useState(false);
 
   const { lastTokenCacheUpdate } = useTokens();
   const [errorCopied, setErrorCopied] = useState(false);
@@ -278,6 +280,53 @@ function Bridge(props: BridgeProps) {
     destination: destBalanceRequest,
   });
 
+  // Reset manual gas change flag on destination chain change
+  useEffect(() => {
+    setHasUserManuallyChangedGas(false);
+  }, [destChain]);
+
+  // Auto-set nativeGas when destination native balance is zero
+  // and user has not manually changed gas setting
+  useEffect(() => {
+    if (
+      !route ||
+      !destChain ||
+      !receivingWallet?.address ||
+      hasUserManuallyChangedGas
+    ) {
+      return;
+    }
+
+    const nativeGasToken = config.tokens.getGasToken(destChain);
+    if (!nativeGasToken) {
+      return;
+    }
+
+    const nativeBalance = balances.destination.balances[nativeGasToken.key];
+    const hasBalance =
+      nativeBalance &&
+      nativeBalance.balance &&
+      sdkAmount.units(nativeBalance.balance) > 0n;
+
+    if (hasBalance) {
+      return;
+    }
+
+    const newGasValue = 1;
+
+    if (newGasValue !== toNativeToken) {
+      dispatch(setToNativeToken(newGasValue));
+    }
+  }, [
+    route,
+    destChain,
+    balances.destination.balances,
+    receivingWallet?.address,
+    hasUserManuallyChangedGas,
+    toNativeToken,
+    dispatch,
+  ]);
+
   // Validate amount
   const amountValidation = useAmountValidation({
     balance: sourceToken
@@ -352,6 +401,11 @@ function Bridge(props: BridgeProps) {
     },
     [dispatch],
   );
+
+  // Handler for manual gas changes
+  const handleManualGasChange = useCallback(() => {
+    setHasUserManuallyChangedGas(true);
+  }, []);
 
   // Determine which wallet connector to show
   const walletConnectorProps = useMemo(() => {
@@ -607,6 +661,7 @@ function Bridge(props: BridgeProps) {
               onRouteChange={handleRouteChange}
               quotes={quotes}
               isLoading={isFetchingQuotes}
+              onManualGasChange={handleManualGasChange}
             />
           )}
         </Box>
