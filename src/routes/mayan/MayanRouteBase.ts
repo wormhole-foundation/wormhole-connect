@@ -430,6 +430,8 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       ...this.getDefaultOptions(),
       ...params.options,
       slippageBps: 'auto',
+      referrer: this.referrerAddress().solana, // Solana referrer for quotes
+      referrerBps: 0, // No referral fee for mayan, we handle our own below
     };
 
     const quoteOpts: QuoteOptions = {
@@ -669,7 +671,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
                 quote.details!,
                 originAddress,
                 destinationAddress,
-                null,
+                this.referrerAddress(),
                 rpc,
                 { allowSwapperOffCurve: true },
               ));
@@ -759,7 +761,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               quote.details!,
               originAddress,
               destinationAddress,
-              null,
+              this.referrerAddress(),
               undefined,
               rpc,
               options,
@@ -875,7 +877,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               quoteDetails,
               originAddress,
               destinationAddress,
-              null,
+              this.referrerAddress(),
               originAddress,
               Number(nativeChainId!),
               undefined,
