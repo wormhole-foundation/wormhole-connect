@@ -317,9 +317,6 @@ function Routes({
               quoteSlippageBps={getSlippageFromQuote(selectedQuote)}
               minReceived={getMinReceivedFromQuote(selectedQuote)}
               outputToken={selectedQuote?.details?.toToken?.symbol}
-              enableRouteSelector={
-                !isRouteSelectionPillApplicable && routesList.length > 1
-              }
             />
           </Stack>
         </>

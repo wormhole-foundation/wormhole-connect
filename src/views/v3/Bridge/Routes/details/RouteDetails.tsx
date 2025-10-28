@@ -20,7 +20,6 @@ export interface RouteDetailsProps {
   quoteSlippageBps?: number;
   minReceived?: number;
   outputToken?: string;
-  enableRouteSelector?: boolean;
 }
 
 export default function RouteDetails({
@@ -33,7 +32,6 @@ export default function RouteDetails({
   quoteSlippageBps,
   minReceived,
   outputToken,
-  enableRouteSelector,
 }: RouteDetailsProps) {
   const theme = useTheme();
   const [isShowingDetails, handleChevronClick] = useToggle(false);
@@ -56,8 +54,7 @@ export default function RouteDetails({
           provider={provider}
           route={selectedRoute}
           sourceChain={sourceChain}
-          onClick={enableRouteSelector ? handleToggleRoutes : undefined}
-          enableRouteSelector={enableRouteSelector ?? false}
+          onClick={handleToggleRoutes}
         />
         <Stack
           direction="row"
