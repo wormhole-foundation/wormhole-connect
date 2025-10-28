@@ -30,6 +30,7 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
+import { useAutoEnableGasDropOff } from 'hooks/useAutoEnableGasDropoff';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import {
@@ -287,45 +288,14 @@ function Bridge(props: BridgeProps) {
 
   // Auto-set nativeGas when destination native balance is zero
   // and user has not manually changed gas setting
-  useEffect(() => {
-    if (
-      !route ||
-      !destChain ||
-      !receivingWallet?.address ||
-      hasUserManuallyChangedGas
-    ) {
-      return;
-    }
-
-    const nativeGasToken = config.tokens.getGasToken(destChain);
-    if (!nativeGasToken) {
-      return;
-    }
-
-    const nativeBalance = balances.destination.balances[nativeGasToken.key];
-    const hasBalance =
-      nativeBalance &&
-      nativeBalance.balance &&
-      sdkAmount.units(nativeBalance.balance) > 0n;
-
-    if (hasBalance) {
-      return;
-    }
-
-    const newGasValue = 1;
-
-    if (newGasValue !== toNativeToken) {
-      dispatch(setToNativeToken(newGasValue));
-    }
-  }, [
+  useAutoEnableGasDropOff({
     route,
     destChain,
-    balances.destination.balances,
-    receivingWallet?.address,
+    receivingWalletAddress: receivingWallet?.address,
+    destinationBalances: balances.destination.balances,
     hasUserManuallyChangedGas,
-    toNativeToken,
-    dispatch,
-  ]);
+    currentToNativeToken: toNativeToken,
+  });
 
   // Validate amount
   const amountValidation = useAmountValidation({
