@@ -329,14 +329,14 @@ export default class SDKv2Route {
     }
 
     if (this.IS_TOKEN_BRIDGE_ROUTE) {
-      const { symbol, nativeChain } = sourceToken;
-
       // Exclude wormhole-wrapped tokens on the destination chain
       // if the NTT route is supported
       const isNttSupported = isNttToken(sourceToken);
       if (isNttSupported) {
         return true;
       }
+
+      const { symbol, nativeChain } = sourceToken;
 
       // These chains have a native bridge to/from Ethereum, so receiving wormhole-wrapped ETH is not necessary
       if (

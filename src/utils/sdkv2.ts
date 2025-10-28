@@ -594,7 +594,7 @@ const parseMultiTokenNttReceipt = async (
   getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>,
 ): Promise<TransferInfo> => {
   let sendTx = '';
-  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+  if (receipt.originTxs?.length > 0) {
     sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
   } else {
     throw new Error("Can't find txid in receipt");
