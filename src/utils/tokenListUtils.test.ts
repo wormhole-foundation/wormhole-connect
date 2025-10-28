@@ -1,0 +1,432 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import {
+  getTokenPreferenceScore,
+  calculateTokenUSDBalance,
+  sortTokensByPreference,
+  applyCustomTokenSupport,
+  applyShittokenFilter,
+  filterTokensByBalance,
+} from './tokenListUtils';
+import type { Token } from 'config/tokens';
+import type { Balances } from './wallet/types';
+import { createMockToken } from './testHelpers';
+
+// Mock dependencies
+vi.mock('@wormhole-foundation/sdk', async () => {
+  const actual = await vi.importActual('@wormhole-foundation/sdk');
+  return {
+    ...actual,
+    circle: {
+      usdcContract: {
+        get: vi.fn((network: string, chain: string) => {
+          // Mock USDC addresses
+          if (chain === 'Ethereum' && network === 'Mainnet') {
+            return '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+          }
+          return undefined;
+        }),
+      },
+    },
+  };
+});
+
+vi.mock('config', () => ({
+  default: {
+    network: 'Mainnet',
+    tokenWhitelist: undefined,
+    isTokenSupportedHandler: undefined,
+    tokens: {
+      get: vi.fn(),
+      queryBySymbol: vi.fn(() => []),
+    },
+  },
+}));
+
+vi.mock('utils', () => ({
+  calculateUSDPriceRaw: vi.fn((getPrice: any, balance: any, token: any) => {
+    const price = typeof getPrice === 'function' ? getPrice(token) : getPrice;
+    if (!price || !balance) return undefined;
+    return 100 * price; // Simplified calculation
+  }),
+  isFrankensteinToken: vi.fn(() => false),
+}));
+
+vi.mock('./ntt', () => ({
+  isNttToken: vi.fn(() => false),
+}));
+
+vi.mock('config/tokens', () => ({
+  isSameToken: vi.fn((a: any, b: any) => {
+    return a.chain === b.chain && a.addressString === b.addressString;
+  }),
+  tokenKey: vi.fn((token: any) => `${token.chain}:${token.addressString}`),
+  isTokenTuple: vi.fn((item: any) => Array.isArray(item)),
+  tokenIdFromTuple: vi.fn((tuple: any) => ({
+    chain: tuple[0],
+    address: { toString: () => tuple[1] },
+  })),
+}));
+
+describe('tokenListUtils', () => {
+  describe('getTokenPreferenceScore', () => {
+    it('should return 5 for selected token', () => {
+      const token = createMockToken({ symbol: 'ETH' });
+      const score = getTokenPreferenceScore(token, token);
+      expect(score).toBe(5);
+    });
+
+    it('should return 4 for destination token matching source symbol', () => {
+      const sourceToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Ethereum',
+      });
+      const destToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Arbitrum',
+      });
+      const score = getTokenPreferenceScore(destToken, undefined, sourceToken);
+      expect(score).toBe(4);
+    });
+
+    it('should return 3 for native gas tokens', () => {
+      const nativeToken = createMockToken({
+        addressString: 'native',
+        isNativeGasToken: true,
+      });
+      const score = getTokenPreferenceScore(nativeToken);
+      expect(score).toBe(3);
+    });
+
+    it('should return 2 for USDC tokens', () => {
+      const usdcToken = createMockToken({
+        chain: 'Ethereum',
+        addressString: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        symbol: 'USDC',
+      });
+      const score = getTokenPreferenceScore(usdcToken);
+      expect(score).toBe(2);
+    });
+
+    it('should return 1 for native non-wrapped tokens', () => {
+      const nativeToken = createMockToken({
+        isTokenBridgeWrappedToken: false,
+      });
+      const score = getTokenPreferenceScore(nativeToken);
+      expect(score).toBe(1);
+    });
+
+    it('should return 0 for wrapped tokens', () => {
+      const wrappedToken = createMockToken({
+        isTokenBridgeWrappedToken: true,
+      });
+      const score = getTokenPreferenceScore(wrappedToken);
+      expect(score).toBe(0);
+    });
+
+    it('should prioritize selected token over source symbol match', () => {
+      const selectedToken = createMockToken({ symbol: 'ETH' });
+      const sourceToken = createMockToken({ symbol: 'USDC' });
+
+      const scoreSelected = getTokenPreferenceScore(
+        selectedToken,
+        selectedToken,
+        sourceToken,
+      );
+      const scoreSourceMatch = getTokenPreferenceScore(
+        createMockToken({ symbol: 'USDC' }),
+        undefined,
+        sourceToken,
+      );
+
+      expect(scoreSelected).toBeGreaterThan(scoreSourceMatch);
+    });
+  });
+
+  describe('calculateTokenUSDBalance', () => {
+    const mockGetPrice = vi.fn((token: Token) => {
+      if (token.symbol === 'ETH') return 2000;
+      if (token.symbol === 'USDC') return 1;
+      return undefined;
+    });
+
+    beforeEach(() => {
+      mockGetPrice.mockClear();
+    });
+
+    it('should calculate USD balance correctly', () => {
+      const token = createMockToken({ symbol: 'ETH' });
+      const balances: Balances = {
+        'Ethereum:0x1234567890abcdef': {
+          lastUpdated: Date.now(),
+          balance: sdkAmount.fromBaseUnits(1000000000000000000n, 18), // 1 ETH
+        },
+      };
+
+      const usdBalance = calculateTokenUSDBalance(
+        token,
+        balances,
+        mockGetPrice,
+      );
+      expect(usdBalance).toBe(200000);
+      expect(mockGetPrice).toHaveBeenCalledWith(token);
+    });
+
+    it('should return 0 for missing balance', () => {
+      const token = createMockToken();
+      const balances: Balances = {};
+
+      const usdBalance = calculateTokenUSDBalance(
+        token,
+        balances,
+        mockGetPrice,
+      );
+      expect(usdBalance).toBe(0);
+    });
+
+    it('should return 0 for zero balance', () => {
+      const token = createMockToken();
+      const balances: Balances = {
+        'Ethereum:0x1234567890abcdef': {
+          lastUpdated: Date.now(),
+          balance: { amount: '0', decimals: 18 },
+        },
+      };
+
+      const usdBalance = calculateTokenUSDBalance(
+        token,
+        balances,
+        mockGetPrice,
+      );
+      expect(usdBalance).toBe(0);
+    });
+
+    it('should return 0 when price is unavailable', () => {
+      const token = createMockToken({ symbol: 'UNKNOWN' });
+      const balances: Balances = {
+        'Ethereum:0x1234567890abcdef': {
+          lastUpdated: Date.now(),
+          balance: sdkAmount.fromBaseUnits(1000000000000000000n, 18),
+        },
+      };
+
+      const usdBalance = calculateTokenUSDBalance(
+        token,
+        balances,
+        mockGetPrice,
+      );
+      expect(usdBalance).toBe(0);
+    });
+  });
+
+  describe('sortTokensByPreference', () => {
+    it('should sort by preference score first', () => {
+      const nativeToken = createMockToken({
+        symbol: 'ETH',
+        addressString: 'native',
+        isNativeGasToken: true,
+      });
+      const wrappedToken = createMockToken({
+        symbol: 'WETH',
+        isTokenBridgeWrappedToken: true,
+      });
+      const regularToken = createMockToken({
+        symbol: 'DAI',
+        isTokenBridgeWrappedToken: false,
+      });
+
+      const tokens = [wrappedToken, regularToken, nativeToken];
+      const balances: Balances = {};
+      const getPrice = () => undefined;
+
+      const sorted = sortTokensByPreference(
+        tokens,
+        undefined,
+        balances,
+        getPrice,
+      );
+
+      expect(sorted[0]).toBe(nativeToken); // Score 3
+      expect(sorted[1]).toBe(regularToken); // Score 1
+      expect(sorted[2]).toBe(wrappedToken); // Score 0
+    });
+
+    it('should sort by USD balance when scores are equal', () => {
+      const token1 = createMockToken({ symbol: 'AAA', addressString: '0x111' });
+      const token2 = createMockToken({ symbol: 'BBB', addressString: '0x222' });
+
+      const balances: Balances = {
+        'Ethereum:0x111': {
+          lastUpdated: Date.now(),
+          balance: sdkAmount.fromBaseUnits(1000000000000000000n, 18), // 1 token
+        },
+        'Ethereum:0x222': {
+          lastUpdated: Date.now(),
+          balance: sdkAmount.fromBaseUnits(2000000000000000000n, 18), // 2 tokens
+        },
+      };
+
+      const getPrice = (token: Token) => (token.symbol === 'AAA' ? 100 : 200);
+
+      const tokens = [token1, token2];
+      const sorted = sortTokensByPreference(
+        tokens,
+        undefined,
+        balances,
+        getPrice,
+      );
+
+      // token2 has higher USD balance (2 * 200 = 400) vs token1 (1 * 100 = 100)
+      expect(sorted[0].symbol).toBe('BBB');
+      expect(sorted[1].symbol).toBe('AAA');
+    });
+
+    it('should sort alphabetically by symbol when score and balance are equal', () => {
+      const tokenZ = createMockToken({ symbol: 'ZZZ' });
+      const tokenA = createMockToken({ symbol: 'AAA' });
+      const tokenM = createMockToken({ symbol: 'MMM' });
+
+      const tokens = [tokenZ, tokenA, tokenM];
+      const balances: Balances = {};
+      const getPrice = () => undefined;
+
+      const sorted = sortTokensByPreference(
+        tokens,
+        undefined,
+        balances,
+        getPrice,
+      );
+
+      expect(sorted[0].symbol).toBe('AAA');
+      expect(sorted[1].symbol).toBe('MMM');
+      expect(sorted[2].symbol).toBe('ZZZ');
+    });
+
+    it('should prioritize source symbol match in destination list', () => {
+      const sourceToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Ethereum',
+      });
+      const usdcArbitrum = createMockToken({
+        symbol: 'USDC',
+        chain: 'Arbitrum',
+      });
+      const ethArbitrum = createMockToken({
+        symbol: 'ETH',
+        chain: 'Arbitrum',
+        addressString: 'native',
+        isNativeGasToken: true,
+      });
+
+      const tokens = [ethArbitrum, usdcArbitrum];
+      const balances: Balances = {};
+      const getPrice = () => undefined;
+
+      const sorted = sortTokensByPreference(
+        tokens,
+        undefined,
+        balances,
+        getPrice,
+        sourceToken,
+      );
+
+      // USDC (score 4) should come before ETH native (score 3)
+      expect(sorted[0].symbol).toBe('USDC');
+      expect(sorted[1].symbol).toBe('ETH');
+    });
+  });
+
+  describe('applyShittokenFilter', () => {
+    it('should filter out unknown tokens', () => {
+      const unknownToken = createMockToken({
+        isNativeGasToken: false,
+        isBuiltin: false,
+        isTokenBridgeWrappedToken: false,
+      });
+      const tokens = [unknownToken];
+      const filtered = applyShittokenFilter(tokens);
+      expect(filtered).toHaveLength(0);
+    });
+
+    it('should filter mixed token list correctly', () => {
+      const nativeToken = createMockToken({
+        isNativeGasToken: true,
+        symbol: 'ETH',
+      });
+      const unknownToken = createMockToken({ symbol: 'SCAM' });
+      const verifiedToken = createMockToken({
+        symbol: 'USDC',
+        coingeckoWebId: 'usd-coin',
+      });
+
+      const tokens = [unknownToken, nativeToken, verifiedToken];
+      const filtered = applyShittokenFilter(tokens);
+
+      expect(filtered).toHaveLength(2);
+      expect(filtered.find((t) => t.symbol === 'SCAM')).toBeUndefined();
+      expect(filtered.find((t) => t.symbol === 'ETH')).toBeDefined();
+      expect(filtered.find((t) => t.symbol === 'USDC')).toBeDefined();
+    });
+  });
+
+  describe('filterTokensByBalance', () => {
+    it('should return all tokens when no wallet connected', () => {
+      const tokens = [createMockToken(), createMockToken()];
+      const balances = {};
+      const filtered = filterTokensByBalance(tokens, balances, undefined);
+      expect(filtered).toHaveLength(2);
+    });
+
+    it('should filter to tokens with non-zero balance', () => {
+      const token1 = createMockToken({ addressString: '0x111' });
+      const token2 = createMockToken({ addressString: '0x222' });
+      const token3 = createMockToken({ addressString: '0x333' });
+
+      const balances = {
+        'Ethereum:0x111': {
+          balance: sdkAmount.fromBaseUnits(1000000n, 6), // Non-zero
+        },
+        'Ethereum:0x222': {
+          balance: sdkAmount.fromBaseUnits(0n, 6), // Zero
+        },
+        'Ethereum:0x333': {
+          balance: sdkAmount.fromBaseUnits(5000000n, 6), // Non-zero
+        },
+      };
+
+      const tokens = [token1, token2, token3];
+      const filtered = filterTokensByBalance(tokens, balances, '0x123');
+
+      expect(filtered).toHaveLength(2);
+      expect(filtered.find((t) => t.addressString === '0x111')).toBeDefined();
+      expect(filtered.find((t) => t.addressString === '0x222')).toBeUndefined();
+      expect(filtered.find((t) => t.addressString === '0x333')).toBeDefined();
+    });
+  });
+
+  describe('applyCustomTokenSupport', () => {
+    it('should return all tokens when no custom handler set', () => {
+      const tokens = [createMockToken(), createMockToken()];
+      const filtered = applyCustomTokenSupport(tokens);
+      expect(filtered).toHaveLength(2);
+    });
+
+    it('should apply custom filter when handler is set', async () => {
+      const config = await import('config');
+      const token1 = createMockToken({ symbol: 'ALLOWED' });
+      const token2 = createMockToken({ symbol: 'BLOCKED' });
+
+      config.default.isTokenSupportedHandler = (token: Token) =>
+        token.symbol === 'ALLOWED';
+
+      const tokens = [token1, token2];
+      const filtered = applyCustomTokenSupport(tokens);
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(token1);
+
+      // Cleanup
+      config.default.isTokenSupportedHandler = undefined;
+    });
+  });
+});

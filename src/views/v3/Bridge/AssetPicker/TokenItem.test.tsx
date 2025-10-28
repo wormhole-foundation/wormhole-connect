@@ -5,9 +5,10 @@ import { ThemeProvider, createTheme } from '@mui/material';
 
 import TokenItem from './TokenItem';
 import { dark } from 'theme';
+import { createMockToken } from 'utils/testHelpers';
 
 const theme = createTheme({
-  palette: dark as any,
+  palette: dark,
 });
 
 vi.mock('utils', () => ({
@@ -22,36 +23,18 @@ vi.mock('components/TokenBalance', () => ({
   ),
 }));
 
-const mockToken = {
-  key: 'USDC',
+const mockToken = createMockToken({
   symbol: 'USDC',
   name: 'USD Coin',
   decimals: 6,
-  icon: 'usdc.svg',
   addressString: '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e',
-  chain: 'Ethereum' as const,
-  address: '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e',
-  tokenId: {
-    chain: 'Ethereum' as const,
-    address: '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e',
-  },
-  display: 'USD Coin',
-  shortAddress: '0xa0b...a6c6e',
-  tuple: ['Ethereum', '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e'] as [
-    'Ethereum',
-    string,
-  ],
-  isNativeGasToken: false,
-  isTokenBridgeWrappedToken: false,
-  nativeChain: 'Ethereum' as const,
-  equals: vi.fn(),
-  toJson: vi.fn(),
-} as any;
+  chain: 'Ethereum',
+});
 
 const mockBalance = {
   amount: '1000000000', // 1000 USDC
   decimals: 6,
-} as any;
+};
 
 const defaultProps = {
   token: mockToken,
