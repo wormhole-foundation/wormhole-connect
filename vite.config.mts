@@ -154,7 +154,9 @@ const rollupInput: InputOption = {
 
 const external = [
   'react',
+  'react-dom',
   'react/jsx-runtime',
+  'react-dom/client',
   '@emotion/react',
   '@emotion/styled',
   '@mui/material',
