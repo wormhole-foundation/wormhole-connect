@@ -198,11 +198,9 @@ const minimalBuild: BuildEnvironmentOptions = {
     input: rollupInput,
     output: {
       entryFileNames: '[name].mjs',
-      chunkFileNames: '[name].mjs',
+      chunkFileNames: '[name]-[hash].mjs',
       assetFileNames: '[name].[ext]',
       inlineDynamicImports: false,
-      preserveModules: true,
-      preserveModulesRoot: 'src',
     },
     external,
   },
