@@ -5,6 +5,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 import type { Balances } from 'utils/wallet/types';
 import config from 'config';
 import { setToNativeToken } from 'store/relay';
+import { isExecutorRoute } from 'utils';
 
 export interface UseAutoEnableGasDropOffParams {
   route: string | undefined;
@@ -33,6 +34,7 @@ export function useAutoEnableGasDropOff({
   useEffect(() => {
     if (
       !route ||
+      !isExecutorRoute(route) ||
       !destChain ||
       !receivingWalletAddress ||
       hasUserManuallyChangedGas
@@ -49,11 +51,7 @@ export function useAutoEnableGasDropOff({
     const hasBalance =
       nativeBalance?.balance && sdkAmount.units(nativeBalance.balance) > 0n;
 
-    if (hasBalance) {
-      return;
-    }
-
-    const newGasValue = 1;
+    const newGasValue = hasBalance ? 0 : 1;
 
     if (newGasValue !== currentToNativeToken) {
       dispatch(setToNativeToken(newGasValue));
