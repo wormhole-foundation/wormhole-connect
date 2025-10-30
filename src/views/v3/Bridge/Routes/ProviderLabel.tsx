@@ -2,9 +2,9 @@ import React from 'react';
 import { getRouteProvider } from './utils';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import ChevronRight from '@mui/icons-material/ChevronRight';
 import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
+import RouteSwitchIcon from 'icons/RouteSwitch';
 
 interface ProviderLabelProps {
   destChain?: string;
@@ -13,7 +13,6 @@ interface ProviderLabelProps {
   sourceChain?: string;
   sourceTokenSymbol?: string;
   onClick?: () => void;
-  enableRouteSelector: boolean;
 }
 
 function ProviderLabel({
@@ -23,7 +22,6 @@ function ProviderLabel({
   sourceChain,
   sourceTokenSymbol,
   onClick,
-  enableRouteSelector,
 }: ProviderLabelProps) {
   const via = getRouteProvider(
     destChain,
@@ -37,7 +35,7 @@ function ProviderLabel({
 
   return (
     <Button
-      onClick={enableRouteSelector ? onClick : undefined}
+      onClick={onClick}
       disableRipple
       variant="text"
       sx={{
@@ -46,10 +44,10 @@ function ProviderLabel({
         justifyContent: 'flex-start',
         textTransform: 'none',
         color: theme.palette.text.secondary,
-        cursor: enableRouteSelector ? 'pointer' : 'default',
+        cursor: 'pointer',
         '&:hover': {
           backgroundColor: 'transparent',
-          color: enableRouteSelector ? theme.palette.text.accent : 'none',
+          color: theme.palette.text.accent,
         },
       }}
     >
@@ -65,14 +63,13 @@ function ProviderLabel({
         <Typography variant="body2" fontWeight={500}>
           {via ? `Routing via ${via}` : `Route`}
         </Typography>
-        {enableRouteSelector && (
-          <ChevronRight
-            sx={{
-              width: 16,
-              height: 16,
-            }}
-          />
-        )}
+        <RouteSwitchIcon
+          sx={{
+            width: 12,
+            height: 12,
+            marginLeft: theme.spacing(0.5),
+          }}
+        />
       </Stack>
     </Button>
   );
