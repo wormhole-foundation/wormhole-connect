@@ -63,14 +63,18 @@ export function validateHyperCoreTransfer<N extends Network>(
     };
   }
 
-  if (!(isEvmChain(fromChain.chain) || fromChain.chain === 'Sui')) {
-    // Uncomment and use this when we want to support HyperCore USDC deposits on SOL
-    // || fromChain.chain === 'Solana')
+  if (
+    !(
+      isEvmChain(fromChain.chain) ||
+      fromChain.chain === 'Sui' ||
+      fromChain.chain === 'Solana'
+    )
+  ) {
     return {
       valid: false,
       params,
       error: new routes.UnavailableError(
-        new Error('HyperCore only supports EVM or Sui source chains'),
+        new Error('HyperCore only supports EVM, Solana or Sui source chains'),
       ),
     };
   }
