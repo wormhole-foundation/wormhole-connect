@@ -28,7 +28,7 @@ import { OPACITY } from 'utils/style';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
 import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
-import { formatWithCommas } from 'utils/formatNumber';
+import { formatNumberIntl } from 'utils/formatNumber';
 import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
@@ -635,7 +635,7 @@ function AssetPicker(props: Props) {
                   },
                 }}
                 variant="standard"
-                value={formatWithCommas(receiveAmountText)}
+                value={formatNumberIntl(receiveAmountText)}
               />
             </Box>
           )}

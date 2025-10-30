@@ -33,25 +33,29 @@ const getUserLocale = (): string =>
  * Format a numeric string with locale‑aware grouping, preserving any
  * fractional part (including a trailing dot).
  */
-export const formatWithCommas = (value: string): string => {
+export const formatNumberIntl = (value: string): string => {
   if (!value) {
     return '';
   }
 
-  const locale = getUserLocale();
-  const { decimal } = getSeparators(locale);
-
   const [integerPart, decimalPart] = value.split('.');
   const intNum = parseInt(integerPart, 10) || 0;
 
+  const locale = getUserLocale();
+  const { decimal } = getSeparators(locale);
+
+  // Format the integer part
+  // Intl.NumberFormat could be used to format the whole number,
+  // but we need to preserve trailing decimal points as user types.
+  // That's why we split and format only the integer part here.
   const formattedInt = new Intl.NumberFormat(locale, {
     useGrouping: true,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(intNum);
 
-  // Append the locale decimal separator + any digits (or preserve trailing ".")
-  if (decimalPart !== undefined || value.endsWith('.')) {
+  // Append the locale decimal separator + any digits (or preserve trailing decimal separator)
+  if (decimalPart !== undefined || value.endsWith(decimal)) {
     return formattedInt + decimal + (decimalPart ?? '');
   }
 
@@ -59,10 +63,10 @@ export const formatWithCommas = (value: string): string => {
 };
 
 /**
- * Strip locale‑specific grouping separators and convert the decimal
- * separator to "." so Number() will parse correctly.
+ * Strip locale‑specific grouping separators and replace the decimal separator with "."
+ * Important: This is required for Number() to parse correctly
  */
-export const removeCommas = (value: string): string => {
+export const removeFormatting = (value: string): string => {
   if (!value) {
     return '';
   }
@@ -70,7 +74,9 @@ export const removeCommas = (value: string): string => {
   const locale = getUserLocale();
   const { group, decimal } = getSeparators(locale);
 
+  // Remove grouping separators
   const withoutGroups = value.split(group).join('');
+  // Replace locale decimal separator with standard "."
   return withoutGroups.replace(new RegExp(`\\${decimal}`, 'g'), '.');
 };
 
@@ -85,19 +91,20 @@ export const removeCommas = (value: string): string => {
  *  - non‑digit characters
  *  - leading/trailing non‑digit characters
  */
-export const isValidDecimalInput = (value: string): boolean => {
+export const isValidDecimalNumber = (value: string): boolean => {
   if (typeof value !== 'string') {
     return false;
   }
 
-  const locale = getUserLocale();
-  const { decimal } = getSeparators(locale);
+  // Remove any locale formatting for validation
+  // This includes removing grouping and replacing locale decimal separators
+  const nonIntlValue = removeFormatting(value);
 
-  if (value === '' || value === decimal) {
+  if (nonIntlValue === '' || nonIntlValue === '.') {
     return true;
   }
 
-  const parts = value.split(decimal);
+  const parts = nonIntlValue.split('.');
 
   // Reject more than one decimal separator
   if (parts.length > 2) {
