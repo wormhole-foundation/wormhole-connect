@@ -20,9 +20,9 @@ import type { Token } from 'config/tokens';
 import type { RootState } from 'store';
 import { useGetTokens } from 'hooks/useGetTokens';
 import {
-  formatWithCommas,
-  removeCommas,
-  isValidDecimalInput,
+  formatNumberIntl,
+  isValidFormattedNumber,
+  removeFormatting,
 } from 'utils/formatNumber';
 
 const INPUT_DEBOUNCE = 500;
@@ -47,16 +47,18 @@ const DebouncedTextField = memo(
 
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!isValidDecimalInput(e.target.value)) {
+        // Run validation on the raw input value as it already strips formatting internally
+        if (!isValidFormattedNumber(e.target.value)) {
           return;
         }
 
-        const value = removeCommas(e.target.value);
-        const formattedValue = formatWithCommas(value);
-
-        setInnerValue(formattedValue);
+        // Remove any locale formatting before persisting the value
+        const value = removeFormatting(e.target.value);
         onChange(value);
         deferredOnChange(value);
+
+        // Make sure the displayed value is always formatted
+        setInnerValue(formatNumberIntl(value));
       },
       [deferredOnChange, onChange],
     );
@@ -65,7 +67,7 @@ const DebouncedTextField = memo(
     // The way we do this is by checking when the focus is not on the input component
     useEffect(() => {
       if (!isFocused) {
-        setInnerValue(formatWithCommas(value));
+        setInnerValue(formatNumberIntl(value));
       }
       // We should run this side-effect only when the value changes
       // eslint-disable-next-line react-hooks/exhaustive-deps
