@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   formatNumberIntl,
   removeFormatting,
-  isValidDecimalNumber,
+  isValidFormattedNumber,
   formatMinAmount,
 } from './formatNumber';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
@@ -10,7 +10,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 // Locale configuration for separators
 const localeConfigs = [
   { locale: 'en-US', group: ',', decimal: '.' },
-  { locale: 'ja-JP', group: ',', decimal: '.' },
+  { locale: 'pt-PT', group: '\u00A0', decimal: ',' }, // Non-breaking space (charCode 160)
   { locale: 'tr-TR', group: '.', decimal: ',' },
 ];
 
@@ -120,57 +120,64 @@ describe('formatNumber utilities', () => {
   );
 
   describe.each(localeConfigs)(
-    'isValidDecimalNumber - $locale',
-    ({ locale, decimal }) => {
+    'isValidFormattedNumber - $locale',
+    ({ locale, group, decimal }) => {
       beforeEach(() => {
         mockNavigatorLanguage(locale);
       });
 
       it('should accept valid decimal numbers', () => {
-        expect(isValidDecimalNumber('123')).toBe(true);
-        expect(isValidDecimalNumber(`123${decimal}456`)).toBe(true);
-        expect(isValidDecimalNumber(`0${decimal}123`)).toBe(true);
-        expect(isValidDecimalNumber('0')).toBe(true);
+        expect(isValidFormattedNumber('123')).toBe(true);
+        expect(isValidFormattedNumber(`123${decimal}456`)).toBe(true);
+        expect(isValidFormattedNumber(`0${decimal}123`)).toBe(true);
+        expect(isValidFormattedNumber('0')).toBe(true);
+      });
+
+      it('should accept numbers with both grouping and decimals', () => {
+        expect(isValidFormattedNumber(`10${group}000${decimal}99`)).toBe(true);
+        expect(isValidFormattedNumber(`1${group}234${decimal}56`)).toBe(true);
+        expect(
+          isValidFormattedNumber(`1${group}234${group}567${decimal}89`),
+        ).toBe(true);
       });
 
       it('should accept empty string', () => {
-        expect(isValidDecimalNumber('')).toBe(true);
+        expect(isValidFormattedNumber('')).toBe(true);
       });
 
       it('should accept just decimal separator', () => {
-        // The function accepts the locale decimal and normalizes it
-        expect(isValidDecimalNumber(decimal)).toBe(true);
-        // Also accepts standard '.' regardless of locale
-        expect(isValidDecimalNumber('.')).toBe(true);
+        expect(isValidFormattedNumber(decimal)).toBe(true);
       });
 
       it('should accept trailing decimal separator', () => {
-        expect(isValidDecimalNumber(`123${decimal}`)).toBe(true);
+        expect(isValidFormattedNumber(`123${decimal}`)).toBe(true);
       });
 
       it('should accept leading decimal separator', () => {
-        expect(isValidDecimalNumber(`${decimal}123`)).toBe(true);
+        expect(isValidFormattedNumber(`${decimal}123`)).toBe(true);
       });
 
       it('should reject negative numbers', () => {
-        expect(isValidDecimalNumber('-123')).toBe(false);
-        expect(isValidDecimalNumber(`-0${decimal}5`)).toBe(false);
+        expect(isValidFormattedNumber('-123')).toBe(false);
+        expect(isValidFormattedNumber(`-0${decimal}5`)).toBe(false);
       });
 
       it('should reject multiple decimal separators', () => {
-        expect(isValidDecimalNumber(`12${decimal}34${decimal}56`)).toBe(false);
-        expect(isValidDecimalNumber(`1${decimal}${decimal}2`)).toBe(false);
+        expect(isValidFormattedNumber(`12${decimal}34${decimal}56`)).toBe(
+          false,
+        );
+        expect(isValidFormattedNumber(`1${decimal}${decimal}2`)).toBe(false);
       });
 
       it('should reject non-numeric characters', () => {
-        expect(isValidDecimalNumber('12a34')).toBe(false);
-        expect(isValidDecimalNumber('abc')).toBe(false);
+        expect(isValidFormattedNumber('12a34')).toBe(false);
+        expect(isValidFormattedNumber('abc')).toBe(false);
       });
 
       it('should reject non-string input', () => {
-        expect(isValidDecimalNumber(123 as any)).toBe(false);
-        expect(isValidDecimalNumber(null as any)).toBe(false);
-        expect(isValidDecimalNumber(undefined as any)).toBe(false);
+        expect(isValidFormattedNumber(123 as any)).toBe(false);
+        expect(isValidFormattedNumber(null as any)).toBe(false);
+        expect(isValidFormattedNumber(undefined as any)).toBe(false);
       });
     },
   );

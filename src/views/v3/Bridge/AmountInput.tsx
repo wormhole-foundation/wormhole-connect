@@ -21,7 +21,7 @@ import type { RootState } from 'store';
 import { useGetTokens } from 'hooks/useGetTokens';
 import {
   formatNumberIntl,
-  isValidDecimalNumber,
+  isValidFormattedNumber,
   removeFormatting,
 } from 'utils/formatNumber';
 
@@ -48,7 +48,7 @@ const DebouncedTextField = memo(
     const onInnerChange: ChangeEventHandler<HTMLInputElement> = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         // Run validation on the raw input value as it already strips formatting internally
-        if (!isValidDecimalNumber(e.target.value)) {
+        if (!isValidFormattedNumber(e.target.value)) {
           return;
         }
 

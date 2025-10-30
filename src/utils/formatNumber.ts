@@ -84,14 +84,14 @@ export const removeFormatting = (value: string): string => {
  * Validate raw input as a non‑negative decimal
  * Allows:
  *  - the empty string
- *  - just the locale’s decimal separator (for "0," or "0." beginnings)
+ *  - just the locale's decimal separator (for "0," or "0." beginnings)
  *  - any number of digits before/after a single separator
  * * Rejects:
  *  - multiple separators
  *  - non‑digit characters
  *  - leading/trailing non‑digit characters
  */
-export const isValidDecimalNumber = (value: string): boolean => {
+export const isValidFormattedNumber = (value: string): boolean => {
   if (typeof value !== 'string') {
     return false;
   }
