@@ -26,7 +26,12 @@ export const getTokenPreferenceScore = (
     return 5;
   }
   // For destination picker: prioritize tokens with same symbol as source token
-  if (sourceToken && token.symbol === sourceToken.symbol) {
+  // Only prioritize native (non-wrapped) destination tokens
+  if (
+    sourceToken &&
+    token.symbol === sourceToken.symbol &&
+    !token.isTokenBridgeWrappedToken
+  ) {
     return 4;
   }
   // Native gas tokens are next

@@ -76,17 +76,76 @@ describe('tokenListUtils', () => {
       expect(score).toBe(5);
     });
 
-    it('should return 4 for destination token matching source symbol', () => {
+    it('should return 4 for destination token matching source symbol (both native)', () => {
       const sourceToken = createMockToken({
         symbol: 'USDC',
         chain: 'Ethereum',
+        isTokenBridgeWrappedToken: false,
       });
       const destToken = createMockToken({
         symbol: 'USDC',
         chain: 'Arbitrum',
+        isTokenBridgeWrappedToken: false,
       });
       const score = getTokenPreferenceScore(destToken, undefined, sourceToken);
       expect(score).toBe(4);
+    });
+
+    it('should NOT prioritize wrapped destination when source is native', () => {
+      const sourceToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Ethereum',
+        isTokenBridgeWrappedToken: false,
+      });
+      const wrappedDestToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Arbitrum',
+        isTokenBridgeWrappedToken: true,
+      });
+      const score = getTokenPreferenceScore(
+        wrappedDestToken,
+        undefined,
+        sourceToken,
+      );
+      expect(score).toBe(0); // Falls through to wrapped token score
+    });
+
+    it('should prioritize native destination when source is wrapped', () => {
+      const wrappedSourceToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Ethereum',
+        isTokenBridgeWrappedToken: true,
+      });
+      const nativeDestToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Arbitrum',
+        isTokenBridgeWrappedToken: false,
+      });
+      const score = getTokenPreferenceScore(
+        nativeDestToken,
+        undefined,
+        wrappedSourceToken,
+      );
+      expect(score).toBe(4);
+    });
+
+    it('should NOT prioritize wrapped destination even when source is wrapped', () => {
+      const wrappedSourceToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Ethereum',
+        isTokenBridgeWrappedToken: true,
+      });
+      const wrappedDestToken = createMockToken({
+        symbol: 'USDC',
+        chain: 'Arbitrum',
+        isTokenBridgeWrappedToken: true,
+      });
+      const score = getTokenPreferenceScore(
+        wrappedDestToken,
+        undefined,
+        wrappedSourceToken,
+      );
+      expect(score).toBe(0); // Wrapped destinations are never prioritized
     });
 
     it('should return 3 for native gas tokens', () => {
