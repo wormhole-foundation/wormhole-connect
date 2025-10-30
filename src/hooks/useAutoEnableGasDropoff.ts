@@ -34,7 +34,6 @@ export function useAutoEnableGasDropOff({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log(route);
     if (
       !route ||
       !isExecutorRoute(route) ||
