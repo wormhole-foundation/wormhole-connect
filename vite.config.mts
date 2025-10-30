@@ -152,9 +152,11 @@ const rollupInput: InputOption = {
   lifi: 'src/exports/lifi.ts',
 };
 
-const external = [
+// Function-based external to catch all peer dependency paths
+// This is more robust than an array, especially with preserveModules
+const peerDeps = [
   'react',
-  'react/jsx-runtime',
+  'react-dom',
   '@emotion/react',
   '@emotion/styled',
   '@mui/material',
@@ -162,6 +164,11 @@ const external = [
   '@mui/styled-engine',
   '@mui/system',
 ];
+
+const external = (id: string) => {
+  // Check if the module ID starts with any peer dependency
+  return peerDeps.some((dep) => id === dep || id.startsWith(dep + '/'));
+};
 
 // Production build, for npm import
 const libBuild: BuildEnvironmentOptions = {
@@ -198,7 +205,7 @@ const minimalBuild: BuildEnvironmentOptions = {
     input: rollupInput,
     output: {
       entryFileNames: '[name].mjs',
-      chunkFileNames: '[name].mjs',
+      chunkFileNames: '[name]-[hash].mjs',
       assetFileNames: '[name].[ext]',
       inlineDynamicImports: false,
       preserveModules: true,
