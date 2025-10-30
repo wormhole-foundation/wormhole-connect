@@ -11,7 +11,7 @@ export * as config from 'config/types';
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { routes } from '@wormhole-foundation/sdk';
 
-import type { Chain } from '@wormhole-foundation/sdk';
+import type { Chain, Network } from '@wormhole-foundation/sdk';
 
 import { Token } from 'config/tokens';
 import { TransferWallet } from 'utils/wallet';
@@ -41,6 +41,7 @@ export {
 
   // Types
   Chain,
+  Network,
   WormholeConnectTheme,
   Token,
 

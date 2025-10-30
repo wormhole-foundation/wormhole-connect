@@ -22,7 +22,7 @@ import {
   trimAddress,
   getTokenDisplaySymbolByTokenAddress,
 } from 'utils';
-import { getExplorerInfo } from 'utils/sdkv2';
+import { getExplorerInfos } from 'utils/sdkv2';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import type { RootState } from 'store';
@@ -266,19 +266,27 @@ const TransactionDetails = () => {
       return null;
     }
 
-    // Get explorer name and url for the route
-    const { name, url } = getExplorerInfo(route, sendTx, fromChain, toChain);
+    const explorerInfos = getExplorerInfos(route, sendTx, fromChain, toChain);
 
-    // Don't show the explorer link if we don't have a valid explorer URL
-    if (!URL.canParse(url)) {
+    if (!explorerInfos || explorerInfos.length === 0) {
+      return null;
+    }
+
+    const validExplorers = explorerInfos.filter(({ url }) => URL.canParse(url));
+
+    if (validExplorers.length === 0) {
       return null;
     }
 
     return (
-      <Stack direction="row" justifyContent="space-between" padding="12px 16px">
-        <Typography color={theme.palette.text.secondary} fontSize={14}>
-          <ExplorerLink url={url} text={`View on ${name}`} />
-        </Typography>
+      <Stack direction="column" gap="8px" padding="12px 16px">
+        {validExplorers.map(({ name, url }, index) => (
+          <Stack key={index} direction="row" justifyContent="space-between">
+            <Typography color={theme.palette.text.secondary} fontSize={14}>
+              <ExplorerLink url={url} text={`View on ${name}`} />
+            </Typography>
+          </Stack>
+        ))}
       </Stack>
     );
   }, [

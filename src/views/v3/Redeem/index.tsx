@@ -56,13 +56,17 @@ import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
 import { clearRedeem } from 'store/redeem';
 import { setSearch } from 'store/search';
-import { isExecutorRoute, getTokenDisplaySymbolByTokenAddress } from 'utils';
+import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 
 function Redeem() {
   const dispatch = useDispatch();
   const theme: any = useTheme();
 
   const [claimError, setClaimError] = useState('');
+  const [relayFailedUrl, setRelayFailedUrl] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
   const [isClaimInProgress, setIsClaimInProgress] = useState(false);
   const [transferSuccessEventFired, setTransferSuccessEventFired] =
     useState(false);
@@ -215,11 +219,16 @@ function Redeem() {
     restart(new Date(txTimestamp + eta), true);
   }, [eta, isRunning, restart, txTimestamp]);
 
+  const receivedTokenId = useMemo(
+    () => tokenIdFromTuple(receivedToken),
+    [receivedToken],
+  );
   // Start tracking changes in the transaction
   const txTrackingResult = useTrackTransfer({
     receipt,
     route: routeName,
     eta: etaDate,
+    receivedTokenId,
   });
 
   // We need check the initial receipt state and tracking result together
@@ -284,6 +293,7 @@ function Redeem() {
 
         setIsClaimInProgress(false);
         setClaimError('');
+        setRelayFailedUrl(null);
 
         if (txData?.sendTx) {
           removeTxFromLocalStorage(txData?.sendTx);
@@ -300,6 +310,13 @@ function Redeem() {
         details,
       );
       setClaimError(uiError);
+
+      if (
+        receipt.error instanceof routes.RelayFailedError &&
+        receipt.error.relayExplorer
+      ) {
+        setRelayFailedUrl(receipt.error.relayExplorer);
+      }
 
       config.triggerEvent({
         type: 'transfer.error',
@@ -335,6 +352,10 @@ function Redeem() {
       // If this is a manual transaction in attested state,
       // we will mark the local storage item as readyToClaim
       updateTxInLocalStorage(txData?.sendTx, 'isReadyToClaim', true);
+    } else {
+      // Reset errors
+      setClaimError('');
+      setRelayFailedUrl(null);
     }
     // We should run this side-effect only when tx/receipt status changes or we receive an error.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -365,7 +386,7 @@ function Redeem() {
       statusText = 'Transaction completed';
     } else if (isTxRefunded) {
       statusText = 'Transaction was refunded';
-    } else if (isRelayFailed && isExecutorRoute(routeName)) {
+    } else if (isRelayFailed) {
       statusText = `Ready to claim on ${toChain}`;
     } else if (isTxFailed) {
       statusText = 'Transaction failed';
@@ -533,7 +554,7 @@ function Redeem() {
           sx={{ ...styles.txStatusIcon, color: theme.palette.warning.main }}
         />
       );
-    } else if (isRelayFailed && isExecutorRoute(routeName)) {
+    } else if (isRelayFailed) {
       return (
         <TxReadyForClaim
           sx={{ ...styles.txStatusIcon, color: theme.palette.warning.light }}
@@ -661,6 +682,7 @@ function Redeem() {
     // This will be set back to false by a hook above which looks out for isTxComplete=true
     setIsClaimInProgress(true);
     setClaimError('');
+    setRelayFailedUrl(null);
     setUnhandledManualClaimError(undefined);
 
     if (!routeName) {
@@ -780,6 +802,23 @@ function Redeem() {
     }
 
     // Checking if relay has failed
+    // If there's a relay explorer URL, show it as the primary action
+    if (isRelayFailed && relayFailedUrl) {
+      return (
+        <Button
+          variant="primary"
+          styleOverrides={styles.actionButton}
+          onClick={() => {
+            window.open(relayFailedUrl.url, '_blank', 'noopener,noreferrer');
+          }}
+        >
+          <Typography textTransform="none">
+            Recover on {relayFailedUrl.name}
+          </Typography>
+        </Button>
+      );
+    }
+
     // TODO: The CCTPExecutorRoute doesn't provide a way to manually claim failed relays.
     // Until that is added, we will use the "resume transaction" flow to handle this case.
     // This works as long as the ManualCCTP route is configured to manually claim.
@@ -810,7 +849,7 @@ function Redeem() {
     if (
       isTxDestQueued ||
       (!isAutomaticRoute && isTxAttested) ||
-      (isExecutorRoute(routeName) && isRelayFailed)
+      isRelayFailed
     ) {
       if (!isConnectedToReceivingWallet) {
         return (

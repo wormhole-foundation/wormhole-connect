@@ -30,6 +30,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Linea: 'https://linea-sepolia-rpc.publicnode.com',
     Sonic: 'https://sonic-blaze-rpc.publicnode.com',
     XRPLEVM: 'https://rpc.testnet.xrplevm.org/',
+    Monad: 'https://testnet-rpc.monad.xyz',
   },
 };
 

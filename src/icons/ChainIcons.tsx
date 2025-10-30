@@ -35,6 +35,7 @@ import INK from './Chains/INK';
 import HyperEVM from './Chains/HYPEREVM';
 import XRPLEVM from './Chains/XRPLEVM';
 import CreditCoin from './Chains/CreditCoin';
+import MONAD from './Chains/MONAD';
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
@@ -68,6 +69,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   HyperCore: HYPERCORE(),
   XRPLEVM: XRPLEVM(),
   CreditCoin: CreditCoin(),
+  Monad: MONAD(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

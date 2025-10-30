@@ -48,6 +48,10 @@ import {
   cctpV2FastExecutorRoute,
 } from 'exports/executor';
 import { createLiFiRouteWithConfig } from 'exports/lifi';
+import {
+  monadBridgeExecutorRoute,
+  monadBridgeManualRoute,
+} from 'exports/monad';
 import type { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -97,6 +101,10 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.cctpV2FastExecutorRoute = cctpV2FastExecutorRoute;
       /* @ts-ignore */
       window.executorTokenBridgeRoute = routes.executorTokenBridgeRoute;
+      /* @ts-ignore */
+      window.monadBridgeExecutorRoute = monadBridgeExecutorRoute;
+      /* @ts-ignore */
+      window.monadBridgeManualRoute = monadBridgeManualRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -332,6 +340,19 @@ function SampleApp() {
                       {'(ExecutorTokenBridgeRoute.Config) -> RouteConstructor'}
                     </i>
                   </li>
+                  <li>
+                    <pre>monadBridgeExecutorRoute</pre>
+                    <i>
+                      {
+                        '(MultiTokenNttExecutorRoute.Config) -> RouteConstructor'
+                      }
+                    </i>
+                  </li>
+                  <li>
+                    <pre>monadBridgeManualRoute</pre>
+                    <i>{'(MultiTokenNttRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li></li>
                 </ul>
               </div>
               <div>

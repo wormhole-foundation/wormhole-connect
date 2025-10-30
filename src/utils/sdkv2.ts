@@ -12,6 +12,7 @@ import type {
   CircleTransfer,
   ChainContext,
   ExecutorTokenBridge,
+  TokenId,
 } from '@wormhole-foundation/sdk';
 import {
   Wormhole,
@@ -23,6 +24,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { getWrappedNativeToken } from './wrappedNativeTokens';
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import type { MultiTokenNttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import type { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
@@ -30,6 +32,7 @@ import * as splToken from '@solana/spl-token';
 import config from 'config';
 import { WORMSCAN } from 'config/constants';
 import type { TokenTuple } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
 import { isHyperCoreChain } from './hypercore';
 
@@ -69,32 +72,57 @@ export type ExplorerInfo = {
   name: string;
 };
 
+export function getWormholescanExplorerInfo(txHash: string): ExplorerInfo {
+  return {
+    url: `${WORMSCAN}tx/${txHash}${config.isMainnet ? '' : '?network=TESTNET'}`,
+    name: 'Wormholescan',
+  };
+}
+
+export function getAxelarscanExplorerInfo(txHash: string): ExplorerInfo {
+  return {
+    url: `https://${
+      config.isMainnet ? '' : 'testnet.'
+    }axelarscan.io/gmp/${txHash}`,
+    name: 'Axelarscan',
+  };
+}
+
 // List of chains that we use the USDC.range explorer for
 // TODO Remove once Wormholescan explorer supports these chains
 const rangeExplorerChains: Array<Chain> = ['Linea', 'Sonic'];
 
 // TODO SDKV2 add a way for the Route interface to offer this
-export function getExplorerInfo(
+export function getExplorerInfos(
   route: string | routes.Route<Network>,
   txHash: string,
   fromChain: Chain,
   toChain: Chain,
-): ExplorerInfo {
+): Array<ExplorerInfo> {
   const routeName =
     typeof route === 'string'
       ? route
       : (route.constructor as routes.RouteConstructor).meta.name;
 
   if (routeName.startsWith('MayanSwap')) {
-    return {
-      url: `https://explorer.mayan.finance/swap/${txHash}`,
-      name: 'Mayan Explorer',
-    };
+    return [
+      {
+        url: `https://explorer.mayan.finance/swap/${txHash}`,
+        name: 'Mayan Explorer',
+      },
+    ];
   } else if (routeName === 'LiFi') {
-    return {
-      url: `https://scan.li.fi/tx/${txHash}`,
-      name: 'Li.Fi SCAN',
-    };
+    return [
+      {
+        url: `https://scan.li.fi/tx/${txHash}`,
+        name: 'Li.Fi SCAN',
+      },
+    ];
+  } else if (routeName.includes('MonadBridge')) {
+    return [
+      getWormholescanExplorerInfo(txHash),
+      getAxelarscanExplorerInfo(txHash),
+    ];
   } else if (
     isExecutorRoute(routeName) &&
     (rangeExplorerChains.includes(fromChain) ||
@@ -102,19 +130,16 @@ export function getExplorerInfo(
   ) {
     // TODO Remove once Wormholescan explorer supports chains in rangeExplorerChains
     // USDC.range supports Mainnet only
-    return {
-      url: config.isMainnet
-        ? `https://usdc.range.org/usdc/status/${txHash}`
-        : '',
-      name: 'USDC.range Explorer',
-    };
+    return [
+      {
+        url: config.isMainnet
+          ? `https://usdc.range.org/usdc/status/${txHash}`
+          : '',
+        name: 'USDC.range Explorer',
+      },
+    ];
   } else {
-    return {
-      url: `${WORMSCAN}tx/${txHash}${
-        config.isMainnet ? '' : '?network=TESTNET'
-      }`,
-      name: 'Wormholescan',
-    };
+    return [getWormholescanExplorerInfo(txHash)];
   }
 }
 
@@ -136,6 +161,7 @@ type ReceiptWithAttestation<AT> =
 export async function parseReceipt(
   route: string,
   receipt: ReceiptWithAttestation<any>,
+  getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>,
 ): Promise<TransferInfo | null> {
   switch (route) {
     case 'ManualTokenBridge':
@@ -171,6 +197,14 @@ export async function parseReceipt(
     case 'CCTPv2FastExecutorRoute':
       return parseCCTPv2Receipt(
         receipt as ReceiptWithAttestation<CCTPv2ExecutorRoute.Attestation>,
+      );
+    case 'MonadBridgeManualRoute':
+    case 'MonadBridgeExecutorRoute':
+      return await parseMultiTokenNttReceipt(
+        receipt as ReceiptWithAttestation<MultiTokenNttRoute.AttestationReceipt> & {
+          params: MultiTokenNttRoute.ValidatedParams;
+        },
+        getOrFetchToken,
       );
     default:
       throw new Error(`Unknown route type ${route}`);
@@ -551,6 +585,60 @@ const parseCCTPv2Receipt = async (
   }
 
   return txData as TransferInfo;
+};
+
+const parseMultiTokenNttReceipt = async (
+  receipt: ReceiptWithAttestation<MultiTokenNttRoute.AttestationReceipt> & {
+    params: MultiTokenNttRoute.ValidatedParams;
+  },
+  getOrFetchToken: (tokenId: TokenId) => Promise<Token | undefined>,
+): Promise<TransferInfo> => {
+  let sendTx = '';
+  if (receipt.originTxs?.length > 0) {
+    sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
+
+  // The source and destination tokens may not be in the token cache
+  // so add them if they don't exist
+  const srcToken = await getOrFetchToken(
+    receipt.params.normalizedParams.sourceTokenId,
+  );
+  if (!srcToken) {
+    throw new Error('Unable to fetch source token');
+  }
+
+  const dstToken = await getOrFetchToken(
+    receipt.params.normalizedParams.destinationTokenId,
+  );
+  if (!dstToken) {
+    throw new Error('Unable to fetch destination token');
+  }
+
+  const { attestation } = receipt.attestation;
+  const { nttManagerPayload } = attestation.payload;
+  const trimmedAmount = nttManagerPayload.payload.data.trimmedAmount;
+  const amt = amount.fromBaseUnits(
+    trimmedAmount.amount,
+    trimmedAmount.decimals,
+  );
+
+  return {
+    toChain: receipt.to,
+    fromChain: receipt.from,
+    sendTx,
+    sender: undefined, // not available in the VAA
+    recipient: nttManagerPayload.payload.data.to
+      .toNative(receipt.to)
+      .toString(),
+    amount: amt,
+    tokenAddress: srcToken.tokenId.address.toString(),
+    token: srcToken.tuple,
+    tokenDecimals: trimmedAmount.decimals,
+    receivedToken: dstToken.tuple,
+    receiveAmount: amt,
+  };
 };
 
 const isAmount = (amount: any): amount is amount.Amount => {

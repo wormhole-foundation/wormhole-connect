@@ -380,9 +380,9 @@ export class LiFiRoute<N extends Network>
   }
 }
 
-export function createLiFiRouteWithConfig<N extends Network>(
-  config: LiFiConfig<N>,
-) {
+export function createLiFiRouteWithConfig(
+  config: LiFiConfig<Network>,
+): routes.RouteConstructor {
   // We are calling this instead of `createConfig` from the LiFi SDK
   // to avoid extra network calls to fetch chains which we don't need.
   lifiSdkConfig.set({
@@ -392,7 +392,7 @@ export function createLiFiRouteWithConfig<N extends Network>(
     apiUrl: config.apiUrl ?? DEFAULT_API_URL,
   });
 
-  return class ConfiguredLiFiRoute extends LiFiRoute<N> {
+  return class ConfiguredLiFiRoute<N extends Network> extends LiFiRoute<N> {
     override config = config as LiFiConfig<Network>;
   };
 }

@@ -6,7 +6,13 @@ import config from 'config';
 import type { ChainConfig } from 'config/types';
 import type { Token } from 'config/tokens';
 import type { Chain, Platform } from '@wormhole-foundation/sdk';
-import { chainToPlatform, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import {
+  chainToPlatform,
+  isSameToken,
+  amount as sdkAmount,
+  Wormhole,
+} from '@wormhole-foundation/sdk';
+import { getWrappedNativeToken } from './wrappedNativeTokens';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -361,6 +367,34 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
 
   if (token.symbol === 'tBTC') {
     return true;
+  }
+
+  const { tokenBridgeOriginalTokenId: originalToken } = token;
+
+  // Prevent Monad<->Ethereum transfers of gas token via token bridge
+  if (originalToken) {
+    const ethereumChains: Chain[] = ['Ethereum', 'Sepolia'];
+
+    const isMonadEthereum =
+      (chain === 'Monad' && ethereumChains.includes(originalToken.chain)) ||
+      (ethereumChains.includes(chain) && originalToken.chain === 'Monad');
+
+    if (isMonadEthereum) {
+      if (originalToken.address === 'native') return true;
+
+      const wrappedNativeToken = getWrappedNativeToken(
+        config.network,
+        originalToken.chain,
+      );
+
+      return (
+        !!wrappedNativeToken &&
+        isSameToken(
+          originalToken,
+          Wormhole.tokenId(originalToken.chain, wrappedNativeToken),
+        )
+      );
+    }
   }
 
   return (

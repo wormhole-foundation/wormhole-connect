@@ -33,12 +33,18 @@ type Amount = sdkAmount.Amount;
 export default class SDKv2Route {
   // TODO: remove this
   IS_TOKEN_BRIDGE_ROUTE = false;
+  IS_MONAD_BRIDGE_ROUTE = false;
 
   constructor(readonly rc: routes.RouteConstructor) {
     this.IS_TOKEN_BRIDGE_ROUTE = [
       'ManualTokenBridge',
       'AutomaticTokenBridge',
       'TokenBridgeExecutorRoute',
+    ].includes(rc.meta.name);
+
+    this.IS_MONAD_BRIDGE_ROUTE = [
+      'MonadBridgeManualRoute',
+      'MonadBridgeExecutorRoute',
     ].includes(rc.meta.name);
   }
 
@@ -120,11 +126,7 @@ export default class SDKv2Route {
     const fromContext = await this.getV2ChainContext(fromChain);
     const toContext = await this.getV2ChainContext(toChain);
 
-    // TODO this is wrong... it should be filtering the output tokens...
-    const isIlliquid = await this.isIlliquidDestToken(
-      sourceToken,
-      toContext.context,
-    );
+    const isIlliquid = await this.isIlliquidDestToken(sourceToken, toChain);
 
     if (isIlliquid) return [];
 
@@ -231,7 +233,6 @@ export default class SDKv2Route {
 
     const req = await routes.RouteTransferRequest.create(
       wh,
-      /* @ts-ignore */
       {
         source: sourceToken.tokenId,
         destination: destToken.tokenId,
@@ -318,29 +319,35 @@ export default class SDKv2Route {
   // This is not a perfect solution or an exhaustive list of all illiquid tokens,
   // but it should cover the most common cases
   async isIlliquidDestToken(
-    token: Token,
-    toContext: ChainContext<Network, Chain>,
+    sourceToken: Token,
+    toChain: Chain,
   ): Promise<boolean> {
-    if (!this.IS_TOKEN_BRIDGE_ROUTE) return false;
-
-    const { symbol, nativeChain } = token;
-
-    // Exclude wormhole-wrapped tokens on the destination chain
-    // if the NTT route is supported
-    const isNttSupported = isNttToken(token);
-    if (isNttSupported) {
+    if (this.IS_MONAD_BRIDGE_ROUTE && sourceToken?.isTokenBridgeWrappedToken) {
+      // Do not allow token bridge wrapped tokens to be sent over the monad bridge,
+      // otherwise users will receive double-wrapped tokens.
       return true;
     }
 
-    // These chains have a native bridge to/from Ethereum, so receiving wormhole-wrapped ETH is not necessary
-    if (
-      ['ETH', 'WETH'].includes(symbol) &&
-      nativeChain === 'Ethereum' &&
-      (['Scroll', 'Xlayer', 'Mantle', 'Unichain'] as Chain[]).includes(
-        toContext.chain,
-      )
-    ) {
-      return true;
+    if (this.IS_TOKEN_BRIDGE_ROUTE) {
+      // Exclude wormhole-wrapped tokens on the destination chain
+      // if the NTT route is supported
+      const isNttSupported = isNttToken(sourceToken);
+      if (isNttSupported) {
+        return true;
+      }
+
+      const { symbol, nativeChain } = sourceToken;
+
+      // These chains have a native bridge to/from Ethereum, so receiving wormhole-wrapped ETH is not necessary
+      if (
+        ['ETH', 'WETH'].includes(symbol) &&
+        nativeChain === 'Ethereum' &&
+        (['Scroll', 'Xlayer', 'Mantle', 'Unichain'] as Chain[]).includes(
+          toChain,
+        )
+      ) {
+        return true;
+      }
     }
 
     return false;
