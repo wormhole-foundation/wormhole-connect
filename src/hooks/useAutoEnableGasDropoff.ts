@@ -14,12 +14,13 @@ export interface UseAutoEnableGasDropOffParams {
   destinationBalances: Balances;
   hasUserManuallyChangedGas: boolean;
   currentToNativeToken: number;
+  isFetchingBalances: boolean;
 }
 
 /**
  * Automatically enables gas drop-off when the destination
- * wallet has zero native token balance, unless the user has manually changed
- * the gas setting.
+ * wallet has zero native token balance for executor routes,
+ * unless the user has manually changed the gas setting.
  */
 export function useAutoEnableGasDropOff({
   route,
@@ -28,10 +29,12 @@ export function useAutoEnableGasDropOff({
   destinationBalances,
   hasUserManuallyChangedGas,
   currentToNativeToken,
+  isFetchingBalances,
 }: UseAutoEnableGasDropOffParams): void {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    console.log(route);
     if (
       !route ||
       !isExecutorRoute(route) ||
@@ -44,6 +47,14 @@ export function useAutoEnableGasDropOff({
 
     const nativeGasToken = config.tokens.getGasToken(destChain);
     if (!nativeGasToken) {
+      return;
+    }
+
+    // If still fetching balances, set gas to 0
+    if (isFetchingBalances) {
+      if (currentToNativeToken !== 0) {
+        dispatch(setToNativeToken(0));
+      }
       return;
     }
 
@@ -63,6 +74,7 @@ export function useAutoEnableGasDropOff({
     receivingWalletAddress,
     hasUserManuallyChangedGas,
     currentToNativeToken,
+    isFetchingBalances,
     dispatch,
   ]);
 }

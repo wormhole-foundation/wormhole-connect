@@ -295,6 +295,7 @@ function Bridge(props: BridgeProps) {
     destinationBalances: balances.destination.balances,
     hasUserManuallyChangedGas,
     currentToNativeToken: toNativeToken,
+    isFetchingBalances: balances.isFetching,
   });
 
   // Validate amount

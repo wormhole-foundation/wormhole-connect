@@ -52,6 +52,7 @@ describe('useAutoEnableGasDropoff', () => {
           },
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
+          isFetchingBalances: false,
         }),
       { wrapper },
     );
@@ -74,6 +75,7 @@ describe('useAutoEnableGasDropoff', () => {
           },
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
+          isFetchingBalances: false,
         }),
       { wrapper },
     );
@@ -96,6 +98,7 @@ describe('useAutoEnableGasDropoff', () => {
           },
           hasUserManuallyChangedGas: true,
           currentToNativeToken: 0,
+          isFetchingBalances: false,
         }),
       { wrapper },
     );
@@ -118,6 +121,7 @@ describe('useAutoEnableGasDropoff', () => {
           },
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
+          isFetchingBalances: false,
         }),
       { wrapper },
     );
@@ -140,6 +144,7 @@ describe('useAutoEnableGasDropoff', () => {
           },
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
+          isFetchingBalances: false,
         }),
       { wrapper },
     );
@@ -162,6 +167,43 @@ describe('useAutoEnableGasDropoff', () => {
           },
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 1,
+          isFetchingBalances: false,
+        }),
+      { wrapper },
+    );
+
+    expect(setToNativeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('sets gas to 0 when balances are being fetched', () => {
+    renderHook(
+      () =>
+        useAutoEnableGasDropOff({
+          route: 'TokenBridgeExecutorRoute',
+          destChain: 'Optimism',
+          receivingWalletAddress: '0x456',
+          destinationBalances: {},
+          hasUserManuallyChangedGas: false,
+          currentToNativeToken: 1,
+          isFetchingBalances: true,
+        }),
+      { wrapper },
+    );
+
+    expect(setToNativeTokenSpy).toHaveBeenCalledWith(0);
+  });
+
+  it('does not call dispatch when balances are being fetched and gas is already 0', () => {
+    renderHook(
+      () =>
+        useAutoEnableGasDropOff({
+          route: 'TokenBridgeExecutorRoute',
+          destChain: 'Optimism',
+          receivingWalletAddress: '0x456',
+          destinationBalances: {},
+          hasUserManuallyChangedGas: false,
+          currentToNativeToken: 0,
+          isFetchingBalances: true,
         }),
       { wrapper },
     );
