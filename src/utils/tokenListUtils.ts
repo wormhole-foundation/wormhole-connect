@@ -19,9 +19,19 @@ import type { Balances } from './wallet/types';
 export const getTokenPreferenceScore = (
   token: Token,
   selectedToken?: Token,
+  sourceToken?: Token,
 ): number => {
   // Currently selected token should be shown first
   if (selectedToken && isSameToken(selectedToken, token)) {
+    return 5;
+  }
+  // For destination picker: prioritize tokens with same symbol as source token
+  // Only prioritize native (non-wrapped) destination tokens
+  if (
+    sourceToken &&
+    token.symbol === sourceToken.symbol &&
+    !token.isTokenBridgeWrappedToken
+  ) {
     return 4;
   }
   // Native gas tokens are next
@@ -90,10 +100,11 @@ export const sortTokensByPreference = (
   selectedToken: Token | undefined,
   balances: Balances,
   getTokenPrice: (token: Token) => number | undefined,
+  sourceToken?: Token,
 ): Token[] => {
   return tokens.sort((a, b) => {
-    const scoreA = getTokenPreferenceScore(a, selectedToken);
-    const scoreB = getTokenPreferenceScore(b, selectedToken);
+    const scoreA = getTokenPreferenceScore(a, selectedToken, sourceToken);
+    const scoreB = getTokenPreferenceScore(b, selectedToken, sourceToken);
     if (scoreA > scoreB) return -1;
     if (scoreB > scoreA) return 1;
 

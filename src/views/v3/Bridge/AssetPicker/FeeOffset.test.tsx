@@ -9,6 +9,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import FeeOffset from './FeeOffset';
 import { dark } from 'theme';
 import config from 'config';
+import { createMockToken } from 'utils/testHelpers';
 
 const theme = createTheme({
   palette: dark as any,
@@ -38,18 +39,13 @@ vi.mock('config', () => ({
   },
 }));
 
-const mockToken = {
-  key: 'USDC',
+const mockToken = createMockToken({
   symbol: 'USDC',
   name: 'USD Coin',
   decimals: 6,
-  chain: 'Ethereum' as const,
-  address: '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e',
-  tokenId: {
-    chain: 'Ethereum' as const,
-    address: '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e',
-  },
-} as any;
+  chain: 'Ethereum',
+  addressString: '0xa0b86a33e6180d4c6d1cbe6c9e1f4a3d4b8a6c6e',
+});
 
 const createMockStore = (amount?: any, route?: string) =>
   configureStore({

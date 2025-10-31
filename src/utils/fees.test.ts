@@ -6,6 +6,7 @@ import {
   applyOffsetFormula,
 } from './fees';
 import config from 'config';
+import { createMockToken } from './testHelpers';
 
 // Mock the config module
 vi.mock('config', () => ({
@@ -18,29 +19,12 @@ vi.mock('config', () => ({
 
 describe('calculateFeeOffset', () => {
   const mockAmount = sdkAmount.fromBaseUnits(10000n, 6); // 0.01 with 6 decimals
-  const mockToken = {
-    key: 'Ethereum:0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
-    chain: 'Ethereum',
-    address: '0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
+  const mockToken = createMockToken({
     addressString: '0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
     symbol: 'USDC',
     name: 'USD Coin',
     decimals: 6,
-    tokenId: {
-      chain: 'Ethereum',
-      address: '0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e',
-    },
-    display: 'USD Coin',
-    shortAddress: '0xa0b8...7e8e',
-    tuple: ['Ethereum', '0xa0b86a33e6776a1e5e0b3a6f6a1b6d6f7e7c7e8e'],
-    isNativeGasToken: false,
-    isTokenBridgeWrappedToken: false,
-    nativeChain: 'Ethereum',
-    icon: 'usdc.svg',
-    coinGeckoId: 'usd-coin',
-    equals: vi.fn(),
-    toJson: vi.fn(),
-  } as any;
+  }) as any;
 
   beforeEach(() => {
     vi.clearAllMocks();

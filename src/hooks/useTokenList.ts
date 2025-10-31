@@ -47,6 +47,7 @@ export const useTokenList = ({
       selectedToken,
       balances,
       getTokenPrice,
+      sourceToken,
     );
 
     // Apply token whitelist filtering if configured
