@@ -5,7 +5,6 @@ import { useTheme } from '@mui/material';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import TextField from '@mui/material/TextField';
@@ -72,9 +71,8 @@ function WalletPickerContent({
       },
       addressInputContainer: {
         display: 'flex',
-        flexDirection: 'row' as const,
+        flexDirection: 'row',
         gap: '8px',
-        width: '100%',
         padding: '16px',
       },
       addressField: {
@@ -117,6 +115,10 @@ function WalletPickerContent({
         return;
       }
 
+      // Close the dialog before proceeding
+      // as other dialogs may popup
+      onSelect();
+
       try {
         await internalWalletProvider.onWalletSelected(
           walletInfo.wallet,
@@ -126,8 +128,6 @@ function WalletPickerContent({
       } catch (error) {
         console.error('Failed to select wallet:', error);
       }
-
-      onSelect();
     },
     [selectedChain, walletType, onSelect, internalWalletProvider],
   );
@@ -155,6 +155,10 @@ function WalletPickerContent({
 
     const wallet = new ReadOnlyWallet(nativeAddress, selectedChain);
 
+    // Close the dialog before proceeding
+    // as other dialogs may popup
+    onSelect();
+
     try {
       await internalWalletProvider.onWalletSelected(
         wallet,
@@ -164,8 +168,6 @@ function WalletPickerContent({
     } catch (error) {
       console.error('Failed to select wallet:', error);
     }
-
-    onSelect();
   }, [address, selectedChain, onSelect, dispatch, internalWalletProvider]);
 
   const renderWalletOptions = useCallback(
@@ -214,10 +216,12 @@ function WalletPickerContent({
   }
 
   return (
-    <List sx={{ overflow: 'auto', flex: 1 }}>
-      {renderWalletOptions(walletOptionsResult.options)}
+    <>
+      <List sx={{ overflow: 'auto', flex: 1 }}>
+        {renderWalletOptions(walletOptionsResult.options)}
+      </List>
       {showAddressInput && (
-        <ListItem sx={styles.addressInputContainer}>
+        <Box sx={styles.addressInputContainer}>
           <TextField
             sx={styles.addressField}
             fullWidth
@@ -232,17 +236,19 @@ function WalletPickerContent({
             error={!!addressError}
             helperText={addressError}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={submitAddress}
-            disabled={!address}
-          >
-            Submit
-          </Button>
-        </ListItem>
+          <div>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={submitAddress}
+              disabled={!address}
+            >
+              Submit
+            </Button>
+          </div>
+        </Box>
       )}
-    </List>
+    </>
   );
 }
 
