@@ -106,12 +106,14 @@ export const TESTNET_TOKENS: TokenConfig[] = [
   },
   {
     symbol: 'FOGO',
+    name: 'FOGO FUEL',
     icon: TokenIcon.FOGO,
     decimals: 9,
     tokenId: { chain: 'Fogo', address: 'native' },
   },
   {
     symbol: 'WFOGO',
+    name: 'FOGO',
     icon: TokenIcon.FOGO,
     decimals: 9,
     tokenId: {

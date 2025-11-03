@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { Link, useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
@@ -609,6 +609,22 @@ function Bridge(props: BridgeProps) {
           {transactionError}
           {transactionInfo}
           <AmountValidationError validation={amountValidation} />
+          {destToken &&
+            destToken.symbol === 'FOGO' &&
+            destToken.tokenId.address === 'native' && (
+              <AlertBannerV3 warning>
+                You probably don&apos;t want {destToken.name} and want FOGO
+                instead.&nbsp;
+                <Link
+                  href=""
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  sx={{ color: 'inherit' }}
+                >
+                  Learn more
+                </Link>
+              </AlertBannerV3>
+            )}
         </>
       )}
     </>
