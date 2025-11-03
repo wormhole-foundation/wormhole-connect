@@ -610,10 +610,10 @@ function Bridge(props: BridgeProps) {
           {transactionInfo}
           <AmountValidationError validation={amountValidation} />
           {destToken &&
-            destToken.symbol === 'FOGO' &&
+            destToken.chain === 'Fogo' &&
             destToken.tokenId.address === 'native' && (
               <AlertBannerV3 warning>
-                You probably don&apos;t want {destToken.name} and want FOGO
+                You probably don&apos;t want Fogo Fuel and want Fogo
                 instead.&nbsp;
                 <Link
                   href=""
