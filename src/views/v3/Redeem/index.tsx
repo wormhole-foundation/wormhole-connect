@@ -44,6 +44,7 @@ import TransactionDetails from 'views/v3/Redeem/TransactionDetails';
 import WalletSidebar from 'views/v3/Bridge/WalletConnector/Sidebar';
 import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
 import useWalletProvider from 'hooks/useWalletProvider';
+import { isSvmChain } from 'utils/solana';
 
 import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
@@ -621,13 +622,13 @@ function Redeem() {
       return false;
     }
 
-    // For Solana transfers, the associated token account (ATA) might not exist,
+    // For SVM transfers, the associated token account (ATA) might not exist,
     // preventing us from retrieving the recipient wallet address.
     // In such cases, when resuming transfers, we allow the user to connect a wallet
     // to claim the transfer, which will create the ATA.
     if (
       isResumeTx &&
-      toChain === 'Solana' &&
+      isSvmChain(toChain) &&
       receivingWallet.address &&
       receivingWallet.type === 'Solana' &&
       receivingWallet.address !== recipient &&

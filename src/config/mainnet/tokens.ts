@@ -813,4 +813,19 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.CTC,
   },
+  {
+    symbol: 'FOGO',
+    icon: TokenIcon.FOGO,
+    decimals: 9,
+    tokenId: { chain: 'Fogo', address: 'native' },
+  },
+  {
+    symbol: 'WFOGO',
+    icon: TokenIcon.FOGO,
+    decimals: 9,
+    tokenId: {
+      chain: 'Fogo',
+      address: 'So11111111111111111111111111111111111111112',
+    },
+  },
 ];
