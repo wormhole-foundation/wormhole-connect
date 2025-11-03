@@ -20,7 +20,6 @@ import {
   circle,
   nativeTokenId,
   TBTCBridge,
-  chainToPlatform,
 } from '@wormhole-foundation/sdk';
 import { getWrappedNativeToken } from './wrappedNativeTokens';
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
