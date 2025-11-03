@@ -42,6 +42,12 @@ export type UiConfig = {
 
   // URL for terms of service
   termsOfServiceUrl?: string;
+
+  // When enabled hides the swap inputs button
+  hideSwapInputs?: boolean;
+
+  // When enabled hides the history button
+  hideHistory?: boolean;
 };
 
 export type TestOptions = {

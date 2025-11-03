@@ -23,8 +23,8 @@ import useWalletProvider from 'hooks/useWalletProvider';
 
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
-import WalletSidebar from './Sidebar';
 import { Tooltip } from '@mui/material';
+import WalletPicker from './WalletPicker';
 
 type Props = {
   type: TransferWallet;
@@ -165,13 +165,11 @@ const ConnectedWallet = (props: Props) => {
           </Popover>
         </>
       )}
-      <WalletSidebar
+      <WalletPicker
         open={isOpen}
-        type={props.type}
-        onClose={() => {
-          setIsOpen(false);
-        }}
-        showAddressInput={props.type === TransferWallet.RECEIVING}
+        walletType={props.type}
+        setIsOpen={setIsOpen}
+        isAddressInputVisible
       />
     </>
   );

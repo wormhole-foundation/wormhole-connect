@@ -570,7 +570,7 @@ function Bridge(props: BridgeProps) {
               />
             </Box>
             {/* Swap source/destination assets button */}
-            <SwapInputs />
+            {!config.ui.hideSwapInputs && <SwapInputs />}
             {/* Destination asset picker */}
             <AssetPicker
               chain={destChain}

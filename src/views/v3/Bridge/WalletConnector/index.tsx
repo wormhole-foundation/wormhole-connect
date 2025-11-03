@@ -16,7 +16,7 @@ import { TransferWallet } from 'utils/wallet';
 import useWalletProvider from 'hooks/useWalletProvider';
 
 import type { TransferSide } from 'config/types';
-import WalletSidebar from './Sidebar';
+import WalletPicker from './WalletPicker';
 
 type Props = {
   side: TransferSide;
@@ -33,7 +33,7 @@ const WalletConnector = (props: Props) => {
   const { fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const { connectWallet, walletProvider } = useWalletProvider();
+  const { connectWallet } = useWalletProvider();
 
   const selectedChain = type === TransferWallet.SENDING ? fromChain : toChain;
 
@@ -115,25 +115,16 @@ const WalletConnector = (props: Props) => {
       return (
         <>
           {button}
-          <WalletSidebar
+          <WalletPicker
             open={isOpen}
-            type={props.type}
-            onClose={() => {
-              setIsOpen(false);
-            }}
-            showAddressInput={props.type === TransferWallet.RECEIVING}
+            walletType={props.type}
+            setIsOpen={setIsOpen}
+            isAddressInputVisible
           />
         </>
       );
     }
-  }, [
-    disabled,
-    isOpen,
-    props.side,
-    props.type,
-    handleConnectWallet,
-    walletProvider,
-  ]);
+  }, [disabled, isOpen, props.side, props.type, handleConnectWallet]);
 
   if (wallet && wallet.address) {
     return connected;

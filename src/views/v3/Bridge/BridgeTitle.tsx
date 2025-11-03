@@ -64,32 +64,34 @@ const BridgeTitle: React.FC<BridgeTitleProps> = ({
           size={24}
           weight={600}
         />
-        <Tooltip title={iconTooltip}>
-          <span>
-            <IconButton
-              data-testid="history-button"
-              aria-label={showHistory ? 'Show bridge' : 'Show history'}
-              sx={{
-                backgroundColor:
-                  theme.palette.formContainer.background + OPACITY[20],
-                color: theme.palette.icon.secondary,
-                padding: '12px',
-                width: '40px',
-                height: '40px',
-                border: `1px solid ${theme.palette.input.border}`,
-                borderRadius: '40px',
-              }}
-              disabled={isTxHistoryDisabled}
-              onClick={onToggleHistory}
-            >
-              {showHistory ? (
-                <SwapHorizIcon sx={{ fontSize: '16px' }} />
-              ) : (
-                <HistoryIcon sx={{ fontSize: '16px' }} />
-              )}
-            </IconButton>
-          </span>
-        </Tooltip>
+        {!config.ui.hideHistory && (
+          <Tooltip title={iconTooltip}>
+            <span>
+              <IconButton
+                data-testid="history-button"
+                aria-label={showHistory ? 'Show bridge' : 'Show history'}
+                sx={{
+                  backgroundColor:
+                    theme.palette.formContainer.background + OPACITY[20],
+                  color: theme.palette.icon.secondary,
+                  padding: '12px',
+                  width: '40px',
+                  height: '40px',
+                  border: `1px solid ${theme.palette.input.border}`,
+                  borderRadius: '40px',
+                }}
+                disabled={isTxHistoryDisabled}
+                onClick={onToggleHistory}
+              >
+                {showHistory ? (
+                  <SwapHorizIcon sx={{ fontSize: '16px' }} />
+                ) : (
+                  <HistoryIcon sx={{ fontSize: '16px' }} />
+                )}
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
       </Box>
     </Box>
   );

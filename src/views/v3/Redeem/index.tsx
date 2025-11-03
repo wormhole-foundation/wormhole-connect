@@ -41,7 +41,7 @@ import {
 } from 'utils/transferValidation';
 import { TransferWallet } from 'utils/wallet';
 import TransactionDetails from 'views/v3/Redeem/TransactionDetails';
-import WalletSidebar from 'views/v3/Bridge/WalletConnector/Sidebar';
+import WalletPicker from 'views/v3/Bridge/WalletConnector/WalletPicker';
 import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
 import useWalletProvider from 'hooks/useWalletProvider';
 import { isSvmChain } from 'utils/solana';
@@ -994,12 +994,11 @@ function Redeem() {
         </AlertBannerV3>
       )}
       <PoweredByIcon color={theme.palette.text.primary} />
-      <WalletSidebar
+      <WalletPicker
         open={isWalletSidebarOpen}
-        type={TransferWallet.RECEIVING}
-        onClose={() => {
-          setIsWalletSidebarOpen(false);
-        }}
+        walletType={TransferWallet.RECEIVING}
+        setIsOpen={setIsWalletSidebarOpen}
+        isAddressInputVisible={false}
       />
     </Box>
   );
