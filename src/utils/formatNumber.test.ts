@@ -83,6 +83,19 @@ describe('formatNumber utilities', () => {
       it('should handle empty string', () => {
         expect(formatNumberIntl('')).toBe('');
       });
+
+      it('should handle large numbers without precision loss', () => {
+        // Numbers larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+        expect(formatNumberIntl('9999999999999999')).toBe(
+          `9${group}999${group}999${group}999${group}999${group}999`,
+        );
+        expect(formatNumberIntl('123456789012345678')).toBe(
+          `123${group}456${group}789${group}012${group}345${group}678`,
+        );
+        expect(formatNumberIntl('9999999999999999.123456')).toBe(
+          `9${group}999${group}999${group}999${group}999${group}999${decimal}123456`,
+        );
+      });
     },
   );
 
@@ -190,7 +203,15 @@ describe('formatNumber utilities', () => {
       });
 
       it('should round-trip correctly with various inputs', () => {
-        const testCases = ['123', '1234', '123456.789', '0.123', '1234567.89'];
+        const testCases = [
+          '123',
+          '1234',
+          '123456.789',
+          '0.123',
+          '1234567.89',
+          '9999999999999999', // larger than Number.MAX_SAFE_INTEGER (9007199254740991)
+          '9999999999999999.123456', // larger than Number.MAX_SAFE_INTEGER (9007199254740991) with decimals
+        ];
         testCases.forEach((value) => {
           const formatted = formatNumberIntl(value);
           const restored = removeFormatting(formatted);
