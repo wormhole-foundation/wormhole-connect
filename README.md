@@ -145,6 +145,7 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Polygon | |
 | Bsc | Bsc |
 | Avalanche | Avalanche |
+| Fantom | Fantom |
 | Celo | Celo |
 | Moonbeam | Moonbeam |
 | Solana | Solana |
@@ -153,15 +154,25 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Base | BaseSepolia |
 | Arbitrum | ArbitrumSepolia |
 | Optimism | OptimismSepolia |
+| Klaytn | Klaytn |
 | Scroll | Scroll |
 | Xlayer | Xlayer |
 | Mantle | Mantle |
 | Worldchain | Worldchain |
 | Unichain | Unichain |
 | Berachain | |
+| Ink | |
+| Linea | Linea |
+| Sonic | Sonic |
 | Mezo | Mezo |
-| SeiEVM | SeiEVM |
+| Seievm | Seievm |
 | Plume | Plume |
+| HyperEVM | |
+| HyperCore | |
+| XRPLEVM | XRPLEVM |
+| CreditCoin | |
+| Fogo | Fogo |
+| | Monad |
 
 ### RPC Endpoints (`rpcs`):
 

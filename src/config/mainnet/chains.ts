@@ -241,4 +241,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'CreditCoin',
     symbol: 'CTC',
   },
+  Fogo: {
+    displayName: 'Fogo',
+    sdkName: 'Fogo',
+    explorerUrl: 'https://explorer.fogo.io/',
+    explorerName: 'Fogo Explorer',
+    icon: 'Fogo',
+    symbol: 'FOGO',
+  },
 };

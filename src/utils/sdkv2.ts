@@ -20,7 +20,6 @@ import {
   circle,
   nativeTokenId,
   TBTCBridge,
-  chainToPlatform,
 } from '@wormhole-foundation/sdk';
 import { getWrappedNativeToken } from './wrappedNativeTokens';
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
@@ -35,6 +34,7 @@ import type { TokenTuple } from 'config/tokens';
 import type { Token } from 'config/tokens';
 import { isExecutorRoute } from 'utils';
 import { isHyperCoreChain } from './hypercore';
+import { isSvmChain } from './solana';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -257,13 +257,14 @@ const parseTokenBridgeReceipt = async (
   }
 
   if (payload.to) {
-    if (chainToPlatform(receipt.to) === 'Solana') {
-      if (!config.rpcs.Solana) {
-        throw new Error('Missing Solana RPC');
+    if (isSvmChain(receipt.to)) {
+      const rpcUrl = config.rpcs[receipt.to];
+      if (!rpcUrl) {
+        throw new Error(`Missing ${receipt.to} RPC`);
       }
       // the recipient on the VAA is the ATA
       const ata = payload.to.address.toNative(receipt.to).toString();
-      const connection = new Connection(config.rpcs.Solana);
+      const connection = new Connection(rpcUrl);
       try {
         const account = await splToken.getAccount(
           connection,
@@ -340,13 +341,14 @@ const parseCCTPReceipt = async (
   txData.receiveAmount = txData.amount;
 
   txData.sender = payload.messageSender.toNative(receipt.from).toString();
-  if (receipt.to === 'Solana') {
-    if (!config.rpcs.Solana) {
-      throw new Error('Missing Solana RPC');
+  if (isSvmChain(receipt.to)) {
+    const rpcUrl = config.rpcs[receipt.to];
+    if (!rpcUrl) {
+      throw new Error(`Missing ${receipt.to} RPC`);
     }
     // the recipient on the VAA is the ATA
     const ata = payload.mintRecipient.toNative(receipt.to).toString();
-    const connection = new Connection(config.rpcs.Solana);
+    const connection = new Connection(rpcUrl);
     try {
       const account = await splToken.getAccount(connection, new PublicKey(ata));
       txData.recipient = account.owner.toBase58();
@@ -546,13 +548,14 @@ const parseCCTPv2Receipt = async (
   // NOTE: the sender is the shim contract, not the user's wallet
   // so don't set that here
 
-  if (receipt.to === 'Solana') {
-    if (!config.rpcs.Solana) {
-      throw new Error('Missing Solana RPC');
+  if (isSvmChain(receipt.to)) {
+    const rpcUrl = config.rpcs[receipt.to];
+    if (!rpcUrl) {
+      throw new Error(`Missing ${receipt.to} RPC`);
     }
     // the recipient on the VAA is the ATA
     const ata = messageBody.mintRecipient.toNative(receipt.to).toString();
-    const connection = new Connection(config.rpcs.Solana);
+    const connection = new Connection(rpcUrl);
     try {
       const account = await splToken.getAccount(connection, new PublicKey(ata));
       txData.recipient = account.owner.toBase58();

@@ -20,7 +20,11 @@ import {
   isVersionedTransaction,
 } from '@wormhole-foundation/sdk-solana';
 
-import type { Network } from '@wormhole-foundation/sdk';
+import {
+  chainToPlatform,
+  type Chain,
+  type Network,
+} from '@wormhole-foundation/sdk';
 import { isEmptyObject, sleep } from 'utils';
 import config from 'config';
 
@@ -330,4 +334,8 @@ function checkKnownSimulationError(
 
   console.table(errors);
   return true;
+}
+
+export function isSvmChain(chain: Chain): boolean {
+  return chainToPlatform.has(chain) && chainToPlatform.get(chain) === 'Solana';
 }
