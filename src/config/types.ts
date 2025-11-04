@@ -89,6 +89,12 @@ export type ValidateTransferHandler = (
   transferDetails: ExtendedTransferDetails,
 ) => Promise<ValidateTransferResult>;
 
+export type IsChainSupportedHandler = (
+  chain: Chain,
+  type: 'source' | 'destination',
+  network?: Network,
+) => boolean;
+
 export type IsRouteSupportedHandler = (
   transferDetails: TransferDetails,
 ) => Promise<boolean>;
@@ -135,6 +141,9 @@ export interface WormholeConnectConfig {
 
   // validateTransferHandler can be used to validate the transfer before signing the transaction
   validateTransferHandler?: ValidateTransferHandler;
+
+  // isChainSupportedHandler can be used to disable certain chains from being selected
+  isChainSupportedHandler?: IsChainSupportedHandler;
 
   // isRouteSupportedHandler can be used to disable certain routes from being selected
   isRouteSupportedHandler?: IsRouteSupportedHandler;
@@ -191,6 +200,7 @@ export interface InternalConfig<N extends Network> {
   // Callbacks
   triggerEvent: TriggerEventHandler;
   validateTransfer?: ValidateTransferHandler;
+  isChainSupportedHandler?: IsChainSupportedHandler;
   isRouteSupportedHandler?: IsRouteSupportedHandler;
   isTokenSupportedHandler?: IsTokenSupportedHandler;
   filterRoutes?: (routes: string[]) => string[];

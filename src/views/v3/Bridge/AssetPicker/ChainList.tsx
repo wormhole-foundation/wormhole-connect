@@ -156,8 +156,12 @@ function ChainList(props: Props) {
     ],
   );
 
-  if (topChains.length < 2) {
-    return null;
+  if (topChains.length < 1) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', paddingY: 5 }}>
+        <Typography>No available chains</Typography>
+      </Box>
+    );
   }
 
   return (
