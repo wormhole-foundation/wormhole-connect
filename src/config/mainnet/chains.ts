@@ -249,4 +249,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Fogo',
     symbol: 'FOGO',
   },
+  Monad: {
+    displayName: 'Monad',
+    sdkName: 'Monad',
+    explorerUrl: 'https://monadexplorer.com/',
+    explorerName: 'Monad Explorer',
+    icon: 'Monad',
+    symbol: 'MON',
+  },
 };
