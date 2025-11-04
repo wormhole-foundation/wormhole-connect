@@ -177,12 +177,17 @@ export const applyTokenWhitelist = (
 export const applyCustomTokenSupport = (
   tokens: Token[],
   sourceToken?: Token,
+  isSourceList?: boolean,
 ): Token[] => {
   const filter = config.isTokenSupportedHandler;
+
   if (!filter) {
     return tokens;
   }
-  return tokens.filter((t) => filter(t, sourceToken));
+
+  const tokenListType = isSourceList ? 'source' : 'destination';
+
+  return tokens.filter((t) => filter(t, sourceToken, tokenListType));
 };
 
 export const applyShittokenFilter = (tokens: Token[]): Token[] => {

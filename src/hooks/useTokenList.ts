@@ -54,7 +54,7 @@ export const useTokenList = ({
     tokens = applyTokenWhitelist(tokens, selectedChainConfig);
 
     // Apply custom token support handler if configured
-    tokens = applyCustomTokenSupport(tokens, sourceToken);
+    tokens = applyCustomTokenSupport(tokens, sourceToken, isSourceList);
 
     // For source list, we filter further because we're loading arbitrary tokens in their wallet
     if (isSourceList && !searchQuery && config.network === 'Mainnet') {

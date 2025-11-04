@@ -487,5 +487,31 @@ describe('tokenListUtils', () => {
       // Cleanup
       config.default.isTokenSupportedHandler = undefined;
     });
+
+    it('should apply custom filter based on token type', async () => {
+      const config = await import('config');
+      const token1 = createMockToken({ symbol: 'ALLOWED' });
+      const token2 = createMockToken({ symbol: 'BLOCKED' });
+
+      config.default.isTokenSupportedHandler = (
+        token: Token,
+        sourceToken,
+        tokenType,
+      ) => tokenType === 'source';
+
+      const tokens = [token1, token2];
+      let filtered = applyCustomTokenSupport(tokens, undefined, true);
+
+      expect(filtered).toHaveLength(2);
+      expect(filtered[0]).toBe(token1);
+      expect(filtered[1]).toBe(token2);
+
+      filtered = applyCustomTokenSupport(tokens, undefined, false);
+
+      expect(filtered).toHaveLength(0);
+
+      // Cleanup
+      config.default.isTokenSupportedHandler = undefined;
+    });
   });
 });

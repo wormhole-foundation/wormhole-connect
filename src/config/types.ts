@@ -96,6 +96,7 @@ export type IsRouteSupportedHandler = (
 export type IsTokenSupportedHandler = (
   token: Token,
   sourceToken?: Token, // The selected source token, if applicable
+  tokenListType?: 'source' | 'destination',
 ) => boolean;
 
 // This is the integrator-provided config
