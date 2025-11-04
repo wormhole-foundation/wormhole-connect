@@ -1,11 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, TextField, Tooltip, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Tooltip,
+  useMediaQuery,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
+import { usePopupState } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
@@ -97,6 +104,18 @@ function AssetPicker(props: Props) {
     popupId: 'asset-picker',
   });
 
+  const [error, setError] = useState('');
+
+  const handleErrorClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setError('');
+  };
+
   const tokenBalance = useMemo(() => {
     if (props.isSource && props.balances && props.token) {
       return props.balances[props.token.key]?.balance;
@@ -187,8 +206,24 @@ function AssetPicker(props: Props) {
     );
   }, [props.token]);
 
-  const triggerProps =
-    props.isTransactionInProgress || mobile ? {} : bindTrigger(popupState);
+  const handleOpen = (
+    e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent,
+  ) => {
+    // First, run the validation check
+    if (!props.isSource && !props.sourceToken) {
+      setError('Please select a source token first');
+      e.stopPropagation(); // Forcefully stop the event
+      e.preventDefault();
+      return; // Stop the function
+    }
+
+    // If validation passes, open the picker
+    if (mobile) {
+      setIsDrawerOpen(true);
+    } else {
+      popupState.open(e as React.MouseEvent | React.TouchEvent);
+    }
+  };
 
   const styles = useMemo(
     () => ({
@@ -561,23 +596,14 @@ function AssetPicker(props: Props) {
                 : 'Select destination asset'
             }
             variant="elevation"
-            onMouseDown={(e) => {
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
+            tabIndex={0}
+            onMouseDown={handleOpen}
+            onTouchEnd={handleOpen}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleOpen(e);
               }
             }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            {...triggerProps}
           >
             <CardContent sx={styles.cardContent}>
               <Typography sx={styles.chainSelector} component={'div'} gap={1}>
@@ -712,6 +738,22 @@ function AssetPicker(props: Props) {
           }}
         />
       )}
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={4000}
+        onClose={handleErrorClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleErrorClose}
+          severity="warning"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
