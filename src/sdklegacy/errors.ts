@@ -11,11 +11,3 @@ export class TokenNotRegisteredError extends Error {
     super(TokenNotRegisteredError.MESSAGE);
   }
 }
-
-export class InsufficientFundsForGasError extends Error {
-  static MESSAGE = 'Insufficient funds for gas';
-  static MESSAGE_REGEX = /insufficient funds|Insufficient funds for gas/gm;
-  constructor() {
-    super(InsufficientFundsForGasError.MESSAGE);
-  }
-}
