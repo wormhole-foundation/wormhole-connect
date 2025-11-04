@@ -519,6 +519,16 @@ function Bridge(props: BridgeProps) {
     onConfirm,
   ]);
 
+  // Warning switch to  check FOGO native token is selected, either as source or destination
+  const isFogoNativeSelected = useMemo(
+    () =>
+      (sourceToken || destToken) &&
+      (sourceToken?.chain === 'Fogo' || destToken?.chain === 'Fogo') &&
+      (sourceToken?.tokenId.address === 'native' ||
+        destToken?.tokenId.address === 'native'),
+    [sourceToken, destToken],
+  );
+
   // Show routes only when we have source and destination assets and an amount
   const showRoutes = hasEnteredAmount && sourceToken && destToken;
 
@@ -609,22 +619,20 @@ function Bridge(props: BridgeProps) {
           {transactionError}
           {transactionInfo}
           <AmountValidationError validation={amountValidation} />
-          {destToken &&
-            destToken.chain === 'Fogo' &&
-            destToken.tokenId.address === 'native' && (
-              <AlertBannerV3 warning>
-                You probably don&apos;t want Fogo Fuel and want Fogo
-                instead.&nbsp;
-                <Link
-                  href=""
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  sx={{ color: 'inherit' }}
-                >
-                  Learn more
-                </Link>
-              </AlertBannerV3>
-            )}
+          {isFogoNativeSelected && (
+            <AlertBannerV3 warning>
+              You probably don&apos;t want Fogo Fuel and want Fogo
+              instead.&nbsp;
+              <Link
+                href=""
+                target="_blank"
+                rel="noreferrer noopener"
+                sx={{ color: 'inherit' }}
+              >
+                Learn more
+              </Link>
+            </AlertBannerV3>
+          )}
         </>
       )}
     </>
