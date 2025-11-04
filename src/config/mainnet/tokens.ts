@@ -171,31 +171,6 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    symbol: 'FTM',
-    decimals: 18,
-    icon: TokenIcon.FANTOM,
-    tokenId: { chain: 'Fantom', address: 'native' },
-  },
-  {
-    symbol: 'WFTM',
-    name: 'Wrapped Fantom',
-    decimals: 18,
-    icon: TokenIcon.FANTOM,
-    tokenId: {
-      chain: 'Fantom',
-      address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
-    },
-  },
-  {
-    symbol: 'USDC.e',
-    decimals: 6,
-    icon: TokenIcon.USDC,
-    tokenId: {
-      chain: 'Fantom',
-      address: '0x2F733095B80A04b38b0D10cC884524a3d09b836a',
-    },
-  },
-  {
     symbol: 'CELO',
     decimals: 18,
     icon: TokenIcon.CELO,

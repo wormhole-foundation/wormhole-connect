@@ -42,21 +42,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     },
   },
   {
-    symbol: 'FTM',
-    icon: TokenIcon.FANTOM,
-    decimals: 18,
-    tokenId: { chain: 'Fantom', address: 'native' },
-  },
-  {
-    symbol: 'WFTM',
-    icon: TokenIcon.FANTOM,
-    decimals: 18,
-    tokenId: {
-      chain: 'Fantom',
-      address: '0xf1277d1Ed8AD466beddF92ef448A132661956621',
-    },
-  },
-  {
     symbol: 'CELO',
     icon: TokenIcon.CELO,
     decimals: 18,
