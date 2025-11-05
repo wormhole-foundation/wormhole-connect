@@ -39,15 +39,15 @@ export const formatNumberIntl = (value: string): string => {
   }
 
   const [integerPart, decimalPart] = value.split('.');
-  const intNum = parseInt(integerPart, 10) || 0;
+
+  // Use BigInt to handle large numbers without precision loss
+  const intNum = integerPart ? BigInt(integerPart) : 0n;
 
   const locale = getUserLocale();
   const { decimal } = getSeparators(locale);
 
-  // Format the integer part
-  // Intl.NumberFormat could be used to format the whole number,
-  // but we need to preserve trailing decimal points as user types.
-  // That's why we split and format only the integer part here.
+  // Format the integer part using BigInt
+  // Intl.NumberFormat supports BigInt and preserves full precision
   const formattedInt = new Intl.NumberFormat(locale, {
     useGrouping: true,
     minimumFractionDigits: 0,
@@ -55,7 +55,8 @@ export const formatNumberIntl = (value: string): string => {
   }).format(intNum);
 
   // Append the locale decimal separator + any digits (or preserve trailing decimal separator)
-  if (decimalPart !== undefined || value.endsWith(decimal)) {
+  // Input is non-localized format, so check for '.' not locale decimal
+  if (decimalPart !== undefined || value.endsWith('.')) {
     return formattedInt + decimal + (decimalPart ?? '');
   }
 
