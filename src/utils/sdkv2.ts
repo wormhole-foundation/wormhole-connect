@@ -708,6 +708,16 @@ export function getFilteredChains(
       return false;
     }
 
+    if (typeof config.isChainSupportedHandler === 'function') {
+      const type = isSource ? 'source' : 'destination';
+
+      if (
+        !config.isChainSupportedHandler(chain.sdkName, type, config.network)
+      ) {
+        return false;
+      }
+    }
+
     const isChainOmitted = shouldOmit && chainToOmit === chain.sdkName;
     return !isChainOmitted;
   });

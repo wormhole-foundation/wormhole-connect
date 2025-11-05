@@ -129,6 +129,7 @@ export function buildConfig(
     // Callbacks
     triggerEvent: wrapEventHandler(customConfig.eventHandler),
     validateTransfer: customConfig.validateTransferHandler,
+    isChainSupportedHandler: customConfig.isChainSupportedHandler,
     isRouteSupportedHandler: customConfig.isRouteSupportedHandler,
     isTokenSupportedHandler: customConfig.isTokenSupportedHandler,
     filterRoutes: customConfig.filterRoutes,
