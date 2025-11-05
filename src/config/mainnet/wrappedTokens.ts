@@ -366,6 +366,7 @@ export const MAINNET_WRAPPED_TOKENS = {
       Scroll: '0xCDf95E1F720caade4b1DC83ABfE15400D2a458AD',
       Worldchain: '0xEfae32D1c15EDBaEA3ebdDe1e2C51003AED04d30',
       Unichain: '0xbdE8A5331E8Ac4831cf8ea9e42e229219EafaB97',
+      Fogo: 'HLc5hqihQGFU68488j7HkdyF6rywyJfV46BN6Dn8W5ug',
     },
     EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: {
       Ethereum: '0x41f7B8b9b897276b7AAE926a9016935280b44E97',
