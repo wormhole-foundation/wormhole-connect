@@ -13,7 +13,6 @@ import {
   ERR_AMOUNT_TOO_SMALL,
   ERR_RELAY_FAILED,
 } from 'telemetry/types';
-import { InsufficientFundsForGasError } from 'sdklegacy';
 import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import {
   chainDisplayName,
@@ -33,8 +32,17 @@ export const USER_REJECTED_REGEX = new RegExp(
   'mi',
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
+
+// Insufficient funds patterns
+export const INSUFFICIENT_FUNDS_FOR_GAS_REGEX =
+  /insufficient funds for gas|insufficient.*gas/gim;
+export const INSUFFICIENT_FUNDS_REGEX = /insufficient funds/gim;
+
+// Error messages
 const INSUFFICIENT_FUNDS_FOR_GAS_ERROR =
   'Insufficient funds for network fees. Please add more funds and try again';
+const INSUFFICIENT_FUNDS_ERROR =
+  'Insufficient funds for this transfer. Please add more funds and try again';
 
 export function interpretTransferError(
   e: any,
@@ -58,8 +66,13 @@ export function interpretTransferError(
       // Solana timeout
       uiErrorMessage = 'Transfer timed out, please try again';
       internalErrorCode = ERR_TIMEOUT;
-    } else if (InsufficientFundsForGasError.MESSAGE_REGEX.test(e?.message)) {
+    } else if (INSUFFICIENT_FUNDS_FOR_GAS_REGEX.test(e?.message)) {
       uiErrorMessage = INSUFFICIENT_FUNDS_FOR_GAS_ERROR;
+      internalErrorCode = ERR_INSUFFICIENT_GAS;
+    } else if (INSUFFICIENT_FUNDS_REGEX.test(e?.message)) {
+      // IMPORTANT: This check must come after INSUFFICIENT_FUNDS_FOR_GAS_REGEX
+      // because "insufficient funds for gas" contains "insufficient funds"
+      uiErrorMessage = INSUFFICIENT_FUNDS_ERROR;
       internalErrorCode = ERR_INSUFFICIENT_GAS;
     } else if (USER_REJECTED_REGEX.test(e?.message)) {
       uiErrorMessage = 'Wallet request declined. Transfer not started.';
