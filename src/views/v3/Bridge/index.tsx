@@ -353,11 +353,6 @@ function Bridge(props: BridgeProps) {
     [dispatch],
   );
 
-  // Handler for manual gas changes
-  const handleManualGasChange = useCallback(() => {
-    setHasUserManuallyChangedGas(true);
-  }, []);
-
   // Determine which wallet connector to show
   const walletConnectorProps = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
@@ -612,7 +607,6 @@ function Bridge(props: BridgeProps) {
               onRouteChange={handleRouteChange}
               quotes={quotes}
               isLoading={isFetchingQuotes}
-              onManualGasChange={handleManualGasChange}
             />
           )}
         </Box>

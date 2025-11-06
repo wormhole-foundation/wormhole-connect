@@ -25,7 +25,6 @@ type Props = {
   onRouteChange: (route: string) => void;
   quotes: Record<string, routes.QuoteResult<routes.Options> | undefined>;
   isLoading: boolean;
-  onManualGasChange: () => void;
 };
 
 function Routes({
@@ -34,7 +33,6 @@ function Routes({
   onRouteChange,
   quotes,
   isLoading,
-  onManualGasChange,
 }: Props) {
   const dispatch = useDispatch();
   const theme: any = useTheme();
@@ -197,10 +195,9 @@ function Routes({
     (value: number) => {
       if (value !== toNativeToken) {
         dispatch(setToNativeToken(value));
-        onManualGasChange();
       }
     },
-    [dispatch, toNativeToken, onManualGasChange],
+    [dispatch, toNativeToken],
   );
 
   const handleRouteConfirm = useCallback(() => {
