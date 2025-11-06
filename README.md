@@ -173,6 +173,7 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | Creditcoin | |
 | Fogo | Fogo |
 | | Monad |
+| | Moca |
 
 ### RPC Endpoints (`rpcs`):
 

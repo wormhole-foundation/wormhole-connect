@@ -217,4 +217,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Ink',
     symbol: 'INK',
   },
+  Moca: {
+    displayName: 'Moca',
+    sdkName: 'Moca',
+    icon: 'Moca',
+    explorerUrl: 'https://testnet-scan.mocachain.org/',
+    explorerName: 'Moca Chain Explorer',
+    symbol: 'MOCA',
+  },
 };
