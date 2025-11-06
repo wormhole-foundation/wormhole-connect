@@ -30,7 +30,6 @@ import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
 import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
-import { useAutoEnableGasDropOff } from 'hooks/useAutoEnableGasDropoff';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
 import {
@@ -65,8 +64,6 @@ function Bridge(props: BridgeProps) {
   const dispatch = useDispatch();
 
   const [showHistory, setShowHistory] = useState(props.showHistory ?? false);
-  const [hasUserManuallyChangedGas, setHasUserManuallyChangedGas] =
-    useState(false);
 
   const { lastTokenCacheUpdate } = useTokens();
   const [errorCopied, setErrorCopied] = useState(false);
@@ -281,23 +278,6 @@ function Bridge(props: BridgeProps) {
     destination: destBalanceRequest,
   });
 
-  // Reset manual gas change flag on destination chain change
-  useEffect(() => {
-    setHasUserManuallyChangedGas(false);
-  }, [destChain]);
-
-  // Auto-set nativeGas when destination native balance is zero
-  // and user has not manually changed gas setting
-  useAutoEnableGasDropOff({
-    route,
-    destChain,
-    receivingWalletAddress: receivingWallet?.address,
-    destinationBalances: balances.destination.balances,
-    hasUserManuallyChangedGas,
-    currentToNativeToken: toNativeToken,
-    isFetchingBalances: balances.isFetching,
-  });
-
   // Validate amount
   const amountValidation = useAmountValidation({
     balance: sourceToken
@@ -372,11 +352,6 @@ function Bridge(props: BridgeProps) {
     },
     [dispatch],
   );
-
-  // Handler for manual gas changes
-  const handleManualGasChange = useCallback(() => {
-    setHasUserManuallyChangedGas(true);
-  }, []);
 
   // Determine which wallet connector to show
   const walletConnectorProps = useMemo(() => {
@@ -632,7 +607,6 @@ function Bridge(props: BridgeProps) {
               onRouteChange={handleRouteChange}
               quotes={quotes}
               isLoading={isFetchingQuotes}
-              onManualGasChange={handleManualGasChange}
             />
           )}
         </Box>
