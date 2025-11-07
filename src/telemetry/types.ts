@@ -1,4 +1,8 @@
-import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type {
+  Chain,
+  routes,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 import type { WormholeConnectConfig } from 'config/types';
 import type { Token } from 'config/tokens';
 import type { TransferWallet } from 'utils/wallet';
@@ -132,6 +136,14 @@ export type UserActionEvents = {
   [A in UserActions]: UserActionEvent<A>;
 }[UserActions];
 
+export interface QuoteEvent {
+  type: 'quote.received';
+  details: {
+    responseTime: number;
+    quoteResults: Record<string, routes.QuoteResult<routes.Options>>;
+  };
+}
+
 export type WormholeConnectEventCore =
   | LoadEvent
   | UpdateConfigEvent
@@ -139,7 +151,8 @@ export type WormholeConnectEventCore =
   | TransferErrorEvent
   | ConnectWalletEvent
   | HistoryLoadEvent
-  | UserActionEvent;
+  | UserActionEvent
+  | QuoteEvent;
 
 export interface WormholeConnectEventMeta {
   meta: {

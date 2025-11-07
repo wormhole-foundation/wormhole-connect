@@ -72,14 +72,14 @@ export default (routes: string[], params: Params): HookReturn => {
 
     if (Object.keys(unfilteredQuotes).length > 0) {
       const rParams = params as Required<QuoteParams>;
+      const isFetchable =
+        rParams.amount &&
+        rParams.sourceToken &&
+        rParams.destToken &&
+        rParams.sourceChain &&
+        rParams.destChain;
 
-      if (
-        !rParams.amount ||
-        !rParams.sourceToken ||
-        !rParams.destToken ||
-        !rParams.sourceChain ||
-        !rParams.destChain
-      ) {
+      if (!isFetchable) {
         // Stop fetching if no amount entered
         return;
       }
@@ -151,14 +151,15 @@ export default (routes: string[], params: Params): HookReturn => {
       unmounted = true;
     };
 
-    if (
-      routes.length === 0 ||
-      !params.sourceChain ||
-      !params.sourceToken ||
-      !params.destChain ||
-      !params.destToken ||
-      !params.amount
-    ) {
+    const isFetchable =
+      routes.length > 0 &&
+      params.sourceChain &&
+      params.sourceToken &&
+      params.destChain &&
+      params.destToken &&
+      params.amount;
+
+    if (!isFetchable) {
       // Clear quotes if we are missing any inputs or if the inputs support 0 routes
       setUnfilteredQuotes({});
       setIsFetchingInitialQuotes(false);
@@ -198,7 +199,20 @@ export default (routes: string[], params: Params): HookReturn => {
       setIsFetchingInitialQuotes(true);
     }
 
+    const startTime = performance.now();
+
     config.routes.getQuotes(routes, rParams).then((quoteResults) => {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      config.triggerEvent({
+        type: 'quote.received',
+        details: {
+          responseTime: duration,
+          quoteResults,
+        },
+      });
+
       if (!unmounted) {
         setUnfilteredQuotes(quoteResults);
         setIsFetchingInitialQuotes(false);
