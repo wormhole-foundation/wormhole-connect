@@ -1,4 +1,8 @@
-import type { Chain, amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type {
+  Chain,
+  Network,
+  amount as sdkAmount,
+} from '@wormhole-foundation/sdk';
 import type { WormholeConnectConfig } from 'config/types';
 import type { Token } from 'config/tokens';
 import type { TransferWallet } from 'utils/wallet';
@@ -146,6 +150,7 @@ export interface WormholeConnectEventMeta {
     version: string;
     hash: string;
     host?: string;
+    network: Network;
   };
 }
 

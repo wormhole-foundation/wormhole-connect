@@ -5,8 +5,10 @@ import type {
   WormholeConnectEvent,
   TriggerEventHandler,
 } from 'telemetry/types';
+import type { Network } from '@wormhole-foundation/sdk';
 
 export function wrapEventHandler(
+  network: Network,
   integrationHandler?: WormholeConnectEventHandler,
 ): TriggerEventHandler {
   const host =
@@ -18,6 +20,7 @@ export function wrapEventHandler(
         version: CONNECT_VERSION,
         hash: CONNECT_GIT_HASH,
         host,
+        network,
       },
       ...event,
     };
