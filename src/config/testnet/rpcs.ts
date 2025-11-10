@@ -26,6 +26,7 @@ const {
   REACT_APP_PLUME_RPC,
   REACT_APP_XRPLEVM_TESTNET_RPC,
   REACT_APP_MONAD_TESTNET_RPC,
+  REACT_APP_INK_TESTNET_RPC,
 } = import.meta.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -55,4 +56,5 @@ export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('Plume', REACT_APP_PLUME_RPC),
   ...populateRpcField('XRPLEVM', REACT_APP_XRPLEVM_TESTNET_RPC),
   ...populateRpcField('Monad', REACT_APP_MONAD_TESTNET_RPC),
+  ...populateRpcField('Ink', REACT_APP_INK_TESTNET_RPC),
 };

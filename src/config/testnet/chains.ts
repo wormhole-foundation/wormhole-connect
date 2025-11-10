@@ -209,4 +209,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     explorerName: 'XRPL EVM Explorer',
     symbol: 'XRP',
   },
+  Ink: {
+    displayName: 'Ink Sepolia',
+    sdkName: 'Ink',
+    explorerUrl: 'https://explorer-sepolia.inkonchain.com/',
+    explorerName: 'Ink Sepolia Explorer',
+    icon: 'Ink',
+    symbol: 'INK',
+  },
 };
