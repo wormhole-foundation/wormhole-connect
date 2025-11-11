@@ -36,13 +36,21 @@ export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
 // Insufficient funds patterns
 export const INSUFFICIENT_FUNDS_FOR_GAS_REGEX =
   /insufficient funds for gas|insufficient.*gas/gim;
-export const INSUFFICIENT_FUNDS_REGEX = /insufficient funds/gim;
+export const INSUFFICIENT_FUNDS_REGEX = /insufficient (funds|balance)/gim;
 
 // Error messages
 const INSUFFICIENT_FUNDS_FOR_GAS_ERROR =
   'Insufficient funds for network fees. Please add more funds and try again';
 const INSUFFICIENT_FUNDS_ERROR =
   'Insufficient funds for this transfer. Please add more funds and try again';
+
+// Helper function to check if a regex matches in various nested error locations
+// Different wallets and libraries nest error messages in different places:
+// - e.message (most common)
+// - e.info?.error?.data?.message (ethers.js wrapping MetaMask errors)
+function errorMessageMatches(e: any, regex: RegExp): boolean {
+  return regex.test(e?.message) || regex.test(e?.info?.error?.data?.message);
+}
 
 export function interpretTransferError(
   e: any,
@@ -56,7 +64,7 @@ export function interpretTransferError(
     if (e instanceof routes.RelayFailedError) {
       uiErrorMessage = e.message;
       internalErrorCode = ERR_RELAY_FAILED;
-    } else if (INSUFFICIENT_ALLOWANCE_REGEX.test(e?.message)) {
+    } else if (errorMessageMatches(e, INSUFFICIENT_ALLOWANCE_REGEX)) {
       uiErrorMessage = 'Error with transfer, please try again';
       internalErrorCode = ERR_INSUFFICIENT_ALLOWANCE;
     } else if (
@@ -66,18 +74,18 @@ export function interpretTransferError(
       // Solana timeout
       uiErrorMessage = 'Transfer timed out, please try again';
       internalErrorCode = ERR_TIMEOUT;
-    } else if (INSUFFICIENT_FUNDS_FOR_GAS_REGEX.test(e?.message)) {
+    } else if (errorMessageMatches(e, INSUFFICIENT_FUNDS_FOR_GAS_REGEX)) {
       uiErrorMessage = INSUFFICIENT_FUNDS_FOR_GAS_ERROR;
       internalErrorCode = ERR_INSUFFICIENT_GAS;
-    } else if (INSUFFICIENT_FUNDS_REGEX.test(e?.message)) {
+    } else if (errorMessageMatches(e, INSUFFICIENT_FUNDS_REGEX)) {
       // IMPORTANT: This check must come after INSUFFICIENT_FUNDS_FOR_GAS_REGEX
       // because "insufficient funds for gas" contains "insufficient funds"
       uiErrorMessage = INSUFFICIENT_FUNDS_ERROR;
       internalErrorCode = ERR_INSUFFICIENT_GAS;
-    } else if (USER_REJECTED_REGEX.test(e?.message)) {
+    } else if (errorMessageMatches(e, USER_REJECTED_REGEX)) {
       uiErrorMessage = 'Wallet request declined. Transfer not started.';
       internalErrorCode = ERR_USER_REJECTED;
-    } else if (AMOUNT_IN_TOO_SMALL.test(e?.message)) {
+    } else if (errorMessageMatches(e, AMOUNT_IN_TOO_SMALL)) {
       uiErrorMessage = 'Amount is too small for the selected route';
       internalErrorCode = ERR_AMOUNT_TOO_SMALL;
     } else if (
@@ -97,8 +105,8 @@ export function interpretTransferError(
       uiErrorMessage = `Amount exceeds Circle limit${limitString}. Please reduce transfer amount.`;
       internalErrorCode = ERR_AMOUNT_TOO_LARGE;
     } else if (
-      SIMULATION_ACCOUNT_NOT_FOUND_REGEX.test(e?.message) ||
-      INSUFFICIENT_LAMPORTS_REGEX.test(e?.message)
+      errorMessageMatches(e, SIMULATION_ACCOUNT_NOT_FOUND_REGEX) ||
+      errorMessageMatches(e, INSUFFICIENT_LAMPORTS_REGEX)
     ) {
       const gasChain = transferDetails.fromChain;
       try {
