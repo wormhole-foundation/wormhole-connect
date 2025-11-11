@@ -494,4 +494,10 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.XRP,
   },
+  {
+    symbol: 'ETH',
+    icon: TokenIcon.ETH,
+    decimals: 18,
+    tokenId: { chain: 'Ink', address: 'native' },
+  },
 ];
