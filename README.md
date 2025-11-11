@@ -170,7 +170,7 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | HyperEVM | |
 | HyperCore | |
 | XRPLEVM | XRPLEVM |
-| CreditCoin | |
+| Creditcoin | |
 | Fogo | Fogo |
 | | Monad |
 
