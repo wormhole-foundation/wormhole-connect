@@ -13,8 +13,34 @@ export const TOKEN_DENY_LIST: Partial<Record<Network, TokenId[]>> = {
   ],
 };
 
+// Mainnet-only allowlist - only tokens in this list can be bridged on mainnet
+// Testnet does not use an allowlist, only the deny list above
+export const TOKEN_ALLOW_LIST: Partial<Record<Network, TokenId[]>> = {
+  Mainnet: [
+    // Monad tokens
+    Wormhole.tokenId('Monad', 'native'), // MON
+    Wormhole.tokenId('Monad', '0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A'), // WMON
+    Wormhole.tokenId('Monad', '0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242'), // WETH (NTT Token on Monad)
+    // Ethereum tokens
+    Wormhole.tokenId('Ethereum', 'native'), // ETH
+    Wormhole.tokenId('Ethereum', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'), // WETH
+    Wormhole.tokenId('Ethereum', '0x6917037F8944201b2648198a89906Edf863B9517'), // WMON (NTT Token on Ethereum)
+  ],
+};
+
 export const CONTRACTS: Partial<Record<Network, MultiTokenNtt.Contracts[]>> = {
-  Mainnet: [],
+  Mainnet: [
+    {
+      chain: 'Ethereum',
+      manager: '0x556790e948b9920A8868bCAFcC87D25e82e8a075',
+      gmpManager: '0xc6793a32761a11e96c97A3D18fC6545ea931F0E9',
+    },
+    {
+      chain: 'Monad',
+      manager: '0x36878C6FCa7e0E8a88F90dc410CfBBcA5B695C95',
+      gmpManager: '0x92957b3D0CaB3eA7110fEd1ccc4eF564981a59Fc',
+    },
+  ],
   Testnet: [
     {
       chain: 'Sepolia',

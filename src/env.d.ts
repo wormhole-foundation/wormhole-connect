@@ -31,6 +31,15 @@ interface ImportMetaEnv {
   REACT_APP_MEZO_RPC: string;
   REACT_APP_PLUME_RPC: string;
   REACT_APP_XRPL_RPC: string;
+  REACT_APP_INK_RPC: string;
+  REACT_APP_LINEA_RPC: string;
+  REACT_APP_SONIC_RPC: string;
+  REACT_APP_SEIEVM_RPC: string;
+  REACT_APP_HYPEREVM_RPC: string;
+  REACT_APP_HYPERCORE_RPC: string;
+  REACT_APP_CREDITCOIN_RPC: string;
+  REACT_APP_FOGO_RPC: string;
+  REACT_APP_MONAD_RPC: string;
 
   // testnet
   REACT_APP_SEPOLIA_RPC: string;
@@ -56,6 +65,7 @@ interface ImportMetaEnv {
   REACT_APP_SEIEVM_TESTNET_RPC: string;
   REACT_APP_PLUME_TESTNET_RPC: string;
   REACT_APP_XRPLEVM_TESTNET_RPC: string;
+  REACT_APP_MONAD_TESTNET_RPC: string;
 
   // devnet
   REACT_APP_ETHEREUM_DEVNET_RPC: string;

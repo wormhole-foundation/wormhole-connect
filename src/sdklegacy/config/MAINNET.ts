@@ -37,6 +37,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     Ink: 'https://ink.drpc.org',
     CreditCoin: 'https://mainnet3.creditcoin.network',
     Fogo: 'https://mainnet.fogo.io',
+    Monad: 'https://rpc.monad.xyz',
   },
 };
 

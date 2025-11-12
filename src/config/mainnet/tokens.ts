@@ -18,6 +18,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     },
   },
   {
+    symbol: 'WMON',
+    decimals: 18,
+    icon: TokenIcon.MONAD,
+    tokenId: {
+      chain: 'Ethereum',
+      address: '0x6917037f8944201b2648198a89906edf863b9517',
+    },
+  },
+  {
     symbol: 'USDC',
     decimals: 6,
     icon: TokenIcon.USDC,
@@ -801,6 +810,39 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     tokenId: {
       chain: 'Fogo',
       address: 'So11111111111111111111111111111111111111112',
+    },
+  },
+  {
+    symbol: 'MON',
+    icon: TokenIcon.MONAD,
+    decimals: 18,
+    tokenId: { chain: 'Monad', address: 'native' },
+  },
+  {
+    symbol: 'WMON',
+    icon: TokenIcon.MONAD,
+    decimals: 18,
+    tokenId: {
+      chain: 'Monad',
+      address: '0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A',
+    },
+  },
+  {
+    symbol: 'WETH',
+    icon: TokenIcon.ETH,
+    decimals: 18,
+    tokenId: {
+      chain: 'Monad',
+      address: '0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242',
+    },
+  },
+  {
+    symbol: 'USDC',
+    icon: TokenIcon.USDC,
+    decimals: 6,
+    tokenId: {
+      chain: 'Monad',
+      address: '0x754704Bc059F8C67012fEd69BC8A327a5aafb603',
     },
   },
 ];
