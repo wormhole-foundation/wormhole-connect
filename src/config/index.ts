@@ -127,7 +127,7 @@ export function buildConfig(
     coingecko: customConfig.coingecko,
 
     // Callbacks
-    triggerEvent: wrapEventHandler(customConfig.eventHandler),
+    triggerEvent: wrapEventHandler(network, customConfig.eventHandler),
     validateTransfer: customConfig.validateTransferHandler,
     isChainSupportedHandler: customConfig.isChainSupportedHandler,
     isRouteSupportedHandler: customConfig.isRouteSupportedHandler,
