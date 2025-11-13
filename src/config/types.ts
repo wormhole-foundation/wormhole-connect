@@ -8,6 +8,7 @@ import type {
   Chain,
   AttestationReceipt,
   routes,
+  IndexerConfig,
 } from '@wormhole-foundation/sdk';
 
 import type { PriorityFeeOptions } from '@wormhole-foundation/sdk-solana';
@@ -113,10 +114,7 @@ export interface WormholeConnectConfig {
   rpcs?: ChainResourceMap;
   // API keys for EVM indexers like GoldRush of Alchemy
   // Used for fetching token balances
-  evmIndexers?: {
-    alchemy?: string;
-    goldRush?: string;
-  };
+  evmIndexers?: IndexerConfig;
   coingecko?: {
     apiKey?: string;
     customUrl?: string;
@@ -175,10 +173,7 @@ export interface InternalConfig<N extends Network> {
   rpcs: ChainResourceMap;
   // API keys for EVM indexers like GoldRush of Alchemy
   // Used for fetching token balances
-  evmIndexers?: {
-    alchemy?: string;
-    goldRush?: string;
-  };
+  evmIndexers?: IndexerConfig;
 
   mayanApi: string;
   lifiExplorerUrl: string;
