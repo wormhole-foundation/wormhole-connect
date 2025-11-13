@@ -11,6 +11,7 @@ import { createMockToken } from './testHelpers';
 // Mock the config module
 vi.mock('config', () => ({
   default: {
+    network: 'Mainnet',
     routes: {
       get: vi.fn(),
     },
@@ -306,9 +307,9 @@ describe('calculateFeeOffset', () => {
             referrerFee: {
               referrerFeeDbps: 100n,
               tokenFeeOverrides: {
-                [mockToken.chain]: {
-                  [mockToken.addressString]: {
-                    referrerFeeDbps: 30n, // Token-specific override
+                Mainnet: {
+                  [mockToken.chain]: {
+                    [mockToken.addressString]: 30n, // Token-specific override (direct bigint)
                   },
                 },
               },
