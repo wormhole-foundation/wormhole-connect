@@ -48,6 +48,18 @@ export type UiConfig = {
 
   // When enabled hides the history button
   hideHistory?: boolean;
+
+  // When enabled hides the change wallet option for source wallets
+  hideSourceChangeWallet?: boolean;
+
+  // When enabled hides the disconnect wallet option for source wallets
+  hideSourceDisconnectWallet?: boolean;
+
+  // When enabled hides the change wallet option for desitnation wallets
+  hideDestinationChangeWallet?: boolean;
+
+  // When enabled hides the disconnect wallet option for desitnation wallets
+  hideDestinationDisconnectWallet?: boolean;
 };
 
 export type TestOptions = {
