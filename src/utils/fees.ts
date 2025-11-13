@@ -157,7 +157,9 @@ export function calculateFeeOffset(
         sourceToken
       ) {
         const override =
-          routeConfig.referrerFee.perTokenOverrides[sourceToken.addressString];
+          routeConfig.referrerFee.perTokenOverrides[sourceToken.chain]?.[
+            sourceToken.addressString
+          ];
         if (override?.referrerFeeDbps !== undefined) {
           feeDbps = override.referrerFeeDbps;
         } else {
@@ -172,7 +174,9 @@ export function calculateFeeOffset(
       // Check for token-specific override in Token Bridge Executor
       if (routeConfig.referrerFee.tokenFeeOverrides && sourceToken) {
         const tokenOverride =
-          routeConfig.referrerFee.tokenFeeOverrides[sourceToken.addressString];
+          routeConfig.referrerFee.tokenFeeOverrides[sourceToken.chain]?.[
+            sourceToken.addressString
+          ];
         if (tokenOverride?.referrerFeeDbps !== undefined) {
           feeDbps = tokenOverride.referrerFeeDbps;
         } else {
