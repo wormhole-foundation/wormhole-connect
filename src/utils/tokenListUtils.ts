@@ -204,6 +204,47 @@ export const applyShittokenFilter = (tokens: Token[]): Token[] => {
   });
 };
 
+export const applyCoingeckoFilter = (
+  tokens: Token[],
+  coingeckoAddresses: Set<string>,
+): Token[] => {
+  return tokens.filter((token) => {
+    // Always include NTT tokens
+    if (isNttToken(token)) {
+      return true;
+    }
+
+    // Always include native gas tokens
+    if (token.isNativeGasToken) {
+      return true;
+    }
+
+    // For Token Bridge wrapped tokens, check the original token
+    if (token.isTokenBridgeWrappedToken && token.tokenBridgeOriginalTokenId) {
+      const originalToken = config.tokens.get(token.tokenBridgeOriginalTokenId);
+      if (originalToken) {
+        const originalAddress = originalToken.addressString.toLowerCase();
+        const isInList = coingeckoAddresses.has(originalAddress);
+        if (!isInList) {
+          console.debug(
+            `Filtering out wrapped token (original not in CoinGecko)`,
+            token,
+          );
+        }
+        return isInList;
+      }
+    }
+
+    // For regular tokens, check if address is in CoinGecko list
+    const address = token.addressString.toLowerCase();
+    const isInList = coingeckoAddresses.has(address);
+    if (!isInList) {
+      console.debug(`Filtering out token (not in CoinGecko list)`, token);
+    }
+    return isInList;
+  });
+};
+
 export const filterTokensByBalance = (
   tokens: Token[],
   balances: Record<string, { balance: any }>,

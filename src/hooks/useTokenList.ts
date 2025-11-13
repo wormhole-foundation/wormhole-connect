@@ -10,8 +10,10 @@ import {
   applyTokenWhitelist,
   applyCustomTokenSupport,
   applyShittokenFilter,
+  applyCoingeckoFilter,
 } from 'utils/tokenListUtils';
 import config from 'config';
+import { useCoingeckoTokenList } from './useCoingeckoTokenList';
 
 interface UseTokenListParams {
   tokenList: Token[];
@@ -37,6 +39,9 @@ export const useTokenList = ({
   isSourceList = false,
 }: UseTokenListParams): Token[] => {
   const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
+
+  // Fetch CoinGecko token list for spam filtering
+  const coingeckoTokens = useCoingeckoTokenList(selectedChainConfig?.sdkName);
 
   return useMemo(() => {
     if (!tokenList) return [];
@@ -65,8 +70,13 @@ export const useTokenList = ({
 
     // For source list, we filter further because we're loading arbitrary tokens in their wallet
     if (isSourceList && !searchQuery && config.network === 'Mainnet') {
-      // Filter out possible scamcoins
-      tokens = applyShittokenFilter(tokens);
+      // Use CoinGecko filter if available, otherwise fallback to old filter
+      if (coingeckoTokens && coingeckoTokens.size > 0) {
+        tokens = applyCoingeckoFilter(tokens, coingeckoTokens);
+      } else {
+        // Fallback to old filter while CoinGecko list is loading or unavailable
+        tokens = applyShittokenFilter(tokens);
+      }
     }
 
     return tokens;
@@ -83,5 +93,6 @@ export const useTokenList = ({
     isSourceList,
     sourceToken,
     destToken,
+    coingeckoTokens,
   ]);
 };
