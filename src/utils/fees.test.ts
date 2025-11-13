@@ -249,8 +249,10 @@ describe('calculateFeeOffset', () => {
             referrerFee: {
               feeDbps: 50n,
               perTokenOverrides: {
-                [mockToken.addressString]: {
-                  referrerFeeDbps: 20n, // Token-specific override
+                [mockToken.chain]: {
+                  [mockToken.addressString]: {
+                    referrerFeeDbps: 20n, // Token-specific override
+                  },
                 },
               },
             },
@@ -304,8 +306,10 @@ describe('calculateFeeOffset', () => {
             referrerFee: {
               referrerFeeDbps: 100n,
               tokenFeeOverrides: {
-                [mockToken.addressString]: {
-                  referrerFeeDbps: 30n, // Token-specific override
+                [mockToken.chain]: {
+                  [mockToken.addressString]: {
+                    referrerFeeDbps: 30n, // Token-specific override
+                  },
                 },
               },
             },
