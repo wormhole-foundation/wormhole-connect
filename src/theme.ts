@@ -7,9 +7,11 @@ export type WormholeConnectTheme = {
   // "dark" or "light"
   mode: PaletteMode;
   // Background of surrounding application
-  background?: PaletteMode;
+  background?: string;
   // Background of the container surrounding form fields (asset pickers, amount input and confirm button)
-  formBackground?: PaletteMode;
+  formBackground?: string;
+  // Border of the container surrounding form fields (asset pickers, amount input and confirm button)
+  formBorder?: string;
   // Color of input fields, like asset picker and amount input
   input?: string;
   // Whether input fields will be transparent
@@ -86,7 +88,7 @@ export type InternalTheme = {
     active: string;
     activeText: string;
   };
-  formContainer?: {
+  formContainer: {
     background: string;
     border: string;
   };
@@ -312,6 +314,19 @@ export const generateTheme = (customTheme: WormholeConnectTheme): Theme => {
     if (customTheme.success) {
       theme.success = {
         main: customTheme.success,
+      };
+    }
+    if (customTheme.formBackground) {
+      theme.formContainer = {
+        ...theme.formContainer,
+        background:
+          customTheme.formBackground || theme.formContainer.background,
+      };
+    }
+    if (customTheme.formBorder) {
+      theme.formContainer = {
+        ...theme.formContainer,
+        border: customTheme.formBorder || theme.formContainer.border,
       };
     }
   }

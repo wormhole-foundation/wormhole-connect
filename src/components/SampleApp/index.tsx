@@ -427,6 +427,14 @@ function SampleApp() {
                       <i>string;</i>
                     </li>
                     <li>
+                      <pre>formBackground</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
+                      <pre>formBorder</pre>
+                      <i>string;</i>
+                    </li>
+                    <li>
                       <pre>input</pre>
                       <i>string;</i>
                     </li>
