@@ -16,6 +16,7 @@ vi.mock('config', () => ({
       { sdkName: 'Optimism' },
       { sdkName: 'Base' },
       { sdkName: 'HyperCore' }, // Mock HyperCore chain
+      { sdkName: 'Monad' },
     ],
     routes: {
       isSameChainSwapSupported: vi.fn(),
@@ -136,7 +137,12 @@ describe('getFilteredChains', () => {
   describe('isChainSupportedHandler', () => {
     it('should filter chains based on custom handler for source chains', () => {
       config.isChainSupportedHandler = vi.fn(
-        (chain: Chain, type: 'source' | 'destination', network?) => {
+        (
+          chain: Chain,
+          type: 'source' | 'destination',
+          network?,
+          oppositeChain?,
+        ) => {
           if (type === 'source' && chain === 'Ethereum') return false;
           return true;
         },
@@ -151,17 +157,24 @@ describe('getFilteredChains', () => {
         'Ethereum',
         'source',
         'Mainnet',
+        undefined,
       );
       expect(config.isChainSupportedHandler).toHaveBeenCalledWith(
         'Solana',
         'source',
         'Mainnet',
+        undefined,
       );
     });
 
     it('should filter chains based on custom handler for destination chains', () => {
       config.isChainSupportedHandler = vi.fn(
-        (chain: Chain, type: 'source' | 'destination', network?) => {
+        (
+          chain: Chain,
+          type: 'source' | 'destination',
+          network?,
+          oppositeChain?,
+        ) => {
           if (type === 'destination' && chain === 'Polygon') return false;
           return true;
         },
@@ -176,11 +189,13 @@ describe('getFilteredChains', () => {
         'Ethereum',
         'destination',
         'Mainnet',
+        undefined,
       );
       expect(config.isChainSupportedHandler).toHaveBeenCalledWith(
         'Polygon',
         'destination',
         'Mainnet',
+        undefined,
       );
     });
 
@@ -193,18 +208,77 @@ describe('getFilteredChains', () => {
       expect(result).toHaveLength(3);
     });
 
-    it('should pass network parameter to handler correctly', () => {
+    it('should pass network and oppositeChain parameters to handler correctly', () => {
       config.isChainSupportedHandler = vi.fn(() => true);
 
       const supportedChains: Array<Chain> = ['Ethereum', 'Solana'];
-      getFilteredChains(supportedChains, undefined, false);
+      getFilteredChains(supportedChains, 'Polygon', false);
 
-      // Verify network is passed as third parameter
+      // Verify network is passed as third parameter and oppositeChain as fourth
       expect(config.isChainSupportedHandler).toHaveBeenCalledWith(
         'Ethereum',
         'destination',
         'Mainnet',
+        'Polygon',
       );
+    });
+
+    it('should support Monad-specific bridging logic using oppositeChain parameter', () => {
+      // Monad-specific logic:
+      // - When bridging TO Monad (oppositeChain='Monad' for source): allow all chains as source
+      // - When bridging FROM Monad (oppositeChain='Monad' for dest): allow all chains as destination
+      // - When Monad not involved: only allow Monad
+      config.isChainSupportedHandler = vi.fn(
+        (
+          chain: Chain,
+          type: 'source' | 'destination',
+          network?,
+          oppositeChain?,
+        ) => {
+          // Handle initial state when chains aren't selected
+          if (!chain || !oppositeChain) return true;
+
+          // If the opposite side is Monad, allow all chains
+          if (oppositeChain === 'Monad') {
+            return true;
+          }
+          // If the opposite side is NOT Monad, only allow Monad as the current chain
+          return chain === 'Monad';
+        },
+      );
+
+      const supportedChains: Array<Chain> = ['Ethereum', 'Solana', 'Monad'];
+
+      // Case 1: When destination is Monad, all chains should be available as source
+      const sourceChains = getFilteredChains(supportedChains, 'Monad', true);
+      expect(sourceChains.map((c) => c.sdkName)).toEqual([
+        'Ethereum',
+        'Solana',
+        'Monad',
+      ]);
+
+      // Case 2: When source is Monad, all chains should be available as destination
+      const destChains = getFilteredChains(supportedChains, 'Monad', false);
+      expect(destChains.map((c) => c.sdkName)).toEqual([
+        'Ethereum',
+        'Solana',
+        'Monad',
+      ]);
+
+      // Case 3: When neither side is Monad, only Monad should be available
+      const destChainsWithoutMonad = getFilteredChains(
+        supportedChains,
+        'Ethereum',
+        false,
+      );
+      expect(destChainsWithoutMonad.map((c) => c.sdkName)).toEqual(['Monad']);
+
+      const sourceChainsWithoutMonad = getFilteredChains(
+        supportedChains,
+        'Solana',
+        true,
+      );
+      expect(sourceChainsWithoutMonad.map((c) => c.sdkName)).toEqual(['Monad']);
     });
   });
 

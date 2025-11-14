@@ -93,6 +93,7 @@ export type IsChainSupportedHandler = (
   chain: Chain,
   type: 'source' | 'destination',
   network?: Network,
+  oppositeChain?: Chain,
 ) => boolean;
 
 export type IsRouteSupportedHandler = (
