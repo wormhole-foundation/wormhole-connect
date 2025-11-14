@@ -65,9 +65,16 @@ const ConnectedWallet = (props: Props) => {
   );
 
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
+  const isSourceWallet = props.type === TransferWallet.SENDING;
+  const selectedChain = isSourceWallet ? fromChain : toChain;
 
-  const selectedChain =
-    props.type === TransferWallet.SENDING ? fromChain : toChain;
+  const isChangeWalletVisible = isSourceWallet
+    ? !config.ui.hideSourceChangeWallet
+    : !config.ui.hideDestinationChangeWallet;
+
+  const isDisconnectWalletVisible = isSourceWallet
+    ? !config.ui.hideSourceDisconnectWallet
+    : !config.ui.hideDestinationDisconnectWallet;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -155,12 +162,16 @@ const ConnectedWallet = (props: Props) => {
                   label={config.ui.explorer.label}
                 />
               ) : null}
-              <ListItemButton onClick={handleChangeWallet}>
-                <Typography fontSize={14}>Change wallet</Typography>
-              </ListItemButton>
-              <ListItemButton onClick={handleDisconnectWallet}>
-                <Typography fontSize={14}>Disconnect</Typography>
-              </ListItemButton>
+              {isChangeWalletVisible && (
+                <ListItemButton onClick={handleChangeWallet}>
+                  <Typography fontSize={14}>Change wallet</Typography>
+                </ListItemButton>
+              )}
+              {isDisconnectWalletVisible && (
+                <ListItemButton onClick={handleDisconnectWallet}>
+                  <Typography fontSize={14}>Disconnect</Typography>
+                </ListItemButton>
+              )}
             </List>
           </Popover>
         </>
