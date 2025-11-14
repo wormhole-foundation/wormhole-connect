@@ -712,7 +712,12 @@ export function getFilteredChains(
       const type = isSource ? 'source' : 'destination';
 
       if (
-        !config.isChainSupportedHandler(chain.sdkName, type, config.network)
+        !config.isChainSupportedHandler(
+          chain.sdkName,
+          type,
+          config.network,
+          chainToOmit,
+        )
       ) {
         return false;
       }
