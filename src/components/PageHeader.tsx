@@ -13,6 +13,7 @@ type PageHeaderProps = {
   align?: Alignment;
   description?: string;
   back?: boolean;
+  backRoute?: 'bridge' | 'history';
   testId?: string;
 };
 
@@ -21,6 +22,7 @@ function PageHeader({
   title,
   align = 'left',
   description,
+  backRoute = 'history',
   testId,
 }: PageHeaderProps) {
   const theme = useTheme();
@@ -66,7 +68,7 @@ function PageHeader({
   );
 
   function goBack() {
-    dispatch(setRoute('history'));
+    dispatch(setRoute(backRoute));
   }
 
   return (

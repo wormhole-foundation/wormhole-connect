@@ -30,7 +30,7 @@ function Terms() {
   };
   return (
     <Box sx={styles.terms}>
-      <PageHeader title="Terms of Service" back />
+      <PageHeader title="Terms of Service" back backRoute="bridge" />
       <Box sx={styles.body}>
         <p>Last Updated: September 15, 2025</p>
         <p>

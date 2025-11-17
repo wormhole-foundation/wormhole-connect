@@ -21,6 +21,7 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     symbol: 'WMON',
     decimals: 18,
     icon: TokenIcon.MONAD,
+    name: 'Wrapped MON',
     tokenId: {
       chain: 'Ethereum',
       address: '0x6917037f8944201b2648198a89906edf863b9517',

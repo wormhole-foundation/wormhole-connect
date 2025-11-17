@@ -388,7 +388,7 @@ function Redeem() {
     } else if (isTxRefunded) {
       statusText = 'Transaction was refunded';
     } else if (isRelayFailed) {
-      statusText = `Ready to claim on ${toChain}`;
+      statusText = 'Transfer error';
     } else if (isTxFailed) {
       statusText = 'Transaction failed';
     } else if (isTxDestQueued) {
