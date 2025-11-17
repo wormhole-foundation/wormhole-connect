@@ -47,6 +47,7 @@ import HYPE from './Tokens/HYPE';
 import XRP from './Tokens/XRP';
 import CTC from './Tokens/CTC';
 import MON from './Tokens/MON';
+import AUSD from './Tokens/AUSD';
 
 const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.WBTC]: WBTC(),
@@ -103,6 +104,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.XRP]: XRP(),
   [TokenIcon.CTC]: CTC(),
   [TokenIcon.MONAD]: MON(),
+  [TokenIcon.AUSD]: AUSD(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {
