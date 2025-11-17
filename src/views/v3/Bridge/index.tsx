@@ -46,6 +46,7 @@ import { OPACITY } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet } from 'utils/wallet';
 import { getFilteredChains } from 'utils/sdkv2';
+import { applyTokenWhitelist } from 'utils/tokenListUtils';
 import WalletConnector from 'views/v3/Bridge/WalletConnector';
 import AssetPicker from 'views/v3/Bridge/AssetPicker';
 import Routes from 'views/v3/Bridge/Routes';
@@ -232,7 +233,11 @@ function Bridge(props: BridgeProps) {
 
   const sourceTokens = useMemo(() => {
     if (sourceChain) {
-      return config.tokens.getAllForChain(sourceChain);
+      const allTokens = config.tokens.getAllForChain(sourceChain);
+      const chainConfig = config.chains[sourceChain];
+      return chainConfig
+        ? applyTokenWhitelist(allTokens, chainConfig)
+        : allTokens;
     } else {
       return [];
     }
@@ -264,10 +269,15 @@ function Bridge(props: BridgeProps) {
 
   const destBalanceRequest = useMemo(() => {
     if (destChain && receivingWallet?.address) {
+      const allTokens = config.tokens.getAllForChain(destChain);
+      const chainConfig = config.chains[destChain];
+      const tokens = chainConfig
+        ? applyTokenWhitelist(allTokens, chainConfig)
+        : allTokens;
       return {
         chain: destChain,
         wallet: receivingWallet,
-        tokens: config.tokens.getAllForChain(destChain),
+        tokens,
       };
     }
     return undefined;
