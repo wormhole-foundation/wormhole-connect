@@ -619,6 +619,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.USDC,
   },
   {
+    symbol: 'USDT',
+    tokenId: {
+      chain: 'Unichain',
+      address: '0x9151434b16b9763660705744891fA906F660EcC5',
+    },
+    decimals: 6,
+    icon: TokenIcon.USDT,
+  },
+  {
     symbol: 'BERA',
     tokenId: {
       chain: 'Berachain',
@@ -844,6 +853,15 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     tokenId: {
       chain: 'Monad',
       address: '0x754704Bc059F8C67012fEd69BC8A327a5aafb603',
+    },
+  },
+  {
+    symbol: 'USDT',
+    icon: TokenIcon.USDT,
+    decimals: 6,
+    tokenId: {
+      chain: 'Monad',
+      address: '0xe7cd86e13AC4309349F30B3435a9d337750fC82D',
     },
   },
 ];
