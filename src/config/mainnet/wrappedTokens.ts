@@ -606,4 +606,9 @@ export const MAINNET_WRAPPED_TOKENS = {
       Optimism: '0xf704F6a3241609Cfb3E44Db1237E68EB6CaC7C04',
     },
   },
+  Monad: {
+    '0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A': {
+      Solana: 'AXSTN3GQHS4Mc7GDZwWmfp8H8qUVqyx3Ck5rPRT9g7RM',
+    },
+  },
 };
