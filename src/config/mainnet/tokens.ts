@@ -864,4 +864,104 @@ export const MAINNET_TOKENS: TokenConfig[] = [
       address: '0xe7cd86e13AC4309349F30B3435a9d337750fC82D',
     },
   },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Arbitrum',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Avalanche',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Base',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Bsc',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Ethereum',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Mantle',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Monad',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Plume',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Polygon',
+      address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Solana',
+      address: 'AUSD1jCcCyPLybk1YnvPWsHQSrZ46dxwoMniN4N2UEB9',
+    },
+  },
+  {
+    symbol: 'AUSD',
+    icon: TokenIcon.AUSD,
+    decimals: 6,
+    tokenId: {
+      chain: 'Sui',
+      address:
+        '0x2053d08c1e2bd02791056171aab0fd12bd7cd7efad2ab8f6b9c8902f14df2ff2::ausd::AUSD',
+    },
+  },
 ];
