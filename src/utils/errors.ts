@@ -35,12 +35,12 @@ export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
 
 // Insufficient funds patterns
 export const INSUFFICIENT_FUNDS_FOR_GAS_REGEX =
-  /insufficient funds for gas|insufficient.*gas/gim;
-export const INSUFFICIENT_FUNDS_REGEX = /insufficient (funds|balance)/gim;
+  /insufficient.*(gas|fee|lamports|rent|intrinsic|settlement)/gi;
+export const INSUFFICIENT_FUNDS_REGEX = /insufficient (funds|balance)/gi;
 
 // Error messages
 const INSUFFICIENT_FUNDS_FOR_GAS_ERROR =
-  'Insufficient funds for network fees. Please add more funds and try again';
+  'Insufficient gas for this transfer. Please add more gas and try again';
 const INSUFFICIENT_FUNDS_ERROR =
   'Insufficient funds for this transfer. Please add more funds and try again';
 
