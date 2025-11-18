@@ -88,7 +88,7 @@ const WidgetItem = (props: Props) => {
       },
       container: {
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '456px',
       },
       progressBar: {
         borderRadius: '4px',

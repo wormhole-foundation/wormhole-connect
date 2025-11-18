@@ -70,7 +70,7 @@ function AssetPickerPopover({
         paper: {
           sx: {
             width: '100%',
-            maxWidth: '452px',
+            maxWidth: '488px',
             borderRadius: '8px',
             background: theme.palette.input.background,
             backdropFilter: 'blur(4px)',

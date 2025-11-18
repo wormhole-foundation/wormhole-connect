@@ -18,7 +18,7 @@ const BASE_BUTTON_STYLES: SxProps<Theme> = {
   borderRadius: '48px',
   height: '48px',
   margin: 'auto',
-  maxWidth: '420px',
+  maxWidth: '456px',
   width: '100%',
   boxShadow: 'none',
 } as const;

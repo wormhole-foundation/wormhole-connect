@@ -193,7 +193,7 @@ function AssetPicker(props: Props) {
   const styles = useMemo(
     () => ({
       root: {
-        maxWidth: '452px',
+        maxWidth: '488px',
         background: theme.palette.input.background,
         borderRadius: '8px',
         padding: '16px',
@@ -202,7 +202,7 @@ function AssetPicker(props: Props) {
         display: 'flex',
         flexDirection: 'column',
         height: '114px',
-        maxWidth: '452px',
+        maxWidth: '488px',
       },
       title: {
         color: theme.palette.text.secondary,

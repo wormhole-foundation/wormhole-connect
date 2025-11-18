@@ -26,7 +26,7 @@ const TxHistory = () => {
   const styles = useMemo(
     () => ({
       container: {
-        maxWidth: '420px',
+        maxWidth: '456px',
       },
       containerMobile: {
         display: 'flex',

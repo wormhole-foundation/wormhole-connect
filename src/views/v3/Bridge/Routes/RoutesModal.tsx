@@ -117,7 +117,7 @@ function RoutesDesktop({
           gap: '16px',
           display: 'flex',
           flexDirection: 'column',
-          width: '420px',
+          width: '456px',
           backdropFilter: 'blur(4px)',
           WebkitBackdropFilter: 'blur(4px)', // Safari support
         }}
