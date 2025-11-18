@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 import type { ChainId as LifiChainId } from '@lifi/sdk';
 
 import config from 'config';
@@ -60,6 +61,7 @@ type Props = {
   address: string;
   page?: number;
   pageSize?: number;
+  chains?: Chain[];
 };
 
 const ONE_WEEK = 7 * 24 * 60 * 60; // 1 week per page in seconds
@@ -80,7 +82,7 @@ const useTransactionHistoryLiFi = (
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const { address, page = 0, pageSize = 30 } = props;
+  const { address, page = 0, pageSize = 30, chains } = props;
 
   const resetTransactions = () => {
     setTransactions((current) => (current?.length === 0 ? current : []));
@@ -167,9 +169,23 @@ const useTransactionHistoryLiFi = (
   };
 
   const parseTransactions = useCallback(
-    (allTxs: Array<LiFiTransaction>) =>
-      allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx), // Filter out unsupported transactions
-    [],
+    (allTxs: Array<LiFiTransaction>) => {
+      const parsed = allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx);
+
+      // TODO: ideally filtering should be done at the API level,
+      // but it would require multiple requests for different chains
+      // For now, we just filter on the client. This will result in
+      // fewer results per page when filters are applied.
+      if (chains && chains.length > 0) {
+        return parsed.filter((tx) => {
+          if (!tx) return false;
+          return chains.includes(tx.fromChain) || chains.includes(tx.toChain);
+        });
+      }
+
+      return parsed;
+    },
+    [chains],
   );
 
   useEffect(() => {
@@ -241,9 +257,9 @@ const useTransactionHistoryLiFi = (
           const resData = resPayload?.transfers || resPayload;
 
           if (Array.isArray(resData)) {
-            setTransactions((txs) => {
-              const parsedTxs = parseTransactions(resData);
+            const parsedTxs = parseTransactions(resData);
 
+            setTransactions((txs) => {
               if (txs && txs.length > 0) {
                 // We need to keep track of existing tx hashes to prevent duplicates
                 const existingTxs = new Set<string>();
@@ -263,8 +279,8 @@ const useTransactionHistoryLiFi = (
               return parsedTxs;
             });
 
-            // LiFi returns max 1000 results, if we get less than pageSize, no more data
-            if (resData.length < pageSize) {
+            // LiFi returns max 1000 results, check filtered count not raw response count
+            if (parsedTxs.length < pageSize) {
               setHasMore(false);
             }
           } else {

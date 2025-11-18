@@ -5,6 +5,7 @@ import useTransactionHistoryWHScan from 'hooks/useTransactionHistoryWHScan';
 import useTransactionHistoryMayan from 'hooks/useTransactionHistoryMayan';
 import useTransactionHistoryLiFi from 'hooks/useTransactionHistoryLiFi';
 
+import config from 'config';
 import type { Transaction } from 'config/types';
 import type { RootState } from 'store';
 import { sortByTime } from 'utils/sort';
@@ -48,6 +49,7 @@ const useTransactionHistory = (
     address,
     page: whScanPage,
     pageSize,
+    chains: config.ui.transactionHistoryChains,
   });
 
   const {
@@ -59,6 +61,7 @@ const useTransactionHistory = (
     address,
     page: mayanPage,
     pageSize,
+    chains: config.ui.transactionHistoryChains,
   });
 
   const {
@@ -70,6 +73,7 @@ const useTransactionHistory = (
     address,
     page: lifiPage,
     pageSize,
+    chains: config.ui.transactionHistoryChains,
   });
 
   const appendTxs = useCallback(

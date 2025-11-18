@@ -33,6 +33,7 @@ type Props = {
   address: string;
   page?: number;
   pageSize?: number;
+  chains?: Chain[];
 };
 
 const useTransactionHistoryMayan = (
@@ -50,7 +51,7 @@ const useTransactionHistoryMayan = (
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const { address, page = 0, pageSize = 30 } = props;
+  const { address, page = 0, pageSize = 30, chains } = props;
 
   const parseSingleTx = (tx: MayanTransaction) => {
     const {
@@ -141,9 +142,23 @@ const useTransactionHistoryMayan = (
   };
 
   const parseTransactions = useCallback(
-    (allTxs: Array<MayanTransaction>) =>
-      allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx), // Filter out unsupported transactions
-    [],
+    (allTxs: Array<MayanTransaction>) => {
+      const parsed = allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx);
+
+      // TODO: ideally filtering should be done at the API level,
+      // but the Mayan API does not currently support it.
+      // For now, we just filter on the client. This will result in
+      // fewer results per page when filters are applied.
+      if (chains && chains.length > 0) {
+        return parsed.filter((tx) => {
+          if (!tx) return false;
+          return chains.includes(tx.fromChain) || chains.includes(tx.toChain);
+        });
+      }
+
+      return parsed;
+    },
+    [chains],
   );
 
   useEffect(() => {
@@ -171,9 +186,9 @@ const useTransactionHistoryMayan = (
             const resData = resPayload?.data;
 
             if (resData) {
-              setTransactions((txs) => {
-                const parsedTxs = parseTransactions(resData);
+              const parsedTxs = parseTransactions(resData);
 
+              setTransactions((txs) => {
                 if (txs && txs.length > 0) {
                   // We need to keep track of existing tx hashes to prevent duplicates in the final list
                   const existingTxs = new Set<string>();
@@ -192,10 +207,11 @@ const useTransactionHistoryMayan = (
                 }
                 return parsedTxs;
               });
-            }
 
-            if (resData?.length < limit) {
-              setHasMore(false);
+              // Check filtered results count, not raw API response count
+              if (parsedTxs.length < limit) {
+                setHasMore(false);
+              }
             }
           }
         }
