@@ -38,7 +38,7 @@ const TransactionContent: React.FC<TransactionContentProps> = ({
         gap: '16px',
         alignItems: 'center',
         justifyContent: 'center',
-        width: mobile ? '388px' : '420px',
+        width: mobile ? '388px' : '456px',
       },
     }),
     [mobile],

@@ -152,7 +152,7 @@ describe('interpretTransferError', () => {
       name: 'insufficient funds for gas',
       error: new Error('insufficient funds for gas'),
       expectedMessage:
-        'Insufficient funds for network fees. Please add more funds and try again',
+        'Insufficient gas for this transfer. Please add more gas and try again',
       expectedType: ERR_INSUFFICIENT_GAS,
     },
     {
@@ -226,8 +226,9 @@ describe('interpretTransferError', () => {
       mockTransferDetails,
     );
 
-    expect(message).toContain('Insufficient');
-    expect(message).toContain('for fees');
+    expect(message).toBe(
+      'Insufficient gas for this transfer. Please add more gas and try again',
+    );
     expect(errorObj.type).toBe(ERR_INSUFFICIENT_GAS);
   });
 
@@ -249,7 +250,7 @@ describe('interpretTransferError', () => {
 
     // Should match gas error, not generic funds error
     expect(message).toBe(
-      'Insufficient funds for network fees. Please add more funds and try again',
+      'Insufficient gas for this transfer. Please add more gas and try again',
     );
   });
 });

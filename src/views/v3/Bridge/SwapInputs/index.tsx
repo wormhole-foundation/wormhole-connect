@@ -27,7 +27,7 @@ function SwapInputs() {
         position: 'absolute',
         backgroundColor: theme.palette.input.background,
         border: `2px solid ${theme.palette.input.border}`,
-        borderRadius: '8px',
+        borderRadius: '36px',
         left: 'calc(50% - 18px)',
         top: 'calc(50% - 18px)',
         width: 36,

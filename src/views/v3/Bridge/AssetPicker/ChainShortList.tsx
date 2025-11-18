@@ -39,9 +39,9 @@ function ChainShortList({
         backgroundColor: theme.palette.input.background,
         border: `1px solid ${theme.palette.input.border}`,
         borderRadius: '8px',
-        width: mobile ? '56px' : '71px',
+        width: mobile ? '56px' : '78px',
         minWidth: '56px',
-        maxWidth: '71px',
+        maxWidth: '78px',
         position: 'relative',
         overflow: 'hidden',
         '&.Mui-selected': {
@@ -147,7 +147,7 @@ function ChainShortList({
   );
 
   return (
-    <Box sx={{ maxWidth: '420px' }}>
+    <Box sx={{ maxWidth: '456px' }}>
       {/* First row */}
       <Box
         display="flex"

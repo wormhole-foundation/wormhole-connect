@@ -32,7 +32,7 @@ const BridgeTitle: React.FC<BridgeTitleProps> = ({
   const styles = useMemo(
     () => ({
       titleContent: {
-        maxWidth: mobile ? '420px' : '452px',
+        maxWidth: mobile ? '420px' : '488px',
       },
       bridgeHeader: {
         width: '100%',

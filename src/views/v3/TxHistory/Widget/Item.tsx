@@ -79,7 +79,6 @@ const WidgetItem = (props: Props) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '2px',
       },
       completedIcon: {
         color: theme.palette.success.main,
@@ -88,7 +87,7 @@ const WidgetItem = (props: Props) => {
       },
       container: {
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '456px',
       },
       progressBar: {
         borderRadius: '4px',

@@ -59,10 +59,13 @@ const SingleRoute = (props: Props) => {
       card: {
         border: '2px solid transparent',
         borderRadius: '8px',
-        width: '100%',
-        maxWidth: '412px',
+        width: 'calc(100% - 4px)',
+        maxWidth: '448px',
         '&:hover': {
           backgroundColor: theme.palette.input.background,
+        },
+        [theme.breakpoints.down('sm')]: {
+          maxWidth: '412px',
         },
       },
       cardSelected: {

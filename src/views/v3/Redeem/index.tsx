@@ -105,13 +105,13 @@ function Redeem() {
         backgroundColor: theme.palette.primary.main,
         borderRadius: '8px',
         margin: 'auto',
-        maxWidth: '420px',
+        maxWidth: '456px',
         width: '100%',
       },
       backButton: {
         alignItems: 'center',
         justifyContent: 'center',
-        maxWidth: '420px',
+        maxWidth: '456px',
         width: '100%',
         position: 'relative',
       },
@@ -139,14 +139,14 @@ function Redeem() {
         animationDuration: '1s',
       },
       errorBox: {
-        maxWidth: '420px',
+        maxWidth: '456px',
       },
       txStatusIcon: {
         width: '105px',
         height: '105px',
       },
       delayText: {
-        maxWidth: '420px',
+        maxWidth: '456px',
       },
     }),
     [theme],

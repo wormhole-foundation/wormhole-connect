@@ -28,11 +28,13 @@ const GasSlider = (props: {
   const styles = useMemo(
     () => ({
       content: {
-        width: '100%',
         cursor: 'pointer',
-        maxWidth: '372px',
+        maxWidth: '408px',
         overflow: 'visible',
         padding: '16px 20px',
+        [theme.breakpoints.down('sm')]: {
+          maxWidth: '372px',
+        },
       },
       container: {
         display: 'flex',

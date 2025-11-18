@@ -77,7 +77,7 @@ function Bridge(props: BridgeProps) {
     () => ({
       bridgeContent: {
         margin: 'auto',
-        maxWidth: '452px',
+        maxWidth: '488px',
       },
       doneIcon: {
         fontSize: '14px',
@@ -87,7 +87,7 @@ function Bridge(props: BridgeProps) {
         padding: '8px 16px',
         height: '48px',
         margin: 'auto',
-        maxWidth: '420px',
+        maxWidth: '456px',
         width: '100%',
       },
       copyIcon: {
@@ -103,7 +103,7 @@ function Bridge(props: BridgeProps) {
         padding: '20px 16px',
         display: 'flex',
         flexDirection: 'column',
-        width: '452px',
+        width: '488px',
         gap: '16px',
         backdropFilter: 'blur(4px)',
         WebkitBackdropFilter: 'blur(4px)', // Safari support

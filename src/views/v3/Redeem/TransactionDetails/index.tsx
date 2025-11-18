@@ -36,7 +36,7 @@ const TransactionDetails = () => {
     () => ({
       container: {
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '456px',
         backgroundColor: theme.palette.input.background,
       },
       card: {

@@ -28,7 +28,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         scrollbarWidth: 'thin',
       },
       spacer: {
-        width: mobile ? '388px' : '420px',
+        width: mobile ? '388px' : '456px',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
