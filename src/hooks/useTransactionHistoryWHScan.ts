@@ -449,10 +449,8 @@ const useTransactionHistoryWHScan = (
       setIsFetching(true);
 
       try {
-        // Build the API URL with optional chain filter
         let url = `${config.wormholeApi}api/v1/operations?address=${address}&page=${page}&pageSize=${pageSize}`;
         if (chainIds && chainIds.length > 0) {
-          // Add chain IDs as comma-separated values
           url += `&includesChain=${chainIds.join(',')}`;
         }
 
