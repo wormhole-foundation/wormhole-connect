@@ -79,7 +79,6 @@ const WidgetItem = (props: Props) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '2px',
       },
       completedIcon: {
         color: theme.palette.success.main,

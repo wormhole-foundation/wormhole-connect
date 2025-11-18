@@ -64,7 +64,15 @@ function AssetPickerPopover({
     <Popover
       {...bindPopover(popupState)}
       transitionDuration={200}
-      anchorReference="none"
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
       marginThreshold={4}
       slotProps={{
         paper: {
@@ -80,9 +88,6 @@ function AssetPickerPopover({
         },
         root: {
           sx: {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
             backdropFilter: 'blur(4px)',
             WebkitBackdropFilter: 'blur(4px)', // Safari support
           },
