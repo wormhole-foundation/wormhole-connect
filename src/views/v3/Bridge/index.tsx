@@ -42,7 +42,6 @@ import {
   clearDestToken,
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
-import { OPACITY } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { TransferWallet } from 'utils/wallet';
 import { getFilteredChains } from 'utils/sdkv2';
@@ -55,6 +54,7 @@ import BridgeTitle from 'views/v3/Bridge/BridgeTitle';
 import AmountValidationError from './AmountValidationError';
 import TxHistory from '../TxHistory';
 import { setToNativeToken } from 'store/relay';
+import { FormContent } from 'components/v3/FormContent';
 
 export type BridgeProps = {
   showHistory?: boolean;
@@ -96,29 +96,8 @@ function Bridge(props: BridgeProps) {
       ctaContainer: {
         width: '100%',
       },
-      formContent: {
-        backgroundColor: theme.palette.formContainer.background + OPACITY[25],
-        border: `1px solid ${theme.palette.formContainer.border + OPACITY[25]}`,
-        borderRadius: '8px',
-        padding: '20px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-        width: '488px',
-        gap: '16px',
-        backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)', // Safari support
-      },
-      formContentMobile: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-      },
     }),
-    [
-      theme.palette.formContainer.background,
-      theme.palette.formContainer.border,
-      theme.palette.success.main,
-    ],
+    [theme.palette.success.main],
   );
 
   // Connected wallets, if any
@@ -601,13 +580,7 @@ function Bridge(props: BridgeProps) {
 
   return (
     <Box sx={{ ...styles.bridgeContent }}>
-      <Box
-        sx={
-          mobile ? { ...styles.formContentMobile } : { ...styles.formContent }
-        }
-      >
-        {bridgeContent}
-      </Box>
+      <FormContent>{bridgeContent}</FormContent>
       {!showHistory && (
         <Box sx={{ marginTop: '12px', width: '100%' }}>
           {showRoutes && (
