@@ -45,6 +45,7 @@ const defaultDeadlines: {
   Aptos: 50,
   Unichain: 96,
   Sui: 40,
+  Monad: 96,
 };
 
 // return the default deadline for a given chain in seconds
@@ -54,7 +55,7 @@ export function getDefaultDeadline(chain: Chain): number {
   return 60 * 60;
 }
 
-const chainNameMap = {
+const chainNameMap: Partial<Record<Chain, MayanChainName>> = {
   Solana: 'solana',
   Ethereum: 'ethereum',
   Bsc: 'bsc',
@@ -69,7 +70,8 @@ const chainNameMap = {
   HyperEVM: 'hyperevm',
   HyperCore: 'hypercore',
   Linea: 'linea',
-} as Record<Chain, MayanChainName>;
+  Monad: 'monad',
+};
 
 // Mapping of Wormhole chains to testnet Mayan chain names
 // Only Solana, Ethereum, Base, Sui, and Monad are supported on testnet

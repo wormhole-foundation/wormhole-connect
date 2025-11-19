@@ -872,7 +872,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
               undefined,
               undefined,
             )
-          : getSwapFromEvmTxPayload(
+          : await getSwapFromEvmTxPayload(
               quoteDetails,
               originAddress,
               destinationAddress,
