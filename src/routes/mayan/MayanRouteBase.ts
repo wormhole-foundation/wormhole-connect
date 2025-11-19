@@ -976,8 +976,8 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
         throw new Error('Transfer must have been initiated');
       }
 
-      // sleep for 1 second so we dont spam the endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // sleep for 3 seconds so we don't spam the endpoint
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       leftover -= Date.now() - start;
     }
 

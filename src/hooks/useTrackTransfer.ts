@@ -134,7 +134,7 @@ const useTrackTransfer = (props: Props): ReturnProps => {
         if (eta !== undefined && route.AUTOMATIC_DEPOSIT) {
           const msRemaining = millisUntilEta(eta);
           if (msRemaining < 10_000) {
-            sleepTime = 1_000;
+            sleepTime = 3_000;
           }
         }
 
