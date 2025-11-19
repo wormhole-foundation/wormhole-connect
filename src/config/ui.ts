@@ -63,6 +63,12 @@ export type UiConfig = {
 
   // Filter transaction history by specific chains
   transactionHistoryChains?: Chain[];
+
+  // When enabled disables the source token picker button
+  disableSourceTokenPicker?: boolean;
+
+  // When enabled disables the destination token picker button
+  disableDestinationTokenPicker?: boolean;
 };
 
 export type TestOptions = {

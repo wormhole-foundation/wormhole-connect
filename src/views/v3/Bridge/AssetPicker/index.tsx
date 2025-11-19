@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, TextField, Tooltip, useMediaQuery } from '@mui/material';
+import { Box, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
@@ -16,7 +14,6 @@ import type { RootState } from 'store';
 import type { WalletData } from 'store/wallet';
 import { isDisabledChain, setAmount } from 'store/transferInput';
 import type { Balances } from 'utils/wallet/types';
-import AssetBadge from 'components/AssetBadge';
 import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
 import { useTokenList } from 'hooks/useTokenList';
@@ -36,6 +33,7 @@ import {
 import FeeOffset from './FeeOffset';
 import { calculateFeeOffset } from 'utils/fees';
 import { useGetTokens } from 'hooks/useGetTokens';
+import TokenPickerButton from './TokenPickerButton';
 
 type Props = {
   chain?: Chain | undefined;
@@ -163,32 +161,7 @@ function AssetPicker(props: Props) {
     return props.chain ? config.chains[props.chain] : undefined;
   }, [props.chain]);
 
-  const selection = useMemo(() => {
-    return (
-      <Tooltip
-        title={
-          props.token
-            ? getTokenDisplaySymbolByTokenAddress(props.token)
-            : 'Select a token'
-        }
-      >
-        <Typography
-          component="div"
-          fontSize="16px"
-          fontWeight={500}
-          maxWidth="64px"
-          noWrap
-        >
-          {props.token
-            ? getTokenDisplaySymbolByTokenAddress(props.token)
-            : 'Select'}
-        </Typography>
-      </Tooltip>
-    );
-  }, [props.token]);
-
-  const triggerProps =
-    props.isTransactionInProgress || mobile ? {} : bindTrigger(popupState);
+  const triggerProps = bindTrigger(popupState);
 
   const styles = useMemo(
     () => ({
@@ -211,42 +184,6 @@ function AssetPicker(props: Props) {
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: '16px',
-      },
-      selector: {
-        cursor: 'pointer',
-        borderRadius: '48px',
-        border: `1px solid ${theme.palette.input.border}`,
-        background: theme.palette.input.background,
-        minWidth: '120px',
-        height: '48px',
-        '&:hover': {
-          borderColor: theme.palette.primary.main,
-        },
-      },
-      cardContent: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingLeft: '8px',
-        paddingRight: '12px',
-        paddingTop: '6px',
-        paddingBottom: '6px',
-        ':last-child': {
-          paddingLeft: '8px',
-          paddingRight: '12px',
-          paddingTop: '6px',
-          paddingBottom: '6px',
-        },
-      },
-      chainSelector: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      },
-      disabled: {
-        opacity: '0.6',
-        cursor: 'default',
-        pointerEvents: 'none',
       },
       percentButton: {
         borderRadius: '50px',
@@ -349,6 +286,10 @@ function AssetPicker(props: Props) {
     },
     [handleAmountChange, handleDebouncedAmountChange, props],
   );
+
+  const openDrawer = useCallback(() => {
+    setIsDrawerOpen(true);
+  }, []);
 
   // Clear the amount input value if the amount is reset outside of this component
   // This can happen if user swaps selected source and destination assets.
@@ -548,44 +489,15 @@ function AssetPicker(props: Props) {
             marginBottom: props.isSource ? 0 : '16px',
           }}
         >
-          <Card
-            sx={[
-              styles.selector,
-              props.isTransactionInProgress && styles.disabled,
-            ]}
-            data-testid={props.dataTestId}
-            role="button"
-            aria-label={
-              props.isSource
-                ? 'Select source asset'
-                : 'Select destination asset'
-            }
-            variant="elevation"
-            onMouseDown={(e) => {
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (mobile) {
-                setIsDrawerOpen(true);
-              } else {
-                popupState.open(e);
-              }
-            }}
-            {...triggerProps}
-          >
-            <CardContent sx={styles.cardContent}>
-              <Typography sx={styles.chainSelector} component={'div'} gap={1}>
-                <AssetBadge chainConfig={chainConfig} token={props.token} />
-                {selection}
-              </Typography>
-            </CardContent>
-          </Card>
+          <TokenPickerButton
+            isTransactionInProgress={props.isTransactionInProgress}
+            isSource={props.isSource}
+            dataTestId={props.dataTestId}
+            triggerProps={triggerProps}
+            chainConfig={chainConfig}
+            token={props.token}
+            openDrawer={openDrawer}
+          />
           {props.isSource ? (
             <AmountInput
               value={amountInput}
