@@ -172,10 +172,9 @@ const useTransactionHistoryLiFi = (
     (allTxs: Array<LiFiTransaction>) => {
       const parsed = allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx);
 
-      // TODO: ideally filtering should be done at the API level,
-      // but it would require multiple requests for different chains
-      // For now, we just filter on the client. This will result in
-      // fewer results per page when filters are applied.
+      // NOTE: Ideally, filtering would be done at the API level,
+      // but the LiFi API does not make this easy when multiple chains are involved.
+      // For simplicity, we filter on the client side here.
       if (chains && chains.length > 0) {
         return parsed.filter((tx) => {
           if (!tx) return false;
@@ -257,9 +256,9 @@ const useTransactionHistoryLiFi = (
           const resData = resPayload?.transfers || resPayload;
 
           if (Array.isArray(resData)) {
-            const parsedTxs = parseTransactions(resData);
-
             setTransactions((txs) => {
+              const parsedTxs = parseTransactions(resData);
+
               if (txs && txs.length > 0) {
                 // We need to keep track of existing tx hashes to prevent duplicates
                 const existingTxs = new Set<string>();
@@ -279,8 +278,8 @@ const useTransactionHistoryLiFi = (
               return parsedTxs;
             });
 
-            // LiFi returns max 1000 results, check filtered count not raw response count
-            if (parsedTxs.length < pageSize) {
+            // LiFi returns max 1000 results, if we get less than pageSize, no more data
+            if (resData.length < pageSize) {
               setHasMore(false);
             }
           } else {

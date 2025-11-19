@@ -145,10 +145,8 @@ const useTransactionHistoryMayan = (
     (allTxs: Array<MayanTransaction>) => {
       const parsed = allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx);
 
-      // TODO: ideally filtering should be done at the API level,
-      // but the Mayan API does not currently support it.
-      // For now, we just filter on the client. This will result in
-      // fewer results per page when filters are applied.
+      // NOTE: The Mayan API doesn't appear to support filtering by multiple chains,
+      // so we filter client-side here.
       if (chains && chains.length > 0) {
         return parsed.filter((tx) => {
           if (!tx) return false;
@@ -186,9 +184,9 @@ const useTransactionHistoryMayan = (
             const resData = resPayload?.data;
 
             if (resData) {
-              const parsedTxs = parseTransactions(resData);
-
               setTransactions((txs) => {
+                const parsedTxs = parseTransactions(resData);
+
                 if (txs && txs.length > 0) {
                   // We need to keep track of existing tx hashes to prevent duplicates in the final list
                   const existingTxs = new Set<string>();
@@ -207,11 +205,10 @@ const useTransactionHistoryMayan = (
                 }
                 return parsedTxs;
               });
+            }
 
-              // Check filtered results count, not raw API response count
-              if (parsedTxs.length < limit) {
-                setHasMore(false);
-              }
+            if (resData?.length < limit) {
+              setHasMore(false);
             }
           }
         }
