@@ -18,8 +18,8 @@ vi.mock('utils', () => ({
 vi.mock('config', () => ({
   default: {
     ui: {
-      disableSourceAssetSelector: false,
-      disableDestinationAssetSelector: false,
+      disableSourceTokenPicker: false,
+      disableDestinationTokenPicker: false,
     },
   },
 }));

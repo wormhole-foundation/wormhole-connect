@@ -32,8 +32,8 @@ function TokenPickerButton({
   triggerProps,
 }: TokenPickerButtonProps) {
   const isEnabled = isSource
-    ? !config.ui.disableSourceAssetSelector
-    : !config.ui.disableDestinationAssetSelector;
+    ? !config.ui.disableSourceTokenPicker
+    : !config.ui.disableDestinationTokenPicker;
 
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
