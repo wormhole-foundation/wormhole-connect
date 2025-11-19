@@ -14,6 +14,9 @@ const ConfigurablePageHeader = () => {
       ? { ...defaults, text: config.ui.pageHeader }
       : { ...defaults, ...config.ui.pageHeader };
 
+  if (!headerConfig.text) {
+    return null;
+  }
   return <PageHeader title={headerConfig.text} align={headerConfig.align} />;
 };
 

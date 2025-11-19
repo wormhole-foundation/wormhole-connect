@@ -131,6 +131,7 @@ function PoweredByIcon(props: { color: string }) {
       maxWidth: '100%',
       flexWrap: 'wrap' as const,
       gap: '20px 4px',
+      mt: '12px',
     },
   };
   return (

@@ -5,7 +5,6 @@ import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -58,6 +57,9 @@ import { tokenIdFromTuple } from 'config/tokens';
 import { clearRedeem } from 'store/redeem';
 import { setSearch } from 'store/search';
 import { getTokenDisplaySymbolByTokenAddress } from 'utils';
+import Header from 'components/Header';
+import { FormContent } from 'components/v3/FormContent';
+import DownIcon from 'icons/Down';
 
 function Redeem() {
   const dispatch = useDispatch();
@@ -107,13 +109,6 @@ function Redeem() {
         margin: 'auto',
         maxWidth: '456px',
         width: '100%',
-      },
-      backButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        maxWidth: '456px',
-        width: '100%',
-        position: 'relative',
       },
       claimButton: {
         backgroundColor: theme.palette.warning.light,
@@ -397,20 +392,11 @@ function Redeem() {
       statusText = `Ready to claim on ${toChain}`;
     }
 
-    return (
-      <Typography
-        data-testid="redeem-view-status-header"
-        fontSize="24px"
-        fontWeight={600}
-      >
-        {statusText}
-      </Typography>
-    );
+    return statusText;
   }, [
     isTxCompleted,
     isTxRefunded,
     isRelayFailed,
-    routeName,
     isTxFailed,
     isTxDestQueued,
     isTxAttested,
@@ -952,48 +938,47 @@ function Redeem() {
       sx={{ ...styles.container, ...styles.spacer }}
       data-testid="redeem-view"
     >
-      <ConfigurablePageHeader />
-      <Stack sx={styles.backButton}>
-        <IconButton
-          sx={{
-            border: '1px solid ' + theme.palette.input.border,
-            color: theme.palette.text.primary,
-            height: '32px',
-            width: '32px',
-            fontSize: '16px',
-            position: 'absolute',
-            left: 0,
-            '&:hover': {
-              backgroundColor: theme.palette.formContainer.background,
-            },
-          }}
-          onClick={() => dispatch(setRoute('bridge'))}
-        >
-          <ArrowBackRoundedIcon fontSize="inherit" />
-        </IconButton>
-        {statusHeader}
-      </Stack>
+      <FormContent>
+        <ConfigurablePageHeader />
+        <Box display="flex" alignItems="center">
+          <IconButton
+            onClick={() => dispatch(setRoute('bridge'))}
+            sx={{ mr: 1 }}
+          >
+            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
+          </IconButton>
+          <Header
+            align="left"
+            text={statusHeader}
+            size={24}
+            weight={600}
+            data-testid="redeem-view-status-header"
+          />
+        </Box>
 
-      <Box
-        sx={{
-          position: 'relative',
-          display: 'inline-flex',
-          alignItems: 'center',
-          marginBottom: '24px',
-          height: '140px',
-        }}
-      >
-        {etaCircle}
-      </Box>
-      <TransactionDetails />
-      {actionButton}
-      {txDelayedText}
-      {claimError && (
-        <AlertBannerV3 error sx={styles.errorBox}>
-          {claimError}
-        </AlertBannerV3>
+        <Box
+          sx={{
+            position: 'relative',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '140px',
+          }}
+        >
+          {etaCircle}
+        </Box>
+        <TransactionDetails />
+        {actionButton}
+        {txDelayedText}
+        {claimError && (
+          <AlertBannerV3 error sx={styles.errorBox}>
+            {claimError}
+          </AlertBannerV3>
+        )}
+      </FormContent>
+      {config.ui.showFooter && (
+        <PoweredByIcon color={theme.palette.text.primary} />
       )}
-      <PoweredByIcon color={theme.palette.text.primary} />
       <WalletPicker
         open={isWalletSidebarOpen}
         walletType={TransferWallet.RECEIVING}

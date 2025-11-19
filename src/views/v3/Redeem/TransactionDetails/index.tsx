@@ -38,6 +38,7 @@ const TransactionDetails = () => {
         width: '100%',
         maxWidth: '456px',
         backgroundColor: theme.palette.input.background,
+        borderRadius: '8px',
       },
       card: {
         width: '100%',

@@ -12,6 +12,8 @@ import {
   CircularProgress,
   useTheme,
   Box,
+  Typography,
+  IconButton,
 } from '@mui/material';
 
 import config, { getWormholeContextV2 } from 'config';
@@ -21,11 +23,9 @@ import {
   setIsResumeTx,
   setTxDetails,
 } from 'store/redeem';
-import { setRoute as setAppRoute } from 'store/router';
-import PageHeader from 'components/PageHeader';
+import { setRoute as setAppRoute, setRoute } from 'store/router';
 import Search from 'components/Search';
 import Button from 'components/Button';
-import Spacer from 'components/Spacer';
 import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
@@ -38,6 +38,9 @@ import ChainIconComponent from 'icons/ChainIcons';
 import type { RootState } from 'store';
 import { clearSearch } from 'store/search';
 import { useTokens } from 'contexts/TokensContext';
+import { FormContent } from 'components/v3/FormContent';
+import Header from 'components/Header';
+import DownIcon from 'icons/Down';
 
 const EMPTY = '';
 
@@ -161,38 +164,43 @@ function TxSearch() {
     });
   }, [config.chainsArr]);
 
+  function goBack() {
+    dispatch(setRoute('history'));
+  }
+
   return (
     <Box
       sx={(theme) => ({
         maxWidth: '650px',
       })}
     >
-      <PageHeader
-        title="Resume transaction"
-        description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
-        back
-      />
+      <FormContent>
+        <Box display="flex" alignItems="center">
+          <IconButton onClick={goBack} sx={{ mr: 1 }}>
+            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
+          </IconButton>
+          <Header
+            align="left"
+            text={'Resume transaction'}
+            size={24}
+            weight={600}
+          />
+        </Box>
+        <Typography variant="subtitle2">
+          Bridging can require a manual redemption process on the designation
+          chain. If you did not complete the redemption during your initial
+          transaction, you may do so here.
+        </Typography>
 
-      <Box
-        sx={(theme) => ({
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '16px',
-          [theme.breakpoints.down('sm')]: {
-            flexDirection: 'column',
-          },
-        })}
-      >
         <Box
           sx={(theme) => ({
-            width: '175px',
-            [theme.breakpoints.down('sm')]: {
-              width: '100%',
-            },
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
           })}
         >
           <Select
-            sx={{ width: '100%', height: '100%', minHeight: '64.5px' }}
+            fullWidth
             value={state.chain}
             displayEmpty
             onChange={(e) => setChain(e)}
@@ -213,12 +221,6 @@ function TxSearch() {
               );
             })}
           </Select>
-        </Box>
-        <Box
-          sx={{
-            flexGrow: 1,
-          }}
-        >
           <Search
             placeholder="Source chain transaction hash"
             onChange={setTx}
@@ -226,38 +228,23 @@ function TxSearch() {
             value={state.tx}
           />
         </Box>
-      </Box>
 
-      <Spacer />
+        <AlertBanner show={!!error} content={error} error margin="0 0 0 0" />
 
-      <AlertBanner show={!!error} content={error} error margin="0 0 16px 0" />
-
-      <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
-        {loading ? (
-          <CircularProgress
-            size={24}
-            sx={{
-              color: theme.palette.primary.contrastText,
-            }}
-          />
-        ) : (
-          'Search'
-        )}
-      </Button>
-      {config.ui.showFooter && (
-        <Box
-          sx={{
-            width: '100%',
-            maxWidth: '700px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            marginTop: '20px',
-          }}
-        >
-          <FooterNavBar />
-        </Box>
-      )}
+        <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
+          {loading ? (
+            <CircularProgress
+              size={24}
+              sx={{
+                color: theme.palette.primary.contrastText,
+              }}
+            />
+          ) : (
+            'Search'
+          )}
+        </Button>
+      </FormContent>
+      {config.ui.showFooter && <FooterNavBar />}
     </Box>
   );
 }
