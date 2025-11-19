@@ -188,15 +188,32 @@ function WalletPickerContent({
           <ListItemIcon>
             <WalletIcon name={wallet.name} icon={wallet.icon} />
           </ListItemIcon>
-          <Typography component="div" fontSize={14}>
-            <Box sx={!wallet.isReady ? styles.notInstalled : {}}>
-              {!wallet.isReady && 'Install'} {wallet.name}
-            </Box>
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography component="div" fontSize={14}>
+              <Box sx={!wallet.isReady ? styles.notInstalled : {}}>
+                {!wallet.isReady && 'Install'} {wallet.name}
+              </Box>
+            </Typography>
+            {wallet.description && (
+              <Typography
+                component="div"
+                fontSize={12}
+                color={theme.palette.text.secondary}
+                sx={{ marginTop: '2px' }}
+              >
+                {wallet.description}
+              </Typography>
+            )}
+          </Box>
         </ListItemButton>
       ));
     },
-    [styles.listButton, styles.notInstalled, connect],
+    [
+      styles.listButton,
+      styles.notInstalled,
+      connect,
+      theme.palette.text.secondary,
+    ],
   );
 
   if (walletOptionsResult.state === 'loading') {
