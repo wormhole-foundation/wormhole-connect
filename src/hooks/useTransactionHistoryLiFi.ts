@@ -278,8 +278,12 @@ const useTransactionHistoryLiFi = (
               return parsedTxs;
             });
 
-            // LiFi returns max 1000 results, if we get less than pageSize, no more data
-            if (resData.length < pageSize) {
+            // If filtering by chain client-side, disable pagination since we can't
+            // reliably determine if there are more matching transactions
+            if (chains && chains.length > 0) {
+              setHasMore(false);
+            } else if (resData.length < pageSize) {
+              // LiFi returns max 1000 results, if we get less than pageSize, no more data
               setHasMore(false);
             }
           } else {
@@ -316,7 +320,7 @@ const useTransactionHistoryLiFi = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, parseTransactions, hasMore]);
+  }, [address, page, pageSize, chains, parseTransactions, hasMore]);
 
   return {
     transactions,

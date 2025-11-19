@@ -207,7 +207,11 @@ const useTransactionHistoryMayan = (
               });
             }
 
-            if (resData?.length < limit) {
+            // If filtering by chain client-side, disable pagination since we can't
+            // reliably determine if there are more matching transactions
+            if (chains && chains.length > 0) {
+              setHasMore(false);
+            } else if (resData?.length < limit) {
               setHasMore(false);
             }
           }
@@ -227,7 +231,7 @@ const useTransactionHistoryMayan = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, parseTransactions]);
+  }, [address, page, pageSize, chains, parseTransactions]);
 
   return {
     transactions,
