@@ -63,6 +63,12 @@ export type UiConfig = {
 
   // Filter transaction history by specific chains
   transactionHistoryChains?: Chain[];
+
+  // When enabled disables the source asset selector button
+  disableSourceAssetSelector?: boolean;
+
+  // When enabled disables the destination asset selector button
+  disableDestinationAssetSelector?: boolean;
 };
 
 export type TestOptions = {
