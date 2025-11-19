@@ -158,7 +158,7 @@ describe('useTransactionHistoryLiFi', () => {
     expect(tx?.recipient).toBe('0xuser2');
     expect(tx?.fromChain).toBe('Ethereum');
     expect(tx?.toChain).toBe('Polygon');
-    expect(tx?.explorerLink).toBe('https://etherscan.io/tx/0xabc123');
+    expect(tx?.explorerLink).toBe('https://scan.li.fi/tx/0xabc123');
     expect(tx?.inProgress).toBe(false);
   });
 

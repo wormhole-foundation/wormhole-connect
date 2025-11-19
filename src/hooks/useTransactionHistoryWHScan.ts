@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   amount as sdkAmount,
   chainIdToChain,
+  chainToChainId,
   toNative,
   Wormhole,
 } from '@wormhole-foundation/sdk';
@@ -101,6 +102,7 @@ type Props = {
   address: string;
   page?: number;
   pageSize?: number;
+  chains?: Chain[];
 };
 
 // Number of decimals from WHScan API results are fixed to 8
@@ -122,7 +124,12 @@ const useTransactionHistoryWHScan = (
   const [hasMore, setHasMore] = useState(true);
   const { getOrFetchToken } = useTokens();
 
-  const { address, page = 0, pageSize = 30 } = props;
+  const { address, page = 0, pageSize = 30, chains } = props;
+
+  const chainIds = useMemo(() => {
+    if (!chains || chains.length === 0) return undefined;
+    return chains.map((chain) => chainToChainId(chain));
+  }, [chains]);
 
   // Common parsing logic for a single transaction from WHScan API.
   // IMPORTANT: Anything specific to a route, please use that route's parser:
@@ -442,10 +449,12 @@ const useTransactionHistoryWHScan = (
       setIsFetching(true);
 
       try {
-        const res = await fetch(
-          `${config.wormholeApi}api/v1/operations?address=${address}&page=${page}&pageSize=${pageSize}`,
-          { headers },
-        );
+        let url = `${config.wormholeApi}api/v1/operations?address=${address}&page=${page}&pageSize=${pageSize}`;
+        if (chainIds && chainIds.length > 0) {
+          url += `&includesChain=${chainIds.join(',')}`;
+        }
+
+        const res = await fetch(url, { headers });
 
         // If the fetch was unsuccessful, return an empty set
         if (res.status !== 200) {
@@ -502,7 +511,7 @@ const useTransactionHistoryWHScan = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, parseTransactions]);
+  }, [address, page, pageSize, parseTransactions, chainIds]);
 
   return {
     transactions,

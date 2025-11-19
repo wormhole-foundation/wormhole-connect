@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import type { Chain } from '@wormhole-foundation/sdk';
 import type { ChainId as LifiChainId } from '@lifi/sdk';
 
 import config from 'config';
@@ -60,6 +61,7 @@ type Props = {
   address: string;
   page?: number;
   pageSize?: number;
+  chains?: Chain[];
 };
 
 const ONE_WEEK = 7 * 24 * 60 * 60; // 1 week per page in seconds
@@ -80,7 +82,7 @@ const useTransactionHistoryLiFi = (
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const { address, page = 0, pageSize = 30 } = props;
+  const { address, page = 0, pageSize = 30, chains } = props;
 
   const resetTransactions = () => {
     setTransactions((current) => (current?.length === 0 ? current : []));
@@ -159,7 +161,7 @@ const useTransactionHistoryLiFi = (
       toToken,
       senderTimestamp: senderTime.toISOString(),
       receiverTimestamp: receiverTime?.toISOString(),
-      explorerLink: sending.txLink,
+      explorerLink: `https://scan.li.fi/tx/${sending.txHash}`,
       inProgress: status === 'PENDING',
     };
 
@@ -167,9 +169,22 @@ const useTransactionHistoryLiFi = (
   };
 
   const parseTransactions = useCallback(
-    (allTxs: Array<LiFiTransaction>) =>
-      allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx), // Filter out unsupported transactions
-    [],
+    (allTxs: Array<LiFiTransaction>) => {
+      const parsed = allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx);
+
+      // NOTE: Ideally, filtering would be done at the API level,
+      // but the LiFi API does not make this easy when multiple chains are involved.
+      // For simplicity, we filter on the client side here.
+      if (chains && chains.length > 0) {
+        return parsed.filter((tx) => {
+          if (!tx) return false;
+          return chains.includes(tx.fromChain) || chains.includes(tx.toChain);
+        });
+      }
+
+      return parsed;
+    },
+    [chains],
   );
 
   useEffect(() => {
@@ -263,8 +278,12 @@ const useTransactionHistoryLiFi = (
               return parsedTxs;
             });
 
-            // LiFi returns max 1000 results, if we get less than pageSize, no more data
-            if (resData.length < pageSize) {
+            // If filtering by chain client-side, disable pagination since we can't
+            // reliably determine if there are more matching transactions
+            if (chains && chains.length > 0) {
+              setHasMore(false);
+            } else if (resData.length < pageSize) {
+              // LiFi returns max 1000 results, if we get less than pageSize, no more data
               setHasMore(false);
             }
           } else {
@@ -301,7 +320,7 @@ const useTransactionHistoryLiFi = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, parseTransactions, hasMore]);
+  }, [address, page, pageSize, chains, parseTransactions, hasMore]);
 
   return {
     transactions,

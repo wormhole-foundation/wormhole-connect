@@ -33,6 +33,7 @@ type Props = {
   address: string;
   page?: number;
   pageSize?: number;
+  chains?: Chain[];
 };
 
 const useTransactionHistoryMayan = (
@@ -50,7 +51,7 @@ const useTransactionHistoryMayan = (
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const { address, page = 0, pageSize = 30 } = props;
+  const { address, page = 0, pageSize = 30, chains } = props;
 
   const parseSingleTx = (tx: MayanTransaction) => {
     const {
@@ -141,9 +142,21 @@ const useTransactionHistoryMayan = (
   };
 
   const parseTransactions = useCallback(
-    (allTxs: Array<MayanTransaction>) =>
-      allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx), // Filter out unsupported transactions
-    [],
+    (allTxs: Array<MayanTransaction>) => {
+      const parsed = allTxs.map((tx) => parseSingleTx(tx)).filter((tx) => !!tx);
+
+      // NOTE: The Mayan API doesn't appear to support filtering by multiple chains,
+      // so we filter client-side here.
+      if (chains && chains.length > 0) {
+        return parsed.filter((tx) => {
+          if (!tx) return false;
+          return chains.includes(tx.fromChain) || chains.includes(tx.toChain);
+        });
+      }
+
+      return parsed;
+    },
+    [chains],
   );
 
   useEffect(() => {
@@ -194,7 +207,11 @@ const useTransactionHistoryMayan = (
               });
             }
 
-            if (resData?.length < limit) {
+            // If filtering by chain client-side, disable pagination since we can't
+            // reliably determine if there are more matching transactions
+            if (chains && chains.length > 0) {
+              setHasMore(false);
+            } else if (resData?.length < limit) {
               setHasMore(false);
             }
           }
@@ -214,7 +231,7 @@ const useTransactionHistoryMayan = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, parseTransactions]);
+  }, [address, page, pageSize, chains, parseTransactions]);
 
   return {
     transactions,

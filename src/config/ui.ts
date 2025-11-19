@@ -60,6 +60,9 @@ export type UiConfig = {
 
   // When enabled hides the disconnect wallet option for desitnation wallets
   hideDestinationDisconnectWallet?: boolean;
+
+  // Filter transaction history by specific chains
+  transactionHistoryChains?: Chain[];
 };
 
 export type TestOptions = {
