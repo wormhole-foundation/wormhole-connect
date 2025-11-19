@@ -301,6 +301,16 @@ const useTransactionHistoryWHScan = (
     [parseSingleTx],
   );
 
+  // Parser for Multi Token NTT transactions (appId === MTT)
+  // IMPORTANT: This is where we can add any customizations specific to Multi Token NTT data
+  // that we have retrieved from WHScan API
+  const parseMTTTx = useCallback(
+    (tx: WormholeScanTransaction) => {
+      return parseSingleTx(tx);
+    },
+    [parseSingleTx],
+  );
+
   // Parser for CCTP transactions (appId === CCTP_WORMHOLE_INTEGRATION)
   // IMPORTANT: This is where we can add any customizations specific to CCTP data
   // that we have retrieved from WHScan API
@@ -387,6 +397,7 @@ const useTransactionHistoryWHScan = (
       PORTAL_TOKEN_BRIDGE: parseTokenBridgeTx,
       GENERIC_RELAYER: parseGenericRelayer,
       NATIVE_TOKEN_TRANSFER: parseNTTTx,
+      MTT: parseMTTTx,
       CCTP_WORMHOLE_INTEGRATION: parseCCTPTx,
       ETH_BRIDGE: parsePorticoTx,
       USDT_BRIDGE: parsePorticoTx,
@@ -396,6 +407,7 @@ const useTransactionHistoryWHScan = (
     [
       parseCCTPTx,
       parseNTTTx,
+      parseMTTTx,
       parsePorticoTx,
       parseTokenBridgeTx,
       parseLLTx,
