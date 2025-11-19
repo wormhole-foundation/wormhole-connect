@@ -66,7 +66,7 @@ const AppRouterContent = () => {
         justifyContent: 'center',
         fontFamily: theme.typography.fontFamily,
         [theme.breakpoints.down('sm')]: {
-          margin: '0 auto',
+          margin: '16px auto',
         },
       }}
     >

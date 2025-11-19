@@ -1,4 +1,4 @@
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import React, { type JSX, useMemo } from 'react';
 import { OPACITY } from 'utils/style';
 
@@ -8,7 +8,6 @@ export function FormContent({
   children: null | JSX.Element | (JSX.Element | string | null)[];
 }) {
   const theme: any = useTheme();
-  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const styles = useMemo(
     () => ({
       formContent: {
@@ -22,23 +21,17 @@ export function FormContent({
         gap: '16px',
         backdropFilter: 'blur(4px)',
         WebkitBackdropFilter: 'blur(4px)', // Safari support
-      },
-      formContentMobile: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
+        [theme.breakpoints.down('sm')]: {
+          padding: '8px 4px',
+          width: 'auto',
+        },
       },
     }),
     [
       theme.palette.formContainer.background,
       theme.palette.formContainer.border,
+      theme.breakpoints,
     ],
   );
-  return (
-    <Box
-      sx={mobile ? { ...styles.formContentMobile } : { ...styles.formContent }}
-    >
-      {children}
-    </Box>
-  );
+  return <Box sx={styles.formContent}>{children}</Box>;
 }

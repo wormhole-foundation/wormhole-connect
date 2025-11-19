@@ -5,11 +5,12 @@ import config from 'config';
 import { setRoute } from 'store/router';
 import { useDispatch } from 'react-redux';
 import { FormContent } from 'components/v3/FormContent';
-import { IconButton } from '@mui/material';
+import { IconButton, useTheme } from '@mui/material';
 import DownIcon from 'icons/Down';
 import Header from 'components/Header';
 
 function Terms() {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const termsUrl = config.ui.termsOfServiceUrl || 'https://portalbridge.com';
 
@@ -36,6 +37,11 @@ function Terms() {
       px: '8px',
       margin: '0px -16px -20px',
       overflowY: 'auto',
+      // this should match FormContent
+      [theme.breakpoints.down('sm')]: {
+        margin: '0px -4px -8px',
+        width: 'auto',
+      },
     },
   };
   return (
