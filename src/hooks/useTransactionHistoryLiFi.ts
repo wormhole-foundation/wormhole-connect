@@ -161,7 +161,7 @@ const useTransactionHistoryLiFi = (
       toToken,
       senderTimestamp: senderTime.toISOString(),
       receiverTimestamp: receiverTime?.toISOString(),
-      explorerLink: sending.txLink,
+      explorerLink: `https://scan.li.fi/tx/${sending.txHash}`,
       inProgress: status === 'PENDING',
     };
 
