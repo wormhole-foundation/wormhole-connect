@@ -8,6 +8,7 @@ type Props = {
   align?: Alignment;
   size?: number;
   weight?: number;
+  'data-testid'?: string;
 };
 
 function Header(props: Props) {
@@ -27,7 +28,11 @@ function Header(props: Props) {
     [theme, props.align, props.size, props.weight],
   );
 
-  return <Box sx={titleStyle}>{props.text}</Box>;
+  return (
+    <Box sx={titleStyle} data-testid={props['data-testid']}>
+      {props.text}
+    </Box>
+  );
 }
 
 export default Header;

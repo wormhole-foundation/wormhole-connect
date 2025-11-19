@@ -947,7 +947,13 @@ function Redeem() {
           >
             <DownIcon sx={{ transform: 'rotate(90deg)' }} />
           </IconButton>
-          <Header align="left" text={statusHeader} size={24} weight={600} />
+          <Header
+            align="left"
+            text={statusHeader}
+            size={24}
+            weight={600}
+            data-testid="redeem-view-status-header"
+          />
         </Box>
 
         <Box
