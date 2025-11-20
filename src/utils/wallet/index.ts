@@ -101,6 +101,7 @@ export type WalletData = {
   icon: string;
   isReady: boolean;
   wallet: Wallet;
+  description?: string;
 };
 
 const mapWallets = (
@@ -114,13 +115,23 @@ const mapWallets = (
         index === self.findIndex((o) => o.getName() === wallet.getName()),
     )
     .filter((wallet) => !skip.includes(wallet.getName()))
-    .map((wallet) => ({
-      wallet,
-      type,
-      name: wallet.getName(),
-      icon: wallet.getIcon(),
-      isReady: getReady(wallet),
-    }));
+    .map((wallet) => {
+      const name = wallet.getName();
+      // Inject a description for WalletConnect to inform users about multi-wallet support
+      const description =
+        name === 'WalletConnect'
+          ? 'Supports Uniswap wallet and 100+ more.'
+          : undefined;
+
+      return {
+        wallet,
+        type,
+        name,
+        icon: wallet.getIcon(),
+        isReady: getReady(wallet),
+        description,
+      };
+    });
 };
 
 // Utility to detect if Nightly is the active injected provider
