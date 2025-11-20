@@ -149,4 +149,25 @@ describe('isFrankensteinToken', () => {
       expect(isFrankensteinToken(wrappedOnEthereum, 'Ethereum')).toBe(true);
     });
   });
+
+  describe('WMON on Solana', () => {
+    it('should return true for WMON token on Solana (WTT WMON)', () => {
+      const MON = new Token({
+        chain: 'Monad',
+        address: 'native',
+        decimals: 18,
+        symbol: 'MON',
+      });
+
+      const WMONSolana = new Token({
+        chain: 'Solana',
+        address: 'AXSTN3GQHS4Mc7GDZwWmfp8H8qUVqyx3Ck5rPRT9g7RM',
+        decimals: 8,
+        symbol: 'WMON',
+        tokenBridgeOriginalTokenId: MON.tokenId,
+      });
+
+      expect(isFrankensteinToken(WMONSolana, 'Solana')).toBe(true);
+    });
+  });
 });
