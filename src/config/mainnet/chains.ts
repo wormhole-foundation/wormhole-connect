@@ -252,8 +252,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
   Monad: {
     displayName: 'Monad',
     sdkName: 'Monad',
-    explorerUrl: 'https://monadexplorer.com/',
-    explorerName: 'Monad Explorer',
+    explorerUrl: 'https://monadvision.com/',
+    explorerName: 'MonadVision',
     icon: 'Monad',
     symbol: 'MON',
   },
