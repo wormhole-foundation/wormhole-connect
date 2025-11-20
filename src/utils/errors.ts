@@ -92,7 +92,7 @@ export function interpretTransferError(
       transferDetails.route.includes('CCTP') &&
       /burn.*exceed/i.test(e?.toString())
     ) {
-      // As of this code being written the CCTP limit is 1,000,000 USDC in a single transfer
+      // As of this code being written the CCTP limit is 10,000,000 USDC in a single transfer
       // It's possible Circle could change this in the future and we're not reading the limit
       // from their contracts dynamically for now so we assume it's 1M and tell users that if
       // their amount exceeded 1M
@@ -100,7 +100,7 @@ export function interpretTransferError(
       const { amount } = transferDetails;
       const limitString =
         amount !== undefined && sdkAmount.whole(amount) > assumedCircleLimit
-          ? ` of 1,000,000`
+          ? ` of 10,000,000`
           : '';
       uiErrorMessage = `Amount exceeds Circle limit${limitString}. Please reduce transfer amount.`;
       internalErrorCode = ERR_AMOUNT_TOO_LARGE;
