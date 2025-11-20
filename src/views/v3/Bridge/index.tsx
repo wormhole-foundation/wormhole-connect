@@ -8,6 +8,7 @@ import React, {
 import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -456,6 +457,7 @@ function Bridge(props: BridgeProps) {
             gap={1}
             textTransform="none"
           >
+            <CircularProgress color="inherit" size={16} thickness={4} />
             {mobile ? 'Preparing' : 'Preparing transaction'}
           </Typography>
         ) : !isTransactionInProgress && isFetchingQuotes ? (
@@ -465,6 +467,7 @@ function Bridge(props: BridgeProps) {
             gap={1}
             textTransform="none"
           >
+            <CircularProgress color="inherit" size={16} thickness={4} />
             {mobile ? 'Refreshing' : 'Refreshing quote'}
           </Typography>
         ) : (
