@@ -10,7 +10,6 @@ import {
   Select,
   MenuItem,
   CircularProgress,
-  useTheme,
   Box,
   Typography,
 } from '@mui/material';
@@ -24,7 +23,7 @@ import {
 } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import Search from 'components/Search';
-import Button from 'components/Button';
+import Button from 'components/v3/Button';
 import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
@@ -54,8 +53,6 @@ function TxSearch() {
   const [loading, setLoading] = useState(false);
 
   const externalSearch = useSelector((state: RootState) => state.search);
-
-  const theme: any = useTheme();
 
   const routeContext = useContext(RouteContext);
   const { getOrFetchToken } = useTokens();
@@ -224,17 +221,22 @@ function TxSearch() {
 
         <AlertBanner show={!!error} content={error} error margin="0 0 0 0" />
 
-        <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
-          {loading ? (
-            <CircularProgress
-              size={24}
-              sx={{
-                color: theme.palette.primary.contrastText,
-              }}
-            />
-          ) : (
-            'Search'
-          )}
+        <Button
+          disabled={!state.chain || !state.tx}
+          variant="primary"
+          onClick={search}
+        >
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            {loading ? (
+              <CircularProgress color="inherit" size={16} thickness={4} />
+            ) : null}
+            Search
+          </Typography>
         </Button>
       </FormContent>
       {config.ui.showFooter && <FooterNavBar />}
