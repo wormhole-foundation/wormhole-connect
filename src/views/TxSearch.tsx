@@ -13,7 +13,6 @@ import {
   useTheme,
   Box,
   Typography,
-  IconButton,
 } from '@mui/material';
 
 import config, { getWormholeContextV2 } from 'config';
@@ -23,7 +22,7 @@ import {
   setIsResumeTx,
   setTxDetails,
 } from 'store/redeem';
-import { setRoute as setAppRoute, setRoute } from 'store/router';
+import { setRoute as setAppRoute } from 'store/router';
 import Search from 'components/Search';
 import Button from 'components/Button';
 import AlertBanner from 'components/AlertBanner';
@@ -40,7 +39,7 @@ import { clearSearch } from 'store/search';
 import { useTokens } from 'contexts/TokensContext';
 import { FormContent } from 'components/v3/FormContent';
 import Header from 'components/Header';
-import DownIcon from 'icons/Down';
+import { BackButton } from 'components/v3/BackButton';
 
 const EMPTY = '';
 
@@ -56,7 +55,7 @@ function TxSearch() {
 
   const externalSearch = useSelector((state: RootState) => state.search);
 
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   const routeContext = useContext(RouteContext);
   const { getOrFetchToken } = useTokens();
@@ -164,10 +163,6 @@ function TxSearch() {
     });
   }, [config.chainsArr]);
 
-  function goBack() {
-    dispatch(setRoute('history'));
-  }
-
   return (
     <Box
       sx={(theme) => ({
@@ -176,9 +171,7 @@ function TxSearch() {
     >
       <FormContent>
         <Box display="flex" alignItems="center">
-          <IconButton onClick={goBack} sx={{ mr: 1 }}>
-            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
-          </IconButton>
+          <BackButton route="history" />
           <Header
             align="left"
             text={'Resume transaction'}

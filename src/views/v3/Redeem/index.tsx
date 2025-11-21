@@ -5,7 +5,6 @@ import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
@@ -59,7 +58,7 @@ import { setSearch } from 'store/search';
 import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 import Header from 'components/Header';
 import { FormContent } from 'components/v3/FormContent';
-import DownIcon from 'icons/Down';
+import { BackButton } from 'components/v3/BackButton';
 
 function Redeem() {
   const dispatch = useDispatch();
@@ -941,12 +940,7 @@ function Redeem() {
       <FormContent>
         <ConfigurablePageHeader />
         <Box display="flex" alignItems="center">
-          <IconButton
-            onClick={() => dispatch(setRoute('bridge'))}
-            sx={{ mr: 1 }}
-          >
-            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
-          </IconButton>
+          <BackButton route="bridge" />
           <Header
             align="left"
             text={statusHeader}

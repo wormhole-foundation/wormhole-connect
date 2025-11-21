@@ -1,32 +1,18 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import { setRoute } from 'store/router';
 
 import type { Alignment } from './Header';
 import Header from './Header';
-import DownIcon from 'icons/Down';
 
 type PageHeaderProps = {
   title: string;
   align?: Alignment;
   description?: string;
-  back?: boolean;
-  backRoute?: 'bridge' | 'history';
-  testId?: string;
 };
 
-function PageHeader({
-  back,
-  title,
-  align = 'left',
-  description,
-  backRoute = 'history',
-  testId,
-}: PageHeaderProps) {
+function PageHeader({ title, align = 'left', description }: PageHeaderProps) {
   const theme = useTheme();
-  const dispatch = useDispatch();
 
   const styles = useMemo(
     () => ({
@@ -52,11 +38,6 @@ function PageHeader({
         alignItems: 'center',
         textAlign: align,
       },
-      arrowBack: {
-        transform: 'rotate(90deg)',
-        marginRight: '16px',
-        cursor: 'pointer',
-      },
       description: {
         fontWeight: '300',
         fontSize: '14px',
@@ -67,17 +48,10 @@ function PageHeader({
     [theme, align],
   );
 
-  function goBack() {
-    dispatch(setRoute(backRoute));
-  }
-
   return (
     <Box sx={styles.container}>
       <Box sx={styles.header}>
         <Box sx={styles.left}>
-          {back && (
-            <DownIcon sx={styles.arrowBack} fontSize="large" onClick={goBack} />
-          )}
           <Header text={title} align={align} />
         </Box>
       </Box>
