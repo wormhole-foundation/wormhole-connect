@@ -13,6 +13,7 @@ import type { TransferDetails } from 'telemetry/types';
 import {
   ERR_INSUFFICIENT_ALLOWANCE,
   ERR_INSUFFICIENT_GAS,
+  ERR_INSUFFICIENT_FUNDS,
   ERR_USER_REJECTED,
   ERR_AMOUNT_TOO_SMALL,
   ERR_TIMEOUT,
@@ -160,7 +161,7 @@ describe('interpretTransferError', () => {
       error: new Error('insufficient funds'),
       expectedMessage:
         'Insufficient funds for this transfer. Please add more funds and try again',
-      expectedType: ERR_INSUFFICIENT_GAS,
+      expectedType: ERR_INSUFFICIENT_FUNDS,
     },
     {
       name: 'insufficient allowance',
@@ -252,5 +253,83 @@ describe('interpretTransferError', () => {
     expect(message).toBe(
       'Insufficient gas for this transfer. Please add more gas and try again',
     );
+  });
+
+  it('should detect errors in e.info.error.message (Monad-style)', () => {
+    const error: any = {
+      message: 'some generic error',
+      info: {
+        error: {
+          message: 'insufficient funds for gas',
+        },
+      },
+    };
+    const [message, errorObj] = interpretTransferError(
+      error,
+      mockTransferDetails,
+    );
+
+    expect(message).toBe(
+      'Insufficient gas for this transfer. Please add more gas and try again',
+    );
+    expect(errorObj.type).toBe(ERR_INSUFFICIENT_GAS);
+  });
+
+  it('should detect user rejection in e.info.error.message', () => {
+    const error: any = {
+      message: 'some generic error',
+      info: {
+        error: {
+          message: 'user rejected',
+        },
+      },
+    };
+    const [message, errorObj] = interpretTransferError(
+      error,
+      mockTransferDetails,
+    );
+
+    expect(message).toBe('Wallet request declined. Transfer not started.');
+    expect(errorObj.type).toBe(ERR_USER_REJECTED);
+  });
+
+  it('should detect errors in e.info.error.data.message (ethers.js wrapping)', () => {
+    const error: any = {
+      message: 'some generic error',
+      info: {
+        error: {
+          data: {
+            message: 'insufficient token allowance',
+          },
+        },
+      },
+    };
+    const [message, errorObj] = interpretTransferError(
+      error,
+      mockTransferDetails,
+    );
+
+    expect(message).toBe('Error with transfer, please try again');
+    expect(errorObj.type).toBe(ERR_INSUFFICIENT_ALLOWANCE);
+  });
+
+  it('should detect insufficient balance in e.info.error.message (Monad)', () => {
+    const error: any = {
+      message: 'some generic error',
+      info: {
+        error: {
+          message: 'insufficient balance',
+        },
+      },
+    };
+    const [message, errorObj] = interpretTransferError(
+      error,
+      mockTransferDetails,
+    );
+
+    expect(message).toBe(
+      'Insufficient funds for this transfer. Please add more funds and try again',
+    );
+    expect(errorObj.type).toBe(ERR_INSUFFICIENT_FUNDS);
   });
 });

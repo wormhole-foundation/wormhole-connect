@@ -6,6 +6,7 @@ import type {
 import {
   ERR_INSUFFICIENT_ALLOWANCE,
   ERR_INSUFFICIENT_GAS,
+  ERR_INSUFFICIENT_FUNDS,
   ERR_TIMEOUT,
   ERR_UNKNOWN,
   ERR_USER_REJECTED,
@@ -47,9 +48,14 @@ const INSUFFICIENT_FUNDS_ERROR =
 // Helper function to check if a regex matches in various nested error locations
 // Different wallets and libraries nest error messages in different places:
 // - e.message (most common)
+// - e.info?.error?.message (seen in Monad transactions)
 // - e.info?.error?.data?.message (ethers.js wrapping MetaMask errors)
 function errorMessageMatches(e: any, regex: RegExp): boolean {
-  return regex.test(e?.message) || regex.test(e?.info?.error?.data?.message);
+  return (
+    regex.test(e?.message) ||
+    regex.test(e?.info?.error?.message) ||
+    regex.test(e?.info?.error?.data?.message)
+  );
 }
 
 export function interpretTransferError(
@@ -81,7 +87,7 @@ export function interpretTransferError(
       // IMPORTANT: This check must come after INSUFFICIENT_FUNDS_FOR_GAS_REGEX
       // because "insufficient funds for gas" contains "insufficient funds"
       uiErrorMessage = INSUFFICIENT_FUNDS_ERROR;
-      internalErrorCode = ERR_INSUFFICIENT_GAS;
+      internalErrorCode = ERR_INSUFFICIENT_FUNDS;
     } else if (errorMessageMatches(e, USER_REJECTED_REGEX)) {
       uiErrorMessage = 'Wallet request declined. Transfer not started.';
       internalErrorCode = ERR_USER_REJECTED;
