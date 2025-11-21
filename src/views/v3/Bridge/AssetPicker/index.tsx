@@ -2,11 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
 import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
-import { amount as sdkAmount, isSameToken } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
@@ -24,21 +23,17 @@ import type { AmountValidationResult } from 'hooks/useAmountValidation';
 import { OPACITY } from 'utils/style';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
-import {
-  calculateUSDPrice,
-  getTokenDisplaySymbolByTokenAddress,
-  getGasToken,
-} from 'utils';
 import { formatNumberIntl, formatMaxDigits } from 'utils/formatNumber';
+import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
 import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
 } from 'telemetry/utils';
 import FeeOffset from './FeeOffset';
 import { calculateFeeOffset } from 'utils/fees';
-import { getGasReserve } from 'utils/gasReserve';
 import { useGetTokens } from 'hooks/useGetTokens';
 import TokenPickerButton from './TokenPickerButton';
+import PercentButtons from './PercentButtons';
 
 type Props = {
   chain?: Chain | undefined;
@@ -83,9 +78,6 @@ function AssetPicker(props: Props) {
     amount ? sdkAmount.display(amount) : '',
   );
   const [selectedPercentButton, setSelectedPercentButton] = useState(0);
-  const [gasReserveError, setGasReserveError] = useState<string | undefined>(
-    undefined,
-  );
 
   const sortedTokens = useTokenList({
     tokenList: props.tokenList || [],
@@ -198,19 +190,6 @@ function AssetPicker(props: Props) {
         justifyContent: 'space-between',
         marginBottom: '16px',
       },
-      percentButton: {
-        borderRadius: '50px',
-        color: theme.palette.text.primary,
-        height: '22px',
-        minWidth: '40px',
-        backgroundColor: theme.palette.text.primary + OPACITY[10],
-        opacity: 0.7,
-      },
-      percentButtonSelected: {
-        color: theme.palette.formContainer.background,
-        backgroundColor: theme.palette.primary.main,
-        opacity: 'unset',
-      },
     }),
     [theme],
   );
@@ -252,7 +231,6 @@ function AssetPicker(props: Props) {
     (newValue: string): void => {
       setAmountInput(newValue);
       setSelectedPercentButton(0); // Reset selected percent button when amount changes
-      setGasReserveError(undefined); // Clear gas reserve error when user manually changes amount
 
       if (!newValue) {
         // If the input is cleared, we need to clear the amount in handleAmountChange instead of handleDebouncedAmountChange.
@@ -366,107 +344,6 @@ function AssetPicker(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRoute]);
 
-  const renderPercentButton = useCallback(
-    (percent: number) => (
-      <Button
-        sx={{
-          ...styles.percentButton,
-          ...(selectedPercentButton === percent
-            ? styles.percentButtonSelected
-            : {}),
-        }}
-        disabled={props.isTransactionInProgress}
-        onClick={() => {
-          if (tokenBalance) {
-            // Calculate the desired amount for the selected percentage
-            let amountInBaseUnits =
-              (sdkAmount.units(tokenBalance) * BigInt(percent)) / BigInt(100);
-
-            if (percent === 100) {
-              // User clicks "Max" when fee-offsetting is enabled.
-              // We need to subtract the fee offset amount from the balance
-              // This is to ensure user doesn't get insufficient funds error when fee offset is applied
-              // 1. Fee offset for referral fees
-              if (
-                config.ui?.experimental?.feeOffsetting &&
-                selectedRoute &&
-                sourceToken &&
-                destToken
-              ) {
-                const feeOffset = calculateFeeOffset(
-                  config.routes.get(selectedRoute),
-                  tokenBalance,
-                  sourceToken,
-                  destToken,
-                );
-                if (feeOffset) {
-                  amountInBaseUnits -= sdkAmount.units(feeOffset);
-                }
-              }
-
-              // 2. Gas reserve for gas tokens (only for source asset picker)
-              if (props.isSource && sourceToken && props.chain) {
-                try {
-                  const gasToken = getGasToken(props.chain);
-                  if (isSameToken(sourceToken, gasToken)) {
-                    const gasReserve = getGasReserve(
-                      props.chain,
-                      tokenBalance.decimals,
-                    );
-                    if (gasReserve) {
-                      amountInBaseUnits -= sdkAmount.units(gasReserve);
-
-                      // Check if there's enough balance after subtracting gas reserve
-                      if (amountInBaseUnits <= 0n) {
-                        const tokenSymbol =
-                          getTokenDisplaySymbolByTokenAddress(sourceToken);
-                        const gasReserveDisplay = sdkAmount.display(gasReserve);
-                        setGasReserveError(
-                          `Insufficient balance. A minimum of ${gasReserveDisplay} ${tokenSymbol} must be reserved for transaction fees.`,
-                        );
-                        return;
-                      }
-                    }
-                  }
-                } catch {
-                  // Gas token not found for chain, proceed without reserve
-                }
-              }
-            }
-
-            // Clear any previous gas reserve error
-            setGasReserveError(undefined);
-
-            const displayAmount = sdkAmount.display(
-              sdkAmount.fromBaseUnits(amountInBaseUnits, tokenBalance.decimals),
-            );
-            handleAmountChange(displayAmount);
-            handleDebouncedAmountChange(displayAmount);
-            setSelectedPercentButton(percent);
-          }
-        }}
-      >
-        <Typography fontSize={12} fontWeight={600} textTransform="none">
-          {percent === 100 ? 'Max' : `${percent}%`}
-        </Typography>
-      </Button>
-    ),
-    [
-      styles.percentButton,
-      styles.percentButtonSelected,
-      selectedPercentButton,
-      props.isTransactionInProgress,
-      tokenBalance,
-      selectedRoute,
-      sourceToken,
-      destToken,
-      props.chain,
-      props.isSource,
-      handleAmountChange,
-      handleDebouncedAmountChange,
-    ],
-  );
-
   const destTokenUnitPrice = useMemo(() => {
     if (!props.token) {
       return null;
@@ -502,11 +379,15 @@ function AssetPicker(props: Props) {
 
   const percentButtons =
     !props.wallet.address || !tokenBalance ? null : (
-      <Box sx={{ display: 'flex', gap: '6px' }}>
-        {renderPercentButton(25)}
-        {renderPercentButton(50)}
-        {renderPercentButton(100)}
-      </Box>
+      <PercentButtons
+        tokenBalance={tokenBalance}
+        chain={props.chain}
+        isTransactionInProgress={props.isTransactionInProgress}
+        selectedPercent={selectedPercentButton}
+        onAmountChange={handleAmountChange}
+        onDebouncedAmountChange={handleDebouncedAmountChange}
+        onPercentSelect={setSelectedPercentButton}
+      />
     );
 
   return (
@@ -567,7 +448,7 @@ function AssetPicker(props: Props) {
                 props.token ? props.balances[props.token.key]?.balance : null
               }
               warning={props.amountValidation?.warning}
-              error={gasReserveError || props.amountValidation?.error}
+              error={props.amountValidation?.error}
               onChange={handleAmountChange}
               onDebouncedChange={handleDebouncedAmountChange}
             />
