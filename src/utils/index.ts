@@ -369,6 +369,12 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
     return true;
   }
 
+  // WTT WMON on Solana is a Frankenstein token
+  // NTT MON should be used instead
+  if (token.symbol === 'WMON' && chain === 'Solana') {
+    return true;
+  }
+
   const { tokenBridgeOriginalTokenId: originalToken } = token;
 
   // Prevent Monad<->Ethereum transfers of gas token via token bridge
