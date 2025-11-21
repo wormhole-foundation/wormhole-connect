@@ -286,6 +286,7 @@ function Bridge(props: BridgeProps) {
     hasUserManuallyChangedGas,
     currentToNativeToken: toNativeToken,
     isFetchingBalances: balances.isFetching,
+    allowedChains: config.ui.autoEnableGasDropOffChains,
   });
 
   // Validate amount

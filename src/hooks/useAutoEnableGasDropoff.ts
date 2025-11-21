@@ -15,12 +15,14 @@ export interface UseAutoEnableGasDropOffParams {
   hasUserManuallyChangedGas: boolean;
   currentToNativeToken: number;
   isFetchingBalances: boolean;
+  allowedChains?: Chain[];
 }
 
 /**
  * Automatically enables gas drop-off when the destination
  * wallet has zero native token balance for executor routes,
  * unless the user has manually changed the gas setting.
+ * Only applies to chains specified in allowedChains if provided.
  */
 export function useAutoEnableGasDropOff({
   route,
@@ -30,6 +32,7 @@ export function useAutoEnableGasDropOff({
   hasUserManuallyChangedGas,
   currentToNativeToken,
   isFetchingBalances,
+  allowedChains,
 }: UseAutoEnableGasDropOffParams): void {
   const dispatch = useDispatch();
 
@@ -41,6 +44,17 @@ export function useAutoEnableGasDropOff({
       !receivingWalletAddress ||
       hasUserManuallyChangedGas
     ) {
+      return;
+    }
+
+    // Check if auto-enable is allowed for this chain
+    // If allowedChains is not specified or empty, don't auto-enable for any chain
+    if (!allowedChains || allowedChains.length === 0) {
+      return;
+    }
+
+    // Check if the destination chain is in the allowed list
+    if (!allowedChains.includes(destChain)) {
       return;
     }
 
@@ -74,6 +88,7 @@ export function useAutoEnableGasDropOff({
     hasUserManuallyChangedGas,
     currentToNativeToken,
     isFetchingBalances,
+    allowedChains,
     dispatch,
   ]);
 }

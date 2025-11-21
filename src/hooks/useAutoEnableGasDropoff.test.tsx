@@ -37,12 +37,12 @@ describe('useAutoEnableGasDropoff', () => {
     <Provider store={mockStore}>{children}</Provider>
   );
 
-  it('enables gas dropoff when destination has no native balance', () => {
+  it('enables gas dropoff when destination has no native balance and chain is allowed', () => {
     renderHook(
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {
             ETH: {
@@ -53,6 +53,7 @@ describe('useAutoEnableGasDropoff', () => {
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
           isFetchingBalances: false,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -65,7 +66,7 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {
             ETH: {
@@ -76,6 +77,7 @@ describe('useAutoEnableGasDropoff', () => {
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
           isFetchingBalances: false,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -88,7 +90,7 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {
             ETH: {
@@ -99,6 +101,7 @@ describe('useAutoEnableGasDropoff', () => {
           hasUserManuallyChangedGas: true,
           currentToNativeToken: 0,
           isFetchingBalances: false,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -111,7 +114,7 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: undefined,
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {
             ETH: {
@@ -122,6 +125,7 @@ describe('useAutoEnableGasDropoff', () => {
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
           isFetchingBalances: false,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -134,7 +138,7 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: undefined,
           destinationBalances: {
             ETH: {
@@ -145,6 +149,7 @@ describe('useAutoEnableGasDropoff', () => {
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
           isFetchingBalances: false,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -157,7 +162,7 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {
             ETH: {
@@ -168,6 +173,7 @@ describe('useAutoEnableGasDropoff', () => {
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 1,
           isFetchingBalances: false,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -180,12 +186,13 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {},
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 1,
           isFetchingBalances: true,
+          allowedChains: ['Monad'],
         }),
       { wrapper },
     );
@@ -198,12 +205,85 @@ describe('useAutoEnableGasDropoff', () => {
       () =>
         useAutoEnableGasDropOff({
           route: 'TokenBridgeExecutorRoute',
-          destChain: 'Optimism',
+          destChain: 'Monad',
           receivingWalletAddress: '0x456',
           destinationBalances: {},
           hasUserManuallyChangedGas: false,
           currentToNativeToken: 0,
           isFetchingBalances: true,
+          allowedChains: ['Monad'],
+        }),
+      { wrapper },
+    );
+
+    expect(setToNativeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not enable gas dropoff when chain is not in allowed list', () => {
+    renderHook(
+      () =>
+        useAutoEnableGasDropOff({
+          route: 'TokenBridgeExecutorRoute',
+          destChain: 'Optimism',
+          receivingWalletAddress: '0x456',
+          destinationBalances: {
+            ETH: {
+              balance: amount.fromBaseUnits(0n, 18),
+              lastUpdated: Date.now(),
+            },
+          },
+          hasUserManuallyChangedGas: false,
+          currentToNativeToken: 0,
+          isFetchingBalances: false,
+          allowedChains: ['Monad'], // Optimism is not in the list
+        }),
+      { wrapper },
+    );
+
+    expect(setToNativeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not enable gas dropoff when allowedChains is empty', () => {
+    renderHook(
+      () =>
+        useAutoEnableGasDropOff({
+          route: 'TokenBridgeExecutorRoute',
+          destChain: 'Monad',
+          receivingWalletAddress: '0x456',
+          destinationBalances: {
+            ETH: {
+              balance: amount.fromBaseUnits(0n, 18),
+              lastUpdated: Date.now(),
+            },
+          },
+          hasUserManuallyChangedGas: false,
+          currentToNativeToken: 0,
+          isFetchingBalances: false,
+          allowedChains: [],
+        }),
+      { wrapper },
+    );
+
+    expect(setToNativeTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not enable gas dropoff when allowedChains is not provided', () => {
+    renderHook(
+      () =>
+        useAutoEnableGasDropOff({
+          route: 'TokenBridgeExecutorRoute',
+          destChain: 'Monad',
+          receivingWalletAddress: '0x456',
+          destinationBalances: {
+            ETH: {
+              balance: amount.fromBaseUnits(0n, 18),
+              lastUpdated: Date.now(),
+            },
+          },
+          hasUserManuallyChangedGas: false,
+          currentToNativeToken: 0,
+          isFetchingBalances: false,
+          // No allowedChains provided
         }),
       { wrapper },
     );

@@ -69,6 +69,10 @@ export type UiConfig = {
 
   // When enabled disables the destination token picker button
   disableDestinationTokenPicker?: boolean;
+
+  // Specifies which chains should have gas drop-off auto-enabled
+  // when the destination wallet has zero native balance
+  autoEnableGasDropOffChains?: Chain[];
 };
 
 export type TestOptions = {
