@@ -101,14 +101,6 @@ function Redeem() {
         alignItems: 'center',
         width: '100%',
       },
-      actionButton: {
-        padding: '12px 16px',
-        backgroundColor: theme.palette.primary.main,
-        borderRadius: '8px',
-        margin: 'auto',
-        maxWidth: '456px',
-        width: '100%',
-      },
       claimButton: {
         backgroundColor: theme.palette.warning.light,
         color:
@@ -768,7 +760,7 @@ function Redeem() {
   const actionButton = useMemo(() => {
     if (isClaimInProgress) {
       return (
-        <Button disabled variant="primary" styleOverrides={styles.actionButton}>
+        <Button disabled variant="primary">
           <Typography
             display="flex"
             alignItems="center"
@@ -793,7 +785,6 @@ function Redeem() {
       return (
         <Button
           variant="primary"
-          styleOverrides={styles.actionButton}
           onClick={() => {
             window.open(relayFailedUrl.url, '_blank', 'noopener,noreferrer');
           }}
@@ -812,7 +803,6 @@ function Redeem() {
       return (
         <Button
           variant="primary"
-          styleOverrides={styles.actionButton}
           onClick={() => {
             dispatch(clearRedeem());
             dispatch(setRoute('search'));
@@ -839,11 +829,7 @@ function Redeem() {
     ) {
       if (!isConnectedToReceivingWallet) {
         return (
-          <Button
-            variant="primary"
-            styleOverrides={styles.actionButton}
-            onClick={handleConnectReceivingWallet}
-          >
+          <Button variant="primary" onClick={handleConnectReceivingWallet}>
             <Typography textTransform="none">
               Connect receiving wallet
             </Typography>
@@ -852,7 +838,7 @@ function Redeem() {
       } else {
         return (
           <Button
-            styleOverrides={[styles.actionButton, styles.claimButton]}
+            styleOverrides={[styles.claimButton]}
             variant={claimError ? 'error' : 'primary'}
             onClick={handleManualClaim}
           >
@@ -868,7 +854,6 @@ function Redeem() {
       <>
         <Button
           variant="primary"
-          styleOverrides={styles.actionButton}
           onClick={() => {
             dispatch(setRoute('bridge'));
           }}
@@ -890,7 +875,6 @@ function Redeem() {
     isRelayFailed,
     routeName,
     sendTx,
-    styles.actionButton,
     styles.claimButton,
     isTxCompleted,
     theme.palette.primary.contrastText,
