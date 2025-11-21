@@ -87,13 +87,6 @@ function Bridge(props: BridgeProps) {
         fontSize: '14px',
         color: theme.palette.success.main,
       },
-      confirmTransaction: {
-        padding: '8px 16px',
-        height: '48px',
-        margin: 'auto',
-        maxWidth: '456px',
-        width: '100%',
-      },
       copyIcon: {
         fontSize: '14px',
       },
@@ -473,7 +466,6 @@ function Bridge(props: BridgeProps) {
         data-testid="confirm-transaction-button"
         aria-label="Confirm transaction"
         variant="primary"
-        styleOverrides={styles.confirmTransaction}
         onClick={() => onConfirm()}
       >
         {isTransactionInProgress ? (
@@ -505,7 +497,6 @@ function Bridge(props: BridgeProps) {
     );
   }, [
     confirmTransactionDisabled,
-    styles.confirmTransaction,
     isTransactionInProgress,
     mobile,
     isFetchingQuotes,

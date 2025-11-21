@@ -2,16 +2,13 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import FooterNavBar from 'components/FooterNavBar';
 import config from 'config';
-import { setRoute } from 'store/router';
-import { useDispatch } from 'react-redux';
 import { FormContent } from 'components/v3/FormContent';
-import { IconButton, useTheme } from '@mui/material';
-import DownIcon from 'icons/Down';
+import { useTheme } from '@mui/material';
 import Header from 'components/Header';
+import { BackButton } from 'components/v3/BackButton';
 
 function Terms() {
-  const theme = useTheme();
-  const dispatch = useDispatch();
+  const theme: any = useTheme();
   const termsUrl = config.ui.termsOfServiceUrl || 'https://portalbridge.com';
 
   const styles = {
@@ -48,12 +45,7 @@ function Terms() {
     <Box sx={styles.terms}>
       <FormContent>
         <Box display="flex" alignItems="center">
-          <IconButton
-            onClick={() => dispatch(setRoute('bridge'))}
-            sx={{ mr: 1 }}
-          >
-            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
-          </IconButton>
+          <BackButton route="bridge" />
           <Header
             align="left"
             text={'Terms of Service'}

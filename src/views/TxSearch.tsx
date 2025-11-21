@@ -10,10 +10,8 @@ import {
   Select,
   MenuItem,
   CircularProgress,
-  useTheme,
   Box,
   Typography,
-  IconButton,
 } from '@mui/material';
 
 import config, { getWormholeContextV2 } from 'config';
@@ -23,9 +21,9 @@ import {
   setIsResumeTx,
   setTxDetails,
 } from 'store/redeem';
-import { setRoute as setAppRoute, setRoute } from 'store/router';
+import { setRoute as setAppRoute } from 'store/router';
 import Search from 'components/Search';
-import Button from 'components/Button';
+import Button from 'components/v3/Button';
 import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
@@ -40,7 +38,7 @@ import { clearSearch } from 'store/search';
 import { useTokens } from 'contexts/TokensContext';
 import { FormContent } from 'components/v3/FormContent';
 import Header from 'components/Header';
-import DownIcon from 'icons/Down';
+import { BackButton } from 'components/v3/BackButton';
 
 const EMPTY = '';
 
@@ -55,8 +53,6 @@ function TxSearch() {
   const [loading, setLoading] = useState(false);
 
   const externalSearch = useSelector((state: RootState) => state.search);
-
-  const theme = useTheme();
 
   const routeContext = useContext(RouteContext);
   const { getOrFetchToken } = useTokens();
@@ -164,10 +160,6 @@ function TxSearch() {
     });
   }, [config.chainsArr]);
 
-  function goBack() {
-    dispatch(setRoute('history'));
-  }
-
   return (
     <Box
       sx={(theme) => ({
@@ -176,9 +168,7 @@ function TxSearch() {
     >
       <FormContent>
         <Box display="flex" alignItems="center">
-          <IconButton onClick={goBack} sx={{ mr: 1 }}>
-            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
-          </IconButton>
+          <BackButton route="history" />
           <Header
             align="left"
             text={'Resume transaction'}
@@ -231,17 +221,22 @@ function TxSearch() {
 
         <AlertBanner show={!!error} content={error} error margin="0 0 0 0" />
 
-        <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
-          {loading ? (
-            <CircularProgress
-              size={24}
-              sx={{
-                color: theme.palette.primary.contrastText,
-              }}
-            />
-          ) : (
-            'Search'
-          )}
+        <Button
+          disabled={!state.chain || !state.tx}
+          variant="primary"
+          onClick={search}
+        >
+          <Typography
+            display="flex"
+            alignItems="center"
+            gap={1}
+            textTransform="none"
+          >
+            {loading ? (
+              <CircularProgress color="inherit" size={16} thickness={4} />
+            ) : null}
+            Search
+          </Typography>
         </Button>
       </FormContent>
       {config.ui.showFooter && <FooterNavBar />}

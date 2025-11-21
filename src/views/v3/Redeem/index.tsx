@@ -5,7 +5,6 @@ import { useTimer } from 'react-timer-hook';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
@@ -59,7 +58,7 @@ import { setSearch } from 'store/search';
 import { getTokenDisplaySymbolByTokenAddress } from 'utils';
 import Header from 'components/Header';
 import { FormContent } from 'components/v3/FormContent';
-import DownIcon from 'icons/Down';
+import { BackButton } from 'components/v3/BackButton';
 
 function Redeem() {
   const dispatch = useDispatch();
@@ -100,14 +99,6 @@ function Redeem() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: '100%',
-      },
-      actionButton: {
-        padding: '12px 16px',
-        backgroundColor: theme.palette.primary.main,
-        borderRadius: '8px',
-        margin: 'auto',
-        maxWidth: '456px',
         width: '100%',
       },
       claimButton: {
@@ -769,7 +760,7 @@ function Redeem() {
   const actionButton = useMemo(() => {
     if (isClaimInProgress) {
       return (
-        <Button disabled variant="primary" styleOverrides={styles.actionButton}>
+        <Button disabled variant="primary">
           <Typography
             display="flex"
             alignItems="center"
@@ -794,7 +785,6 @@ function Redeem() {
       return (
         <Button
           variant="primary"
-          styleOverrides={styles.actionButton}
           onClick={() => {
             window.open(relayFailedUrl.url, '_blank', 'noopener,noreferrer');
           }}
@@ -813,7 +803,6 @@ function Redeem() {
       return (
         <Button
           variant="primary"
-          styleOverrides={styles.actionButton}
           onClick={() => {
             dispatch(clearRedeem());
             dispatch(setRoute('search'));
@@ -840,11 +829,7 @@ function Redeem() {
     ) {
       if (!isConnectedToReceivingWallet) {
         return (
-          <Button
-            variant="primary"
-            styleOverrides={styles.actionButton}
-            onClick={handleConnectReceivingWallet}
-          >
+          <Button variant="primary" onClick={handleConnectReceivingWallet}>
             <Typography textTransform="none">
               Connect receiving wallet
             </Typography>
@@ -853,7 +838,7 @@ function Redeem() {
       } else {
         return (
           <Button
-            styleOverrides={[styles.actionButton, styles.claimButton]}
+            styleOverrides={[styles.claimButton]}
             variant={claimError ? 'error' : 'primary'}
             onClick={handleManualClaim}
           >
@@ -869,7 +854,6 @@ function Redeem() {
       <>
         <Button
           variant="primary"
-          styleOverrides={styles.actionButton}
           onClick={() => {
             dispatch(setRoute('bridge'));
           }}
@@ -891,7 +875,6 @@ function Redeem() {
     isRelayFailed,
     routeName,
     sendTx,
-    styles.actionButton,
     styles.claimButton,
     isTxCompleted,
     theme.palette.primary.contrastText,
@@ -941,12 +924,7 @@ function Redeem() {
       <FormContent>
         <ConfigurablePageHeader />
         <Box display="flex" alignItems="center">
-          <IconButton
-            onClick={() => dispatch(setRoute('bridge'))}
-            sx={{ mr: 1 }}
-          >
-            <DownIcon sx={{ transform: 'rotate(90deg)' }} />
-          </IconButton>
+          <BackButton route="bridge" />
           <Header
             align="left"
             text={statusHeader}
