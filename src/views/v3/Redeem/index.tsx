@@ -291,6 +291,9 @@ function Redeem() {
         type: 'transfer.refunded',
         details,
       });
+      if (txData?.sendTx) {
+        removeTxFromLocalStorage(txData.sendTx);
+      }
     } else if (isFailed(receipt)) {
       const [uiError, transferError] = interpretTransferError(
         receipt.error,
