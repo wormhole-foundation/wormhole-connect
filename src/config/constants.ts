@@ -11,6 +11,7 @@ export const CONNECT_GIT_HASH =
 export const CHAIN_ORDER: Chain[] = [
   'Ethereum',
   'Solana',
+  'Monad',
   'Arbitrum',
   'Base',
   'Sui',
@@ -28,7 +29,6 @@ export const CHAIN_ORDER: Chain[] = [
   'Berachain',
   'Mezo',
   'Fogo',
-  'Monad',
   'HyperCore',
   'Fantom',
 ];
