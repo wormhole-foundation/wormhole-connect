@@ -2,7 +2,8 @@ import React, { useCallback } from 'react';
 
 import type { ExplorerConfig } from 'config/ui';
 import type { SxProps, Theme } from '@mui/material';
-import { ListItemButton, Typography } from '@mui/material';
+import { ListItemButton, ListItemIcon, Typography } from '@mui/material';
+import { ExternalLinkIcon } from 'lucide-react';
 
 type ExplorerLinkProps = {
   address: string;
@@ -26,7 +27,10 @@ const ExplorerLink = (props: ExplorerLinkProps) => {
 
   return (
     <ListItemButton onClick={handleOpenExplorer} sx={sx}>
-      <Typography fontSize={14}>{label}</Typography>
+      <Typography>{label}</Typography>
+      <ListItemIcon>
+        <ExternalLinkIcon size={14} />
+      </ListItemIcon>
     </ListItemButton>
   );
 };
