@@ -39,7 +39,6 @@ function WalletAddress({ isDisabled, wallet }: WalletAddressProps) {
       },
       walletAddress: {
         color: theme.palette.text.secondary,
-        textTransform: 'uppercase',
       },
       greenDot: {
         width: '5px',
