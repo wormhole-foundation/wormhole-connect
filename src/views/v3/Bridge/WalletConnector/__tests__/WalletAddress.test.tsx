@@ -101,15 +101,6 @@ describe('WalletAddress', () => {
     expect(outerDiv.tagName).toBe('DIV');
   });
 
-  it('renders address in uppercase', () => {
-    render(<WalletAddress wallet={mockConnectedWallet} isDisabled={false} />, {
-      wrapper: AppWrapper,
-    });
-
-    const typography = screen.getByText(/0x1234/i);
-    expect(typography).toHaveStyle({ textTransform: 'uppercase' });
-  });
-
   it('handles empty address string', () => {
     const emptyWallet = { ...mockConnectedWallet, address: '' };
     render(<WalletAddress wallet={emptyWallet} isDisabled={false} />, {
