@@ -13,7 +13,7 @@ import { RouteProvider } from './contexts/RouteContext';
 import { TokensProvider } from './contexts/TokensContext';
 import WalletProvider from './contexts/wallet/WalletProvider';
 import type { WormholeConnectWalletProvider } from './utils/wallet/types';
-import { internalWalletProvider } from './utils/wallet/InternalWalletProvider';
+import { createInternalWalletProvider } from './utils/wallet/InternalWalletProvider';
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
@@ -47,9 +47,10 @@ export default function WormholeConnect({
     [theme],
   );
 
-  const walletProvider = React.useMemo(() => {
-    return externalProvider ?? internalWalletProvider;
-  }, [externalProvider]);
+  // Create internal wallet provider instance once per component lifecycle
+  const internalProviderRef = React.useRef(createInternalWalletProvider());
+
+  const walletProvider = externalProvider ?? internalProviderRef.current;
 
   return (
     <Provider store={store}>

@@ -6,8 +6,10 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import WalletProvider from './WalletProvider';
 import WalletContext from './WalletContext';
-import { internalWalletProvider } from 'utils/wallet/InternalWalletProvider';
+import { createInternalWalletProvider } from 'utils/wallet/InternalWalletProvider';
 import { TransferWallet } from 'utils/wallet';
+
+const internalWalletProvider = createInternalWalletProvider();
 
 const mockStore = configureStore({
   reducer: {

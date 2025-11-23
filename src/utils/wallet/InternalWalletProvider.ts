@@ -19,17 +19,15 @@ import { ReadOnlyWallet } from './ReadOnlyWallet';
  * onWalletSelected() connects the wallet and resolves the promise with the connected wallet.
  */
 
-let pendingConnect:
-  | {
-      chain: Chain;
-      type: TransferWallet;
-      promise: Promise<Wallet>;
-      resolve: (wallet: Wallet) => void;
-      reject: (error: Error) => void;
-    }
-  | undefined;
+type PendingConnect = {
+  chain: Chain;
+  type: TransferWallet;
+  promise: Promise<Wallet>;
+  resolve: (wallet: Wallet) => void;
+  reject: (error: Error) => void;
+};
 
-const walletConnections: {
+type WalletConnections = {
   sending?: {
     wallet: Wallet;
     disconnectHandler: () => void;
@@ -38,45 +36,14 @@ const walletConnections: {
     wallet: Wallet;
     disconnectHandler: () => void;
   };
-} = {};
+};
 
-function setWalletConnection(
-  chain: Chain,
-  type: TransferWallet,
-  wallet: Wallet,
-): void {
-  const previousConnection = walletConnections[type];
-  if (previousConnection) {
-    previousConnection.wallet.off(
-      'disconnect',
-      previousConnection.disconnectHandler,
-    );
-  }
+function getLastUsedWalletKey(chain: Chain): string | null {
+  const chainConfig = config.chains[chain];
+  if (!chainConfig) return null;
 
-  const localStorageKey = getLastUsedWalletKey(chain);
-
-  const handleDisconnect = () => {
-    walletConnections[type] = undefined;
-    wallet.off('disconnect', handleDisconnect);
-    if (localStorageKey) {
-      localStorage.removeItem(localStorageKey);
-    }
-  };
-
-  walletConnections[type] = {
-    wallet,
-    disconnectHandler: handleDisconnect,
-  };
-
-  wallet.on('disconnect', handleDisconnect);
-
-  if (localStorageKey && wallet.getName() !== ReadOnlyWallet.NAME) {
-    localStorage.setItem(localStorageKey, wallet.getName());
-  }
-}
-
-function getWalletConnection(type: TransferWallet): Wallet | undefined {
-  return walletConnections[type]?.wallet;
+  const platform = chainToPlatform(chainConfig.sdkName);
+  return config.cacheKey(`wallet:${platform}`);
 }
 
 async function connectWalletToChain(
@@ -104,173 +71,215 @@ async function connectWalletToChain(
   }
 }
 
-function getLastUsedWalletKey(chain: Chain): string | null {
-  const chainConfig = config.chains[chain];
-  if (!chainConfig) return null;
+/**
+ * Factory function to create a new instance of the internal wallet provider.
+ * Each instance maintains its own isolated state for wallet connections and pending requests.
+ */
+export function createInternalWalletProvider() {
+  let pendingConnect: PendingConnect | undefined;
+  const walletConnections: WalletConnections = {};
 
-  const platform = chainToPlatform(chainConfig.sdkName);
-  return config.cacheKey(`wallet:${platform}`);
-}
+  function setWalletConnection(
+    chain: Chain,
+    type: TransferWallet,
+    wallet: Wallet,
+  ): void {
+    const previousConnection = walletConnections[type];
+    if (previousConnection) {
+      previousConnection.wallet.off(
+        'disconnect',
+        previousConnection.disconnectHandler,
+      );
+    }
 
-async function connectLastUsedWallet(
-  chain: Chain,
-  type: TransferWallet,
-): Promise<Wallet | null> {
-  const localStorageKey = getLastUsedWalletKey(chain);
-  if (!localStorageKey) return null;
+    const localStorageKey = getLastUsedWalletKey(chain);
 
-  const lastUsedWallet = localStorage.getItem(localStorageKey);
-  if (!lastUsedWallet || lastUsedWallet === 'WalletConnect') {
-    return null;
+    const handleDisconnect = () => {
+      walletConnections[type] = undefined;
+      wallet.off('disconnect', handleDisconnect);
+      if (localStorageKey) {
+        localStorage.removeItem(localStorageKey);
+      }
+    };
+
+    walletConnections[type] = {
+      wallet,
+      disconnectHandler: handleDisconnect,
+    };
+
+    wallet.on('disconnect', handleDisconnect);
+
+    if (localStorageKey && wallet.getName() !== ReadOnlyWallet.NAME) {
+      localStorage.setItem(localStorageKey, wallet.getName());
+    }
   }
 
-  try {
-    const chainConfig = config.chains[chain]!;
-    const options = await getWalletOptions(chainConfig);
-    const walletOption = options.find((w) => w.name === lastUsedWallet);
+  function getWalletConnection(type: TransferWallet): Wallet | undefined {
+    return walletConnections[type]?.wallet;
+  }
 
-    if (!walletOption?.isReady) {
-      localStorage.removeItem(localStorageKey);
+  async function connectLastUsedWallet(
+    chain: Chain,
+    type: TransferWallet,
+  ): Promise<Wallet | null> {
+    const localStorageKey = getLastUsedWalletKey(chain);
+    if (!localStorageKey) return null;
+
+    const lastUsedWallet = localStorage.getItem(localStorageKey);
+    if (!lastUsedWallet || lastUsedWallet === 'WalletConnect') {
       return null;
     }
 
-    await connectWalletToChain(walletOption.wallet, chain);
-    setWalletConnection(chain, type, walletOption.wallet);
+    try {
+      const chainConfig = config.chains[chain]!;
+      const options = await getWalletOptions(chainConfig);
+      const walletOption = options.find((w) => w.name === lastUsedWallet);
 
-    return walletOption.wallet;
-  } catch {
-    localStorage.removeItem(localStorageKey);
-    return null;
+      if (!walletOption?.isReady) {
+        localStorage.removeItem(localStorageKey);
+        return null;
+      }
+
+      await connectWalletToChain(walletOption.wallet, chain);
+      setWalletConnection(chain, type, walletOption.wallet);
+
+      return walletOption.wallet;
+    } catch {
+      localStorage.removeItem(localStorageKey);
+      return null;
+    }
   }
-}
 
-async function connectWallet(
-  chain: Chain,
-  type: TransferWallet,
-  autoConnect?: boolean,
-): Promise<Wallet | null> {
-  if (autoConnect) {
-    return await connectLastUsedWallet(chain, type);
-  }
-
-  if (pendingConnect) {
-    if (pendingConnect.chain !== chain || pendingConnect.type !== type) {
-      return Promise.reject('Connect wallet pending for other chain/type');
+  async function connectWallet(
+    chain: Chain,
+    type: TransferWallet,
+    autoConnect?: boolean,
+  ): Promise<Wallet | null> {
+    if (autoConnect) {
+      return await connectLastUsedWallet(chain, type);
     }
 
-    return pendingConnect.promise;
+    if (pendingConnect) {
+      if (pendingConnect.chain !== chain || pendingConnect.type !== type) {
+        return Promise.reject('Connect wallet pending for other chain/type');
+      }
+
+      return pendingConnect.promise;
+    }
+
+    let resolve: (wallet: Wallet) => void;
+    let reject: (error: Error) => void;
+
+    const promise = new Promise<Wallet>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+
+    pendingConnect = {
+      chain,
+      type,
+      promise,
+      resolve: resolve!,
+      reject: reject!,
+    };
+
+    return promise;
   }
 
-  let resolve: (wallet: Wallet) => void;
-  let reject: (error: Error) => void;
-
-  const promise = new Promise<Wallet>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-
-  pendingConnect = {
-    chain,
-    type,
-    promise,
-    resolve: resolve!,
-    reject: reject!,
-  };
-
-  return promise;
-}
-
-function getWallet(_chain: Chain, type: TransferWallet): Wallet | null {
-  return getWalletConnection(type) || null;
-}
-
-async function signAndSendTransactionInternal(
-  chain: Chain,
-  wallet: Wallet,
-  transaction: UnsignedTransaction<Network, Chain>,
-): Promise<string> {
-  return await signAndSendTransaction(chain, transaction, wallet);
-}
-
-function swapWallets(): void {
-  if (walletConnections.receiving?.wallet.getName() === ReadOnlyWallet.NAME) {
-    walletConnections.receiving.wallet.disconnect();
+  function getWallet(_chain: Chain, type: TransferWallet): Wallet | null {
+    return getWalletConnection(type) || null;
   }
 
-  const temp = walletConnections.sending;
-  walletConnections.sending = walletConnections.receiving;
-  walletConnections.receiving = temp;
-}
-
-function on<T extends keyof WalletProviderEvents>(
-  _event: T,
-  _handler: WalletProviderEvents[T],
-): void {
-  // no-op for internal provider, as it doesn't emit events
-}
-
-function off<T extends keyof WalletProviderEvents>(
-  _event: T,
-  _handler: WalletProviderEvents[T],
-): void {
-  // no-op for internal provider, as it doesn't emit events
-}
-
-async function onWalletSelected(
-  wallet: Wallet,
-  chain: Chain,
-  type: TransferWallet,
-): Promise<void> {
-  if (!pendingConnect) {
-    throw new Error('No pending wallet connection request');
+  async function signAndSendTransactionInternal(
+    chain: Chain,
+    wallet: Wallet,
+    transaction: UnsignedTransaction<Network, Chain>,
+  ): Promise<string> {
+    return await signAndSendTransaction(chain, transaction, wallet);
   }
 
-  if (pendingConnect.chain !== chain || pendingConnect.type !== type) {
-    throw new Error(
-      `Wallet selection mismatch: expected ${pendingConnect.chain}/${pendingConnect.type}, ` +
-        `but got ${chain}/${type}`,
-    );
-  }
-  try {
-    await connectWalletToChain(wallet, chain);
+  function swapWallets(): void {
+    if (walletConnections.receiving?.wallet.getName() === ReadOnlyWallet.NAME) {
+      walletConnections.receiving.wallet.disconnect();
+    }
 
-    setWalletConnection(chain, type, wallet);
-    pendingConnect.resolve(wallet);
-  } catch (error) {
-    pendingConnect.reject(error as Error);
-  } finally {
-    pendingConnect = undefined;
+    const temp = walletConnections.sending;
+    walletConnections.sending = walletConnections.receiving;
+    walletConnections.receiving = temp;
   }
-}
 
-function onWalletSelectCancelled(): void {
-  if (pendingConnect) {
-    pendingConnect.reject(new Error('User cancelled wallet connection'));
-    pendingConnect = undefined;
+  function on<T extends keyof WalletProviderEvents>(
+    _event: T,
+    _handler: WalletProviderEvents[T],
+  ): void {
+    // no-op for internal provider, as it doesn't emit events
   }
-}
 
-export const internalWalletProvider = {
-  isInternal: true as const,
-  connectWallet,
-  getWallet,
-  signAndSendTransaction: signAndSendTransactionInternal,
-  swapWallets,
-  on,
-  off,
-  onWalletSelected,
-  onWalletSelectCancelled,
-} satisfies WormholeConnectWalletProvider & {
-  isInternal: true;
-  onWalletSelected: (
+  function off<T extends keyof WalletProviderEvents>(
+    _event: T,
+    _handler: WalletProviderEvents[T],
+  ): void {
+    // no-op for internal provider, as it doesn't emit events
+  }
+
+  async function onWalletSelected(
     wallet: Wallet,
     chain: Chain,
     type: TransferWallet,
-  ) => Promise<void>;
-  onWalletSelectCancelled: () => void;
-};
+  ): Promise<void> {
+    if (!pendingConnect) {
+      throw new Error('No pending wallet connection request');
+    }
 
-export type InternalWalletProvider = typeof internalWalletProvider;
+    if (pendingConnect.chain !== chain || pendingConnect.type !== type) {
+      throw new Error(
+        `Wallet selection mismatch: expected ${pendingConnect.chain}/${pendingConnect.type}, ` +
+          `but got ${chain}/${type}`,
+      );
+    }
+    try {
+      await connectWalletToChain(wallet, chain);
+
+      setWalletConnection(chain, type, wallet);
+      pendingConnect.resolve(wallet);
+    } catch (error) {
+      pendingConnect.reject(error as Error);
+    } finally {
+      pendingConnect = undefined;
+    }
+  }
+
+  function onWalletSelectCancelled(): void {
+    if (pendingConnect) {
+      pendingConnect.reject(new Error('User cancelled wallet connection'));
+      pendingConnect = undefined;
+    }
+  }
+
+  return {
+    isInternal: true as const,
+    connectWallet,
+    getWallet,
+    signAndSendTransaction: signAndSendTransactionInternal,
+    swapWallets,
+    on,
+    off,
+    onWalletSelected,
+    onWalletSelectCancelled,
+  } satisfies WormholeConnectWalletProvider & {
+    isInternal: true;
+    onWalletSelected: (
+      wallet: Wallet,
+      chain: Chain,
+      type: TransferWallet,
+    ) => Promise<void>;
+    onWalletSelectCancelled: () => void;
+  };
+}
+
+export type InternalWalletProvider = ReturnType<
+  typeof createInternalWalletProvider
+>;
 
 export function isInternalProvider(
   provider: WormholeConnectWalletProvider,
