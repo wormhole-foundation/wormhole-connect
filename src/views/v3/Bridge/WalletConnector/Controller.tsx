@@ -20,9 +20,10 @@ import useWalletProvider from 'hooks/useWalletProvider';
 
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
-import { Tooltip } from '@mui/material';
+import { ListItemIcon, Tooltip } from '@mui/material';
 import WalletPicker from './WalletPicker';
 import WalletAddress from './WalletAddress';
+import { CopyIcon, Repeat2Icon, UnplugIcon } from 'lucide-react';
 
 type Props = {
   type: TransferWallet;
@@ -110,10 +111,22 @@ const ConnectedWallet = (props: Props) => {
               sx: { marginTop: '4px' },
             },
           }}
+          sx={{
+            '& .MuiTypography-root': {
+              fontSize: 14,
+              flexGrow: 1,
+            },
+            '& .MuiListItemIcon-root': {
+              justifyContent: 'flex-end',
+            },
+          }}
         >
           <List>
             <ListItemButton onClick={copyAddress}>
-              <Typography fontSize={14}>Copy address</Typography>
+              <Typography>Copy address</Typography>
+              <ListItemIcon>
+                <CopyIcon size={14} />
+              </ListItemIcon>
             </ListItemButton>
             {config.ui.explorer ? (
               <ExplorerLink
@@ -125,12 +138,18 @@ const ConnectedWallet = (props: Props) => {
             ) : null}
             {isChangeWalletVisible && (
               <ListItemButton onClick={handleChangeWallet}>
-                <Typography fontSize={14}>Change wallet</Typography>
+                <Typography>Change wallet</Typography>
+                <ListItemIcon>
+                  <Repeat2Icon size={14} />
+                </ListItemIcon>
               </ListItemButton>
             )}
             {isDisconnectWalletVisible && (
               <ListItemButton onClick={handleDisconnectWallet}>
-                <Typography fontSize={14}>Disconnect</Typography>
+                <Typography>Disconnect</Typography>
+                <ListItemIcon>
+                  <UnplugIcon size={14} />
+                </ListItemIcon>
               </ListItemButton>
             )}
           </List>
