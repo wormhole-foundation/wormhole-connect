@@ -1,14 +1,11 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import {
   usePopupState,
@@ -18,13 +15,14 @@ import {
 
 import type { RootState } from 'store';
 import { TransferWallet } from 'utils/wallet';
-import { copyTextToClipboard, displayWalletAddress } from 'utils';
+import { copyTextToClipboard } from 'utils';
 import useWalletProvider from 'hooks/useWalletProvider';
 
 import config from 'config';
 import ExplorerLink from './ExplorerLink';
 import { Tooltip } from '@mui/material';
 import WalletPicker from './WalletPicker';
+import WalletAddress from './WalletAddress';
 
 type Props = {
   type: TransferWallet;
@@ -34,31 +32,7 @@ const COPY_MESSAGE_TIMOUT = 1000;
 
 // Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
-  const theme = useTheme();
   const { connectWallet, disconnectWallet } = useWalletProvider();
-
-  const styles = useMemo(
-    () => ({
-      connectWallet: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '8px',
-        cursor: 'pointer',
-        opacity: 1.0,
-      },
-      walletAddress: {
-        color: theme.palette.text.secondary,
-        marginLeft: '8px',
-      },
-      disabled: {
-        opacity: '0.6',
-        cursor: 'default',
-        pointerEvents: 'none' as const,
-      },
-    }),
-    [theme],
-  );
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -115,66 +89,52 @@ const ConnectedWallet = (props: Props) => {
 
   return (
     <>
-      {!wallet?.address ? null : (
-        <>
-          <Box
-            sx={[
-              styles.connectWallet,
-              isTransactionInProgress && styles.disabled,
-            ]}
-            {...popupTrigger}
-          >
-            <Tooltip title="Copied" open={isCopied} placement="top" arrow>
-              <Typography
-                sx={styles.walletAddress}
-                fontSize={12}
-                fontWeight={400}
-              >
-                {displayWalletAddress(wallet.type, wallet.address)}
-              </Typography>
-            </Tooltip>
-            {popupState.isOpen ? (
-              <ExpandLess fontSize="small" />
-            ) : (
-              <ExpandMore fontSize="small" />
-            )}
-          </Box>
-          <Popover
-            {...bindPopover(popupState)}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            <List>
-              <ListItemButton onClick={copyAddress}>
-                <Typography fontSize={14}>Copy address</Typography>
+      <Tooltip title="Copied" open={isCopied} placement="top" arrow>
+        <Box {...popupTrigger}>
+          <WalletAddress wallet={wallet} isDisabled={isTransactionInProgress} />
+        </Box>
+      </Tooltip>
+      {!!wallet.address && (
+        <Popover
+          {...bindPopover(popupState)}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          slotProps={{
+            paper: {
+              sx: { marginTop: '4px' },
+            },
+          }}
+        >
+          <List>
+            <ListItemButton onClick={copyAddress}>
+              <Typography fontSize={14}>Copy address</Typography>
+            </ListItemButton>
+            {config.ui.explorer ? (
+              <ExplorerLink
+                address={wallet.address}
+                href={config.ui.explorer.href}
+                target={config.ui.explorer.target}
+                label={config.ui.explorer.label}
+              />
+            ) : null}
+            {isChangeWalletVisible && (
+              <ListItemButton onClick={handleChangeWallet}>
+                <Typography fontSize={14}>Change wallet</Typography>
               </ListItemButton>
-              {config.ui.explorer ? (
-                <ExplorerLink
-                  address={wallet.address}
-                  href={config.ui.explorer.href}
-                  target={config.ui.explorer.target}
-                  label={config.ui.explorer.label}
-                />
-              ) : null}
-              {isChangeWalletVisible && (
-                <ListItemButton onClick={handleChangeWallet}>
-                  <Typography fontSize={14}>Change wallet</Typography>
-                </ListItemButton>
-              )}
-              {isDisconnectWalletVisible && (
-                <ListItemButton onClick={handleDisconnectWallet}>
-                  <Typography fontSize={14}>Disconnect</Typography>
-                </ListItemButton>
-              )}
-            </List>
-          </Popover>
-        </>
+            )}
+            {isDisconnectWalletVisible && (
+              <ListItemButton onClick={handleDisconnectWallet}>
+                <Typography fontSize={14}>Disconnect</Typography>
+              </ListItemButton>
+            )}
+          </List>
+        </Popover>
       )}
       <WalletPicker
         open={isOpen}
