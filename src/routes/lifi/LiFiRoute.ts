@@ -73,7 +73,7 @@ export class LiFiRoute<N extends Network>
 {
   static meta = {
     name: 'LiFi',
-    provider: 'LiFi',
+    provider: 'LI.FI',
   };
 
   static NATIVE_GAS_DROPOFF_SUPPORTED = false;
@@ -253,7 +253,6 @@ export class LiFiRoute<N extends Network>
           (quote.estimate?.executionDuration || DEFAULT_ETA_SECONDS) *
           MILLISECONDS_PER_SECOND,
         details: quote,
-        provider: quote.toolDetails.name,
       };
 
       return fullQuote;
