@@ -81,11 +81,10 @@ export const useSortedRoutesWithQuotes = ({
     ],
   );
 
-  const {
-    quotes,
-    failedQuotes,
-    isFetchingInitialQuotes: isFetchingQuotes,
-  } = useFetchQuotes(supportedRoutes, quoteParams);
+  const { quotes, failedQuotes, isFetchingQuotes } = useFetchQuotes(
+    supportedRoutes,
+    quoteParams,
+  );
 
   const routesWithQuotes = useMemo(() => {
     return supportedRoutes
