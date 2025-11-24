@@ -337,6 +337,8 @@ describe('formatNumber utilities', () => {
     it('should handle invalid inputs', () => {
       expect(formatMaxDigits('invalid', 6, 4)).toBe('0');
       expect(formatMaxDigits('', 6, 4)).toBe('0');
+      expect(formatMaxDigits('Infinity', 6, 4)).toBe('0');
+      expect(formatMaxDigits('-Infinity', 6, 4)).toBe('0');
     });
 
     it('should handle edge cases', () => {

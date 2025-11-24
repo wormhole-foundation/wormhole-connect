@@ -159,10 +159,10 @@ export const formatMaxDigits = (
   totalDigits: number,
   maxDecimals: number,
 ): string => {
-  // Parse only for validation (zero/NaN check)
+  // Parse only for validation (zero/NaN/Infinity check)
   const numValue = parseFloat(value);
-  // Handle zero and NaN cases
-  if (numValue === 0 || Number.isNaN(numValue)) {
+  // Handle zero, NaN, and Infinity cases
+  if (!Number.isFinite(numValue) || numValue === 0) {
     return '0';
   }
 
