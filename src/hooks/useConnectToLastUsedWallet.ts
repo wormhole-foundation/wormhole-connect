@@ -22,10 +22,6 @@ export const useConnectToLastUsedWallet = (
         await connectWallet(sourceChain, TransferWallet.SENDING, true);
       }
 
-      if (destChain && !canceled) {
-        await connectWallet(destChain, TransferWallet.RECEIVING, true);
-      }
-
       if (!canceled) {
         setIsConnecting(false);
       }
