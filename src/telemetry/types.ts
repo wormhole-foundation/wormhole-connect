@@ -78,6 +78,7 @@ export const ERR_USER_REJECTED = 'user_rejected';
 export const ERR_TIMEOUT = 'user_timeout';
 export const ERR_UNKNOWN = 'unknown';
 export const ERR_RELAY_FAILED = 'relay_failed';
+export const ERR_SLIPPAGE_EXCEEDED = 'slippage_exceeded';
 
 export type TransferErrorType =
   | typeof ERR_INSUFFICIENT_ALLOWANCE
@@ -92,6 +93,7 @@ export type TransferErrorType =
   | typeof ERR_USER_REJECTED
   | typeof ERR_TIMEOUT
   | typeof ERR_RELAY_FAILED
+  | typeof ERR_SLIPPAGE_EXCEEDED
   | typeof ERR_UNKNOWN;
 
 export interface ConnectWalletEvent {

@@ -13,6 +13,7 @@ import {
   ERR_AMOUNT_TOO_LARGE,
   ERR_AMOUNT_TOO_SMALL,
   ERR_RELAY_FAILED,
+  ERR_SLIPPAGE_EXCEEDED,
 } from 'telemetry/types';
 import { routes, amount as sdkAmount } from '@wormhole-foundation/sdk';
 import {
@@ -33,6 +34,8 @@ export const USER_REJECTED_REGEX = new RegExp(
   'mi',
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
+export const JUPITER_SLIPPAGE_ERROR =
+  /Simulation failed:.*InstructionError.*Custom.*6001/;
 
 // Insufficient funds patterns
 export const INSUFFICIENT_FUNDS_FOR_GAS_REGEX =
@@ -70,6 +73,12 @@ export function interpretTransferError(
     if (e instanceof routes.RelayFailedError) {
       uiErrorMessage = e.message;
       internalErrorCode = ERR_RELAY_FAILED;
+    } else if (
+      transferDetails.route.includes('MayanSwapMONOCHAIN') &&
+      errorMessageMatches(e, JUPITER_SLIPPAGE_ERROR)
+    ) {
+      uiErrorMessage = 'Slippage exceeded. Please try again';
+      internalErrorCode = ERR_SLIPPAGE_EXCEEDED;
     } else if (errorMessageMatches(e, INSUFFICIENT_ALLOWANCE_REGEX)) {
       uiErrorMessage = 'Error with transfer, please try again';
       internalErrorCode = ERR_INSUFFICIENT_ALLOWANCE;
