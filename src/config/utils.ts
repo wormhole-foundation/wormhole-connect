@@ -155,7 +155,10 @@ export const validateDefaults = (
   }
 
   if (defaults.source?.token && defaults.destination?.token) {
-    if (defaults.source.token === defaults.destination.token) {
+    if (
+      defaults.source.token === defaults.destination.token &&
+      defaults.source.token !== 'native'
+    ) {
       error(
         `Source and destination token cannot be the same, check the defaultInputs configuration`,
       );
