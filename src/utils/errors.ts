@@ -35,7 +35,7 @@ export const USER_REJECTED_REGEX = new RegExp(
 );
 export const AMOUNT_IN_TOO_SMALL = new RegExp('AmountInTooSmall', 'm');
 export const JUPITER_SLIPPAGE_ERROR =
-  /Simulation failed:.*InstructionError.*0.*Custom.*6001/;
+  /Simulation failed:.*InstructionError.*Custom.*6001/;
 
 // Insufficient funds patterns
 export const INSUFFICIENT_FUNDS_FOR_GAS_REGEX =
