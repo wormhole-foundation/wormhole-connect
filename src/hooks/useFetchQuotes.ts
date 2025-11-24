@@ -27,7 +27,7 @@ type Params = {
 type HookReturn = {
   quotes: Record<string, QuoteResult | undefined>;
   failedQuotes: Record<string, QuoteResult | undefined>;
-  isFetchingInitialQuotes: boolean;
+  isFetchingQuotes: boolean;
 };
 
 const MAYAN_BETA_PROTOCOL_LIMITS = {
@@ -39,7 +39,7 @@ export default (routes: string[], params: Params): HookReturn => {
   const refreshTimeout = useRef<undefined | ReturnType<typeof setTimeout>>(
     undefined,
   );
-  const [isFetchingInitialQuotes, setIsFetchingInitialQuotes] = useState(false);
+  const [isFetchingQuotes, setisFetchingQuotes] = useState(false);
   const [unfilteredQuotes, setUnfilteredQuotes] = useState<
     Record<string, QuoteResult>
   >({});
@@ -161,7 +161,7 @@ export default (routes: string[], params: Params): HookReturn => {
     ) {
       // Clear quotes if we are missing any inputs or if the inputs support 0 routes
       setUnfilteredQuotes({});
-      setIsFetchingInitialQuotes(false);
+      setisFetchingQuotes(false);
       return cleanup;
     }
 
@@ -188,22 +188,21 @@ export default (routes: string[], params: Params): HookReturn => {
       }
     }
 
-    // Let the hook caller know when we are fetching for the first time
-    // so it can show an in-progress state.
-    //
-    // However, when fetching updates afterwards, we do not need to show
-    // this in-progress state because there are already existing quotes
-    // to show - this is less jarring.
-    if (Object.keys(unfilteredQuotes).length === 0 && routes.length !== 0) {
-      setIsFetchingInitialQuotes(true);
-    }
+    // Starting to fetch new quotes
+    setisFetchingQuotes(true);
 
-    config.routes.getQuotes(routes, rParams).then((quoteResults) => {
-      if (!unmounted) {
-        setUnfilteredQuotes(quoteResults);
-        setIsFetchingInitialQuotes(false);
-      }
-    });
+    config.routes
+      .getQuotes(routes, rParams)
+      .then((quoteResults) => {
+        if (!unmounted) {
+          setUnfilteredQuotes(quoteResults);
+        }
+      })
+      .finally(() => {
+        if (!unmounted) {
+          setisFetchingQuotes(false);
+        }
+      });
 
     return cleanup;
     // Important: Do not the token or chain params to the dependency array. This causes the hook
@@ -424,6 +423,6 @@ export default (routes: string[], params: Params): HookReturn => {
   return {
     quotes,
     failedQuotes,
-    isFetchingInitialQuotes,
+    isFetchingQuotes,
   };
 };
