@@ -3,6 +3,7 @@ import type { TokenCache } from './tokens';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import type { DefaultInputs } from './ui';
+import { isNative } from '@wormhole-foundation/sdk';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
@@ -134,7 +135,10 @@ export const validateDefaults = (
   chains: ChainsConfig,
   tokens: TokenCache,
 ) => {
-  if (!defaults) return;
+  if (!defaults) {
+    return;
+  }
+
   if (defaults.source?.chain) {
     const chain = chains[defaults.source.chain];
     if (!chain) {
@@ -144,6 +148,7 @@ export const validateDefaults = (
       delete defaults.source;
     }
   }
+
   if (defaults.destination?.chain) {
     const chain = chains[defaults.destination.chain];
     if (!chain) {
@@ -154,11 +159,18 @@ export const validateDefaults = (
     }
   }
 
-  if (defaults.source?.token && defaults.destination?.token) {
-    if (
-      defaults.source.token === defaults.destination.token &&
-      defaults.source.token !== 'native'
-    ) {
+  if (
+    defaults.source?.token &&
+    defaults.destination?.token &&
+    defaults.source.token === defaults.destination.token
+  ) {
+    const sameChain = defaults.source?.chain === defaults.destination?.chain;
+
+    if (sameChain) {
+      error(
+        `Source and destination cannot be the same when both chain and token are identical, check the defaultInputs configuration`,
+      );
+    } else if (!isNative(defaults.source.token)) {
       error(
         `Source and destination token cannot be the same, check the defaultInputs configuration`,
       );

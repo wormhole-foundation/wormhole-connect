@@ -110,6 +110,42 @@ describe('utils', () => {
       );
     });
 
+    it('errors when source and destination chain and token are identical', () => {
+      const defaults: DefaultInputs = {
+        source: { chain: 'Ethereum', token: 'USDC' },
+        destination: { chain: 'Ethereum', token: 'USDC' },
+      };
+
+      validateDefaults(defaults, mockChains, mockTokens);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Wormhole Connect: Source and destination cannot be the same when both chain and token are identical, check the defaultInputs configuration',
+      );
+    });
+
+    it('errors when source and destination chain and native token are identical', () => {
+      const defaults: DefaultInputs = {
+        source: { chain: 'Ethereum', token: 'native' },
+        destination: { chain: 'Ethereum', token: 'native' },
+      };
+
+      validateDefaults(defaults, mockChains, mockTokens);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Wormhole Connect: Source and destination cannot be the same when both chain and token are identical, check the defaultInputs configuration',
+      );
+    });
+
+    it('does not error when chains are different but tokens are the same native', () => {
+      const defaults: DefaultInputs = {
+        source: { chain: 'Ethereum', token: 'native' },
+        destination: { chain: 'Solana', token: 'native' },
+      };
+
+      validateDefaults(defaults, mockChains, mockTokens);
+      expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining('both chain and token are identical'),
+      );
+    });
+
     it('errors when requiredChain is invalid', () => {
       const defaults: DefaultInputs = {
         source: { chain: 'Ethereum' },
