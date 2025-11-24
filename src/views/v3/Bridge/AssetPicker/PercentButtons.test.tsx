@@ -269,7 +269,7 @@ describe('PercentButtons', () => {
   });
 
   describe('Insufficient balance handling', () => {
-    it('does not set amount when balance is less than gas reserve', async () => {
+    it('shows tooltip on click when balance is less than or equal to gas reserve', async () => {
       const store = createMockStore();
       const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
       const { getGasReserve } = vi.mocked(await import('utils/gasReserve'));
@@ -291,20 +291,128 @@ describe('PercentButtons', () => {
 
       const propsWithLowBalance = {
         ...defaultProps,
-        tokenBalance: sdkAmount.fromBaseUnits(10000000000000000n, 18), // 0.01 ETH
+        tokenBalance: sdkAmount.fromBaseUnits(10000000000000000n, 18), // 0.01 ETH (less than 0.02 reserve)
       };
 
       render(<PercentButtons {...propsWithLowBalance} />, {
         wrapper: AppWrapper(store),
       });
 
-      const buttonMax = screen.getByText('Max');
-      fireEvent.click(buttonMax);
+      const buttonMax = screen.getByText('Max').closest('button');
 
-      // Should NOT call amount change handlers when balance is insufficient
+      // Max button should NOT be disabled
+      expect(buttonMax).not.toBeDisabled();
+
+      // Click the button
+      fireEvent.click(buttonMax!);
+
+      // Should NOT call amount change handlers when insufficient balance
       expect(mockOnAmountChange).not.toHaveBeenCalled();
       expect(mockOnDebouncedAmountChange).not.toHaveBeenCalled();
       expect(mockOnPercentSelect).not.toHaveBeenCalled();
+
+      // Should show error tooltip (check for visible tooltip content)
+      expect(
+        screen.getByRole('tooltip', {
+          name: /You don't have enough funds in your wallet to cover both this amount and the gas cost of the transfer/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('shows tooltip only for the specific button clicked', async () => {
+      const store = createMockStore();
+      const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+      const { getGasReserve } = vi.mocked(await import('utils/gasReserve'));
+      const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+      const { getGasToken } = vi.mocked(await import('utils'));
+      const { isSameToken } = vi.mocked(
+        await import('@wormhole-foundation/sdk'),
+      );
+
+      const gasReserve = sdkAmount.fromBaseUnits(20000000000000000n, 18); // 0.02 ETH
+      calculateFeeOffset.mockReturnValue(undefined);
+      getGasReserve.mockReturnValue(gasReserve);
+      getGasToken.mockReturnValue(mockToken);
+      isSameToken.mockReturnValue(true);
+      useGetTokens.mockReturnValue({
+        sourceToken: mockToken,
+        destToken: undefined,
+      } as any);
+
+      const propsWithLowBalance = {
+        ...defaultProps,
+        tokenBalance: sdkAmount.fromBaseUnits(10000000000000000n, 18), // 0.01 ETH (less than 0.02 reserve)
+      };
+
+      render(<PercentButtons {...propsWithLowBalance} />, {
+        wrapper: AppWrapper(store),
+      });
+
+      const button50 = screen.getByText('50%').closest('button');
+
+      // Click the 50% button
+      fireEvent.click(button50!);
+
+      // Only the 50% button should have the error tooltip (check for visible tooltip with role="tooltip")
+      const tooltips = screen.queryAllByRole('tooltip', {
+        name: /You don't have enough funds in your wallet to cover both this amount and the gas cost of the transfer/i,
+      });
+      expect(tooltips).toHaveLength(1);
+    });
+
+    it('does not show error tooltip for non-gas tokens with insufficient balance', async () => {
+      const store = createMockStore();
+      const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
+      const { getGasReserve } = vi.mocked(await import('utils/gasReserve'));
+      const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
+      const { getGasToken } = vi.mocked(await import('utils'));
+      const { isSameToken } = vi.mocked(
+        await import('@wormhole-foundation/sdk'),
+      );
+
+      const usdcToken = createMockToken({
+        symbol: 'USDC',
+        name: 'USD Coin',
+        decimals: 6,
+        chain: 'Ethereum',
+        addressString: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      });
+
+      const gasReserve = sdkAmount.fromBaseUnits(20000000000000000n, 18); // 0.02 ETH
+      calculateFeeOffset.mockReturnValue(undefined);
+      getGasReserve.mockReturnValue(gasReserve);
+      getGasToken.mockReturnValue(mockToken); // ETH
+      isSameToken.mockReturnValue(false); // USDC !== ETH
+      useGetTokens.mockReturnValue({
+        sourceToken: usdcToken,
+        destToken: undefined,
+      } as any);
+
+      const propsWithLowBalance = {
+        ...defaultProps,
+        tokenBalance: sdkAmount.fromBaseUnits(1000n, 6), // 0.001 USDC (very low balance)
+      };
+
+      render(<PercentButtons {...propsWithLowBalance} />, {
+        wrapper: AppWrapper(store),
+      });
+
+      const buttonMax = screen.getByText('Max').closest('button');
+
+      // Click the button
+      fireEvent.click(buttonMax!);
+
+      // Should call amount change handlers (no error tooltip for non-gas tokens)
+      expect(mockOnAmountChange).toHaveBeenCalled();
+      expect(mockOnDebouncedAmountChange).toHaveBeenCalled();
+      expect(mockOnPercentSelect).toHaveBeenCalled();
+
+      // Should NOT show error tooltip
+      expect(
+        screen.queryByRole('tooltip', {
+          name: /You don't have enough funds in your wallet to cover both this amount and the gas cost of the transfer/i,
+        }),
+      ).not.toBeInTheDocument();
     });
   });
 
