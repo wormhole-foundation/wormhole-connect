@@ -106,6 +106,8 @@ export const useSortedRoutesWithQuotes = ({
 
   // Only routes with quotes are sorted.
   const sortedRoutesWithQuotes = useMemo(() => {
+    const sortPriority = config.ui.routeSortPriority || 'fastest';
+
     return routesWithQuotes.sort((routeA, routeB) => {
       const routeConfigA = config.routes.get(routeA.route);
       const routeConfigB = config.routes.get(routeB.route);
@@ -120,29 +122,55 @@ export const useSortedRoutesWithQuotes = ({
         }
       }
 
-      // 1. Sort by ETA (fastest first)
-      const etaA = routeA.quote.eta ?? Infinity;
-      const etaB = routeB.quote.eta ?? Infinity;
-      if (etaA !== etaB) {
+      if (sortPriority === 'cheapest') {
+        // 1. Sort by destination amount (cheapest/best output first)
+        const destAmountA = BigInt(routeA.quote.destinationToken.amount.amount);
+        const destAmountB = BigInt(routeB.quote.destinationToken.amount.amount);
+        const amountDiff = Number(destAmountB - destAmountA);
+        if (amountDiff !== 0) {
+          return amountDiff;
+        }
+
+        // 2. If amounts are the same, prioritize automatic routes
+        if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
+          return -1;
+        } else if (
+          !routeConfigA.AUTOMATIC_DEPOSIT &&
+          routeConfigB.AUTOMATIC_DEPOSIT
+        ) {
+          return 1;
+        }
+
+        // 3. If still tied, sort by ETA (fastest first)
+        const etaA = routeA.quote.eta ?? Infinity;
+        const etaB = routeB.quote.eta ?? Infinity;
         return etaA - etaB;
-      }
+      } else {
+        // Default: 'fastest' sorting
+        // 1. Sort by ETA (fastest first)
+        const etaA = routeA.quote.eta ?? Infinity;
+        const etaB = routeB.quote.eta ?? Infinity;
+        if (etaA !== etaB) {
+          return etaA - etaB;
+        }
 
-      // 2. If ETA is the same, prioritize automatic routes
-      if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
-        return -1;
-      } else if (
-        !routeConfigA.AUTOMATIC_DEPOSIT &&
-        routeConfigB.AUTOMATIC_DEPOSIT
-      ) {
-        return 1;
-      }
+        // 2. If ETA is the same, prioritize automatic routes
+        if (routeConfigA.AUTOMATIC_DEPOSIT && !routeConfigB.AUTOMATIC_DEPOSIT) {
+          return -1;
+        } else if (
+          !routeConfigA.AUTOMATIC_DEPOSIT &&
+          routeConfigB.AUTOMATIC_DEPOSIT
+        ) {
+          return 1;
+        }
 
-      // 3. If still tied, compare destination token amounts
-      const destAmountA = BigInt(routeA.quote.destinationToken.amount.amount);
-      const destAmountB = BigInt(routeB.quote.destinationToken.amount.amount);
-      // Note: Sort callback return strictly expects Number
-      // Returning BigInt results in TypeError
-      return Number(destAmountB - destAmountA);
+        // 3. If still tied, compare destination token amounts
+        const destAmountA = BigInt(routeA.quote.destinationToken.amount.amount);
+        const destAmountB = BigInt(routeB.quote.destinationToken.amount.amount);
+        // Note: Sort callback return strictly expects Number
+        // Returning BigInt results in TypeError
+        return Number(destAmountB - destAmountA);
+      }
     });
   }, [preferredRouteName, routesWithQuotes]);
 
