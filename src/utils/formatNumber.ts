@@ -155,12 +155,12 @@ export const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
  * formatMaxDigits('1234567.89', 6, 4)     // '1234567' (int exceeds totalDigits, show full int)
  */
 export const formatMaxDigits = (
-  value: string | number,
+  value: string,
   totalDigits: number,
   maxDecimals: number,
 ): string => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
-
+  // Parse only for validation (zero/NaN check)
+  const numValue = parseFloat(value);
   // Handle zero and NaN cases
   if (numValue === 0 || Number.isNaN(numValue)) {
     return '0';
@@ -171,23 +171,25 @@ export const formatMaxDigits = (
   // 2. It doesn't respect maxDecimals constraint properly
   // 3. It can return scientific notation for large/small numbers
 
+  // Work with original string to preserve precision (avoid parseFloat precision loss)
+  const [intPart, decimalPart] = value.split('.');
+
   // Get the integer part length (count digits, not including decimal)
-  const integerPart = Math.floor(numValue);
-  const integerDigits = integerPart === 0 ? 1 : integerPart.toString().length;
+  const integerDigits = intPart === '0' ? 1 : intPart.length;
 
   // If integer part already exceeds or equals totalDigits, return just the integer
   if (integerDigits >= totalDigits) {
-    return integerPart.toString();
+    return intPart;
   }
 
   // Calculate how many decimal places we can show
   const remainingDigits = totalDigits - integerDigits;
   const decimalsToShow = Math.min(remainingDigits, maxDecimals);
 
-  // Truncate decimals to match the max allowed
-  const [intPart, decimalPart] = numValue.toString().split('.');
+  // No decimal part or no space for decimals
   if (!decimalPart || decimalsToShow === 0) {
     return intPart;
   }
+
   return `${intPart}.${decimalPart.substring(0, decimalsToShow)}`;
 };

@@ -331,17 +331,12 @@ describe('formatNumber utilities', () => {
 
     it('should handle zero', () => {
       expect(formatMaxDigits('0', 6, 4)).toBe('0');
-      expect(formatMaxDigits(0, 6, 4)).toBe('0');
-    });
-
-    it('should accept numeric values', () => {
-      expect(formatMaxDigits(123.456789, 6, 4)).toBe('123.456');
-      expect(formatMaxDigits(12345.6789, 6, 4)).toBe('12345.6');
+      expect(formatMaxDigits('0.0', 6, 4)).toBe('0');
     });
 
     it('should handle invalid inputs', () => {
       expect(formatMaxDigits('invalid', 6, 4)).toBe('0');
-      expect(formatMaxDigits(NaN, 6, 4)).toBe('0');
+      expect(formatMaxDigits('', 6, 4)).toBe('0');
     });
 
     it('should handle edge cases', () => {
