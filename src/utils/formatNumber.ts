@@ -137,3 +137,63 @@ export const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
     return asNumber.toPrecision(3);
   }
 };
+
+/**
+ * Format a number with smart precision based on total digits and max decimal digits.
+ * If the integer part is less than totalDigits, show decimals up to maxDecimals
+ * (limited by remaining space from totalDigits).
+ *
+ * @param value - The numeric value to format (string or number)
+ * @param totalDigits - Maximum total significant digits to display
+ * @param maxDecimals - Maximum number of decimal places to show
+ * @returns Formatted number string (decimals truncated)
+ *
+ * @example
+ * formatWithPrecision('123.456789', 6, 4)     // '123.456' (3 int + 3 dec = 6 total)
+ * formatWithPrecision('123.456789', 8, 4)     // '123.4567' (3 int + 4 dec, limited by maxDecimals)
+ * formatWithPrecision('12345.6789', 6, 4)     // '12345.6' (5 int + 1 dec = 6 total)
+ * formatWithPrecision('123456.789', 6, 4)     // '123456' (6 int, no space for decimals)
+ * formatWithPrecision('1234567.89', 6, 4)     // '1234567' (int exceeds totalDigits, show full int)
+ * formatWithPrecision('0.123456', 4, 4)       // '0.123' (1 int + 3 dec = 4 total)
+ */
+export const formatWithPrecision = (
+  value: string | number,
+  totalDigits: number,
+  maxDecimals: number,
+): string => {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+
+  // Handle zero and NaN cases
+  if (numValue === 0 || Number.isNaN(numValue)) {
+    return '0';
+  }
+
+  // Note: We don't use toPrecision() because:
+  // 1. It rounds instead of truncates
+  // 2. It doesn't respect maxDecimals constraint properly
+  // 3. It can return scientific notation for large/small numbers
+
+  // Get the integer part length (count digits, not including decimal)
+  const integerPart = Math.floor(numValue);
+  const integerDigits = integerPart === 0 ? 1 : integerPart.toString().length;
+
+  // If integer part already exceeds or equals totalDigits, return just the integer
+  if (integerDigits >= totalDigits) {
+    return integerPart.toString();
+  }
+
+  // Calculate how many decimal places we can show
+  const remainingDigits = totalDigits - integerDigits;
+  const decimalsToShow = Math.min(remainingDigits, maxDecimals);
+
+  // Truncate decimals to match the max allowed
+  const valueStr = numValue.toString();
+  const [intPart, decPart] = valueStr.split('.');
+
+  if (!decPart || decimalsToShow === 0) {
+    return intPart;
+  }
+
+  const truncatedDecimals = decPart.substring(0, decimalsToShow);
+  return `${intPart}.${truncatedDecimals}`;
+};

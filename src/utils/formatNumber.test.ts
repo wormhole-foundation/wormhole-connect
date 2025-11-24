@@ -4,6 +4,7 @@ import {
   removeFormatting,
   isValidFormattedNumber,
   formatMinAmount,
+  formatWithPrecision,
 } from './formatNumber';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
@@ -266,6 +267,103 @@ describe('formatNumber utilities', () => {
       // 2 decimals
       const amount2Dec = sdkAmount.fromBaseUnits(12345n, 2); // 123.45
       expect(formatMinAmount(amount2Dec)).toBe('123');
+    });
+  });
+
+  describe('formatWithPrecision', () => {
+    it('should format with integer part less than totalDigits', () => {
+      // Integer part: 3 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 3 decimals (6 - 3 = 3, min with 4 = 3)
+      expect(formatWithPrecision('123.456789', 6, 4)).toBe('123.456');
+
+      // Integer part: 2 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 4 decimals (6 - 2 = 4, min with 4 = 4)
+      expect(formatWithPrecision('12.3456789', 6, 4)).toBe('12.3456');
+
+      // Integer part: 1 digit, totalDigits: 4, maxDecimals: 4
+      // Should show 3 decimals (4 - 1 = 3, min with 4 = 3)
+      expect(formatWithPrecision('1.23456', 4, 4)).toBe('1.234');
+    });
+
+    it('should respect maxDecimals when remaining digits exceed it', () => {
+      // Integer part: 3 digits, totalDigits: 8, maxDecimals: 4
+      // Should show 4 decimals (6 - 3 = 5, min with 4 = 4)
+      expect(formatWithPrecision('123.456789', 8, 4)).toBe('123.4567');
+
+      // Integer part: 1 digit, totalDigits: 10, maxDecimals: 2
+      // Should show 2 decimals (10 - 1 = 9, min with 2 = 2)
+      expect(formatWithPrecision('1.23456', 10, 2)).toBe('1.23');
+    });
+
+    it('should show fewer decimals when integer part is large', () => {
+      // Integer part: 5 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 1 decimal (6 - 5 = 1, min with 4 = 1)
+      expect(formatWithPrecision('12345.6789', 6, 4)).toBe('12345.6');
+
+      // Integer part: 4 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 2 decimals (6 - 4 = 2, min with 4 = 2)
+      expect(formatWithPrecision('1234.56789', 6, 4)).toBe('1234.56');
+    });
+
+    it('should show no decimals when integer part equals totalDigits', () => {
+      // Integer part: 6 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 0 decimals (6 - 6 = 0)
+      expect(formatWithPrecision('123456.789', 6, 4)).toBe('123456');
+
+      expect(formatWithPrecision('1234.56', 4, 2)).toBe('1234');
+    });
+
+    it('should show full integer when it exceeds totalDigits', () => {
+      // Integer part: 7 digits, totalDigits: 6, maxDecimals: 4
+      // Should show full integer
+      expect(formatWithPrecision('1234567.89', 6, 4)).toBe('1234567');
+
+      expect(formatWithPrecision('123456.789', 5, 2)).toBe('123456');
+    });
+
+    it('should handle numbers with leading zero', () => {
+      // Integer part: 1 digit (0), totalDigits: 4, maxDecimals: 4
+      // Should show 3 decimals (4 - 1 = 3)
+      expect(formatWithPrecision('0.123456', 4, 4)).toBe('0.123');
+
+      expect(formatWithPrecision('0.987654321', 5, 6)).toBe('0.9876');
+    });
+
+    it('should handle zero', () => {
+      expect(formatWithPrecision('0', 6, 4)).toBe('0');
+      expect(formatWithPrecision(0, 6, 4)).toBe('0');
+    });
+
+    it('should accept numeric values', () => {
+      expect(formatWithPrecision(123.456789, 6, 4)).toBe('123.456');
+      expect(formatWithPrecision(12345.6789, 6, 4)).toBe('12345.6');
+    });
+
+    it('should handle invalid inputs', () => {
+      expect(formatWithPrecision('invalid', 6, 4)).toBe('0');
+      expect(formatWithPrecision(NaN, 6, 4)).toBe('0');
+    });
+
+    it('should handle edge cases', () => {
+      // Very small numbers
+      expect(formatWithPrecision('0.00123456', 4, 6)).toBe('0.001');
+
+      // Large integer with small decimal
+      expect(formatWithPrecision('999999.1', 6, 2)).toBe('999999');
+
+      // Exact fit
+      expect(formatWithPrecision('12.34', 4, 2)).toBe('12.34');
+    });
+
+    it('should truncate decimals without rounding', () => {
+      // Should truncate to 3 decimals
+      expect(formatWithPrecision('123.4567', 6, 4)).toBe('123.456');
+
+      // Should truncate, not round up
+      expect(formatWithPrecision('1.9999', 4, 2)).toBe('1.99');
+
+      // Should truncate to 2 decimals
+      expect(formatWithPrecision('12.345', 5, 2)).toBe('12.34');
     });
   });
 });
