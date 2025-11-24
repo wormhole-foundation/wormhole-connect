@@ -198,6 +198,7 @@ export class LiFiRoute<N extends Network>
       integrator,
       referrer: params.options.referrer,
       fee: feePercent,
+      routeTimingStrategies: this.config?.routeTimingStrategies,
     };
 
     // Lifi SDK has a AllowDenyPrefer type but then it's converted into a different format for quote requests...
