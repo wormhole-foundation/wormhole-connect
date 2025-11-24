@@ -4,6 +4,7 @@ import {
   removeFormatting,
   isValidFormattedNumber,
   formatMinAmount,
+  formatMaxDigits,
 } from './formatNumber';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
@@ -266,6 +267,126 @@ describe('formatNumber utilities', () => {
       // 2 decimals
       const amount2Dec = sdkAmount.fromBaseUnits(12345n, 2); // 123.45
       expect(formatMinAmount(amount2Dec)).toBe('123');
+    });
+  });
+
+  describe('formatMaxDigits', () => {
+    it('should format with integer part less than totalDigits', () => {
+      // Integer part: 3 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 3 decimals (6 - 3 = 3, min with 4 = 3)
+      expect(formatMaxDigits('123.456789', 6, 4)).toBe('123.456');
+
+      // Integer part: 2 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 4 decimals (6 - 2 = 4, min with 4 = 4)
+      expect(formatMaxDigits('12.3456789', 6, 4)).toBe('12.3456');
+
+      // Integer part: 1 digit, totalDigits: 4, maxDecimals: 4
+      // Should show 3 decimals (4 - 1 = 3, min with 4 = 3)
+      expect(formatMaxDigits('1.23456', 4, 4)).toBe('1.234');
+    });
+
+    it('should respect maxDecimals when remaining digits exceed it', () => {
+      // Integer part: 3 digits, totalDigits: 8, maxDecimals: 4
+      // Should show 4 decimals (6 - 3 = 5, min with 4 = 4)
+      expect(formatMaxDigits('123.456789', 8, 4)).toBe('123.4567');
+
+      // Integer part: 1 digit, totalDigits: 10, maxDecimals: 2
+      // Should show 2 decimals (10 - 1 = 9, min with 2 = 2)
+      expect(formatMaxDigits('1.23456', 10, 2)).toBe('1.23');
+    });
+
+    it('should show fewer decimals when integer part is large', () => {
+      // Integer part: 5 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 1 decimal (6 - 5 = 1, min with 4 = 1)
+      expect(formatMaxDigits('12345.6789', 6, 4)).toBe('12345.6');
+
+      // Integer part: 4 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 2 decimals (6 - 4 = 2, min with 4 = 2)
+      expect(formatMaxDigits('1234.56789', 6, 4)).toBe('1234.56');
+    });
+
+    it('should show no decimals when integer part equals totalDigits', () => {
+      // Integer part: 6 digits, totalDigits: 6, maxDecimals: 4
+      // Should show 0 decimals (6 - 6 = 0)
+      expect(formatMaxDigits('123456.789', 6, 4)).toBe('123456');
+
+      expect(formatMaxDigits('1234.56', 4, 2)).toBe('1234');
+    });
+
+    it('should show full integer when it exceeds totalDigits', () => {
+      // Integer part: 7 digits, totalDigits: 6, maxDecimals: 4
+      // Should show full integer
+      expect(formatMaxDigits('1234567.89', 6, 4)).toBe('1234567');
+
+      expect(formatMaxDigits('123456.789', 5, 2)).toBe('123456');
+    });
+
+    it('should handle numbers with leading zero', () => {
+      // Integer part: 1 digit (0), totalDigits: 4, maxDecimals: 4
+      // Should show 3 decimals (4 - 1 = 3)
+      expect(formatMaxDigits('0.123456', 4, 4)).toBe('0.123');
+
+      expect(formatMaxDigits('0.987654321', 5, 6)).toBe('0.9876');
+    });
+
+    it('should handle zero', () => {
+      expect(formatMaxDigits('0', 6, 4)).toBe('0');
+      expect(formatMaxDigits('0.0', 6, 4)).toBe('0');
+    });
+
+    it('should handle invalid inputs', () => {
+      expect(formatMaxDigits('invalid', 6, 4)).toBe('0');
+      expect(formatMaxDigits('', 6, 4)).toBe('0');
+      expect(formatMaxDigits('Infinity', 6, 4)).toBe('0');
+      expect(formatMaxDigits('-Infinity', 6, 4)).toBe('0');
+    });
+
+    it('should handle edge cases', () => {
+      // Very small numbers
+      expect(formatMaxDigits('0.00123456', 4, 6)).toBe('0.001');
+
+      // Large integer with small decimal
+      expect(formatMaxDigits('999999.1', 6, 2)).toBe('999999');
+
+      // Exact fit
+      expect(formatMaxDigits('12.34', 4, 2)).toBe('12.34');
+    });
+
+    it('should truncate decimals without rounding', () => {
+      // Should truncate to 3 decimals
+      expect(formatMaxDigits('123.4567', 6, 4)).toBe('123.456');
+
+      // Should truncate, not round up
+      expect(formatMaxDigits('1.9999', 4, 2)).toBe('1.99');
+
+      // Should truncate to 2 decimals
+      expect(formatMaxDigits('12.345', 5, 2)).toBe('12.34');
+    });
+
+    describe('Sample token amounts from ETH, SOL and USDC', () => {
+      it('should format ETH amounts (18 decimals) with totalDigits=9, maxDecimals=4', () => {
+        expect(formatMaxDigits('0.001234567890123456', 9, 4)).toBe('0.0012');
+        expect(formatMaxDigits('1.234567890123456789', 9, 4)).toBe('1.2345');
+        expect(formatMaxDigits('123.456789012345678', 9, 4)).toBe('123.4567');
+        expect(formatMaxDigits('123456.789012345678', 9, 4)).toBe('123456.789');
+        expect(formatMaxDigits('123456789.123456789', 9, 4)).toBe('123456789');
+      });
+
+      it('should format SOL amounts (9 decimals) with totalDigits=9, maxDecimals=4', () => {
+        expect(formatMaxDigits('0.123456789', 9, 4)).toBe('0.1234');
+        expect(formatMaxDigits('12.345678901', 9, 4)).toBe('12.3456');
+        expect(formatMaxDigits('1234.56789', 9, 4)).toBe('1234.5678');
+        expect(formatMaxDigits('123456.78912345', 9, 4)).toBe('123456.789');
+        expect(formatMaxDigits('123456789.123456', 9, 4)).toBe('123456789');
+      });
+
+      it('should format USDC amounts (6 decimals) with totalDigits=9, maxDecimals=4', () => {
+        expect(formatMaxDigits('0.123456', 9, 4)).toBe('0.1234');
+        expect(formatMaxDigits('123.456789', 9, 4)).toBe('123.4567');
+        expect(formatMaxDigits('123456.7890', 9, 4)).toBe('123456.789');
+        expect(formatMaxDigits('123456.789012', 9, 4)).toBe('123456.789');
+        expect(formatMaxDigits('123456789.123', 9, 4)).toBe('123456789');
+      });
     });
   });
 });

@@ -137,3 +137,59 @@ export const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
     return asNumber.toPrecision(3);
   }
 };
+
+/**
+ * Format a number with smart precision based on total digits and max decimal digits.
+ * If the integer part is less than totalDigits, show decimals up to maxDecimals
+ * (limited by remaining space from totalDigits).
+ *
+ * @param value - The numeric value to format (string or number)
+ * @param totalDigits - Maximum total significant digits to display
+ * @param maxDecimals - Maximum number of decimal places to show
+ * @returns Formatted number string (decimals truncated)
+ *
+ * @example
+ * formatMaxDigits('123.456789', 6, 4)     // '123.456' (3 int + 3 dec = 6 total)
+ * formatMaxDigits('123.456789', 8, 4)     // '123.4567' (3 int + 4 dec, limited by maxDecimals)
+ * formatMaxDigits('123456.789', 6, 4)     // '123456' (6 int, no space for decimals)
+ * formatMaxDigits('1234567.89', 6, 4)     // '1234567' (int exceeds totalDigits, show full int)
+ */
+export const formatMaxDigits = (
+  value: string,
+  totalDigits: number,
+  maxDecimals: number,
+): string => {
+  // Parse only for validation (zero/NaN/Infinity check)
+  const numValue = parseFloat(value);
+  // Handle zero, NaN, and Infinity cases
+  if (!Number.isFinite(numValue) || numValue === 0) {
+    return '0';
+  }
+
+  // Note: We don't use toPrecision() because:
+  // 1. It rounds instead of truncates
+  // 2. It doesn't respect maxDecimals constraint properly
+  // 3. It can return scientific notation for large/small numbers
+
+  // Work with original string to preserve precision (avoid parseFloat precision loss)
+  const [intPart, decimalPart] = value.split('.');
+
+  // Get the integer part length (count digits, not including decimal)
+  const integerDigits = intPart === '0' ? 1 : intPart.length;
+
+  // If integer part already exceeds or equals totalDigits, return just the integer
+  if (integerDigits >= totalDigits) {
+    return intPart;
+  }
+
+  // Calculate how many decimal places we can show
+  const remainingDigits = totalDigits - integerDigits;
+  const decimalsToShow = Math.min(remainingDigits, maxDecimals);
+
+  // No decimal part or no space for decimals
+  if (!decimalPart || decimalsToShow === 0) {
+    return intPart;
+  }
+
+  return `${intPart}.${decimalPart.substring(0, decimalsToShow)}`;
+};

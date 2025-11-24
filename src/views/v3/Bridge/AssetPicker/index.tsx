@@ -25,7 +25,7 @@ import { OPACITY } from 'utils/style';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
 import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
-import { formatNumberIntl } from 'utils/formatNumber';
+import { formatNumberIntl, formatMaxDigits } from 'utils/formatNumber';
 import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
@@ -106,7 +106,12 @@ function AssetPicker(props: Props) {
     if (!tokenBalance) {
       return null;
     }
-    const displayValue = `${sdkAmount.display(tokenBalance)} ${
+    const formattedBalance = formatMaxDigits(
+      sdkAmount.display(tokenBalance),
+      9, // Max total digits
+      4, // Max decimal places
+    );
+    const displayValue = `${formattedBalance} ${
       props.token ? getTokenDisplaySymbolByTokenAddress(props.token) : ''
     }`;
     return (
