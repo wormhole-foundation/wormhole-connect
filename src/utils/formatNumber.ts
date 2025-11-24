@@ -149,12 +149,12 @@ export const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
  * @returns Formatted number string (decimals truncated)
  *
  * @example
- * formatWithPrecision('123.456789', 6, 4)     // '123.456' (3 int + 3 dec = 6 total)
- * formatWithPrecision('123.456789', 8, 4)     // '123.4567' (3 int + 4 dec, limited by maxDecimals)
- * formatWithPrecision('123456.789', 6, 4)     // '123456' (6 int, no space for decimals)
- * formatWithPrecision('1234567.89', 6, 4)     // '1234567' (int exceeds totalDigits, show full int)
+ * formatMaxDigits('123.456789', 6, 4)     // '123.456' (3 int + 3 dec = 6 total)
+ * formatMaxDigits('123.456789', 8, 4)     // '123.4567' (3 int + 4 dec, limited by maxDecimals)
+ * formatMaxDigits('123456.789', 6, 4)     // '123456' (6 int, no space for decimals)
+ * formatMaxDigits('1234567.89', 6, 4)     // '1234567' (int exceeds totalDigits, show full int)
  */
-export const formatWithPrecision = (
+export const formatMaxDigits = (
   value: string | number,
   totalDigits: number,
   maxDecimals: number,
