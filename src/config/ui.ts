@@ -73,6 +73,13 @@ export type UiConfig = {
   // Specifies which chains should have gas drop-off auto-enabled
   // when the destination wallet has zero native balance
   autoEnableGasDropOffChains?: Chain[];
+
+  // Route sorting priority ('fastest' or 'cheapest')
+  // Controls how routes are sorted in the list
+  // 'fastest' - Sort by ETA (fastest first)
+  // 'cheapest' - Sort by destination amount (best output first)
+  // Defaults to 'fastest' if not specified
+  routeSortPriority?: 'fastest' | 'cheapest';
 };
 
 export type TestOptions = {
