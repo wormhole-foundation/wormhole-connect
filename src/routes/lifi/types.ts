@@ -1,4 +1,5 @@
 import type { AllowDenyPrefer } from '@lifi/sdk';
+import type { TimingStrategyString } from '@lifi/types';
 import type {
   Network,
   routes,
@@ -50,4 +51,9 @@ export interface LiFiFeeConfig {
 export interface LiFiConfig<N extends Network> {
   apiUrl?: string;
   getFeeConfig?: (request: routes.RouteTransferRequest<N>) => LiFiFeeConfig;
+  /**
+   * Route timing strategies to control how long LiFi waits for quotes.
+   * @see https://docs.li.fi/guides/integration-tips/latency#selecting-timing-strategies
+   */
+  routeTimingStrategies?: TimingStrategyString[];
 }
