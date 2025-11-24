@@ -151,10 +151,8 @@ export const formatMinAmount = (minAmount: sdkAmount.Amount): string => {
  * @example
  * formatWithPrecision('123.456789', 6, 4)     // '123.456' (3 int + 3 dec = 6 total)
  * formatWithPrecision('123.456789', 8, 4)     // '123.4567' (3 int + 4 dec, limited by maxDecimals)
- * formatWithPrecision('12345.6789', 6, 4)     // '12345.6' (5 int + 1 dec = 6 total)
  * formatWithPrecision('123456.789', 6, 4)     // '123456' (6 int, no space for decimals)
  * formatWithPrecision('1234567.89', 6, 4)     // '1234567' (int exceeds totalDigits, show full int)
- * formatWithPrecision('0.123456', 4, 4)       // '0.123' (1 int + 3 dec = 4 total)
  */
 export const formatWithPrecision = (
   value: string | number,
@@ -187,13 +185,9 @@ export const formatWithPrecision = (
   const decimalsToShow = Math.min(remainingDigits, maxDecimals);
 
   // Truncate decimals to match the max allowed
-  const valueStr = numValue.toString();
-  const [intPart, decPart] = valueStr.split('.');
-
-  if (!decPart || decimalsToShow === 0) {
+  const [intPart, decimalPart] = numValue.toString().split('.');
+  if (!decimalPart || decimalsToShow === 0) {
     return intPart;
   }
-
-  const truncatedDecimals = decPart.substring(0, decimalsToShow);
-  return `${intPart}.${truncatedDecimals}`;
+  return `${intPart}.${decimalPart.substring(0, decimalsToShow)}`;
 };

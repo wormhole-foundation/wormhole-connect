@@ -365,5 +365,41 @@ describe('formatNumber utilities', () => {
       // Should truncate to 2 decimals
       expect(formatWithPrecision('12.345', 5, 2)).toBe('12.34');
     });
+
+    describe('Sample token amounts from ETH, SOL and USDC', () => {
+      it('should format ETH amounts (18 decimals) with totalDigits=9, maxDecimals=4', () => {
+        expect(formatWithPrecision('0.001234567890123456', 9, 4)).toBe(
+          '0.0012',
+        );
+        expect(formatWithPrecision('1.234567890123456789', 9, 4)).toBe(
+          '1.2345',
+        );
+        expect(formatWithPrecision('123.456789012345678', 9, 4)).toBe(
+          '123.4567',
+        );
+        expect(formatWithPrecision('123456.789012345678', 9, 4)).toBe(
+          '123456.789',
+        );
+        expect(formatWithPrecision('123456789.123456789', 9, 4)).toBe(
+          '123456789',
+        );
+      });
+
+      it('should format SOL amounts (9 decimals) with totalDigits=9, maxDecimals=4', () => {
+        expect(formatWithPrecision('0.123456789', 9, 4)).toBe('0.1234');
+        expect(formatWithPrecision('12.345678901', 9, 4)).toBe('12.3456');
+        expect(formatWithPrecision('1234.56789', 9, 4)).toBe('1234.5678');
+        expect(formatWithPrecision('123456.78912345', 9, 4)).toBe('123456.789');
+        expect(formatWithPrecision('123456789.123456', 9, 4)).toBe('123456789');
+      });
+
+      it('should format USDC amounts (6 decimals) with totalDigits=9, maxDecimals=4', () => {
+        expect(formatWithPrecision('0.123456', 9, 4)).toBe('0.1234');
+        expect(formatWithPrecision('123.456789', 9, 4)).toBe('123.4567');
+        expect(formatWithPrecision('123456.7890', 9, 4)).toBe('123456.789');
+        expect(formatWithPrecision('123456.789012', 9, 4)).toBe('123456.789');
+        expect(formatWithPrecision('123456789.123', 9, 4)).toBe('123456789');
+      });
+    });
   });
 });
