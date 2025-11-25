@@ -7,6 +7,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import type { routes } from '@wormhole-foundation/sdk';
 
+import config from 'config';
 import { getBestRoutes } from 'utils/routes';
 import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
@@ -220,6 +221,7 @@ function Routes({
   }, [highlightedRoute, toNativeToken, mobile, onRouteChange]);
 
   const isRouteSelectionPillApplicable =
+    !config.ui.hideRouteSelectionPills &&
     !!fastestRoute.name &&
     !!cheapestRoute.name &&
     cheapestRoute.name !== fastestRoute.name;
