@@ -372,9 +372,16 @@ function AssetPicker(props: Props) {
             let balancePercent =
               (sdkAmount.units(tokenBalance) * BigInt(percent)) / BigInt(100);
 
-            // When user clicks "Max", we need to subtract the fee offset amount from the balance
+            // User clicks "Max" when fee-offsetting is enabled.
+            // We need to subtract the fee offset amount from the balance
             // This is to ensure user doesn't get insufficient funds error when fee offset is applied
-            if (percent === 100 && selectedRoute && sourceToken && destToken) {
+            if (
+              config.ui?.experimental?.feeOffsetting &&
+              percent === 100 &&
+              selectedRoute &&
+              sourceToken &&
+              destToken
+            ) {
               const feeOffset = calculateFeeOffset(
                 config.routes.get(selectedRoute),
                 tokenBalance,
