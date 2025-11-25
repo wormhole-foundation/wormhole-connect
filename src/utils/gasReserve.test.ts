@@ -4,8 +4,8 @@ import { getGasReserve } from './gasReserve';
 
 describe('getGasReserve', () => {
   describe('Ethereum mainnet', () => {
-    it('returns 0.01 ETH for Ethereum with 18 decimals', () => {
-      const reserve = getGasReserve('Ethereum', 18);
+    it('returns 0.01 ETH for Ethereum', () => {
+      const reserve = getGasReserve('Ethereum');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
@@ -14,24 +14,24 @@ describe('getGasReserve', () => {
   });
 
   describe('L2 chains', () => {
-    it('returns 0.001 ETH for Base with 18 decimals', () => {
-      const reserve = getGasReserve('Base', 18);
+    it('returns 0.001 ETH for Base', () => {
+      const reserve = getGasReserve('Base');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.001');
       expect(sdkAmount.units(reserve!)).toBe(1000000000000000n); // 0.001 * 10^18
     });
 
-    it('returns 0.001 ETH for Optimism with 18 decimals', () => {
-      const reserve = getGasReserve('Optimism', 18);
+    it('returns 0.001 ETH for Optimism', () => {
+      const reserve = getGasReserve('Optimism');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.001');
       expect(sdkAmount.units(reserve!)).toBe(1000000000000000n);
     });
 
-    it('returns 0.001 ETH for Arbitrum with 18 decimals', () => {
-      const reserve = getGasReserve('Arbitrum', 18);
+    it('returns 0.001 ETH for Arbitrum', () => {
+      const reserve = getGasReserve('Arbitrum');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.001');
@@ -40,8 +40,8 @@ describe('getGasReserve', () => {
   });
 
   describe('Solana', () => {
-    it('returns 0.01 SOL for Solana with 9 decimals', () => {
-      const reserve = getGasReserve('Solana', 9);
+    it('returns 0.01 SOL for Solana', () => {
+      const reserve = getGasReserve('Solana');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
@@ -50,48 +50,47 @@ describe('getGasReserve', () => {
   });
 
   describe('Other EVM L1 chains', () => {
-    it('returns 0.01 for Bsc with 18 decimals', () => {
-      const reserve = getGasReserve('Bsc', 18);
+    it('returns 0.01 for Bsc', () => {
+      const reserve = getGasReserve('Bsc');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
       expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
     });
 
-    it('returns 0.01 for Avalanche with 18 decimals', () => {
-      const reserve = getGasReserve('Avalanche', 18);
+    it('returns 0.01 for Avalanche', () => {
+      const reserve = getGasReserve('Avalanche');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
       expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
     });
 
-    it('returns 0.01 for Polygon with 18 decimals', () => {
-      const reserve = getGasReserve('Polygon', 18);
+    it('returns 0.01 for Polygon', () => {
+      const reserve = getGasReserve('Polygon');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
       expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
     });
 
-    it('returns 0.01 for Fantom with 18 decimals', () => {
-      const reserve = getGasReserve('Fantom', 18);
+    it('returns undefined for Fantom (gas token not configured)', () => {
+      const reserve = getGasReserve('Fantom');
+
+      // Fantom has a reserve configured but no gas token in config, so should return undefined
+      expect(reserve).toBeUndefined();
+    });
+
+    it('returns 0.01 for Celo', () => {
+      const reserve = getGasReserve('Celo');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
       expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
     });
 
-    it('returns 0.01 for Celo with 18 decimals', () => {
-      const reserve = getGasReserve('Celo', 18);
-
-      expect(reserve).toBeDefined();
-      expect(sdkAmount.display(reserve!)).toBe('0.01');
-      expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
-    });
-
-    it('returns 0.01 for Moonbeam with 18 decimals', () => {
-      const reserve = getGasReserve('Moonbeam', 18);
+    it('returns 0.01 for Moonbeam', () => {
+      const reserve = getGasReserve('Moonbeam');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
@@ -100,16 +99,16 @@ describe('getGasReserve', () => {
   });
 
   describe('Move chains', () => {
-    it('returns 0.01 for Sui with 9 decimals', () => {
-      const reserve = getGasReserve('Sui', 9);
+    it('returns 0.01 for Sui', () => {
+      const reserve = getGasReserve('Sui');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
       expect(sdkAmount.units(reserve!)).toBe(10000000n); // 0.01 * 10^9
     });
 
-    it('returns 0.01 for Aptos with 8 decimals', () => {
-      const reserve = getGasReserve('Aptos', 8);
+    it('returns 0.01 for Aptos', () => {
+      const reserve = getGasReserve('Aptos');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');
@@ -119,56 +118,21 @@ describe('getGasReserve', () => {
 
   describe('Chains without configured reserves', () => {
     it('returns undefined for Cosmoshub', () => {
-      const reserve = getGasReserve('Cosmoshub', 6);
+      const reserve = getGasReserve('Cosmoshub');
 
       expect(reserve).toBeUndefined();
     });
 
     it('returns undefined for Wormchain', () => {
-      const reserve = getGasReserve('Wormchain', 6);
+      const reserve = getGasReserve('Wormchain');
 
       expect(reserve).toBeUndefined();
     });
 
     it('returns undefined for Osmosis', () => {
-      const reserve = getGasReserve('Osmosis', 6);
+      const reserve = getGasReserve('Osmosis');
 
       expect(reserve).toBeUndefined();
-    });
-  });
-
-  describe('Decimal precision', () => {
-    it('correctly handles different decimal precision for same reserve value', () => {
-      const reserve18 = getGasReserve('Ethereum', 18);
-      const reserve6 = getGasReserve('Ethereum', 6);
-
-      // Both should display as 0.01, but have different base units
-      expect(sdkAmount.display(reserve18!)).toBe('0.01');
-      expect(sdkAmount.display(reserve6!)).toBe('0.01');
-
-      // Base units should differ by 10^12
-      expect(sdkAmount.units(reserve18!)).toBe(10000000000000000n); // 0.01 * 10^18
-      expect(sdkAmount.units(reserve6!)).toBe(10000n); // 0.01 * 10^6
-    });
-
-    it('handles 8-decimal precision (Aptos)', () => {
-      const reserve = getGasReserve('Aptos', 8);
-
-      expect(reserve).toBeDefined();
-      expect(sdkAmount.display(reserve!)).toBe('0.01');
-      expect(sdkAmount.units(reserve!)).toBe(1000000n); // 0.01 * 10^8
-    });
-
-    it('handles 9-decimal precision (Solana, Sui)', () => {
-      const reserveSolana = getGasReserve('Solana', 9);
-      const reserveSui = getGasReserve('Sui', 9);
-
-      expect(reserveSolana).toBeDefined();
-      expect(reserveSui).toBeDefined();
-      expect(sdkAmount.display(reserveSolana!)).toBe('0.01');
-      expect(sdkAmount.display(reserveSui!)).toBe('0.01');
-      expect(sdkAmount.units(reserveSolana!)).toBe(10000000n); // 0.01 * 10^9
-      expect(sdkAmount.units(reserveSui!)).toBe(10000000n);
     });
   });
 });

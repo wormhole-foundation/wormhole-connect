@@ -1,6 +1,8 @@
 import type { Chain } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
+import { getGasToken } from 'utils';
+
 /**
  * Gas reserve amounts to keep when clicking "Max" on gas tokens.
  * These reserves ensure users have enough gas to complete transactions.
@@ -41,17 +43,19 @@ const GAS_RESERVES: Partial<Record<Chain, string>> = {
  * Returns undefined if no reserve is configured for the chain.
  *
  * @param chain - The source chain
- * @param decimals - The token decimals
  * @returns The amount to reserve, or undefined if no reserve configured
  */
-export function getGasReserve(
-  chain: Chain,
-  decimals: number,
-): sdkAmount.Amount | undefined {
+export function getGasReserve(chain: Chain): sdkAmount.Amount | undefined {
   const reserve = GAS_RESERVES[chain];
   if (!reserve) {
     return undefined;
   }
 
-  return sdkAmount.parse(reserve, decimals);
+  try {
+    const gasToken = getGasToken(chain);
+    return sdkAmount.parse(reserve, gasToken.decimals);
+  } catch {
+    // If gas token is not configured for this chain, return undefined
+    return undefined;
+  }
 }

@@ -83,7 +83,7 @@ function PercentButtons(props: Props) {
       return false;
     }
 
-    const gasReserve = getGasReserve(props.chain, props.tokenBalance.decimals);
+    const gasReserve = getGasReserve(props.chain);
     if (!gasReserve) {
       return false;
     }
@@ -126,10 +126,7 @@ function PercentButtons(props: Props) {
 
         // 2. Gas reserve for gas tokens
         if (isGasToken && props.chain) {
-          const gasReserve = getGasReserve(
-            props.chain,
-            props.tokenBalance.decimals,
-          );
+          const gasReserve = getGasReserve(props.chain);
           if (gasReserve) {
             amountInBaseUnits -= sdkAmount.units(gasReserve);
           }
