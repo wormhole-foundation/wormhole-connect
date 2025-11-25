@@ -48,6 +48,11 @@ vi.mock('config', () => ({
     routes: {
       get: vi.fn(),
     },
+    ui: {
+      experimental: {
+        feeOffsetting: false,
+      },
+    },
   },
 }));
 
@@ -159,34 +164,6 @@ describe('PercentButtons', () => {
       expect(mockOnAmountChange).toHaveBeenCalledWith('1');
       expect(mockOnDebouncedAmountChange).toHaveBeenCalledWith('1');
       expect(mockOnPercentSelect).toHaveBeenCalledWith(100);
-    });
-  });
-
-  describe('Fee offset subtraction', () => {
-    it('subtracts fee offset from Max amount when route has fees', async () => {
-      const store = createMockStore('MayanRoute');
-      const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
-      const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
-      const { getGasReserve } = vi.mocked(await import('utils/gasReserve'));
-
-      const feeOffset = sdkAmount.fromBaseUnits(10000000000000000n, 18); // 0.01 ETH
-      calculateFeeOffset.mockReturnValue(feeOffset);
-      getGasReserve.mockReturnValue(undefined);
-      useGetTokens.mockReturnValue({
-        sourceToken: mockToken,
-        destToken: mockToken,
-      } as any);
-
-      render(<PercentButtons {...defaultProps} />, {
-        wrapper: AppWrapper(store),
-      });
-
-      const buttonMax = screen.getByText('Max');
-      fireEvent.click(buttonMax);
-
-      // 1 ETH - 0.01 ETH fee = 0.99 ETH
-      expect(mockOnAmountChange).toHaveBeenCalledWith('0.99');
-      expect(mockOnDebouncedAmountChange).toHaveBeenCalledWith('0.99');
     });
   });
 
@@ -413,41 +390,6 @@ describe('PercentButtons', () => {
           name: /You don't have enough funds in your wallet to cover both this amount and the gas cost of the transfer/i,
         }),
       ).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Combined offsets', () => {
-    it('subtracts both fee offset and gas reserve from Max amount', async () => {
-      const store = createMockStore('MayanRoute');
-      const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
-      const { getGasReserve } = vi.mocked(await import('utils/gasReserve'));
-      const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
-      const { getGasToken } = vi.mocked(await import('utils'));
-      const { isSameToken } = vi.mocked(
-        await import('@wormhole-foundation/sdk'),
-      );
-
-      const feeOffset = sdkAmount.fromBaseUnits(5000000000000000n, 18); // 0.005 ETH
-      const gasReserve = sdkAmount.fromBaseUnits(10000000000000000n, 18); // 0.01 ETH
-      calculateFeeOffset.mockReturnValue(feeOffset);
-      getGasReserve.mockReturnValue(gasReserve);
-      getGasToken.mockReturnValue(mockToken);
-      isSameToken.mockReturnValue(true);
-      useGetTokens.mockReturnValue({
-        sourceToken: mockToken,
-        destToken: mockToken,
-      } as any);
-
-      render(<PercentButtons {...defaultProps} />, {
-        wrapper: AppWrapper(store),
-      });
-
-      const buttonMax = screen.getByText('Max');
-      fireEvent.click(buttonMax);
-
-      // 1 ETH - 0.005 ETH fee - 0.01 ETH gas = 0.985 ETH
-      expect(mockOnAmountChange).toHaveBeenCalledWith('0.985');
-      expect(mockOnDebouncedAmountChange).toHaveBeenCalledWith('0.985');
     });
   });
 
