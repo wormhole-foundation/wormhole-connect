@@ -80,6 +80,9 @@ export type UiConfig = {
   // 'cheapest' - Sort by destination amount (best output first)
   // Defaults to 'fastest' if not specified
   routeSortPriority?: 'fastest' | 'cheapest';
+
+  // When enabled hides the Fastest/Cheapest route selection toggle pills
+  hideRouteSelectionPills?: boolean;
 };
 
 export type TestOptions = {
