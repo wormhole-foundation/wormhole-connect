@@ -96,6 +96,14 @@ describe('getGasReserve', () => {
       expect(sdkAmount.display(reserve!)).toBe('0.01');
       expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
     });
+
+    it('returns 0.01 for Monad', () => {
+      const reserve = getGasReserve('Monad');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.01');
+      expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
+    });
   });
 
   describe('Move chains', () => {

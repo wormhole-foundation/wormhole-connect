@@ -29,6 +29,7 @@ const GAS_RESERVES: Partial<Record<Chain, string>> = {
   Fantom: '0.01',
   Celo: '0.01',
   Moonbeam: '0.01',
+  Monad: '0.01',
 
   // Solana
   Solana: '0.01',
