@@ -28,7 +28,7 @@ export function wormholeConnectHosted(
     `https://cdn.jsdelivr.net/npm/@wormhole-foundation/wormhole-connect@${version}`;
 
   const script = document.createElement('script');
-  script.setAttribute('src', `${baseUrl}/dist/main.js`);
+  script.setAttribute('src', `${baseUrl}/dist/main.mjs`);
   script.setAttribute('type', 'module');
 
   parentNode.appendChild(connectRoot);
