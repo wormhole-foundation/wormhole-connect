@@ -37,6 +37,30 @@ describe('getGasReserve', () => {
       expect(sdkAmount.display(reserve!)).toBe('0.001');
       expect(sdkAmount.units(reserve!)).toBe(1000000000000000n);
     });
+
+    it('returns 0.001 for Scroll', () => {
+      const reserve = getGasReserve('Scroll');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.001');
+      expect(sdkAmount.units(reserve!)).toBe(1000000000000000n);
+    });
+
+    it('returns 0.001 for Xlayer', () => {
+      const reserve = getGasReserve('Xlayer');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.001');
+      expect(sdkAmount.units(reserve!)).toBe(1000000000000000n);
+    });
+
+    it('returns 0.001 for Mantle', () => {
+      const reserve = getGasReserve('Mantle');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.001');
+      expect(sdkAmount.units(reserve!)).toBe(1000000000000000n);
+    });
   });
 
   describe('Solana', () => {
@@ -99,6 +123,30 @@ describe('getGasReserve', () => {
 
     it('returns 0.01 for Monad', () => {
       const reserve = getGasReserve('Monad');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.01');
+      expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
+    });
+
+    it('returns 0.01 for Klaytn', () => {
+      const reserve = getGasReserve('Klaytn');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.01');
+      expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
+    });
+
+    it('returns 0.01 for Fogo', () => {
+      const reserve = getGasReserve('Fogo');
+
+      expect(reserve).toBeDefined();
+      expect(sdkAmount.display(reserve!)).toBe('0.01');
+      expect(sdkAmount.units(reserve!)).toBe(10000000n); // 0.01 * 10^9
+    });
+
+    it('returns 0.01 for XRPLEVM', () => {
+      const reserve = getGasReserve('XRPLEVM');
 
       expect(reserve).toBeDefined();
       expect(sdkAmount.display(reserve!)).toBe('0.01');

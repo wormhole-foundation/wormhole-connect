@@ -124,6 +124,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'KaiaScan',
     icon: 'Klaytn',
     symbol: 'KAIA',
+    gasReserve: '0.01',
   },
   Scroll: {
     displayName: 'Scroll',
@@ -132,6 +133,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Scrollscan',
     icon: 'Scroll',
     symbol: 'SCR',
+    gasReserve: '0.001',
   },
   Xlayer: {
     displayName: 'X Layer',
@@ -140,6 +142,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'OKX Explorer',
     icon: 'Xlayer',
     symbol: 'OKX',
+    gasReserve: '0.001',
   },
   Mantle: {
     displayName: 'Mantle',
@@ -148,6 +151,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Mantle Explorer',
     icon: 'Mantle',
     symbol: 'MNT',
+    gasReserve: '0.001',
   },
   Worldchain: {
     displayName: 'World Chain',
@@ -244,6 +248,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'XRPL EVM Explorer',
     icon: 'XRPLEVM',
     symbol: 'XRP',
+    gasReserve: '0.01',
   },
   CreditCoin: {
     displayName: 'Creditcoin',
@@ -260,6 +265,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Fogo Explorer',
     icon: 'Fogo',
     symbol: 'FOGO',
+    gasReserve: '0.01',
   },
   Monad: {
     displayName: 'Monad',
