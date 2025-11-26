@@ -8,6 +8,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Etherscan',
     icon: 'Ethereum',
     symbol: 'ETH',
+    gasReserve: '0.01',
   },
   Bsc: {
     displayName: 'BNB',
@@ -16,6 +17,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'BscScan',
     icon: 'Bsc',
     symbol: 'BSC',
+    gasReserve: '0.01',
   },
   Polygon: {
     displayName: 'Polygon',
@@ -24,6 +26,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'PolygonScan',
     icon: 'Polygon',
     symbol: 'POL',
+    gasReserve: '0.01',
   },
   Avalanche: {
     displayName: 'Avalanche',
@@ -32,6 +35,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Snowtrace',
     icon: 'Avalanche',
     symbol: 'AVAX',
+    gasReserve: '0.01',
   },
   Fantom: {
     displayName: 'Fantom',
@@ -48,6 +52,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Celo Explorer',
     icon: 'Celo',
     symbol: 'CELO',
+    gasReserve: '0.01',
   },
   Moonbeam: {
     displayName: 'Moonbeam',
@@ -56,6 +61,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Moonscan',
     icon: 'Moonbeam',
     symbol: 'GLMR',
+    gasReserve: '0.01',
   },
   Solana: {
     displayName: 'Solana',
@@ -64,6 +70,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Solana Explorer',
     icon: 'Solana',
     symbol: 'SOL',
+    gasReserve: '0.01',
   },
   Sui: {
     displayName: 'Sui',
@@ -72,6 +79,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Suiscan',
     icon: 'Sui',
     symbol: 'SUI',
+    gasReserve: '0.01',
   },
   Aptos: {
     displayName: 'Aptos',
@@ -80,6 +88,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Aptos Explorer',
     icon: 'Aptos',
     symbol: 'APT',
+    gasReserve: '0.01',
   },
   Base: {
     displayName: 'Base',
@@ -88,6 +97,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'BaseScan',
     icon: 'Base',
     symbol: 'BASE',
+    gasReserve: '0.001',
   },
   Arbitrum: {
     displayName: 'Arbitrum',
@@ -96,6 +106,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Arbitrum Explorer',
     icon: 'Arbitrum',
     symbol: 'ARB',
+    gasReserve: '0.001',
   },
   Optimism: {
     displayName: 'Optimism',
@@ -104,6 +115,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Optimistic Etherscan',
     icon: 'Optimism',
     symbol: 'OP',
+    gasReserve: '0.001',
   },
   Klaytn: {
     displayName: 'Kaia',
@@ -256,5 +268,6 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'MonadVision',
     icon: 'Monad',
     symbol: 'MON',
+    gasReserve: '0.01',
   },
 };
