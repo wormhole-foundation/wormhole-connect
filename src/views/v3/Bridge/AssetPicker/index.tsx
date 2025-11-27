@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount, isSameToken } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
@@ -31,6 +31,8 @@ import {
 } from 'telemetry/utils';
 import FeeOffset from './FeeOffset';
 import { calculateFeeOffset } from 'utils/fees';
+import { getGasReserve } from 'utils/gasReserve';
+import { getGasToken } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
 import TokenPickerButton from './TokenPickerButton';
 import PercentButtons from './PercentButtons';
@@ -302,6 +304,7 @@ function AssetPicker(props: Props) {
     if (
       selectedPercentButton !== 100 || // Only adjust if user had clicked "Max"
       !props.isSource || // Only adjust for source asset picker
+      !props.chain ||
       !tokenBalance ||
       !amount ||
       !selectedRoute ||
@@ -312,7 +315,29 @@ function AssetPicker(props: Props) {
     }
 
     const currentAmountUnits = sdkAmount.units(amount);
-    const maxAmountUnits = sdkAmount.units(tokenBalance);
+    let maxAmountUnits = sdkAmount.units(tokenBalance);
+
+    // Check if source token is the gas token for gas reserve deduction
+    let isGasToken = false;
+    try {
+      const gasToken = getGasToken(props.chain);
+      isGasToken = isSameToken(sourceToken, gasToken);
+    } catch {
+      // Gas token not configured for this chain
+    }
+
+    // Deduct gas reserve if applicable
+    if (isGasToken) {
+      const gasReserve = getGasReserve(props.chain);
+      if (gasReserve) {
+        const gasReserveUnits = sdkAmount.units(gasReserve);
+        // Only deduct if user has sufficient balance
+        if (maxAmountUnits > gasReserveUnits) {
+          maxAmountUnits -= gasReserveUnits;
+        }
+        // Do not deduct if balance <= gas reserve
+      }
+    }
 
     // Calculate fee offset for the new route
     const feeOffset = calculateFeeOffset(
@@ -334,8 +359,10 @@ function AssetPicker(props: Props) {
         dispatch(setAmount(displayAmount));
       }
     } else if (currentAmountUnits < maxAmountUnits) {
-      // Case 2: New route has no fee offset AND the amount is smaller than max -> restore full balance
-      const displayAmount = sdkAmount.display(tokenBalance);
+      // Case 2: New route has no fee offset AND the amount is smaller than max -> restore full balance (minus gas reserve)
+      const displayAmount = sdkAmount.display(
+        sdkAmount.fromBaseUnits(maxAmountUnits, tokenBalance.decimals),
+      );
       setAmountInput(displayAmount);
       setDebouncedAmountInput(displayAmount);
       dispatch(setAmount(displayAmount));
