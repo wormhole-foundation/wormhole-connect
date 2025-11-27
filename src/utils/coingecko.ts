@@ -318,9 +318,19 @@ const fetchAssetPlatforms = async (): Promise<Record<string, string>> => {
   }
 
   // Fetch fresh data from CoinGecko
+  // Always use standard CoinGecko API for asset platforms (not custom URL)
+  // This is a static reference list that should come from official API
   try {
     console.info('Fetching CoinGecko asset platforms...');
-    const platforms = await coingeckoRequest('/api/v3/asset_platforms');
+    const response = await fetch(`${COINGECKO_URL}/api/v3/asset_platforms`);
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch asset platforms: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const platforms = await response.json();
 
     if (!platforms || !Array.isArray(platforms)) {
       throw new Error('Invalid asset platforms response');
