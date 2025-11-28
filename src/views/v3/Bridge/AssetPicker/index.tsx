@@ -296,6 +296,17 @@ function AssetPicker(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount]);
 
+  // Clear amount when source wallet address changes (user connects/disconnects/switches wallet)
+  useEffect(() => {
+    if (props.isSource && (amountInput || debouncedAmountInput)) {
+      handleAmountChange('');
+      handleDebouncedAmountChange('');
+      setSelectedPercentButton(0);
+    }
+    // Re-run only when wallet address changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.wallet.address]);
+
   // Adjust amount when route changes if user had clicked Max button previously
   // This handles both cases:
   // 1. Switching from non-fee-offset route to fee-offset route: deduct fee offset
