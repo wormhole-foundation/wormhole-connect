@@ -113,12 +113,12 @@ describe('getGasReserve', () => {
       expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
     });
 
-    it('returns 0.01 for Moonbeam', () => {
+    it('returns 0.03 for Moonbeam', () => {
       const reserve = getGasReserve('Moonbeam');
 
       expect(reserve).toBeDefined();
-      expect(sdkAmount.display(reserve!)).toBe('0.01');
-      expect(sdkAmount.units(reserve!)).toBe(10000000000000000n);
+      expect(sdkAmount.display(reserve!)).toBe('0.03');
+      expect(sdkAmount.units(reserve!)).toBe(30000000000000000n);
     });
 
     it('returns 0.01 for Monad', () => {
