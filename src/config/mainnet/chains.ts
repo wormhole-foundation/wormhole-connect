@@ -61,7 +61,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Moonscan',
     icon: 'Moonbeam',
     symbol: 'GLMR',
-    gasReserve: '0.01',
+    gasReserve: '0.03',
   },
   Solana: {
     displayName: 'Solana',
