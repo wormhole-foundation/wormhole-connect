@@ -9,6 +9,8 @@ import type { RootState } from 'store';
 import useWalletProvider from 'hooks/useWalletProvider';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { setToNativeToken } from 'store/relay';
+import config from 'config';
+import { UserActions } from 'telemetry/types';
 
 function SwapInputs() {
   const dispatch = useDispatch();
@@ -16,9 +18,8 @@ function SwapInputs() {
   const theme: any = useTheme();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
-  const { isTransactionInProgress, fromChain, toChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { isTransactionInProgress, fromChain, toChain, token, destToken } =
+    useSelector((state: RootState) => state.transferInput);
 
   const styles = useMemo(
     () => ({
@@ -84,7 +85,37 @@ function SwapInputs() {
 
     dispatch(swapInputs());
     dispatch(setAmount(''));
-  }, [canSwap, isTransactionInProgress, dispatch, swapWallets]);
+
+    // Emit swap event after swapping state with the new swapped values
+    // We do not expect fromChain, toChain to be falsy here but adding a check for safety nonetheless
+    if (fromChain && toChain) {
+      // Tokens can be undefined if user swaps before selecting a token
+      const fromToken = token && config.tokens.get(token);
+      const toToken = destToken && config.tokens.get(destToken);
+
+      config.triggerEvent({
+        type: 'user.action',
+        details: {
+          action: UserActions.SwapInputs,
+          value: {
+            fromChain: toChain,
+            fromToken: toToken,
+            toChain: fromChain,
+            toToken: fromToken,
+          },
+        },
+      });
+    }
+  }, [
+    canSwap,
+    isTransactionInProgress,
+    dispatch,
+    swapWallets,
+    fromChain,
+    toChain,
+    token,
+    destToken,
+  ]);
 
   return (
     <IconButton

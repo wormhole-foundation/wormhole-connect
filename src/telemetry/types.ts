@@ -118,6 +118,14 @@ export enum UserActions {
   SelectSrcChain = 'select.src.chain',
   SelectDestToken = 'select.dest.token',
   SelectDestChain = 'select.dest.chain',
+  SwapInputs = 'swap.inputs',
+}
+
+export interface SwapInputs {
+  fromChain: Chain;
+  fromToken?: Token;
+  toChain: Chain;
+  toToken?: Token;
 }
 
 type UserActionValueMap = {
@@ -125,6 +133,7 @@ type UserActionValueMap = {
   [UserActions.SelectDestToken]: Token;
   [UserActions.SelectSrcChain]: Chain;
   [UserActions.SelectDestChain]: Chain;
+  [UserActions.SwapInputs]: SwapInputs;
 };
 
 export type UserActionEvent<A extends UserActions = UserActions> = {
