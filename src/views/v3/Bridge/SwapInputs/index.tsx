@@ -4,12 +4,12 @@ import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Color from 'color';
 
+import config from 'config';
 import SwapVerticalIcon from 'icons/SwapVertical';
-import type { RootState } from 'store';
 import useWalletProvider from 'hooks/useWalletProvider';
+import type { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { setToNativeToken } from 'store/relay';
-import config from 'config';
 import { UserActions } from 'telemetry/types';
 
 function SwapInputs() {
@@ -73,6 +73,14 @@ function SwapInputs() {
 
   const canSwap = !isTransactionInProgress && fromChain && toChain;
 
+  // Helper function to emit user action events
+  const emitUserAction = useCallback((action: UserActions, value: any) => {
+    config.triggerEvent({
+      type: 'user.action',
+      details: { action, value },
+    });
+  }, []);
+
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;
 
@@ -86,33 +94,30 @@ function SwapInputs() {
     dispatch(swapInputs());
     dispatch(setAmount(''));
 
-    // Emit swap event after swapping state with the new swapped values
-    // We do not expect fromChain, toChain to be falsy here but adding a check for safety nonetheless
-    if (fromChain && toChain) {
-      // Tokens can be undefined if user swaps before selecting a token
-      const fromToken = token && config.tokens.get(token);
-      const toToken = destToken && config.tokens.get(destToken);
+    // Emit select.* events to notify about the swap action
+    emitUserAction(UserActions.SelectSrcChain, toChain);
+    emitUserAction(UserActions.SelectDestChain, fromChain);
 
-      config.triggerEvent({
-        type: 'user.action',
-        details: {
-          action: UserActions.SwapInputs,
-          value: {
-            fromChain: toChain,
-            fromToken: toToken,
-            toChain: fromChain,
-            toToken: fromToken,
-          },
-        },
-      });
+    if (token) {
+      const fromToken = config.tokens.get(token);
+      if (fromToken) {
+        emitUserAction(UserActions.SelectDestToken, fromToken);
+      }
+    }
+    if (destToken) {
+      const toToken = config.tokens.get(destToken);
+      if (toToken) {
+        emitUserAction(UserActions.SelectSrcToken, toToken);
+      }
     }
   }, [
     canSwap,
     isTransactionInProgress,
     dispatch,
     swapWallets,
-    fromChain,
+    emitUserAction,
     toChain,
+    fromChain,
     token,
     destToken,
   ]);
