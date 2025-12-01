@@ -10,7 +10,10 @@ import useWalletProvider from 'hooks/useWalletProvider';
 import type { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { setToNativeToken } from 'store/relay';
-import { UserActions } from 'telemetry/types';
+import {
+  handleTelemetryOnChainSelect,
+  handleTelemetryOnTokenSelect,
+} from 'telemetry/utils';
 
 function SwapInputs() {
   const dispatch = useDispatch();
@@ -73,14 +76,6 @@ function SwapInputs() {
 
   const canSwap = !isTransactionInProgress && fromChain && toChain;
 
-  // Helper function to emit user action events
-  const emitUserAction = useCallback((action: UserActions, value: any) => {
-    config.triggerEvent({
-      type: 'user.action',
-      details: { action, value },
-    });
-  }, []);
-
   const swap = useCallback(() => {
     if (!canSwap || isTransactionInProgress) return;
 
@@ -95,19 +90,20 @@ function SwapInputs() {
     dispatch(setAmount(''));
 
     // Emit select.* events to notify about the swap action
-    emitUserAction(UserActions.SelectSrcChain, toChain);
-    emitUserAction(UserActions.SelectDestChain, fromChain);
+    handleTelemetryOnChainSelect(fromChain, false);
+    handleTelemetryOnChainSelect(toChain, true);
 
+    // There is a possibility that swap action happens before user selects tokens
     if (token) {
       const fromToken = config.tokens.get(token);
       if (fromToken) {
-        emitUserAction(UserActions.SelectDestToken, fromToken);
+        handleTelemetryOnTokenSelect(fromToken, false);
       }
     }
     if (destToken) {
       const toToken = config.tokens.get(destToken);
       if (toToken) {
-        emitUserAction(UserActions.SelectSrcToken, toToken);
+        handleTelemetryOnTokenSelect(toToken, true);
       }
     }
   }, [
@@ -115,7 +111,6 @@ function SwapInputs() {
     isTransactionInProgress,
     dispatch,
     swapWallets,
-    emitUserAction,
     toChain,
     fromChain,
     token,
