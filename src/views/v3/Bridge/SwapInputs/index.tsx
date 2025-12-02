@@ -4,11 +4,16 @@ import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Color from 'color';
 
+import config from 'config';
 import SwapVerticalIcon from 'icons/SwapVertical';
-import type { RootState } from 'store';
 import useWalletProvider from 'hooks/useWalletProvider';
+import type { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { setToNativeToken } from 'store/relay';
+import {
+  handleTelemetryOnChainSelect,
+  handleTelemetryOnTokenSelect,
+} from 'telemetry/utils';
 
 function SwapInputs() {
   const dispatch = useDispatch();
@@ -16,9 +21,8 @@ function SwapInputs() {
   const theme: any = useTheme();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
-  const { isTransactionInProgress, fromChain, toChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { isTransactionInProgress, fromChain, toChain, token, destToken } =
+    useSelector((state: RootState) => state.transferInput);
 
   const styles = useMemo(
     () => ({
@@ -84,7 +88,34 @@ function SwapInputs() {
 
     dispatch(swapInputs());
     dispatch(setAmount(''));
-  }, [canSwap, isTransactionInProgress, dispatch, swapWallets]);
+
+    // Emit select.* events to notify about the swap action
+    handleTelemetryOnChainSelect(fromChain, false);
+    handleTelemetryOnChainSelect(toChain, true);
+
+    // There is a possibility that swap action happens before user selects tokens
+    if (token) {
+      const fromToken = config.tokens.get(token);
+      if (fromToken) {
+        handleTelemetryOnTokenSelect(fromToken, false);
+      }
+    }
+    if (destToken) {
+      const toToken = config.tokens.get(destToken);
+      if (toToken) {
+        handleTelemetryOnTokenSelect(toToken, true);
+      }
+    }
+  }, [
+    canSwap,
+    isTransactionInProgress,
+    dispatch,
+    swapWallets,
+    toChain,
+    fromChain,
+    token,
+    destToken,
+  ]);
 
   return (
     <IconButton
