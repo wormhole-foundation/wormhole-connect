@@ -2,11 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
 import { usePopupState, bindTrigger } from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
-import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import { amount as sdkAmount, isSameToken } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 import type { ChainConfig } from 'config/types';
@@ -24,16 +23,19 @@ import type { AmountValidationResult } from 'hooks/useAmountValidation';
 import { OPACITY } from 'utils/style';
 import AssetPickerDrawer from 'views/v3/Bridge/AssetPicker/PickerBottomSheet';
 import AssetPickerPopover from 'views/v3/Bridge/AssetPicker/PickerModal';
-import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
 import { formatNumberIntl, formatMaxDigits } from 'utils/formatNumber';
+import { calculateUSDPrice, getTokenDisplaySymbolByTokenAddress } from 'utils';
 import {
   handleTelemetryOnChainSelect,
   handleTelemetryOnTokenSelect,
 } from 'telemetry/utils';
 import FeeOffset from './FeeOffset';
 import { calculateFeeOffset } from 'utils/fees';
+import { getGasReserve } from 'utils/gasReserve';
+import { getGasToken } from 'utils';
 import { useGetTokens } from 'hooks/useGetTokens';
 import TokenPickerButton from './TokenPickerButton';
+import PercentButtons from './PercentButtons';
 
 type Props = {
   chain?: Chain | undefined;
@@ -190,19 +192,6 @@ function AssetPicker(props: Props) {
         justifyContent: 'space-between',
         marginBottom: '16px',
       },
-      percentButton: {
-        borderRadius: '50px',
-        color: theme.palette.text.primary,
-        height: '22px',
-        minWidth: '40px',
-        backgroundColor: theme.palette.text.primary + OPACITY[10],
-        opacity: 0.7,
-      },
-      percentButtonSelected: {
-        color: theme.palette.formContainer.background,
-        backgroundColor: theme.palette.primary.main,
-        opacity: 'unset',
-      },
     }),
     [theme],
   );
@@ -306,6 +295,17 @@ function AssetPicker(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount]);
 
+  // Clear amount when source wallet address changes (user connects/disconnects/switches wallet)
+  useEffect(() => {
+    if (props.isSource && (amountInput || debouncedAmountInput)) {
+      handleAmountChange('');
+      handleDebouncedAmountChange('');
+      setSelectedPercentButton(0);
+    }
+    // Re-run only when wallet address changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.wallet.address]);
+
   // Adjust amount when route changes if user had clicked Max button previously
   // This handles both cases:
   // 1. Switching from non-fee-offset route to fee-offset route: deduct fee offset
@@ -314,6 +314,7 @@ function AssetPicker(props: Props) {
     if (
       selectedPercentButton !== 100 || // Only adjust if user had clicked "Max"
       !props.isSource || // Only adjust for source asset picker
+      !props.chain ||
       !tokenBalance ||
       !amount ||
       !selectedRoute ||
@@ -324,7 +325,29 @@ function AssetPicker(props: Props) {
     }
 
     const currentAmountUnits = sdkAmount.units(amount);
-    const maxAmountUnits = sdkAmount.units(tokenBalance);
+    let maxAmountUnits = sdkAmount.units(tokenBalance);
+
+    // Check if source token is the gas token for gas reserve deduction
+    let isGasToken = false;
+    try {
+      const gasToken = getGasToken(props.chain);
+      isGasToken = isSameToken(sourceToken, gasToken);
+    } catch {
+      // Gas token not configured for this chain
+    }
+
+    // Deduct gas reserve if applicable
+    if (isGasToken) {
+      const gasReserve = getGasReserve(props.chain);
+      if (gasReserve) {
+        const gasReserveUnits = sdkAmount.units(gasReserve);
+        // Only deduct if user has sufficient balance
+        if (maxAmountUnits > gasReserveUnits) {
+          maxAmountUnits -= gasReserveUnits;
+        }
+        // Do not deduct if balance <= gas reserve
+      }
+    }
 
     // Calculate fee offset for the new route
     const feeOffset = calculateFeeOffset(
@@ -346,8 +369,10 @@ function AssetPicker(props: Props) {
         dispatch(setAmount(displayAmount));
       }
     } else if (currentAmountUnits < maxAmountUnits) {
-      // Case 2: New route has no fee offset AND the amount is smaller than max -> restore full balance
-      const displayAmount = sdkAmount.display(tokenBalance);
+      // Case 2: New route has no fee offset AND the amount is smaller than max -> restore full balance (minus gas reserve)
+      const displayAmount = sdkAmount.display(
+        sdkAmount.fromBaseUnits(maxAmountUnits, tokenBalance.decimals),
+      );
       setAmountInput(displayAmount);
       setDebouncedAmountInput(displayAmount);
       dispatch(setAmount(displayAmount));
@@ -355,70 +380,6 @@ function AssetPicker(props: Props) {
     // Re-run only when selectedRoute changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRoute]);
-
-  const renderPercentButton = useCallback(
-    (percent: number) => (
-      <Button
-        sx={{
-          ...styles.percentButton,
-          ...(selectedPercentButton === percent
-            ? styles.percentButtonSelected
-            : {}),
-        }}
-        disabled={props.isTransactionInProgress}
-        onClick={() => {
-          if (tokenBalance) {
-            let balancePercent =
-              (sdkAmount.units(tokenBalance) * BigInt(percent)) / BigInt(100);
-
-            // User clicks "Max" when fee-offsetting is enabled.
-            // We need to subtract the fee offset amount from the balance
-            // This is to ensure user doesn't get insufficient funds error when fee offset is applied
-            if (
-              config.ui?.experimental?.feeOffsetting &&
-              percent === 100 &&
-              selectedRoute &&
-              sourceToken &&
-              destToken
-            ) {
-              const feeOffset = calculateFeeOffset(
-                config.routes.get(selectedRoute),
-                tokenBalance,
-                sourceToken,
-                destToken,
-              );
-              if (feeOffset) {
-                balancePercent -= sdkAmount.units(feeOffset);
-              }
-            }
-
-            const displayAmount = sdkAmount.display(
-              sdkAmount.fromBaseUnits(balancePercent, tokenBalance.decimals),
-            );
-            handleAmountChange(displayAmount);
-            handleDebouncedAmountChange(displayAmount);
-            setSelectedPercentButton(percent);
-          }
-        }}
-      >
-        <Typography fontSize={12} fontWeight={600} textTransform="none">
-          {percent === 100 ? 'Max' : `${percent}%`}
-        </Typography>
-      </Button>
-    ),
-    [
-      styles.percentButton,
-      styles.percentButtonSelected,
-      selectedPercentButton,
-      props.isTransactionInProgress,
-      tokenBalance,
-      selectedRoute,
-      sourceToken,
-      destToken,
-      handleAmountChange,
-      handleDebouncedAmountChange,
-    ],
-  );
 
   const destTokenUnitPrice = useMemo(() => {
     if (!props.token) {
@@ -455,11 +416,15 @@ function AssetPicker(props: Props) {
 
   const percentButtons =
     !props.wallet.address || !tokenBalance ? null : (
-      <Box sx={{ display: 'flex', gap: '6px' }}>
-        {renderPercentButton(25)}
-        {renderPercentButton(50)}
-        {renderPercentButton(100)}
-      </Box>
+      <PercentButtons
+        tokenBalance={tokenBalance}
+        chain={props.chain}
+        isTransactionInProgress={props.isTransactionInProgress}
+        selectedPercent={selectedPercentButton}
+        onAmountChange={handleAmountChange}
+        onDebouncedAmountChange={handleDebouncedAmountChange}
+        onPercentSelect={setSelectedPercentButton}
+      />
     );
 
   return (

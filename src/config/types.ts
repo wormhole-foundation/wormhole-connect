@@ -233,6 +233,18 @@ export interface ChainConfig {
   explorerName: string;
   icon: Chain;
   symbol?: string;
+  /**
+   * Gas reserve amount to keep for the chain's native token.
+   * This ensures users have enough gas to complete transactions.
+   * Format: decimal string (e.g., '0.01' for 0.01 of the native token)
+   *
+   * Typical values:
+   * - Ethereum: '0.01' ($30 notional)
+   * - L2s (Base, Op, Arb): '0.001' ($3 notional)
+   * - Other EVM L1s: '0.01'
+   * - Solana: '0.01' ($1.3 notional)
+   */
+  gasReserve?: string;
 }
 
 export type ChainsConfig = {
