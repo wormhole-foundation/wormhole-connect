@@ -500,4 +500,10 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     tokenId: { chain: 'Ink', address: 'native' },
   },
+  {
+    symbol: 'MOCA',
+    tokenId: { chain: 'Moca', address: 'native' },
+    decimals: 18,
+    icon: TokenIcon.MOCA,
+  },
 ];
