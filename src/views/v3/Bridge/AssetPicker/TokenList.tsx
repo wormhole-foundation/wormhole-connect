@@ -7,7 +7,7 @@ import type { WalletData } from 'store/wallet';
 import SearchableList from 'views/v3/Bridge/AssetPicker/SearchableList';
 import TokenItem from 'views/v3/Bridge/AssetPicker/TokenItem';
 import { getUSDFormat, calculateUSDPriceRaw } from 'utils';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Balances } from 'utils/wallet/types';
 import { useTokenListWithSearch } from 'hooks/useTokenListWithSearch';
 import TokenSectionHeader from './TokenSectionHeader';
@@ -33,6 +33,7 @@ type Props = {
 };
 
 const TokenList = (props: Props) => {
+  const config = useConfig();
   const theme = useTheme();
   const tokenPastingIsEnabled = config.ui.disableUserInputtedTokens !== true;
 

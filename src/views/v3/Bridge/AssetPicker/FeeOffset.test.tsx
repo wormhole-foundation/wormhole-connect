@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -8,12 +8,31 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import FeeOffset from './FeeOffset';
 import { dark } from 'theme';
-import config from 'config';
-import { createMockToken } from 'utils/testHelpers';
+import { createMockToken, TestConfigContext } from 'utils/testHelpers';
 
 const theme = createTheme({
   palette: dark as any,
 });
+
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  ui: {
+    experimental: {
+      feeOffsetting: true,
+    },
+  },
+};
+
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+  },
+}));
 
 // Mock the calculateFeeOffset function
 vi.mock('utils/fees', () => ({
@@ -26,17 +45,6 @@ vi.mock('hooks/useGetTokens', () => ({
     sourceToken: undefined,
     destToken: undefined,
   })),
-}));
-
-// Mock the config module
-vi.mock('config', () => ({
-  default: {
-    ui: {
-      experimental: {
-        feeOffsetting: true,
-      },
-    },
-  },
 }));
 
 const mockToken = createMockToken({
@@ -61,9 +69,11 @@ const AppWrapper =
   (store: any) =>
   ({ children }: { children: React.ReactNode }) =>
     (
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
-      </Provider>
+      <TestConfigContext.Provider value={mockConfig}>
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        </Provider>
+      </TestConfigContext.Provider>
     );
 
 describe('FeeOffset', () => {
@@ -122,8 +132,13 @@ describe('FeeOffset', () => {
     const { calculateFeeOffset } = vi.mocked(await import('utils/fees'));
     const { useGetTokens } = vi.mocked(await import('hooks/useGetTokens'));
 
-    const mockedConfig = vi.mocked(config);
-    mockedConfig.ui.experimental!.feeOffsetting = false;
+    const disabledConfig = {
+      ui: {
+        experimental: {
+          feeOffsetting: false,
+        },
+      },
+    };
 
     const feeOffset = sdkAmount.fromBaseUnits(1000n, 6);
     calculateFeeOffset.mockReturnValue(feeOffset);
@@ -137,14 +152,20 @@ describe('FeeOffset', () => {
       'TestRoute',
     );
 
+    // Use wrapper with disabled feeOffsetting config
+    const DisabledWrapper = ({ children }: { children: React.ReactNode }) => (
+      <TestConfigContext.Provider value={disabledConfig}>
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        </Provider>
+      </TestConfigContext.Provider>
+    );
+
     render(<FeeOffset />, {
-      wrapper: AppWrapper(store),
+      wrapper: DisabledWrapper,
     });
 
     expect(screen.queryByText(/\+.*USDC/)).not.toBeInTheDocument();
-
-    // Reset config for other tests
-    mockedConfig.ui.experimental!.feeOffsetting = true;
   });
 
   it('does not render when feeOffsetAmount is undefined', async () => {

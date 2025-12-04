@@ -9,7 +9,7 @@ import ConfigurablePageHeader from 'components/ConfigurablePageHeader';
 import HistoryIcon from 'icons/History';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import TxHistoryWidget from 'views/v3/TxHistory/Widget';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { OPACITY } from 'utils/style';
 import BridgeIcon from 'icons/Bridge';
 
@@ -26,6 +26,7 @@ const BridgeTitle: React.FC<BridgeTitleProps> = ({
   isWalletConnected,
   onToggleHistory,
 }) => {
+  const config = useConfig();
   const theme: any = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 

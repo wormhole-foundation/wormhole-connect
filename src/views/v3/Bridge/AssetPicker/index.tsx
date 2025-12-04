@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import type { Chain, routes } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount, isSameToken } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { ChainConfig } from 'config/types';
 import type { RootState } from 'store';
 import type { WalletData } from 'store/wallet';
@@ -61,6 +61,7 @@ type Props = {
 };
 
 function AssetPicker(props: Props) {
+  const config = useConfig();
   const theme: any = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));

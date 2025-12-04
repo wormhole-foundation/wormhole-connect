@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import Link from '@mui/material/Link';
@@ -121,6 +121,7 @@ function PartnerLogo(props: { src: string }) {
 }
 
 function PoweredByIcon(props: { color: string }) {
+  const config = useConfig();
   const styles = {
     container: {
       display: 'flex',

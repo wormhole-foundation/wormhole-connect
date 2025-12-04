@@ -3,7 +3,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { ChainConfig } from 'config/types';
 import type { Token } from 'config/tokens';
 import AssetBadge from 'components/AssetBadge';
@@ -31,6 +31,7 @@ function TokenPickerButton({
   token,
   triggerProps,
 }: TokenPickerButtonProps) {
+  const config = useConfig();
   const isEnabled = isSource
     ? !config.ui.disableSourceTokenPicker
     : !config.ui.disableDestinationTokenPicker;

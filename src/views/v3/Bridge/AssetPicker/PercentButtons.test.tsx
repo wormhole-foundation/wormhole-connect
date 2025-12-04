@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -8,11 +8,34 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import PercentButtons from './PercentButtons';
 import { dark } from 'theme';
-import { createMockToken } from 'utils/testHelpers';
+import { createMockToken, TestConfigContext } from 'utils/testHelpers';
 
 const theme = createTheme({
   palette: dark as any,
 });
+
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  routes: {
+    get: vi.fn(),
+  },
+  ui: {
+    experimental: {
+      feeOffsetting: false,
+    },
+  },
+};
+
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+  },
+}));
 
 // Mock the hooks and utilities
 vi.mock('hooks/useGetTokens', () => ({
@@ -43,19 +66,6 @@ vi.mock('@wormhole-foundation/sdk', async () => {
   };
 });
 
-vi.mock('config', () => ({
-  default: {
-    routes: {
-      get: vi.fn(),
-    },
-    ui: {
-      experimental: {
-        feeOffsetting: false,
-      },
-    },
-  },
-}));
-
 const mockToken = createMockToken({
   symbol: 'ETH',
   name: 'Ethereum',
@@ -77,9 +87,11 @@ const AppWrapper =
   (store: any) =>
   ({ children }: { children: React.ReactNode }) =>
     (
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
-      </Provider>
+      <TestConfigContext.Provider value={mockConfig}>
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        </Provider>
+      </TestConfigContext.Provider>
     );
 
 describe('PercentButtons', () => {

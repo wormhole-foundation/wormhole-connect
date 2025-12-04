@@ -12,7 +12,7 @@ import Stack from '@mui/material/Stack';
 import type { routes } from '@wormhole-foundation/sdk';
 import { amount } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { useGasSlider } from 'hooks/useGasSlider';
 import ErrorIcon from 'icons/Error';
 import WarningIcon from 'icons/Warning';
@@ -50,6 +50,7 @@ type Props = {
 };
 
 const SingleRoute = (props: Props) => {
+  const config = useConfig();
   const theme = useTheme();
   const styles = useMemo(
     () => ({

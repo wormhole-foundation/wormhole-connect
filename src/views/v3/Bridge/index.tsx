@@ -20,7 +20,7 @@ import type { Chain } from '@wormhole-foundation/sdk';
 import AlertBannerV3 from 'components/v3/AlertBanner';
 import Button from 'components/v3/Button';
 import FooterNavBar from 'components/FooterNavBar';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
 import useComputeDestinationTokens from 'hooks/useComputeDestinationTokens';
@@ -63,6 +63,7 @@ export type BridgeProps = {
 };
 
 function Bridge(props: BridgeProps) {
+  const config = useConfig();
   const theme: any = useTheme();
   const dispatch = useDispatch();
 
@@ -257,7 +258,7 @@ function Bridge(props: BridgeProps) {
       };
     }
     return undefined;
-  }, [destChain, receivingWallet]);
+  }, [destChain, receivingWallet, config.chains, config.tokens]);
 
   const balances = useGetTokenBalances({
     source: sourceBalanceRequest,
@@ -348,7 +349,7 @@ function Bridge(props: BridgeProps) {
       }
       return !value;
     });
-  }, [sendingWallet?.address]);
+  }, [sendingWallet?.address, config]);
   // Handler for route change
   const handleRouteChange = useCallback(
     (r: string) => {
@@ -431,7 +432,14 @@ function Bridge(props: BridgeProps) {
         ) : null}
       </Box>
     );
-  }, [styles.copyIcon, styles.doneIcon, errorCopied, txError, txErrorInternal]);
+  }, [
+    styles.copyIcon,
+    styles.doneIcon,
+    errorCopied,
+    txError,
+    txErrorInternal,
+    config.ui.getHelpUrl,
+  ]);
 
   const transactionInfo = useMemo(() => {
     if (!txInfo) {

@@ -7,7 +7,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import type { routes } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { getBestRoutes } from 'utils/routes';
 import type { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
@@ -37,6 +37,7 @@ function Routes({
   isLoading,
   onManualGasChange,
 }: Props) {
+  const config = useConfig();
   const dispatch = useDispatch();
   const theme: any = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));

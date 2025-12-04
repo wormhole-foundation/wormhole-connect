@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Color from 'color';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import SwapVerticalIcon from 'icons/SwapVertical';
 import useWalletProvider from 'hooks/useWalletProvider';
 import type { RootState } from 'store';
@@ -16,6 +16,7 @@ import {
 } from 'telemetry/utils';
 
 function SwapInputs() {
+  const config = useConfig();
   const dispatch = useDispatch();
   const { swapWallets } = useWalletProvider();
   const theme: any = useTheme();
@@ -107,6 +108,7 @@ function SwapInputs() {
       }
     }
   }, [
+    config,
     canSwap,
     isTransactionInProgress,
     dispatch,

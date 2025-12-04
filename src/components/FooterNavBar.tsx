@@ -4,7 +4,7 @@ import { Box, useTheme } from '@mui/material';
 import { ICON } from 'utils/style';
 import type { Route } from 'store/router';
 import { setRoute } from 'store/router';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { MenuEntry } from 'config/ui';
 
 type MenuItem = {
@@ -28,6 +28,7 @@ function defaultMenuItems(navigate: (name: Route) => void): MenuItem[] {
 }
 
 export default function FooterNavBar() {
+  const config = useConfig();
   const theme = useTheme();
 
   const styles = useMemo(

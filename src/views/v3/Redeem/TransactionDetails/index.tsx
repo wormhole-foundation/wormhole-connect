@@ -9,7 +9,7 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { RouteContext } from 'contexts/RouteContext';
 import AssetBadge from 'components/AssetBadge';
 import ExplorerLink from 'components/ExplorerLink';
@@ -29,6 +29,7 @@ import type { RootState } from 'store';
 import { useTokens } from 'contexts/TokensContext';
 
 const TransactionDetails = () => {
+  const config = useConfig();
   const theme = useTheme();
   const routeContext = React.useContext(RouteContext);
 

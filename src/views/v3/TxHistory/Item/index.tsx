@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import AssetBadge from 'components/AssetBadge';
 import {
   calculateUSDPrice,
@@ -28,6 +28,7 @@ type Props = {
 };
 
 const TxHistoryItem = (props: Props) => {
+  const config = useConfig();
   const theme = useTheme();
   const styles = useMemo(
     () => ({

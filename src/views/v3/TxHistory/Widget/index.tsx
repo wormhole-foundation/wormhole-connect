@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useTheme, Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { TransactionLocal } from 'config/types';
 import WidgetItem from 'views/v3/TxHistory/Widget/Item';
 import { getTxsFromLocalStorage } from 'utils/inProgressTxCache';
 
 const TxHistoryWidget = (props: { disabled: boolean }) => {
+  const config = useConfig();
   const theme = useTheme();
 
   const [transactions, setTransactions] = useState<Array<TransactionLocal>>();
@@ -33,7 +34,7 @@ const TxHistoryWidget = (props: { disabled: boolean }) => {
     });
 
     setTransactions(verifiedTxs);
-  }, []);
+  }, [config]);
 
   if (!transactions || transactions.length === 0) {
     return <></>;

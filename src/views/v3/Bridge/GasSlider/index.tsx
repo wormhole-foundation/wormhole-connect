@@ -11,7 +11,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { amount } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { calculateUSDPrice, chainDisplayName } from 'utils';
 import type { RootState } from 'store';
 import { useTokens } from 'contexts/TokensContext';
@@ -24,6 +24,7 @@ const GasSlider = (props: {
   isSelected: boolean;
   onGasChange: (value: number) => void;
 }) => {
+  const config = useConfig();
   const theme = useTheme();
   const styles = useMemo(
     () => ({
