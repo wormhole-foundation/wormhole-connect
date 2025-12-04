@@ -9,7 +9,7 @@ import {
 import { amount as sdkAmount, toNative } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { Token } from 'config/tokens';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { useTokens } from 'contexts/TokensContext';
 import {
   getTokenDisplaySymbolByTokenAddress,
@@ -55,6 +55,7 @@ export const useTokenListWithSearch = ({
   balances,
   tokenPastingEnabled = true,
 }: UseTokenListWithSearchParams): UseTokenListWithSearchReturn => {
+  const config = useConfig();
   const [searchedTokens, setSearchedTokens] = useState<Token[]>([]);
   const { getOrFetchToken, getTokenPrices } = useTokens();
   const deferredSearch = useDeferredValue(searchQuery);
@@ -72,7 +73,7 @@ export const useTokenListWithSearch = ({
     }
     const wrapped = getWrappedNativeToken(config.network, chain);
     return wrapped?.toLowerCase();
-  }, [isSameChainSwap, chain, isSource]);
+  }, [config, isSameChainSwap, chain, isSource]);
 
   useEffect(() => {
     if (!chain || !tokenPastingEnabled || !deferredSearch) {
@@ -110,6 +111,7 @@ export const useTokenListWithSearch = ({
       // Failed to parse as full address - expected for partial searches
     }
   }, [
+    config,
     deferredSearch,
     chain,
     getOrFetchToken,

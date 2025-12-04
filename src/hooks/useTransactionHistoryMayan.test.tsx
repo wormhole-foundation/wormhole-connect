@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { createMockToken } from 'utils/testHelpers';
+import * as React from 'react';
+import {
+  createMockToken,
+  createTestWrapper,
+  TestConfigContext,
+} from 'utils/testHelpers';
 
 const mockToken = createMockToken({
   chain: 'Ethereum',
@@ -10,37 +15,55 @@ const mockToken = createMockToken({
   name: 'USD Coin',
 });
 
-// Mock dependencies
-vi.mock('config', () => ({
-  default: {
-    mayanApi: 'https://price-api.mayan.finance',
-    tokens: {
-      get: vi.fn(() => mockToken),
-      findBySymbol: vi.fn(() => mockToken),
-    },
+// Mock config object that will be provided via TestConfigContext
+const mockConfig = {
+  mayanApi: 'https://price-api.mayan.finance',
+  tokens: {
+    get: vi.fn(() => mockToken),
+    findBySymbol: vi.fn(() => mockToken),
+  },
+};
+
+// Mock useConfig to read from TestConfigContext instead of ConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
   },
 }));
 
-vi.mock('@wormhole-foundation/sdk', () => ({
-  chainIdToChain: vi.fn((chainId) => {
-    const chainMap: Record<number, string> = {
-      1: 'Ethereum',
-      2: 'Solana',
-      3: 'Bsc',
-      4: 'Polygon',
-      5: 'Avalanche',
-      6: 'Arbitrum',
-      14: 'Optimism',
-    };
-    return chainMap[chainId] || undefined;
-  }),
-  toNative: vi.fn((chain, address) => ({
-    chain,
-    address,
-  })),
-}));
+vi.mock('@wormhole-foundation/sdk', async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import('@wormhole-foundation/sdk')
+  >();
+  return {
+    ...actual,
+    chainIdToChain: vi.fn((chainId) => {
+      const chainMap: Record<number, string> = {
+        1: 'Ethereum',
+        2: 'Solana',
+        3: 'Bsc',
+        4: 'Polygon',
+        5: 'Avalanche',
+        6: 'Arbitrum',
+        14: 'Optimism',
+      };
+      return chainMap[chainId] || undefined;
+    }),
+    toNative: vi.fn((chain, address) => ({
+      chain,
+      address,
+    })),
+  };
+});
 
 import useTransactionHistoryMayan from './useTransactionHistoryMayan';
+
+// Create wrapper with TestConfigContext providing our mock config
+const wrapper = createTestWrapper({ config: mockConfig });
 
 // Sample test data
 const mockMayanTransaction = {
@@ -86,12 +109,14 @@ describe('useTransactionHistoryMayan', () => {
       json: async () => ({ data: [mockMayanTransaction] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-        page: 0,
-        pageSize: 30,
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+          page: 0,
+          pageSize: 30,
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -123,10 +148,12 @@ describe('useTransactionHistoryMayan', () => {
       json: async () => ({ data: [pendingTx] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -149,10 +176,12 @@ describe('useTransactionHistoryMayan', () => {
       json: async () => ({ data: [unsupportedChainTx] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -168,10 +197,12 @@ describe('useTransactionHistoryMayan', () => {
       status: 429,
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -188,10 +219,12 @@ describe('useTransactionHistoryMayan', () => {
       status: 500,
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -204,10 +237,12 @@ describe('useTransactionHistoryMayan', () => {
   it('should handle network errors', async () => {
     fetchMock.mockRejectedValueOnce(new Error('Failed to fetch'));
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -226,10 +261,12 @@ describe('useTransactionHistoryMayan', () => {
       json: async () => ({ data: [] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryMayan({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryMayan({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {

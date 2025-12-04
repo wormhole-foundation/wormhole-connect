@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { amount, Chain, routes } from '@wormhole-foundation/sdk';
 import useFetchQuotes from 'hooks/useFetchQuotes';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import useFetchSupportedRoutes from './useFetchSupportedRoutes';
 import type { Token } from 'config/tokens';
 import type { WalletData } from 'store/wallet';
@@ -48,6 +48,7 @@ export const useSortedRoutesWithQuotes = ({
   sendingWallet,
   receivingWallet,
 }: UseSortedRoutesWithQuotesArgs): HookReturn => {
+  const config = useConfig();
   const { supportedRoutes, isFetching: isFetchingSupportedRoutes } =
     useFetchSupportedRoutes({
       fromChain,
@@ -171,7 +172,7 @@ export const useSortedRoutesWithQuotes = ({
         return Number(destAmountB - destAmountA);
       }
     });
-  }, [preferredRouteName, routesWithQuotes]);
+  }, [config, preferredRouteName, routesWithQuotes]);
 
   const sortedRoutes = useMemo(
     () => sortedRoutesWithQuotes.map((r) => r.route),

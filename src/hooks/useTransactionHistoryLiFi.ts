@@ -3,7 +3,7 @@ import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { ChainId as LifiChainId } from '@lifi/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Transaction } from 'config/types';
 import { lifiChainIdToChain } from 'routes/lifi/utils';
 import { findToken } from 'utils/tokens';
@@ -75,6 +75,7 @@ const useTransactionHistoryLiFi = (
   isFetching: boolean;
   hasMore: boolean;
 } => {
+  const config = useConfig();
   const [transactions, setTransactions] = useState<
     Array<Transaction> | undefined
   >();
@@ -326,7 +327,7 @@ const useTransactionHistoryLiFi = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, chains, parseTransactions, hasMore]);
+  }, [address, page, pageSize, chains, parseTransactions, hasMore, config]);
 
   return {
     transactions,

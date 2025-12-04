@@ -1,4 +1,4 @@
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Token } from 'config/tokens';
 
 type Props = {
@@ -13,6 +13,7 @@ export const useGasSlider = (
   disabled: boolean;
   showGasSlider: boolean | undefined;
 } => {
+  const config = useConfig();
   const { destToken, route, isTransactionInProgress } = props;
 
   const disabled = isTransactionInProgress;

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
+import type { ConfigContextType } from 'contexts/ConfigContext';
 import { setDestToken } from 'store/transferInput';
 
 import type { Token } from 'config/tokens';
@@ -28,6 +29,7 @@ type ReturnProps = {
  * 3. If both chains selected AND a source token: fetch supported destination tokens from routes
  */
 const computeDestTokensForChains = async (
+  config: ConfigContextType,
   sourceChain: Chain | undefined,
   destChain: Chain | undefined,
   sourceToken: Token | undefined,
@@ -57,6 +59,7 @@ const computeDestTokensForChains = async (
 };
 
 const useComputeDestinationTokens = (props: Props): ReturnProps => {
+  const config = useConfig();
   const { sourceChain, destChain, sourceToken } = props;
 
   const dispatch = useDispatch();
@@ -71,6 +74,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
 
     try {
       const supported = await computeDestTokensForChains(
+        config,
         sourceChain,
         destChain,
         sourceToken,
@@ -86,7 +90,7 @@ const useComputeDestinationTokens = (props: Props): ReturnProps => {
     } finally {
       setIsFetching(false);
     }
-  }, [sourceToken, sourceChain, destChain, dispatch, getOrFetchToken]);
+  }, [config, sourceToken, sourceChain, destChain, dispatch, getOrFetchToken]);
 
   useEffect(() => {
     computeDestTokens();

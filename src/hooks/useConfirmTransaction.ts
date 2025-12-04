@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { RouteContext } from 'contexts/RouteContext';
 import useWalletProvider from 'hooks/useWalletProvider';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
@@ -42,6 +42,7 @@ type ReturnProps = {
 };
 
 const useConfirmTransaction = (props: Props): ReturnProps => {
+  const config = useConfig();
   const dispatch = useDispatch();
 
   const [error, setError] = useState<string | undefined>(undefined);

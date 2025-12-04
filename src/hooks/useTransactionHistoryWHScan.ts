@@ -7,7 +7,7 @@ import {
   Wormhole,
 } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { WORMSCAN } from 'config/constants';
 import { getGasToken } from 'utils';
 
@@ -116,6 +116,7 @@ const useTransactionHistoryWHScan = (
   isFetching: boolean;
   hasMore: boolean;
 } => {
+  const config = useConfig();
   const [transactions, setTransactions] = useState<
     Array<Transaction> | undefined
   >();
@@ -265,7 +266,7 @@ const useTransactionHistoryWHScan = (
 
       return txData;
     },
-    [getOrFetchToken],
+    [config, getOrFetchToken],
   );
 
   // Parser for Portal Token Bridge transactions (appId === PORTAL_TOKEN_BRIDGE)
@@ -379,7 +380,7 @@ const useTransactionHistoryWHScan = (
 
       return txData;
     },
-    [parseSingleTx],
+    [config, parseSingleTx],
   );
 
   // Parser for WLL or FAST_TRANSFERS transactions (appId === WORMHOLE_LIQUIDITY_LAYER, FAST_TRANSFERS)
@@ -523,7 +524,7 @@ const useTransactionHistoryWHScan = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, parseTransactions, chainIds]);
+  }, [address, page, pageSize, parseTransactions, chainIds, config]);
 
   return {
     transactions,

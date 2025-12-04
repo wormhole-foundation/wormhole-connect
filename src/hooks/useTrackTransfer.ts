@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { isCompleted, TransferState } from '@wormhole-foundation/sdk';
 import { clearCache as clearBalanceCache } from 'utils/balanceCache';
 
-import config, { getWormholeContextV2 } from 'config';
+import { getWormholeContextV2 } from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { sleep } from 'utils';
 
 import type {
@@ -34,6 +35,7 @@ type ReturnProps = {
 };
 
 const useTrackTransfer = (props: Props): ReturnProps => {
+  const config = useConfig();
   const [completed, setCompleted] = useState(false);
   const [readyToClaim, setReadyToClaim] = useState(false);
   const [receipt, setReceipt] = useState<routes.Receipt<AttestationReceipt>>();
@@ -149,6 +151,7 @@ const useTrackTransfer = (props: Props): ReturnProps => {
       isActive = false;
     };
   }, [
+    config,
     eta,
     receipt,
     routeName,

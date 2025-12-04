@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -6,12 +6,23 @@ import { configureStore } from '@reduxjs/toolkit';
 import { amount } from '@wormhole-foundation/sdk';
 import { useAutoEnableGasDropOff } from './useAutoEnableGasDropoff';
 import * as relayActions from 'store/relay';
+import { TestConfigContext } from 'utils/testHelpers';
 
-vi.mock('config', () => ({
-  default: {
-    tokens: {
-      getGasToken: vi.fn(() => ({ key: 'ETH', symbol: 'ETH' })),
-    },
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  tokens: {
+    getGasToken: vi.fn(() => ({ key: 'ETH', symbol: 'ETH' })),
+  },
+};
+
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
   },
 }));
 
@@ -34,7 +45,9 @@ describe('useAutoEnableGasDropoff', () => {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <Provider store={mockStore}>{children}</Provider>
+    <TestConfigContext.Provider value={mockConfig}>
+      <Provider store={mockStore}>{children}</Provider>
+    </TestConfigContext.Provider>
   );
 
   it('enables gas dropoff when destination has no native balance and chain is allowed', () => {

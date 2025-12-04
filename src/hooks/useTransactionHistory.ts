@@ -5,7 +5,7 @@ import useTransactionHistoryWHScan from 'hooks/useTransactionHistoryWHScan';
 import useTransactionHistoryMayan from 'hooks/useTransactionHistoryMayan';
 import useTransactionHistoryLiFi from 'hooks/useTransactionHistoryLiFi';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Transaction } from 'config/types';
 import type { RootState } from 'store';
 import { sortByTime } from 'utils/sort';
@@ -23,6 +23,7 @@ const useTransactionHistory = (
   isFetching: boolean;
   hasMore: boolean;
 } => {
+  const config = useConfig();
   const { page = 0, pageSize = 30 } = props || {};
 
   // Keeping separate indexes to track the last rendered item in respective transaction sets

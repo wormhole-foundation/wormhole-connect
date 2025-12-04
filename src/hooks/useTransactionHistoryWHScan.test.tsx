@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import React from 'react';
-import { createMockToken } from 'utils/testHelpers';
+import * as React from 'react';
+import {
+  createMockToken,
+  createTestWrapper,
+  TestConfigContext,
+} from 'utils/testHelpers';
 
 const mockToken = createMockToken({
   chain: 'Ethereum',
@@ -11,15 +15,24 @@ const mockToken = createMockToken({
   name: 'USD Coin',
 });
 
-// Mock dependencies
-vi.mock('config', () => ({
-  default: {
-    wormholeApi: 'https://api.wormholescan.io',
-    isMainnet: false,
-    tokens: {
-      get: vi.fn(() => mockToken),
-      findBySymbol: vi.fn(() => mockToken),
-    },
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  wormholeApi: 'https://api.wormholescan.io',
+  isMainnet: false,
+  tokens: {
+    get: vi.fn(() => mockToken),
+    findBySymbol: vi.fn(() => mockToken),
+  },
+};
+
+// Mock useConfig to read from TestConfigContext instead of ConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
   },
 }));
 
@@ -48,51 +61,57 @@ vi.mock('contexts/TokensContext', () => ({
   })),
 }));
 
-vi.mock('@wormhole-foundation/sdk', () => ({
-  amount: {
-    fromBaseUnits: vi.fn((amount, decimals) => ({
-      amount: amount.toString(),
-      decimals,
-    })),
-    display: vi.fn((amountObj) => {
-      if (!amountObj) return undefined;
-      const divisor = BigInt(10 ** amountObj.decimals);
-      const value = BigInt(amountObj.amount) / divisor;
-      return value.toString();
+vi.mock('@wormhole-foundation/sdk', async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import('@wormhole-foundation/sdk')
+  >();
+  return {
+    ...actual,
+    amount: {
+      ...actual.amount,
+      fromBaseUnits: vi.fn((amt, decimals) => ({
+        amount: amt.toString(),
+        decimals,
+      })),
+      display: vi.fn((amountObj) => {
+        if (!amountObj) return undefined;
+        const divisor = BigInt(10 ** amountObj.decimals);
+        const value = BigInt(amountObj.amount) / divisor;
+        return value.toString();
+      }),
+    },
+    chainIdToChain: vi.fn((chainId) => {
+      const chainMap: Record<number, string> = {
+        2: 'Ethereum',
+        1: 'Solana',
+        4: 'Bsc',
+        5: 'Polygon',
+        6: 'Avalanche',
+        23: 'Arbitrum',
+        24: 'Optimism',
+      };
+      return chainMap[chainId] || undefined;
     }),
-  },
-  chainIdToChain: vi.fn((chainId) => {
-    const chainMap: Record<number, string> = {
-      2: 'Ethereum',
-      1: 'Solana',
-      4: 'Bsc',
-      5: 'Polygon',
-      6: 'Avalanche',
-      23: 'Arbitrum',
-      24: 'Optimism',
-    };
-    return chainMap[chainId] || undefined;
-  }),
-  toNative: vi.fn((chain, address) => ({
-    chain,
-    address,
-  })),
-  Wormhole: {
-    tokenId: vi.fn((chain, address) => `${chain}.${address}`),
-    parseAll: vi.fn(() => ({
-      vaa: {
-        timestamp: '2023-01-01T00:00:00Z',
-      },
+    toNative: vi.fn((chain, address) => ({
+      chain,
+      address,
     })),
-  },
-}));
+    Wormhole: {
+      ...actual.Wormhole,
+      tokenId: vi.fn((chain, address) => `${chain}.${address}`),
+      parseAll: vi.fn(() => ({
+        vaa: {
+          timestamp: '2023-01-01T00:00:00Z',
+        },
+      })),
+    },
+  };
+});
 
 import useTransactionHistoryWHScan from './useTransactionHistoryWHScan';
 
-// Wrapper component to provide TokensContext
-const wrapper = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
-};
+// Create wrapper with TestConfigContext providing our mock config
+const wrapper = createTestWrapper({ config: mockConfig });
 
 describe('useTransactionHistoryWHScan', () => {
   let fetchMock: ReturnType<typeof vi.fn>;

@@ -1,5 +1,5 @@
 import type { Chain } from '@wormhole-foundation/sdk';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from 'store';
@@ -13,6 +13,7 @@ type ExternalSearch = {
 };
 
 export function useExternalSearch(): ExternalSearch {
+  const config = useConfig();
   const dispatch = useDispatch();
   const { txHash, chain } = useSelector((state: RootState) => state.search);
 
@@ -32,7 +33,7 @@ export function useExternalSearch(): ExternalSearch {
         );
       }
     }
-  }, [dispatch]);
+  }, [dispatch, config.chainsArr, config.ui.searchTx]);
 
   return {
     hasExternalSearch: !!(txHash && chain),
