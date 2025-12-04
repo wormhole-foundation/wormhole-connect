@@ -12,6 +12,7 @@ import type { WormholeConnectTheme } from 'theme';
 import { RouteProvider } from './contexts/RouteContext';
 import { TokensProvider } from './contexts/TokensContext';
 import WalletProvider from './contexts/wallet/WalletProvider';
+import { ConfigProvider } from './contexts/ConfigContext';
 import type { WormholeConnectWalletProvider } from './utils/wallet/types';
 import { internalWalletProvider } from './utils/wallet/InternalWalletProvider';
 
@@ -56,13 +57,15 @@ export default function WormholeConnect({
       <ThemeProvider theme={muiTheme}>
         <ScopedCssBaseline enableColorScheme>
           <ErrorBoundary>
-            <WalletProvider provider={walletProvider}>
-              <TokensProvider>
-                <RouteProvider>
-                  <AppRouter config={config} />
-                </RouteProvider>
-              </TokensProvider>
-            </WalletProvider>
+            <ConfigProvider config={config}>
+              <WalletProvider provider={walletProvider}>
+                <TokensProvider>
+                  <RouteProvider>
+                    <AppRouter />
+                  </RouteProvider>
+                </TokensProvider>
+              </WalletProvider>
+            </ConfigProvider>
           </ErrorBoundary>
         </ScopedCssBaseline>
       </ThemeProvider>
