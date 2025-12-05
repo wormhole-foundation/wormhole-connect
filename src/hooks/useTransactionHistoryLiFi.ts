@@ -229,6 +229,7 @@ const useTransactionHistoryLiFi = (
 
         const res = await fetch(
           `${config.lifiExplorerUrl}/v1/analytics/transfers?${params}`,
+          { headers: { Accept: 'application/json' } },
         );
 
         // Check for various HTTP error conditions

@@ -71,6 +71,8 @@ const sdkPackages = [
   '@wormhole-foundation/sdk-solana',
   '@wormhole-foundation/sdk-solana-cctp',
   '@wormhole-foundation/sdk-solana-core',
+  '@wormhole-foundation/sdk-stacks',
+  '@wormhole-foundation/sdk-stacks-core',
   '@wormhole-foundation/sdk-sui',
   '@wormhole-foundation/sdk-sui-cctp',
   '@wormhole-foundation/sdk-sui-core',

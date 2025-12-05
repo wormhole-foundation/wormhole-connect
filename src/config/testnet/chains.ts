@@ -217,4 +217,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: 'Ink',
     symbol: 'INK',
   },
+  Stacks: {
+    displayName: 'Stacks',
+    sdkName: 'Stacks',
+    explorerUrl: 'https://explorer.hiro.so/?chain=testnet',
+    explorerName: 'Stacks Explorer',
+    icon: 'Stacks',
+    symbol: 'STX',
+  },
 };

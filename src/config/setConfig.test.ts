@@ -58,6 +58,7 @@ vi.mock('@wormhole-foundation/sdk', async () => {
 vi.mock('@wormhole-foundation/sdk/evm', () => ({}));
 vi.mock('@wormhole-foundation/sdk/solana', () => ({}));
 vi.mock('@wormhole-foundation/sdk/aptos', () => ({}));
+vi.mock('@wormhole-foundation/sdk/stacks', () => ({}));
 vi.mock('@wormhole-foundation/sdk/sui', () => ({}));
 
 describe('setConfig updates (Portal scenario)', () => {

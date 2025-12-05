@@ -28,6 +28,7 @@ import type {
   AptosChains,
 } from '@wormhole-foundation/sdk-aptos';
 import type { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
+import type { StacksChains } from '@wormhole-foundation/sdk-stacks';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -82,6 +83,13 @@ export const signAndSendTransaction = async (
     const aptos = await import('utils/wallet/aptos');
     const tx = await aptos.signAndSendTransaction(
       request as AptosUnsignedTransaction<Network, AptosChains>,
+      wallet,
+    );
+    return tx.id;
+  } else if (platform === 'Stacks') {
+    const stacks = await import('utils/wallet/stacks');
+    const tx = await stacks.signAndSendTransaction(
+      request as UnsignedTransaction<Network, StacksChains>,
       wallet,
     );
     return tx.id;
@@ -170,6 +178,10 @@ export const getWalletOptions = async (
     const aptosWallet = await import('utils/wallet/aptos');
     const aptosOptions = await aptosWallet.fetchOptions();
     return Object.values(mapWallets(aptosOptions, platform));
+  } else if (platform === 'Stacks') {
+    const stacksWallet = await import('utils/wallet/stacks');
+    const stacksOptions = await stacksWallet.fetchOptions();
+    return Object.values(mapWallets(stacksOptions, platform));
   }
   return [];
 };

@@ -36,6 +36,7 @@ import HyperEVM from './Chains/HYPEREVM';
 import XRPLEVM from './Chains/XRPLEVM';
 import CreditCoin from './Chains/CreditCoin';
 import MONAD from './Chains/MONAD';
+import STX from './Chains/STX';
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
@@ -70,6 +71,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   XRPLEVM: XRPLEVM(),
   CreditCoin: CreditCoin(),
   Monad: MONAD(),
+  Stacks: STX(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

@@ -17,6 +17,8 @@ import config, { getWormholeContextV2 } from 'config';
 import type { Token } from 'config/tokens';
 import { Contract } from 'ethers';
 import type { SuiClient } from '@mysten/sui/client';
+import type { StacksNetwork } from '@stacks/network';
+import { fetchJson } from 'utils';
 
 interface TokenMetadataFromRpc {
   symbol: string;
@@ -35,6 +37,8 @@ export async function getTokenMetadataFromRpc(
       return getTokenMetadataSolana(wh, tokenId);
     case 'Evm':
       return getTokenMetadataEvm(wh, tokenId);
+    case 'Stacks':
+      return getTokenMetadataStacks(wh, tokenId);
     case 'Sui':
       return getTokenMetadataSui(wh, tokenId);
   }
@@ -114,6 +118,37 @@ export async function getTokenMetadataSui(
       coinType: tokenId.address.toString(),
     });
     return { symbol: token?.symbol ?? '', name: token?.name ?? '' };
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
+}
+
+export async function getTokenMetadataStacks(
+  wh: Wormhole<Network>,
+  tokenId: TokenId,
+): Promise<TokenMetadataFromRpc | undefined> {
+  try {
+    const principal = tokenId.address.toString();
+
+    const platform = wh.getPlatform('Stacks');
+    const rpc: StacksNetwork = platform.getRpc(
+      tokenId.chain as PlatformToChains<'Stacks'>,
+    );
+
+    const token = await fetchJson(
+      `${rpc.client.baseUrl}/metadata/v1/ft/${principal}`,
+    );
+
+    if (!token) {
+      return undefined;
+    }
+
+    return {
+      symbol: token?.symbol ?? '',
+      name: token?.name ?? '',
+      icon: token?.image_uri || token.image_thumbnail_uri,
+    };
   } catch (e) {
     console.error(e);
     return undefined;

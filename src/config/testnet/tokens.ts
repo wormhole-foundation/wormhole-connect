@@ -500,4 +500,10 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     tokenId: { chain: 'Ink', address: 'native' },
   },
+  {
+    symbol: 'STX',
+    decimals: 6,
+    icon: TokenIcon.STX,
+    tokenId: { chain: 'Stacks', address: 'native' },
+  },
 ];

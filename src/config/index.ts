@@ -25,6 +25,8 @@ import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
 import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
+import stacks from '@wormhole-foundation/sdk/stacks';
+
 import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
 import { createUiConfig } from './ui';
@@ -209,7 +211,7 @@ export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
 
   return await getWormholeV2(
     config.network,
-    [evm, solana, aptos, sui],
+    [evm, solana, aptos, sui, stacks],
     v2Config,
   );
 }

@@ -37,6 +37,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   CreditCoin: 'wrapped-ctc',
   Monad: 'monad',
   Fogo: 'fogo',
+  Stacks: 'blockstack',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
@@ -56,6 +57,7 @@ const CHAIN_IDS: Partial<Record<Chain, string>> = {
   HyperCore: 'hypercore',
   Monad: 'monad',
   Fogo: 'fogo',
+  Stacks: 'stacks',
 };
 
 export interface CoingeckoParams {

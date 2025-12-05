@@ -471,3 +471,13 @@ export const stringifyWithBigInt = (json: any) => {
     typeof value === 'bigint' ? value.toString() : value,
   );
 };
+
+export async function fetchJson(url: string) {
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${url}: ${response.status}`);
+  }
+  return response.json();
+}

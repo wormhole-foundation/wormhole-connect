@@ -53,6 +53,11 @@ function isValidAptosAddress(address: string): boolean {
   );
 }
 
+function isValidStacksAddress(address: string): boolean {
+  // TODO: validateStacksAddress
+  return false;
+}
+
 export async function validateWalletAddress(
   chain: Chain,
   address: string,
@@ -74,6 +79,9 @@ export async function validateWalletAddress(
       break;
     case 'Aptos':
       if (!isValidAptosAddress(address)) return null;
+      break;
+    case 'Stacks':
+      if (!isValidStacksAddress(address)) return null;
       break;
     default:
       console.warn(`Unsupported platform: ${platform}`);

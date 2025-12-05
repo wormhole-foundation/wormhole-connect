@@ -257,4 +257,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Monad',
     symbol: 'MON',
   },
+  Stacks: {
+    displayName: 'Stacks',
+    sdkName: 'Stacks',
+    explorerUrl: 'https://explorer.hiro.so/',
+    explorerName: 'Stacks Explorer',
+    icon: 'Stacks',
+    symbol: 'STX',
+  },
 };

@@ -172,7 +172,8 @@ See [`chains.ts`](https://github.com/wormhole-foundation/wormhole-sdk-ts/blob/ma
 | XRPLEVM | XRPLEVM |
 | Creditcoin | |
 | Fogo | Fogo |
-| | Monad |
+| Monad | Monad |
+| | Stacks |
 
 ### RPC Endpoints (`rpcs`):
 
