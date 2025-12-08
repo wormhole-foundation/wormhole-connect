@@ -188,6 +188,7 @@ describe('interpretTransferError', () => {
       const [message, errorObj] = interpretTransferError(
         error,
         mockTransferDetails,
+        'send',
       );
 
       expect(message).toBe(expectedMessage);
@@ -202,6 +203,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe('Transfer timed out, please try again');
@@ -214,6 +216,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe('Transfer timed out, please try again');
@@ -225,6 +228,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe(
@@ -238,6 +242,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toContain('Insufficient');
@@ -247,7 +252,11 @@ describe('interpretTransferError', () => {
 
   it('should prioritize gas error over generic funds error', () => {
     const error = new Error('insufficient funds for gas');
-    const [message] = interpretTransferError(error, mockTransferDetails);
+    const [message] = interpretTransferError(
+      error,
+      mockTransferDetails,
+      'send',
+    );
 
     // Should match gas error, not generic funds error
     expect(message).toBe(
@@ -267,6 +276,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe(
@@ -287,6 +297,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe('Wallet request declined. Transfer not started.');
@@ -307,6 +318,7 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe('Error with transfer, please try again');
@@ -325,11 +337,69 @@ describe('interpretTransferError', () => {
     const [message, errorObj] = interpretTransferError(
       error,
       mockTransferDetails,
+      'send',
     );
 
     expect(message).toBe(
       'Insufficient funds for this transfer. Please add more funds and try again',
     );
     expect(errorObj.type).toBe(ERR_INSUFFICIENT_FUNDS);
+  });
+
+  it('should return insufficient gas error for send context', () => {
+    const error = new Error('insufficient lamports 1000 required 5000');
+    const [message, errorObj] = interpretTransferError(
+      error,
+      mockTransferDetails,
+      'send',
+    );
+
+    // Should detect as insufficient gas error
+    // Message attempts to use fromChain gas token if config available
+    expect(errorObj.type).toBe(ERR_INSUFFICIENT_GAS);
+    expect(message).toContain('Insufficient');
+  });
+
+  it('should return insufficient gas error for redeem context', () => {
+    const error = new Error('insufficient lamports 1000 required 5000');
+    const [message, errorObj] = interpretTransferError(
+      error,
+      mockTransferDetails,
+      'redeem',
+    );
+
+    // Should detect as insufficient gas error
+    // Message attempts to use toChain gas token if config available
+    expect(errorObj.type).toBe(ERR_INSUFFICIENT_GAS);
+    expect(message).toContain('Insufficient');
+  });
+
+  it('should properly identify destination chain for redeem context', () => {
+    const fogoTransferDetails: TransferDetails = {
+      fromChain: 'Solana',
+      toChain: 'Fogo',
+      fromToken: {
+        symbol: 'SOL',
+        tokenId: { address: 'native', chain: 'Solana' },
+      },
+      toToken: {
+        symbol: 'FOGO',
+        tokenId: { address: 'native', chain: 'Fogo' },
+      },
+      route: 'Bridge',
+      amount: sdkAmount.fromBaseUnits(1000000n, 9),
+    };
+
+    const error = new Error('simulation failed: AccountNotFound');
+    const [message, errorObj] = interpretTransferError(
+      error,
+      fogoTransferDetails,
+      'redeem',
+    );
+
+    // Should return insufficient gas error for destination chain (Fogo, not Solana)
+    // The actual gas token display depends on config availability
+    expect(errorObj.type).toBe(ERR_INSUFFICIENT_GAS);
+    expect(message).toContain('Insufficient');
   });
 });

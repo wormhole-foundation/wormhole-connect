@@ -298,6 +298,7 @@ function Redeem() {
       const [uiError, transferError] = interpretTransferError(
         receipt.error,
         details,
+        'redeem',
       );
       setClaimError(uiError);
 
@@ -323,6 +324,7 @@ function Redeem() {
       const [uiError, transferError] = interpretTransferError(
         unhandledManualClaimError,
         details,
+        'redeem',
       );
 
       setClaimError(uiError);

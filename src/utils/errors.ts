@@ -64,6 +64,7 @@ function errorMessageMatches(e: any, regex: RegExp): boolean {
 export function interpretTransferError(
   e: any,
   transferDetails: TransferDetails,
+  context: 'send' | 'redeem',
 ): [string, TransferError] {
   // Fall-back values
   let uiErrorMessage = 'Error with transfer, please try again';
@@ -123,7 +124,14 @@ export function interpretTransferError(
       errorMessageMatches(e, SIMULATION_ACCOUNT_NOT_FOUND_REGEX) ||
       errorMessageMatches(e, INSUFFICIENT_LAMPORTS_REGEX)
     ) {
-      const gasChain = transferDetails.fromChain;
+      // Determine which chain needs gas based on context
+      // - 'send': gas needed on source chain (where send transaction happens)
+      // - 'redeem': gas needed on destination chain (where redeem transaction happens)
+      const gasChain =
+        context === 'send'
+          ? transferDetails.fromChain
+          : transferDetails.toChain;
+
       try {
         const gasToken = getGasToken(gasChain);
         const gasSymbol = getTokenDisplaySymbolByTokenAddress(gasToken);
