@@ -3,6 +3,13 @@ import type { Network } from '@wormhole-foundation/sdk';
 import type { WormholeConnectConfig, InternalConfig } from '../config/types';
 import { buildConfig, setConfig } from '../config';
 import config from '../config';
+import {
+  createConfigStore,
+  ConfigStoreContext,
+  registerLegacyStore,
+  unregisterLegacyStore,
+  type ConfigStore,
+} from '../store/configStore';
 
 export type SetConfigFn = (customConfig?: WormholeConnectConfig) => void;
 
@@ -21,11 +28,14 @@ export interface ConfigProviderProps {
 /**
  * ConfigProvider builds and provides instance-scoped configuration.
  *
+ * Each ConfigProvider creates its own Zustand store instance, enabling
+ * multiple WormholeConnect widgets on the same page with independent configs.
+ *
  * During the migration period, this provider also updates the global singleton
  * via setConfig() for backwards compatibility. Code that directly imports
  * `config` from 'config' will continue to work.
  *
- * TODO: Remove global singleton sync once all code uses useConfig()/useSetConfig().
+ * TODO: Remove global singleton sync once all code uses useConfigSelector().
  */
 export const ConfigProvider: React.FC<ConfigProviderProps> = ({
   config: userConfig,
@@ -33,6 +43,9 @@ export const ConfigProvider: React.FC<ConfigProviderProps> = ({
 }) => {
   // Track the current user config in state so useSetConfig can update it
   const [currentUserConfig, setCurrentUserConfig] = React.useState(userConfig);
+
+  // Create store instance once per provider (stable across re-renders)
+  const storeRef = React.useRef<ConfigStore | null>(null);
 
   // Build instance-specific config from user config
   // Memoize to prevent rebuilding on every render
@@ -49,6 +62,24 @@ export const ConfigProvider: React.FC<ConfigProviderProps> = ({
 
     return builtConfig;
   }, [currentUserConfig]);
+
+  // Initialize or update the store
+  if (!storeRef.current) {
+    storeRef.current = createConfigStore(internalConfig);
+  } else {
+    // Update existing store when config changes
+    storeRef.current.setState({ config: internalConfig });
+  }
+
+  // Register this store for legacy setConfig() calls
+  React.useEffect(() => {
+    const store = storeRef.current!;
+    registerLegacyStore(store);
+
+    return () => {
+      unregisterLegacyStore(store);
+    };
+  }, []);
 
   // Setter that updates both context state AND global singleton
   const updateConfig = React.useCallback(
@@ -87,9 +118,11 @@ export const ConfigProvider: React.FC<ConfigProviderProps> = ({
   );
 
   return (
-    <ConfigContext.Provider value={contextValue}>
-      {children}
-    </ConfigContext.Provider>
+    <ConfigStoreContext.Provider value={storeRef.current}>
+      <ConfigContext.Provider value={contextValue}>
+        {children}
+      </ConfigContext.Provider>
+    </ConfigStoreContext.Provider>
   );
 };
 
@@ -98,6 +131,9 @@ export const ConfigProvider: React.FC<ConfigProviderProps> = ({
  *
  * This hook must be used within a ConfigProvider. It returns the InternalConfig
  * object built from the user-provided WormholeConnectConfig.
+ *
+ * NOTE: This hook re-renders on ANY config change. For better performance,
+ * use useConfigSelector() to subscribe to specific config properties.
  *
  * @example
  * ```tsx
@@ -157,3 +193,7 @@ export function useSetConfig(): SetConfigFn {
 }
 
 export { ConfigContext };
+
+// Re-export selector-based hooks from the Zustand store
+// These provide granular subscriptions to avoid unnecessary re-renders
+export { useConfigSelector, useConfigValue } from '../store/configStore';

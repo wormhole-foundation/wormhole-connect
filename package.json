@@ -188,7 +188,8 @@
     "vite-plugin-checker": "^0.10.3",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "zustand": "^5.0.9"
   },
   "peerDependencies": {
     "@emotion/react": "^11.14.0",
@@ -200,7 +201,8 @@
     "@types/react": ">=18.0.0",
     "lucide-react": "^0.554.0",
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react-dom": ">=18.0.0",
+    "zustand": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {

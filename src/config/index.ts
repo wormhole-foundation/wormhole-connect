@@ -29,6 +29,7 @@ import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
 import { createUiConfig } from './ui';
 import { buildTokenCache } from './tokens';
+import { updateLegacyStore } from '../store/configStore';
 
 export function buildConfig(
   customConfig: WormholeConnectConfig = {},
@@ -272,6 +273,11 @@ export function setConfig(customConfig: WormholeConnectConfig = {}) {
     /* @ts-ignore */
     config[key] = newConfig[key];
   }
+
+  // Sync to Zustand store for components using selector-based hooks
+  // This updates the active ConfigProvider's store (if one is mounted)
+  updateLegacyStore(config);
+
   if (typeof window !== 'undefined') {
     /* @ts-ignore */
     window._connectConfig = config;
