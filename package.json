@@ -216,93 +216,25 @@
   },
   "overrides": {
     "axios": "1.11.0",
-    "@ledgerhq/hw-transport@6.27.1": {
-      "@ledgerhq/errors": "6.10.2",
-      "@ledgerhq/logs": "6.12.0",
-      "@ledgerhq/devices": "6.27.1"
-    },
-    "@ledgerhq/hw-transport-webhhid@6.27.1": {
-      "@ledgerhq/errors": "6.10.2",
-      "@ledgerhq/logs": "6.12.0",
-      "@ledgerhq/devices": "6.27.1"
-    },
-    "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-evm": "4.0.2",
-      "@wormhole-foundation/sdk-evm-core": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-solana": "4.0.2",
-      "@wormhole-foundation/sdk-solana-core": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-sui-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-sui": "4.0.2",
-      "@wormhole-foundation/sdk-sui-core": "4.0.2"
-    },
-    "@wormhole-labs/cctp-executor-route": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-aptos": "4.0.2",
-      "@wormhole-foundation/sdk-connect": "4.0.2",
-      "@wormhole-foundation/sdk-evm": "4.0.2",
-      "@wormhole-foundation/sdk-solana": "4.0.2",
-      "@wormhole-foundation/sdk-solana-cctp": "4.0.2",
-      "@wormhole-foundation/sdk-sui": "4.0.2",
-      "@wormhole-foundation/sdk-sui-cctp": "4.0.2"
-    },
-    "@wormhole-foundation/wormhole-connect": {
-      "aptos": "1.5.2"
-    },
-    "vite-plugin-dts": {
-      "vue-tsc": "2.0.0"
-    },
-    "@solana/wallet-adapter-base": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@keystonehq/sdk": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@fractalwagmi/solana-wallet-adapter": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@binance/w3w-qrcode-modal": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@apollo/client": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@web3modal/core": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "react-infinite-scroller": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
+    "@ledgerhq/errors": "6.10.2",
+    "@ledgerhq/logs": "6.12.0",
+    "@ledgerhq/devices": "6.27.1",
+    "@wormhole-foundation/sdk-base": "4.0.2",
+    "@wormhole-foundation/sdk-definitions": "4.0.2",
+    "@wormhole-foundation/sdk-connect": "4.0.2",
+    "@wormhole-foundation/sdk-evm": "4.0.2",
+    "@wormhole-foundation/sdk-evm-core": "4.0.2",
+    "@wormhole-foundation/sdk-solana": "4.0.2",
+    "@wormhole-foundation/sdk-solana-core": "4.0.2",
+    "@wormhole-foundation/sdk-solana-cctp": "4.0.2",
+    "@wormhole-foundation/sdk-sui": "4.0.2",
+    "@wormhole-foundation/sdk-sui-core": "4.0.2",
+    "@wormhole-foundation/sdk-sui-cctp": "4.0.2",
+    "@wormhole-foundation/sdk-aptos": "4.0.2",
+    "vue-tsc": "2.0.0",
     "@aptos-labs/ts-sdk": "2.0.0",
     "@aptos-labs/wallet-adapter-core": "5.5.0",
-    "@aptos-labs/wallet-standard": "0.4.0",
-    "@msafe/aptos-aip62-wallet": {
-      "@aptos-labs/ts-sdk": "2.0.0",
-      "@aptos-labs/wallet-adapter-core": "5.5.0"
-    }
+    "@aptos-labs/wallet-standard": "0.4.0"
   },
   "config": {
     "commitizen": {
