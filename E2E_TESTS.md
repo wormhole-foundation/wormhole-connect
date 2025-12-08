@@ -27,8 +27,8 @@ The E2E tests are organized in the `tests/e2e/` directory with the following str
 ## Setup Instructions
 
 ### Prerequisites
-- Node.js 20 or higher
-- npm (comes with Node.js)
+- Node.js 24 or higher
+- bun package manager
 - Test wallet with funds on supported chains (only required for tests with actual transactions)
 
 ### Environment Configuration
@@ -56,10 +56,10 @@ export REACT_APP_TEST_EVM_PK=your_test_wallet_private_key
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Install Playwright browsers (first time only)
-npx playwright install
+bunx playwright install
 ```
 
 ## Running Tests
@@ -68,16 +68,16 @@ npx playwright install
 
 ```bash
 # Run all tests headless
-npm run test:e2e
+bun run test:e2e
 
 # Run tests with Playwright UI (recommended for debugging)
-npm run test:e2e:ui
+bun run test:e2e:ui
 
 # Run only tests that require wallet interaction
-npm run test:e2e:with-wallet
+bun run test:e2e:with-wallet
 
 # Run only configuration tests (no wallet needed)
-npm run test:e2e:without-wallet
+bun run test:e2e:without-wallet
 ```
 
 ### Playwright Configuration
@@ -102,7 +102,7 @@ The `playwright.config.ts` file controls how tests are executed. Here are the ke
     use: { ...devices['Desktop Chrome'] } // Uses Chromium browser only
   }],
   webServer: {
-    command: 'npm run dev',               // Starts dev server if not running
+    command: 'bun run dev',               // Starts dev server if not running
     port: 5173,
     reuseExistingServer: true             // Uses existing server if available
   },
@@ -233,7 +233,7 @@ To add a new route test:
 
 ### Debugging
 
-1. **Use UI Mode**: `npm run test:e2e:ui` for interactive debugging
+1. **Use UI Mode**: `bun run test:e2e:ui` for interactive debugging
 2. **Screenshots**: Check `test-results/` for failure screenshots
 3. **Traces**: Use Playwright trace viewer for detailed execution logs
 4. **Console Logs**: Bridge view captures console output
@@ -305,7 +305,7 @@ When running tests locally, Playwright provides several ways to view results:
 2. **HTML Report**
    ```bash
    # Generate and open HTML report after test run
-   npx playwright show-report
+   bunx playwright show-report
    ```
    - Interactive report with test details
    - Screenshots of failures
@@ -314,12 +314,12 @@ When running tests locally, Playwright provides several ways to view results:
 
 3. **Test Artifacts** (located in `test-results/`)
    - Screenshots on failure
-   - Test traces (can be viewed with `npx playwright show-trace trace.zip`)
+   - Test traces (can be viewed with `bunx playwright show-trace trace.zip`)
    - Video recordings (if enabled)
 
 4. **UI Mode** (best for debugging)
    ```bash
-   npm run test:e2e:ui
+   bun run test:e2e:ui
    ```
    - Watch tests run in real-time
    - Step through test execution
@@ -351,5 +351,5 @@ For tests running in CI/CD:
    ```bash
    # After downloading artifacts
    unzip playwright-report.zip
-   npx playwright show-report playwright-report
+   bunx playwright show-report playwright-report
    ```

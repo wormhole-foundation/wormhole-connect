@@ -6,8 +6,8 @@ This guide provides instructions on how to run the Playwright E2E tests for Conn
 
 Before running the tests, ensure you have the following installed:
 
-- Node.js (version 20 or later)
-- npm (Node Package Manager)
+- Node.js (version 22 or later)
+- bun package manager
 
 ## Setup
 
@@ -16,13 +16,13 @@ Before running the tests, ensure you have the following installed:
    Make sure you have clean installed all dependencies:
 
    ```sh
-   npm ci
+   bun ci
    ```
 
 2. **Install Playwright chromium browser**
 
    ```sh
-   npx playwright install chromium --with-deps
+   bunx playwright install chromium --with-deps
    ```
 
 3. **Set up environment variables**
@@ -49,13 +49,13 @@ Before running the tests, ensure you have the following installed:
    You can run all tests headless with:
 
    ```sh
-   npm run test:e2e
+   bun run test:e2e
    ```
 
    Or with Playwright UI:
 
    ```sh
-   npm run test:e2e:ui
+   bun run test:e2e:ui
    ```
 
 3. **Run a specific test**
@@ -63,7 +63,7 @@ Before running the tests, ensure you have the following installed:
    You can pass the path to a test file to run that one specifically:
 
    ```sh
-   npm run test:e2e tests/e2e/specs/your-test-file.spec.ts
+   bun run test:e2e tests/e2e/specs/your-test-file.spec.ts
    ```
 
 4. **Generate and view a test report**
@@ -71,7 +71,7 @@ Before running the tests, ensure you have the following installed:
    To generate and view a test report, use the following command:
 
    ```sh
-   npx playwright show-report
+   bunx playwright show-report
    ```
 
 ## Debugging
@@ -79,7 +79,7 @@ Before running the tests, ensure you have the following installed:
 To debug tests, you can run Playwright in UI mode:
 
 ```sh
-npm run test:e2e:ui
+bun run test:e2e:ui
 ```
 
 This will open a browser window and allow you to see the tests running in real-time.

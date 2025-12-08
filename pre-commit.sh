@@ -20,7 +20,7 @@ git update-index -q --refresh
 # ====================================
 
 # lint
-npm run lint
+bun run lint
 git add .
 
 # ====================================

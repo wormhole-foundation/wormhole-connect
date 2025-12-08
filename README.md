@@ -18,13 +18,17 @@ Wormhole Connect is deployed live in several production apps. Here are a few:
 
 ## Getting Started
 
-### Via NPM for React apps (Recommended)
+### Via package manager for React apps (Recommended)
 
 If you're using React, you can import the `<WormholeConnect />` component directly into your JSX:
 
 #### Installation
 
 ```bash
+# Using bun (recommended)
+bun add @wormhole-foundation/wormhole-connect
+
+# Using npm
 npm i @wormhole-foundation/wormhole-connect
 ```
 

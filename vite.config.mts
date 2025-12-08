@@ -62,6 +62,9 @@ const resolve = {
     exports: path.resolve(__dirname, './src/exports'),
     'process/': 'process',
     'buffer/': 'buffer',
+    // Ledger packages lack proper exports field for subpath imports
+    // Bun's stricter module resolution requires explicit aliases
+    '@ledgerhq/devices/hid-framing': '@ledgerhq/devices/lib-es/hid-framing.js',
   },
 };
 

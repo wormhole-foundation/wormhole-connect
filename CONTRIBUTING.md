@@ -16,13 +16,13 @@ cd wormhole-connect
 1) Install dependencies
 
 ```
-npm i
+bun install
 ```
 
 2) Start demo app with Vite
 
 ```
-npm run start
+bun run start
 ```
 
 This should start a local server at localhost:5173.
