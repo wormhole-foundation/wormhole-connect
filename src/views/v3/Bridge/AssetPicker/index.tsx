@@ -97,6 +97,18 @@ function AssetPicker(props: Props) {
     popupId: 'asset-picker',
   });
 
+  useEffect(() => {
+    if (!mobile) {
+      setSearchQuery('');
+    }
+  }, [popupState.isOpen, mobile]);
+
+  useEffect(() => {
+    if (mobile) {
+      setSearchQuery('');
+    }
+  }, [isDrawerOpen, mobile]);
+
   const tokenBalance = useMemo(() => {
     if (props.isSource && props.balances && props.token) {
       return props.balances[props.token.key]?.balance;
