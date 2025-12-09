@@ -1,0 +1,61 @@
+[install]
+# Only install package versions published at least 24 hours ago (86400 seconds)
+# This protects against supply chain attacks from freshly published malicious packages
+minimumReleaseAge = 86400
+
+# Exclude wormhole packages from the minimum release age requirement
+# These are trusted internal packages that we want to consume immediately
+# Note: Bun doesn't support wildcards yet, so we must list each package explicitly
+# This list is generated from `bun pm ls --all | grep @wormhole-`
+minimumReleaseAgeExcludes = [
+  # @wormhole-foundation SDK packages
+  "@wormhole-foundation/sdk",
+  "@wormhole-foundation/sdk-algorand",
+  "@wormhole-foundation/sdk-algorand-core",
+  "@wormhole-foundation/sdk-algorand-tokenbridge",
+  "@wormhole-foundation/sdk-aptos",
+  "@wormhole-foundation/sdk-aptos-cctp",
+  "@wormhole-foundation/sdk-aptos-core",
+  "@wormhole-foundation/sdk-aptos-tokenbridge",
+  "@wormhole-foundation/sdk-base",
+  "@wormhole-foundation/sdk-connect",
+  "@wormhole-foundation/sdk-cosmwasm",
+  "@wormhole-foundation/sdk-cosmwasm-core",
+  "@wormhole-foundation/sdk-cosmwasm-ibc",
+  "@wormhole-foundation/sdk-cosmwasm-tokenbridge",
+  "@wormhole-foundation/sdk-definitions",
+  "@wormhole-foundation/sdk-definitions-ntt",
+  "@wormhole-foundation/sdk-evm",
+  "@wormhole-foundation/sdk-evm-cctp",
+  "@wormhole-foundation/sdk-evm-core",
+  "@wormhole-foundation/sdk-evm-ntt",
+  "@wormhole-foundation/sdk-evm-portico",
+  "@wormhole-foundation/sdk-evm-tbtc",
+  "@wormhole-foundation/sdk-evm-tokenbridge",
+  "@wormhole-foundation/sdk-icons",
+  "@wormhole-foundation/sdk-route-ntt",
+  "@wormhole-foundation/sdk-solana",
+  "@wormhole-foundation/sdk-solana-cctp",
+  "@wormhole-foundation/sdk-solana-core",
+  "@wormhole-foundation/sdk-solana-ntt",
+  "@wormhole-foundation/sdk-solana-tbtc",
+  "@wormhole-foundation/sdk-solana-tokenbridge",
+  "@wormhole-foundation/sdk-stacks",
+  "@wormhole-foundation/sdk-stacks-core",
+  "@wormhole-foundation/sdk-sui",
+  "@wormhole-foundation/sdk-sui-cctp",
+  "@wormhole-foundation/sdk-sui-core",
+  "@wormhole-foundation/sdk-sui-ntt",
+  "@wormhole-foundation/sdk-sui-tokenbridge",
+  "@wormhole-foundation/wormhole-connect",
+  # @wormhole-labs packages
+  "@wormhole-labs/cctp-executor-route",
+  "@wormhole-labs/wallet-aggregator-aptos",
+  "@wormhole-labs/wallet-aggregator-core",
+  "@wormhole-labs/wallet-aggregator-evm",
+  "@wormhole-labs/wallet-aggregator-solana",
+  "@wormhole-labs/wallet-aggregator-sui",
+  # Mayan packages
+  "@mayanfinance/swap-sdk",
+  "@testnet-mayan/swap-sdk"
+]

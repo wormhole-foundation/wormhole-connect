@@ -21,7 +21,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run start',
+    command: 'bun run start',
     url: process.env.BASE_URL || 'http://localhost:5173',
     reuseExistingServer: true,
     timeout: 60000, // Timeout for the server to be available

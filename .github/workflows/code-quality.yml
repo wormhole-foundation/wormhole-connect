@@ -23,14 +23,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.4'
 
       - name: Install dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Run ESLint
-        run: npm run lint:ci
+        run: bun run lint:ci
 
   format:
     name: Prettier
@@ -44,14 +47,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.4'
 
       - name: Install dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Check Prettier formatting
-        run: npm run prettier:check
+        run: bun run prettier:check
 
   unit-tests:
     name: Unit Tests
@@ -65,14 +71,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.4'
 
       - name: Install dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Run unit tests
-        run: npm run test:unit
+        run: bun run test:unit
 
   commitlint:
     name: Commit Message Lint
@@ -89,11 +98,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.4'
 
       - name: Install dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Validate PR commits
         run: |
@@ -112,7 +124,7 @@ jobs:
             echo ""
             echo "Checking commit: $commit"
             COMMIT_MSG=$(git log --format=%B -n 1 $commit)
-            echo "$COMMIT_MSG" | npx commitlint || {
+            echo "$COMMIT_MSG" | bunx commitlint || {
               FAILED=true
               echo "❌ Commit $commit has invalid message format"
             }
@@ -122,7 +134,7 @@ jobs:
             echo ""
             echo "❌ Some commits have invalid messages. Please use conventional commit format."
             echo "Example: 'feat: add new feature' or 'fix: resolve bug'"
-            echo "Run 'npm run commit' for interactive commit creation."
+            echo "Run 'bun run commit' for interactive commit creation."
             exit 1
           else
             echo ""

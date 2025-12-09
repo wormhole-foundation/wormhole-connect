@@ -9,7 +9,7 @@ echo "" >&2
 
 # Run lint-staged for automatic fixes and checks on staged files
 echo "Running ESLint and Prettier on staged files..." >&2
-if npx lint-staged; then
+if bunx lint-staged; then
     echo "" >&2
     echo "✅ All staged files passed quality checks!" >&2
     

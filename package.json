@@ -60,7 +60,7 @@
     "@metaplex-foundation/mpl-token-metadata": "3.4.0",
     "@metaplex-foundation/umi": "0.9.2",
     "@metaplex-foundation/umi-bundle-defaults": "0.9.2",
-    "@mysten/sui": "1.37.2",
+    "@mysten/sui": "1.44.0",
     "@project-serum/anchor": "0.26.0",
     "@reduxjs/toolkit": "2.9.0",
     "@solana-mobile/wallet-standard-mobile": "0.4.1",
@@ -108,19 +108,20 @@
   "scripts": {
     "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Testnet vite --host --force",
     "start:mainnet": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=Mainnet vite --host --force",
-    "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
+    "build": "bun run build:lib; bun run build:hosted; bun run build:netlify",
     "build:lib": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "build:minimal": "VITE_BUILD_MINIMAL=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
     "build:netlify": "VITE_BUILD_NETLIFY=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
+    "clean": "rm -rf node_modules build lib dist .vite",
     "lint": "scripts/lint.sh",
     "lint:errors": "scripts/lint.sh --quiet",
     "lint:ci": "scripts/lint_ci.sh",
     "prettier": "prettier --write ./src",
     "prettier:check": "prettier --check ./src",
     "analyze": "ANALYZE=true NODE_ENV=production NODE_OPTIONS=--max-old-space-size=10240 vite build",
-    "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts",
-    "checkForeignAssets": "npx tsx scripts/checkForeignAssetsConfig.ts",
+    "checksdn": "bunx tsx scripts/ofac/checkSdnListForUpdates.ts",
+    "checkForeignAssets": "bunx tsx scripts/checkForeignAssetsConfig.ts",
     "preview": "vite preview",
     "unused:exports": "ts-unused-exports ./tsconfig.json --ignoreLocallyUsed",
     "test:unit": "vitest",
@@ -215,94 +216,27 @@
     ]
   },
   "overrides": {
-    "axios": "1.11.0",
-    "@ledgerhq/hw-transport@6.27.1": {
-      "@ledgerhq/errors": "6.10.2",
-      "@ledgerhq/logs": "6.12.0",
-      "@ledgerhq/devices": "6.27.1"
-    },
-    "@ledgerhq/hw-transport-webhhid@6.27.1": {
-      "@ledgerhq/errors": "6.10.2",
-      "@ledgerhq/logs": "6.12.0",
-      "@ledgerhq/devices": "6.27.1"
-    },
-    "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-evm-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-evm": "4.0.2",
-      "@wormhole-foundation/sdk-evm-core": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-route-ntt": {
-      "@wormhole-foundation/sdk-connect": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-solana-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-solana": "4.0.2",
-      "@wormhole-foundation/sdk-solana-core": "4.0.2"
-    },
-    "@wormhole-foundation/sdk-sui-ntt": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-sui": "4.0.2",
-      "@wormhole-foundation/sdk-sui-core": "4.0.2"
-    },
-    "@wormhole-labs/cctp-executor-route": {
-      "@wormhole-foundation/sdk-base": "4.0.2",
-      "@wormhole-foundation/sdk-definitions": "4.0.2",
-      "@wormhole-foundation/sdk-aptos": "4.0.2",
-      "@wormhole-foundation/sdk-connect": "4.0.2",
-      "@wormhole-foundation/sdk-evm": "4.0.2",
-      "@wormhole-foundation/sdk-solana": "4.0.2",
-      "@wormhole-foundation/sdk-solana-cctp": "4.0.2",
-      "@wormhole-foundation/sdk-sui": "4.0.2",
-      "@wormhole-foundation/sdk-sui-cctp": "4.0.2"
-    },
-    "@wormhole-foundation/wormhole-connect": {
-      "aptos": "1.5.2"
-    },
-    "vite-plugin-dts": {
-      "vue-tsc": "2.0.0"
-    },
-    "@solana/wallet-adapter-base": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@keystonehq/sdk": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@fractalwagmi/solana-wallet-adapter": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@binance/w3w-qrcode-modal": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@apollo/client": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "@web3modal/core": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
-    "react-infinite-scroller": {
-      "react": ">=18.0.0",
-      "react-dom": ">=18.0.0"
-    },
     "@aptos-labs/ts-sdk": "2.0.0",
     "@aptos-labs/wallet-adapter-core": "5.5.0",
     "@aptos-labs/wallet-standard": "0.4.0",
-    "@msafe/aptos-aip62-wallet": {
-      "@aptos-labs/ts-sdk": "2.0.0",
-      "@aptos-labs/wallet-adapter-core": "5.5.0"
-    }
+    "@ledgerhq/devices": "6.27.1",
+    "@ledgerhq/errors": "6.10.2",
+    "@ledgerhq/logs": "6.12.0",
+    "@mysten/sui": "1.44.0",
+    "@wormhole-foundation/sdk-aptos": "4.0.2",
+    "@wormhole-foundation/sdk-base": "4.0.2",
+    "@wormhole-foundation/sdk-connect": "4.0.2",
+    "@wormhole-foundation/sdk-definitions": "4.0.2",
+    "@wormhole-foundation/sdk-evm": "4.0.2",
+    "@wormhole-foundation/sdk-evm-core": "4.0.2",
+    "@wormhole-foundation/sdk-solana": "4.0.2",
+    "@wormhole-foundation/sdk-solana-cctp": "4.0.2",
+    "@wormhole-foundation/sdk-solana-core": "4.0.2",
+    "@wormhole-foundation/sdk-sui": "4.0.2",
+    "@wormhole-foundation/sdk-sui-cctp": "4.0.2",
+    "@wormhole-foundation/sdk-sui-core": "4.0.2",
+    "axios": "1.11.0",
+    "vue-tsc": "2.0.0"
   },
   "config": {
     "commitizen": {

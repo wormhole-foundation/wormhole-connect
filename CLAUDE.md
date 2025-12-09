@@ -15,12 +15,12 @@ Key directories include:
 ## Commands
 
 **Build**
-- `npm run build:lib` - Main command to build the library
-- `npm run lint` - Run ESLint checks
-- `npm run lint:ci` - Stricter ESLint checks which run on GitHub CI
+- `bun run build:lib` - Main command to build the library
+- `bun run lint` - Run ESLint checks
+- `bun run lint:ci` - Stricter ESLint checks which run on GitHub CI
 
 **Development**
-- `npm run dev` - Start development server
+- `bun run dev` - Start development server
 
 ## Important Files
 

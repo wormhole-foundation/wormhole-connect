@@ -3,21 +3,21 @@
 # Update SDK Packages
 # Updates all Wormhole SDK packages to the specified version (if provided), creates a new branch,
 # and commits the changes with a predefined commit message. If no version is provided, the latest version
-# of @wormhole-foundation/sdk will be used from npm.
+# of @wormhole-foundation/sdk will be fetched from the registry.
 
-# npm run sdk:update
+# bun run sdk:update
 # → Finds latest SDK version (X.Y.Z)
 # → Creates branch update-sdk-X.Y.Z
 
-# npm run sdk:update 3.4.5
+# bun run sdk:update 3.4.5
 # → Uses version 3.4.5
 # → Creates branch update-sdk-3.4.5
 
-# npm run sdk:update 3.4.5 PROD-123
+# bun run sdk:update 3.4.5 PROD-123
 # → Uses version 3.4.5
 # → Creates branch PROD-123
 
-# npm run sdk:update PROD-123 (not semver)
+# bun run sdk:update PROD-123 (not semver)
 # → Grabs latest SDK version
 # → Creates branch PROD-123
 
@@ -30,7 +30,7 @@ SEMVER_REGEX="^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$"
 # If no args → grab latest version, default branch naming
 if [ -z "$1" ]; then
   echo "⚠️  No version or ticket provided. Finding most recent @wormhole-foundation/sdk version..."
-  VERSION=$(npm view @wormhole-foundation/sdk version)
+  VERSION=$(bun pm view @wormhole-foundation/sdk version 2>/dev/null || npm view @wormhole-foundation/sdk version)
   BRANCH_NAME="update-sdk-$VERSION"
   echo "✅ Using latest version: $VERSION"
 else
@@ -40,7 +40,7 @@ else
     BRANCH_NAME="${2:-update-sdk-$VERSION}"
   else
     # First arg is not a semver → treat as ticket
-    VERSION=$(npm view @wormhole-foundation/sdk version)
+    VERSION=$(bun pm view @wormhole-foundation/sdk version 2>/dev/null || npm view @wormhole-foundation/sdk version)
     BRANCH_NAME="$1"
     echo "⚠️  First argument '$1' is not a version. Using latest SDK version: $VERSION"
   fi
@@ -107,7 +107,7 @@ fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 
 # Install to update lockfile with new versions
-npm install
+bun install
 
 git add .
 git commit -m "chore: update SDK packages to $VERSION"
