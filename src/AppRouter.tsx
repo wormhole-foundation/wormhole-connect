@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
@@ -6,10 +6,8 @@ import './App.css';
 import type { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
-import { isEmptyObject, usePrevious } from './utils';
-import type { WormholeConnectConfig } from './config/types';
-import { setConfig } from './config';
-import config from './config';
+import { usePrevious } from './utils';
+import { useConfig } from './contexts/ConfigContext';
 
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
@@ -80,56 +78,32 @@ const AppRouterContent = () => {
   );
 };
 
-interface Props {
-  config?: WormholeConnectConfig;
-}
-
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
-function AppRouter(props: Props) {
+function AppRouter() {
   const dispatch = useDispatch();
-
-  const hasSetSsgConfig = useRef(false);
-  const isInitialLoad = useRef(true);
+  const config = useConfig();
   const route = useSelector((state: RootState) => state.router.route);
 
-  const loadConfig = useCallback((customConfig: WormholeConnectConfig) => {
-    if (!isEmptyObject(customConfig)) {
-      setConfig(customConfig);
-    }
+  // Track config changes to clear transfer state when config is updated
+  const prevConfig = usePrevious(config);
+  const hasInitialized = useRef(false);
 
-    hasSetSsgConfig.current = true;
-    config.triggerEvent({
-      type: 'config',
-      config: customConfig,
-    });
-  }, []);
-
-  if (!hasSetSsgConfig.current) {
-    // This runs once in SSG step (server-side pre-rendering)
-    if (props.config) {
-      loadConfig(props.config);
-    }
-    if (route !== 'bridge') {
-      // The route may not be bridge on initial load if the component was re-rendered after client side navigation
-      dispatch(setRoute('bridge'));
-    }
-  }
-
+  // SSG route initialization - ensure we start on bridge route
   useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      config.triggerEvent({
-        type: 'load',
-        config: props.config,
-      });
-    } else {
-      if (props.config) {
-        loadConfig(props.config);
-        dispatch(clearTransfer());
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      if (route !== 'bridge') {
+        dispatch(setRoute('bridge'));
       }
     }
-  }, [props.config, loadConfig, dispatch]);
-  // END config loading code
+  }, [route, dispatch]);
+
+  // Clear transfer state when config changes (after initial load)
+  useEffect(() => {
+    if (prevConfig && prevConfig !== config) {
+      dispatch(clearTransfer());
+    }
+  }, [config, prevConfig, dispatch]);
 
   return <AppRouterContent />;
 }

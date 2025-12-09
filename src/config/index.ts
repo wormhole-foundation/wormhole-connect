@@ -29,6 +29,7 @@ import RouteOperator from 'routes/operator';
 import { CHAIN_ORDER } from './constants';
 import { createUiConfig } from './ui';
 import { buildTokenCache } from './tokens';
+import { updateLegacyStore } from '../store/configStore';
 
 export function buildConfig(
   customConfig: WormholeConnectConfig = {},
@@ -171,6 +172,31 @@ export function buildConfig(
 
 // Running buildConfig with no argument generates the default configuration
 const config = buildConfig();
+
+/**
+ * @deprecated Direct import of config singleton is deprecated.
+ *
+ * For React components/hooks: Use useConfig() to read, useSetConfig() to update.
+ * For non-React code: Pass config as a parameter from the calling component.
+ *
+ * Migration:
+ * ```tsx
+ * // Before (deprecated)
+ * import config from 'config';
+ * const network = config.network;
+ *
+ * // After - in React components
+ * import { useConfig, useSetConfig } from 'contexts/ConfigContext';
+ * function MyComponent() {
+ *   const config = useConfig();       // read
+ *   const setConfig = useSetConfig(); // update
+ * }
+ *
+ * // After - in utility functions
+ * function myUtility(config: InternalConfig) { ... }
+ * // Call from component: myUtility(config);
+ * ```
+ */
 export default config;
 
 export async function getWormholeContextV2(): Promise<WormholeV2<Network>> {
@@ -214,8 +240,27 @@ export async function newWormholeContextV2(): Promise<WormholeV2<Network>> {
   );
 }
 
-// setConfig can be called afterwards to override the default config with integrator-provided config
-
+/**
+ * @deprecated setConfig() is deprecated.
+ *
+ * For React components: Use useSetConfig() hook from 'contexts/ConfigContext'.
+ * This function mutates the global singleton which prevents multiple
+ * WormholeConnect instances from having independent configurations.
+ *
+ * Migration:
+ * ```tsx
+ * // Before (deprecated)
+ * import { setConfig } from 'config';
+ * setConfig({ network: 'Testnet' });
+ *
+ * // After
+ * import { useSetConfig } from 'contexts/ConfigContext';
+ * function MyComponent() {
+ *   const setConfig = useSetConfig();
+ *   setConfig({ network: 'Testnet' });
+ * }
+ * ```
+ */
 export function setConfig(customConfig: WormholeConnectConfig = {}) {
   const newConfig: InternalConfig<Network> = buildConfig(customConfig);
 
@@ -228,6 +273,11 @@ export function setConfig(customConfig: WormholeConnectConfig = {}) {
     /* @ts-ignore */
     config[key] = newConfig[key];
   }
+
+  // Sync to Zustand store for components using selector-based hooks
+  // This updates the active ConfigProvider's store (if one is mounted)
+  updateLegacyStore(config);
+
   if (typeof window !== 'undefined') {
     /* @ts-ignore */
     window._connectConfig = config;
