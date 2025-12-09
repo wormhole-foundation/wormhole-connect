@@ -71,6 +71,7 @@ const chainNameMap: Partial<Record<Chain, MayanChainName>> = {
   HyperCore: 'hypercore',
   Linea: 'linea',
   Monad: 'monad',
+  Fogo: 'fogo',
 };
 
 // Mapping of Wormhole chains to testnet Mayan chain names
