@@ -41,7 +41,7 @@ import {
 } from '../../routes/mayan';
 import { NTT_TEST_CONFIG_TESTNET, NTT_TEST_CONFIG_MAINNET } from './consts';
 import { DEFAULT_ROUTES } from 'routes/operator';
-import { nttRoutes } from 'exports/ntt';
+import { nttExecutorRoute, nttRoutes } from 'exports/ntt';
 import {
   cctpExecutorRoute,
   cctpV2StandardExecutorRoute,
@@ -65,6 +65,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.DEFAULT_ROUTES = DEFAULT_ROUTES;
       /* @ts-ignore */
       window.nttRoutes = nttRoutes;
+      /* @ts-ignore */
+      window.nttExecutorRoute = nttExecutorRoute;
       /* @ts-ignore */
       window.AutomaticTokenBridgeRoute = routes.AutomaticTokenBridgeRoute;
       /* @ts-ignore */
@@ -313,6 +315,10 @@ function SampleApp() {
                   <li>
                     <pre>nttRoutes</pre>{' '}
                     <i>{'(NttRoute.Config) -> RouteConstructor[]'}</i>
+                  </li>
+                  <li>
+                    <pre>nttExecutorRoute</pre>
+                    <i>{'(NttExecutorRoute.Config) -> RouteConstructor'}</i>
                   </li>
                   <li>
                     <pre>testNttRoutesMainnet</pre>

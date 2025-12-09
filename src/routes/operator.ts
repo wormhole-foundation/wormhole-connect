@@ -150,10 +150,10 @@ export default class RouteOperator {
       const supportedChains = route.rc.supportedChains(config.network);
       supportedChains.forEach((chain: Chain) => supported.add(chain));
     }
-    // TODO: HACK, just used for testing Stacks support quickly
-    if (!supported.has('Stacks')) {
-      supported.add('Stacks');
-    }
+    //// TODO: HACK, just used for testing Stacks support quickly
+    //if (!supported.has('Stacks')) {
+    //  supported.add('Stacks');
+    //}
     return Array.from(supported);
   }
 

@@ -86,6 +86,7 @@
     "@wormhole-foundation/sdk-solana-ntt": "4.0.7",
     "@wormhole-foundation/sdk-stacks": "4.4.0",
     "@wormhole-foundation/sdk-stacks-core": "4.4.0",
+    "@wormhole-foundation/sdk-stacks-ntt": "file:../native-token-transfers/stacks/ts/wormhole-foundation-sdk-stacks-ntt-5.0.0-beta.0.tgz",
     "@wormhole-foundation/sdk-sui": "4.4.0",
     "@wormhole-foundation/sdk-sui-cctp": "4.4.0",
     "@wormhole-foundation/sdk-sui-core": "4.4.0",
@@ -95,7 +96,7 @@
     "@wormhole-labs/wallet-aggregator-core": "1.4.0-beta.1",
     "@wormhole-labs/wallet-aggregator-evm": "1.4.0-beta.1",
     "@wormhole-labs/wallet-aggregator-solana": "1.4.0-beta.1",
-    "@wormhole-labs/wallet-aggregator-stacks": "1.4.0-beta.1",
+    "@wormhole-labs/wallet-aggregator-stacks": "file:../wallet-aggregator-sdk/packages/wallets/stacks/wormhole-labs-wallet-aggregator-stacks-1.4.0-beta.1.tgz",
     "@wormhole-labs/wallet-aggregator-sui": "1.4.0-beta.1",
     "axios": "1.11.0",
     "color": "5.0.0",
@@ -248,6 +249,12 @@
       "@wormhole-foundation/sdk-definitions": "4.4.0",
       "@wormhole-foundation/sdk-solana": "4.4.0",
       "@wormhole-foundation/sdk-solana-core": "4.4.0"
+    },
+    "@wormhole-foundation/sdk-stacks-ntt": {
+      "@wormhole-foundation/sdk-base": "4.4.0",
+      "@wormhole-foundation/sdk-definitions": "4.4.0",
+      "@wormhole-foundation/sdk-stacks": "4.4.0",
+      "@wormhole-foundation/sdk-stacks-core": "4.4.0"
     },
     "@wormhole-foundation/sdk-sui-ntt": {
       "@wormhole-foundation/sdk-base": "4.4.0",

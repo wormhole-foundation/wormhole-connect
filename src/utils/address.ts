@@ -27,11 +27,15 @@ function isValidEvmAddress(address: string): boolean {
   }
 }
 
-async function isValidSolanaAddress(address: string): Promise<boolean> {
+async function isValidSvmAddress(
+  address: string,
+  chain: Chain,
+): Promise<boolean> {
   try {
     const key = new PublicKey(address);
-    if (config.rpcs.Solana) {
-      const connection = new Connection(config.rpcs.Solana);
+    const rpcUrl = chain === 'Fogo' ? config.rpcs.Fogo : config.rpcs.Solana;
+    if (rpcUrl) {
+      const connection = new Connection(rpcUrl);
       const results = await Promise.allSettled([
         getAccount(connection, key, 'finalized', TOKEN_PROGRAM_ID),
         getAccount(connection, key, 'finalized', TOKEN_2022_PROGRAM_ID),
@@ -72,7 +76,7 @@ export async function validateWalletAddress(
       if (!isValidEvmAddress(address)) return null;
       break;
     case 'Solana':
-      if (!(await isValidSolanaAddress(address))) return null;
+      if (!(await isValidSvmAddress(address, chain))) return null;
       break;
     case 'Sui':
       if (!isValidSuiAddress(address)) return null;
