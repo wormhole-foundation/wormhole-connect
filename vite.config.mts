@@ -157,8 +157,8 @@ const rollupInput: InputOption = {
   monad: 'src/exports/monad.ts',
 };
 
-// Function-based external to catch all peer dependency paths
-// This is more robust than an array, especially with preserveModules
+// Function-based external to catch all dependency paths
+// This is required when using preserveModules to prevent node_modules paths in output
 const peerDeps = [
   'react',
   'react-dom',
@@ -168,11 +168,20 @@ const peerDeps = [
   '@mui/icons-material',
   '@mui/styled-engine',
   '@mui/system',
+  'lucide-react',
+];
+
+// Get all dependencies from package.json to externalize them
+const allDeps = [
+  ...Object.keys(packageJson.dependencies || {}),
+  ...Object.keys(packageJson.peerDependencies || {}),
+  ...peerDeps,
 ];
 
 const external = (id: string) => {
-  // Check if the module ID starts with any peer dependency
-  return peerDeps.some((dep) => id === dep || id.startsWith(dep + '/'));
+  // Check if the module ID starts with any dependency
+  // This prevents rollup from bundling dependencies into node_modules paths
+  return allDeps.some((dep) => id === dep || id.startsWith(dep + '/'));
 };
 
 // Production build, for npm import
