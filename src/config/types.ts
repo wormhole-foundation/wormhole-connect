@@ -73,6 +73,7 @@ export enum TokenIcon {
   'MONAD',
   'AUSD',
   'MOCA',
+  'USDM',
 }
 
 // Used in bridging components

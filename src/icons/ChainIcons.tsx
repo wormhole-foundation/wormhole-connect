@@ -37,6 +37,7 @@ import XRPLEVM from './Chains/XRPLEVM';
 import CreditCoin from './Chains/CreditCoin';
 import MONAD from './Chains/MONAD';
 import MOCA from './Chains/MOCA';
+import MEGAETH from './Chains/MEGAETH';
 
 const iconMap: { [key in Chain]?: React.JSX.Element } = {
   Moonbeam: GLMR(),
@@ -72,6 +73,7 @@ const iconMap: { [key in Chain]?: React.JSX.Element } = {
   CreditCoin: CreditCoin(),
   Monad: MONAD(),
   Moca: MOCA(),
+  MegaETH: MEGAETH(),
 };
 
 function isBuiltinChainIcon(icon?: Chain | string): icon is Chain {

@@ -33,6 +33,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     Monad: 'https://testnet-rpc.monad.xyz',
     Ink: 'https://rpc-gel-sepolia.inkonchain.com',
     Moca: 'https://testnet-rpc.mocachain.org',
+    MegaETH: 'https://timothy.megaeth.com/rpc',
   },
 };
 

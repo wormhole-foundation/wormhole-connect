@@ -506,4 +506,19 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.MOCA,
   },
+  {
+    symbol: 'ETH',
+    tokenId: { chain: 'MegaETH', address: 'native' },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'USDm',
+    tokenId: {
+      chain: 'MegaETH',
+      address: '0xCd983757ed94053986e6Ae82dC88f1301d05d86A',
+    },
+    decimals: 18,
+    icon: TokenIcon.USDM,
+  },
 ];

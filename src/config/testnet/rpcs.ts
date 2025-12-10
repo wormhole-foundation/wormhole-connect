@@ -28,6 +28,7 @@ const {
   REACT_APP_MONAD_TESTNET_RPC,
   REACT_APP_INK_TESTNET_RPC,
   REACT_APP_MOCA_TESTNET_RPC,
+  REACT_APP_MEGAETH_TESTNET_RPC,
 } = import.meta.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -59,4 +60,5 @@ export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('Monad', REACT_APP_MONAD_TESTNET_RPC),
   ...populateRpcField('Ink', REACT_APP_INK_TESTNET_RPC),
   ...populateRpcField('Moca', REACT_APP_MOCA_TESTNET_RPC),
+  ...populateRpcField('MegaETH', REACT_APP_MEGAETH_TESTNET_RPC),
 };

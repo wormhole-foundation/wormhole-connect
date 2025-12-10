@@ -225,4 +225,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     explorerName: 'Moca Chain Explorer',
     symbol: 'MOCA',
   },
+  MegaETH: {
+    displayName: 'MegaETH',
+    sdkName: 'MegaETH',
+    icon: 'MegaETH',
+    explorerUrl: 'https://megaeth-testnet-v2.blockscout.com/',
+    explorerName: 'MEGA Testnet v2 Explorer',
+    symbol: 'ETH',
+  },
 };
