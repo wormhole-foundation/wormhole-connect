@@ -17,11 +17,11 @@ interface MayanTransaction {
   fromTokenChain: ChainId;
   fromTokenAddress: string;
   fromTokenPrice: number;
-  fromTokenSymbol: string;
+  fromTokenSymbol: string | null;
   toTokenPrice: number;
   toTokenAddress: string;
   toTokenChain: ChainId;
-  toTokenSymbol: string;
+  toTokenSymbol: string | null;
   status: string;
   clientStatus: string;
   initiatedAt: string;
@@ -90,7 +90,7 @@ const useTransactionHistoryMayan = (
     }
 
     // Last resort to find source token by symbol
-    if (!fromToken) {
+    if (!fromToken && tx.fromTokenSymbol) {
       const fromTokenBySymbol = config.tokens.findBySymbol(
         fromChain,
         tx.fromTokenSymbol,
@@ -101,7 +101,7 @@ const useTransactionHistoryMayan = (
     }
 
     // Last resort to find destination token by symbol
-    if (!toToken) {
+    if (!toToken && tx.toTokenSymbol) {
       const toTokenBySymbol = config.tokens.findBySymbol(
         toChain,
         tx.toTokenSymbol,
