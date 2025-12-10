@@ -30,7 +30,7 @@ import useConfirmTransaction from 'hooks/useConfirmTransaction';
 import { useGetTokens } from 'hooks/useGetTokens';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { useWalletCompatibility } from 'hooks/useWalletCompatibility';
-import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
+import useConnectToLastUsedWallet from 'hooks/useConnectToLastUsedWallet';
 import { useAutoEnableGasDropOff } from 'hooks/useAutoEnableGasDropoff';
 import PoweredByIcon from 'icons/PoweredBy';
 import type { RootState } from 'store';
@@ -191,6 +191,8 @@ function Bridge(props: BridgeProps) {
   const { isConnecting: isConnectingWallet } = useConnectToLastUsedWallet(
     sourceChain,
     destChain,
+    sendingWallet,
+    receivingWallet,
   );
 
   // Call to initiate transfer inputs validations

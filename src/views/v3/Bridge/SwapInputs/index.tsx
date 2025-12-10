@@ -6,7 +6,6 @@ import Color from 'color';
 
 import config from 'config';
 import SwapVerticalIcon from 'icons/SwapVertical';
-import useWalletProvider from 'hooks/useWalletProvider';
 import type { RootState } from 'store';
 import { setAmount, swapInputs } from 'store/transferInput';
 import { setToNativeToken } from 'store/relay';
@@ -17,7 +16,6 @@ import {
 
 function SwapInputs() {
   const dispatch = useDispatch();
-  const { swapWallets } = useWalletProvider();
   const theme: any = useTheme();
   const [rotateAnimation, setRotateAnimation] = useState('');
 
@@ -84,8 +82,6 @@ function SwapInputs() {
     );
     dispatch(setToNativeToken(0));
 
-    swapWallets();
-
     dispatch(swapInputs());
     dispatch(setAmount(''));
 
@@ -110,7 +106,6 @@ function SwapInputs() {
     canSwap,
     isTransactionInProgress,
     dispatch,
-    swapWallets,
     toChain,
     fromChain,
     token,

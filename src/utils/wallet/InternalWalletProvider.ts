@@ -1,12 +1,12 @@
 import type { Chain, Network } from '@wormhole-foundation/sdk-base';
 import { chainToPlatform, nativeChainIds } from '@wormhole-foundation/sdk-base';
-import type { TransferWallet } from '.';
+import { TransferWallet } from '.';
 import { getWalletOptions, signAndSendTransaction } from '.';
 import type {
   WormholeConnectWalletProvider,
   WalletProviderEvents,
 } from './types';
-import type { Wallet } from '@wormhole-labs/wallet-aggregator-core';
+import { type Wallet } from '@wormhole-labs/wallet-aggregator-core';
 import config from 'config';
 import type { UnsignedTransaction } from '@wormhole-foundation/sdk-definitions';
 import { ReadOnlyWallet } from './ReadOnlyWallet';
@@ -31,48 +31,56 @@ let pendingConnect:
 
 const walletConnections: {
   sending?: {
+    chain: Chain;
     wallet: Wallet;
-    disconnectHandler: () => void;
   };
   receiving?: {
+    chain: Chain;
     wallet: Wallet;
-    disconnectHandler: () => void;
   };
 } = {};
+
+function setWalletInLocalStorage(
+  chain: Chain,
+  type: TransferWallet,
+  wallet: Wallet,
+  overwrite: boolean,
+) {
+  const localStorageKey = getLastUsedWalletKey(chain, type);
+  const walletName = wallet.getName();
+
+  const existing =
+    overwrite || !localStorageKey
+      ? undefined
+      : !!localStorage.getItem(localStorageKey);
+
+  if (!existing && localStorageKey && walletName !== ReadOnlyWallet.NAME) {
+    localStorage.setItem(localStorageKey, walletName);
+  }
+}
+
+function removeWalletfromLocalStorage(chain: Chain, type: TransferWallet) {
+  const localStorageKeyForType = getLastUsedWalletKey(chain, type);
+
+  if (localStorageKeyForType) {
+    localStorage.removeItem(localStorageKeyForType);
+  }
+}
 
 function setWalletConnection(
   chain: Chain,
   type: TransferWallet,
   wallet: Wallet,
 ): void {
-  const previousConnection = walletConnections[type];
-  if (previousConnection) {
-    previousConnection.wallet.off(
-      'disconnect',
-      previousConnection.disconnectHandler,
-    );
-  }
+  walletConnections[type] = { chain, wallet };
+  setWalletInLocalStorage(chain, type, wallet, true);
 
-  const localStorageKey = getLastUsedWalletKey(chain);
+  const otherType =
+    type === TransferWallet.RECEIVING
+      ? TransferWallet.SENDING
+      : TransferWallet.RECEIVING;
 
-  const handleDisconnect = () => {
-    walletConnections[type] = undefined;
-    wallet.off('disconnect', handleDisconnect);
-    if (localStorageKey) {
-      localStorage.removeItem(localStorageKey);
-    }
-  };
-
-  walletConnections[type] = {
-    wallet,
-    disconnectHandler: handleDisconnect,
-  };
-
-  wallet.on('disconnect', handleDisconnect);
-
-  if (localStorageKey && wallet.getName() !== ReadOnlyWallet.NAME) {
-    localStorage.setItem(localStorageKey, wallet.getName());
-  }
+  setWalletInLocalStorage(chain, otherType, wallet, false);
 }
 
 function getWalletConnection(type: TransferWallet): Wallet | undefined {
@@ -104,19 +112,22 @@ async function connectWalletToChain(
   }
 }
 
-function getLastUsedWalletKey(chain: Chain): string | null {
+function getLastUsedWalletKey(
+  chain: Chain,
+  type: TransferWallet,
+): string | null {
   const chainConfig = config.chains[chain];
   if (!chainConfig) return null;
 
   const platform = chainToPlatform(chainConfig.sdkName);
-  return config.cacheKey(`wallet:${platform}`);
+  return config.cacheKey(`wallet:${platform}:${type}`);
 }
 
 async function connectLastUsedWallet(
   chain: Chain,
   type: TransferWallet,
 ): Promise<Wallet | null> {
-  const localStorageKey = getLastUsedWalletKey(chain);
+  const localStorageKey = getLastUsedWalletKey(chain, type);
   if (!localStorageKey) return null;
 
   const lastUsedWallet = localStorage.getItem(localStorageKey);
@@ -130,7 +141,7 @@ async function connectLastUsedWallet(
     const walletOption = options.find((w) => w.name === lastUsedWallet);
 
     if (!walletOption?.isReady) {
-      localStorage.removeItem(localStorageKey);
+      removeWalletfromLocalStorage(chain, type);
       return null;
     }
 
@@ -139,7 +150,7 @@ async function connectLastUsedWallet(
 
     return walletOption.wallet;
   } catch {
-    localStorage.removeItem(localStorageKey);
+    removeWalletfromLocalStorage(chain, type);
     return null;
   }
 }
@@ -180,6 +191,24 @@ async function connectWallet(
   return promise;
 }
 
+function disconnectWallet(chain: Chain, type: TransferWallet) {
+  const wallet = getWalletConnection(type);
+  walletConnections[type] = undefined;
+  removeWalletfromLocalStorage(chain, type);
+
+  try {
+    if (wallet) {
+      // This will eventually emit a disconnect event
+      // which causes more problems than it solves
+      // as it does not distinguish between a disconnect
+      // by the user or browser extension
+      void wallet.disconnect();
+    }
+  } catch (error) {
+    console.error('Error disconnecting wallet:', error);
+  }
+}
+
 function getWallet(_chain: Chain, type: TransferWallet): Wallet | null {
   return getWalletConnection(type) || null;
 }
@@ -193,13 +222,45 @@ async function signAndSendTransactionInternal(
 }
 
 function swapWallets(): void {
-  if (walletConnections.receiving?.wallet.getName() === ReadOnlyWallet.NAME) {
-    walletConnections.receiving.wallet.disconnect();
+  let sending = walletConnections.sending;
+  let receiving = walletConnections.receiving;
+
+  if (receiving?.wallet.getName() === ReadOnlyWallet.NAME) {
+    receiving.wallet.disconnect();
+  }
+
+  if (sending) {
+    removeWalletfromLocalStorage(sending?.chain, TransferWallet.SENDING);
+  }
+
+  if (receiving) {
+    removeWalletfromLocalStorage(receiving?.chain, TransferWallet.RECEIVING);
   }
 
   const temp = walletConnections.sending;
   walletConnections.sending = walletConnections.receiving;
   walletConnections.receiving = temp;
+
+  sending = walletConnections.sending;
+  receiving = walletConnections.receiving;
+
+  if (sending) {
+    setWalletInLocalStorage(
+      sending?.chain,
+      TransferWallet.SENDING,
+      sending?.wallet,
+      true,
+    );
+  }
+
+  if (receiving) {
+    setWalletInLocalStorage(
+      receiving?.chain,
+      TransferWallet.RECEIVING,
+      receiving?.wallet,
+      true,
+    );
+  }
 }
 
 function on<T extends keyof WalletProviderEvents>(
@@ -253,6 +314,7 @@ function onWalletSelectCancelled(): void {
 export const internalWalletProvider = {
   isInternal: true as const,
   connectWallet,
+  disconnectWallet,
   getWallet,
   signAndSendTransaction: signAndSendTransactionInternal,
   swapWallets,
