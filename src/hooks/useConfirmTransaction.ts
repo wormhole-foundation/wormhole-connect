@@ -271,6 +271,7 @@ const useConfirmTransaction = (props: Props): ReturnProps => {
       const [uiError, transferError] = interpretTransferError(
         e,
         transferDetails,
+        'send',
       );
 
       if (transferError.type === ERR_USER_REJECTED) {
