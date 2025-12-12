@@ -179,8 +179,8 @@
     "jsdom": "^26.1.0",
     "lint-staged": "^15.2.11",
     "prettier": "^2.8.8",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "rollup-plugin-visualizer": "^5.14.0",
     "ts-unused-exports": "^10.1.0",
     "typescript": "^5.3.3",
@@ -198,10 +198,10 @@
     "@mui/material": "^7.3.2",
     "@mui/styled-engine": "^7.3.2",
     "@mui/system": "^7.3.2",
-    "@types/react": ">=18.0.0",
+    "@types/react": "^18.0.0 || >=19.2.3",
     "lucide-react": "^0.554.0",
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react": "^18.0.0 || >=19.2.3",
+    "react-dom": "^18.0.0 || >=19.2.3"
   },
   "peerDependenciesMeta": {
     "@types/react": {
