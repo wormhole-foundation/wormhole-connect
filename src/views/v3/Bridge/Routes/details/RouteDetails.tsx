@@ -8,7 +8,8 @@ import MaxSlippage from './MaxSlippage';
 import MinOutput from './MinOutput';
 import { useToggle } from 'usehooks-ts';
 import Typography from '@mui/material/Typography';
-import { ChevronToggle } from './index';
+import ChevronToggle from './ChevronToggle';
+import config from 'config';
 
 export interface RouteDetailsProps {
   destChain?: string;
@@ -37,6 +38,10 @@ export default function RouteDetails({
   const [isShowingDetails, handleChevronClick] = useToggle(false);
   const hasAnyDetails = minReceived || quoteSlippageBps;
   const hasIndicators = !!eta; // Add Fee component here when ready.
+  const isRouteSelectionVisible = !config.ui.hideRouteSelection;
+  const isRouteDetailsVisible = !config.ui.hideRouteDetails;
+  const justifyContent = isRouteSelectionVisible ? 'space-between' : 'end';
+
   return (
     <Stack direction="column" useFlexGap sx={{ width: '100%' }}>
       <Stack
@@ -47,54 +52,58 @@ export default function RouteDetails({
         }}
         height={18}
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent={justifyContent}
       >
-        <ProviderLabel
-          destChain={destChain}
-          provider={provider}
-          route={selectedRoute}
-          sourceChain={sourceChain}
-          onClick={handleToggleRoutes}
-        />
-        <Stack
-          direction="row"
-          gap={theme.spacing(1)}
-          height={18}
-          alignItems="center"
-        >
-          <Eta eta={eta} />
+        {isRouteSelectionVisible && (
+          <ProviderLabel
+            destChain={destChain}
+            provider={provider}
+            route={selectedRoute}
+            sourceChain={sourceChain}
+            onClick={handleToggleRoutes}
+          />
+        )}
+        {isRouteDetailsVisible && (
           <Stack
             direction="row"
-            sx={{
-              transition: '0.3s',
-              color: !hasIndicators
-                ? theme.palette.text.secondary
-                : theme.palette.text.primary,
-              '&:hover': {
-                color: theme.palette.text.accent,
-              },
-            }}
+            gap={theme.spacing(1)}
+            height={18}
+            alignItems="center"
           >
-            {!hasIndicators && (
-              <Typography
-                variant={'body2'}
-                sx={{
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                }}
-                onClick={handleChevronClick}
-              >
-                Details
-              </Typography>
-            )}
-            {hasAnyDetails && (
-              <ChevronToggle
-                expanded={isShowingDetails}
-                onToggle={handleChevronClick}
-              />
-            )}
+            <Eta eta={eta} />
+            <Stack
+              direction="row"
+              sx={{
+                transition: '0.3s',
+                color: !hasIndicators
+                  ? theme.palette.text.secondary
+                  : theme.palette.text.primary,
+                '&:hover': {
+                  color: theme.palette.text.accent,
+                },
+              }}
+            >
+              {!hasIndicators && (
+                <Typography
+                  variant={'body2'}
+                  sx={{
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                  onClick={handleChevronClick}
+                >
+                  Details
+                </Typography>
+              )}
+              {hasAnyDetails && (
+                <ChevronToggle
+                  expanded={isShowingDetails}
+                  onToggle={handleChevronClick}
+                />
+              )}
+            </Stack>
           </Stack>
-        </Stack>
+        )}
       </Stack>
       {hasAnyDetails && (
         <Collapse in={isShowingDetails} timeout={500}>
