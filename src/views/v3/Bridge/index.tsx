@@ -42,6 +42,7 @@ import {
   setTransferRoute,
   clearToken,
   clearDestToken,
+  setAmount,
 } from 'store/transferInput';
 import { copyTextToClipboard } from 'utils';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
@@ -309,6 +310,7 @@ function Bridge(props: BridgeProps) {
     (value: Token) => {
       dispatch(setToken(value.tuple));
       dispatch(setToNativeToken(0));
+      dispatch(setAmount(''));
     },
     [dispatch],
   );
