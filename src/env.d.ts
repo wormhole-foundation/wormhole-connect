@@ -40,6 +40,7 @@ interface ImportMetaEnv {
   REACT_APP_CREDITCOIN_RPC: string;
   REACT_APP_FOGO_RPC: string;
   REACT_APP_MONAD_RPC: string;
+  REACT_APP_MEGAETH_RPC: string;
 
   // testnet
   REACT_APP_SEPOLIA_RPC: string;
