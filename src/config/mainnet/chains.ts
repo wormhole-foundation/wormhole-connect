@@ -276,4 +276,13 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'MON',
     gasReserve: '0.01',
   },
+  MegaETH: {
+    displayName: 'MegaETH',
+    sdkName: 'MegaETH',
+    explorerUrl: 'https://megaeth-testnet-v3.blockscout.com/',
+    explorerName: 'Blockscout',
+    icon: 'MegaETH',
+    symbol: 'MEGA',
+    gasReserve: '0.001',
+  },
 };

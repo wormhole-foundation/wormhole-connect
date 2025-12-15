@@ -32,6 +32,7 @@ const {
   REACT_APP_CREDITCOIN_RPC,
   REACT_APP_FOGO_RPC,
   REACT_APP_MONAD_RPC,
+  REACT_APP_MEGAETH_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -67,4 +68,5 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('CreditCoin', REACT_APP_CREDITCOIN_RPC),
   ...populateRpcField('Fogo', REACT_APP_FOGO_RPC),
   ...populateRpcField('Monad', REACT_APP_MONAD_RPC),
+  ...populateRpcField('MegaETH', REACT_APP_MEGAETH_RPC),
 };

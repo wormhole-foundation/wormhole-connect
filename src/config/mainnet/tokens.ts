@@ -973,4 +973,13 @@ export const MAINNET_TOKENS: TokenConfig[] = [
         '0x2053d08c1e2bd02791056171aab0fd12bd7cd7efad2ab8f6b9c8902f14df2ff2::ausd::AUSD',
     },
   },
+  {
+    symbol: 'ETH',
+    icon: TokenIcon.ETH,
+    decimals: 18,
+    tokenId: {
+      chain: 'MegaETH',
+      address: 'native',
+    },
+  },
 ];
