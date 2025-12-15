@@ -83,6 +83,12 @@ export type UiConfig = {
 
   // When enabled hides the Fastest/Cheapest route selection toggle pills
   hideRouteSelectionPills?: boolean;
+
+  // When enabled hides route selection
+  hideRouteSelection?: boolean;
+
+  // When enabled hides route details
+  hideRouteDetails?: boolean;
 };
 
 export type TestOptions = {

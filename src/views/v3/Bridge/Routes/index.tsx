@@ -14,7 +14,7 @@ import { setToNativeToken } from 'store/relay';
 import RoutesMobile from './RoutesBottomSheet';
 import RoutesDesktop from './RoutesModal';
 import RoutesLoader from './RoutesLoader';
-import RouteDetails from './details/RouteDetails';
+import RouteDetails from './details';
 import {
   getMinReceivedFromQuote,
   getSlippageFromQuote,
@@ -288,10 +288,18 @@ function Routes({
 
   const selectButtonDisabled =
     !!selectedRoute && selectedRoute === highlightedRoute;
+
+  const isRoutesHidden =
+    !!config.ui.hideRouteSelection && !!config.ui.hideRouteDetails;
+
+  if (isRoutesHidden) {
+    return null;
+  }
+
   // Done fetching and no routes are available.
   // This can be an error case which the message is shown by the parent component.
   if (!isLoading && routesList.length === 0) {
-    return <></>;
+    return null;
   }
 
   return (
