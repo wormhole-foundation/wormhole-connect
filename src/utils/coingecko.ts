@@ -38,6 +38,7 @@ const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
   Monad: 'monad',
   Fogo: 'fogo',
   Moca: 'moca',
+  MegaETH: 'ethereum',
 };
 
 // This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
