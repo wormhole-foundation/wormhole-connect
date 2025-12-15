@@ -10,6 +10,10 @@ export const nttRoutes = [
   'NttExecutorRoute',
 ] as const;
 
+export const isNttRoute = (routeName: string): boolean => {
+  return (nttRoutes as readonly string[]).includes(routeName);
+};
+
 interface NttTokenOption {
   chain: Chain;
   token: string;
