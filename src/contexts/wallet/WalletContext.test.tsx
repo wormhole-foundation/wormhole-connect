@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useContext } from 'react';
@@ -8,12 +8,35 @@ import WalletProvider from './WalletProvider';
 import WalletContext from './WalletContext';
 import { internalWalletProvider } from 'utils/wallet/InternalWalletProvider';
 import { TransferWallet } from 'utils/wallet';
+import { TestConfigContext } from 'utils/testHelpers';
 
 const mockStore = configureStore({
   reducer: {
     wallet: (state = { sending: undefined, receiving: undefined }) => state,
   },
 });
+
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  network: 'Mainnet',
+  chains: {
+    Ethereum: { sdkName: 'Ethereum' },
+    Solana: { sdkName: 'Solana' },
+  },
+  triggerEvent: vi.fn(),
+  cacheKey: vi.fn((key: string) => `test-${key}`),
+};
+
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+  },
+}));
 
 vi.mock('config', () => ({
   default: {
@@ -74,11 +97,13 @@ describe('WalletContext with InternalWalletProvider', () => {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <Provider store={mockStore}>
-      <WalletProvider provider={internalWalletProvider}>
-        {children}
-      </WalletProvider>
-    </Provider>
+    <TestConfigContext.Provider value={mockConfig}>
+      <Provider store={mockStore}>
+        <WalletProvider provider={internalWalletProvider}>
+          {children}
+        </WalletProvider>
+      </Provider>
+    </TestConfigContext.Provider>
   );
 
   it('connect and disconnect sending and receiving wallets', async () => {

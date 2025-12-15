@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Chain, ChainId, TokenId } from '@wormhole-foundation/sdk';
 import { chainIdToChain, toNative } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 
 import type { Transaction } from 'config/types';
 
@@ -44,6 +44,7 @@ const useTransactionHistoryMayan = (
   isFetching: boolean;
   hasMore: boolean;
 } => {
+  const config = useConfig();
   const [transactions, setTransactions] = useState<
     Array<Transaction> | undefined
   >();
@@ -53,93 +54,96 @@ const useTransactionHistoryMayan = (
 
   const { address, page = 0, pageSize = 30, chains } = props;
 
-  const parseSingleTx = (tx: MayanTransaction) => {
-    const {
-      fromAmount,
-      sourceChain,
-      destChain,
-      fromTokenPrice,
-      fromTokenAddress,
-      initiatedAt,
-      toAmount,
-      toTokenAddress,
-      sourceTxHash,
-      trader,
-      destAddress,
-      clientStatus,
-    } = tx;
+  const parseSingleTx = useCallback(
+    (tx: MayanTransaction) => {
+      const {
+        fromAmount,
+        sourceChain,
+        destChain,
+        fromTokenPrice,
+        fromTokenAddress,
+        initiatedAt,
+        toAmount,
+        toTokenAddress,
+        sourceTxHash,
+        trader,
+        destAddress,
+        clientStatus,
+      } = tx;
 
-    const fromChain = chainIdToChain(sourceChain);
-    const toChain = chainIdToChain(destChain);
+      const fromChain = chainIdToChain(sourceChain);
+      const toChain = chainIdToChain(destChain);
 
-    // Skip this transaction if we don't have source or destination chains
-    if (!fromChain || !toChain) {
-      return;
-    }
+      // Skip this transaction if we don't have source or destination chains
+      if (!fromChain || !toChain) {
+        return;
+      }
 
-    let fromToken, toToken;
+      let fromToken, toToken;
 
-    try {
-      fromToken = config.tokens.get(
-        parseMayanAddress(fromChain, fromTokenAddress),
-      );
-      toToken = config.tokens.get(parseMayanAddress(toChain, toTokenAddress));
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
+      try {
+        fromToken = config.tokens.get(
+          parseMayanAddress(fromChain, fromTokenAddress),
+        );
+        toToken = config.tokens.get(parseMayanAddress(toChain, toTokenAddress));
+      } catch (e) {
+        console.error(e);
+        return undefined;
+      }
 
-    // Last resort to find source token by symbol
-    if (!fromToken) {
-      const fromTokenBySymbol = config.tokens.findBySymbol(
+      // Last resort to find source token by symbol
+      if (!fromToken) {
+        const fromTokenBySymbol = config.tokens.findBySymbol(
+          fromChain,
+          tx.fromTokenSymbol,
+        );
+        if (fromTokenBySymbol) {
+          fromToken = fromTokenBySymbol;
+        }
+      }
+
+      // Last resort to find destination token by symbol
+      if (!toToken) {
+        const toTokenBySymbol = config.tokens.findBySymbol(
+          toChain,
+          tx.toTokenSymbol,
+        );
+        if (toTokenBySymbol) {
+          toToken = toTokenBySymbol;
+        }
+      }
+
+      // Skip this transaction if we can't find source or destination token configs
+      if (!fromToken || !toToken) {
+        console.error('Cant find tokenz');
+        return;
+      }
+
+      // Transaction is in progress when it's not completed or refunded
+      const clientStatusLC = clientStatus?.toLowerCase();
+      const inProgress =
+        clientStatusLC !== 'completed' && clientStatusLC !== 'refunded';
+
+      const txData: Transaction = {
+        txHash: sourceTxHash,
+        sender: trader,
+        amount: fromAmount,
+        amountUsd: Number(fromAmount) * fromTokenPrice,
+        recipient: destAddress,
         fromChain,
-        tx.fromTokenSymbol,
-      );
-      if (fromTokenBySymbol) {
-        fromToken = fromTokenBySymbol;
-      }
-    }
-
-    // Last resort to find destination token by symbol
-    if (!toToken) {
-      const toTokenBySymbol = config.tokens.findBySymbol(
+        fromToken,
         toChain,
-        tx.toTokenSymbol,
-      );
-      if (toTokenBySymbol) {
-        toToken = toTokenBySymbol;
-      }
-    }
+        toToken,
+        receiveAmount: toAmount,
+        senderTimestamp: initiatedAt,
+        explorerLink: `https://explorer.mayan.finance/swap/${sourceTxHash}`,
+        inProgress,
+      };
 
-    // Skip this transaction if we can't find source or destination token configs
-    if (!fromToken || !toToken) {
-      console.error('Cant find tokenz');
-      return;
-    }
-
-    // Transaction is in progress when it's not completed or refunded
-    const clientStatusLC = clientStatus?.toLowerCase();
-    const inProgress =
-      clientStatusLC !== 'completed' && clientStatusLC !== 'refunded';
-
-    const txData: Transaction = {
-      txHash: sourceTxHash,
-      sender: trader,
-      amount: fromAmount,
-      amountUsd: Number(fromAmount) * fromTokenPrice,
-      recipient: destAddress,
-      fromChain,
-      fromToken,
-      toChain,
-      toToken,
-      receiveAmount: toAmount,
-      senderTimestamp: initiatedAt,
-      explorerLink: `https://explorer.mayan.finance/swap/${sourceTxHash}`,
-      inProgress,
-    };
-
-    return txData;
-  };
+      return txData;
+    },
+    [config],
+  );
 
   const parseTransactions = useCallback(
     (allTxs: Array<MayanTransaction>) => {
@@ -156,7 +160,7 @@ const useTransactionHistoryMayan = (
 
       return parsed;
     },
-    [chains],
+    [chains, parseSingleTx],
   );
 
   useEffect(() => {
@@ -231,7 +235,7 @@ const useTransactionHistoryMayan = (
     return () => {
       cancelled = true;
     };
-  }, [address, page, pageSize, chains, parseTransactions]);
+  }, [address, page, pageSize, chains, parseTransactions, config]);
 
   return {
     transactions,

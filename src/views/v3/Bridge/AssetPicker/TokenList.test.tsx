@@ -1,14 +1,34 @@
-import React from 'react';
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material';
 
 import TokenList from './TokenList';
 import { dark } from 'theme';
+import { TestConfigContext } from 'utils/testHelpers';
 
 const theme = createTheme({
   palette: dark as any,
 });
+
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  tokens: {},
+  ui: {
+    disableUserInputtedTokens: false,
+  },
+};
+
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+  },
+}));
 
 // Mock SearchableList to simplify testing
 vi.mock('views/v3/Bridge/AssetPicker/SearchableList', () => ({
@@ -73,7 +93,9 @@ const defaultProps = {
 };
 
 const AppWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  <TestConfigContext.Provider value={mockConfig}>
+    <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  </TestConfigContext.Provider>
 );
 
 describe('TokenList', () => {

@@ -21,7 +21,7 @@ import { getTokenDetails, getTransferDetails } from 'telemetry';
 import AlertBannerV3 from 'components/v3/AlertBanner';
 import ConfigurablePageHeader from 'components/ConfigurablePageHeader';
 import Button from 'components/v3/Button';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { RouteContext } from 'contexts/RouteContext';
 import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
@@ -61,6 +61,7 @@ import { FormContent } from 'components/v3/FormContent';
 import { BackButton } from 'components/v3/BackButton';
 
 function Redeem() {
+  const config = useConfig();
   const dispatch = useDispatch();
   const theme: any = useTheme();
 

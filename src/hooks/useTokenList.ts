@@ -11,7 +11,7 @@ import {
   applyCustomTokenSupport,
   applyShittokenFilter,
 } from 'utils/tokenListUtils';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 
 interface UseTokenListParams {
   tokenList: Token[];
@@ -34,6 +34,7 @@ export const useTokenList = ({
   balances,
   isSourceList = false,
 }: UseTokenListParams): Token[] => {
+  const config = useConfig();
   const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   return useMemo(() => {
@@ -65,6 +66,7 @@ export const useTokenList = ({
     return tokens;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    config,
     tokenList,
     searchQuery,
     selectedChainConfig,

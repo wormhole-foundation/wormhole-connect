@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { RootState } from 'store';
 import type { WalletData } from 'utils/wallet';
 import { TransferWallet } from 'utils/wallet';
@@ -38,6 +38,7 @@ function WalletPickerContent({
   showAddressInput,
   walletType,
 }: WalletPickerContentProps) {
+  const config = useConfig();
   const dispatch = useDispatch();
   const theme = useTheme();
   const { walletProvider } = useWalletProvider();

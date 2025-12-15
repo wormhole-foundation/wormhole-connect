@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Chain } from '@wormhole-foundation/sdk';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
 import { useDispatch } from 'react-redux';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Wallet, WormholeConnectWalletProvider } from 'utils/wallet';
 import { TransferWallet } from 'utils/wallet';
 import {
@@ -23,6 +23,7 @@ function WalletProvider({
   children,
   provider: walletProvider,
 }: WalletProviderProps) {
+  const config = useConfig();
   const [isConnecting, setIsConnecting] = useState(false);
   const dispatch = useDispatch();
 

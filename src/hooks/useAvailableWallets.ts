@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Chain, Platform } from '@wormhole-foundation/sdk';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { WalletData } from 'utils/wallet';
 import { getWalletOptions } from 'utils/wallet';
 
@@ -26,6 +26,7 @@ const FAILED_TO_LOAD_ERR =
   'Failed to load wallets. Please refresh and try again.';
 
 export const useAvailableWallets = (props: Props): ReturnProps => {
+  const config = useConfig();
   const { chain, supportedChains } = props;
 
   const [walletOptionsResult, setWalletOptionsResult] = useState<WalletOptions>(
@@ -69,7 +70,7 @@ export const useAvailableWallets = (props: Props): ReturnProps => {
     return () => {
       cancelled = true;
     };
-  }, [chain, supportedChains]);
+  }, [chain, supportedChains, config.chains]);
 
   return {
     walletOptionsResult,

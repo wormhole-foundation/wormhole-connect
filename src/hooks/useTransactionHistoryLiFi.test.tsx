@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { createMockToken } from 'utils/testHelpers';
+import * as React from 'react';
+import {
+  createMockToken,
+  createTestWrapper,
+  TestConfigContext,
+} from 'utils/testHelpers';
 
 const mockToken = createMockToken({
   chain: 'Ethereum',
@@ -10,14 +15,23 @@ const mockToken = createMockToken({
   name: 'USD Coin',
 });
 
-// Mock dependencies
-vi.mock('config', () => ({
-  default: {
-    lifiExplorerUrl: 'https://li.quest',
-    tokens: {
-      get: vi.fn(() => mockToken),
-      findBySymbol: vi.fn(() => mockToken),
-    },
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  lifiExplorerUrl: 'https://li.quest',
+  tokens: {
+    get: vi.fn(() => mockToken),
+    findBySymbol: vi.fn(() => mockToken),
+  },
+};
+
+// Mock useConfig to read from TestConfigContext instead of ConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
   },
 }));
 
@@ -34,22 +48,32 @@ vi.mock('routes/lifi/utils', () => ({
   }),
 }));
 
-vi.mock('@wormhole-foundation/sdk', () => ({
-  amount: {
-    fromBaseUnits: vi.fn((amount, decimals) => ({
-      amount: amount.toString(),
-      decimals,
-    })),
-    display: vi.fn((amountObj) => {
-      if (!amountObj) return undefined;
-      const divisor = BigInt(10 ** amountObj.decimals);
-      const value = BigInt(amountObj.amount) / divisor;
-      return value.toString();
-    }),
-  },
-}));
+vi.mock('@wormhole-foundation/sdk', async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import('@wormhole-foundation/sdk')
+  >();
+  return {
+    ...actual,
+    amount: {
+      ...actual.amount,
+      fromBaseUnits: vi.fn((amt, decimals) => ({
+        amount: amt.toString(),
+        decimals,
+      })),
+      display: vi.fn((amountObj) => {
+        if (!amountObj) return undefined;
+        const divisor = BigInt(10 ** amountObj.decimals);
+        const value = BigInt(amountObj.amount) / divisor;
+        return value.toString();
+      }),
+    },
+  };
+});
 
 import useTransactionHistoryLiFi from './useTransactionHistoryLiFi';
+
+// Create wrapper with TestConfigContext providing our mock config
+const wrapper = createTestWrapper({ config: mockConfig });
 
 // Sample test data
 const mockLiFiTransaction = {
@@ -138,12 +162,14 @@ describe('useTransactionHistoryLiFi', () => {
       json: async () => ({ transfers: [mockLiFiTransaction] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-        page: 0,
-        pageSize: 30,
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+          page: 0,
+          pageSize: 30,
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -175,10 +201,12 @@ describe('useTransactionHistoryLiFi', () => {
       json: async () => ({ transfers: [pendingTx] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -204,10 +232,12 @@ describe('useTransactionHistoryLiFi', () => {
       json: async () => ({ transfers: [unsupportedChainTx] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -223,10 +253,12 @@ describe('useTransactionHistoryLiFi', () => {
       status: 429,
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -243,10 +275,12 @@ describe('useTransactionHistoryLiFi', () => {
       status: 500,
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -259,10 +293,12 @@ describe('useTransactionHistoryLiFi', () => {
   it('should handle network errors', async () => {
     fetchMock.mockRejectedValueOnce(new Error('Failed to fetch'));
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -279,10 +315,12 @@ describe('useTransactionHistoryLiFi', () => {
       json: async () => ({ transfers: [] }),
     });
 
-    const { result } = renderHook(() =>
-      useTransactionHistoryLiFi({
-        address: '0xuser1',
-      }),
+    const { result } = renderHook(
+      () =>
+        useTransactionHistoryLiFi({
+          address: '0xuser1',
+        }),
+      { wrapper },
     );
 
     await waitFor(() => {

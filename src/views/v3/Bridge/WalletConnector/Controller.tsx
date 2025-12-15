@@ -18,7 +18,7 @@ import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard } from 'utils';
 import useWalletProvider from 'hooks/useWalletProvider';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import ExplorerLink from './ExplorerLink';
 import { ListItemIcon, Tooltip } from '@mui/material';
 import WalletPicker from './WalletPicker';
@@ -33,6 +33,7 @@ const COPY_MESSAGE_TIMOUT = 1000;
 
 // Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
+  const config = useConfig();
   const { connectWallet, disconnectWallet } = useWalletProvider();
 
   const { isTransactionInProgress, fromChain, toChain } = useSelector(

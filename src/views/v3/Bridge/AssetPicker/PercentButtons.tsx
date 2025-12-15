@@ -11,7 +11,7 @@ import {
 import type { Chain } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount, isSameToken } from '@wormhole-foundation/sdk';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { RootState } from 'store';
 import { calculateFeeOffset } from 'utils/fees';
 import { getGasReserve } from 'utils/gasReserve';
@@ -36,6 +36,7 @@ const GAS_RESERVE_INFO_MESSAGE =
   'A small amount of the network token balance is reserved to cover the network cost of this transaction.';
 
 function PercentButtons(props: Props) {
+  const config = useConfig();
   const theme: any = useTheme();
   const { route: selectedRoute } = useSelector(
     (state: RootState) => state.transferInput,

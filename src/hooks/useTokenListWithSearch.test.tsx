@@ -1,8 +1,32 @@
 import { describe, it, expect, vi } from 'vitest';
+import * as React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useTokenListWithSearch } from './useTokenListWithSearch';
 import { Token } from 'config/tokens';
 import { amount } from '@wormhole-foundation/sdk-connect';
+import { createTestWrapper, TestConfigContext } from 'utils/testHelpers';
+
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  network: 'Testnet',
+  tokens: {
+    get: vi.fn(() => null),
+  },
+};
+
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+  },
+}));
+
+// Create wrapper with TestConfigContext
+const wrapper = createTestWrapper({ config: mockConfig });
 
 const ethereumUSDC = new Token({
   chain: 'Ethereum',
@@ -38,15 +62,17 @@ vi.mock('contexts/TokensContext', () => ({
 
 describe('useTokenListWithSearch', () => {
   it('should filter out frankenstein tokens on destination chain', () => {
-    const { result } = renderHook(() =>
-      useTokenListWithSearch({
-        baseTokenList: [arbitrumUSDC, arbitrumFrankensteinUSDC],
-        searchQuery: '',
-        chain: 'Arbitrum',
-        isSource: false,
-        isSameChainSwap: false,
-        sourceToken: ethereumUSDC,
-      }),
+    const { result } = renderHook(
+      () =>
+        useTokenListWithSearch({
+          baseTokenList: [arbitrumUSDC, arbitrumFrankensteinUSDC],
+          searchQuery: '',
+          chain: 'Arbitrum',
+          isSource: false,
+          isSameChainSwap: false,
+          sourceToken: ethereumUSDC,
+        }),
+      { wrapper },
     );
 
     // Should only have the native USDC token, frankenstein USDC filtered out
@@ -56,15 +82,17 @@ describe('useTokenListWithSearch', () => {
   });
 
   it('should filter out frankenstein tokens on source chain if no balance', () => {
-    const { result } = renderHook(() =>
-      useTokenListWithSearch({
-        baseTokenList: [arbitrumUSDC, arbitrumFrankensteinUSDC],
-        searchQuery: '',
-        chain: 'Arbitrum',
-        isSource: true,
-        isSameChainSwap: false,
-        sourceToken: undefined,
-      }),
+    const { result } = renderHook(
+      () =>
+        useTokenListWithSearch({
+          baseTokenList: [arbitrumUSDC, arbitrumFrankensteinUSDC],
+          searchQuery: '',
+          chain: 'Arbitrum',
+          isSource: true,
+          isSameChainSwap: false,
+          sourceToken: undefined,
+        }),
+      { wrapper },
     );
 
     // Should only have the native USDC token, frankenstein USDC filtered out due to no balance
@@ -74,21 +102,23 @@ describe('useTokenListWithSearch', () => {
   });
 
   it('should include frankenstein tokens on source chain if has balance', () => {
-    const { result } = renderHook(() =>
-      useTokenListWithSearch({
-        baseTokenList: [arbitrumUSDC, arbitrumFrankensteinUSDC],
-        searchQuery: '',
-        chain: 'Arbitrum',
-        isSource: true,
-        isSameChainSwap: false,
-        sourceToken: undefined,
-        balances: {
-          [arbitrumFrankensteinUSDC.key]: {
-            balance: amount.fromBaseUnits(1000000n, 6), // 1 token with 6 decimals
-            lastUpdated: Date.now(),
+    const { result } = renderHook(
+      () =>
+        useTokenListWithSearch({
+          baseTokenList: [arbitrumUSDC, arbitrumFrankensteinUSDC],
+          searchQuery: '',
+          chain: 'Arbitrum',
+          isSource: true,
+          isSameChainSwap: false,
+          sourceToken: undefined,
+          balances: {
+            [arbitrumFrankensteinUSDC.key]: {
+              balance: amount.fromBaseUnits(1000000n, 6), // 1 token with 6 decimals
+              lastUpdated: Date.now(),
+            },
           },
-        },
-      }),
+        }),
+      { wrapper },
     );
 
     // Should have both the native USDC token and frankenstein USDC since it has a balance

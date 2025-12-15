@@ -1,26 +1,36 @@
-import React from 'react';
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material';
 
 import TokenPickerButton from '../TokenPickerButton';
 import { dark } from 'theme';
-import { createMockToken } from 'utils/testHelpers';
+import { createMockToken, TestConfigContext } from 'utils/testHelpers';
 
 const theme = createTheme({
   palette: dark,
 });
 
+// Mock config object provided via TestConfigContext
+const mockConfig = {
+  ui: {
+    disableSourceTokenPicker: false,
+    disableDestinationTokenPicker: false,
+  },
+};
+
 vi.mock('utils', () => ({
   getTokenDisplaySymbolByTokenAddress: vi.fn(() => 'USDC'),
 }));
 
-vi.mock('config', () => ({
-  default: {
-    ui: {
-      disableSourceTokenPicker: false,
-      disableDestinationTokenPicker: false,
-    },
+// Mock useConfig to read from TestConfigContext
+vi.mock('contexts/ConfigContext', () => ({
+  useConfig: () => {
+    const context = React.useContext(TestConfigContext);
+    if (!context) {
+      throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
   },
 }));
 
@@ -68,7 +78,9 @@ const defaultProps = {
 };
 
 const AppWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  <TestConfigContext.Provider value={mockConfig}>
+    <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  </TestConfigContext.Provider>
 );
 
 describe('TokenPickerButton', () => {

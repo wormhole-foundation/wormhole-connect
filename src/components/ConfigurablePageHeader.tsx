@@ -1,9 +1,10 @@
 import React from 'react';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import PageHeader from 'components/PageHeader';
 import type { Alignment } from 'components/Header';
 
 const ConfigurablePageHeader = () => {
+  const config = useConfig();
   const defaults: { text: string; align: Alignment } = {
     text: '',
     align: 'left',

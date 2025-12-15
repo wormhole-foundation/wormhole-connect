@@ -9,7 +9,7 @@ import { Wormhole, circle, amount } from '@wormhole-foundation/sdk';
 import type { QuoteParams, QuoteResult } from 'routes/operator';
 import { calculateUSDPriceRaw } from 'utils';
 
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
 
@@ -35,6 +35,7 @@ const MAYAN_BETA_PROTOCOL_LIMITS = {
 };
 
 export default (routes: string[], params: Params): HookReturn => {
+  const config = useConfig();
   const [nonce, setNonce] = useState(new Date().valueOf());
   const refreshTimeout = useRef<undefined | ReturnType<typeof setTimeout>>(
     undefined,
@@ -120,7 +121,7 @@ export default (routes: string[], params: Params): HookReturn => {
         clearTimeout(refreshTimeout.current);
       }
     };
-  }, [unfilteredQuotes, routes, params]);
+  }, [unfilteredQuotes, routes, params, config]);
 
   // IMPORTANT
   //
@@ -417,8 +418,7 @@ export default (routes: string[], params: Params): HookReturn => {
     }
 
     return { quotes: filtered, failedQuotes };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unfilteredQuotes]);
+  }, [unfilteredQuotes, config, getTokenPrice, params]);
 
   return {
     quotes,

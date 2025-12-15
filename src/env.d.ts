@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   // env
   REACT_APP_CONNECT_ENV: string;
+  REACT_APP_CONNECT_VERSION?: string;
+  REACT_APP_CONNECT_GIT_HASH?: string;
 
   // wallet connect
   REACT_APP_WALLET_CONNECT_PROJECT_ID: string;
@@ -67,6 +69,14 @@ interface ImportMetaEnv {
   REACT_APP_PLUME_TESTNET_RPC: string;
   REACT_APP_XRPLEVM_TESTNET_RPC: string;
   REACT_APP_MONAD_TESTNET_RPC: string;
+  REACT_APP_LINEA_TESTNET_RPC?: string;
+  REACT_APP_SONIC_TESTNET_RPC?: string;
+  REACT_APP_INK_TESTNET_RPC?: string;
+
+  // test private keys (dev only)
+  REACT_APP_TEST_EVM_PK?: string;
+  REACT_APP_SOL_PRIVATE_KEY?: string;
+  REACT_APP_SUI_PRIVATE_KEY?: string;
 
   // devnet
   REACT_APP_ETHEREUM_DEVNET_RPC: string;

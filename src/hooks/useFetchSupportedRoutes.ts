@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { getTokenDetails } from 'telemetry';
 import { maybeLogSdkError } from 'utils/errors';
 import { ReadOnlyWallet } from 'utils/wallet/ReadOnlyWallet';
@@ -29,6 +29,7 @@ const useFetchSupportedRoutes = ({
   toNativeToken,
   receivingWallet,
 }: UseFetchSupportedRoutesArgs): HookReturn => {
+  const config = useConfig();
   const [routes, setRoutes] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
@@ -110,6 +111,7 @@ const useFetchSupportedRoutes = ({
       isActive = false;
     };
   }, [
+    config,
     sourceToken,
     destToken,
     fromChain,

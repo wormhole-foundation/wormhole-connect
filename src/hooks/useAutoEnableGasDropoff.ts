@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import type { Chain } from '@wormhole-foundation/sdk';
 import type { Balances } from 'utils/wallet/types';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { setToNativeToken } from 'store/relay';
 import { isExecutorRoute } from 'utils';
 
@@ -34,6 +34,7 @@ export function useAutoEnableGasDropOff({
   isFetchingBalances,
   allowedChains,
 }: UseAutoEnableGasDropOffParams): void {
+  const config = useConfig();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -81,6 +82,7 @@ export function useAutoEnableGasDropOff({
       dispatch(setToNativeToken(newGasValue));
     }
   }, [
+    config,
     route,
     destChain,
     destinationBalances,

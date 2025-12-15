@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import type { Balances } from 'utils/wallet/types';
-import config, { getWormholeContextV2 } from 'config';
+import { getWormholeContextV2 } from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import type { Token } from 'config/tokens';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import type { Chain } from '@wormhole-foundation/sdk';
@@ -51,6 +52,7 @@ const useGetTokenBalances = ({
   source,
   destination,
 }: UseGetTokenBalancesParams): UseGetTokenBalancesResult => {
+  const config = useConfig();
   const [balances, setBalances] = useState<BalanceMap>({});
   const [fetchingKeys, setFetchingKeys] = useState<Set<string>>(new Set());
 
@@ -145,7 +147,7 @@ const useGetTokenBalances = ({
         }
       }
     },
-    [getOrFetchToken],
+    [config, getOrFetchToken],
   );
 
   // Fetch balances for a single chain
@@ -258,7 +260,7 @@ const useGetTokenBalances = ({
 
       return updatedBalances;
     },
-    [processIndexerResults],
+    [config, processIndexerResults],
   );
 
   // Effect to fetch balances

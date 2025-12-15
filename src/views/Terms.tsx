@@ -1,13 +1,14 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import FooterNavBar from 'components/FooterNavBar';
-import config from 'config';
+import { useConfig } from 'contexts/ConfigContext';
 import { FormContent } from 'components/v3/FormContent';
 import { useTheme } from '@mui/material';
 import Header from 'components/Header';
 import { BackButton } from 'components/v3/BackButton';
 
 function Terms() {
+  const config = useConfig();
   const theme: any = useTheme();
   const termsUrl = config.ui.termsOfServiceUrl || 'https://portalbridge.com';
 
