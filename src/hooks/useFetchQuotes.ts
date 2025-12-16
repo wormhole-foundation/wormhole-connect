@@ -12,6 +12,7 @@ import { calculateUSDPriceRaw } from 'utils';
 import config from 'config';
 import type { Token } from 'config/tokens';
 import { useTokens } from 'contexts/TokensContext';
+import { isNttRoute } from 'utils/ntt';
 
 type Params = {
   sourceChain?: Chain;
@@ -241,6 +242,11 @@ export default (routes: string[], params: Params): HookReturn => {
     // OR if both tokens have the same symbol and we fail to fetch a USD for either of them
     // we assume they are the same token and just compare the token amounts.
     for (const name in filtered) {
+      // Skip value loss filtering for NTT routes (native token transfers should preserve value 1:1)
+      if (isNttRoute(name)) {
+        continue;
+      }
+
       const quote = filtered[name];
 
       if (quote !== undefined && quote.success) {
