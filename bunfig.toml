@@ -53,6 +53,7 @@ minimumReleaseAgeExcludes = [
   "@wormhole-labs/wallet-aggregator-aptos",
   "@wormhole-labs/wallet-aggregator-core",
   "@wormhole-labs/wallet-aggregator-evm",
+  "@wormhole-labs/wallet-aggregator-stacks",
   "@wormhole-labs/wallet-aggregator-solana",
   "@wormhole-labs/wallet-aggregator-sui",
   # Mayan packages
