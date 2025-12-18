@@ -4,44 +4,6 @@ import { TransferWallet } from 'utils/wallet';
 import useWalletProvider from 'hooks/useWalletProvider';
 import type { WalletData } from 'store/wallet';
 
-function connectToChain(
-  chain: Chain | undefined,
-  wallet: TransferWallet,
-  setIsConnecting: (isConnecting: boolean) => void,
-  connectWallet: ReturnType<typeof useWalletProvider>['connectWallet'],
-  skipReconnect: boolean,
-) {
-  if (!chain || skipReconnect) {
-    setIsConnecting(false);
-    return;
-  }
-
-  let isUnmounted = false;
-
-  async function connect() {
-    setIsConnecting(true);
-
-    if (chain && !isUnmounted) {
-      try {
-        await connectWallet(chain, wallet, true);
-      } catch {
-        // Wallet connection errors are handled by the wallet provider
-        // We just need to ensure state is updated
-      }
-    }
-
-    if (!isUnmounted) {
-      setIsConnecting(false);
-    }
-  }
-
-  void connect();
-
-  return () => {
-    isUnmounted = true;
-  };
-}
-
 function useConnectToLastUsedWallet(
   sourceChain?: Chain,
   destChain?: Chain,
@@ -49,113 +11,101 @@ function useConnectToLastUsedWallet(
   receivingWallet?: WalletData,
 ): { isConnecting: boolean } {
   const { connectWallet, swapWallets } = useWalletProvider();
-  const [isConnectingSource, setIsConnectingSource] = useState(false);
-  const [isConnectingDestination, setIsConnectingDestination] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const prevSourceChainRef = useRef<Chain | undefined>(undefined);
+  const prevDestChainRef = useRef<Chain | undefined>(undefined);
+  const prevSendingWalletRef = useRef<WalletData | undefined>(undefined);
+  const prevReceivingWalletRef = useRef<WalletData | undefined>(undefined);
 
-  const prevSourceChainRef = useRef(sourceChain);
-  const prevDestChainRef = useRef(destChain);
-  const sendingWalletRef = useRef(sendingWallet);
-  const receivingWalletRef = useRef(receivingWallet);
-  const isSwappingRef = useRef(false);
-
-  // Update wallet refs on every render
-  sendingWalletRef.current = sendingWallet;
-  receivingWalletRef.current = receivingWallet;
-
-  // Check if both source and destination swapped
-  const sourceChanged = sourceChain !== prevSourceChainRef.current;
-  const destChanged = destChain !== prevDestChainRef.current;
-
-  const chainsSwapped =
-    sourceChanged &&
-    destChanged &&
-    sourceChain === prevDestChainRef.current &&
-    destChain === prevSourceChainRef.current;
-
-  // If chains are swapping we will not be reconnecting any wallets
-  // as the wallet provider is just swapping references
-  if (chainsSwapped) {
-    isSwappingRef.current = true;
-  }
-
-  // Effect runs when source chain changes but its not a swap
   useEffect(() => {
-    return connectToChain(
-      sourceChain,
-      TransferWallet.SENDING,
-      setIsConnectingSource,
-      connectWallet,
-      isSwappingRef.current,
-    );
-  }, [sourceChain, connectWallet]);
+    const hasSourceChainChanged = sourceChain !== prevSourceChainRef.current;
+    const hasDestChainChanged = destChain !== prevDestChainRef.current;
 
-  // Effect runs when destination chain changes but its not a swap
-  useEffect(() => {
-    return connectToChain(
-      destChain,
-      TransferWallet.RECEIVING,
-      setIsConnectingDestination,
-      connectWallet,
-      isSwappingRef.current,
-    );
-  }, [destChain, connectWallet]);
+    const hasSendingWalletChanged =
+      sendingWallet?.address !== prevSendingWalletRef.current?.address;
 
-  // Effect runs when source wallet changes but its not a swap
-  useEffect(() => {
-    const shouldSkip =
-      // Skip if swapping
-      isSwappingRef.current ||
-      // Skip if source wallet already exists
-      !sendingWallet?.address ||
-      // Skip if destination wallet doesn't exist
-      !!receivingWalletRef.current?.address;
+    const hasReceivingWalletChanged =
+      receivingWallet?.address !== prevReceivingWalletRef.current?.address;
 
-    return connectToChain(
-      prevDestChainRef.current,
-      TransferWallet.RECEIVING,
-      setIsConnectingDestination,
-      connectWallet,
-      shouldSkip,
-    );
-  }, [sendingWallet?.address, connectWallet]);
+    const hasChainsSwapped =
+      hasSourceChainChanged &&
+      hasDestChainChanged &&
+      sourceChain === prevDestChainRef.current &&
+      destChain === prevSourceChainRef.current;
 
-  // Effect runs when destination wallet changes but its not a swap
-  useEffect(() => {
-    const shouldSkip =
-      // Skip if swapping
-      isSwappingRef.current ||
-      // Skip if destination wallet already exists
-      !receivingWallet?.address ||
-      // Skip if source wallet doesn't exist
-      !!sendingWalletRef.current?.address;
+    prevSourceChainRef.current = sourceChain;
+    prevDestChainRef.current = destChain;
+    prevSendingWalletRef.current = sendingWallet;
+    prevReceivingWalletRef.current = receivingWallet;
 
-    return connectToChain(
-      prevSourceChainRef.current,
-      TransferWallet.SENDING,
-      setIsConnectingSource,
-      connectWallet,
-      shouldSkip,
-    );
-  }, [receivingWallet?.address, connectWallet]);
-
-  // Effect runs when source and destination change at the same time and its a swap
-  useEffect(() => {
-    if (chainsSwapped) {
+    if (hasChainsSwapped) {
       swapWallets();
+      return;
     }
 
-    isSwappingRef.current = false;
-    prevSourceChainRef.current = sourceChain;
-    prevDestChainRef.current = destChain;
-  }, [chainsSwapped, swapWallets, sourceChain, destChain]);
+    // Connect to source chain if:
+    // 1. Source chain changed, OR
+    // 2. Receiving wallet connected but no sending wallet (auto-connect other side)
+    const shouldConnectSource =
+      hasSourceChainChanged ||
+      (hasReceivingWalletChanged &&
+        receivingWallet?.address &&
+        !sendingWallet?.address);
 
-  // Effect runs when source and destination change
-  useEffect(() => {
-    prevSourceChainRef.current = sourceChain;
-    prevDestChainRef.current = destChain;
-  }, [sourceChain, destChain]);
+    // Connect to destination chain if:
+    // 1. Destination chain changed, OR
+    // 2. Sending wallet connected but no receiving wallet (auto-connect other side)
+    const shouldConnectDest =
+      hasDestChainChanged ||
+      (hasSendingWalletChanged &&
+        sendingWallet?.address &&
+        !receivingWallet?.address);
 
-  return { isConnecting: isConnectingSource || isConnectingDestination };
+    if (!shouldConnectSource && !shouldConnectDest) {
+      return;
+    }
+
+    let isUnmounted = false;
+
+    async function connect() {
+      setIsConnecting(true);
+
+      if (shouldConnectSource && sourceChain && !isUnmounted) {
+        try {
+          await connectWallet(sourceChain, TransferWallet.SENDING, true);
+        } catch {
+          // Errors handled by wallet provider
+        }
+      }
+
+      if (shouldConnectDest && destChain && !isUnmounted) {
+        try {
+          await connectWallet(destChain, TransferWallet.RECEIVING, true);
+        } catch {
+          // Errors handled by wallet provider
+        }
+      }
+
+      if (!isUnmounted) {
+        setIsConnecting(false);
+      }
+    }
+
+    void connect();
+
+    return () => {
+      isUnmounted = true;
+    };
+  }, [
+    sourceChain,
+    destChain,
+    sendingWallet,
+    receivingWallet,
+    swapWallets,
+    connectWallet,
+  ]);
+
+  return { isConnecting };
 }
 
 export default useConnectToLastUsedWallet;

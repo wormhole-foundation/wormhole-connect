@@ -3,6 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import type { Chain } from '@wormhole-foundation/sdk';
 import useConnectToLastUsedWallet from '../useConnectToLastUsedWallet';
 import { TransferWallet } from 'utils/wallet';
+import type { WalletData } from 'store/wallet';
 
 const mockConnectWallet = vi.fn();
 const mockSwapWallets = vi.fn();
@@ -295,37 +296,57 @@ describe('useConnectToLastUsedWallet', () => {
     expect(mockConnectWallet).not.toHaveBeenCalled();
   });
 
-  it('should detect swap and call swapWallets when chains swap positions', async () => {
+  it('should detect swap and call swapWallets when chains swap positions with both wallets connected', async () => {
     const sourceChain: Chain = 'Ethereum';
     const destChain: Chain = 'Solana';
+    const mockWallet1: WalletData = {
+      type: 'Evm',
+      address: '0x123',
+      currentAddress: '0x123',
+      error: '',
+      icon: '',
+      name: 'MetaMask',
+    };
+    const mockWallet2: WalletData = {
+      type: 'Solana',
+      address: '0x456',
+      currentAddress: '0x456',
+      error: '',
+      icon: '',
+      name: 'Phantom',
+    };
 
     const { rerender } = renderHook(
       ({
         source,
         dest,
+        sending,
+        receiving,
       }: {
         source: Chain | undefined;
         dest: Chain | undefined;
-      }) => useConnectToLastUsedWallet(source, dest),
+        sending: WalletData | undefined;
+        receiving: WalletData | undefined;
+      }) => useConnectToLastUsedWallet(source, dest, sending, receiving),
       {
         initialProps: {
           source: sourceChain as Chain | undefined,
           dest: destChain as Chain | undefined,
+          sending: mockWallet1,
+          receiving: mockWallet2,
         },
       },
     );
 
-    await waitFor(() => {
-      expect(mockConnectWallet).toHaveBeenCalledTimes(2);
-    });
-
     mockConnectWallet.mockClear();
     mockSwapWallets.mockClear();
 
-    // Swap the chains
+    // Swap the chains with both wallets connected
     rerender({
       source: destChain as Chain | undefined,
       dest: sourceChain as Chain | undefined,
+      sending: mockWallet1,
+      receiving: mockWallet2,
     });
 
     await waitFor(() => {
@@ -453,6 +474,286 @@ describe('useConnectToLastUsedWallet', () => {
     });
 
     // Should NOT call swapWallets because chains didn't swap simultaneously
+    expect(mockSwapWallets).not.toHaveBeenCalled();
+  });
+
+  it('should not cause infinite loop when swapping chains and wallets update', async () => {
+    const mockWallet1: WalletData = {
+      type: 'Evm',
+      address: '0x123',
+      currentAddress: '0x123',
+      error: '',
+      icon: '',
+      name: 'Wallet1',
+    };
+    const mockWallet2: WalletData = {
+      type: 'Solana',
+      address: '0x456',
+      currentAddress: '0x456',
+      error: '',
+      icon: '',
+      name: 'Wallet2',
+    };
+
+    const { rerender } = renderHook(
+      ({
+        source,
+        dest,
+        sending,
+        receiving,
+      }: {
+        source: Chain | undefined;
+        dest: Chain | undefined;
+        sending: WalletData | undefined;
+        receiving: WalletData | undefined;
+      }) => useConnectToLastUsedWallet(source, dest, sending, receiving),
+      {
+        initialProps: {
+          source: 'Ethereum' as Chain | undefined,
+          dest: 'Solana' as Chain | undefined,
+          sending: mockWallet1,
+          receiving: mockWallet2,
+        },
+      },
+    );
+
+    mockSwapWallets.mockClear();
+
+    rerender({
+      source: 'Solana' as Chain | undefined,
+      dest: 'Ethereum' as Chain | undefined,
+      sending: mockWallet1,
+      receiving: mockWallet2,
+    });
+
+    await waitFor(() => {
+      expect(mockSwapWallets).toHaveBeenCalledTimes(1);
+    });
+
+    mockSwapWallets.mockClear();
+    mockConnectWallet.mockClear();
+
+    rerender({
+      source: 'Solana' as Chain | undefined,
+      dest: 'Ethereum' as Chain | undefined,
+      sending: mockWallet2,
+      receiving: mockWallet1,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(mockSwapWallets).not.toHaveBeenCalled();
+    expect(mockConnectWallet).not.toHaveBeenCalled();
+  });
+
+  it('should not cause infinite loop when chains change without shouldConnect condition', async () => {
+    let renderCount = 0;
+
+    const { rerender } = renderHook(
+      ({
+        source,
+        dest,
+      }: {
+        source: Chain | undefined;
+        dest: Chain | undefined;
+      }) => {
+        renderCount++;
+        return useConnectToLastUsedWallet(source, dest);
+      },
+      {
+        initialProps: {
+          source: undefined as Chain | undefined,
+          dest: undefined as Chain | undefined,
+        },
+      },
+    );
+
+    const initialRenderCount = renderCount;
+
+    rerender({
+      source: 'Ethereum' as Chain | undefined,
+      dest: undefined as Chain | undefined,
+    });
+
+    await waitFor(() => {
+      expect(mockConnectWallet).toHaveBeenCalled();
+    });
+
+    mockConnectWallet.mockClear();
+
+    rerender({
+      source: undefined as Chain | undefined,
+      dest: undefined as Chain | undefined,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const finalRenderCount = renderCount;
+    expect(finalRenderCount - initialRenderCount).toBeLessThan(10);
+  });
+
+  it('should not cause infinite loop when wallet props update after swap', async () => {
+    const mockWallet1: WalletData = {
+      type: 'Evm',
+      address: '0x111',
+      currentAddress: '0x111',
+      error: '',
+      icon: '',
+      name: 'MetaMask',
+    };
+    const mockWallet2: WalletData = {
+      type: 'Solana',
+      address: '0x222',
+      currentAddress: '0x222',
+      error: '',
+      icon: '',
+      name: 'Phantom',
+    };
+
+    let effectRunCount = 0;
+    const { rerender } = renderHook(
+      ({
+        source,
+        dest,
+        sending,
+        receiving,
+      }: {
+        source: Chain | undefined;
+        dest: Chain | undefined;
+        sending: WalletData | undefined;
+        receiving: WalletData | undefined;
+      }) => {
+        effectRunCount++;
+        return useConnectToLastUsedWallet(source, dest, sending, receiving);
+      },
+      {
+        initialProps: {
+          source: 'Ethereum' as Chain | undefined,
+          dest: 'Solana' as Chain | undefined,
+          sending: mockWallet1,
+          receiving: mockWallet2,
+        },
+      },
+    );
+
+    const countBeforeSwap = effectRunCount;
+    mockSwapWallets.mockClear();
+
+    rerender({
+      source: 'Solana' as Chain | undefined,
+      dest: 'Ethereum' as Chain | undefined,
+      sending: mockWallet1,
+      receiving: mockWallet2,
+    });
+
+    await waitFor(() => {
+      expect(mockSwapWallets).toHaveBeenCalledTimes(1);
+    });
+
+    mockSwapWallets.mockClear();
+
+    rerender({
+      source: 'Solana' as Chain | undefined,
+      dest: 'Ethereum' as Chain | undefined,
+      sending: mockWallet2,
+      receiving: mockWallet1,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const totalEffectRuns = effectRunCount - countBeforeSwap;
+    expect(totalEffectRuns).toBeLessThan(10);
+    expect(mockSwapWallets).not.toHaveBeenCalled();
+  });
+
+  it('should not swap wallets when chains swap but wallets are cleared', async () => {
+    const sourceChain: Chain = 'Ethereum';
+    const destChain: Chain = 'Solana';
+
+    const { rerender } = renderHook(
+      ({
+        source,
+        dest,
+        sending,
+        receiving,
+      }: {
+        source: Chain | undefined;
+        dest: Chain | undefined;
+        sending: WalletData | undefined;
+        receiving: WalletData | undefined;
+      }) => useConnectToLastUsedWallet(source, dest, sending, receiving),
+      {
+        initialProps: {
+          source: sourceChain as Chain | undefined,
+          dest: destChain as Chain | undefined,
+          sending: undefined,
+          receiving: undefined,
+        },
+      },
+    );
+
+    mockSwapWallets.mockClear();
+
+    // Swap the chains but without wallets
+    rerender({
+      source: destChain as Chain | undefined,
+      dest: sourceChain as Chain | undefined,
+      sending: undefined,
+      receiving: undefined,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Should NOT call swapWallets when no wallets are connected
+    expect(mockSwapWallets).not.toHaveBeenCalled();
+  });
+
+  it('should reset chain refs when wallets are cleared', async () => {
+    const mockWallet: WalletData = {
+      type: 'Evm',
+      address: '0x123',
+      currentAddress: '0x123',
+      error: '',
+      icon: '',
+      name: 'MetaMask',
+    };
+
+    const { rerender } = renderHook(
+      ({ source, dest, sending, receiving }) =>
+        useConnectToLastUsedWallet(source, dest, sending, receiving),
+      {
+        initialProps: {
+          source: 'Ethereum' as Chain | undefined,
+          dest: 'Solana' as Chain | undefined,
+          sending: mockWallet as WalletData | undefined,
+          receiving: undefined as WalletData | undefined,
+        },
+      },
+    );
+
+    mockConnectWallet.mockClear();
+    mockSwapWallets.mockClear();
+
+    // Clear wallets
+    rerender({
+      source: 'Ethereum' as Chain | undefined,
+      dest: 'Solana' as Chain | undefined,
+      sending: undefined,
+      receiving: undefined,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Now change chains - should not trigger swap because refs were reset
+    rerender({
+      source: 'Polygon' as Chain | undefined,
+      dest: 'Sui' as Chain | undefined,
+      sending: undefined,
+      receiving: undefined,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     expect(mockSwapWallets).not.toHaveBeenCalled();
   });
 });

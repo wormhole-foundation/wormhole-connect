@@ -8,6 +8,7 @@ import type { Wallet, WormholeConnectWalletProvider } from 'utils/wallet';
 import { TransferWallet } from 'utils/wallet';
 import {
   clearWallet,
+  clearWallets as clearWalletsAction,
   connectWallet as connectSourceWallet,
   connectReceivingWallet,
   swapWallets as swapWalletsAction,
@@ -134,11 +135,17 @@ function WalletProvider({
     [dispatch, walletProvider],
   );
 
+  const clearWallets = useCallback(() => {
+    walletProvider.clearWallets();
+    dispatch(clearWalletsAction());
+  }, [dispatch, walletProvider]);
+
   const contextValue = useMemo(
     () => ({
       connectWallet,
       swapWallets,
       disconnectWallet,
+      clearWallets,
       walletProvider,
       isConnecting,
     }),
@@ -146,6 +153,7 @@ function WalletProvider({
       connectWallet,
       swapWallets,
       disconnectWallet,
+      clearWallets,
       walletProvider,
       isConnecting,
     ],

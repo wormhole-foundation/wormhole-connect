@@ -83,10 +83,6 @@ function setWalletConnection(
   setWalletInLocalStorage(chain, otherType, wallet, false);
 }
 
-function getWalletConnection(type: TransferWallet): Wallet | undefined {
-  return walletConnections[type]?.wallet;
-}
-
 async function connectWalletToChain(
   wallet: Wallet,
   chain: Chain,
@@ -192,25 +188,41 @@ async function connectWallet(
 }
 
 function disconnectWallet(chain: Chain, type: TransferWallet) {
-  const wallet = getWalletConnection(type);
+  const connection = walletConnections[type];
+
+  if (!connection || connection.chain !== chain) {
+    return;
+  }
+
   walletConnections[type] = undefined;
   removeWalletfromLocalStorage(chain, type);
 
+  const otherType =
+    type === TransferWallet.RECEIVING
+      ? TransferWallet.SENDING
+      : TransferWallet.RECEIVING;
+
+  removeWalletfromLocalStorage(chain, otherType);
+
   try {
-    if (wallet) {
-      // This will eventually emit a disconnect event
-      // which causes more problems than it solves
-      // as it does not distinguish between a disconnect
-      // by the user or browser extension
-      void wallet.disconnect();
-    }
+    void connection.wallet.disconnect();
   } catch (error) {
     console.error('Error disconnecting wallet:', error);
   }
 }
 
-function getWallet(_chain: Chain, type: TransferWallet): Wallet | null {
-  return getWalletConnection(type) || null;
+function getWallet(chain: Chain, type: TransferWallet): Wallet | null {
+  const connection = walletConnections[type];
+
+  if (!connection) {
+    return null;
+  }
+
+  if (connection.chain !== chain) {
+    return null;
+  }
+
+  return connection.wallet;
 }
 
 async function signAndSendTransactionInternal(
@@ -227,14 +239,6 @@ function swapWallets(): void {
 
   if (receiving?.wallet.getName() === ReadOnlyWallet.NAME) {
     receiving.wallet.disconnect();
-  }
-
-  if (sending) {
-    removeWalletfromLocalStorage(sending?.chain, TransferWallet.SENDING);
-  }
-
-  if (receiving) {
-    removeWalletfromLocalStorage(receiving?.chain, TransferWallet.RECEIVING);
   }
 
   const temp = walletConnections.sending;
@@ -311,10 +315,16 @@ function onWalletSelectCancelled(): void {
   }
 }
 
+function clearWallets() {
+  walletConnections.sending = undefined;
+  walletConnections.receiving = undefined;
+}
+
 export const internalWalletProvider = {
   isInternal: true as const,
   connectWallet,
   disconnectWallet,
+  clearWallets,
   getWallet,
   signAndSendTransaction: signAndSendTransactionInternal,
   swapWallets,
@@ -324,6 +334,7 @@ export const internalWalletProvider = {
   onWalletSelectCancelled,
 } satisfies WormholeConnectWalletProvider & {
   isInternal: true;
+  clearWallets: () => void;
   onWalletSelected: (
     wallet: Wallet,
     chain: Chain,

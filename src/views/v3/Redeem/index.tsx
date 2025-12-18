@@ -27,7 +27,6 @@ import useTrackTransfer from 'hooks/useTrackTransfer';
 import PoweredByIcon from 'icons/PoweredBy';
 import { SDKv2Signer } from 'routes/sdkv2/signer';
 import { setRoute } from 'store/router';
-import { clearTransfer } from 'store/transferInput';
 import { useUSDamountGetter } from 'hooks/useUSDamountGetter';
 import { interpretTransferError } from 'utils/errors';
 import {
@@ -861,7 +860,6 @@ function Redeem() {
         <Button
           variant="primary"
           onClick={() => {
-            dispatch(clearTransfer());
             dispatch(setRoute('bridge'));
           }}
         >
