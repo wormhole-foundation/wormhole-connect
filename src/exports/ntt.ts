@@ -27,7 +27,6 @@ const nttRoutes = (
 ): routes.RouteConstructor[] => {
   return [
     nttManualRoute(nc) as routes.RouteConstructor,
-    nttAutomaticRoute(nc) as routes.RouteConstructor,
     nttExecutorRoute({
       ntt: nc,
       ...executorOptions,
