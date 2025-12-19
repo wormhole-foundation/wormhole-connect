@@ -69,6 +69,19 @@ export interface WormholeConnectWalletProvider {
   ): Promise<Wallet | null>;
 
   /**
+   * Disconnect a wallet connection.
+   *
+   * @param chain - The chain to connect to
+   * @param type - Whether this is for sending or receiving
+   */
+  disconnectWallet(chain: Chain, type: TransferWallet): void;
+
+  /**
+   * Clear all wallet connections without disconnecting wallets.
+   */
+  clearWallets(): void;
+
+  /**
    * Get an already connected wallet without requiring user interaction.
    * This is a passive method that only returns existing connections.
    *

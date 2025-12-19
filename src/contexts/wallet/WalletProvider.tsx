@@ -8,6 +8,7 @@ import type { Wallet, WormholeConnectWalletProvider } from 'utils/wallet';
 import { TransferWallet } from 'utils/wallet';
 import {
   clearWallet,
+  clearWallets as clearWalletsAction,
   connectWallet as connectSourceWallet,
   connectReceivingWallet,
   swapWallets as swapWalletsAction,
@@ -52,12 +53,21 @@ function WalletProvider({
           (accounts.length && address && accounts[0] !== address);
 
         if (shouldDisconnect) {
-          wallet.disconnect();
+          walletProvider.disconnectWallet(chain, type);
         }
       };
 
       const handleDisconnect = () => {
-        dispatch(clearWallet(type));
+        if (wallet === walletProvider.getWallet(chain, type)) {
+          // This is still not entirely correct, but better than before.
+          // type can mutate, while closures maintain reference to old
+          // type. Ideally wallet sdk should expose another event
+          // called walletAppDisconnect, and then one can listen to that
+          // and clear all wallets here. Manual disconnect via our UI is
+          // handled via the disconnectWallet() function.
+          dispatch(clearWallet(type));
+        }
+
         wallet.off('disconnect', handleDisconnect);
         wallet.off('accountsChanged', handleAccountsChanged);
       };
@@ -75,7 +85,7 @@ function WalletProvider({
         },
       });
     },
-    [dispatch],
+    [dispatch, walletProvider],
   );
 
   useEffect(() => {
@@ -118,25 +128,24 @@ function WalletProvider({
   }, [dispatch, walletProvider]);
 
   const disconnectWallet = useCallback(
-    async (chain: Chain, type: TransferWallet): Promise<void> => {
-      try {
-        const wallet = walletProvider.getWallet(chain, type);
-        if (wallet) {
-          wallet.disconnect();
-        }
-      } catch (error) {
-        console.error('Error disconnecting wallet:', error);
-      }
+    (chain: Chain, type: TransferWallet) => {
+      walletProvider.disconnectWallet(chain, type);
       dispatch(clearWallet(type));
     },
     [dispatch, walletProvider],
   );
+
+  const clearWallets = useCallback(() => {
+    walletProvider.clearWallets();
+    dispatch(clearWalletsAction());
+  }, [dispatch, walletProvider]);
 
   const contextValue = useMemo(
     () => ({
       connectWallet,
       swapWallets,
       disconnectWallet,
+      clearWallets,
       walletProvider,
       isConnecting,
     }),
@@ -144,6 +153,7 @@ function WalletProvider({
       connectWallet,
       swapWallets,
       disconnectWallet,
+      clearWallets,
       walletProvider,
       isConnecting,
     ],

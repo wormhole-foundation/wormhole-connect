@@ -40,12 +40,28 @@ vi.mock('store/wallet', () => ({
     type: 'wallet/clearWallet',
     payload: type,
   })),
+  clearWallets: vi.fn(() => ({
+    type: 'wallet/clearWallets',
+  })),
   swapWallets: vi.fn(() => ({
     type: 'wallet/swapWallets',
   })),
 }));
 
 describe('WalletContext with InternalWalletProvider', () => {
+  const createMockWallet = (name: string, address?: string) => ({
+    getAddress: vi.fn(
+      () => address || '0x1234567890abcdef1234567890abcdef12345678',
+    ),
+    getName: vi.fn(() => name),
+    getIcon: vi.fn(() => `${name.toLowerCase()}-icon.png`),
+    getUrl: vi.fn(() => `https://${name.toLowerCase()}.com`),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+  });
+
   const mockSendingWallet = {
     getAddress: vi.fn(() => '0xE104483eb3a823F244ACE1553ce7Ba3bb2CBCfF3'),
     getName: vi.fn(() => 'TestSendingWallet'),
@@ -171,5 +187,48 @@ describe('WalletContext with InternalWalletProvider', () => {
 
     expect(mockReceivingWallet.disconnect).toHaveBeenCalled();
     expect(clearWallet).toHaveBeenCalledWith(TransferWallet.RECEIVING);
+  });
+
+  it('should clear all wallets when clearWallets is called', async () => {
+    const sendingWallet = createMockWallet('MetaMask');
+    const receivingWallet = createMockWallet('Phantom');
+
+    const { result } = renderHook(() => useContext(WalletContext), {
+      wrapper,
+    });
+
+    const { clearWallets: clearWalletsAction } = await import('store/wallet');
+
+    // Connect both wallets
+    await act(async () => {
+      const sendingPromise = result.current!.connectWallet(
+        'Ethereum',
+        TransferWallet.SENDING,
+      );
+      internalWalletProvider.onWalletSelected(
+        sendingWallet as any,
+        'Ethereum',
+        TransferWallet.SENDING,
+      );
+      await sendingPromise;
+
+      const receivingPromise = result.current!.connectWallet(
+        'Solana',
+        TransferWallet.RECEIVING,
+      );
+      internalWalletProvider.onWalletSelected(
+        receivingWallet as any,
+        'Solana',
+        TransferWallet.RECEIVING,
+      );
+      await receivingPromise;
+    });
+
+    // Clear all wallets
+    await act(async () => {
+      result.current!.clearWallets();
+    });
+
+    expect(clearWalletsAction).toHaveBeenCalled();
   });
 });

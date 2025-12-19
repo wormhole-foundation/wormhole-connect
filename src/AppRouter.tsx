@@ -14,8 +14,8 @@ import config from './config';
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import { setRoute } from './store/router';
-import { clearWallets } from './store/wallet';
 import { useExternalSearch } from 'hooks/useExternalSearch';
+import useWalletProvider from 'hooks/useWalletProvider';
 
 import BridgeV3 from 'views/v3/Bridge';
 import RedeemV3 from 'views/v3/Redeem';
@@ -28,6 +28,7 @@ const AppRouterContent = () => {
   const routeContext = useContext(RouteContext);
   const route = useSelector((state: RootState) => state.router.route);
   const dispatch = useDispatch();
+  const { clearWallets } = useWalletProvider();
 
   const prevRoute = usePrevious(route);
   const { hasExternalSearch } = useExternalSearch();
@@ -37,8 +38,8 @@ const AppRouterContent = () => {
     const bridgeRoute = 'bridge';
     // reset redeem state on leave
     if (prevRoute === redeemRoute && route !== redeemRoute) {
+      clearWallets();
       dispatch(clearRedeem());
-      dispatch(clearWallets());
       routeContext.clear();
     }
     // reset transfer state on leave
@@ -46,7 +47,7 @@ const AppRouterContent = () => {
     if (isEnteringBridge && prevRoute !== 'history') {
       dispatch(clearTransfer());
     }
-  }, [route, prevRoute, dispatch, routeContext]);
+  }, [route, prevRoute, dispatch, routeContext, clearWallets]);
 
   useEffect(() => {
     if (hasExternalSearch) {

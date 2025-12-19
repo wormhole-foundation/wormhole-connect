@@ -40,7 +40,7 @@ import {
 import { TransferWallet } from 'utils/wallet';
 import TransactionDetails from 'views/v3/Redeem/TransactionDetails';
 import WalletPicker from 'views/v3/Bridge/WalletConnector/WalletPicker';
-import { useConnectToLastUsedWallet } from 'hooks/useConnectToLastUsedWallet';
+import useConnectToLastUsedWallet from 'hooks/useConnectToLastUsedWallet';
 import useWalletProvider from 'hooks/useWalletProvider';
 import { isSvmChain } from 'utils/solana';
 
