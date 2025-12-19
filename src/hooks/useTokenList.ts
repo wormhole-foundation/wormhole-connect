@@ -19,6 +19,7 @@ interface UseTokenListParams {
   selectedChainConfig: ChainConfig;
   selectedToken?: Token;
   sourceToken?: Token;
+  destToken?: Token;
   wallet: WalletData;
   balances: Balances;
   isSourceList?: boolean; // true for source tokens, false for destination tokens
@@ -30,6 +31,7 @@ export const useTokenList = ({
   selectedChainConfig,
   selectedToken,
   sourceToken,
+  destToken,
   wallet,
   balances,
   isSourceList = false,
@@ -42,12 +44,17 @@ export const useTokenList = ({
     // Apply search input - find tokens with exact match of address, or partial match of symbol
     let tokens = applyTokenSearch(tokenList, searchQuery, selectedChainConfig);
 
+    // For bidirectional symbol matching: use opposite side's token
+    // Source list shows tokens matching dest token's symbol at top
+    // Dest list shows tokens matching source token's symbol at top
+    const oppositeToken = isSourceList ? destToken : sourceToken;
+
     tokens = sortTokensByPreference(
       tokens,
       selectedToken,
       balances,
       getTokenPrice,
-      sourceToken,
+      oppositeToken,
     );
 
     // Apply token whitelist filtering if configured
@@ -75,5 +82,6 @@ export const useTokenList = ({
     lastTokenPriceUpdate,
     isSourceList,
     sourceToken,
+    destToken,
   ]);
 };

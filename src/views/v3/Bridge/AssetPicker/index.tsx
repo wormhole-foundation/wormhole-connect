@@ -42,6 +42,7 @@ type Props = {
   chainList: Array<ChainConfig>;
   token?: Token;
   sourceToken?: Token;
+  destToken?: Token;
   tokenList?: Array<Token> | undefined;
   isFetchingQuotes?: boolean;
   isFetchingTokens?: boolean;
@@ -87,6 +88,7 @@ function AssetPicker(props: Props) {
     selectedChainConfig: props.chain ? config.chains[props.chain] : ({} as any),
     selectedToken: props.token,
     sourceToken: props.sourceToken,
+    destToken: props.destToken,
     wallet: props.wallet,
     balances: props.balances,
     isSourceList: props.isSource, // true for source, false for destination

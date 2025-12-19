@@ -540,6 +540,7 @@ function Bridge(props: BridgeProps) {
                 chain={sourceChain}
                 chainList={supportedSourceChains}
                 token={sourceToken}
+                destToken={destToken}
                 tokenList={sourceTokens}
                 setChain={handleSourceChainChange}
                 setToken={handleSourceTokenChange}

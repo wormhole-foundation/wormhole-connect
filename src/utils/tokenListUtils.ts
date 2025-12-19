@@ -19,17 +19,17 @@ import type { Balances } from './wallet/types';
 export const getTokenPreferenceScore = (
   token: Token,
   selectedToken?: Token,
-  sourceToken?: Token,
+  oppositeToken?: Token,
 ): number => {
   // Currently selected token should be shown first
   if (selectedToken && isSameToken(selectedToken, token)) {
     return 5;
   }
-  // For destination picker: prioritize tokens with same symbol as source token
-  // Only prioritize native (non-wrapped) destination tokens
+  // Prioritize tokens with same symbol as the opposite side's token
+  // Exclude Wormhole-wrapped tokens from this preference
   if (
-    sourceToken &&
-    token.symbol === sourceToken.symbol &&
+    oppositeToken &&
+    token.symbol === oppositeToken.symbol &&
     !token.isTokenBridgeWrappedToken
   ) {
     return 4;
@@ -100,11 +100,11 @@ export const sortTokensByPreference = (
   selectedToken: Token | undefined,
   balances: Balances,
   getTokenPrice: (token: Token) => number | undefined,
-  sourceToken?: Token,
+  oppositeToken?: Token,
 ): Token[] => {
   return tokens.sort((a, b) => {
-    const scoreA = getTokenPreferenceScore(a, selectedToken, sourceToken);
-    const scoreB = getTokenPreferenceScore(b, selectedToken, sourceToken);
+    const scoreA = getTokenPreferenceScore(a, selectedToken, oppositeToken);
+    const scoreB = getTokenPreferenceScore(b, selectedToken, oppositeToken);
     if (scoreA > scoreB) return -1;
     if (scoreB > scoreA) return 1;
 
