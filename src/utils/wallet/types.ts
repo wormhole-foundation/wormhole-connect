@@ -73,7 +73,6 @@ export interface WormholeConnectWalletProvider {
    *
    * @param chain - The chain to connect to
    * @param type - Whether this is for sending or receiving
-   * @returns Promise resolving to the connected wallet, or null if connection failed/was cancelled
    */
   disconnectWallet(chain: Chain, type: TransferWallet): void;
 

@@ -666,7 +666,7 @@ describe('useConnectToLastUsedWallet', () => {
     expect(mockSwapWallets).not.toHaveBeenCalled();
   });
 
-  it('should not swap wallets when chains swap but wallets are cleared', async () => {
+  it('should swap wallets when chains swap even if no wallets are connected', async () => {
     const sourceChain: Chain = 'Ethereum';
     const destChain: Chain = 'Solana';
 
@@ -704,8 +704,8 @@ describe('useConnectToLastUsedWallet', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // Should NOT call swapWallets when no wallets are connected
-    expect(mockSwapWallets).not.toHaveBeenCalled();
+    // Should still call swapWallets to update localStorage even when no wallets connected
+    expect(mockSwapWallets).toHaveBeenCalledTimes(1);
   });
 
   it('should reset chain refs when wallets are cleared', async () => {

@@ -43,7 +43,7 @@ function useConnectToLastUsedWallet(
       return;
     }
 
-    // Connect to source chain if:
+    // Connect to source wallet if:
     // 1. Source chain changed, OR
     // 2. Receiving wallet connected but no sending wallet (auto-connect other side)
     const shouldConnectSource =
@@ -52,7 +52,7 @@ function useConnectToLastUsedWallet(
         receivingWallet?.address &&
         !sendingWallet?.address);
 
-    // Connect to destination chain if:
+    // Connect to destination wallet if:
     // 1. Destination chain changed, OR
     // 2. Sending wallet connected but no receiving wallet (auto-connect other side)
     const shouldConnectDest =
