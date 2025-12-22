@@ -48,8 +48,13 @@ import type { RootState } from 'store';
 import TxCompleteIcon from 'icons/TxComplete';
 import TxWarningIcon from 'icons/TxWarning';
 import TxFailedIcon from 'icons/TxFailed';
-import { getAssociatedTokenAddressSync, NATIVE_MINT } from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
+import {
+  getAssociatedTokenAddressSync,
+  NATIVE_MINT,
+  TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { SolanaPlatform } from '@wormhole-foundation/sdk-solana';
 import TxReadyForClaim from 'icons/TxReadyForClaim';
 import { useGetRedeemTokens } from 'hooks/useGetTokens';
 import { tokenIdFromTuple } from 'config/tokens';
@@ -75,6 +80,8 @@ function Redeem() {
   const [etaExpired, setEtaExpired] = useState(false);
 
   const [isWalletSidebarOpen, setIsWalletSidebarOpen] = useState(false);
+  const [tokenProgramId, setTokenProgramId] =
+    useState<PublicKey>(TOKEN_PROGRAM_ID);
 
   const routeContext = React.useContext(RouteContext);
   const { walletProvider, connectWallet } = useWalletProvider();
@@ -210,6 +217,36 @@ function Redeem() {
     () => tokenIdFromTuple(receivedToken),
     [receivedToken],
   );
+
+  // Fetch the token program for the received token (needed for Token-2022 support)
+  useEffect(() => {
+    if (!isSvmChain(toChain) || !receivedTokenId) {
+      return;
+    }
+
+    const fetchTokenProgram = async () => {
+      try {
+        const rpcUrl = config.rpcs[toChain];
+        if (!rpcUrl) return;
+
+        const connection = new Connection(rpcUrl);
+        const mintAddress = isNative(receivedTokenId.address)
+          ? NATIVE_MINT
+          : new PublicKey(receivedTokenId.address.toString());
+
+        const programId = await SolanaPlatform.getTokenProgramId(
+          connection,
+          mintAddress,
+        );
+        setTokenProgramId(programId);
+      } catch (e) {
+        console.error('Failed to fetch token program:', e);
+      }
+    };
+
+    fetchTokenProgram();
+  }, [toChain, receivedTokenId]);
+
   // Start tracking changes in the transaction
   const txTrackingResult = useTrackTransfer({
     receipt,
@@ -621,6 +658,7 @@ function Redeem() {
         'ManualCCTP',
         'CCTPv2FastExecutorRoute',
         'CCTPv2StandardExecutorRoute',
+        'BaseBridgeRoute',
       ].includes(routeName)
     ) {
       const { address: receiveTokenAddress } = tokenIdFromTuple(receivedToken);
@@ -632,6 +670,8 @@ function Redeem() {
             : receiveTokenAddress.toString(),
         ),
         new PublicKey(receivingWallet.address),
+        true,
+        tokenProgramId,
       );
       if (!ata.equals(new PublicKey(recipient))) {
         setClaimError('Not connected to the receiving wallet');
@@ -658,6 +698,7 @@ function Redeem() {
     isResumeTx,
     routeName,
     receivedToken,
+    tokenProgramId,
   ]);
 
   // Callback for claim action in Manual route transactions
@@ -740,6 +781,7 @@ function Redeem() {
       // Kick it up to the main useEffect where we handle receipt state changes
       setUnhandledManualClaimError(e);
       setIsClaimInProgress(false);
+      console.error(e);
     }
   }, [
     details,

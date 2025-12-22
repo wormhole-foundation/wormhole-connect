@@ -170,4 +170,46 @@ describe('isFrankensteinToken', () => {
       expect(isFrankensteinToken(WMONSolana, 'Solana')).toBe(true);
     });
   });
+
+  describe('WTT transfers to Base', () => {
+    it('should return true for any WTT token on Base (Base bridge should be used instead)', () => {
+      const ethereumWETH = new Token({
+        chain: 'Ethereum',
+        address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        decimals: 18,
+        symbol: 'WETH',
+      });
+
+      const wrappedOnBase = new Token({
+        chain: 'Base',
+        address: '0x1234567890123456789012345678901234567890',
+        decimals: 18,
+        symbol: 'WETH',
+        tokenBridgeOriginalTokenId: ethereumWETH.tokenId,
+      });
+
+      expect(isFrankensteinToken(wrappedOnBase, 'Base')).toBe(true);
+    });
+
+    it('should return true for any WTT token on BaseSepolia', () => {
+      const sepoliaWETH = new Token({
+        chain: 'Sepolia',
+        address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        decimals: 18,
+        symbol: 'WETH',
+      });
+
+      const wrappedOnBaseSepolia = new Token({
+        chain: 'BaseSepolia',
+        address: '0x1234567890123456789012345678901234567890',
+        decimals: 18,
+        symbol: 'WETH',
+        tokenBridgeOriginalTokenId: sepoliaWETH.tokenId,
+      });
+
+      expect(isFrankensteinToken(wrappedOnBaseSepolia, 'BaseSepolia')).toBe(
+        true,
+      );
+    });
+  });
 });

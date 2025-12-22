@@ -247,6 +247,11 @@ export default (routes: string[], params: Params): HookReturn => {
         continue;
       }
 
+      // Skip value loss filtering for BaseBridgeRoute (value should be preserved 1:1)
+      if (name === 'BaseBridgeRoute') {
+        continue;
+      }
+
       const quote = filtered[name];
 
       if (quote !== undefined && quote.success) {

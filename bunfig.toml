@@ -50,6 +50,7 @@ minimumReleaseAgeExcludes = [
   "@wormhole-foundation/wormhole-connect",
   # @wormhole-labs packages
   "@wormhole-labs/cctp-executor-route",
+  "@wormhole-labs/base-bridge-executor-route",
   "@wormhole-labs/wallet-aggregator-aptos",
   "@wormhole-labs/wallet-aggregator-core",
   "@wormhole-labs/wallet-aggregator-evm",
