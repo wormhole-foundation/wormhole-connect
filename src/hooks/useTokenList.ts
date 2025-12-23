@@ -9,8 +9,7 @@ import {
   sortTokensByPreference,
   applyTokenWhitelist,
   applyCustomTokenSupport,
-  applyShittokenFilter,
-  applyCoingeckoFilter,
+  applySpamFilter,
 } from 'utils/tokenListUtils';
 import config from 'config';
 import { useCoingeckoTokenList } from './useCoingeckoTokenList';
@@ -70,13 +69,8 @@ export const useTokenList = ({
 
     // For source list, we filter further because we're loading arbitrary tokens in their wallet
     if (isSourceList && !searchQuery && config.network === 'Mainnet') {
-      // Use CoinGecko filter if available, otherwise fallback to old filter
-      if (coingeckoTokens && coingeckoTokens.size > 0) {
-        tokens = applyCoingeckoFilter(tokens, coingeckoTokens);
-      } else {
-        // Fallback to old filter while CoinGecko list is loading or unavailable
-        tokens = applyShittokenFilter(tokens);
-      }
+      // Apply spam filter (uses CoinGecko data if available, falls back to basic filtering)
+      tokens = applySpamFilter(tokens, coingeckoTokens || undefined);
     }
 
     return tokens;

@@ -246,6 +246,17 @@ export interface ChainConfig {
    * - Solana: '0.01' ($1.3 notional)
    */
   gasReserve?: string;
+  /**
+   * CoinGecko platform identifier for token lists and prices.
+   * Can be chain ID number (EVM) or platform name string.
+   * Examples: 1 (Ethereum), 56 (BSC), 'solana', 'binance-smart-chain'
+   */
+  coingeckoPlatformId?: number | string;
+  /**
+   * CoinGecko coin ID for the chain's native token price.
+   * Examples: 'ethereum', 'solana', 'binancecoin'
+   */
+  coingeckoNativeTokenId?: string;
 }
 
 export type ChainsConfig = {

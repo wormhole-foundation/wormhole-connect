@@ -190,23 +190,9 @@ export const applyCustomTokenSupport = (
   return tokens.filter((t) => filter(t, sourceToken, tokenListType));
 };
 
-export const applyShittokenFilter = (tokens: Token[]): Token[] => {
-  return tokens.filter((token) => {
-    const isOk =
-      token.isNativeGasToken ||
-      token.isBuiltin ||
-      token.coingeckoWebId ||
-      token.isTokenBridgeWrappedToken ||
-      isNttToken(token);
-    if (!isOk)
-      console.debug(`Filtering out token for likely being spam`, token);
-    return isOk;
-  });
-};
-
-export const applyCoingeckoFilter = (
+export const applySpamFilter = (
   tokens: Token[],
-  coingeckoAddresses: Set<string>,
+  coingeckoAddresses?: Set<string>,
 ): Token[] => {
   return tokens.filter((token) => {
     // Always include NTT tokens
@@ -219,29 +205,50 @@ export const applyCoingeckoFilter = (
       return true;
     }
 
-    // For Token Bridge wrapped tokens, check the original token
-    if (token.isTokenBridgeWrappedToken && token.tokenBridgeOriginalTokenId) {
-      const originalToken = config.tokens.get(token.tokenBridgeOriginalTokenId);
-      if (originalToken) {
-        const originalAddress = originalToken.addressString.toLowerCase();
-        const isInList = coingeckoAddresses.has(originalAddress);
-        if (!isInList) {
-          console.debug(
-            `Filtering out wrapped token (original not in CoinGecko)`,
-            token,
-          );
-        }
-        return isInList;
-      }
+    // Always include built-in tokens configured in Connect
+    if (token.isBuiltin) {
+      return true;
     }
 
-    // For regular tokens, check if address is in CoinGecko list
-    const address = token.addressString.toLowerCase();
-    const isInList = coingeckoAddresses.has(address);
-    if (!isInList) {
-      console.debug(`Filtering out token (not in CoinGecko list)`, token);
+    // If CoinGecko data available, use strict filtering
+    if (coingeckoAddresses && coingeckoAddresses.size > 0) {
+      // For Token Bridge wrapped tokens, check the original token
+      if (token.isTokenBridgeWrappedToken && token.tokenBridgeOriginalTokenId) {
+        const originalToken = config.tokens.get(
+          token.tokenBridgeOriginalTokenId,
+        );
+        if (originalToken) {
+          // TODO: Use chain-aware address normalization instead of toLowerCase()
+          // This breaks Solana/Sui tokens which have case-sensitive addresses
+          const originalAddress = originalToken.addressString.toLowerCase();
+          const isInList = coingeckoAddresses.has(originalAddress);
+          if (!isInList) {
+            console.debug(
+              `Filtering out wrapped token (original not in CoinGecko)`,
+              token,
+            );
+          }
+          return isInList;
+        }
+      }
+
+      // For regular tokens, check if address is in CoinGecko list
+      // TODO: Use chain-aware address normalization instead of toLowerCase()
+      // This breaks Solana/Sui tokens which have case-sensitive addresses
+      const address = token.addressString.toLowerCase();
+      const isInList = coingeckoAddresses.has(address);
+      if (!isInList) {
+        console.debug(`Filtering out token (not in CoinGecko list)`, token);
+      }
+      return isInList;
     }
-    return isInList;
+
+    // Fallback to basic filtering when CoinGecko data unavailable
+    const isOk = token.coingeckoWebId || token.isTokenBridgeWrappedToken;
+    if (!isOk) {
+      console.debug(`Filtering out token for likely being spam`, token);
+    }
+    return isOk;
   });
 };
 

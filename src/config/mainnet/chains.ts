@@ -9,6 +9,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Ethereum',
     symbol: 'ETH',
     gasReserve: '0.01',
+    coingeckoPlatformId: 1,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Bsc: {
     displayName: 'BNB',
@@ -18,6 +20,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Bsc',
     symbol: 'BSC',
     gasReserve: '0.01',
+    coingeckoPlatformId: 56,
+    coingeckoNativeTokenId: 'binancecoin',
   },
   Polygon: {
     displayName: 'Polygon',
@@ -27,6 +31,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Polygon',
     symbol: 'POL',
     gasReserve: '0.01',
+    coingeckoPlatformId: 137,
+    coingeckoNativeTokenId: 'polygon-ecosystem-token',
   },
   Avalanche: {
     displayName: 'Avalanche',
@@ -36,6 +42,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Avalanche',
     symbol: 'AVAX',
     gasReserve: '0.01',
+    coingeckoPlatformId: 43114,
+    coingeckoNativeTokenId: 'avalanche-2',
   },
   Fantom: {
     displayName: 'Fantom',
@@ -44,6 +52,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Fantom Explorer',
     icon: 'Fantom',
     symbol: 'FTM',
+    coingeckoPlatformId: 250,
+    coingeckoNativeTokenId: 'fantom',
   },
   Celo: {
     displayName: 'Celo',
@@ -53,6 +63,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Celo',
     symbol: 'CELO',
     gasReserve: '0.01',
+    coingeckoPlatformId: 42220,
+    coingeckoNativeTokenId: 'celo',
   },
   Moonbeam: {
     displayName: 'Moonbeam',
@@ -62,6 +74,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Moonbeam',
     symbol: 'GLMR',
     gasReserve: '0.03',
+    coingeckoPlatformId: 1284,
+    coingeckoNativeTokenId: 'moonbeam',
   },
   Solana: {
     displayName: 'Solana',
@@ -71,6 +85,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Solana',
     symbol: 'SOL',
     gasReserve: '0.01',
+    coingeckoPlatformId: 'solana',
+    coingeckoNativeTokenId: 'solana',
   },
   Sui: {
     displayName: 'Sui',
@@ -80,6 +96,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Sui',
     symbol: 'SUI',
     gasReserve: '0.01',
+    coingeckoPlatformId: 'sui',
+    coingeckoNativeTokenId: 'sui',
   },
   Aptos: {
     displayName: 'Aptos',
@@ -89,6 +107,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Aptos',
     symbol: 'APT',
     gasReserve: '0.01',
+    coingeckoPlatformId: 'aptos',
+    coingeckoNativeTokenId: 'aptos',
   },
   Base: {
     displayName: 'Base',
@@ -98,6 +118,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Base',
     symbol: 'BASE',
     gasReserve: '0.001',
+    coingeckoPlatformId: 8453,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Arbitrum: {
     displayName: 'Arbitrum',
@@ -107,6 +129,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Arbitrum',
     symbol: 'ARB',
     gasReserve: '0.001',
+    coingeckoPlatformId: 42161,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Optimism: {
     displayName: 'Optimism',
@@ -116,6 +140,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Optimism',
     symbol: 'OP',
     gasReserve: '0.001',
+    coingeckoPlatformId: 10,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Klaytn: {
     displayName: 'Kaia',
@@ -125,6 +151,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Klaytn',
     symbol: 'KAIA',
     gasReserve: '0.01',
+    coingeckoPlatformId: 8217,
+    coingeckoNativeTokenId: 'kaia',
   },
   Scroll: {
     displayName: 'Scroll',
@@ -134,6 +162,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Scroll',
     symbol: 'SCR',
     gasReserve: '0.001',
+    coingeckoPlatformId: 534352,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Xlayer: {
     displayName: 'X Layer',
@@ -143,6 +173,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Xlayer',
     symbol: 'OKX',
     gasReserve: '0.001',
+    coingeckoPlatformId: 196,
+    coingeckoNativeTokenId: 'okb',
   },
   Mantle: {
     displayName: 'Mantle',
@@ -152,6 +184,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Mantle',
     symbol: 'MNT',
     gasReserve: '0.001',
+    coingeckoPlatformId: 5000,
+    coingeckoNativeTokenId: 'mantle',
   },
   Worldchain: {
     displayName: 'World Chain',
@@ -160,6 +194,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'World Scan',
     icon: 'Worldchain',
     symbol: 'WORLD',
+    coingeckoPlatformId: 480,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Unichain: {
     displayName: 'Unichain',
@@ -168,6 +204,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Uniscan',
     icon: 'Unichain',
     symbol: 'UNI',
+    coingeckoPlatformId: 1301,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Berachain: {
     displayName: 'Berachain',
@@ -176,6 +214,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Berascan',
     icon: 'Berachain',
     symbol: 'BERA',
+    coingeckoPlatformId: 80084,
+    coingeckoNativeTokenId: 'berachain-bera',
   },
   Ink: {
     displayName: 'Ink',
@@ -184,6 +224,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Ink Explorer',
     icon: 'Ink',
     symbol: 'INK',
+    coingeckoPlatformId: 'ink',
+    coingeckoNativeTokenId: 'ethereum',
   },
   Linea: {
     displayName: 'Linea',
@@ -192,6 +234,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Lineascan',
     icon: 'Linea',
     symbol: 'LINEA',
+    coingeckoPlatformId: 59144,
+    coingeckoNativeTokenId: 'ethereum',
   },
   Sonic: {
     displayName: 'Sonic',
@@ -200,6 +244,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Sonicscan',
     icon: 'Sonic',
     symbol: 'S',
+    coingeckoPlatformId: 146,
+    coingeckoNativeTokenId: 'sonic',
   },
   Mezo: {
     displayName: 'Mezo',
@@ -208,6 +254,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Mezo Explorer',
     icon: 'Mezo',
     symbol: 'BTC',
+    coingeckoPlatformId: 'mezo',
+    coingeckoNativeTokenId: 'tbtc',
   },
   Seievm: {
     displayName: 'SeiEVM',
@@ -216,6 +264,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Seitrace',
     icon: 'Seievm',
     symbol: 'SEI',
+    coingeckoPlatformId: 1329,
+    coingeckoNativeTokenId: 'sei',
   },
   Plume: {
     displayName: 'Plume',
@@ -224,6 +274,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Plume Explorer',
     icon: 'Plume',
     symbol: 'PLUME',
+    coingeckoPlatformId: 'plume-network',
+    coingeckoNativeTokenId: 'plume',
   },
   HyperEVM: {
     displayName: 'HyperEVM',
@@ -232,6 +284,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'HyperEVMScan',
     icon: 'HyperEVM',
     symbol: 'HYPE',
+    coingeckoPlatformId: 'hyperevm',
+    coingeckoNativeTokenId: 'hyperliquid',
   },
   HyperCore: {
     displayName: 'HyperCore',
@@ -240,6 +294,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Hyperliquid Explorer',
     icon: 'HyperCore',
     symbol: 'HyperCore',
+    coingeckoPlatformId: 'hypercore',
+    coingeckoNativeTokenId: 'usd-coin',
   },
   XRPLEVM: {
     displayName: 'XRPL EVM',
@@ -249,6 +305,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'XRPLEVM',
     symbol: 'XRP',
     gasReserve: '0.01',
+    coingeckoPlatformId: 'xrpl-evm-sidechain',
+    coingeckoNativeTokenId: 'xrp',
   },
   CreditCoin: {
     displayName: 'Creditcoin',
@@ -257,6 +315,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerName: 'Blockscout',
     icon: 'CreditCoin',
     symbol: 'CTC',
+    coingeckoPlatformId: 'creditcoin',
+    coingeckoNativeTokenId: 'creditcoin',
   },
   Fogo: {
     displayName: 'Fogo',
@@ -266,6 +326,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Fogo',
     symbol: 'FOGO',
     gasReserve: '0.01',
+    coingeckoPlatformId: 'fogo',
+    coingeckoNativeTokenId: 'fogo',
   },
   Monad: {
     displayName: 'Monad',
@@ -275,6 +337,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Monad',
     symbol: 'MON',
     gasReserve: '0.01',
+    coingeckoPlatformId: 'monad',
+    coingeckoNativeTokenId: 'monad',
   },
   MegaETH: {
     displayName: 'MegaETH',
@@ -284,5 +348,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'MegaETH',
     symbol: 'MEGA',
     gasReserve: '0.001',
+    coingeckoPlatformId: 'megaeth',
+    coingeckoNativeTokenId: 'ethereum',
   },
 };

@@ -5,7 +5,7 @@ import {
   calculateTokenUSDBalance,
   sortTokensByPreference,
   applyCustomTokenSupport,
-  applyShittokenFilter,
+  applySpamFilter,
   filterTokensByBalance,
 } from './tokenListUtils';
 import type { Token } from 'config/tokens';
@@ -395,19 +395,19 @@ describe('tokenListUtils', () => {
     });
   });
 
-  describe('applyShittokenFilter', () => {
-    it('should filter out unknown tokens', () => {
+  describe('applySpamFilter', () => {
+    it('should filter out unknown tokens (basic mode)', () => {
       const unknownToken = createMockToken({
         isNativeGasToken: false,
         isBuiltin: false,
         isTokenBridgeWrappedToken: false,
       });
       const tokens = [unknownToken];
-      const filtered = applyShittokenFilter(tokens);
+      const filtered = applySpamFilter(tokens);
       expect(filtered).toHaveLength(0);
     });
 
-    it('should filter mixed token list correctly', () => {
+    it('should filter mixed token list correctly (basic mode)', () => {
       const nativeToken = createMockToken({
         isNativeGasToken: true,
         symbol: 'ETH',
@@ -419,12 +419,56 @@ describe('tokenListUtils', () => {
       });
 
       const tokens = [unknownToken, nativeToken, verifiedToken];
-      const filtered = applyShittokenFilter(tokens);
+      const filtered = applySpamFilter(tokens);
 
       expect(filtered).toHaveLength(2);
       expect(filtered.find((t) => t.symbol === 'SCAM')).toBeUndefined();
       expect(filtered.find((t) => t.symbol === 'ETH')).toBeDefined();
       expect(filtered.find((t) => t.symbol === 'USDC')).toBeDefined();
+    });
+
+    it('should use strict filtering when CoinGecko data provided', () => {
+      const nativeToken = createMockToken({
+        isNativeGasToken: true,
+        symbol: 'ETH',
+        addressString: 'native',
+      });
+      const verifiedToken = createMockToken({
+        symbol: 'USDC',
+        addressString: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      });
+      const spamToken = createMockToken({
+        symbol: 'SCAM',
+        addressString: '0xdeadbeef',
+      });
+
+      const coingeckoAddresses = new Set([
+        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
+      ]);
+
+      const tokens = [spamToken, nativeToken, verifiedToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(2);
+      expect(filtered.find((t) => t.symbol === 'SCAM')).toBeUndefined();
+      expect(filtered.find((t) => t.symbol === 'ETH')).toBeDefined();
+      expect(filtered.find((t) => t.symbol === 'USDC')).toBeDefined();
+    });
+
+    it('should always include built-in tokens even with CoinGecko filtering', () => {
+      const builtinToken = createMockToken({
+        symbol: 'CUSTOM',
+        addressString: '0xcustom',
+        isBuiltin: true,
+      });
+
+      const coingeckoAddresses = new Set([]); // Empty - token not in CoinGecko
+
+      const tokens = [builtinToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(builtinToken);
     });
   });
 

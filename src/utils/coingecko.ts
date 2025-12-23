@@ -11,97 +11,6 @@ const COINGECKO_TOKEN_LIST_URL = 'https://tokens.coingecko.com';
 const TOKEN_LIST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 const ASSET_PLATFORMS_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-// Map our Chain types to their numeric chain IDs or platform identifiers on CoinGecko
-// These will be used to match against CoinGecko's asset_platforms API
-const CHAIN_TO_COINGECKO_ID: Partial<Record<Chain, number | string>> = {
-  Ethereum: 1,
-  Bsc: 56,
-  Polygon: 137,
-  Avalanche: 43114,
-  Fantom: 250,
-  Celo: 42220,
-  Moonbeam: 1284,
-  Base: 8453,
-  Arbitrum: 42161,
-  Optimism: 10,
-  Klaytn: 8217,
-  Scroll: 534352,
-  Xlayer: 196,
-  Mantle: 5000,
-  Worldchain: 480,
-  Unichain: 1301,
-  Berachain: 80084,
-  Ink: 'ink',
-  Linea: 59144,
-  Sonic: 146,
-  Mezo: 'mezo',
-  Seievm: 1329,
-  Plume: 'plume-network',
-  HyperEVM: 'hyperevm',
-  HyperCore: 'hypercore',
-  XRPLEVM: 'xrpl-evm-sidechain',
-  CreditCoin: 'creditcoin',
-  Fogo: 'fogo',
-  Solana: 'solana',
-  Sui: 'sui',
-  Aptos: 'aptos',
-};
-
-const NATIVE_TOKEN_IDS: Partial<Record<Chain, string>> = {
-  Solana: 'solana',
-  Ethereum: 'ethereum',
-  Arbitrum: 'ethereum',
-  Optimism: 'ethereum',
-  Base: 'ethereum',
-  Scroll: 'ethereum',
-  Bsc: 'binancecoin',
-  Polygon: 'matic-network',
-  Avalanche: 'avalanche-2',
-  Fantom: 'fantom',
-  Moonbeam: 'moonbeam',
-  Klaytn: 'kaia',
-  Xlayer: 'okb',
-  Mantle: 'mantle',
-  Aptos: 'aptos',
-  Sui: 'sui',
-  Berachain: 'berachain-bera',
-  Unichain: 'ethereum',
-  Sonic: 'sonic-3',
-  Linea: 'ethereum',
-  Worldchain: 'ethereum',
-  Seievm: 'sei',
-  Mezo: 'wrapped-bitcoin',
-  Plume: 'plume',
-  Ink: 'ethereum',
-  HyperEVM: 'hyperliquid',
-  HyperCore: 'usd-coin',
-  CreditCoin: 'wrapped-ctc',
-  Monad: 'monad',
-  Fogo: 'fogo',
-  Moca: 'moca',
-  MegaETH: 'ethereum',
-};
-
-// This refers to Coingecko API's platform names: https://api.coingecko.com/api/v3/asset_platforms
-const CHAIN_IDS: Partial<Record<Chain, string>> = {
-  Bsc: 'binance-smart-chain',
-  Arbitrum: 'arbitrum-one',
-  Optimism: 'optimistic-ethereum',
-  Polygon: 'polygon-pos',
-  Klaytn: 'klay-token',
-  Xlayer: 'x-layer',
-  Worldchain: 'world-chain',
-  Seievm: 'sei-v2',
-  Mezo: 'mezo',
-  HyperEVM: 'hyperevm',
-  Plume: 'plume-network',
-  Ink: 'ink',
-  HyperCore: 'hypercore',
-  Monad: 'monad',
-  Fogo: 'fogo',
-  Moca: 'moca',
-};
-
 export interface CoingeckoParams {
   abort: AbortController;
 }
@@ -191,7 +100,9 @@ export const fetchTokenPrices = async (
 
     return new Promise((resolve, reject) => {
       const addrs = addresses.join(',');
-      const cgChain = CHAIN_IDS[chain] || chain.toLowerCase();
+      const chainConfig = config.chains[chain as Chain];
+      const platformId = chainConfig?.coingeckoPlatformId;
+      const cgChain = platformId?.toString() || chain.toLowerCase();
 
       coingeckoRequest(
         `/api/v3/simple/token_price/${cgChain}?contract_addresses=${addrs}&vs_currencies=usd`,
@@ -234,7 +145,8 @@ export const fetchTokenPrices = async (
       new Promise((resolve, reject) => {
         const ids: string[] = [];
         for (const token of nativeTokens) {
-          const cgid = NATIVE_TOKEN_IDS[token.chain];
+          const chainConfig = config.chains[token.chain];
+          const cgid = chainConfig?.coingeckoNativeTokenId;
           if (cgid) {
             ids.push(cgid);
           } else {
@@ -252,7 +164,8 @@ export const fetchTokenPrices = async (
             resolve(
               nativeTokens
                 .map((tokenId) => {
-                  const cgid = NATIVE_TOKEN_IDS[tokenId.chain];
+                  const chainConfig = config.chains[tokenId.chain];
+                  const cgid = chainConfig?.coingeckoNativeTokenId;
                   if (cgid) {
                     const { usd } = data[cgid];
                     return {
@@ -373,7 +286,8 @@ const fetchAssetPlatforms = async (): Promise<Record<string, string>> => {
  * Uses the asset platforms API to dynamically match chains.
  */
 const getPlatformIdForChain = async (chain: Chain): Promise<string | null> => {
-  const identifier = CHAIN_TO_COINGECKO_ID[chain];
+  const chainConfig = config.chains[chain];
+  const identifier = chainConfig?.coingeckoPlatformId;
   if (!identifier) {
     return null;
   }
@@ -445,7 +359,10 @@ export const fetchCoingeckoTokenListForChain = async (
       throw new Error('Invalid token list response format');
     }
 
-    // Extract addresses and normalize to lowercase
+    // TODO: Address normalization should be chain-aware instead of blanket toLowerCase()
+    // Current implementation works for EVM chains but breaks Solana/Sui case-sensitive addresses.
+    // Should use SDK's canonicalAddress() or a chain-aware normalizeAddress() utility.
+    // Extract addresses and normalize to lowercase (EVM-only, breaks Solana/Sui)
     const addresses = data.tokens.map((token: any) =>
       token.address.toLowerCase(),
     );
