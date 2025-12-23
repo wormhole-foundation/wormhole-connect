@@ -1,6 +1,6 @@
-import type { QuoteRequest, LiFiStep } from '@lifi/sdk';
+import type { LiFiStep, RoutesRequest } from '@lifi/sdk';
 import {
-  getQuote,
+  getRoutes,
   convertQuoteToRoute,
   config as lifiSdkConfig,
 } from '@lifi/sdk';
@@ -36,6 +36,7 @@ import {
   toLifiTokenAddress,
   generateThrowawayAddress,
   getNativeChainId,
+  parseTimingStrategy,
 } from './utils';
 import {
   DEFAULT_SLIPPAGE_PERCENT,
@@ -163,7 +164,7 @@ export class LiFiRoute<N extends Network>
     } as ValidationResult;
   }
 
-  fetchQuote(
+  async fetchQuote(
     request: routes.RouteTransferRequest<N>,
     params: ValidatedParams,
   ): Promise<LiFiStep> {
@@ -183,39 +184,71 @@ export class LiFiRoute<N extends Network>
 
     const { integrator, feePercent } = this.getFeeConfig(request);
 
-    const quoteRequest: QuoteRequest = {
-      fromChain: fromChainId,
-      toChain: toChainId,
-      fromToken: toLifiTokenAddress(request.source.id),
-      toToken: toLifiTokenAddress(request.destination.id),
+    // Use routes endpoint instead of quote for better latency control
+    const routesRequest: RoutesRequest = {
+      fromChainId,
+      toChainId,
+      fromTokenAddress: toLifiTokenAddress(request.source.id),
+      toTokenAddress: toLifiTokenAddress(request.destination.id),
       fromAmount: sdkAmount
         .units(request.parseAmount(params.amount))
         .toString(),
       fromAddress,
       toAddress,
-      slippage: params.normalizedParams.slippage,
-      maxPriceImpact: params.normalizedParams.maxPriceImpact,
-      integrator,
-      referrer: params.options.referrer,
-      fee: feePercent,
-      routeTimingStrategies: this.config?.routeTimingStrategies,
+      options: {
+        slippage: normalizedParams.slippage,
+        maxPriceImpact: normalizedParams.maxPriceImpact,
+        integrator,
+        referrer: params.options.referrer,
+        fee: feePercent,
+      },
     };
 
-    // Lifi SDK has a AllowDenyPrefer type but then it's converted into a different format for quote requests...
-    if (normalizedParams.bridges?.allow)
-      quoteRequest.allowBridges = normalizedParams.bridges.allow;
-    if (normalizedParams.bridges?.deny)
-      quoteRequest.denyBridges = normalizedParams.bridges.deny;
-    if (normalizedParams.bridges?.prefer)
-      quoteRequest.preferBridges = normalizedParams.bridges.prefer;
-    if (normalizedParams.exchanges?.allow)
-      quoteRequest.allowExchanges = normalizedParams.exchanges.allow;
-    if (normalizedParams.exchanges?.deny)
-      quoteRequest.denyExchanges = normalizedParams.exchanges.deny;
-    if (normalizedParams.exchanges?.prefer)
-      quoteRequest.preferExchanges = normalizedParams.exchanges.prefer;
+    // Add timing strategies if configured
+    if (this.config?.routeTimingStrategies) {
+      routesRequest.options!.timing = {
+        routeTimingStrategies:
+          this.config.routeTimingStrategies.map(parseTimingStrategy),
+      };
+    }
 
-    return getQuote(quoteRequest);
+    // Add bridges and exchanges preferences
+    const bridges = normalizedParams.bridges;
+    if (bridges?.allow || bridges?.deny || bridges?.prefer) {
+      routesRequest.options!.bridges = {
+        ...(bridges.allow && { allow: bridges.allow }),
+        ...(bridges.deny && { deny: bridges.deny }),
+        ...(bridges.prefer && { prefer: bridges.prefer }),
+      };
+    }
+
+    const exchanges = normalizedParams.exchanges;
+    if (exchanges?.allow || exchanges?.deny || exchanges?.prefer) {
+      routesRequest.options!.exchanges = {
+        ...(exchanges.allow && { allow: exchanges.allow }),
+        ...(exchanges.deny && { deny: exchanges.deny }),
+        ...(exchanges.prefer && { prefer: exchanges.prefer }),
+      };
+    }
+
+    const routesResponse = await getRoutes(routesRequest);
+
+    if (!routesResponse.routes || routesResponse.routes.length === 0) {
+      throw new Error('No routes available');
+    }
+
+    const singleStepRoutes = routesResponse.routes.filter(
+      (route) => route.steps.length === 1,
+    );
+
+    if (singleStepRoutes.length === 0) {
+      throw new Error('No single step routes available');
+    }
+
+    const selectedRoute = singleStepRoutes[0];
+
+    // Return the single step directly
+    return selectedRoute.steps[0];
   }
 
   getFeeConfig(request: routes.RouteTransferRequest<N>): LiFiFeeConfig {
