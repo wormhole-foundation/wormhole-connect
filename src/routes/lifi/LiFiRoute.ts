@@ -201,6 +201,8 @@ export class LiFiRoute<N extends Network>
         integrator,
         referrer: params.options.referrer,
         fee: feePercent,
+        allowSwitchChain: false,
+        allowDestinationCall: true,
       },
     };
 
@@ -237,6 +239,7 @@ export class LiFiRoute<N extends Network>
       throw new Error('No routes available');
     }
 
+    // Only care about single step (single signature) routes
     const singleStepRoutes = routesResponse.routes.filter(
       (route) => route.steps.length === 1,
     );
@@ -245,9 +248,8 @@ export class LiFiRoute<N extends Network>
       throw new Error('No single step routes available');
     }
 
+    // Just return the first one
     const selectedRoute = singleStepRoutes[0];
-
-    // Return the single step directly
     return selectedRoute.steps[0];
   }
 
