@@ -928,10 +928,17 @@ function Redeem() {
     >
       <FormContent>
         <ConfigurablePageHeader />
-        <Box display="flex" alignItems="center">
-          <BackButton route="bridge" />
+        <Box
+          display="flex"
+          alignItems="center"
+          position="relative"
+          justifyContent="center"
+        >
+          <Box position="absolute" left={0}>
+            <BackButton route="bridge" />
+          </Box>
           <Header
-            align="left"
+            align="center"
             text={statusHeader}
             size={24}
             weight={600}
