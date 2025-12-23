@@ -95,7 +95,7 @@ export type TestOptions = {
   enableHeadlessSigner?: boolean;
 };
 
-export type Experiments = 'feeOffsetting';
+export type Experiments = 'feeOffsetting' | 'enableCoingeckoSpamFilter';
 export type Experimental = {
   [Experiment in Experiments]?: boolean;
 };

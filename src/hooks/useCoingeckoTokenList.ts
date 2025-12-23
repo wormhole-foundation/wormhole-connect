@@ -1,20 +1,29 @@
 import { useEffect, useState } from 'react';
 import type { Chain } from '@wormhole-foundation/sdk';
 import { fetchCoingeckoTokenListForChain } from 'utils/coingecko';
+import config from 'config';
 
 /**
  * Hook to fetch and cache CoinGecko token list for a specific chain.
  * Returns null while loading or if the chain is not supported.
  * Returns a Set of token addresses (lowercase) once loaded.
+ *
+ * The hook respects the experimental flag `enableCoingeckoSpamFilter`.
+ * If the flag is disabled, the hook will not fetch data and returns undefined.
  */
 export const useCoingeckoTokenList = (
   chain: Chain | undefined,
-): Set<string> | null => {
-  const [tokenList, setTokenList] = useState<Set<string> | null>(null);
+): Set<string> | undefined => {
+  const [tokenList, setTokenList] = useState<Set<string> | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
-    if (!chain) {
-      setTokenList(null);
+    // Check experimental flag to enable/disable CoinGecko fetching
+    const enableCoingecko = config.ui?.experimental?.enableCoingeckoSpamFilter;
+
+    if (!chain || !enableCoingecko) {
+      setTokenList(undefined);
       return;
     }
 

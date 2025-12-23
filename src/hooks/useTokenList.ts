@@ -40,6 +40,7 @@ export const useTokenList = ({
   const { getTokenPrice, lastTokenPriceUpdate } = useTokens();
 
   // Fetch CoinGecko token list for spam filtering
+  // The hook internally checks the experimental flag
   const coingeckoTokens = useCoingeckoTokenList(selectedChainConfig?.sdkName);
 
   return useMemo(() => {
@@ -69,8 +70,8 @@ export const useTokenList = ({
 
     // For source list, we filter further because we're loading arbitrary tokens in their wallet
     if (isSourceList && !searchQuery && config.network === 'Mainnet') {
-      // Apply spam filter (uses CoinGecko data if available, falls back to basic filtering)
-      tokens = applySpamFilter(tokens, coingeckoTokens || undefined);
+      // Apply spam filter with CoinGecko data
+      tokens = applySpamFilter(tokens, coingeckoTokens);
     }
 
     return tokens;
