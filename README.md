@@ -66,7 +66,7 @@ Run `npm i` at the root of the repo
 
 2) Build
 
-Run `npm run build` at the root fo the repo
+Run `npm run build` at the root of the repo
 
 3) Start
 
