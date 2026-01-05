@@ -45,7 +45,7 @@
         "@wormhole-foundation/sdk-sui-cctp": "4.7.1",
         "@wormhole-foundation/sdk-sui-core": "4.7.1",
         "@wormhole-foundation/sdk-sui-ntt": "4.0.9",
-        "@wormhole-labs/cctp-executor-route": "0.23.0",
+        "@wormhole-labs/cctp-executor-route": "0.24.0",
         "@wormhole-labs/wallet-aggregator-aptos": "1.3.3",
         "@wormhole-labs/wallet-aggregator-core": "1.3.3",
         "@wormhole-labs/wallet-aggregator-evm": "1.3.3",
@@ -1637,7 +1637,7 @@
 
     "@wormhole-foundation/sdk-sui-tokenbridge": ["@wormhole-foundation/sdk-sui-tokenbridge@4.7.1", "", { "dependencies": { "@mysten/sui": "^1.37.2", "@wormhole-foundation/sdk-connect": "4.7.1", "@wormhole-foundation/sdk-sui": "4.7.1", "@wormhole-foundation/sdk-sui-core": "4.7.1" } }, "sha512-pODaPfHMzYIVKujcNYO2MEkkFaWJCOuXbvXGUgTN/A0NzGpQleImlIFYI5NSdQlCNcekXVVoRycn9cMEfvhWNg=="],
 
-    "@wormhole-labs/cctp-executor-route": ["@wormhole-labs/cctp-executor-route@0.23.0", "", { "dependencies": { "@aptos-labs/ts-sdk": "^2.0.0", "@coral-xyz/anchor": "^0.29.0", "@mysten/sui": "^1.39.0", "@solana/spl-token": "^0.3.9", "@solana/web3.js": "^1.95.8", "binary-layout": "^1.2.0" }, "peerDependencies": { "@wormhole-foundation/sdk-aptos": "^3.9.0", "@wormhole-foundation/sdk-base": "^3.9.0", "@wormhole-foundation/sdk-connect": "^3.9.0", "@wormhole-foundation/sdk-definitions": "^3.9.0", "@wormhole-foundation/sdk-evm": "^3.9.0", "@wormhole-foundation/sdk-solana": "^3.9.0", "@wormhole-foundation/sdk-solana-cctp": "^3.9.0", "@wormhole-foundation/sdk-sui": "^3.9.0", "@wormhole-foundation/sdk-sui-cctp": "^3.9.0", "axios": "^1.0.0", "ethers": "^6.0.0" } }, "sha512-cC0CDckLPqfVlkaez2NzEpiJgn3Y1ApuGOidqRBFQSaTAf63Y499jooEh3cbUVqpz71TQ2BxjzYkp78ee8YNvw=="],
+    "@wormhole-labs/cctp-executor-route": ["@wormhole-labs/cctp-executor-route@0.24.0", "", { "dependencies": { "@aptos-labs/ts-sdk": "^2.0.0", "@coral-xyz/anchor": "^0.29.0", "@mysten/sui": "^1.39.0", "@solana/spl-token": "^0.3.9", "@solana/web3.js": "^1.95.8", "binary-layout": "^1.2.0" }, "peerDependencies": { "@wormhole-foundation/sdk-aptos": "^3.9.0", "@wormhole-foundation/sdk-base": "^3.9.0", "@wormhole-foundation/sdk-connect": "^3.9.0", "@wormhole-foundation/sdk-definitions": "^3.9.0", "@wormhole-foundation/sdk-evm": "^3.9.0", "@wormhole-foundation/sdk-solana": "^3.9.0", "@wormhole-foundation/sdk-solana-cctp": "^3.9.0", "@wormhole-foundation/sdk-sui": "^3.9.0", "@wormhole-foundation/sdk-sui-cctp": "^3.9.0", "axios": "^1.0.0", "ethers": "^6.0.0" } }, "sha512-hFd9HmD/r54ixIDBizu69Bi7+VADNXjDs3Kai482dv0L6CPfqG7zcQgx072FO+3faDUpd6NLApsk5Z//80Awpg=="],
 
     "@wormhole-labs/wallet-aggregator-aptos": ["@wormhole-labs/wallet-aggregator-aptos@1.3.3", "", { "dependencies": { "@aptos-labs/ts-sdk": "^2.0.0", "@aptos-labs/wallet-adapter-core": "^5.5.0", "@aptos-labs/wallet-standard": "^0.2.0", "@wormhole-labs/wallet-aggregator-core": "^1.3.3" } }, "sha512-UsX/NzvnL3fDEbeo3aiHo7X2UX4gFq0e26kDpkehs9LDLMZvRp7dO/mju9oTp3b0QdZ+NClzNUDHYTBsQQmevQ=="],
 
