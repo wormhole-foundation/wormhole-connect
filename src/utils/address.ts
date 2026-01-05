@@ -1,4 +1,4 @@
-import type { Chain, NativeAddress } from '@wormhole-foundation/sdk';
+import type { Chain, NativeAddress, Platform } from '@wormhole-foundation/sdk';
 import { chainToPlatform, encoding, toNative } from '@wormhole-foundation/sdk';
 import { isValidSuiAddress } from '@mysten/sui/utils';
 import { Connection, PublicKey } from '@solana/web3.js';
@@ -90,4 +90,20 @@ export async function validateWalletAddress(
   }
 
   return null;
+}
+
+/**
+ * Normalizes an address for comparison purposes.
+ * EVM addresses are case-insensitive, so we lowercase them.
+ * Other platforms (Solana, Sui, Aptos) have case-sensitive addresses.
+ */
+export function normalizeAddress(address: string, chain: Chain): string {
+  const platform: Platform = chainToPlatform(chain);
+
+  if (platform === 'Evm') {
+    return address.toLowerCase();
+  }
+
+  // Solana, Sui, Aptos addresses are case-sensitive
+  return address;
 }

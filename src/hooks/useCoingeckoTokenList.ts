@@ -39,8 +39,8 @@ export const useCoingeckoTokenList = (
       } catch (error) {
         console.error('Error in useCoingeckoTokenList:', error);
         if (!cancelled) {
-          // Return empty set on error to allow fallback filter
-          setTokenList(new Set());
+          // Return undefined on error to fall back to basic filtering
+          setTokenList(undefined);
         }
       }
     };

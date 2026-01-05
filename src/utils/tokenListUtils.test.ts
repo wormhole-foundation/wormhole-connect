@@ -56,6 +56,24 @@ vi.mock('./ntt', () => ({
   isNttToken: vi.fn(() => false),
 }));
 
+vi.mock('./address', () => ({
+  normalizeAddress: vi.fn((address: string, chain: string) => {
+    // Mock EVM chains as case-insensitive, others as case-sensitive
+    const evmChains = [
+      'Ethereum',
+      'Bsc',
+      'Polygon',
+      'Arbitrum',
+      'Optimism',
+      'Base',
+    ];
+    if (evmChains.includes(chain)) {
+      return address.toLowerCase();
+    }
+    return address; // Preserve case for Solana, Sui, etc.
+  }),
+}));
+
 vi.mock('config/tokens', () => ({
   isSameToken: vi.fn((a: any, b: any) => {
     return a.chain === b.chain && a.addressString === b.addressString;
@@ -469,6 +487,62 @@ describe('tokenListUtils', () => {
 
       expect(filtered).toHaveLength(1);
       expect(filtered[0]).toBe(builtinToken);
+    });
+
+    it('should use case-insensitive matching for EVM chains', () => {
+      const evmToken = createMockToken({
+        chain: 'Ethereum',
+        symbol: 'USDC',
+        addressString: '0xA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48', // Uppercase
+      });
+
+      // CoinGecko list has lowercase addresses
+      const coingeckoAddresses = new Set([
+        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      ]);
+
+      const tokens = [evmToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(evmToken);
+    });
+
+    it('should use case-sensitive matching for Solana', () => {
+      const solanaToken = createMockToken({
+        chain: 'Solana',
+        symbol: 'BONK',
+        addressString: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+      });
+
+      // CoinGecko list with exact case
+      const coingeckoAddresses = new Set([
+        'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+      ]);
+
+      const tokens = [solanaToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(solanaToken);
+    });
+
+    it('should filter out Solana token if case does not match', () => {
+      const solanaToken = createMockToken({
+        chain: 'Solana',
+        symbol: 'BONK',
+        addressString: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+      });
+
+      // CoinGecko list with different case (simulating a mismatch)
+      const coingeckoAddresses = new Set([
+        'dezxaz8z7pnrnrjjz3wxborgixca6xjnb7yab1ppb263', // lowercase - wrong!
+      ]);
+
+      const tokens = [solanaToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(0);
     });
   });
 

@@ -14,6 +14,7 @@ import {
 import { calculateUSDPriceRaw, isFrankensteinToken } from 'utils';
 import config from 'config';
 import { isNttToken } from './ntt';
+import { normalizeAddress } from './address';
 import type { Balances } from './wallet/types';
 
 export const getTokenPreferenceScore = (
@@ -218,9 +219,10 @@ export const applySpamFilter = (
           token.tokenBridgeOriginalTokenId,
         );
         if (originalToken) {
-          // TODO: Use chain-aware address normalization instead of toLowerCase()
-          // This breaks Solana/Sui tokens which have case-sensitive addresses
-          const originalAddress = originalToken.addressString.toLowerCase();
+          const originalAddress = normalizeAddress(
+            originalToken.addressString,
+            originalToken.chain,
+          );
           const isInList = coingeckoAddresses.has(originalAddress);
           if (!isInList) {
             console.debug(
@@ -233,9 +235,7 @@ export const applySpamFilter = (
       }
 
       // For regular tokens, check if address is in CoinGecko list
-      // TODO: Use chain-aware address normalization instead of toLowerCase()
-      // This breaks Solana/Sui tokens which have case-sensitive addresses
-      const address = token.addressString.toLowerCase();
+      const address = normalizeAddress(token.addressString, token.chain);
       const isInList = coingeckoAddresses.has(address);
       if (!isInList) {
         console.debug(`Filtering out token (not in CoinGecko list)`, token);

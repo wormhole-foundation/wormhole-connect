@@ -2,6 +2,7 @@ import type { Chain, TokenId } from '@wormhole-foundation/sdk';
 import { isNative, Wormhole } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { TokenMapping } from 'config/tokens';
+import { normalizeAddress } from './address';
 
 const COINGECKO_URL = 'https://api.coingecko.com';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com';
@@ -359,12 +360,10 @@ export const fetchCoingeckoTokenListForChain = async (
       throw new Error('Invalid token list response format');
     }
 
-    // TODO: Address normalization should be chain-aware instead of blanket toLowerCase()
-    // Current implementation works for EVM chains but breaks Solana/Sui case-sensitive addresses.
-    // Should use SDK's canonicalAddress() or a chain-aware normalizeAddress() utility.
-    // Extract addresses and normalize to lowercase (EVM-only, breaks Solana/Sui)
+    // Normalize addresses based on chain type
+    // EVM: lowercase (case-insensitive), Solana/Sui/Aptos: preserve case
     const addresses = data.tokens.map((token: any) =>
-      token.address.toLowerCase(),
+      normalizeAddress(token.address, chain),
     );
 
     // Cache in localStorage
