@@ -248,10 +248,9 @@ export interface ChainConfig {
   gasReserve?: string;
   /**
    * CoinGecko platform identifier for token lists and prices.
-   * Can be chain ID number (EVM) or platform name string.
-   * Examples: 1 (Ethereum), 56 (BSC), 'solana', 'binance-smart-chain'
+   * Examples: 'ethereum', 'binance-smart-chain', 'solana', 'arbitrum-one'
    */
-  coingeckoPlatformId?: number | string;
+  coingeckoPlatformId?: string;
   /**
    * CoinGecko coin ID for the chain's native token price.
    * Examples: 'ethereum', 'solana', 'binancecoin'
