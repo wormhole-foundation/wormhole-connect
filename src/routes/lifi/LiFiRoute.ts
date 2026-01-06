@@ -207,7 +207,10 @@ export class LiFiRoute<N extends Network>
     };
 
     // Add timing strategies if configured
-    if (this.config?.routeTimingStrategies) {
+    if (
+      this.config?.routeTimingStrategies &&
+      this.config.routeTimingStrategies.length > 0
+    ) {
       routesRequest.options!.timing = {
         routeTimingStrategies:
           this.config.routeTimingStrategies.map(parseTimingStrategy),
