@@ -1,4 +1,4 @@
-import type { ChainId } from '@lifi/sdk';
+import type { ChainId, TimingStrategy, TimingStrategyString } from '@lifi/sdk';
 import {
   getStatus,
   type GetStatusRequest,
@@ -146,4 +146,19 @@ export async function getTransactionStatus(
     return null;
   }
   return response;
+}
+
+export function parseTimingStrategy(
+  strategy: TimingStrategyString,
+): TimingStrategy {
+  const parts = strategy.split('-');
+  if (parts[0] === 'minWaitTime' && parts.length === 4) {
+    return {
+      strategy: 'minWaitTime',
+      minWaitTimeMs: parseInt(parts[1]),
+      startingExpectedResults: parseInt(parts[2]),
+      reduceEveryMs: parseInt(parts[3]),
+    };
+  }
+  throw new Error(`Invalid timing strategy format: ${strategy}`);
 }
