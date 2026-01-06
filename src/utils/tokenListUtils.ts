@@ -211,30 +211,18 @@ export const applySpamFilter = (
       return true;
     }
 
-    // If CoinGecko data available, use strict filtering
-    if (coingeckoAddresses && coingeckoAddresses.size > 0) {
-      // For Token Bridge wrapped tokens, check the original token
-      if (token.isTokenBridgeWrappedToken && token.tokenBridgeOriginalTokenId) {
-        const originalToken = config.tokens.get(
-          token.tokenBridgeOriginalTokenId,
-        );
-        if (originalToken) {
-          const originalAddress = normalizeAddress(
-            originalToken.addressString,
-            originalToken.chain,
-          );
-          const isInList = coingeckoAddresses.has(originalAddress);
-          if (!isInList) {
-            console.debug(
-              `Filtering out wrapped token (original not in CoinGecko)`,
-              token,
-            );
-          }
-          return isInList;
-        }
-      }
+    // Always include tokens with CoinGecko metadata
+    if (token.coingeckoWebId) {
+      return true;
+    }
 
-      // For regular tokens, check if address is in CoinGecko list
+    // Always include Token Bridge wrapped tokens
+    if (token.isTokenBridgeWrappedToken) {
+      return true;
+    }
+
+    // If CoinGecko token list available, check against it
+    if (coingeckoAddresses && coingeckoAddresses.size > 0) {
       const address = normalizeAddress(token.addressString, token.chain);
       const isInList = coingeckoAddresses.has(address);
       if (!isInList) {
@@ -243,12 +231,9 @@ export const applySpamFilter = (
       return isInList;
     }
 
-    // Fallback to basic filtering when CoinGecko data unavailable
-    const isOk = token.coingeckoWebId || token.isTokenBridgeWrappedToken;
-    if (!isOk) {
-      console.debug(`Filtering out token for likely being spam`, token);
-    }
-    return isOk;
+    // No CoinGecko data and token doesn't pass basic checks - filter it out
+    console.debug(`Filtering out token for likely being spam`, token);
+    return false;
   });
 };
 

@@ -489,6 +489,38 @@ describe('tokenListUtils', () => {
       expect(filtered[0]).toBe(builtinToken);
     });
 
+    it('should always include Token Bridge wrapped tokens', () => {
+      const wrappedToken = createMockToken({
+        symbol: 'WETH',
+        addressString: '0xwrapped',
+        isTokenBridgeWrappedToken: true,
+      });
+
+      const coingeckoAddresses = new Set(['0xother']); // Token not in list
+
+      const tokens = [wrappedToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(wrappedToken);
+    });
+
+    it('should always include tokens with coingeckoWebId', () => {
+      const knownToken = createMockToken({
+        symbol: 'KNOWN',
+        addressString: '0xknown',
+        coingeckoWebId: 'known-token',
+      });
+
+      const coingeckoAddresses = new Set(['0xother']); // Token not in list
+
+      const tokens = [knownToken];
+      const filtered = applySpamFilter(tokens, coingeckoAddresses);
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(knownToken);
+    });
+
     it('should use case-insensitive matching for EVM chains', () => {
       const evmToken = createMockToken({
         chain: 'Ethereum',
