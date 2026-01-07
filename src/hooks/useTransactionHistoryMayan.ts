@@ -69,6 +69,13 @@ const useTransactionHistoryMayan = (
       clientStatus,
     } = tx;
 
+    const status = clientStatus?.toLowerCase();
+
+    // Skip refunded orders - these are failed/cancelled transactions
+    if (status === 'refunded') {
+      return;
+    }
+
     const fromChain = chainIdToChain(sourceChain);
     const toChain = chainIdToChain(destChain);
 
@@ -117,10 +124,8 @@ const useTransactionHistoryMayan = (
       return;
     }
 
-    // Transaction is in progress when it's not completed or refunded
-    const clientStatusLC = clientStatus?.toLowerCase();
-    const inProgress =
-      clientStatusLC !== 'completed' && clientStatusLC !== 'refunded';
+    // Transaction is in progress when it's not completed
+    const inProgress = status !== 'completed';
 
     const txData: Transaction = {
       txHash: sourceTxHash,
