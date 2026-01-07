@@ -6,7 +6,6 @@ import { normalizeAddress } from './address';
 
 const COINGECKO_URL = 'https://api.coingecko.com';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com';
-const COINGECKO_TOKEN_LIST_URL = 'https://tokens.coingecko.com';
 
 // Cache durations
 const TOKEN_LIST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -240,25 +239,9 @@ export const fetchCoingeckoTokenListForChain = async (
   try {
     console.info(`Fetching CoinGecko token list for ${chain}...`);
 
-    let data;
-    // Use Pro API endpoint if API key is configured, otherwise use public token list URL
-    if (config.coingecko?.apiKey) {
-      data = await coingeckoRequest(
-        `/api/v3/token_lists/${platformId}/all.json`,
-      );
-    } else {
-      const response = await fetch(
-        `${COINGECKO_TOKEN_LIST_URL}/${platformId}/all.json`,
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch token list: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      data = await response.json();
-    }
+    const data = await coingeckoRequest(
+      `/api/v3/token_lists/${platformId}/all.json`,
+    );
 
     if (!data || !data.tokens || !Array.isArray(data.tokens)) {
       throw new Error('Invalid token list response format');
