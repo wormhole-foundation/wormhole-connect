@@ -982,4 +982,10 @@ export const MAINNET_TOKENS: TokenConfig[] = [
       address: 'native',
     },
   },
+  {
+    symbol: 'MOCA',
+    tokenId: { chain: 'Moca', address: 'native' },
+    decimals: 18,
+    icon: TokenIcon.MOCA,
+  },
 ];

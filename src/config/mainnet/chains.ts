@@ -285,4 +285,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     symbol: 'MEGA',
     gasReserve: '0.001',
   },
+  Moca: {
+    displayName: 'Moca',
+    sdkName: 'Moca',
+    explorerUrl: 'https://scan.mocachain.org/',
+    explorerName: 'Blockscout',
+    icon: 'Moca',
+    symbol: 'MOCA',
+  },
 };
