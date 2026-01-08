@@ -214,11 +214,14 @@ function disconnectWallet(chain: Chain, type: TransferWallet) {
 function getWallet(chain: Chain, type: TransferWallet): Wallet | null {
   const connection = walletConnections[type];
 
-  if (!connection) {
+  if (!connection || !chain) {
     return null;
   }
 
-  if (connection.chain !== chain) {
+  if (
+    chainToPlatform(connection.chain as Chain) !==
+    chainToPlatform(chain as Chain)
+  ) {
     return null;
   }
 
