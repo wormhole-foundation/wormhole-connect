@@ -288,7 +288,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
   Moca: {
     displayName: 'Moca',
     sdkName: 'Moca',
-    explorerUrl: 'https://scan.mocachain.org/',
+    explorerUrl: 'https://scan.mocachain.org/', // This is the official block explorer but is under maintenance as of Jan 08, 2025
     explorerName: 'Blockscout',
     icon: 'Moca',
     symbol: 'MOCA',
