@@ -23,14 +23,15 @@ vi.mock('@wormhole-foundation/sdk-base', () => ({
   },
 }));
 
-vi.mock('..', async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...(actual as any),
-    getWalletOptions: vi.fn(),
-    signAndSendTransaction: vi.fn(),
-  };
-});
+vi.mock('../index', () => ({
+  TransferWallet: {
+    SENDING: 'sending',
+    RECEIVING: 'receiving',
+  },
+  getWalletOptions: vi.fn(),
+  signAndSendTransaction: vi.fn(),
+  walletAcceptedChains: vi.fn(),
+}));
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -327,6 +328,66 @@ describe('InternalWalletProvider', () => {
         TransferWallet.SENDING,
       );
       expect(wallet).toBe(mockWallet);
+    });
+
+    it('should return wallet for same platform with different chain', async () => {
+      const mockWallet = createMockWallet('MetaMask');
+      const promise = internalWalletProvider.connectWallet(
+        'Ethereum',
+        TransferWallet.SENDING,
+        false,
+      );
+
+      await internalWalletProvider.onWalletSelected(
+        mockWallet as any,
+        'Ethereum',
+        TransferWallet.SENDING,
+      );
+      await promise;
+
+      // Mock chainToPlatform to return same platform for both chains
+      const sdkBase = await import('@wormhole-foundation/sdk-base');
+      const spy = vi.spyOn(sdkBase, 'chainToPlatform');
+      spy.mockReturnValue('Evm' as any);
+
+      const wallet = internalWalletProvider.getWallet(
+        'Polygon',
+        TransferWallet.SENDING,
+      );
+      expect(wallet).toBe(mockWallet);
+
+      spy.mockRestore();
+    });
+
+    it('should return null for different platform', async () => {
+      const mockWallet = createMockWallet('MetaMask');
+      const promise = internalWalletProvider.connectWallet(
+        'Ethereum',
+        TransferWallet.SENDING,
+        false,
+      );
+
+      await internalWalletProvider.onWalletSelected(
+        mockWallet as any,
+        'Ethereum',
+        TransferWallet.SENDING,
+      );
+      await promise;
+
+      // Mock chainToPlatform to return different platforms
+      const sdkBase = await import('@wormhole-foundation/sdk-base');
+      const spy = vi.spyOn(sdkBase, 'chainToPlatform');
+      spy
+        .mockReturnValueOnce('Evm' as any)
+        .mockReturnValueOnce('Solana' as any);
+
+      const wallet = internalWalletProvider.getWallet(
+        'Solana',
+        TransferWallet.SENDING,
+      );
+      expect(wallet).toBeNull();
+
+      spy.mockRestore();
     });
   });
 
