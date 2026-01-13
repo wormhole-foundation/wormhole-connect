@@ -138,6 +138,9 @@ export function getExplorerInfos(
         name: 'USDC.range Explorer',
       },
     ];
+  } else if (routeName === 'BaseBridgeRoute') {
+    // Base Bridge transactions are not indexed on Wormholescan yet
+    return [];
   } else {
     return [getWormholescanExplorerInfo(txHash)];
   }
