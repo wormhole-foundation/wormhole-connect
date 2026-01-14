@@ -512,7 +512,11 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
     return quotes[0];
   }
 
-  getMinAmount(minAmountIn: string | number, decimals: number) {
+  getMinAmount(minAmountIn: string | number | null, decimals: number) {
+    if (minAmountIn === null) {
+      return null;
+    }
+
     try {
       const minAmount = amount.parse(
         amount.denoise(minAmountIn, decimals),
