@@ -38,6 +38,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     CreditCoin: 'https://mainnet3.creditcoin.network',
     Fogo: 'https://mainnet.fogo.io',
     Monad: 'https://rpc3.monad.xyz',
+    MegaETH: 'https://mainnet.megaeth.com/rpc',
   },
 };
 

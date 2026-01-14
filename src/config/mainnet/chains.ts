@@ -279,7 +279,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
   MegaETH: {
     displayName: 'MegaETH',
     sdkName: 'MegaETH',
-    explorerUrl: 'https://megaeth-testnet-v3.blockscout.com/',
+    explorerUrl: 'https://megaeth.blockscout.com/',
     explorerName: 'Blockscout',
     icon: 'MegaETH',
     symbol: 'MEGA',
