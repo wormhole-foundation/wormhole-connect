@@ -24,6 +24,7 @@ import {
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import type { MultiTokenNttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import type { CCTPv2ExecutorRoute } from '@wormhole-labs/cctp-executor-route';
+import type { BaseBridgeExecutorRoute } from '@wormhole-labs/base-bridge-executor-route';
 import { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import * as splToken from '@solana/spl-token';
@@ -137,6 +138,9 @@ export function getExplorerInfos(
         name: 'USDC.range Explorer',
       },
     ];
+  } else if (routeName === 'BaseBridgeRoute') {
+    // Base Bridge transactions are not indexed on Wormholescan yet
+    return [];
   } else {
     return [getWormholescanExplorerInfo(txHash)];
   }
@@ -204,6 +208,10 @@ export async function parseReceipt(
           params: MultiTokenNttRoute.ValidatedParams;
         },
         getOrFetchToken,
+      );
+    case 'BaseBridgeRoute':
+      return parseBaseBridgeReceipt(
+        receipt as ReceiptWithAttestation<BaseBridgeExecutorRoute.Attestation>,
       );
     default:
       throw new Error(`Unknown route type ${route}`);
@@ -587,6 +595,79 @@ const parseCCTPv2Receipt = async (
   }
 
   return txData as TransferInfo;
+};
+
+const parseBaseBridgeReceipt = async (
+  receipt: ReceiptWithAttestation<BaseBridgeExecutorRoute.Attestation>,
+): Promise<TransferInfo> => {
+  let sendTx = '';
+  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+    sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
+
+  const { transferInfo } = receipt.attestation;
+  if (!transferInfo) {
+    throw new Error('BaseBridgeRoute attestation missing metadata');
+  }
+
+  const sourceToken = config.tokens.get(receipt.from, transferInfo.localToken);
+  if (!sourceToken) {
+    throw new Error(
+      `Unknown source token: ${transferInfo.localChain} on ${receipt.from}`,
+    );
+  }
+
+  const destToken = config.tokens.get(receipt.to, transferInfo.remoteToken);
+  if (!destToken) {
+    throw new Error(
+      `Unknown destination token: ${transferInfo.remoteToken} on ${receipt.to}`,
+    );
+  }
+
+  const amt = amount.fromBaseUnits(transferInfo.amount, sourceToken.decimals);
+
+  let recipient = transferInfo.to;
+  if (isSvmChain(receipt.to)) {
+    const rpcUrl = config.rpcs[receipt.to];
+    if (!rpcUrl) {
+      throw new Error(`Missing ${receipt.to} RPC`);
+    }
+    // The recipient is the ATA, get the owner
+    const connection = new Connection(rpcUrl);
+    try {
+      const mint = new PublicKey(transferInfo.remoteToken);
+      const ata = new PublicKey(transferInfo.to);
+      const tokenAccount = await connection.getAccountInfo(mint);
+      if (tokenAccount) {
+        recipient = (
+          await splToken.getAccount(
+            connection,
+            ata,
+            'confirmed',
+            tokenAccount.owner,
+          )
+        ).owner.toBase58();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  return {
+    toChain: receipt.to,
+    fromChain: receipt.from,
+    sendTx,
+    sender: undefined,
+    recipient,
+    amount: amt,
+    tokenAddress: sourceToken.address.toString(),
+    token: sourceToken.tuple,
+    tokenDecimals: sourceToken.decimals,
+    receivedToken: destToken.tuple,
+    receiveAmount: amt,
+  };
 };
 
 const parseMultiTokenNttReceipt = async (

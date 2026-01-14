@@ -375,6 +375,11 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
     return true;
   }
 
+  // All WTT transfers to Base are frankenstein since the Base bridge exists
+  if (chain === 'Base' || chain === 'BaseSepolia') {
+    return true;
+  }
+
   const { tokenBridgeOriginalTokenId: originalToken } = token;
 
   // Prevent Monad<->Ethereum transfers of gas token via token bridge
@@ -463,7 +468,7 @@ export const isExecutorRoute = (route: string | undefined) => {
   if (!route) {
     return false;
   }
-  return route.endsWith('ExecutorRoute');
+  return route.endsWith('ExecutorRoute') || route === 'BaseBridgeRoute';
 };
 
 export const stringifyWithBigInt = (json: any) => {

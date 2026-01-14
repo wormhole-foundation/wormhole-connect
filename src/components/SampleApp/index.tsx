@@ -52,6 +52,7 @@ import {
   monadBridgeExecutorRoute,
   monadBridgeManualRoute,
 } from 'exports/monad';
+import { createBaseBridgeRoute } from 'exports/base';
 import type { WormholeConnectTheme } from 'theme';
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
@@ -105,6 +106,8 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       window.monadBridgeExecutorRoute = monadBridgeExecutorRoute;
       /* @ts-ignore */
       window.monadBridgeManualRoute = monadBridgeManualRoute;
+      /* @ts-ignore */
+      window.createBaseBridgeRoute = createBaseBridgeRoute;
 
       return eval(
         `(function() { return ${config} })()`,
@@ -351,6 +354,10 @@ function SampleApp() {
                   <li>
                     <pre>monadBridgeManualRoute</pre>
                     <i>{'(MultiTokenNttRoute.Config) -> RouteConstructor'}</i>
+                  </li>
+                  <li>
+                    <pre>createBaseBridgeRoute</pre>
+                    <i>{'(TokenConfiguration[])) -> RouteConstructor'}</i>
                   </li>
                   <li></li>
                 </ul>

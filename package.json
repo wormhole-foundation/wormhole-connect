@@ -40,6 +40,11 @@
       "types": "./lib/executor.d.ts",
       "require": "./lib/executor.js",
       "import": "./lib/executor.mjs"
+    },
+    "./base": {
+      "types": "./lib/base.d.ts",
+      "require": "./lib/base.js",
+      "import": "./lib/base.mjs"
     }
   },
   "files": [
@@ -88,6 +93,7 @@
     "@wormhole-foundation/sdk-sui-core": "4.7.3",
     "@wormhole-foundation/sdk-sui-ntt": "4.0.10",
     "@wormhole-labs/cctp-executor-route": "0.25.0",
+    "@wormhole-labs/base-bridge-executor-route": "1.0.3",
     "@wormhole-labs/wallet-aggregator-aptos": "1.3.3",
     "@wormhole-labs/wallet-aggregator-core": "1.3.3",
     "@wormhole-labs/wallet-aggregator-evm": "1.3.3",

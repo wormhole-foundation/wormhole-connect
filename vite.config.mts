@@ -145,6 +145,7 @@ const libEntry: InputOption = [
   path.resolve(__dirname, 'src/exports/executor.ts'),
   path.resolve(__dirname, 'src/exports/lifi.ts'),
   path.resolve(__dirname, 'src/exports/monad.ts'),
+  path.resolve(__dirname, 'src/exports/base.ts'),
 ];
 
 const rollupInput: InputOption = {
@@ -155,6 +156,7 @@ const rollupInput: InputOption = {
   executor: 'src/exports/executor.ts',
   lifi: 'src/exports/lifi.ts',
   monad: 'src/exports/monad.ts',
+  base: 'src/exports/base.ts',
 };
 
 // Function-based external to catch all peer dependency paths

@@ -91,7 +91,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   },
   BaseSepolia: {
     displayName: 'Base Sepolia',
-    explorerUrl: 'https://base-sepolia.blockscout.com/',
+    explorerUrl: 'https://sepolia.basescan.org/',
     explorerName: 'Etherscan',
     icon: 'Base',
     symbol: 'BASE',
