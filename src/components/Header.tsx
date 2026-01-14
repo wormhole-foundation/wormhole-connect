@@ -29,7 +29,7 @@ function Header(props: Props) {
   );
 
   return (
-    <Box sx={titleStyle} data-testid={props['data-testid']}>
+    <Box sx={titleStyle} data-testid={props['data-testid']} component="h1">
       {props.text}
     </Box>
   );
