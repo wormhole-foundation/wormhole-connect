@@ -184,6 +184,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
   ): Promise<ValidationResult> {
     try {
       const hyperCoreValidation = validateHyperCoreTransfer(request, params);
+
       if (hyperCoreValidation) {
         return hyperCoreValidation;
       }
