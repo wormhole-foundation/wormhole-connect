@@ -129,14 +129,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'MNT',
     sdkName: 'Mantle',
   },
-  Monad: {
-    displayName: 'Monad',
-    explorerUrl: 'https://testnet.monadexplorer.com/',
-    explorerName: 'Monad Explorer',
-    icon: 'Monad',
-    symbol: 'MON',
-    sdkName: 'Monad',
-  },
   Worldchain: {
     displayName: 'World Chain',
     explorerUrl: 'https://worldchain-sepolia.explorer.alchemy.com/',
@@ -224,5 +216,13 @@ export const TESTNET_CHAINS: ChainsConfig = {
     explorerUrl: 'https://testnet-scan.mocachain.org/',
     explorerName: 'Moca Chain Explorer',
     symbol: 'MOCA',
+  },
+  MonadTestnet: {
+    displayName: 'Monad',
+    explorerUrl: 'https://testnet.monadexplorer.com/',
+    explorerName: 'Monad Explorer',
+    icon: 'Monad',
+    symbol: 'MON',
+    sdkName: 'MonadTestnet',
   },
 };

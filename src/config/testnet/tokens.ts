@@ -366,57 +366,6 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     icon: TokenIcon.BTC,
   },
   {
-    symbol: 'MON',
-    icon: TokenIcon.MONAD,
-    decimals: 18,
-    tokenId: { chain: 'Monad', address: 'native' },
-  },
-  {
-    symbol: 'WMON',
-    icon: TokenIcon.MONAD,
-    decimals: 18,
-    tokenId: {
-      chain: 'Monad',
-      address: '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
-    },
-  },
-  {
-    symbol: 'wUSDC',
-    icon: TokenIcon.USDC,
-    decimals: 6,
-    tokenId: {
-      chain: 'Monad',
-      address: '0x4804916f7c16c20E1a557feb8E3E29418DDC54DC',
-    },
-  },
-  {
-    symbol: 'wUSDT',
-    icon: TokenIcon.USDT,
-    decimals: 6,
-    tokenId: {
-      chain: 'Monad',
-      address: '0x72111141639bfAa9A1Ad7A638F546e2397f0dc7a',
-    },
-  },
-  {
-    symbol: 'wWETH',
-    icon: TokenIcon.ETH,
-    decimals: 18,
-    tokenId: {
-      chain: 'Monad',
-      address: '0xA296f47E8Ff895Ed7A092b4a9498bb13C46ac768',
-    },
-  },
-  {
-    symbol: 'wWBTC',
-    icon: TokenIcon.WBTC,
-    decimals: 8,
-    tokenId: {
-      chain: 'Monad',
-      address: '0x5B3540B0a48F8b30A655402eE5dcD213fd2B4BEa',
-    },
-  },
-  {
     symbol: 'ETH',
     tokenId: {
       chain: 'Linea',
@@ -505,5 +454,20 @@ export const TESTNET_TOKENS: TokenConfig[] = [
     tokenId: { chain: 'Moca', address: 'native' },
     decimals: 18,
     icon: TokenIcon.MOCA,
+  },
+  {
+    symbol: 'MON',
+    icon: TokenIcon.MONAD,
+    decimals: 18,
+    tokenId: { chain: 'MonadTestnet', address: 'native' },
+  },
+  {
+    symbol: 'WMON',
+    icon: TokenIcon.MONAD,
+    decimals: 18,
+    tokenId: {
+      chain: 'MonadTestnet',
+      address: '0xFb8bf4c1CC7a94c73D209a149eA2AbEa852BC541',
+    },
   },
 ];
