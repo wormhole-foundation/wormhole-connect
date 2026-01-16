@@ -92,11 +92,9 @@ export function fetchFogoOptions() {
 
   const connection = new Connection(config.rpcs.Fogo);
 
-  // Only Nightly and Leap support Fogo natively currently
-
   const wallets = getSolanaStandardWallets(connection).reduce((acc, w) => {
     const name = getWalletName(w).toLowerCase();
-    if (name === 'leap') {
+    if (name === 'leap' || name === 'backpack') {
       acc.leap = w;
     }
     return acc;
