@@ -99,6 +99,9 @@ export function fetchFogoOptions() {
     if (name === 'leap') {
       acc.leap = w;
     }
+    if (name === 'backpack') {
+      acc.backpack = w;
+    }
     return acc;
   }, {} as Record<string, Wallet>);
 
