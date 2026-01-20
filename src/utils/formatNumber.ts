@@ -1,4 +1,5 @@
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
+import Decimal from 'decimal.js';
 
 interface Separators {
   group: string;
@@ -38,7 +39,19 @@ export const formatNumberIntl = (value: string): string => {
     return '';
   }
 
-  const [integerPart, decimalPart] = value.split('.');
+  let normalizedValue = value;
+
+  if (value.includes('e') || value.includes('E')) {
+    // Handle scientific notation (e.g., '2e-7') by converting to decimal string
+    try {
+      const decimal = new Decimal(value);
+      normalizedValue = decimal.toFixed();
+    } catch {
+      // noop
+    }
+  }
+
+  const [integerPart, decimalPart] = normalizedValue.split('.');
 
   // Use BigInt to handle large numbers without precision loss
   const intNum = integerPart ? BigInt(integerPart) : 0n;

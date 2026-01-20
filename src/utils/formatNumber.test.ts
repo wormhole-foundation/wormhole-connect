@@ -97,6 +97,13 @@ describe('formatNumber utilities', () => {
           `9${group}999${group}999${group}999${group}999${group}999${decimal}123456`,
         );
       });
+
+      it('should handle scientific notation', () => {
+        expect(formatNumberIntl('2e-7')).toBe(`0${decimal}0000002`);
+        expect(formatNumberIntl('1.23e-5')).toBe(`0${decimal}0000123`);
+        expect(formatNumberIntl('1.5e3')).toBe(`1${group}500`);
+        expect(formatNumberIntl('2.5E-4')).toBe(`0${decimal}00025`);
+      });
     },
   );
 
