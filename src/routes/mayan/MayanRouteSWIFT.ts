@@ -1,10 +1,10 @@
 import type { Network } from '@wormhole-foundation/sdk-base';
 import type { routes } from '@wormhole-foundation/sdk-connect';
-import { MayanRouteBase } from './MayanRouteBase';
+import { MayanRouteCrossChain } from './MayanRouteCrossChain';
 import { MayanProtocol } from './types';
 
 export class MayanRouteSWIFT<N extends Network>
-  extends MayanRouteBase<N>
+  extends MayanRouteCrossChain<N>
   implements routes.StaticRouteMethods<typeof MayanRouteSWIFT>
 {
   static meta = {
