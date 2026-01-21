@@ -36,9 +36,7 @@ describe('calculateFeeOffset', () => {
     const mockRoute = {
       rc: {
         meta: { name: 'TestRoute' },
-        config: {
-          referrerFeeDbps: 10n,
-        },
+        config: {},
       },
     };
     vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
@@ -193,29 +191,8 @@ describe('calculateFeeOffset', () => {
     });
   });
 
-  describe('CCTP Executor routes', () => {
-    it('should calculate fee using referrerFeeDbps', () => {
-      const mockRoute = {
-        rc: {
-          meta: { name: 'CCTPExecutorRoute' },
-          config: {
-            referrerFeeDbps: 10n, // 10 dbps = 0.01%
-          },
-        },
-      };
-
-      vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
-
-      const result = calculateFeeOffset(
-        'CCTPExecutorRoute',
-        mockAmount,
-        mockToken,
-      );
-
-      // offset = 10000 * 10 / (100000 - 10) = 1.001... ≈ 1
-      expect(sdkAmount.units(result!)).toBe(1n);
-    });
-  });
+  // Note: CCTP Executor routes use fixed fees (transferTokenFee/nativeTokenFee)
+  // which are handled by integrator apps, not Connect. No fee offset calculation needed.
 
   describe('NTT Executor routes', () => {
     it('should calculate fee using referrerFee.feeDbps', () => {
@@ -347,16 +324,22 @@ describe('calculateFeeOffset', () => {
   it('should return undefined for routes with zero fee', () => {
     const mockRoute = {
       rc: {
-        meta: { name: 'ZeroFeeRoute' },
+        meta: { name: 'NTTExecutorRoute' },
         config: {
-          referrerFeeDbps: 0n,
+          referrerFee: {
+            feeDbps: 0n,
+          },
         },
       },
     };
 
     vi.mocked(config.routes.get).mockReturnValue(mockRoute as any);
 
-    const result = calculateFeeOffset('ZeroFeeRoute', mockAmount, mockToken);
+    const result = calculateFeeOffset(
+      'NTTExecutorRoute',
+      mockAmount,
+      mockToken,
+    );
     expect(result).toBeUndefined();
   });
 });

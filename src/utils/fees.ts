@@ -143,14 +143,12 @@ export function calculateFeeOffset(
 
   let feeDbps = 0n;
 
-  // Executor routes (CCTP, Token Bridge, NTT) use different fee structures
+  // Executor routes (Token Bridge, NTT) use different fee structures
+  // Note: CCTP Executor routes use fixed fees (transferTokenFee/nativeTokenFee)
+  // which are handled by integrator apps, not Connect
   if (isExecutorRoute(sdkRoute.rc.meta.name)) {
-    // CCTP Executor routes use referrerFeeDbps directly
-    if (routeConfig.referrerFeeDbps !== undefined) {
-      feeDbps = routeConfig.referrerFeeDbps;
-    }
     // NTT Executor route uses referrerFee.feeDbps
-    else if (routeConfig.referrerFee?.feeDbps !== undefined) {
+    if (routeConfig.referrerFee?.feeDbps !== undefined) {
       // Check for token-specific override in NTT
       if (
         routeConfig.referrerFee.perTokenOverrides !== undefined &&
