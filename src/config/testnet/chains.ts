@@ -129,7 +129,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'MNT',
     sdkName: 'Mantle',
   },
-  Monad: {
+  MonadTestnet: {
     displayName: 'Monad',
     explorerUrl: 'https://testnet.monadexplorer.com/',
     explorerName: 'Monad Explorer',
