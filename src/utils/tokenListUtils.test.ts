@@ -9,7 +9,7 @@ import {
   applyShittokenFilter,
   filterTokensByBalance,
 } from './tokenListUtils';
-import type { Token } from 'config/tokens';
+import { Token } from 'config/tokens';
 import type { Balances } from './wallet/types';
 import { createMockToken } from './testHelpers';
 
