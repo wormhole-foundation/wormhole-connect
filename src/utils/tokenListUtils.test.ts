@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { TokenId } from '@wormhole-foundation/sdk';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import {
   getTokenPreferenceScore,
@@ -475,8 +476,8 @@ describe('tokenListUtils', () => {
       const token1 = createMockToken({ symbol: 'ALLOWED' });
       const token2 = createMockToken({ symbol: 'BLOCKED' });
 
-      config.default.isTokenSupportedHandler = (token: Token) =>
-        token.symbol === 'ALLOWED';
+      config.default.isTokenSupportedHandler = (token: Token | TokenId) =>
+        token instanceof Token && token.symbol === 'ALLOWED';
 
       const tokens = [token1, token2];
       const filtered = applyCustomTokenSupport(tokens);
@@ -494,7 +495,7 @@ describe('tokenListUtils', () => {
       const token2 = createMockToken({ symbol: 'BLOCKED' });
 
       config.default.isTokenSupportedHandler = (
-        token: Token,
+        token: Token | TokenId,
         sourceToken,
         tokenType,
       ) => tokenType === 'source';

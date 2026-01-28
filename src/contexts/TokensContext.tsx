@@ -5,7 +5,7 @@ import {
   isNative,
   toNative,
 } from '@wormhole-foundation/sdk';
-import config, { clearWormholeContextV2 } from 'config';
+import config, { clearWormholeContextV2, getWormholeContextV2 } from 'config';
 import type { Token } from 'config/tokens';
 import { tokenKey, TokenMapping } from 'config/tokens';
 import type { ReactNode } from 'react';
@@ -74,6 +74,25 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
 
   const getOrFetchToken = useCallback(
     async (tokenId: TokenId): Promise<Token | undefined> => {
+      const isTokenSupported = config.isTokenSupportedHandler;
+
+      if (isTokenSupported && !isTokenSupported(tokenId)) {
+        const wh = await getWormholeContextV2();
+        const chain = wh.getChain(tokenId.chain);
+        const tokenBridge = await chain.getTokenBridge();
+        if (tokenBridge) {
+          try {
+            const wrapped = await tokenBridge.isWrappedAsset(tokenId.address);
+            if (!wrapped) {
+              return undefined;
+            }
+          } catch (error) {
+            console.error('Error checking if token is wrapped', error);
+            return undefined;
+          }
+        }
+      }
+
       if (
         !isNative(tokenId.address) &&
         chainToPlatform(tokenId.chain) === 'Evm'
@@ -95,6 +114,7 @@ export const TokensProvider: React.FC<TokensProviderProps> = ({ children }) => {
       try {
         setIsFetchingToken(true);
         const t = await config.tokens.addFromTokenId(tokenId);
+
         setLastUpdate(config.tokens.lastUpdate);
         console.info(
           `Added new token to cache`,

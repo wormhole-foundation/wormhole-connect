@@ -9,6 +9,7 @@ import type {
   AttestationReceipt,
   routes,
   IndexerConfig,
+  TokenId,
 } from '@wormhole-foundation/sdk';
 
 import type { PriorityFeeOptions } from '@wormhole-foundation/sdk-solana';
@@ -104,7 +105,7 @@ export type IsRouteSupportedHandler = (
 ) => Promise<boolean>;
 
 export type IsTokenSupportedHandler = (
-  token: Token,
+  token: Token | TokenId,
   sourceToken?: Token, // The selected source token, if applicable
   tokenListType?: 'source' | 'destination',
 ) => boolean;
