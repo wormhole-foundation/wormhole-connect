@@ -41,6 +41,7 @@ interface ImportMetaEnv {
   REACT_APP_FOGO_RPC: string;
   REACT_APP_MONAD_RPC: string;
   REACT_APP_MEGAETH_RPC: string;
+  REACT_APP_ZEROGRAVITY_RPC: string;
 
   // testnet
   REACT_APP_SEPOLIA_RPC: string;
@@ -67,6 +68,7 @@ interface ImportMetaEnv {
   REACT_APP_PLUME_TESTNET_RPC: string;
   REACT_APP_XRPLEVM_TESTNET_RPC: string;
   REACT_APP_MONAD_TESTNET_RPC: string;
+  REACT_APP_ZEROGRAVITY_TESTNET_RPC: string;
 
   // devnet
   REACT_APP_ETHEREUM_DEVNET_RPC: string;

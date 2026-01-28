@@ -988,4 +988,19 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.MOCA,
   },
+  {
+    symbol: '0G',
+    tokenId: { chain: 'ZeroGravity', address: 'native' },
+    decimals: 18,
+    icon: TokenIcon.ZEROGRAVITY,
+  },
+  {
+    symbol: 'W0G',
+    tokenId: {
+      chain: 'ZeroGravity',
+      address: '0x1cd0690ff9a693f5ef2dd976660a8dafc81a109c',
+    },
+    decimals: 18,
+    icon: TokenIcon.ZEROGRAVITY,
+  },
 ];

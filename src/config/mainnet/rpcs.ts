@@ -34,6 +34,7 @@ const {
   REACT_APP_MONAD_RPC,
   REACT_APP_MEGAETH_RPC,
   REACT_APP_MOCA_RPC,
+  REACT_APP_ZEROGRAVITY_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -71,4 +72,5 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('Monad', REACT_APP_MONAD_RPC),
   ...populateRpcField('MegaETH', REACT_APP_MEGAETH_RPC),
   ...populateRpcField('Moca', REACT_APP_MOCA_RPC),
+  ...populateRpcField('ZeroGravity', REACT_APP_ZEROGRAVITY_RPC),
 };

@@ -49,6 +49,7 @@ import CTC from './Tokens/CTC';
 import MON from './Tokens/MON';
 import AUSD from './Tokens/AUSD';
 import MOCA from './Tokens/MOCA';
+import ZEROGRAVITY from './Tokens/ZEROGRAVITY';
 
 const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.WBTC]: WBTC(),
@@ -107,6 +108,7 @@ const iconMap: { [key in TokenIcon]: React.JSX.Element } = {
   [TokenIcon.MONAD]: MON(),
   [TokenIcon.AUSD]: AUSD(),
   [TokenIcon.MOCA]: MOCA(),
+  [TokenIcon.ZEROGRAVITY]: ZEROGRAVITY(),
 };
 
 function isBuiltinTokenIcon(icon?: TokenIcon | string): icon is TokenIcon {
