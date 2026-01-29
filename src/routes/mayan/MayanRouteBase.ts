@@ -430,7 +430,7 @@ export class MayanRouteBase<N extends Network> extends routes.AutomaticRoute<
       toChain: toMayanChainName(toChain.network, toChain.chain),
       ...this.getDefaultOptions(),
       ...params.options,
-      slippageBps: 'auto',
+      slippageBps: params.options?.slippageBps ?? 'auto',
       referrer: this.referrerAddress().solana, // Solana referrer for quotes
       referrerBps: 0, // No referral fee for mayan, we handle our own below
     };

@@ -19,6 +19,14 @@ export class MayanRouteMONOCHAIN<N extends Network>
 
   override protocols: MayanProtocol[] = [MayanProtocol.MONO_CHAIN];
 
+  override getDefaultOptions() {
+    return {
+      gasDrop: 0,
+      slippageBps: 100,
+      optimizeFor: 'speed' as const,
+    };
+  }
+
   override async validate(
     request: routes.RouteTransferRequest<N>,
     params: TransferParams,
