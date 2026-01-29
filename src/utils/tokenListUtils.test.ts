@@ -9,7 +9,7 @@ import {
   applyShittokenFilter,
   filterTokensByBalance,
 } from './tokenListUtils';
-import { Token } from 'config/tokens';
+import type { Token } from 'config/tokens';
 import type { Balances } from './wallet/types';
 import { createMockToken } from './testHelpers';
 
@@ -57,17 +57,25 @@ vi.mock('./ntt', () => ({
   isNttToken: vi.fn(() => false),
 }));
 
-vi.mock('config/tokens', () => ({
-  isSameToken: vi.fn((a: any, b: any) => {
-    return a.chain === b.chain && a.addressString === b.addressString;
-  }),
-  tokenKey: vi.fn((token: any) => `${token.chain}:${token.addressString}`),
-  isTokenTuple: vi.fn((item: any) => Array.isArray(item)),
-  tokenIdFromTuple: vi.fn((tuple: any) => ({
-    chain: tuple[0],
-    address: { toString: () => tuple[1] },
-  })),
-}));
+vi.mock('config/tokens', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('config/tokens')>();
+
+  return {
+    ...actual,
+    isSameToken: vi.fn((a: any, b: any) => {
+      return a.chain === b.chain && a.addressString === b.addressString;
+    }),
+
+    tokenKey: vi.fn((token: any) => `${token.chain}:${token.addressString}`),
+
+    isTokenTuple: vi.fn((item: any) => Array.isArray(item)),
+
+    tokenIdFromTuple: vi.fn((tuple: any) => ({
+      chain: tuple[0],
+      address: { toString: () => tuple[1] },
+    })),
+  };
+});
 
 describe('tokenListUtils', () => {
   describe('getTokenPreferenceScore', () => {
@@ -477,7 +485,7 @@ describe('tokenListUtils', () => {
       const token2 = createMockToken({ symbol: 'BLOCKED' });
 
       config.default.isTokenSupportedHandler = (token: Token | TokenId) =>
-        token instanceof Token && token.symbol === 'ALLOWED';
+        'symbol' in token && token.symbol === 'ALLOWED';
 
       const tokens = [token1, token2];
       const filtered = applyCustomTokenSupport(tokens);
