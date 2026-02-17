@@ -470,4 +470,10 @@ export const TESTNET_TOKENS: TokenConfig[] = [
       address: '0xFb8bf4c1CC7a94c73D209a149eA2AbEa852BC541',
     },
   },
+  {
+    symbol: '0G',
+    tokenId: { chain: 'ZeroGravity', address: 'native' },
+    decimals: 18,
+    icon: TokenIcon.ZEROGRAVITY,
+  },
 ];

@@ -225,4 +225,12 @@ export const TESTNET_CHAINS: ChainsConfig = {
     symbol: 'MON',
     sdkName: 'MonadTestnet',
   },
+  ZeroGravity: {
+    displayName: 'ZeroGravity',
+    sdkName: 'ZeroGravity',
+    explorerUrl: 'https://chainscan-testnet.0g.ai/',
+    explorerName: '0G Testnet Explorer',
+    icon: 'ZeroGravity',
+    symbol: '0G',
+  },
 };

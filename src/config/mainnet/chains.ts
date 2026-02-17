@@ -293,4 +293,12 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: 'Moca',
     symbol: 'MOCA',
   },
+  ZeroGravity: {
+    displayName: 'ZeroGravity',
+    sdkName: 'ZeroGravity',
+    explorerUrl: 'https://chainscan.0g.ai/',
+    explorerName: '0G Blockchain Explorer',
+    icon: 'ZeroGravity',
+    symbol: '0G',
+  },
 };

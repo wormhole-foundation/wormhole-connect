@@ -988,4 +988,37 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.MOCA,
   },
+  {
+    symbol: '0G',
+    tokenId: { chain: 'ZeroGravity', address: 'native' },
+    decimals: 18,
+    icon: TokenIcon.ZEROGRAVITY,
+  },
+  {
+    symbol: 'W0G',
+    tokenId: {
+      chain: 'ZeroGravity',
+      address: '0x1cd0690ff9a693f5ef2dd976660a8dafc81a109c',
+    },
+    decimals: 18,
+    icon: TokenIcon.ZEROGRAVITY,
+  },
+  {
+    symbol: 'WETH',
+    tokenId: {
+      chain: 'ZeroGravity',
+      address: '0xFF1B0c1243be1F420E0007122988444C01BD84A3',
+    },
+    decimals: 18,
+    icon: TokenIcon.ETH,
+  },
+  {
+    symbol: 'WBTC',
+    tokenId: {
+      chain: 'ZeroGravity',
+      address: '0xDCAC994abC6C51366E6D65445614e507d771A69a',
+    },
+    decimals: 8,
+    icon: TokenIcon.WBTC,
+  },
 ];
