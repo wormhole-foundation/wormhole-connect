@@ -48,7 +48,7 @@ function FeeOffset() {
           +{sdkAmount.display(feeOffsetAmount)} {sourceToken?.symbol}
         </Typography>
         <Tooltip title="Portal's fee is added on top of your input amount.">
-          <InfoOutlineIcon
+          <InfoOutlinedIcon
             sx={{
               height: '14px',
               width: '14px',
