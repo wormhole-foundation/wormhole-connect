@@ -59,12 +59,11 @@ const createMockStore = (amount?: any, route?: string) =>
 
 const AppWrapper =
   (store: any) =>
-  ({ children }: { children: React.ReactNode }) =>
-    (
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
-      </Provider>
-    );
+  ({ children }: { children: React.ReactNode }) => (
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </Provider>
+  );
 
 describe('FeeOffset', () => {
   beforeEach(() => {
@@ -114,7 +113,7 @@ describe('FeeOffset', () => {
       wrapper: AppWrapper(store),
     });
 
-    const infoIcon = screen.getByTestId('InfoOutlineIcon');
+    const infoIcon = screen.getByTestId('InfoOutlinedIcon');
     expect(infoIcon).toBeInTheDocument();
   });
 
