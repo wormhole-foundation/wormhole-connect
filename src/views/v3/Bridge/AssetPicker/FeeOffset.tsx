@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Tooltip, Typography, useTheme } from '@mui/material';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 
 import config from 'config';
