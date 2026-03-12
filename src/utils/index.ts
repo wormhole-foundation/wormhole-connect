@@ -375,6 +375,11 @@ export const isFrankensteinToken = (token: Token, chain: Chain) => {
     return true;
   }
 
+  // WTT WAVAX on Solana is a Frankenstein token
+  if (token.symbol === 'WAVAX' && chain === 'Solana') {
+    return true;
+  }
+
   // All WTT transfers to Base are frankenstein since the Base bridge exists
   if (chain === 'Base' || chain === 'BaseSepolia') {
     return true;
