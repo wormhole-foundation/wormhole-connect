@@ -170,6 +170,7 @@ const peerDeps = [
   '@mui/icons-material',
   '@mui/styled-engine',
   '@mui/system',
+  'lucide-react',
 ];
 
 const external = (id: string) => {
