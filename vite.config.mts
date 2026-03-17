@@ -161,8 +161,8 @@ const rollupInput: InputOption = {
 
 // Only externalize react/react-dom — the consuming app must provide these.
 // MUI, Emotion, and lucide-react stay bundled inside wormhole-connect because
-// consuming apps (e.g. jup.ag) typically do not install these UI deps, and
-// externalizing them makes runtime resolution fragile.
+// consuming apps often do not install these UI deps, and externalizing them
+// makes runtime resolution fragile.
 const peerDeps = ['react', 'react-dom'];
 
 const external = (id: string) => {
