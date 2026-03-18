@@ -159,18 +159,11 @@ const rollupInput: InputOption = {
   base: 'src/exports/base.ts',
 };
 
-// Function-based external to catch all peer dependency paths
-// This is more robust than an array, especially with preserveModules
-const peerDeps = [
-  'react',
-  'react-dom',
-  '@emotion/react',
-  '@emotion/styled',
-  '@mui/material',
-  '@mui/icons-material',
-  '@mui/styled-engine',
-  '@mui/system',
-];
+// Only externalize react/react-dom — the consuming app must provide these.
+// MUI, Emotion, and lucide-react stay bundled inside wormhole-connect because
+// consuming apps often do not install these UI deps, and externalizing them
+// makes runtime resolution fragile.
+const peerDeps = ['react', 'react-dom'];
 
 const external = (id: string) => {
   // Check if the module ID starts with any peer dependency

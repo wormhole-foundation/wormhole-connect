@@ -114,7 +114,7 @@ describe('FeeOffset', () => {
       wrapper: AppWrapper(store),
     });
 
-    const infoIcon = screen.getByTestId('InfoOutlineIcon');
+    const infoIcon = screen.getByTestId('InfoOutlinedIcon');
     expect(infoIcon).toBeInTheDocument();
   });
 
