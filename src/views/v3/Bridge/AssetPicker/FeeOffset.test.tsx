@@ -59,11 +59,12 @@ const createMockStore = (amount?: any, route?: string) =>
 
 const AppWrapper =
   (store: any) =>
-  ({ children }: { children: React.ReactNode }) => (
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </Provider>
-  );
+  ({ children }: { children: React.ReactNode }) =>
+    (
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      </Provider>
+    );
 
 describe('FeeOffset', () => {
   beforeEach(() => {
