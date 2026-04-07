@@ -17,11 +17,10 @@ import type { WormholeConnectConfig } from 'config/types';
  * The exports are:
  * - DEFAULT_ROUTES
  * - nttRoutes
- * - AutomaticTokenBridgeRoute
- * - TokenBridgeExecutorRoute
- * - TokenBridgeRoute
- * - AutomaticCCTPRoute
- * - ManualCCTPRoute
+ * - CCTPRoute
+ * - cctpV2FastExecutorRoute
+ * - cctpV2StandardExecutorRoute
+ * - executorTokenBridgeRoute
  *
  * We also make the following test utilities available:
  * - nttTestRoutesMainnet
@@ -67,15 +66,7 @@ const parseConfig = (config: string): WormholeConnectConfig => {
       /* @ts-ignore */
       window.nttRoutes = nttRoutes;
       /* @ts-ignore */
-      window.AutomaticTokenBridgeRoute = routes.AutomaticTokenBridgeRoute;
-      /* @ts-ignore */
-      window.AutomaticCCTPRoute = routes.AutomaticCCTPRoute;
-      /* @ts-ignore */
-      window.TokenBridgeRoute = routes.TokenBridgeRoute;
-      /* @ts-ignore */
       window.CCTPRoute = routes.CCTPRoute;
-      /* @ts-ignore */
-      window.TBTCRoute = routes.TBTCRoute;
       /* @ts-ignore */
       window.MayanRoute = MayanRoute;
       /* @ts-ignore */
@@ -266,23 +257,7 @@ function SampleApp() {
                     <i>{'RouteConstructor[]'}</i>
                   </li>
                   <li>
-                    <pre>AutomaticTokenBridgeRoute</pre>
-                    <i>{'RouteConstructor'}</i>
-                  </li>
-                  <li>
-                    <pre>TokenBridgeRoute</pre>
-                    <i>{'RouteConstructor'}</i>
-                  </li>
-                  <li>
-                    <pre>AutomaticCCTPRoute</pre>
-                    <i>{'RouteConstructor'}</i>
-                  </li>
-                  <li>
                     <pre>CCTPRoute</pre>
-                    <i>{'RouteConstructor'}</i>
-                  </li>
-                  <li>
-                    <pre>TBTCRoute</pre>
                     <i>{'RouteConstructor'}</i>
                   </li>
                   <li>

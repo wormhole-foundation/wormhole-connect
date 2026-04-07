@@ -186,12 +186,6 @@ export async function parseReceipt(
           params: NttRoute.ValidatedParams;
         },
       );
-    case 'AutomaticNtt':
-      return parseNttReceipt(
-        receipt as ReceiptWithAttestation<NttRoute.AutomaticAttestationReceipt> & {
-          params: NttRoute.ValidatedParams;
-        },
-      );
     case 'ManualTBTC':
       return parseTBTCReceipt(
         receipt as ReceiptWithAttestation<TBTCBridge.VAA>,

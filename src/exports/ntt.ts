@@ -7,7 +7,6 @@ import '@wormhole-foundation/sdk-sui-ntt';
 
 import type { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import {
-  nttAutomaticRoute,
   type NttExecutorRoute,
   nttExecutorRoute,
   nttManualRoute,
@@ -35,7 +34,6 @@ const nttRoutes = (
 };
 
 export {
-  nttAutomaticRoute,
   nttExecutorRoute,
   nttManualRoute,
   nttRoutes,

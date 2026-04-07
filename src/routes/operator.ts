@@ -17,6 +17,10 @@ import {
   routes,
   amount as sdkAmount,
 } from '@wormhole-foundation/sdk';
+import {
+  cctpV2FastExecutorRoute,
+  cctpV2StandardExecutorRoute,
+} from '@wormhole-labs/cctp-executor-route';
 
 import SDKv2Route from './sdkv2/route';
 import type { QuoteMetadata } from './types';
@@ -32,11 +36,10 @@ export type QuoteResult = routes.QuoteResult<routes.Options>;
 type forEachCallback<T> = (name: string, route: SDKv2Route) => T;
 
 export const DEFAULT_ROUTES = [
-  routes.AutomaticCCTPRoute,
+  cctpV2FastExecutorRoute(),
+  cctpV2StandardExecutorRoute(),
   routes.CCTPRoute,
-  routes.AutomaticTokenBridgeRoute,
-  routes.TokenBridgeRoute,
-  routes.TBTCRoute,
+  routes.executorTokenBridgeRoute(),
 ];
 
 export interface QuoteParams {
