@@ -40,6 +40,7 @@ export const DEFAULT_ROUTES = [
   cctpV2StandardExecutorRoute(),
   routes.CCTPRoute,
   routes.executorTokenBridgeRoute(),
+  routes.TBTCRoute,
 ];
 
 export interface QuoteParams {

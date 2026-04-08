@@ -27,7 +27,7 @@ import type {
   WormholeConnectWalletProvider,
 } from 'utils/wallet/types';
 
-const { CCTPRoute, executorTokenBridgeRoute } = routes;
+const { CCTPRoute, TBTCRoute, executorTokenBridgeRoute } = routes;
 
 export default WormholeConnect;
 
@@ -54,6 +54,7 @@ export {
   // Routes
   DEFAULT_ROUTES,
   CCTPRoute,
+  TBTCRoute,
   executorTokenBridgeRoute,
 };
 
