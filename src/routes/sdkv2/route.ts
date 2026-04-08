@@ -38,7 +38,6 @@ export default class SDKv2Route {
   constructor(readonly rc: routes.RouteConstructor) {
     this.IS_TOKEN_BRIDGE_ROUTE = [
       'ManualTokenBridge',
-      'AutomaticTokenBridge',
       'TokenBridgeExecutorRoute',
     ].includes(rc.meta.name);
 

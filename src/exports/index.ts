@@ -10,6 +10,10 @@ export * as config from 'config/types';
 // Routes
 import { DEFAULT_ROUTES } from 'routes/operator';
 import { routes } from '@wormhole-foundation/sdk';
+export {
+  cctpV2FastExecutorRoute,
+  cctpV2StandardExecutorRoute,
+} from '@wormhole-labs/cctp-executor-route';
 
 import type { Chain, Network } from '@wormhole-foundation/sdk';
 
@@ -23,13 +27,7 @@ import type {
   WormholeConnectWalletProvider,
 } from 'utils/wallet/types';
 
-const {
-  AutomaticTokenBridgeRoute,
-  TokenBridgeRoute,
-  AutomaticCCTPRoute,
-  CCTPRoute,
-  TBTCRoute,
-} = routes;
+const { CCTPRoute, TBTCRoute, executorTokenBridgeRoute } = routes;
 
 export default WormholeConnect;
 
@@ -55,11 +53,9 @@ export {
 
   // Routes
   DEFAULT_ROUTES,
-  AutomaticTokenBridgeRoute,
-  TokenBridgeRoute,
-  AutomaticCCTPRoute,
   CCTPRoute,
   TBTCRoute,
+  executorTokenBridgeRoute,
 };
 
 export * from 'telemetry';

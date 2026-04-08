@@ -12,12 +12,6 @@ function getRouteProvider(
     return quoteProvider;
   }
 
-  const isLidoNttSpecialCase =
-    route === 'AutomaticNtt' &&
-    sourceTokenSymbol === 'wstETH' &&
-    ((sourceChain === 'Ethereum' && destChain === 'Bsc') ||
-      (sourceChain === 'Bsc' && destChain === 'Ethereum'));
-
   const isSameChain = route === 'MayanSwapMONOCHAIN';
 
   const isSameChainSolana =
@@ -25,9 +19,7 @@ function getRouteProvider(
 
   let providerString = '';
 
-  if (isLidoNttSpecialCase) {
-    providerString = 'NTT: Wormhole + Axelar';
-  } else if (isSameChainSolana) {
+  if (isSameChainSolana) {
     providerString = 'Jupiter';
   } else if (isSameChain) {
     providerString = 'Mayan'; // Needs to eventually call out the evm route

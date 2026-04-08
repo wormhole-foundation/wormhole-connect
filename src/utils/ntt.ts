@@ -5,7 +5,6 @@ import { addressString } from 'config/tokens';
 
 export const nttRoutes = [
   'ManualNtt',
-  'AutomaticNtt',
   'M0AutomaticRoute',
   'NttExecutorRoute',
 ] as const;
