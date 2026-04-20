@@ -88,21 +88,136 @@ export default class RouteOperator {
   }
 
   async resumeFromTx(tx: TransactionId): Promise<TxInfo | null> {
-    // This function identifies which route a transaction corresponds using brute force.
-    // It tries to call resume() on every manual route until one of them succeeds.
-    //
-    // This was just the simpler approach. In the future we can possibly optimize this by
-    // trying some tricks to identify which route the transaction is for, but this would
-    // come at the cost of added code, complexity, and potential bugs.
-    //
-    // That trade-off might not be worth it though
+    // First, try to identify the route via Wormholescan API
+    const routesToTry = await this.getRoutesFromWormholescan(tx);
 
-    return new Promise((resolve, reject) => {
-      // This promise runs resumeIfManual on each route in parallel and resolves as soon
-      // as it finds a receipt from any of the available routes. This is different from just using
-      // Promise.race, because we only want to resolve under specific conditions.
-      //
-      // The assumption is that at most one route will produce a receipt.
+    if (routesToTry.length > 0) {
+      // Try only the specific routes identified by Wormholescan
+      const result = await this.trySpecificRoutes(tx, routesToTry);
+      if (result !== null) {
+        return result;
+      }
+    }
+
+    // Fall back to brute force approach if:
+    // 1. Wormholescan API didn't return any routes
+    // 2. The identified routes didn't succeed
+    return this.tryAllRoutes(tx);
+  }
+
+  private async getRoutesFromWormholescan(
+    tx: TransactionId,
+  ): Promise<string[]> {
+    try {
+      const response = await fetch(
+        `${config.wormholeApi}api/v1/operations?txHash=${tx.txid}`,
+        { headers: { accept: 'application/json' } },
+      );
+
+      if (!response.ok) {
+        return [];
+      }
+
+      const data = await response.json();
+      const operations = data?.operations;
+
+      if (!operations || operations.length === 0) {
+        return [];
+      }
+
+      // Get appIds from the first matching operation
+      const appIds =
+        operations[0]?.content?.standarizedProperties?.appIds || [];
+
+      // Map appIds to route names
+      const routeNames = new Set<string>();
+
+      for (const appId of appIds) {
+        switch (appId) {
+          case 'CCTP_WORMHOLE_INTEGRATION':
+            routeNames.add('ManualCCTP');
+            routeNames.add('AutomaticCCTPRoute');
+            routeNames.add('CCTPRoute');
+            routeNames.add('CCTPExecutorRoute');
+            routeNames.add('CCTPv2StandardExecutorRoute');
+            routeNames.add('CCTPv2FastExecutorRoute');
+            break;
+          case 'PORTAL_TOKEN_BRIDGE':
+            routeNames.add('ManualTokenBridge');
+            routeNames.add('AutomaticTokenBridgeRoute');
+            routeNames.add('TokenBridgeRoute');
+            routeNames.add('TokenBridgeExecutorRoute');
+            break;
+          case 'NATIVE_TOKEN_TRANSFER':
+            routeNames.add('ManualNtt');
+            routeNames.add('NttExecutorRoute');
+            break;
+          case 'GENERIC_RELAYER':
+            // Could be various routes, add common relayer-based routes
+            routeNames.add('AutomaticTokenBridgeRoute');
+            routeNames.add('AutomaticCCTPRoute');
+            break;
+          // TBTCRoute doesn't have a specific appId mapping in Wormholescan
+          // It will be tried in the fallback brute force approach
+        }
+      }
+
+      // Filter to only routes that are actually configured
+      return Array.from(routeNames).filter((name) => name in this.routes);
+    } catch (error) {
+      // Silently fail and return empty array to trigger fallback
+      return [];
+    }
+  }
+
+  private async trySpecificRoutes(
+    tx: TransactionId,
+    routeNames: string[],
+  ): Promise<TxInfo | null> {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const totalAttempts = routeNames.length;
+
+      if (totalAttempts === 0) {
+        resolve(null);
+        return;
+      }
+
+      for (const name of routeNames) {
+        const route = this.routes[name];
+        if (!route) {
+          attempts += 1;
+          if (attempts === totalAttempts) {
+            resolve(null);
+          }
+          continue;
+        }
+
+        route
+          .resumeIfManual(tx)
+          .then((receipt) => {
+            if (receipt !== null) {
+              resolve({ route: name, receipt });
+            } else {
+              attempts += 1;
+              if (attempts === totalAttempts) {
+                resolve(null);
+              }
+            }
+          })
+          .catch(() => {
+            attempts += 1;
+            if (attempts === totalAttempts) {
+              resolve(null);
+            }
+          });
+      }
+    });
+  }
+
+  private async tryAllRoutes(tx: TransactionId): Promise<TxInfo | null> {
+    // This is the original brute force implementation
+    return new Promise((resolve) => {
       const totalAttemptsToMake = Object.keys(this.routes).length;
       let failedAttempts = 0;
 
@@ -116,27 +231,10 @@ export default class RouteOperator {
               failedAttempts += 1;
             }
           })
-          .catch((e) => {
+          .catch(() => {
             failedAttempts += 1;
-            // Possible reasons for error here:
-            //
-            // - Given transaction does not correspond to this route.
-            //   We expect this case to happen because it's how we narrow down
-            //   which route this transaction corresponds to. It's not a problem.
-            //
-            // - Otherwise, perhaps this is corresponding route but some other error
-            //   happened when fetching the metadata required to construct a receipt.
-            //
-            // We handle both of these the same way for now - by continuing.
-            //
-            // If we add logic to identify the route in a different way in the future,
-            // we can possibly handle these two error cases differently.
-            //
-            // If we reach the end of the for-loop without a successful result from resume()
-            // then we tell the user that the transaction can't be resumed.
           })
           .finally(() => {
-            // If we failed to get a receipt from all routes, resolve to null
             if (failedAttempts === totalAttemptsToMake) {
               resolve(null);
             }
