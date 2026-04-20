@@ -230,11 +230,23 @@ const TransactionDetails = () => {
       return <></>;
     }
 
+    const gasToken = config.tokens.getGasToken(destChainConfig.sdkName);
+
+    if (!gasToken) {
+      return <></>;
+    }
+
     const gasTokenPrice = calculateUSDPrice(
       getTokenPrice,
       receiveNativeAmount,
-      config.tokens.getGasToken(destChainConfig.sdkName),
+      gasToken,
     );
+
+    const gasTokenAmount = sdkAmount.display(
+      sdkAmount.truncate(receiveNativeAmount, 6),
+    );
+
+    const gasTokenPriceStr = gasTokenPrice ? ` (${gasTokenPrice})` : '';
 
     return (
       <Stack direction="row" justifyContent="space-between">
@@ -244,7 +256,9 @@ const TransactionDetails = () => {
         {isFetchingTokenPrices ? (
           <CircularProgress size={14} />
         ) : (
-          <Typography fontSize={14}>{gasTokenPrice}</Typography>
+          <Typography
+            fontSize={14}
+          >{`${gasTokenAmount} ${gasToken.symbol}${gasTokenPriceStr}`}</Typography>
         )}
       </Stack>
     );
