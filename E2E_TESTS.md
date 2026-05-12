@@ -56,7 +56,7 @@ export REACT_APP_TEST_EVM_PK=your_test_wallet_private_key
 
 ```bash
 # Install dependencies
-bun install
+bun install --frozen-lockfile
 
 # Install Playwright browsers (first time only)
 bunx playwright install
