@@ -85,7 +85,15 @@ const coingeckoRequest = async (
     signal: params?.abort?.signal,
     headers,
   })
-    .then((resp) => resp.json())
+    .then((resp) => {
+      if (!resp.ok) {
+        console.error(
+          `Coingecko request failed with status ${resp.status}: ${path}`,
+        );
+        return null;
+      }
+      return resp.json();
+    })
     .catch((err) => {
       console.error('Error fetching from Coingecko', err);
       return null;
@@ -139,7 +147,13 @@ export const fetchTokenPrices = async (
         params,
       )
         .then((data) => {
-          if (data['error'] !== undefined || data['error_code'] !== undefined) {
+          if (data === null) {
+            // Request failed (e.g., 404, network error)
+            resolve([]);
+          } else if (
+            data['error'] !== undefined ||
+            data['error_code'] !== undefined
+          ) {
             reject(data['error']);
           } else {
             resolve(
@@ -189,24 +203,29 @@ export const fetchTokenPrices = async (
           `/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=usd`,
           params,
         )
-          .then((data) =>
-            resolve(
-              nativeTokens
-                .map((tokenId) => {
-                  const cgid = NATIVE_TOKEN_IDS[tokenId.chain];
-                  if (cgid) {
-                    const { usd } = data[cgid];
-                    return {
-                      tokenId,
-                      price: usd,
-                    };
-                  } else {
-                    return null;
-                  }
-                })
-                .filter((v) => !!v),
-            ),
-          )
+          .then((data) => {
+            if (data === null) {
+              // Request failed (e.g., 404, network error)
+              resolve([]);
+            } else {
+              resolve(
+                nativeTokens
+                  .map((tokenId) => {
+                    const cgid = NATIVE_TOKEN_IDS[tokenId.chain];
+                    if (cgid) {
+                      const { usd } = data[cgid];
+                      return {
+                        tokenId,
+                        price: usd,
+                      };
+                    } else {
+                      return null;
+                    }
+                  })
+                  .filter((v) => !!v),
+              );
+            }
+          })
           .catch(reject);
       }),
     );
