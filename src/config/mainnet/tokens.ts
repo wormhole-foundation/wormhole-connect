@@ -988,4 +988,26 @@ export const MAINNET_TOKENS: TokenConfig[] = [
     decimals: 18,
     icon: TokenIcon.MOCA,
   },
+  // Pawtato (TATO) — Wormhole NTT: Sui hub (locking) + Solana spoke (burning)
+  {
+    symbol: 'TATO',
+    name: 'Pawtato',
+    decimals: 9,
+    icon: 'https://img.pawtato.app/tato/TATO.png',
+    tokenId: {
+      chain: 'Sui',
+      address:
+        '0x04deb377c33bfced1ab81cde96918e2538fe78735777150b0064ccf7df5e1c81::tato::TATO',
+    },
+  },
+  {
+    symbol: 'TATO',
+    name: 'Pawtato',
+    decimals: 9,
+    icon: 'https://img.pawtato.app/tato/TATO.png',
+    tokenId: {
+      chain: 'Solana',
+      address: 'pawTUoFAzJt2e6vuqyZ3MwaGKPLuVFDp2CctWAEtato',
+    },
+  },
 ];
