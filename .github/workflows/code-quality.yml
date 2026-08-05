@@ -108,22 +108,21 @@ jobs:
         run: bun ci
 
       - name: Validate PR commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           echo "Validating commit messages..."
 
-          # Get the base and head commits
-          BASE_SHA=${{ github.event.pull_request.base.sha }}
-          HEAD_SHA=${{ github.event.pull_request.head.sha }}
-
-          # Get all commits in the PR
-          COMMITS=$(git rev-list $BASE_SHA..$HEAD_SHA)
+          # Get all commits in the PR (SHAs via env — not interpolated into the script)
+          COMMITS=$(git rev-list "$BASE_SHA".."$HEAD_SHA")
 
           # Check each commit
           FAILED=false
           for commit in $COMMITS; do
             echo ""
             echo "Checking commit: $commit"
-            COMMIT_MSG=$(git log --format=%B -n 1 $commit)
+            COMMIT_MSG=$(git log --format=%B -n 1 "$commit")
             echo "$COMMIT_MSG" | bunx commitlint || {
               FAILED=true
               echo "❌ Commit $commit has invalid message format"
