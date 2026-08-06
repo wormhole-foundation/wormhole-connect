@@ -1,5 +1,5 @@
 import './styles.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useState } from 'react';
 
 import WormholeConnect from '../../WormholeConnect';
@@ -113,17 +113,21 @@ const parseConfig = (config: string): WormholeConnectConfig => {
   return {};
 };
 
-const loadInitialConfig = (): string => {
+// A config arriving via ?config= link must not execute on page load:
+// parseConfig eval()s the payload, so auto-applying a link would be a
+// one-click XSS in a page users connect wallets to. Configs from links
+// land in the editor for review and only run when the user clicks Apply.
+const loadInitialConfig = (): { value: string; fromLink: boolean } => {
   const params = new URLSearchParams(window.location.search);
   const configQuery = params.get('config');
   const configCached = localStorage.getItem(LOCAL_STORAGE_KEY_CONFIG);
 
   if (configQuery) {
-    return atob(configQuery);
+    return { value: atob(configQuery), fromLink: true };
   } else if (configCached) {
-    return configCached;
+    return { value: configCached, fromLink: false };
   } else {
-    return '';
+    return { value: '', fromLink: false };
   }
 };
 
@@ -167,8 +171,14 @@ const LOCAL_STORAGE_KEY_THEME = 'wormhole-connect:sample:custom-theme';
 function SampleApp() {
   const [customConfig, setCustomConfig] = useState<WormholeConnectConfig>();
   const [customConfigOpen, setCustomConfigOpen] = useState(false);
+  const initialConfig = useMemo(loadInitialConfig, []);
   const [customConfigInput, setCustomConfigInput] = useState(
-    loadInitialConfig(),
+    initialConfig.value,
+  );
+  // True when the initial config came from a shareable link and has not
+  // been reviewed/applied by the user yet.
+  const [linkConfigPending, setLinkConfigPending] = useState(
+    initialConfig.fromLink && initialConfig.value !== '',
   );
   const [isLoadingCustomConfig, setIsLoadingCustomConfig] = useState(true);
 
@@ -185,6 +195,7 @@ function SampleApp() {
   };
 
   const emitCustomConfig = () => {
+    setLinkConfigPending(false);
     localStorage.setItem(LOCAL_STORAGE_KEY_CONFIG, customConfigInput);
     setUrlQueryParam(customConfigInput);
 
@@ -220,7 +231,16 @@ function SampleApp() {
     localStorage.setItem(LOCAL_STORAGE_KEY_BG, input);
   };
 
-  useEffect(emitCustomConfig, []);
+  useEffect(() => {
+    // Auto-apply only configs the user previously applied themselves
+    // (localStorage). Link-delivered configs wait for an explicit Apply.
+    if (!linkConfigPending) {
+      emitCustomConfig();
+    } else {
+      setIsLoadingCustomConfig(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(emitCustomTheme, []);
 
   return (
@@ -241,6 +261,14 @@ function SampleApp() {
             </header>
 
             <div id="custom-config">
+              {linkConfigPending && (
+                <p style={{ color: 'orange', maxWidth: '60ch' }}>
+                  A configuration was supplied via the page link. It has NOT
+                  been applied: configs execute as code, so review the text
+                  below and only then click into the editor / defocus it to
+                  apply.
+                </p>
+              )}
               <div>
                 <b>Custom Config</b>
                 <textarea
