@@ -13,6 +13,10 @@ import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
 import { processBatches } from 'utils/batch';
 import { getCached, isFailed, markFailed, setCached } from 'utils/balanceCache';
+import {
+  formatBalanceReadDiagnostic,
+  formatIndexedBalanceReadDiagnostic,
+} from 'utils/balanceReadDiagnostic';
 
 export interface ChainBalanceRequest {
   chain: Chain;
@@ -219,7 +223,7 @@ const useGetTokenBalances = ({
             );
             return updatedBalances;
           } catch (e) {
-            console.error(`Error calling getBalances on ${chain}:`, e);
+            console.error(formatIndexedBalanceReadDiagnostic(chain, e));
             // Fall through to individual fetching
           }
         }
@@ -247,7 +251,7 @@ const useGetTokenBalances = ({
             };
             setCached(wallet, token, balance);
           } catch (e) {
-            console.error(`Failed to fetch balance for token ${token.key}`, e);
+            console.error(formatBalanceReadDiagnostic(chain, token.key, e));
           }
         },
         {
