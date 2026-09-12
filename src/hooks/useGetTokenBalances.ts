@@ -12,6 +12,7 @@ import {
 import type { WalletData } from 'store/wallet';
 import { useTokens } from 'contexts/TokensContext';
 import { processBatches } from 'utils/batch';
+import { normalizeBalanceFetchError } from 'utils/errors';
 import { getCached, isFailed, markFailed, setCached } from 'utils/balanceCache';
 
 export interface ChainBalanceRequest {
@@ -247,7 +248,18 @@ const useGetTokenBalances = ({
             };
             setCached(wallet, token, balance);
           } catch (e) {
-            console.error(`Failed to fetch balance for token ${token.key}`, e);
+            // A failed fetch means the balance is unavailable, not confirmed
+            // insufficient. Log structured context with a sanitized reason;
+            // no RPC URLs, wallet addresses, or credentials.
+            console.error(
+              'Balance fetch failed, balance unavailable (not confirmed insufficient)',
+              {
+                network: config.network,
+                chain,
+                token: token.key,
+                reason: normalizeBalanceFetchError(e),
+              },
+            );
           }
         },
         {

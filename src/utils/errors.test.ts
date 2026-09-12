@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   interpretTransferError,
+  normalizeBalanceFetchError,
   INSUFFICIENT_ALLOWANCE_REGEX,
   INSUFFICIENT_LAMPORTS_REGEX,
   SIMULATION_ACCOUNT_NOT_FOUND_REGEX,
@@ -401,5 +402,79 @@ describe('interpretTransferError', () => {
     // The actual gas token display depends on config availability
     expect(errorObj.type).toBe(ERR_INSUFFICIENT_GAS);
     expect(message).toContain('Insufficient');
+  });
+});
+
+describe('normalizeBalanceFetchError', () => {
+  const RPC_URL = 'https://ethereum-rpc.publicnode.com';
+  const EVM_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
+  const SOLANA_ADDRESS = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
+
+  it('extracts the message from an Error instance', () => {
+    expect(normalizeBalanceFetchError(new Error('connection reset'))).toBe(
+      'connection reset',
+    );
+  });
+
+  it('accepts plain strings and objects with a message', () => {
+    expect(normalizeBalanceFetchError('connection reset')).toBe(
+      'connection reset',
+    );
+    expect(
+      normalizeBalanceFetchError({ message: 'connection reset', code: -32000 }),
+    ).toBe('connection reset');
+  });
+
+  it('falls back to a safe value for null, undefined, and exotic values', () => {
+    expect(normalizeBalanceFetchError(null)).toBe('unknown error');
+    expect(normalizeBalanceFetchError(undefined)).toBe('unknown error');
+    expect(normalizeBalanceFetchError({})).toBe('[object Object]');
+    expect(normalizeBalanceFetchError(42)).toBe('42');
+  });
+
+  it('collapses whitespace to a single line', () => {
+    expect(normalizeBalanceFetchError(new Error('line one\n  line\ttwo'))).toBe(
+      'line one line two',
+    );
+  });
+
+  it('redacts RPC URLs', () => {
+    const normalized = normalizeBalanceFetchError(
+      new Error(`request to ${RPC_URL} failed`),
+    );
+    expect(normalized).not.toContain(RPC_URL);
+    expect(normalized).toContain('[redacted]');
+    expect(normalized).toBe('request to [redacted] failed');
+  });
+
+  it('redacts EVM wallet addresses', () => {
+    const normalized = normalizeBalanceFetchError(
+      new Error(`missing balance for ${EVM_ADDRESS}`),
+    );
+    expect(normalized).not.toContain(EVM_ADDRESS);
+    expect(normalized).toBe('missing balance for [redacted]');
+  });
+
+  it('redacts Solana base58 wallet addresses', () => {
+    const normalized = normalizeBalanceFetchError(
+      new Error(`account ${SOLANA_ADDRESS} not found`),
+    );
+    expect(normalized).not.toContain(SOLANA_ADDRESS);
+    expect(normalized).toBe('account [redacted] not found');
+  });
+
+  it('redacts credential-like values', () => {
+    const normalized = normalizeBalanceFetchError(
+      new Error('request failed with api_key=sk-abc123 and SECRET: hunter2'),
+    );
+    expect(normalized).not.toContain('sk-abc123');
+    expect(normalized).not.toContain('hunter2');
+  });
+
+  it('truncates long messages to a bounded length', () => {
+    const longMessage = 'x'.repeat(500);
+    const normalized = normalizeBalanceFetchError(new Error(longMessage));
+    expect(normalized.length).toBeLessThanOrEqual(204);
+    expect(normalized.endsWith('...')).toBe(true);
   });
 });
