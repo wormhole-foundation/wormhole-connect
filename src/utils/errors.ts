@@ -154,3 +154,44 @@ export function maybeLogSdkError(e: any, prefix?: string) {
 
   console.error(prefix ? `${prefix}: ${e}` : e);
 }
+
+// Normalizes an unknown error into a short, single-line message that is safe
+// to log: RPC URLs, wallet addresses, and credential-like values are redacted
+// and request headers are never read in the first place.
+const SAFE_ERROR_REDACTED = '[redacted]';
+const SAFE_ERROR_MAX_LENGTH = 200;
+
+export function normalizeBalanceFetchError(e: unknown): string {
+  let message: string;
+  if (e instanceof Error) {
+    message = e.message;
+  } else if (typeof e === 'string') {
+    message = e;
+  } else if (e && typeof (e as { message?: unknown }).message === 'string') {
+    message = (e as { message: string }).message;
+  } else if (e == null) {
+    return 'unknown error';
+  } else {
+    try {
+      message = String(e);
+    } catch {
+      return 'unknown error';
+    }
+  }
+
+  message = message
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/https?:\/\/\S+/gi, SAFE_ERROR_REDACTED)
+    .replace(/\b0x[0-9a-fA-F]{40}\b/g, SAFE_ERROR_REDACTED)
+    .replace(/\b[1-9A-HJ-NP-Za-km-z]{43,44}\b/g, SAFE_ERROR_REDACTED)
+    .replace(
+      /(api[-_]?key|secret|password|authorization|bearer)(\s*[=:]\s*)\S+/gi,
+      `$1$2${SAFE_ERROR_REDACTED}`,
+    );
+
+  if (message.length > SAFE_ERROR_MAX_LENGTH) {
+    message = `${message.slice(0, SAFE_ERROR_MAX_LENGTH)}...`;
+  }
+  return message || 'unknown error';
+}
